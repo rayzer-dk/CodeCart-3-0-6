@@ -1,0 +1,248 @@
+name: Runtime QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/runtime-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  clean-install:
+    name: Clean install / ${{ matrix.db_name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - db_name: MariaDB 10.11
+            db_image: mariadb:10.11
+          - db_name: MySQL 8.4
+            db_image: mysql:8.4
+
+    services:
+      db:
+        image: ${{ matrix.db_image }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: codecart
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: codecart
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=12
+      mailhog:
+        image: mailhog/mailhog:v1.0.1
+        ports:
+          - 1025:1025
+          - 8025:8025
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, mysqli, pdo_mysql, gd, redis
+          coverage: none
+          tools: composer:v2
+
+      - name: Install locked dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Wait for DB / Redis / SMTP
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -r '
+          for ($i=0; $i<60; $i++) {
+              try {
+                  $db = @new mysqli("127.0.0.1", "root", "root", "codecart", 3306);
+                  if (!$db->connect_errno) { echo "DB ready\n"; exit(0); }
+              } catch (Throwable $e) {}
+              usleep(500000);
+          }
+          fwrite(STDERR, "Database did not become ready\n"); exit(1);'
+          php -r '$r=new Redis(); if(!$r->connect("127.0.0.1",6379,2)){exit(1);} $r->setex("ccqa",10,"ok"); if($r->get("ccqa")!=="ok"){exit(1);} $r->del("ccqa"); echo "Redis ready\n";'
+          curl -fsS http://127.0.0.1:8025/api/v2/messages >/dev/null
+
+      - name: Clean install
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd upload/install
+          php cli_install.php install             --db_hostname 127.0.0.1             --db_username root             --db_password root             --db_database codecart             --db_prefix oc_             --db_driver mysqli             --db_port 3306             --username admin             --password 'CodeCart-QA-123!'             --email admin@example.test             --http_server http://127.0.0.1:8080/
+
+      - name: Verify DB schema, theme and configure SMTP
+        shell: bash
+        run: |
+          set -euo pipefail
+          php <<'PHP'
+          <?php
+          require 'upload/config.php';
+          $db = new mysqli(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE, (int)DB_PORT);
+          if ($db->connect_errno) { throw new RuntimeException($db->connect_error); }
+          $db->set_charset('utf8mb4');
+          $scalar = static function(string $sql) use ($db): string {
+              $r=$db->query($sql); if(!$r){throw new RuntimeException($db->error);}
+              $row=$r->fetch_row(); return isset($row[0])?(string)$row[0]:'';
+          };
+          $theme=$scalar("SELECT value FROM oc_setting WHERE store_id=0 AND code='config' AND " . chr(96) . "key" . chr(96) . "='config_theme' LIMIT 1");
+          if($theme!=='codecart'){throw new RuntimeException('Theme is not codecart: '.$theme);}
+          foreach(['oc_codecart_queue','oc_codecart_scheduler','oc_codecart_idempotency','oc_codecart_stock_notify'] as $table){
+              if((int)$scalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='".$db->real_escape_string($table)."'")!==1){
+                  throw new RuntimeException('Missing table '.$table);
+              }
+          }
+          $settings=[
+            'config_email'=>'admin@example.test',
+            'config_mail_engine'=>'smtp',
+            'config_mail_smtp_hostname'=>'127.0.0.1',
+            'config_mail_smtp_username'=>'',
+            'config_mail_smtp_password'=>'QA-SMTP-PASSWORD-MUST-NOT-BE-IN-QUEUE',
+            'config_mail_smtp_port'=>'1025',
+            'config_mail_smtp_timeout'=>'3'
+          ];
+          foreach($settings as $key=>$value){
+              $k=$db->real_escape_string($key); $v=$db->real_escape_string($value);
+              $db->query("DELETE FROM oc_setting WHERE store_id=0 AND code='config' AND " . chr(96) . "key" . chr(96) . "='{$k}'");
+              if(!$db->query("INSERT INTO oc_setting SET store_id=0, code='config', " . chr(96) . "key" . chr(96) . "='{$k}', value='{$v}', serialized=0")){
+                  throw new RuntimeException($db->error);
+              }
+          }
+          if((int)$scalar("SELECT COUNT(*) FROM oc_codecart_scheduler WHERE code='core.queue.worker' AND status=1")!==1){
+              throw new RuntimeException('core.queue.worker scheduler missing');
+          }
+          echo "DB/theme/scheduler: PASS\n";
+          PHP
+
+      - name: Start HTTP server
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup php -S 127.0.0.1:8080 -t upload >/tmp/codecart-http.log 2>&1 &
+          echo $! >/tmp/codecart-http.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/codecart-http.log
+          exit 1
+
+      - name: Storefront / admin / login HTTP smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS -o /tmp/home.html http://127.0.0.1:8080/
+          curl -fsS -o /tmp/admin.html http://127.0.0.1:8080/admin/
+          ! grep -Eqi 'Fatal error|Parse error|Uncaught (Error|Exception)' /tmp/home.html
+          ! grep -Eqi 'Fatal error|Parse error|Uncaught (Error|Exception)' /tmp/admin.html
+          curl -sS -c /tmp/admin.cookies -b /tmp/admin.cookies -D /tmp/login.headers -o /tmp/login.body             -X POST             --data-urlencode 'username=admin'             --data-urlencode 'password=CodeCart-QA-123!'             'http://127.0.0.1:8080/admin/index.php?route=common/login'
+          grep -Eqi '^Location: .*user_token=' /tmp/login.headers
+
+      - name: Cart and checkout smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          PRODUCT_ID="$(php <<'PHP'
+          <?php
+          require 'upload/config.php';
+          $db=new mysqli(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE,(int)DB_PORT);
+          $r=$db->query("SELECT product_id FROM oc_product WHERE status=1 AND quantity>0 ORDER BY product_id ASC LIMIT 1");
+          if(!$r || !$r->num_rows){exit(2);} echo $r->fetch_assoc()['product_id'];
+          PHP
+          )"
+          curl -fsS -c /tmp/shop.cookies -b /tmp/shop.cookies             -X POST --data-urlencode "product_id=$PRODUCT_ID" --data-urlencode 'quantity=1'             'http://127.0.0.1:8080/index.php?route=checkout/cart/add' >/tmp/cart-add.json
+          php -r '$d=json_decode(file_get_contents("/tmp/cart-add.json"),true); if(!is_array($d)||(!isset($d["success"])&&!isset($d["total"]))){fwrite(STDERR,file_get_contents("/tmp/cart-add.json"));exit(1);}'
+          curl -fsS -c /tmp/shop.cookies -b /tmp/shop.cookies -o /tmp/cart.html 'http://127.0.0.1:8080/index.php?route=checkout/cart'
+          curl -fsS -c /tmp/shop.cookies -b /tmp/shop.cookies -o /tmp/checkout.html 'http://127.0.0.1:8080/index.php?route=checkout/checkout'
+          ! grep -Eqi 'Fatal error|Parse error|Uncaught (Error|Exception)' /tmp/cart.html
+          ! grep -Eqi 'Fatal error|Parse error|Uncaught (Error|Exception)' /tmp/checkout.html
+
+      - name: Transactional mail queue to real SMTP sink
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sS -D /tmp/contact.headers -o /tmp/contact.body -X POST             --data-urlencode 'name=Runtime QA User'             --data-urlencode 'email=qa-sender@example.test'             --data-urlencode 'enquiry=Runtime QA transactional mail queue test.'             'http://127.0.0.1:8080/index.php?route=information/contact'
+          grep -Eqi '^Location: .*information/contact/success' /tmp/contact.headers
+          php <<'PHP'
+          <?php
+          require 'upload/config.php';
+          $db=new mysqli(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE,(int)DB_PORT);
+          $r=$db->query("SELECT args,status FROM oc_codecart_queue WHERE code LIKE 'mail.tx.%' ORDER BY queue_id DESC LIMIT 1");
+          if(!$r||!$r->num_rows){throw new RuntimeException('Mail not queued');}
+          $row=$r->fetch_assoc();
+          if($row['status']!=='pending'){throw new RuntimeException('Expected pending mail');}
+          if(str_contains($row['args'],'QA-SMTP-PASSWORD-MUST-NOT-BE-IN-QUEUE')){throw new RuntimeException('SMTP password leaked into queue');}
+          echo "mail enqueue: PASS\n";
+          PHP
+          php upload/cli.php queue:work
+          php <<'PHP'
+          <?php
+          require 'upload/config.php';
+          $db=new mysqli(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE,(int)DB_PORT);
+          $r=$db->query("SELECT status,last_error FROM oc_codecart_queue WHERE code LIKE 'mail.tx.%' ORDER BY queue_id DESC LIMIT 1");
+          $row=$r->fetch_assoc();
+          if($row['status']!=='done'){throw new RuntimeException('Mail queue status='.$row['status'].' error='.$row['last_error']);}
+          echo "mail queue worker: PASS\n";
+          PHP
+          COUNT="$(curl -fsS http://127.0.0.1:8025/api/v2/messages | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo isset($j["total"])?(int)$j["total"]:0;')"
+          test "$COUNT" -ge 1
+
+      - name: Scheduler, Redis and stale queue recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          php upload/cli.php cron:list >/tmp/cron-list.txt
+          grep -q 'core.queue.worker' /tmp/cron-list.txt
+          php upload/cli.php scheduler:run
+          php -r '$r=new Redis();$r->connect("127.0.0.1",6379,2);$r->setex("codecart-runtime-qa",30,"ok");if($r->get("codecart-runtime-qa")!=="ok"){exit(1);}$r->del("codecart-runtime-qa");echo "redis: PASS\n";'
+          php <<'PHP'
+          <?php
+          require 'upload/config.php';
+          $db=new mysqli(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE,(int)DB_PORT);
+          $db->query("DELETE FROM oc_codecart_queue WHERE code='runtime.qa.stale'");
+          if(!$db->query("INSERT INTO oc_codecart_queue SET code='runtime.qa.stale', route='cron/queue_worker', args='{}', priority=100, status='processing', attempts=1, max_attempts=3, available_at=NOW(), locked_at=DATE_SUB(NOW(),INTERVAL 20 MINUTE), locked_by='dead-worker', date_added=NOW(), date_modified=NOW()")){
+              throw new RuntimeException($db->error);
+          }
+          PHP
+          php upload/cli.php queue:work
+          php <<'PHP'
+          <?php
+          require 'upload/config.php';
+          $db=new mysqli(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD,DB_DATABASE,(int)DB_PORT);
+          $r=$db->query("SELECT status FROM oc_codecart_queue WHERE code='runtime.qa.stale' ORDER BY queue_id DESC LIMIT 1");
+          $status=$r->fetch_assoc()['status']??'';
+          if(!in_array($status,['done','pending'],true)){throw new RuntimeException('Stale recovery status='.$status);}
+          echo "stale queue recovery: PASS ($status)\n";
+          PHP
+
+      - name: Runtime log gate
+        if: always()
+        shell: bash
+        run: |
+          echo '--- HTTP LOG ---'
+          cat /tmp/codecart-http.log 2>/dev/null || true
+          echo '--- CODECART LOGS ---'
+          find upload/system/storage/logs -maxdepth 1 -type f -print -exec tail -100 {} \; 2>/dev/null || true
+          if grep -REqi 'PHP (Fatal|Parse error)|Uncaught (Error|Exception)' /tmp/codecart-http.log upload/system/storage/logs 2>/dev/null; then
+            echo 'Fatal runtime errors detected.' >&2
+            exit 1
+          fi
