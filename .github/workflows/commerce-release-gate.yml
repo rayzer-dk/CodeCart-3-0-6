@@ -1,0 +1,239 @@
+name: Commerce Release Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/commerce-release-gate.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  commerce:
+    name: Commerce / ${{ matrix.db_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - db_name: MariaDB 10.11
+            db_image: mariadb:10.11
+          - db_name: MySQL 8.4
+            db_image: mysql:8.4
+
+    services:
+      db:
+        image: ${{ matrix.db_image }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: codecart
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: codecart
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, mysqli, pdo_mysql, gd
+          coverage: none
+
+      - name: Install QA utilities
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq
+
+      - name: Download Build 1.7.6 production artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: CodeCart-production
+          path: artifact
+          github-token: ${{ github.token }}
+          repository: rayzer-dk/CodeCart-3-0-6
+          run-id: 36152845918
+
+      - name: Verify and extract
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd artifact
+          expected="$(awk '{print $1}' SHA256SUMS.txt)"
+          actual="$(sha256sum CodeCart_PRO_3.0.6.0_PRODUCTION.zip | awk '{print $1}')"
+          test "$actual" = "$expected"
+          cd ..
+          mkdir runtime
+          unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d runtime
+          grep -q "CODECART_PACKAGE_BUILD', '1.7.6'" runtime/upload/index.php
+          test -f runtime/upload/system/storage/vendor/autoload.php
+
+      - name: Clean install
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd runtime/upload/install
+          php cli_install.php install             --db_hostname 127.0.0.1             --db_username root             --db_password root             --db_database codecart             --db_prefix oc_             --db_driver mysqli             --db_port 3306             --username qaadmin             --password 'Runtime-QA-Only-123'             --email qa@example.test             --http_server http://127.0.0.1:8080/
+
+      - name: Seed deterministic commerce fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          PID="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT p.product_id FROM oc_product p WHERE p.status=1 AND NOT EXISTS (SELECT 1 FROM oc_product_option po WHERE po.product_id=p.product_id AND po.required=1) ORDER BY p.product_id LIMIT 1")"
+          test -n "$PID"
+          echo "$PID" >/tmp/product-id
+          mysql -h127.0.0.1 -uroot -proot codecart -e "UPDATE oc_product SET quantity=1,subtract=1,minimum=1 WHERE product_id=$PID"
+          mysql -h127.0.0.1 -uroot -proot codecart <<'SQL'
+          UPDATE oc_setting SET value='2' WHERE store_id=0 AND code='payment_cod' AND `key`='payment_cod_order_status_id';
+          DELETE FROM oc_coupon WHERE code='QA-ONE-USE';
+          INSERT INTO oc_coupon
+            (name,code,type,discount,logged,shipping,total,date_start,date_end,uses_total,uses_customer,status,date_added)
+          VALUES
+            ('Runtime QA one use','QA-ONE-USE','F','5.0000',0,0,'0.0000',CURDATE(),DATE_ADD(CURDATE(),INTERVAL 1 DAY),1,0,1,NOW());
+          SET @theme_id=(SELECT voucher_theme_id FROM oc_voucher_theme ORDER BY voucher_theme_id LIMIT 1);
+          DELETE FROM oc_voucher WHERE code='QA-VOUCHER';
+          INSERT INTO oc_voucher
+            (order_id,code,from_name,from_email,to_name,to_email,voucher_theme_id,message,amount,status,date_added)
+          VALUES
+            (0,'QA-VOUCHER','QA','qa@example.test','Buyer','buyer@example.test',@theme_id,'Runtime QA','3.0000',1,NOW());
+          DELETE FROM oc_api WHERE username='RuntimeQA';
+          INSERT INTO oc_api (username,`key`,status,date_added,date_modified)
+          VALUES ('RuntimeQA','runtime-api-key',1,NOW(),NOW());
+          SET @api_id=LAST_INSERT_ID();
+          INSERT INTO oc_api_ip (api_id,ip) VALUES (@api_id,'127.0.0.1');
+          SQL
+
+      - name: Start storefront
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd runtime
+          php -S 127.0.0.1:8080 -t upload >/tmp/commerce-gate-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/commerce-gate-http.log
+          exit 1
+
+      - name: Complete guest checkout and payment
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='http://127.0.0.1:8080'
+          COOKIE=/tmp/shop.cookies
+          PID="$(cat /tmp/product-id)"
+          COUNTRY="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e 'SELECT value FROM oc_setting WHERE `key`="config_country_id" LIMIT 1')"
+          ZONE="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e 'SELECT value FROM oc_setting WHERE `key`="config_zone_id" LIMIT 1')"
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST -d "product_id=$PID" -d 'quantity=1' "$BASE/index.php?route=checkout/cart/add" >/tmp/cart.json
+          jq -e '.success' /tmp/cart.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST -d 'coupon=QA-ONE-USE' "$BASE/index.php?route=extension/total/coupon/coupon" >/tmp/coupon.json
+          jq -e '.redirect' /tmp/coupon.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST -d 'voucher=QA-VOUCHER' "$BASE/index.php?route=extension/total/voucher/voucher" >/tmp/voucher.json
+          jq -e '.redirect' /tmp/voucher.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d 'firstname=Runtime' -d 'lastname=Tester'             -d 'email=runtime@example.test' -d 'telephone=+4512345678'             -d 'company=' -d 'address_1=Test Street 1' -d 'address_2='             -d 'city=Kyiv' -d 'postcode=01001'             -d "country_id=$COUNTRY" -d "zone_id=$ZONE" -d 'shipping_address=1'             "$BASE/index.php?route=checkout/guest/save" >/tmp/guest.json
+          jq -e 'if type=="array" then length==0 else (has("error")|not) end' /tmp/guest.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/shipping_method" >/dev/null
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST -d 'shipping_method=flat.flat' -d 'comment=QA'             "$BASE/index.php?route=checkout/shipping_method/save" >/tmp/shipping.json
+          jq -e 'if type=="array" then length==0 else (has("error")|not) end' /tmp/shipping.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/payment_method" >/dev/null
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST -d 'payment_method=cod' -d 'agree=1'             "$BASE/index.php?route=checkout/payment_method/save" >/tmp/payment.json
+          jq -e 'if type=="array" then length==0 else (has("error")|not) end' /tmp/payment.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/confirm" >/tmp/confirm.html
+          TOKEN="$(grep -o "codecart_payment_token: '[^']*'" /tmp/confirm.html | head -1 | cut -d"'" -f2)"
+          test -n "$TOKEN"
+
+          BEFORE="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_order WHERE order_status_id>0")"
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST --data-urlencode "codecart_payment_token=$TOKEN"             "$BASE/index.php?route=extension/payment/cod/confirm" >/tmp/cod.json
+          jq -e '.redirect' /tmp/cod.json >/dev/null
+          AFTER="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_order WHERE order_status_id>0")"
+          test "$AFTER" -eq $((BEFORE+1))
+          ORDER_ID="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT MAX(order_id) FROM oc_order WHERE order_status_id>0")"
+          echo "$ORDER_ID" >/tmp/order-id
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST --data-urlencode "codecart_payment_token=$TOKEN"             "$BASE/index.php?route=extension/payment/cod/confirm" >/tmp/cod-repeat.json
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_order WHERE order_status_id>0")" = "$AFTER"
+
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT quantity FROM oc_product WHERE product_id=$PID")" = "0"
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_coupon_history WHERE order_id=$ORDER_ID")" = "1"
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_voucher_history WHERE order_id=$ORDER_ID")" = "1"
+
+      - name: Verify one-use coupon enforcement
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='http://127.0.0.1:8080'
+          COOKIE=/tmp/second.cookies
+          PID="$(cat /tmp/product-id)"
+          mysql -h127.0.0.1 -uroot -proot codecart -e "UPDATE oc_product SET quantity=1 WHERE product_id=$PID"
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST -d "product_id=$PID" -d 'quantity=1' "$BASE/index.php?route=checkout/cart/add" >/dev/null
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST -d 'coupon=QA-ONE-USE' "$BASE/index.php?route=extension/total/coupon/coupon" >/tmp/coupon-second.json
+          jq -e '.error' /tmp/coupon-second.json >/dev/null
+          mysql -h127.0.0.1 -uroot -proot codecart -e "UPDATE oc_product SET quantity=0 WHERE product_id=$PID"
+
+      - name: Cancel and reverse order safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='http://127.0.0.1:8080'
+          ORDER_ID="$(cat /tmp/order-id)"
+          PID="$(cat /tmp/product-id)"
+          curl -fsS -X POST -d 'username=RuntimeQA' -d 'key=runtime-api-key' "$BASE/index.php?route=api/login" >/tmp/api.json
+          API_TOKEN="$(jq -r '.api_token // empty' /tmp/api.json)"
+          test -n "$API_TOKEN"
+
+          curl -fsS -X POST -d 'order_status_id=7' -d 'notify=0' -d 'override=0' -d 'comment=QA cancel'             "$BASE/index.php?route=api/order/history&api_token=$API_TOKEN&order_id=$ORDER_ID" >/tmp/cancel.json
+          jq -e '.success' /tmp/cancel.json >/dev/null
+
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT quantity FROM oc_product WHERE product_id=$PID")" = "1"
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_coupon_history WHERE order_id=$ORDER_ID")" = "0"
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_voucher_history WHERE order_id=$ORDER_ID")" = "0"
+
+          curl -fsS -X POST -d 'order_status_id=7' -d 'notify=0' -d 'override=0' -d 'comment=QA cancel repeat'             "$BASE/index.php?route=api/order/history&api_token=$API_TOKEN&order_id=$ORDER_ID" >/tmp/cancel-repeat.json
+          jq -e '.success' /tmp/cancel-repeat.json >/dev/null
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT quantity FROM oc_product WHERE product_id=$PID")" = "1"
+
+      - name: PayPal financial action guard audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          F='runtime/upload/admin/controller/extension/payment/paypal.php'
+          grep -q "hasPermission('modify', 'extension/payment/paypal')" "$F"
+          grep -q "REQUEST_METHOD" "$F"
+          grep -q "hash_equals" "$F"
+          for ACTION in refundPayment capturePayment voidPayment reauthorizePayment createTracker cancelTracker; do
+            php -r '
+              $c=file_get_contents($argv[1]);
+              $n=$argv[2];
+              $p=strpos($c,"function ".$n."()");
+              if($p===false)exit(1);
+              $chunk=substr($c,$p,320);
+              if(strpos($chunk,"validateFinancialActionRequest()")===false)exit(2);
+            ' "$F" "$ACTION"
+          done
+
+      - name: Error log gate
+        if: always()
+        shell: bash
+        run: |
+          cat /tmp/commerce-gate-http.log 2>/dev/null || true
+          cat runtime/upload/system/storage/logs/error.log 2>/dev/null || true
+          if grep -Eqi 'PHP (Fatal|Parse|Warning|Deprecated)|Uncaught (Exception|Error)|mysqli_sql_exception' runtime/upload/system/storage/logs/error.log 2>/dev/null; then
+            exit 1
+          fi
