@@ -97,6 +97,8 @@ jobs:
           cd ..
           mkdir codecart-prod
           unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d codecart-prod
+          # Candidate-only overlay while Build 1.7.6 artifact is being produced.
+          cp upload/install/controller/upgrade/upgrade.php codecart-prod/upload/install/controller/upgrade/upgrade.php
           cp store/upload/config.php /tmp/catalog-config.php
           cp store/upload/admin/config.php /tmp/admin-config.php
           rsync -a codecart-prod/upload/ store/upload/
