@@ -1,0 +1,310 @@
+name: Runtime Production QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/runtime-production-qa.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  mariadb-runtime:
+    name: MariaDB 11.4 runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      db:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: codecart
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, mysqli, pdo_mysql, gd, redis
+          coverage: none
+
+      - name: Install QA utilities
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq
+
+      - name: Download exact production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: CodeCart-production
+          path: artifact
+          github-token: ${{ github.token }}
+          repository: rayzer-dk/CodeCart-3-0-6
+          run-id: 36149185379
+
+      - name: Verify and extract production ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd artifact
+          expected="$(awk '{print $1}' SHA256SUMS.txt)"
+          actual="$(sha256sum CodeCart_PRO_3.0.6.0_PRODUCTION.zip | awk '{print $1}')"
+          test "$actual" = "$expected"
+          cd ..
+          mkdir runtime
+          unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d runtime
+          test -f runtime/upload/system/storage/vendor/autoload.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.7.5'" runtime/upload/index.php
+
+      - name: Clean install on MariaDB
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd runtime/upload/install
+          php cli_install.php install             --db_hostname 127.0.0.1             --db_username root             --db_password root             --db_database codecart             --db_driver mysqli             --db_port 3306             --username admin             --password 'Admin123!QA'             --email admin@example.test             --http_server http://127.0.0.1:8080/
+
+      - name: Database invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          schema="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='codecart_presentation_schema_version' LIMIT 1")"
+          theme="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='config_theme' LIMIT 1")"
+          queue="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='codecart' AND table_name='oc_codecart_queue'")"
+          worker="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_codecart_scheduler WHERE code='core.queue.worker' AND status=1")"
+          non_innodb="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='codecart' AND table_type='BASE TABLE' AND engine <> 'InnoDB'")"
+          test "$schema" = "27"
+          test "$theme" = "codecart"
+          test "$queue" = "1"
+          test "$worker" = "1"
+          test "$non_innodb" = "0"
+
+      - name: Configure SMTP to Mailpit
+        shell: bash
+        run: |
+          mysql -h127.0.0.1 -uroot -proot codecart <<'SQL'
+          UPDATE oc_setting SET value='smtp' WHERE store_id=0 AND code='config' AND `key`='config_mail_engine';
+          UPDATE oc_setting SET value='127.0.0.1' WHERE store_id=0 AND code='config' AND `key`='config_mail_smtp_hostname';
+          UPDATE oc_setting SET value='1025' WHERE store_id=0 AND code='config' AND `key`='config_mail_smtp_port';
+          UPDATE oc_setting SET value='5' WHERE store_id=0 AND code='config' AND `key`='config_mail_smtp_timeout';
+          UPDATE oc_setting SET value='' WHERE store_id=0 AND code='config' AND `key` IN ('config_mail_smtp_username','config_mail_smtp_password');
+          UPDATE oc_setting SET value='store@example.test' WHERE store_id=0 AND code='config' AND `key`='config_email';
+          SQL
+
+      - name: Start storefront
+        shell: bash
+        run: |
+          cd runtime
+          php -S 127.0.0.1:8080 -t upload > /tmp/codecart-http.log 2>&1 &
+          echo $! > /tmp/codecart-http.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/tmp/home.html; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/codecart-http.log
+          exit 1
+
+      - name: Storefront and admin HTTP smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS http://127.0.0.1:8080/ >/tmp/home.html
+          test -s /tmp/home.html
+          curl -fsS -c /tmp/admin.cookies http://127.0.0.1:8080/admin/ >/tmp/admin-login.html
+          curl -sS -b /tmp/admin.cookies -c /tmp/admin.cookies -D /tmp/admin.headers -o /tmp/admin.body             -X POST -d 'username=admin&password=Admin123!QA'             'http://127.0.0.1:8080/admin/index.php?route=common/login'
+          grep -qi 'user_token=' /tmp/admin.headers
+
+      - name: Redis tagged cache integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/codecart-cache
+          php -r '
+            define("DIR_CACHE","/tmp/codecart-cache/");
+            define("CACHE_PREFIX","qa:");
+            define("CACHE_REDIS_HOSTNAME","127.0.0.1");
+            define("CACHE_REDIS_PORT",6379);
+            require "runtime/upload/system/library/cache/file.php";
+            require "runtime/upload/system/library/cache/redis.php";
+            require "runtime/upload/system/library/cache.php";
+            $c=new Cache("redis",60);
+            if($c->getActiveEngine()!=="redis"){fwrite(STDERR,$c->getFallbackReason());exit(1);}
+            $c->set("product.1",array("ok"=>1),array("product:1","catalog"));
+            $v=$c->get("product.1");
+            if(!is_array($v)||($v["ok"]??0)!==1)exit(2);
+            $c->deleteTag("product:1");
+            if($c->get("product.1")!==false)exit(3);
+          '
+
+      - name: Guest checkout and mail queue
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='http://127.0.0.1:8080'
+          COOKIE=/tmp/shop.cookies
+          PID="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT p.product_id FROM oc_product p WHERE p.status=1 AND p.quantity>0 AND NOT EXISTS (SELECT 1 FROM oc_product_option po WHERE po.product_id=p.product_id AND po.required=1) ORDER BY p.product_id LIMIT 1")"
+          COUNTRY="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='config_country_id' LIMIT 1")"
+          ZONE="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='config_zone_id' LIMIT 1")"
+          test -n "$PID"
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d "product_id=$PID" -d 'quantity=1'             "$BASE/index.php?route=checkout/cart/add" >/tmp/cart-add.json
+          jq -e '.success' /tmp/cart-add.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d 'firstname=Runtime' -d 'lastname=Tester'             -d 'email=runtime@example.test' -d 'telephone=+4512345678'             -d 'company=' -d 'address_1=Test Street 1' -d 'address_2='             -d 'city=Kyiv' -d 'postcode=01001'             -d "country_id=$COUNTRY" -d "zone_id=$ZONE" -d 'shipping_address=1'             "$BASE/index.php?route=checkout/guest/save" >/tmp/guest.json
+          jq -e 'has("error")|not' /tmp/guest.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/shipping_method" >/tmp/shipping.html
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d 'shipping_method=flat.flat' -d 'comment=Runtime QA'             "$BASE/index.php?route=checkout/shipping_method/save" >/tmp/shipping.json
+          jq -e 'has("error")|not' /tmp/shipping.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/payment_method" >/tmp/payment.html
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d 'payment_method=cod' -d 'agree=1'             "$BASE/index.php?route=checkout/payment_method/save" >/tmp/payment.json
+          jq -e 'has("error")|not' /tmp/payment.json >/dev/null
+
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/confirm" >/tmp/confirm.html
+          TOKEN="$(grep -o "codecart_payment_token: '[^']*'" /tmp/confirm.html | head -1 | cut -d"'" -f2)"
+          test -n "$TOKEN"
+
+          BEFORE="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_order WHERE order_status_id>0")"
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             --data-urlencode "codecart_payment_token=$TOKEN"             "$BASE/index.php?route=extension/payment/cod/confirm" >/tmp/cod.json
+          jq -e '.redirect' /tmp/cod.json >/dev/null
+          AFTER="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_order WHERE order_status_id>0")"
+          test "$AFTER" -eq $((BEFORE + 1))
+
+          # A repeated payment callback must not create another order.
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             --data-urlencode "codecart_payment_token=$TOKEN"             "$BASE/index.php?route=extension/payment/cod/confirm" >/tmp/cod-repeat.json
+          REPEAT="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_order WHERE order_status_id>0")"
+          test "$REPEAT" = "$AFTER"
+
+          QUEUED="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_codecart_queue WHERE code LIKE 'mail.tx.%' AND status='pending'")"
+          test "$QUEUED" -ge 1
+
+          php runtime/upload/cli.php queue:work
+          FAILED="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_codecart_queue WHERE code LIKE 'mail.tx.%' AND status='failed'")"
+          DONE="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_codecart_queue WHERE code LIKE 'mail.tx.%' AND status='done'")"
+          test "$FAILED" = "0"
+          test "$DONE" -ge 1
+
+          for i in {1..20}; do
+            TOTAL="$(curl -fsS http://127.0.0.1:8025/api/v1/messages | jq -r '.total // 0')"
+            if [ "$TOTAL" -ge 1 ]; then break; fi
+            sleep 1
+          done
+          test "${TOTAL:-0}" -ge 1
+
+      - name: Scheduler smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          php runtime/upload/cli.php cron:list >/tmp/cron-list.txt
+          grep -q 'core.queue.worker' /tmp/cron-list.txt
+          php runtime/upload/cli.php scheduler:run >/tmp/scheduler-run.txt
+
+      - name: Error-log gate
+        if: always()
+        shell: bash
+        run: |
+          echo '--- HTTP log ---'
+          cat /tmp/codecart-http.log 2>/dev/null || true
+          echo '--- OpenCart error log ---'
+          cat runtime/upload/system/storage/logs/error.log 2>/dev/null || true
+          if grep -Eqi 'PHP (Fatal|Parse|Warning|Deprecated)|Uncaught (Exception|Error)|mysqli_sql_exception' runtime/upload/system/storage/logs/error.log 2>/dev/null; then
+            exit 1
+          fi
+
+  mysql-runtime:
+    name: MySQL 8.4 runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      db:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: codecart
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, mysqli, pdo_mysql, gd
+          coverage: none
+
+      - name: Install QA utilities
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client
+
+      - name: Download exact production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: CodeCart-production
+          path: artifact
+          github-token: ${{ github.token }}
+          repository: rayzer-dk/CodeCart-3-0-6
+          run-id: 36149185379
+
+      - name: Verify, extract and clean install
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd artifact
+          expected="$(awk '{print $1}' SHA256SUMS.txt)"
+          actual="$(sha256sum CodeCart_PRO_3.0.6.0_PRODUCTION.zip | awk '{print $1}')"
+          test "$actual" = "$expected"
+          cd ..
+          mkdir runtime
+          unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d runtime
+          cd runtime/upload/install
+          php cli_install.php install             --db_hostname 127.0.0.1             --db_username root             --db_password root             --db_database codecart             --db_driver mysqli             --db_port 3306             --username admin             --password 'Admin123!QA'             --email admin@example.test             --http_server http://127.0.0.1:8080/
+
+      - name: MySQL schema and HTTP smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          schema="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='codecart_presentation_schema_version' LIMIT 1")"
+          theme="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='config_theme' LIMIT 1")"
+          test "$schema" = "27"
+          test "$theme" = "codecart"
+          cd runtime
+          php -S 127.0.0.1:8080 -t upload > /tmp/codecart-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/tmp/home.html; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8080/admin/ >/tmp/admin.html
+          test -s /tmp/home.html
+          test -s /tmp/admin.html
+          cat upload/system/storage/logs/error.log 2>/dev/null || true
+          if grep -Eqi 'PHP (Fatal|Parse|Warning|Deprecated)|Uncaught (Exception|Error)|mysqli_sql_exception' upload/system/storage/logs/error.log 2>/dev/null; then exit 1; fi
