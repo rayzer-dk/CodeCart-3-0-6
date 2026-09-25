@@ -2,10 +2,10 @@
 // Version
 define('VERSION', '3.0.6.0');
 define('VERSION_CORE', 'CodeCart PRO');
-define('VERSION_BUILD', '0012');
+define('VERSION_BUILD', '0013');
 define('VERSION_LANGPACK', 'UK-EN');
 define('CODECART_BUILD', '3.0.6.0');
-define('CODECART_PACKAGE_BUILD', '1.7.6');
+define('CODECART_PACKAGE_BUILD', '1.7.7');
 define('CODECART_CHANNEL', '');
 define('CODECART_BASE', 'CodeCart PRO 3.0.6.0');
 define('CODECART_UPSTREAM', 'OpenCart 3.0.5.1');
