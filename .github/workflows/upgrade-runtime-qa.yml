@@ -1,0 +1,219 @@
+name: Upgrade Runtime QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/upgrade-runtime-qa.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  ocstore-upgrade:
+    name: ocStore 3.0.4.1 to CodeCart 1.7.5
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      db:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: codecart_upgrade
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, xmlwriter, mysqli, pdo_mysql, gd, fileinfo
+          coverage: none
+
+      - name: Install QA utilities
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq rsync
+
+      - name: Fetch official ocStore 3.0.4.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v3.0.4.1 https://github.com/ocStore/ocStore.git baseline-src
+          test -f baseline-src/upload/install/cli_install.php
+          mkdir -p store
+          cp -a baseline-src/upload store/upload
+
+      - name: Install baseline ocStore
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd store/upload/install
+          php cli_install.php install             --db_hostname 127.0.0.1             --db_username root             --db_password root             --db_database codecart_upgrade             --db_driver mysqli             --db_port 3306             --username admin             --password 'Admin123!QA'             --email admin@example.test             --http_server http://127.0.0.1:8081/
+
+      - name: Seed preservation markers and capture baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          mysql -h127.0.0.1 -uroot -proot codecart_upgrade <<'SQL'
+          INSERT INTO oc_setting (store_id, code, `key`, value, serialized)
+          VALUES (0,'qa','qa_upgrade_marker','PRESERVE-ME',0);
+          INSERT INTO oc_seo_url (store_id, language_id, query, keyword)
+          SELECT 0, language_id, 'qa_marker=1', 'qa-upgrade-marker'
+          FROM oc_language WHERE status=1 ORDER BY sort_order, language_id LIMIT 1;
+          SQL
+
+          mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE \`key\`='config_theme' LIMIT 1" > /tmp/base-theme
+          mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT COUNT(*) FROM oc_product" > /tmp/base-product-count
+          mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',product_id,model,quantity,price,status,date_added) ORDER BY product_id SEPARATOR '|'),256) FROM oc_product" > /tmp/base-product-hash
+          mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT COUNT(*) FROM oc_category" > /tmp/base-category-count
+          mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',category_id,parent_id,top,sort_order,status,date_added) ORDER BY category_id SEPARATOR '|'),256) FROM oc_category" > /tmp/base-category-hash
+
+      - name: Download exact CodeCart production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: CodeCart-production
+          path: artifact
+          github-token: ${{ github.token }}
+          repository: rayzer-dk/CodeCart-3-0-6
+          run-id: 36149185379
+
+      - name: Verify and overlay CodeCart
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd artifact
+          expected="$(awk '{print $1}' SHA256SUMS.txt)"
+          actual="$(sha256sum CodeCart_PRO_3.0.6.0_PRODUCTION.zip | awk '{print $1}')"
+          test "$actual" = "$expected"
+          cd ..
+          mkdir codecart-prod
+          unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d codecart-prod
+          cp store/upload/config.php /tmp/catalog-config.php
+          cp store/upload/admin/config.php /tmp/admin-config.php
+          rsync -a codecart-prod/upload/ store/upload/
+          cp /tmp/catalog-config.php store/upload/config.php
+          cp /tmp/admin-config.php store/upload/admin/config.php
+          test -f store/upload/system/library/codecart/migration.php
+          test -f store/upload/system/storage/vendor/autoload.php
+
+      - name: Start upgraded codebase
+        shell: bash
+        run: |
+          cd store
+          php -S 127.0.0.1:8081 -t upload > /tmp/upgrade-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS 'http://127.0.0.1:8081/install/index.php?route=upgrade/upgrade' >/tmp/upgrade-page.html; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/upgrade-http.log
+          exit 1
+
+      - name: Run Installer 2.0 upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          COOKIE=/tmp/upgrade.cookies
+          BASE='http://127.0.0.1:8081/install/index.php?route=upgrade/upgrade'
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/tmp/upgrade-page.html
+
+          step=1
+          url="$BASE/next&step=1&backup=1"
+          for i in {1..20}; do
+            curl -fsS -c "$COOKIE" -b "$COOKIE" "$url" >/tmp/upgrade-next.json
+            if jq -e '.error' /tmp/upgrade-next.json >/dev/null 2>&1; then
+              cat /tmp/upgrade-next.json
+              exit 1
+            fi
+            next="$(jq -r '.next // empty' /tmp/upgrade-next.json)"
+            if [ -z "$next" ]; then
+              jq -e '.success' /tmp/upgrade-next.json >/dev/null
+              break
+            fi
+            url="$next"
+            step=$((step+1))
+          done
+          test "$step" -lt 20
+
+      - name: Verify preservation and migrated state
+        shell: bash
+        run: |
+          set -euo pipefail
+          marker="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE code='qa' AND \`key\`='qa_upgrade_marker' LIMIT 1")"
+          seo="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT keyword FROM oc_seo_url WHERE query='qa_marker=1' LIMIT 1")"
+          theme="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE \`key\`='config_theme' LIMIT 1")"
+          schema="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE \`key\`='codecart_presentation_schema_version' LIMIT 1")"
+          core="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE \`key\`='codecart_core_schema_version' LIMIT 1")"
+          codecart_theme="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE \`key\`='theme_codecart_status' LIMIT 1")"
+
+          product_count="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT COUNT(*) FROM oc_product")"
+          product_hash="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',product_id,model,quantity,price,status,date_added) ORDER BY product_id SEPARATOR '|'),256) FROM oc_product")"
+          category_count="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT COUNT(*) FROM oc_category")"
+          category_hash="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',category_id,parent_id,top,sort_order,status,date_added) ORDER BY category_id SEPARATOR '|'),256) FROM oc_category")"
+
+          test "$marker" = "PRESERVE-ME"
+          test "$seo" = "qa-upgrade-marker"
+          test "$theme" = "$(cat /tmp/base-theme)"
+          test "$schema" = "27"
+          test "$core" = "3.0.6.0"
+          test "$codecart_theme" = "1"
+          test "$product_count" = "$(cat /tmp/base-product-count)"
+          test "$product_hash" = "$(cat /tmp/base-product-hash)"
+          test "$category_count" = "$(cat /tmp/base-category-count)"
+          test "$category_hash" = "$(cat /tmp/base-category-hash)"
+
+          critical_bad="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='codecart_upgrade' AND table_name IN ('oc_setting','oc_product','oc_product_option_value','oc_order','oc_order_product','oc_order_option','oc_order_total','oc_order_history','oc_customer','oc_customer_reward','oc_coupon_history','oc_voucher_history') AND engine <> 'InnoDB'")"
+          test "$critical_bad" = "0"
+
+      - name: Re-run upgrade for idempotency
+        shell: bash
+        run: |
+          set -euo pipefail
+          COOKIE=/tmp/upgrade2.cookies
+          BASE='http://127.0.0.1:8081/install/index.php?route=upgrade/upgrade'
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/tmp/upgrade2-page.html
+          url="$BASE/next&step=1&backup=1"
+          for i in {1..20}; do
+            curl -fsS -c "$COOKIE" -b "$COOKIE" "$url" >/tmp/upgrade2-next.json
+            if jq -e '.error' /tmp/upgrade2-next.json >/dev/null 2>&1; then
+              cat /tmp/upgrade2-next.json
+              exit 1
+            fi
+            next="$(jq -r '.next // empty' /tmp/upgrade2-next.json)"
+            if [ -z "$next" ]; then break; fi
+            url="$next"
+          done
+
+          marker="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE code='qa' AND \`key\`='qa_upgrade_marker' LIMIT 1")"
+          product_hash="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',product_id,model,quantity,price,status,date_added) ORDER BY product_id SEPARATOR '|'),256) FROM oc_product")"
+          test "$marker" = "PRESERVE-ME"
+          test "$product_hash" = "$(cat /tmp/base-product-hash)"
+
+      - name: Post-upgrade HTTP and admin login
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS http://127.0.0.1:8081/ >/tmp/home.html
+          curl -fsS -c /tmp/admin.cookies http://127.0.0.1:8081/admin/ >/tmp/admin-login.html
+          curl -sS -b /tmp/admin.cookies -c /tmp/admin.cookies -D /tmp/admin.headers -o /tmp/admin.body             -X POST -d 'username=admin&password=Admin123!QA'             'http://127.0.0.1:8081/admin/index.php?route=common/login'
+          grep -qi 'user_token=' /tmp/admin.headers
+
+      - name: Error-log gate
+        if: always()
+        shell: bash
+        run: |
+          echo '--- Upgrade HTTP log ---'
+          cat /tmp/upgrade-http.log 2>/dev/null || true
+          echo '--- OpenCart error log ---'
+          cat store/upload/system/storage/logs/error.log 2>/dev/null || true
+          if grep -Eqi 'PHP (Fatal|Parse|Warning|Deprecated)|Uncaught (Exception|Error)|mysqli_sql_exception' store/upload/system/storage/logs/error.log 2>/dev/null; then
+            exit 1
+          fi
