@@ -1,0 +1,82 @@
+name: Import CodeCart Source Package
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'source-package/*.zip'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: codecart-source-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Locate source package
+        id: pkg
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find source-package -maxdepth 1 -type f -name '*.zip' | sort)
+          if [ "${#files[@]}" -ne 1 ]; then
+            echo "Expected exactly one ZIP in source-package/, found ${#files[@]}." >&2
+            exit 1
+          fi
+          echo "path=${files[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify Build 1.7.5 checksum
+        shell: bash
+        env:
+          ZIP_PATH: ${{ steps.pkg.outputs.path }}
+        run: |
+          set -euo pipefail
+          expected="31b0c805239b88a550fa72c548488dc40638c2df9a5824e0a8c583c800419dec"
+          actual="$(sha256sum "$ZIP_PATH" | awk '{print $1}')"
+          echo "Expected: $expected"
+          echo "Actual:   $actual"
+          test "$actual" = "$expected"
+
+      - name: Extract source tree
+        shell: bash
+        env:
+          ZIP_PATH: ${{ steps.pkg.outputs.path }}
+        run: |
+          set -euo pipefail
+          unzip -oq "$ZIP_PATH" -d .
+          rm -rf upload/system/storage/vendor
+          rm -f source-package/*.zip
+          rm -f SOURCE_IMPORT.md
+
+      - name: Sanity check imported source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f upload/index.php
+          test -f upload/admin/index.php
+          test -f upload/system/startup.php
+          test -f install/opencart.sql
+          test -f tools/check_uk_locale.php
+
+      - name: Commit imported source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "CodeCart Source Import"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to import."
+            exit 0
+          fi
+          git commit -m "Import CodeCart PRO 3.0.6.0 Build 1.7.5 source"
+          git push
