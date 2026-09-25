@@ -129,7 +129,7 @@ class Migration {
             $this->ensureIndex('user', 'email', array('email'));
             // Upload tokens are resolved by code throughout cart/order/account/admin flows.
             // Index the lookup key so performance does not degrade with accumulated upload history.
-            $this->ensureIndex('upload', 'code', array('code'));
+            $this->ensureIndex('upload', 'code', array('code'), array('code' => 191));
             $this->ensureUniqueIndexIfNoDuplicates('voucher', 'code', array('code'));
             $this->ensureIndex('product_option', 'product_id', array('product_id'));
             $this->ensureIndex('product_option_value', 'product_id', array('product_id'));
@@ -1289,7 +1289,7 @@ class Migration {
     }
 
 
-    private function ensureIndex($table, $name, array $columns) {
+    private function ensureIndex($table, $name, array $columns, array $prefixes = array()) {
         if (!$this->tableExists($table) || !$columns) {
             return;
         }
@@ -1335,7 +1335,20 @@ class Migration {
             if (!preg_match('/^[a-zA-Z0-9_]+$/', $column)) {
                 return;
             }
-            $safe[] = '`' . $column . '`';
+
+            $part = '`' . $column . '`';
+
+            if (isset($prefixes[$column])) {
+                $prefix = (int)$prefixes[$column];
+
+                if ($prefix < 1 || $prefix > 191) {
+                    return;
+                }
+
+                $part .= '(' . $prefix . ')';
+            }
+
+            $safe[] = $part;
         }
 
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $name)) {
