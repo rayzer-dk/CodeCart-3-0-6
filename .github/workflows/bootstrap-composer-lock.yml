@@ -1,0 +1,49 @@
+name: Bootstrap Composer Lock
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - composer.json
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, openssl, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate manifest
+        run: composer validate --no-check-lock
+
+      - name: Resolve exact dependency lock
+        run: composer update --no-dev --prefer-dist --no-interaction --no-progress
+
+      - name: Verify locked install
+        run: |
+          rm -rf upload/system/storage/vendor
+          composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+          test -f upload/system/storage/vendor/autoload.php
+
+      - name: Commit composer.lock
+        run: |
+          if git diff --quiet -- composer.lock && git ls-files --error-unmatch composer.lock >/dev/null 2>&1; then
+            echo "composer.lock is already current"
+            exit 0
+          fi
+          git config user.name "CodeCart Release Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add composer.lock
+          git commit -m "Lock production Composer dependencies"
+          git push
