@@ -20,7 +20,7 @@ class ControllerCommonHeader extends Controller {
             $this->document->addLink($icon_url, 'icon');
             $data['has_store_favicon'] = true;
         }
-        $data['package_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '1.7.6';
+        $data['package_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '1.7.7';
         $data['current_route'] = isset($this->request->get['route']) ? (string)$this->request->get['route'] : '';
 
         $data['description'] = $this->document->getDescription();
