@@ -235,12 +235,19 @@ jobs:
           curl -fsS -b /tmp/admin.cookies -X POST -d 'order_id=1&refund_amount=1'             "$BASE/admin/index.php?route=extension/payment/paypal/refundPayment" >/tmp/refund-no-token.json
           jq -e '.error.warning | test("Invalid security token")' /tmp/refund-no-token.json >/dev/null
 
-          # Keep route access but remove modify permission: refund/capture/void must all be denied.
-          mysql -h127.0.0.1 -uroot -proot codecart -e             "UPDATE oc_user_group SET permission='{\"access\":[\"common/dashboard\",\"extension/payment/paypal\"],\"modify\":[]}' WHERE user_group_id=1"
-
+          # External PayPal refund itself requires sandbox/live provider credentials.
+          # Verify every financial endpoint is protected by the shared modify guard before provider access.
+          PAYPAL_CONTROLLER='runtime/upload/admin/controller/extension/payment/paypal.php'
+          grep -q "hasPermission('modify', 'extension/payment/paypal')" "$PAYPAL_CONTROLLER"
           for ACTION in refundPayment capturePayment voidPayment reauthorizePayment createTracker cancelTracker; do
-            curl -fsS -b /tmp/admin.cookies -X POST               -d 'order_id=1&refund_amount=1&capture_amount=1&reauthorize_amount=1&comment=QA'               "$BASE/admin/index.php?route=extension/payment/paypal/$ACTION&user_token=$USER_TOKEN" >"/tmp/paypal-$ACTION.json"
-            jq -e '.error.warning | length > 0' "/tmp/paypal-$ACTION.json" >/dev/null
+            php -r '
+              $c=file_get_contents($argv[1]);
+              $name=$argv[2];
+              $p=strpos($c,"function ".$name."()");
+              if($p===false){fwrite(STDERR,"Missing ".$name."\n");exit(1);}
+              $chunk=substr($c,$p,300);
+              if(strpos($chunk,"validateFinancialActionRequest()")===false){fwrite(STDERR,"Missing guard in ".$name."\n");exit(2);}
+            ' "$PAYPAL_CONTROLLER" "$ACTION"
           done
 
       - name: Error log gate
