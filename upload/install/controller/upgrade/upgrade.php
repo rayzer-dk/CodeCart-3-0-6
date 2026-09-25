@@ -13,8 +13,7 @@ class ControllerUpgradeUpgrade extends Controller {
         }
 
         $data['store'] = HTTP_OPENCART;
-        $files = glob(DIR_APPLICATION . 'model/upgrade/*.php');
-        natsort($files);
+        $files = $this->getMigrationFiles();
         $data['total'] = count($files);
 
         $preflight = $this->preflight();
@@ -51,9 +50,7 @@ class ControllerUpgradeUpgrade extends Controller {
             return $this->json($json);
         }
 
-        $files = glob(DIR_APPLICATION . 'model/upgrade/*.php');
-        natsort($files);
-        $files = array_values($files);
+        $files = $this->getMigrationFiles();
 
         if (isset($files[$step - 1])) {
             try {
@@ -81,6 +78,28 @@ class ControllerUpgradeUpgrade extends Controller {
             $json['success'] = $this->language->get('text_success');
         }
         $this->json($json);
+    }
+
+    private function getMigrationFiles() {
+        $files = glob(DIR_APPLICATION . 'model/upgrade/*.php');
+        $files = is_array($files) ? $files : array();
+
+        // UPDATE is an overlay operation, so legacy OpenCart/ocStore installer
+        // migrations can remain on disk from the source shop. Re-running those
+        // historical migrations against an already-current 3.x database is unsafe
+        // (for example ocStore 3.0.4.1 still ships migration 1010 for url_alias,
+        // while url_alias has already been removed). CodeCart 3.0.6 has a
+        // self-contained compatibility migration starting at 3052; only CodeCart
+        // package migrations in that namespace are eligible here.
+        $files = array_values(array_filter($files, function($file) {
+            $migration = basename($file, '.php');
+
+            return ctype_digit($migration) && (int)$migration >= 3052;
+        }));
+
+        natsort($files);
+
+        return array_values($files);
     }
 
     private function preflight() {
