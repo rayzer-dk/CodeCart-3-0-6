@@ -106,7 +106,7 @@ jobs:
           };
           $theme=$scalar("SELECT value FROM oc_setting WHERE store_id=0 AND code='config' AND " . chr(96) . "key" . chr(96) . "='config_theme' LIMIT 1");
           if($theme!=='codecart'){throw new RuntimeException('Theme is not codecart: '.$theme);}
-          foreach(['oc_codecart_queue','oc_codecart_scheduler','oc_codecart_idempotency','oc_codecart_stock_notify'] as $table){
+          foreach(['oc_codecart_queue','oc_codecart_scheduler','oc_codecart_idempotency','oc_stock_notify'] as $table){
               if((int)$scalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='".$db->real_escape_string($table)."'")!==1){
                   throw new RuntimeException('Missing table '.$table);
               }
