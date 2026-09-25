@@ -76,8 +76,24 @@ foreach ($iterator as $file) {
 
     if (in_array($ext, ['php', 'twig', 'js'], true)) {
         $content = @file_get_contents($path);
-        if ($content !== false && preg_match('/\b(var_dump|print_r)\s*\(/', $content)) {
-            $debugHits[] = $relative;
+
+        if ($content !== false) {
+            if (preg_match('/\bvar_dump\s*\(/', $content)) {
+                $debugHits[] = $relative;
+                continue;
+            }
+
+            // print_r($value, true) is used intentionally as a formatter by
+            // logging code. Flag only calls that can write directly to output.
+            if ($ext === 'php') {
+                foreach (preg_split('/\R/', $content) as $line) {
+                    if (preg_match('/\bprint_r\s*\(/', $line) &&
+                        !preg_match('/\bprint_r\s*\(.*?,\s*true\s*\)/i', $line)) {
+                        $debugHits[] = $relative;
+                        break;
+                    }
+                }
+            }
         }
     }
 }
