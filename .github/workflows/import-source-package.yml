@@ -80,4 +80,5 @@ jobs:
             exit 0
           fi
           git commit -m "Import CodeCart PRO 3.0.6.0 Build 1.7.5 source"
+          git pull --rebase origin main
           git push
