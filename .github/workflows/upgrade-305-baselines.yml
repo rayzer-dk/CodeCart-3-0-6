@@ -206,9 +206,9 @@ jobs:
           set -euo pipefail
           q() { mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "$1"; }
 
-          q "SELECT value FROM oc_setting WHERE `key`='config_theme' LIMIT 1" >/tmp/base-theme
-          q "SELECT value FROM oc_setting WHERE `key`='config_language' LIMIT 1" >/tmp/base-language
-          q "SELECT value FROM oc_setting WHERE `key`='config_currency' LIMIT 1" >/tmp/base-currency
+          q 'SELECT value FROM oc_setting WHERE `key`="config_theme" LIMIT 1' >/tmp/base-theme
+          q 'SELECT value FROM oc_setting WHERE `key`="config_language" LIMIT 1' >/tmp/base-language
+          q 'SELECT value FROM oc_setting WHERE `key`="config_currency" LIMIT 1' >/tmp/base-currency
 
           q "SELECT COUNT(*) FROM oc_product" >/tmp/base-product-count
           q "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',product_id,model,quantity,price,status,date_added) ORDER BY product_id SEPARATOR '|'),256) FROM oc_product" >/tmp/base-product-hash
@@ -301,16 +301,16 @@ jobs:
           set -euo pipefail
           q() { mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "$1"; }
 
-          test "$(q "SELECT value FROM oc_setting WHERE code='qa' AND `key`='qa_upgrade_marker' LIMIT 1")" = "PRESERVE-ME-305"
+          test "$(q 'SELECT value FROM oc_setting WHERE code="qa" AND `key`="qa_upgrade_marker" LIMIT 1')" = "PRESERVE-ME-305"
           test "$(q "SELECT keyword FROM oc_seo_url WHERE query='qa_marker=305' LIMIT 1")" = "qa-upgrade-305"
           test "$(q "SELECT COUNT(*) FROM oc_modification WHERE code='qa_preserve_mod' AND status=1")" = "1"
           test "$(q "SELECT COUNT(*) FROM oc_event WHERE code='qa_preserve_event' AND status=1")" = "1"
           test "$(q "SELECT COUNT(*) FROM oc_customer WHERE email='qa-preserve@example.test'")" = "1"
           test "$(q "SELECT COUNT(*) FROM oc_order WHERE comment='QA-UPGRADE-ORDER-305' AND total=123.4500")" = "1"
 
-          test "$(q "SELECT value FROM oc_setting WHERE `key`='config_theme' LIMIT 1")" = "$(cat /tmp/base-theme)"
-          test "$(q "SELECT value FROM oc_setting WHERE `key`='config_language' LIMIT 1")" = "$(cat /tmp/base-language)"
-          test "$(q "SELECT value FROM oc_setting WHERE `key`='config_currency' LIMIT 1")" = "$(cat /tmp/base-currency)"
+          test "$(q 'SELECT value FROM oc_setting WHERE `key`="config_theme" LIMIT 1')" = "$(cat /tmp/base-theme)"
+          test "$(q 'SELECT value FROM oc_setting WHERE `key`="config_language" LIMIT 1')" = "$(cat /tmp/base-language)"
+          test "$(q 'SELECT value FROM oc_setting WHERE `key`="config_currency" LIMIT 1')" = "$(cat /tmp/base-currency)"
 
           test "$(q "SELECT COUNT(*) FROM oc_product")" = "$(cat /tmp/base-product-count)"
           test "$(q "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',product_id,model,quantity,price,status,date_added) ORDER BY product_id SEPARATOR '|'),256) FROM oc_product")" = "$(cat /tmp/base-product-hash)"
@@ -323,9 +323,9 @@ jobs:
           test "$(q "SELECT COUNT(*) FROM oc_customer")" = "$(cat /tmp/base-customer-count)"
           test "$(q "SELECT COUNT(*) FROM oc_order")" = "$(cat /tmp/base-order-count)"
 
-          test "$(q "SELECT value FROM oc_setting WHERE `key`='codecart_core_schema_version' LIMIT 1")" = "3.0.6.0"
-          test "$(q "SELECT value FROM oc_setting WHERE `key`='codecart_presentation_schema_version' LIMIT 1")" = "27"
-          test "$(q "SELECT value FROM oc_setting WHERE `key`='theme_codecart_status' LIMIT 1")" = "1"
+          test "$(q 'SELECT value FROM oc_setting WHERE `key`="codecart_core_schema_version" LIMIT 1')" = "3.0.6.0"
+          test "$(q 'SELECT value FROM oc_setting WHERE `key`="codecart_presentation_schema_version" LIMIT 1')" = "27"
+          test "$(q 'SELECT value FROM oc_setting WHERE `key`="theme_codecart_status" LIMIT 1')" = "1"
 
           critical_bad="$(q "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN ('oc_setting','oc_product','oc_product_option_value','oc_order','oc_order_product','oc_order_option','oc_order_total','oc_order_history','oc_customer','oc_customer_reward','oc_coupon_history','oc_voucher_history') AND engine <> 'InnoDB'")"
           test "$critical_bad" = "0"
@@ -359,7 +359,7 @@ jobs:
             url="http://127.0.0.1:8082/install/$next"
           done
 
-          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE code='qa' AND `key`='qa_upgrade_marker' LIMIT 1")" = "PRESERVE-ME-305"
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e 'SELECT value FROM oc_setting WHERE code="qa" AND `key`="qa_upgrade_marker" LIMIT 1')" = "PRESERVE-ME-305"
           test "$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT COUNT(*) FROM oc_order WHERE comment='QA-UPGRADE-ORDER-305'")" = "1"
 
       - name: Post-update storefront and admin login
