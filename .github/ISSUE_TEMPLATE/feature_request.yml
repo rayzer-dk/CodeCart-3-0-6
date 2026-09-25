@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest a useful improvement without unnecessary complexity
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Business or technical need
+      description: What real problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility considerations
+      description: Note any OpenCart/ocStore/theme/module compatibility requirements.
