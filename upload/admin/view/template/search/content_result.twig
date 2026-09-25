@@ -1,0 +1,6 @@
+<div class="oc-search-result-list">
+  {% if information %}<div class="oc-search-group"><strong>{{ text_information }}</strong>{% for item in information %}<a href="{{ item.url }}"><i class="fa fa-info-circle fa-fw"></i> {{ item.title }}</a>{% endfor %}</div>{% endif %}
+  {% if articles %}<div class="oc-search-group"><strong>{{ text_articles }}</strong>{% for item in articles %}<a href="{{ item.url }}"><i class="fa fa-newspaper-o fa-fw"></i> {{ item.name }}</a>{% endfor %}</div>{% endif %}
+  {% if modules %}<div class="oc-search-group"><strong>{{ text_modules }}</strong>{% for item in modules %}<a href="{{ item.url }}"><i class="fa fa-puzzle-piece fa-fw"></i> {{ item.code }}</a>{% endfor %}</div>{% endif %}
+  {% if not information and not articles and not modules %}<div class="oc-search-empty">{{ text_no_result }}</div>{% endif %}
+</div>

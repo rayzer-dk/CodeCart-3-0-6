@@ -1,0 +1,39 @@
+<section class="ccp-category-wall ccp-native-module ccp-native-module--categories ccp-native-module--{{ display_mode }}{% if display_mode_mobile == 'grid' %} ccp-category-wall--mobile-grid{% endif %}" style="--ccp-module-cols-desktop:{{ columns_desktop }};--ccp-module-cols-tablet:{{ columns_tablet }};--ccp-module-cols-mobile:{{ columns_mobile_effective }};--ccp-category-image-ratio:{{ image_ratio }};--ccp-category-image-ratio-mobile:{{ image_ratio_mobile }};--ccp-category-image-width:{{ image_width }}px;--ccp-category-image-height:{{ image_height }}px;--ccp-category-image-width-mobile:{{ image_width_mobile }}px;--ccp-category-image-height-mobile:{{ image_height_mobile }}px" data-autoplay="{{ autoplay }}" data-autoplay-delay="{{ autoplay_delay }}" data-loop="{{ loop }}" data-step="{{ carousel_step }}" data-pause-label="{{ text_pause_autoplay }}" data-play-label="{{ text_play_autoplay }}" aria-label="{{ heading_title ? heading_title : 'Category carousel' }}">
+  {% if heading_title or (display_mode == 'carousel' and (show_arrows or autoplay)) %}
+  <div class="ccp-native-module-heading{% if not heading_title %} is-controls-only{% endif %}">
+    {% if heading_title %}<h3 class="ccp-category-wall__title">{{ heading_title }}</h3>{% else %}<span></span>{% endif %}
+    {% if display_mode == 'carousel' and (show_arrows or autoplay) %}
+    <div class="ccp-native-module-arrows">
+      {% if autoplay %}<button type="button" class="ccp-native-module-autoplay-toggle" title="{{ text_pause_autoplay }}" aria-label="{{ text_pause_autoplay }}" aria-pressed="false"><i class="fa fa-pause" aria-hidden="true"></i></button>{% endif %}
+      {% if show_arrows %}<button type="button" class="ccp-native-module-prev" title="{{ text_previous_items }}" aria-label="{{ text_previous_items }}"><i class="fa fa-angle-left" aria-hidden="true"></i></button><button type="button" class="ccp-native-module-next" title="{{ text_next_items }}" aria-label="{{ text_next_items }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="ccp-native-module-viewport">
+    <div class="ccp-category-wall__grid ccp-native-module-track">
+      {% for category in categories %}
+      <div class="ccp-native-module-item">
+        <article class="ccp-category-wall__card ccp-category-wall__card--{{ image_fit }}{% if image_mode == 'text_only' %} ccp-category-wall__card--text-only{% endif %}">
+          <a class="ccp-category-wall__main-link" href="{{ category.href }}">
+            {% if show_image %}
+            <span class="ccp-category-wall__image">
+              <picture>
+                <source media="(max-width: 767px)" srcset="{{ category.thumb_mobile }}" />
+                <img src="{{ category.thumb }}" width="{{ image_width }}" height="{{ image_height }}" alt="{{ category.name }}" loading="lazy" decoding="async" />
+              </picture>
+            </span>
+            {% endif %}
+            <span class="ccp-category-wall__name">{{ category.name }}{% if show_count and category.count is not same as(false) %} <small>{{ category.count }}</small>{% endif %}</span>
+          </a>
+          {% if category.subcategories %}<nav class="ccp-category-wall__subcategories" aria-label="{{ category.name }}">{% for child in category.subcategories %}<a href="{{ child.href }}">{{ child.name }}</a>{% endfor %}</nav>{% endif %}
+          <a class="ccp-category-wall__all-link" href="{{ category.href }}">{{ text_all_categories }}</a>
+          <a class="ccp-category-wall__corner-link" href="{{ category.href }}" title="{{ category.name }}" aria-label="{{ category.name }}"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% if display_mode == 'carousel' and show_dots %}<div class="ccp-native-module-pagination" aria-label="{{ heading_title ? heading_title : 'Category carousel pages' }}"></div>{% endif %}
+</section>

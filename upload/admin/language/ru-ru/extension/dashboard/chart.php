@@ -1,0 +1,43 @@
+<?php
+// Heading
+$_['heading_title'] = 'Аналитика продаж';
+
+// Text
+$_['text_extension'] = 'Дополнения';
+$_['text_success'] = 'Настройки изменены';
+$_['text_edit'] = 'Редактирование';
+$_['text_order'] = 'Заказы';
+$_['text_customer'] = 'Покупатели';
+$_['text_day'] = 'Сегодня';
+$_['text_week'] = 'Неделя';
+$_['text_month'] = 'Месяц';
+$_['text_year'] = 'Год';
+
+// Entry
+$_['entry_status'] = 'Статус';
+$_['entry_sort_order'] = 'Порядок сортировки';
+$_['entry_width'] = 'Ширина';
+
+// Error
+$_['error_permission'] = 'У вас недостаточно прав для изменения настроек';
+
+// Localized dashboard chart axis labels
+$_['text_month_1'] = 'Янв';
+$_['text_month_2'] = 'Фев';
+$_['text_month_3'] = 'Мар';
+$_['text_month_4'] = 'Апр';
+$_['text_month_5'] = 'Май';
+$_['text_month_6'] = 'Июн';
+$_['text_month_7'] = 'Июл';
+$_['text_month_8'] = 'Авг';
+$_['text_month_9'] = 'Сен';
+$_['text_month_10'] = 'Окт';
+$_['text_month_11'] = 'Ноя';
+$_['text_month_12'] = 'Дек';
+$_['text_weekday_0'] = 'Вс';
+$_['text_weekday_1'] = 'Пн';
+$_['text_weekday_2'] = 'Вт';
+$_['text_weekday_3'] = 'Ср';
+$_['text_weekday_4'] = 'Чт';
+$_['text_weekday_5'] = 'Пт';
+$_['text_weekday_6'] = 'Сб';

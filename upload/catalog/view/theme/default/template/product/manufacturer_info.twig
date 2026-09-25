@@ -1,0 +1,110 @@
+{{ header }}
+<div id="product-manufacturer" class="container">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }}">{{ content_top }}
+      <h1>{{ heading_title }}</h1>
+      {% if thumb or description %}
+      <div class="row ccp-entity-intro"> {% if thumb %}
+        <div class="col-sm-2 ccp-entity-intro__image"><img src="{{ thumb }}" alt="{{ heading_title }}" title="{{ heading_title }}" width="{{ thumb_width }}" height="{{ thumb_height }}" decoding="async" class="img-thumbnail ccp-entity-intro__thumb" /></div>
+        {% endif %}
+        {% if description %}
+        <div class="col-sm-10">{{ description }}</div>
+        {% endif %}</div>
+      <hr>
+	  {% endif %}
+      {% if products %}
+      <div class="row ccp-toolbar ccp-toolbar--catalog">
+        <div class="col-md-3 col-sm-3 col-xs-12 ccp-toolbar__view">
+          <div class="btn-group btn-group-sm">
+            <button type="button" id="grid-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_grid }}" aria-label="{{ button_grid }}"><i class="fa fa-th"></i></button>
+            <button type="button" id="list-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_list }}" aria-label="{{ button_list }}"><i class="fa fa-th-list"></i></button>
+            <button type="button" id="compact-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_compact }}" aria-label="{{ button_compact }}"><i class="fa fa-bars"></i></button>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-12 ccp-toolbar__compare">
+          <div class="form-group"> <a href="{{ compare }}" id="compare-total" class="btn btn-link">{{ text_compare }}</a> </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-12 ccp-toolbar__sort">
+          <div class="form-group input-group input-group-sm">
+            <label class="input-group-addon" for="input-sort">{{ text_sort }}</label>
+            <select id="input-sort" class="form-control" onchange="if (window.CodeCartCatalogAjax) { window.CodeCartCatalogAjax.navigate(this.value); } else { location = this.value; }">
+              {% for sorts in sorts %}
+              {% if sorts.value == '%s-%s'|format(sort, order) %}
+              <option value="{{ sorts.href }}" selected="selected">{{ sorts.text }}</option>
+              {% else %}
+              <option value="{{ sorts.href }}">{{ sorts.text }}</option>
+              {% endif %}
+              {% endfor %}            
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-12 ccp-toolbar__limit">
+          <div class="form-group input-group input-group-sm">
+            <label class="input-group-addon" for="input-limit">{{ text_limit }}</label>
+            <select id="input-limit" class="form-control" onchange="if (window.CodeCartCatalogAjax) { window.CodeCartCatalogAjax.navigate(this.value); } else { location = this.value; }">
+              {% for limits in limits %}
+              {% if limits.value == limit %}
+              <option value="{{ limits.href }}" selected="selected">{{ limits.text }}</option>
+              {% else %}
+              <option value="{{ limits.href }}">{{ limits.text }}</option>
+              {% endif %}
+              {% endfor %}            
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row ccp-product-grid" data-display-switcher="product"> {% for product in products %}
+        <div class="product-layout product-grid col-xs-6">
+          <div class="product-thumb">
+            <div class="image"><a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" width="{{ product_image_width }}" height="{{ product_image_height }}" loading="lazy" decoding="async" class="img-responsive" /></a></div>
+            <div class="ccp-product-list-body">
+              <div class="caption">
+                <h4><a href="{{ product.href }}">{{ product.name }}</a></h4>
+                {% if card_content in ['description','both'] and product.description %}<p class="ccp-card-description">{{ product.description|e }}</p>{% endif %}{% if card_content in ['attributes','both'] and product.attributes %}<ul class="ccp-card-attributes">{% for attribute in product.attributes %}<li><span title="{{ attribute.name }}">{{ attribute.name }}</span><strong title="{{ attribute.text }}">{{ attribute.text }}</strong></li>{% endfor %}</ul>{% endif %}
+                {% if product.price %}
+                <p class="price"> {% if not product.special %}
+                  {{ product.price }}
+                  {% else %} <span class="price-new">{{ product.special }}</span> <span class="price-old">{{ product.price }}</span> {% endif %}
+                  {% if product.tax %} <span class="price-tax">{{ product.tax_label ? product.tax_label : text_tax }} {{ product.tax }}</span> {% endif %} </p>
+                {% endif %}
+                {% if product.rating %}
+                <div class="rating">
+                  {% for i in 1..5 %}
+                  {% if product.rating < i %} <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-2x"></i></span> {% else %} <span class="fa fa-stack"><i class="fa fa-star fa-stack-2x"></i><i class="fa fa-star-o fa-stack-2x"></i></span> {% endif %}
+                  {% endfor %} </div>
+                {% endif %} </div>
+              <div class="button-group">
+                {% if product.can_buy is not defined or product.can_buy %}<button type="button" onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');" class="ccp-cart-add" data-product-id="{{ product.product_id }}" title="{{ button_cart }}" aria-label="{{ button_cart }}"><i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span></button>{% else %}<button type="button" class="ccp-cart-add is-out-of-stock" disabled="disabled" title="{{ product.stock_status }}" aria-label="{{ product.stock_status }}"><i class="fa fa-ban"></i> <span class="ccp-stock-status">{{ product.stock_status }}</span></button>{% endif %}
+                <button type="button" data-toggle="tooltip" title="{{ button_wishlist }}" onclick="wishlist.add('{{ product.product_id }}');" aria-label="{{ button_wishlist }}"><i class="fa fa-heart"></i></button>
+                <button type="button" data-toggle="tooltip" title="{{ button_compare }}" onclick="compare.add('{{ product.product_id }}');" aria-label="{{ button_compare }}"><i class="fa fa-exchange"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %} </div>
+      <div class="row">
+        <div class="col-sm-6 text-left">{{ pagination }}</div>
+        <div class="col-sm-6 text-right">{{ results }}</div>
+      </div>
+      {% else %}
+      <p>{{ text_empty }}</p>
+      <div class="buttons">
+        <div class="pull-right"><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>
+      </div>
+      {% endif %}
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+</div>
+{{ footer }}

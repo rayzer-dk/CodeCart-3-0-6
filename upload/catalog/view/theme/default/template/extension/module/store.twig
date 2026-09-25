@@ -1,0 +1,7 @@
+<section class="ccp-sidebar-module ccp-store-module{% if collapsed_mobile %} ccp-sidebar-module--mobile-collapsed{% endif %}">
+  <div class="ccp-sidebar-module__heading"><h3>{{ heading_title }}</h3><button type="button" class="ccp-sidebar-module__toggle" aria-expanded="{% if collapsed_mobile %}false{% else %}true{% endif %}" title="{{ heading_title }}"><i class="fa fa-chevron-down" aria-hidden="true"></i></button></div>
+  <div class="ccp-sidebar-module__body">
+    <p class="ccp-store-module__intro">{{ text_store }}</p>
+    <div class="list-group">{% for store in stores %}<a href="{{ store.url }}" class="list-group-item{% if store.store_id == store_id %} active{% endif %}"><span>{{ store.name }}</span>{% if store.store_id == store_id %}<i class="fa fa-check" aria-hidden="true"></i>{% endif %}</a>{% endfor %}</div>
+  </div>
+</section>

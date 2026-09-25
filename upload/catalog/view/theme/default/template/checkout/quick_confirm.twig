@@ -1,0 +1,7 @@
+{% if not redirect %}
+<div class="ccq-confirm-ready">
+  {{ payment }}
+</div>
+{% else %}
+<script type="text/javascript">location = '{{ redirect }}';</script>
+{% endif %}

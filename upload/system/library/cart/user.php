@@ -1,0 +1,109 @@
+<?php
+namespace Cart;
+class User {
+	private $user_id;
+	private $user_group_id;
+	private $username;
+	private $permission = array();
+	private $config;
+	private $db;
+	private $request;
+	private $session;
+
+	public function __construct($registry) {
+		$this->config = $registry->get('config');
+		$this->db = $registry->get('db');
+		$this->request = $registry->get('request');
+		$this->session = $registry->get('session');
+
+		if (isset($this->session->data['user_id'])) {
+			$user_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "user WHERE user_id = '" . (int)$this->session->data['user_id'] . "' AND status = '1'");
+
+			if ($user_query->num_rows) {
+				$this->user_id = $user_query->row['user_id'];
+				$this->username = $user_query->row['username'];
+				$this->user_group_id = $user_query->row['user_group_id'];
+
+				$this->db->query("UPDATE " . DB_PREFIX . "user SET ip = '" . $this->db->escape($this->request->server['REMOTE_ADDR']) . "' WHERE user_id = '" . (int)$this->session->data['user_id'] . "'");
+
+				$user_group_query = $this->db->query("SELECT permission FROM " . DB_PREFIX . "user_group WHERE user_group_id = '" . (int)$user_query->row['user_group_id'] . "'");
+
+				$permissions = json_decode($user_group_query->row['permission'], true);
+
+				if (is_array($permissions)) {
+					foreach ($permissions as $key => $value) {
+						$this->permission[$key] = $value;
+					}
+				}
+			} else {
+				$this->logout();
+			}
+		}
+	}
+
+	public function login($username, $password) {
+		$user_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "user WHERE username = '" . $this->db->escape($username) . "' AND status = '1'");
+
+		if ($user_query->num_rows && codecart_password_verify($password, $user_query->row['password'], $user_query->row['salt'])) {
+			if (codecart_password_needs_rehash($user_query->row['password'])) {
+				codecart_ensure_password_column($this->db, 'user');
+				$password_hash = codecart_password_hash($password);
+				$this->db->query("UPDATE `" . DB_PREFIX . "user` SET salt = '', password = '" . $this->db->escape($password_hash) . "' WHERE user_id = '" . (int)$user_query->row['user_id'] . "'");
+			}
+
+			$this->session->data['user_id'] = $user_query->row['user_id'];
+
+			$this->user_id = $user_query->row['user_id'];
+			$this->username = $user_query->row['username'];
+			$this->user_group_id = $user_query->row['user_group_id'];
+
+			$this->session->regenerate();
+			codecart_set_session_cookie($this->config->get('session_name'), $this->session->getId());
+
+			$user_group_query = $this->db->query("SELECT permission FROM " . DB_PREFIX . "user_group WHERE user_group_id = '" . (int)$user_query->row['user_group_id'] . "'");
+
+			$permissions = json_decode($user_group_query->row['permission'], true);
+
+			if (is_array($permissions)) {
+				foreach ($permissions as $key => $value) {
+					$this->permission[$key] = $value;
+				}
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public function logout() {
+		unset($this->session->data['user_id']);
+
+		$this->user_id = '';
+		$this->username = '';
+	}
+
+	public function hasPermission($key, $value) {
+		if (isset($this->permission[$key])) {
+			return in_array($value, $this->permission[$key]);
+		} else {
+			return false;
+		}
+	}
+
+	public function isLogged() {
+		return $this->user_id;
+	}
+
+	public function getId() {
+		return $this->user_id;
+	}
+
+	public function getUserName() {
+		return $this->username;
+	}
+
+	public function getGroupId() {
+		return $this->user_group_id;
+	}
+}

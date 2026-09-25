@@ -1,0 +1,29 @@
+<div class="buttons">
+  <div class="pull-right">
+    <input type="button" value="{{ button_confirm }}" id="button-confirm" data-loading-text="{{ text_loading }}" class="btn btn-primary" />
+  </div>
+</div>
+<script type="text/javascript"><!--
+$('#button-confirm').on('click', function() {
+	$.ajax({
+        data: {codecart_payment_token: '{{ codecart_payment_token|e('js') }}'},
+        type: 'post',
+		url: 'index.php?route=extension/payment/cod/confirm',
+		dataType: 'json',
+		beforeSend: function() {
+			$('#button-confirm').button('loading');
+		},
+		complete: function() {
+			$('#button-confirm').button('reset');
+		},
+		success: function(json) {
+			if (json['redirect']) {
+				location = json['redirect'];	
+			}
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			if (window.CodeCartUI) { window.CodeCartUI.error(xhr, thrownError); } else { alert(thrownError + "\r\n" + xhr.statusText); }
+		}
+	});
+});
+//--></script>

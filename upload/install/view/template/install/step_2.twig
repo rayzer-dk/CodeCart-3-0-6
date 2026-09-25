@@ -1,0 +1,107 @@
+{{ header }}
+<div class="cc-page">
+  <div class="container">
+    {% if error_warnings %}<div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i> <strong>{{ text_missing }}</strong><ul class="cc-error-list">{% for error in error_warnings %}<li>{{ error }}</li>{% endfor %}</ul></div>{% elseif error_warning %}<div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i> {{ error_warning }}</div>{% endif %}
+    <div class="cc-layout">
+      <main class="cc-card">
+        <div class="cc-card-head"><div><h1>{{ heading_title }}</h1><p>{{ text_step_2 }}</p></div><div class="cc-step-badge">2 / 4</div></div>
+        <form action="{{ action }}" method="post">
+          <div class="cc-card-body">
+            <h2 class="cc-section-title">{{ text_install_php }}</h2>
+            <div class="table-responsive">
+              <table class="table cc-status-table">
+                <thead><tr><th>{{ text_setting }}</th><th>{{ text_current }}</th><th>{{ text_required }}</th><th class="text-center">{{ text_status }}</th></tr></thead>
+                <tbody>
+                  <tr><td>{{ text_version }}</td><td>{{ php_version }}</td><td>8.1 / 8.2 / 8.3 / 8.4 / 8.5</td><td class="text-center">{% if php_version_supported %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> OK</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ text_missing }}</span>{% endif %}</td></tr>
+                  <tr><td>{{ text_file_upload }}</td><td>{% if file_uploads %}{{ text_on }}{% else %}{{ text_off }}{% endif %}</td><td>{{ text_on }}</td><td class="text-center">{% if file_uploads %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> OK</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ text_off }}</span>{% endif %}</td></tr>
+                  <tr><td>{{ text_session }}</td><td>{% if session_auto_start %}{{ text_on }}{% else %}{{ text_off }}{% endif %}</td><td>{{ text_off }}</td><td class="text-center">{% if not session_auto_start %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> OK</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ text_on }}</span>{% endif %}</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2 class="cc-section-title">{{ text_install_extension }}</h2>
+            <div class="table-responsive">
+              <table class="table cc-status-table">
+                <thead><tr><th>{{ text_extension }}</th><th>{{ text_required }}</th><th class="text-center">{{ text_status }}</th></tr></thead>
+                <tbody>
+                  {% set extensions = {
+                    'Database (MySQLi / PDO MySQL)': db,
+                    'GD': gd,
+                    'cURL': curl,
+                    'OpenSSL': openssl,
+                    'TLS 1.2+': tls12,
+                    'ZLIB': zlib,
+                    'ZIP': zip,
+                    'SimpleXML': simplexml,
+                    'mbstring': mbstring,
+                    'DOM/XML': dom,
+                    'XMLWriter': xmlwriter,
+                    'Fileinfo': fileinfo,
+                    'iconv': iconv,
+                    'Hash': hash,
+                    'JSON': json
+                  } %}
+                  {% for name, state in extensions %}
+                  <tr><td>{{ name }}</td><td>{{ text_on }}</td><td class="text-center">{% if state %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> OK</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ text_missing }}</span>{% endif %}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <h2 class="cc-section-title">{{ text_install_file }}</h2>
+            <div class="table-responsive">
+              <table class="table cc-status-table">
+                <thead><tr><th>{{ text_file }}</th><th class="text-center">{{ text_status }}</th></tr></thead>
+                <tbody>
+                  <tr><td>{{ catalog_config }}</td><td class="text-center">{% if not error_catalog_config %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> {{ text_writable }}</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ error_catalog_config }}</span>{% endif %}</td></tr>
+                  <tr><td>{{ admin_config }}</td><td class="text-center">{% if not error_admin_config %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> {{ text_writable }}</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ error_admin_config }}</span>{% endif %}</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h2 class="cc-section-title">{{ text_install_directory }}</h2>
+            <div class="table-responsive">
+              <table class="table cc-status-table">
+                <thead><tr><th>{{ text_directory }}</th><th class="text-center">{{ text_status }}</th></tr></thead>
+                <tbody>
+                  {% set directories = {
+                    (image): error_image,
+                    (image_cache): error_image_cache,
+                    (image_catalog): error_image_catalog,
+                    (cache): error_cache,
+                    (logs): error_logs,
+                    (download): error_download,
+                    (upload): error_upload,
+                    (modification): error_modification,
+                    (session_dir): error_session_dir,
+                    (secure_storage_parent): error_secure_storage_parent
+                  } %}
+                  {% for path, error in directories %}
+                  <tr><td>{{ path }}</td><td class="text-center">{% if not error %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> {{ text_writable }}</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ error }}</span>{% endif %}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <h2 class="cc-section-title">{{ text_extension_write }} <small>({{ text_optional }})</small></h2>
+            <p class="help-block">{{ text_extension_write_help }}</p>
+            <div class="table-responsive">
+              <table class="table cc-status-table">
+                <thead><tr><th>{{ text_directory }}</th><th class="text-center">{{ text_status }}</th></tr></thead>
+                <tbody>
+                  {% for path, writable in extension_write_paths %}
+                  <tr><td>{{ path }}</td><td class="text-center">{% if writable %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> {{ text_writable }}</span>{% else %}<span class="cc-state warn"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_unwritable }}</span>{% endif %}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% if not extension_install_writable %}<div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_extension_write_help }}</div>{% endif %}
+          </div>
+          <div class="cc-card-footer"><a href="{{ back }}" class="btn btn-default"><i class="fa-solid fa-arrow-left"></i> {{ button_back }}</a><button type="submit" class="btn btn-primary"{% if not can_continue %} disabled="disabled" title="{{ text_missing }}"{% endif %}>{{ button_continue }} <i class="fa-solid fa-arrow-right"></i></button></div>
+        </form>
+      </main>
+      {{ column_left }}
+    </div>
+  </div>
+</div>
+{{ footer }}

@@ -1,0 +1,123 @@
+<footer id="footer">
+  <span class="ccp-footer-brand">{{ text_footer }}</span>
+  {% if text_codecart_release %}<span class="ccp-footer-sep">·</span> <span class="ccp-footer-release">{{ text_codecart_release }}</span>{% endif %}
+  {% if project_support_enabled %}
+    <span class="ccp-footer-sep">·</span> <a href="#ccp-project-support-modal" data-toggle="modal" class="ccp-project-support-link"><i class="fa fa-heart"></i> {{ text_project_support }}</a>
+    <span class="ccp-footer-sep">·</span> <a href="#ccp-report-modal" data-toggle="modal" title="{{ text_report_title }}"><i class="fa fa-commenting-o"></i> {{ text_report }}</a>
+  {% endif %}
+</footer></div>
+
+{% if project_support_enabled %}
+<div class="modal fade ccp-project-support-modal" id="ccp-project-support-modal" tabindex="-1" role="dialog" aria-labelledby="ccp-project-support-title">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="ccp-project-hero">
+        <button type="button" class="close" data-dismiss="modal" aria-label="{{ project_close }}"><span aria-hidden="true">&times;</span></button>
+        <div class="ccp-project-brandline"><span class="ccp-project-logo"><i class="fa fa-shopping-cart"></i></span><span>CodeCart PRO</span><span class="ccp-project-badge">3.0.6.0</span></div>
+        <h3 id="ccp-project-support-title">{{ project_title }}</h3>
+        <p>{{ project_subtitle }}</p>
+      </div>
+      <div class="modal-body">
+        <p class="ccp-project-intro ccp-project-cta">{{ project_intro }}</p>
+        <div class="ccp-project-feature-grid">
+          <div class="ccp-project-feature"><i class="fa fa-unlock-alt"></i><div><strong>{{ project_free_title }}</strong><p>{{ project_free_text }}</p></div></div>
+          <div class="ccp-project-feature"><i class="fa fa-refresh"></i><div><strong>{{ project_compat_title }}</strong><p>{{ project_compat_text }}</p></div></div>
+          <div class="ccp-project-feature"><i class="fa fa-rocket"></i><div><strong>{{ project_quality_title }}</strong><p>{{ project_quality_text }}</p></div></div>
+          <div class="ccp-project-feature"><i class="fa fa-heart"></i><div><strong>{{ project_help_title }}</strong><p>{{ project_help_text }}</p></div></div>
+        </div>
+
+        <div class="ccp-project-section">
+          <div class="ccp-project-section-head"><div><h4><i class="fa fa-heart"></i> {{ project_payment_title }}</h4><p>{{ project_payment_note }}</p></div><span class="ccp-project-amount">{{ project_amount_any }}</span></div>
+          {% set group = 'main' %}<div class="ccp-project-payment-grid">
+            {% for method in project_support_methods %}{% if method.group == group %}
+            <div class="ccp-project-payment-card">
+              <div class="ccp-project-payment-name"><i class="fa {{ method.icon }}"></i><strong>{{ method.name }}</strong></div>
+              <a class="ccp-project-value" href="{{ method.url }}"{% if method.url starts with 'http' %} target="_blank" rel="noopener noreferrer"{% endif %} title="{{ method.value }}">{{ method.value }}</a>
+              {% if method.details %}<div class="ccp-project-payment-details">{% for detail in method.details %}<div><span>{{ detail.label }}</span><strong>{{ detail.value }}</strong></div>{% endfor %}</div>{% endif %}
+              <div class="ccp-project-actions ccp-project-actions--three">
+                <button type="button" class="btn btn-default btn-sm ccp-show-qr" data-qr="{{ method.qr }}" data-name="{{ method.name }}" data-value="{{ method.qr_value|default(method.value) }}" title="{{ project_qr }}"><i class="fa fa-qrcode"></i> {{ project_qr }}</button>
+                <a class="btn btn-primary btn-sm" href="{{ method.url }}"{% if method.url starts with 'http' %} target="_blank" rel="noopener noreferrer"{% endif %} title="{{ project_open }}"><i class="fa fa-external-link"></i> {{ project_open }}</a>
+                <button type="button" class="btn btn-default btn-sm ccp-copy-value" data-copy="{{ method.copy|default(method.value) }}" data-copied="{{ project_copied }}" title="{{ project_copy }}"><i class="fa fa-copy"></i> {{ project_copy }}</button>
+              </div>
+            </div>
+            {% endif %}{% endfor %}
+          </div>
+          <div class="ccp-project-crypto">
+            <h5><i class="fa fa-btc"></i> {{ project_crypto_title }}</h5>
+            {% set group = 'crypto' %}<div class="ccp-project-payment-grid ccp-project-payment-grid--crypto">
+            {% for method in project_support_methods %}{% if method.group == group %}
+            <div class="ccp-project-payment-card">
+              <div class="ccp-project-payment-name"><i class="fa {{ method.icon }}"></i><strong>{{ method.name }}</strong></div>
+              <a class="ccp-project-value" href="{{ method.url }}"{% if method.url starts with 'http' %} target="_blank" rel="noopener noreferrer"{% endif %} title="{{ method.value }}">{{ method.value }}</a>
+              {% if method.details %}<div class="ccp-project-payment-details">{% for detail in method.details %}<div><span>{{ detail.label }}</span><strong>{{ detail.value }}</strong></div>{% endfor %}</div>{% endif %}
+              <div class="ccp-project-actions ccp-project-actions--three">
+                <button type="button" class="btn btn-default btn-sm ccp-show-qr" data-qr="{{ method.qr }}" data-name="{{ method.name }}" data-value="{{ method.qr_value|default(method.value) }}" title="{{ project_qr }}"><i class="fa fa-qrcode"></i> {{ project_qr }}</button>
+                <a class="btn btn-primary btn-sm" href="{{ method.url }}"{% if method.url starts with 'http' %} target="_blank" rel="noopener noreferrer"{% endif %} title="{{ project_open }}"><i class="fa fa-external-link"></i> {{ project_open }}</a>
+                <button type="button" class="btn btn-default btn-sm ccp-copy-value" data-copy="{{ method.copy|default(method.value) }}" data-copied="{{ project_copied }}" title="{{ project_copy }}"><i class="fa fa-copy"></i> {{ project_copy }}</button>
+              </div>
+            </div>
+            {% endif %}{% endfor %}
+            </div>
+            <p class="ccp-project-crypto-note">{{ project_crypto_note }}</p>
+          </div>
+        </div>
+
+        <div class="ccp-project-section">
+          <h4><i class="fa fa-link"></i> {{ project_resources_title }}</h4>
+          <div class="ccp-project-links">
+            {% for link in project_links %}
+            <div class="ccp-project-resource">
+              <div class="ccp-project-resource-main"><i class="fa {{ link.icon }}"></i><div><strong>{{ link.name }}</strong><span>{{ link.value }}</span></div></div>
+              <div class="ccp-project-resource-actions">
+                <button type="button" class="btn btn-default btn-sm ccp-copy-value" data-copy="{{ link.value }}" data-copied="{{ project_copied }}" title="{{ project_copy }}"><i class="fa fa-copy"></i></button>
+                <a href="{{ link.url }}" class="btn btn-primary btn-sm"{% if link.url starts with 'http' %} target="_blank" rel="noopener"{% endif %} title="{{ project_open }}"><i class="fa fa-external-link"></i></a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="ccp-project-support-note"><i class="fa fa-comments"></i><div><strong>{{ project_support_title }}</strong><p>{{ project_support_text }}</p></div></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">{{ project_close }}</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade ccp-report-modal" id="ccp-report-modal" tabindex="-1" role="dialog" aria-labelledby="ccp-report-title">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="{{ project_close }}"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="ccp-report-title"><i class="fa fa-commenting-o"></i> {{ text_report }}</h4>
+      </div>
+      <div class="modal-body">
+        <p>{{ text_report_intro }}</p>
+        <div class="ccp-report-email"><strong>{{ report_email }}</strong><button type="button" class="btn btn-default btn-xs ccp-copy-value" data-copy="{{ report_email }}" data-copied="{{ project_copied }}" title="{{ text_report_copy }}"><i class="fa fa-copy"></i></button></div>
+        <div class="ccp-report-actions">
+          <a href="{{ report_gmail_url }}" target="_blank" rel="noopener" class="btn btn-primary btn-block"><i class="fa fa-envelope"></i> {{ text_report_gmail }}</a>
+          <a href="{{ report_outlook_url }}" target="_blank" rel="noopener" class="btn btn-default btn-block"><i class="fa fa-envelope-o"></i> {{ text_report_outlook }}</a>
+          <a href="{{ report_mailto_url }}" class="btn btn-default btn-block"><i class="fa fa-external-link"></i> {{ text_report_mail }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ccp-qr-viewer" id="ccp-project-qr-viewer" hidden aria-hidden="true">
+  <div class="ccp-qr-viewer__backdrop" data-qr-close></div>
+  <div class="ccp-qr-viewer__dialog" role="dialog" aria-modal="true" aria-labelledby="ccp-project-qr-title">
+    <button type="button" class="ccp-qr-viewer__close" data-qr-close aria-label="{{ project_close }}" title="{{ project_close }}">&times;</button>
+    <h4 id="ccp-project-qr-title"></h4>
+    <img id="ccp-project-qr-image" src="" alt="QR" width="328" height="328" />
+    <div id="ccp-project-qr-value" class="ccp-qr-viewer__value"></div>
+  </div>
+</div>
+<script src="view/javascript/codecart/project-support.js?v=3.0.6.0-qr3" type="text/javascript"></script>
+{% endif %}
+
+{% for asset_id, asset in modern_assets %}
+{% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}
+{% if asset.type == 'style' %}<link rel="stylesheet" href="{{ asset.url }}" media="{{ asset.media }}" />{% elseif asset.type == 'script' %}<script src="{{ asset.url }}"{% if asset.module %} type="module"{% else %} type="text/javascript"{% endif %}{% if asset.defer %} defer{% endif %}{% if asset.async %} async{% endif %}></script>{% endif %}
+{% endfor %}
+</body></html>

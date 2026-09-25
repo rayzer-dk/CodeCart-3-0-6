@@ -1,0 +1,206 @@
+<form id="oc-search" class="navbar-form ccp-admin-search" role="search">
+  <div class="ccp-search-shell">
+    <div class="input-group ccp-search-group">
+      <div class="input-group-btn ccp-search-menu">
+        <a class="btn btn-default dropdown-toggle ccp-search-toggle" data-toggle="dropdown" href="#" aria-label="{{ text_search_options }}" title="{{ text_search_options }}">
+          <i class="fa fa-search"></i>
+          <span class="ccp-search-current">{{ default_search_label }}</span>
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-left alerts-dropdown ccp-search-dropdown">
+          <li class="dropdown-header">{{ text_search_options }}</li>
+          {% if can_catalog %}<li><a href="#" class="ccp-search-choice" data-option="catalog" data-label="{{ text_catalog }}" data-placeholder="{{ text_catalog_placeholder }}"><i class="fa fa-book"></i><span>{{ text_catalog }}</span></a></li>{% endif %}
+          {% if can_customers %}<li><a href="#" class="ccp-search-choice" data-option="customers" data-label="{{ text_customers }}" data-placeholder="{{ text_customers_placeholder }}"><i class="fa fa-group"></i><span>{{ text_customers }}</span></a></li>{% endif %}
+          {% if can_orders %}<li><a href="#" class="ccp-search-choice" data-option="orders" data-label="{{ text_orders }}" data-placeholder="{{ text_orders_placeholder }}"><i class="fa fa-credit-card"></i><span>{{ text_orders }}</span></a></li>{% endif %}
+          {% if can_content %}<li><a href="#" class="ccp-search-choice" data-option="content" data-label="{{ text_content }}" data-placeholder="{{ text_content_placeholder }}"><i class="fa fa-file-text-o"></i><span>{{ text_content }}</span></a></li>{% endif %}
+          {% if can_settings %}<li><a href="#" class="ccp-search-choice" data-option="settings" data-label="{{ text_settings }}" data-placeholder="{{ text_settings_placeholder }}"><i class="fa fa-cogs"></i><span>{{ text_settings }}</span></a></li>{% endif %}
+        </ul>
+      </div>
+      <div class="ccp-search-input-wrap">
+        <input id="oc-search-input" type="text" class="form-control ccp-search-input" placeholder="{{ default_search_placeholder }}" name="query" autocomplete="off" maxlength="128" data-base-placeholder="{{ default_search_placeholder }}" />
+        <input id="oc-search-option" type="hidden" name="search-option" value="{{ default_search_option }}" />
+        <span class="ccp-search-example" id="oc-search-example" aria-hidden="true"></span>
+        <div id="loader-search" aria-hidden="true"><i class="fa fa-spinner fa-spin"></i></div>
+      </div>
+    </div>
+  </div>
+</form>
+<div id="oc-search-result"></div>
+<script type="application/json" id="oc-search-examples">{{ search_examples_json|raw }}</script>
+<script type="text/javascript">
+(function($) {
+    'use strict';
+
+    var searchTimer = null;
+    var searchRequest = null;
+    var typeTimer = null;
+    var typeIndex = 0;
+    var typeChar = 0;
+    var typeDeleting = false;
+    var exampleMap = {};
+    var input = $('#oc-search-input');
+    var result = $('#oc-search-result');
+    var exampleNode = $('#oc-search-example');
+    var currentNode = $('.ccp-search-current');
+
+    try {
+        exampleMap = JSON.parse(document.getElementById('oc-search-examples').textContent || '{}');
+    } catch (e) {
+        exampleMap = {};
+    }
+
+    function minimumLength(option) {
+        return option === 'orders' ? 1 : 3;
+    }
+
+    function getExamples(option) {
+        return Array.isArray(exampleMap[option]) ? exampleMap[option] : [];
+    }
+
+    function stopTypewriter() {
+        window.clearTimeout(typeTimer);
+        typeTimer = null;
+    }
+
+    function hideExample() {
+        stopTypewriter();
+        exampleNode.removeClass('is-visible').text('');
+        input.attr('placeholder', input.attr('data-base-placeholder') || '');
+    }
+
+    function typewriterStep() {
+        var option = $('#oc-search-option').val();
+        var examples = getExamples(option);
+
+        if (!examples.length || $.trim(input.val()) !== '') {
+            hideExample();
+            return;
+        }
+
+        input.attr('placeholder', '');
+        typeIndex = typeIndex % examples.length;
+        var full = String(examples[typeIndex] || '');
+
+        if (!typeDeleting) {
+            typeChar = Math.min(full.length, typeChar + 1);
+            exampleNode.text(full.substring(0, typeChar)).addClass('is-visible');
+
+            if (typeChar >= full.length) {
+                typeDeleting = true;
+                typeTimer = window.setTimeout(typewriterStep, 1500);
+            } else {
+                typeTimer = window.setTimeout(typewriterStep, 55);
+            }
+        } else {
+            typeChar = Math.max(0, typeChar - 1);
+            exampleNode.text(full.substring(0, typeChar)).addClass('is-visible');
+
+            if (typeChar === 0) {
+                typeDeleting = false;
+                typeIndex = (typeIndex + 1) % examples.length;
+                typeTimer = window.setTimeout(typewriterStep, 320);
+            } else {
+                typeTimer = window.setTimeout(typewriterStep, 28);
+            }
+        }
+    }
+
+    function restartTypewriter() {
+        stopTypewriter();
+        typeIndex = 0;
+        typeChar = 0;
+        typeDeleting = false;
+        exampleNode.text('').removeClass('is-visible');
+        typeTimer = window.setTimeout(typewriterStep, 420);
+    }
+
+    $('#oc-search').on('click', '.ccp-search-choice', function(e) {
+        e.preventDefault();
+        var option = String($(this).data('option') || 'catalog');
+        var label = String($(this).data('label') || '');
+        var placeholder = String($(this).data('placeholder') || '');
+
+        $('#oc-search-option').val(option);
+        currentNode.text(label);
+        input.attr('data-base-placeholder', placeholder).attr('placeholder', placeholder).val('');
+        result.hide().empty();
+        restartTypewriter();
+    });
+
+    input.on('focus', function() {
+        if ($.trim(input.val()) === '') {
+            restartTypewriter();
+        }
+    }).on('blur', function() {
+        window.setTimeout(function() {
+            if ($.trim(input.val()) === '') {
+                restartTypewriter();
+            }
+        }, 150);
+    });
+
+    input.on('input', function() {
+        var option = $('#oc-search-option').val();
+        var value = $.trim(this.value);
+
+        clearTimeout(searchTimer);
+        stopTypewriter();
+
+        if (value !== '') {
+            exampleNode.removeClass('is-visible').text('');
+            input.attr('placeholder', input.attr('data-base-placeholder') || '');
+        }
+
+        if (searchRequest) {
+            searchRequest.abort();
+            searchRequest = null;
+        }
+
+        if (value.length < minimumLength(option)) {
+            $('#loader-search').hide();
+            result.hide().empty();
+            if (value === '') {
+                restartTypewriter();
+            }
+            return;
+        }
+
+        searchTimer = setTimeout(function() {
+            $('#loader-search').show();
+
+            searchRequest = $.ajax({
+                type: 'get',
+                url: 'index.php?route=search/search/search&user_token={{ user_token }}',
+                data: $('#oc-search').serialize(),
+                dataType: 'json'
+            }).done(function(json) {
+                if (json.error) {
+                    result.html(json.error).show();
+                    return;
+                }
+
+                result.html(json.result || '').show();
+            }).fail(function(xhr, status) {
+                if (status !== 'abort') {
+                    result.hide().empty();
+                }
+            }).always(function() {
+                searchRequest = null;
+                $('#loader-search').hide();
+            });
+        }, 250);
+    });
+
+    $(document).on('mouseup', function(e) {
+        if (!result.is(e.target) && result.has(e.target).length === 0 && !$('#oc-search').is(e.target) && $('#oc-search').has(e.target).length === 0) {
+            result.hide();
+        }
+    });
+
+    $('#oc-search').on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    restartTypewriter();
+})(jQuery);
+</script>

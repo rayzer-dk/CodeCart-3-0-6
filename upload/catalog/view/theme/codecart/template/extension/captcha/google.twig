@@ -1,0 +1,30 @@
+<script src="https://www.google.com/recaptcha/api.js" type="text/javascript"></script>
+<fieldset class="ccp-captcha ccp-google-captcha">
+  <legend>{{ text_captcha }}</legend>
+  <div class="form-group required">
+    <div class="ccp-recaptcha-field">
+      <span class="ccp-captcha-required" aria-hidden="true">*</span>
+      <div class="ccp-recaptcha-wrap"><div{% if route|slice(0, 9) == 'checkout/' %} id="input-payment-captcha"{% endif %} class="g-recaptcha" data-sitekey="{{ site_key }}"></div></div>
+    </div>
+    {% if error_captcha %}<div class="text-danger ccp-captcha-error">{{ error_captcha }}</div>{% endif %}
+  </div>
+</fieldset>
+<script type="text/javascript">
+(function(){
+  function ccpFitRecaptcha(){
+    var wraps=document.querySelectorAll('.ccp-recaptcha-wrap');
+    for(var i=0;i<wraps.length;i++){
+      var wrap=wraps[i], box=wrap.querySelector('.g-recaptcha');
+      if(!box){continue;}
+      var available=wrap.clientWidth||304;
+      var scale=Math.min(1,available/304);
+      box.style.transform='scale('+scale+')';
+      box.style.transformOrigin='0 0';
+      wrap.style.height=Math.ceil(78*scale)+'px';
+      wrap.style.minHeight='0';
+    }
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',ccpFitRecaptcha);}else{ccpFitRecaptcha();}
+  window.addEventListener('resize',ccpFitRecaptcha);
+})();
+</script>

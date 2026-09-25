@@ -1,0 +1,113 @@
+# CodeCart PRO 3.0.6.0 — базова конфігурація Apache
+# Файл залишається нейтральним до домену. Канонічний домен і HTTPS-редиректи краще налаштовувати
+# у панелі хостингу, reverse proxy/CDN або в конфігурації конкретного магазину.
+
+Options +SymlinksIfOwnerMatch
+Options -Indexes
+
+# MIME-типи, які використовує витрина. JXL навмисно не вмикається, оскільки
+# стандартний image pipeline OpenCart не підтримує його як основний формат.
+<IfModule mod_mime.c>
+ AddType image/svg+xml .svg .svgz
+ AddType image/avif .avif
+ AddType application/manifest+json .webmanifest
+ AddType font/woff2 .woff2
+</IfModule>
+
+# Безпечні базові HTTP-заголовки. HSTS/CSP/X-Frame-Options залежать від конкретного сервера,
+# оскільки глобальні значення можуть порушити роботу платіжних віджетів, iframe та reverse proxy.
+<IfModule mod_headers.c>
+ Header always set X-Content-Type-Options "nosniff"
+ Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+ # Лише за потреби для окремого статичного/CDN-піддомену. Для шрифтів з того самого домену CORS не потрібний, тому
+ # залишайте цей блок закоментованим, якщо конфігурація розгортання цього не вимагає.
+ # <FilesMatch "\.(woff|woff2|ttf|otf)$">
+ #  Header set Access-Control-Allow-Origin "*"
+ # </FilesMatch>
+
+ # Необов’язковий захист від clickjacking. Вмикайте лише після перевірки інтеграцій, які
+ # навмисно вбудовують сторінки витрини або адмінки в iframe.
+ # Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# Gzip як резервний варіант. Brotli зазвичай налаштовується на рівні nginx/CDN/хостингу.
+# Не накладайте Brotli і Deflate одночасно без перевірки порядку серверних фільтрів.
+<IfModule mod_deflate.c>
+ AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json application/xml image/svg+xml
+</IfModule>
+
+# Необов’язковий приклад Brotli для Apache. Вмикайте замість блоку Deflate вище лише
+# після перевірки конфігурації хостингу.
+# <IfModule mod_brotli.c>
+#  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css text/javascript application/javascript application/json application/xml image/svg+xml
+# </IfModule>
+
+# Помірне кешування браузера. CSS/JS мають коротший строк, бо багато модулів OpenCart 3
+# використовують файли без версії в URL і зміни мають швидко з’являтися після оновлення.
+<IfModule mod_expires.c>
+ ExpiresActive On
+ ExpiresByType image/jpeg "access plus 30 days"
+ ExpiresByType image/png "access plus 30 days"
+ ExpiresByType image/gif "access plus 30 days"
+ ExpiresByType image/webp "access plus 30 days"
+ ExpiresByType image/avif "access plus 30 days"
+ ExpiresByType image/svg+xml "access plus 30 days"
+ ExpiresByType font/woff "access plus 30 days"
+ ExpiresByType font/woff2 "access plus 30 days"
+ ExpiresByType text/css "access plus 1 day"
+ ExpiresByType application/javascript "access plus 1 day"
+ ExpiresByType text/javascript "access plus 1 day"
+</IfModule>
+
+# Заборонити прямий доступ до типових службових, конфігураційних і резервних файлів. robots.txt не блокується.
+<FilesMatch "(?i)((\.tpl|\.twig|\.ini|\.log|\.sql|\.bak|\.old|\.orig|\.dist|\.sh|\.swp|\.yml|\.yaml|\.lock|(?<!robots)\.txt))$">
+ Require all denied
+</FilesMatch>
+
+RewriteEngine On
+RewriteBase /
+
+# Стандартні feeds. Мовні та модульні правила sitemap повинні реєструватися самими модулями;
+# не задавайте мовні префікси жорстко в Core.
+RewriteRule ^sitemap\.xml$ index.php?route=extension/feed/google_sitemap&_codecart_sitemap_clean=1 [L,QSA]
+# Child sitemaps are routed directly so language folders never pass through SEO alias decoding.
+RewriteRule ^(?:[A-Za-z0-9-]+/)?sitemap-(products|categories|manufacturers|information)-([A-Za-z0-9-]+)-([1-9][0-9]*)\.xml$ index.php?route=extension/feed/google_sitemap&type=$1&lang=$2&page=$3&_codecart_sitemap_clean=1 [L,QSA]
+RewriteRule ^(?:[A-Za-z0-9-]+/)?sitemap-blog-categories-([A-Za-z0-9-]+)-([1-9][0-9]*)\.xml$ index.php?route=extension/feed/google_sitemap&type=blog_categories&lang=$1&page=$2&_codecart_sitemap_clean=1 [L,QSA]
+RewriteRule ^(?:[A-Za-z0-9-]+/)?sitemap-blog-articles-([A-Za-z0-9-]+)-([1-9][0-9]*)\.xml$ index.php?route=extension/feed/google_sitemap&type=blog_articles&lang=$1&page=$2&_codecart_sitemap_clean=1 [L,QSA]
+# Legacy child endpoints without an explicit language code.
+RewriteRule ^(?:[A-Za-z0-9-]+/)?sitemap-(products|categories|manufacturers|information)-([1-9][0-9]*)\.xml$ index.php?route=extension/feed/google_sitemap&type=$1&page=$2&_codecart_sitemap_clean=1 [L,QSA]
+RewriteRule ^(?:[A-Za-z0-9-]+/)?sitemap-blog-categories-([1-9][0-9]*)\.xml$ index.php?route=extension/feed/google_sitemap&type=blog_categories&page=$1&_codecart_sitemap_clean=1 [L,QSA]
+RewriteRule ^(?:[A-Za-z0-9-]+/)?sitemap-blog-articles-([1-9][0-9]*)\.xml$ index.php?route=extension/feed/google_sitemap&type=blog_articles&page=$1&_codecart_sitemap_clean=1 [L,QSA]
+RewriteRule ^(google-merchant(?:-[a-zA-Z0-9-]+)?\.xml)$ index.php?_route_=$1 [L,QSA]
+RewriteRule ^googlebase\.xml$ index.php?route=extension/feed/google_base [L]
+
+# Storage не повинен бути доступним з вебу. Залишайте це правило навіть якщо DIR_STORAGE
+# уже винесено за document root — воно захищає старі інсталяції.
+RewriteRule ^system/storage(?:/|$) - [F,L,NC]
+RewriteRule ^storage(?:/|$) - [F,L,NC]
+
+# Основний SEO route.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !.*\.(ico|gif|jpg|jpeg|png|webp|avif|svg|js|css|woff|woff2|ttf|webmanifest)$ [NC]
+RewriteRule ^([^?]*) index.php?_route_=$1 [L,QSA]
+
+# Не вимикайте ModSecurity/WAF у цьому файлі. Якщо є реальне false-positive спрацювання,
+# створіть вузький виняток для конкретного правила, а не вимикайте захист повністю.
+
+# Не додавайте універсальні регулярні вирази проти SQL-injection/XSS у RewriteCond. Вони
+# дають хибні спрацювання в коректних URL пошуку/фільтрів і дублюють перевірки WAF та застосунку.
+# Для цього використовуйте ModSecurity/Cloudflare та серверну валідацію застосунку.
+
+# Приклад канонічного домену та HTTPS (залежить від магазину; залишено закоментованим):
+# RewriteCond %{HTTPS} !=on [OR]
+# RewriteCond %{HTTP_HOST} ^www\.example\.com$ [NC]
+# RewriteRule ^ https://example.com%{REQUEST_URI} [R=301,L]
+
+# PHP-ліміти залежать від хостингу і під PHP-FPM можуть викликати HTTP 500. Налаштовуйте
+# їх у панелі хостингу, php.ini або .user.ini, а не через php_value у .htaccess.
+# php_value upload_max_filesize 128M
+# php_value post_max_size 128M
+# php_value max_execution_time 300
+# php_value max_input_time 300

@@ -1,0 +1,127 @@
+/* CodeCart PRO admin dark appearance. Loaded after page-specific styles so dark mode wins without modifying extensions. */
+html.ccp-admin-dark{color-scheme:dark}
+html.ccp-admin-dark body,html.ccp-admin-dark #container,html.ccp-admin-dark #content,html.ccp-admin-dark #content>.container-fluid{background:#111820!important;color:#dbe4ee!important}
+html.ccp-admin-dark #header{background:#18212b!important;border-bottom-color:#313d4b!important}
+html.ccp-admin-dark #header .nav>li>a,html.ccp-admin-dark #header #button-menu{color:#dce5ef!important}
+html.ccp-admin-dark #header .nav>li>a:hover,html.ccp-admin-dark #header .nav>li>a:focus{background:#222d39!important;color:#fff!important}
+html.ccp-admin-dark .page-header,html.ccp-admin-dark .page-header>.container-fluid{background:#111820!important;border-bottom-color:#33404f!important}
+html.ccp-admin-dark .page-header h1,html.ccp-admin-dark h1,html.ccp-admin-dark h2,html.ccp-admin-dark h3,html.ccp-admin-dark h4,html.ccp-admin-dark h5,html.ccp-admin-dark h6,html.ccp-admin-dark legend,html.ccp-admin-dark label,html.ccp-admin-dark .control-label{color:#edf3f9!important}
+html.ccp-admin-dark .breadcrumb{background:transparent!important}html.ccp-admin-dark .breadcrumb>li+li:before{color:#7e8c9d!important}
+html.ccp-admin-dark .panel,html.ccp-admin-dark .panel-body,html.ccp-admin-dark .panel-footer,html.ccp-admin-dark .tab-content,html.ccp-admin-dark fieldset,html.ccp-admin-dark .well,html.ccp-admin-dark .thumbnail,html.ccp-admin-dark .list-group,html.ccp-admin-dark .list-group-item{background:#18212b!important;border-color:#354252!important;color:#dce5ef!important}
+html.ccp-admin-dark .panel-default>.panel-heading,html.ccp-admin-dark .panel-heading{background:#202b37!important;border-color:#354252!important;color:#f2f6fa!important}
+html.ccp-admin-dark .panel-default>.panel-heading h3,html.ccp-admin-dark .panel-title{color:#f2f6fa!important}
+html.ccp-admin-dark .table-responsive{background:#18212b!important;border-color:#354252!important}
+html.ccp-admin-dark .table{background:#18212b!important;color:#dce5ef!important}
+html.ccp-admin-dark .table>thead>tr>th,html.ccp-admin-dark .table>thead>tr>td{background:#202b37!important;color:#f1f5f9!important;border-color:#435161!important}
+html.ccp-admin-dark .table>tbody>tr,html.ccp-admin-dark .table>tfoot>tr{background:#18212b!important}
+html.ccp-admin-dark .table>tbody>tr>td,html.ccp-admin-dark .table>tfoot>tr>td{border-color:#344150!important;color:#dce5ef!important}
+html.ccp-admin-dark .table-striped>tbody>tr:nth-of-type(odd){background:#1b2530!important}
+html.ccp-admin-dark .table-hover>tbody>tr:hover,html.ccp-admin-dark .table>tbody>tr:hover{background:#24303d!important}
+html.ccp-admin-dark .form-control,html.ccp-admin-dark input[type=text],html.ccp-admin-dark input[type=password],html.ccp-admin-dark input[type=email],html.ccp-admin-dark input[type=number],html.ccp-admin-dark input[type=search],html.ccp-admin-dark input[type=tel],html.ccp-admin-dark input[type=url],html.ccp-admin-dark textarea,html.ccp-admin-dark select{background:#111923!important;border-color:#465363!important;color:#edf3f9!important}
+html.ccp-admin-dark .form-control:focus{border-color:var(--ccp-admin-accent,#0b6fd3)!important;box-shadow:0 0 0 2px rgba(11,111,211,.2)!important}
+/* Global admin search needs ID-level overrides: the light search CSS uses #oc-search plus !important. */
+html.ccp-admin-dark #oc-search .ccp-search-input{background:#111923!important;border-color:#2f8cff!important;color:#edf3f9!important;box-shadow:none!important}
+html.ccp-admin-dark #oc-search .ccp-search-input:focus{background:#111923!important;border-color:#4da3ff!important;box-shadow:0 0 0 2px rgba(47,140,255,.18)!important}
+html.ccp-admin-dark #oc-search .ccp-search-input::-webkit-input-placeholder{color:#8292a3!important;opacity:1}
+html.ccp-admin-dark #oc-search .ccp-search-input::-moz-placeholder{color:#8292a3!important;opacity:1}
+html.ccp-admin-dark #oc-search .ccp-search-input:-ms-input-placeholder{color:#8292a3!important;opacity:1}
+html.ccp-admin-dark #oc-search .ccp-search-input::placeholder{color:#8292a3!important;opacity:1}
+html.ccp-admin-dark #oc-search .ccp-search-example{color:#aebdcb!important}
+html.ccp-admin-dark #oc-search .ccp-search-dropdown{background:#18212b!important;border-color:#3d4a59!important;box-shadow:0 14px 34px rgba(0,0,0,.38)!important}
+html.ccp-admin-dark #oc-search .ccp-search-dropdown .dropdown-header{background:#18212b!important;color:#9facbb!important}
+html.ccp-admin-dark #oc-search .ccp-search-dropdown li a{background:transparent!important;color:#dce5ef!important}
+html.ccp-admin-dark #oc-search .ccp-search-dropdown li a:hover,html.ccp-admin-dark #oc-search .ccp-search-dropdown li a:focus{background:#293644!important;color:#fff!important}
+html.ccp-admin-dark #oc-search-result{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important;box-shadow:0 18px 40px rgba(0,0,0,.42)!important}
+html.ccp-admin-dark #oc-search-result ul .result-header{color:#9facbb!important;border-bottom-color:#344150!important}
+html.ccp-admin-dark #oc-search-result ul li a,html.ccp-admin-dark #oc-search-result .oc-search-group a{color:#dce5ef!important;border-bottom-color:#293644!important}
+html.ccp-admin-dark #oc-search-result ul li a:hover,html.ccp-admin-dark #oc-search-result .oc-search-group a:hover{background:#24303d!important;color:#79b9ff!important}
+html.ccp-admin-dark #oc-search-result .oc-search-group strong,html.ccp-admin-dark #oc-search-result .oc-search-empty{color:#9facbb!important}
+html.ccp-admin-dark .input-group-addon{background:#283542!important;border-color:#465363!important;color:#d9e3ee!important}
+html.ccp-admin-dark .help-block,html.ccp-admin-dark .text-muted,html.ccp-admin-dark small{color:#9eacbc}
+html.ccp-admin-dark .btn-default,html.ccp-admin-dark .btn-light{background:#283542!important;background-image:none!important;border-color:#465363!important;color:#e8eef5!important;text-shadow:none!important}
+html.ccp-admin-dark .btn-default:hover,html.ccp-admin-dark .btn-default:focus,html.ccp-admin-dark .btn-light:hover,html.ccp-admin-dark .btn-light:focus{background:#334252!important;border-color:#566477!important;color:#fff!important}
+html.ccp-admin-dark .dropdown-menu,html.ccp-admin-dark .dropdown-menu>li,html.ccp-admin-dark .dropdown-header{background:#1b2530!important;border-color:#3b4858!important;color:#9facbb!important}
+html.ccp-admin-dark .dropdown-menu>li>a{background:transparent!important;color:#dce5ef!important}html.ccp-admin-dark .dropdown-menu>li>a:hover,html.ccp-admin-dark .dropdown-menu>li>a:focus{background:#293644!important;color:#fff!important}
+html.ccp-admin-dark .dropdown-menu .divider{background:#3a4756!important}
+html.ccp-admin-dark .nav-tabs{border-bottom-color:#3b4858!important}
+html.ccp-admin-dark .nav-tabs>li>a,html.ccp-admin-dark .nav-tabs>li>a:focus,html.ccp-admin-dark .nav-tabs>li>a:hover{background:transparent!important;color:#bdc9d6!important}
+html.ccp-admin-dark .nav-tabs>li.active>a,html.ccp-admin-dark .nav-tabs>li.active>a:hover,html.ccp-admin-dark .nav-tabs>li.active>a:focus{background:#202b37!important;color:#79b9ff!important;border-color:#3b4858 #3b4858 #202b37!important}
+html.ccp-admin-dark .pagination>li>a,html.ccp-admin-dark .pagination>li>span{background:#1b2530!important;border-color:#3d4a59!important;color:#cbd6e2!important}
+html.ccp-admin-dark .pagination>.active>a,html.ccp-admin-dark .pagination>.active>span{background:var(--ccp-admin-accent,#0b6fd3)!important;border-color:var(--ccp-admin-accent,#0b6fd3)!important;color:#fff!important}
+html.ccp-admin-dark .modal-content,html.ccp-admin-dark .note-modal .modal-content{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important}
+html.ccp-admin-dark .modal-header,html.ccp-admin-dark .modal-footer{background:#202b37!important;border-color:#354252!important}
+html.ccp-admin-dark .modal-body{background:#18212b!important;color:#dce5ef!important}
+html.ccp-admin-dark .note-editor.note-frame{background:#141d26!important;border-color:#465363!important}
+html.ccp-admin-dark .note-editor .note-toolbar{background:#202b37!important;border-color:#465363!important}
+html.ccp-admin-dark .note-editor .note-toolbar .note-btn,html.ccp-admin-dark .note-editor .note-toolbar .btn{background:#273340!important;background-image:none!important;border-color:#4b5868!important;color:#e8eef5!important}
+html.ccp-admin-dark .note-editor .note-editable{background:#111923!important;color:#e7edf4!important}
+html.ccp-admin-dark .note-editor .note-statusbar{background:#202b37!important;border-color:#465363!important}
+html.ccp-admin-dark .note-dropdown-menu,html.ccp-admin-dark .note-popover .popover-content{background:#18212b!important;color:#dce5ef!important;border-color:#465363!important}
+html.ccp-admin-dark .note-editor .note-dropdown-menu a,html.ccp-admin-dark .note-editor .note-dropdown-item{color:#dce5ef!important}
+html.ccp-admin-dark .CodeMirror,html.ccp-admin-dark .CodeMirror-gutters{background:#111923!important;color:#e7edf4!important;border-color:#465363!important}
+html.ccp-admin-dark .select2-container .select2-selection,html.ccp-admin-dark .select2-dropdown,html.ccp-admin-dark .bootstrap-datetimepicker-widget{background:#18212b!important;color:#dce5ef!important;border-color:#465363!important}
+html.ccp-admin-dark .popover,html.ccp-admin-dark .popover-title,html.ccp-admin-dark .tooltip-inner{background:#202b37!important;color:#eef4fa!important;border-color:#465363!important}
+html.ccp-admin-dark .close{color:#edf3f9!important;text-shadow:none!important}
+html.ccp-admin-dark .alert-success{background:#173a2a!important;border-color:#2d684d!important;color:#bce8d0!important}
+html.ccp-admin-dark .alert-info{background:#18334b!important;border-color:#315b7b!important;color:#c5e2fa!important}
+html.ccp-admin-dark .alert-warning{background:#49381a!important;border-color:#725b2b!important;color:#f5deb1!important}
+html.ccp-admin-dark .alert-danger{background:#4a2428!important;border-color:#754047!important;color:#f5c7cc!important}
+html.ccp-admin-dark pre,html.ccp-admin-dark code{background:#111923!important;color:#d9e4ef!important;border-color:#3c4958!important}
+html.ccp-admin-dark hr{border-top-color:#354252!important}
+html.ccp-admin-dark .ccp-char-counter{background:rgba(17,25,35,.9)!important;color:#9eacbc!important}
+html.ccp-admin-dark .ccp-color-grid>.ccp-color-item,html.ccp-admin-dark .ccp-cookie-icon-choice,html.ccp-admin-dark .ccp-cookie-icon-preview,html.ccp-admin-dark .ccp-color-control.input-group .input-group-addon,html.ccp-admin-dark .ccp-font-preview,html.ccp-admin-dark .ccp-checkout-fields-setting .well,html.ccp-admin-dark .ccp-category-wall-subcategory-block,html.ccp-admin-dark .ccp-product-taxonomy-tools{background:#202b37!important;border-color:#465363!important;color:#dce5ef!important}
+html.ccp-admin-dark .ccp-product-taxonomy-tools strong,html.ccp-admin-dark .ccp-category-wall-subcategory-title{color:#edf3f9!important}
+html.ccp-admin-dark .ccp-notification-card,html.ccp-admin-dark .ccp-notification-card.is-unread{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important}
+html.ccp-admin-dark .ccp-notification-card-head strong{color:#eef4fa!important}html.ccp-admin-dark .ccp-notification-meta{color:#9eacbc!important}
+/* Core / Compatibility page-specific cards. */
+html.ccp-admin-dark .ccp-core-about .ccp-about-hero,html.ccp-admin-dark .ccp-core-about .ccp-kpi,html.ccp-admin-dark .ccp-core-about .ccp-req,html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item,html.ccp-admin-dark #tab-schema .ccp-schema-stat,html.ccp-admin-dark .ccp-icon-scan-summary>div{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important}
+html.ccp-admin-dark .ccp-core-about .ccp-about-hero{background:linear-gradient(135deg,#18212b,#202b37)!important}
+html.ccp-admin-dark .ccp-core-about .ccp-about-title,html.ccp-admin-dark #tab-schema .ccp-schema-stat strong{color:#edf3f9!important}
+html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item{color:#dce5ef!important}html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item:hover,html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item:focus{background:#24303d!important}
+html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item.is-copied{background:#173a2a!important;border-color:#2d684d!important}
+html.ccp-admin-dark #tab-schema .ccp-schema-external{background:#173126!important}html.ccp-admin-dark #tab-schema .ccp-schema-fixable{background:#332b1d!important}
+/* Dashboard / Domovyk page-specific cards. */
+html.ccp-admin-dark .ccp-dashboard-center>.panel-heading,html.ccp-admin-dark .ccp-dashboard-section,html.ccp-admin-dark .ccp-dashboard-section[data-section="attention"],html.ccp-admin-dark .ccp-dashboard-section[data-section="commerce"],html.ccp-admin-dark .ccp-dashboard-section[data-section="system"],html.ccp-admin-dark .ccp-dash-kpi,html.ccp-admin-dark .ccp-attention-item,html.ccp-admin-dark .ccp-status-row,html.ccp-admin-dark .ccp-issue-row,html.ccp-admin-dark .ccp-domovyk-limits,html.ccp-admin-dark .ccp-health-card{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important}
+html.ccp-admin-dark .ccp-dash-kpi{background:linear-gradient(180deg,#18212b,#202b37)!important}html.ccp-admin-dark .ccp-dash-kpi>strong,html.ccp-admin-dark .ccp-dashboard-section-head h4{color:#edf3f9!important}
+html.ccp-admin-dark .ccp-dash-kpi.state-warning,html.ccp-admin-dark .ccp-attention-item.state-warning,html.ccp-admin-dark .ccp-status-row.state-warning{background:#332b1d!important;border-color:#725b2b!important}
+html.ccp-admin-dark .ccp-attention-item.state-error,html.ccp-admin-dark .ccp-status-row.state-error{background:#3a2226!important;border-color:#754047!important}
+html.ccp-admin-dark .ccp-status-row.state-ok,html.ccp-admin-dark .ccp-empty-ok{background:#173126!important;border-color:#2d684d!important;color:#bce8d0!important}
+html.ccp-admin-dark .ccp-issue-row:hover,html.ccp-admin-dark .ccp-issue-row:focus{background:#24303d!important}
+/* Bundled PayPal administration surfaces. PayPal brand/accent colours are retained; neutral white cards follow admin Dark mode. */
+html.ccp-admin-dark .payment-paypal .panel-default .section-content,
+html.ccp-admin-dark .payment-paypal .panel-default .section-checkout .section-panel,
+html.ccp-admin-dark .payment-paypal .panel-default .section-checkout .section-panel .section-panel-heading,
+html.ccp-admin-dark .payment-paypal .panel-default .section-checkout .section-panel .section-panel-body,
+html.ccp-admin-dark .payment-paypal .panel-default .section-cart .section-panel,
+html.ccp-admin-dark .payment-paypal .panel-default .section-cart .section-panel .section-panel-heading,
+html.ccp-admin-dark .payment-paypal .panel-default .section-cart .section-panel .section-panel-body,
+html.ccp-admin-dark .payment-paypal .panel-dashboard .tab,
+html.ccp-admin-dark .payment-paypal .panel-statistic .panel-body,
+html.ccp-admin-dark .payment-paypal .panel-sale-analytics .panel-body{
+ background:#18212b!important;border-color:#465363!important;color:#dce5ef!important;box-shadow:none!important
+}
+html.ccp-admin-dark .payment-paypal .panel-auth .panel-body{background-color:#18212b!important;background-image:none!important;border-color:#465363!important;color:#dce5ef!important}
+html.ccp-admin-dark .payment-paypal .panel-default .form-check-input{background-color:#111923!important;border-color:#657386!important}
+html.ccp-admin-dark .payment-paypal .panel-default .nav-tabs{scrollbar-color:var(--ccp-admin-accent,#0b6fd3) #18212b}
+html.ccp-admin-dark .payment-paypal .panel-default .nav-tabs::-webkit-scrollbar-track,
+html.ccp-admin-dark .payment-paypal .panel-default .nav-tabs::-webkit-scrollbar{background-color:#18212b!important}
+html.ccp-admin-dark .payment-paypal .panel-default .section-checkout .section-panel *,
+html.ccp-admin-dark .payment-paypal .panel-default .section-cart .section-panel *,
+html.ccp-admin-dark .payment-paypal .panel-dashboard .tab *{border-color:#465363}
+html.ccp-admin-dark .bootstrap-switch .bootstrap-switch-label{background:#283542!important;color:#e8eef5!important}
+html.ccp-admin-dark .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-default,
+html.ccp-admin-dark .bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-default{background:#334252!important;color:#e8eef5!important}
+/* RC86: legacy dashboard widgets rendered after the global dark stylesheet. */
+html.ccp-admin-dark .ccp-world-map{background:#17212b!important;border-color:#3d4a59!important}
+html.ccp-admin-dark .ccp-health-card>span,
+html.ccp-admin-dark .ccp-health-card>small,
+html.ccp-admin-dark .ccp-domovyk-folder-main .textFolder{color:#9eacbc!important}
+html.ccp-admin-dark .ccp-health-card>strong{color:#edf3f9!important}
+html.ccp-admin-dark .ccp-health-card.is-warning{background:#332b1d!important;border-color:#725b2b!important}
+html.ccp-admin-dark .ccp-domovyk-limits{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important}
+html.ccp-admin-dark .ccp-domovyk-folder{border-bottom-color:#354252!important}
+html.ccp-admin-dark .ccp-domovyk-folder .btn-danger{background:#4a2428!important;border-color:#754047!important;color:#f5c7cc!important}
+html.ccp-admin-dark .ccp-domovyk-folder .btn-danger:hover{background:#6a2d33!important;border-color:#8e4b54!important;color:#fff!important}
+
+html.ccp-admin-dark #oc-search-result .ccp-setting-search-copy small,html.ccp-admin-dark #oc-search-result .ccp-setting-search-copy code{color:#8fa0b2!important}
+html.ccp-admin-dark .ccp-setting-search-focus{box-shadow:0 0 0 3px rgba(77,163,255,.24)!important}

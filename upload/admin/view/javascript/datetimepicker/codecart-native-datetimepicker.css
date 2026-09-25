@@ -1,0 +1,83 @@
+/*
+ * CodeCart PRO Hybrid DateTimePicker v1.8.7
+ * Lightweight native HTML5 date/time UI with OpenCart 3 compatibility.
+ */
+.codecart-datetimepicker-source {
+    display: none !important;
+}
+
+.codecart-native-datetimepicker {
+    min-width: 0;
+    width: 100%;
+    background-image: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* OpenCart already has one calendar button. Hide the browser's second icon
+   but keep showPicker() available through the existing button. */
+.input-group.date .codecart-native-datetimepicker::-webkit-calendar-picker-indicator,
+.input-group.time .codecart-native-datetimepicker::-webkit-calendar-picker-indicator,
+.input-group.datetime .codecart-native-datetimepicker::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    width: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    display: none;
+}
+
+.codecart-datetime-hint {
+    margin-top: 4px;
+    color: #666;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.codecart-native-datetimepicker:focus {
+    outline: 0;
+}
+
+.input-group.date .codecart-native-datetimepicker,
+.input-group.time .codecart-native-datetimepicker,
+.input-group.datetime .codecart-native-datetimepicker {
+    padding-right: 12px;
+}
+
+/* CodeCart PRO RC66: native controls follow the active dark storefront/admin surface. */
+html.ccp-theme-dark .codecart-native-datetimepicker,
+html[data-ccp-picker-theme="dark"] .codecart-native-datetimepicker {
+    color-scheme: dark;
+    background-color: #171e27;
+    border-color: #3a4655;
+    color: #eef2f7;
+}
+html.ccp-theme-dark .codecart-datetime-hint,
+html[data-ccp-picker-theme="dark"] .codecart-datetime-hint { color: #aeb9c8; }
+
+
+/* CodeCart PRO RC92: labels for legacy hours/minutes controls. */
+.bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell{vertical-align:middle!important;text-align:center!important}
+.bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell>.ccp-time-label{display:block;margin:0 0 4px;font-size:10px;line-height:1.2;font-weight:600;color:#64748b;white-space:nowrap}
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell>.ccp-time-label,html.ccp-admin-dark .bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell>.ccp-time-label{color:#aeb9c8}
+
+
+
+/* v1.8.7 fallback: label legacy hour/minute cells even if the picker was created
+   before its dp.show bridge handler was attached. Modern Chromium supports :has(). */
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-hour),
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-minute),
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-second){height:50px!important;line-height:1.2!important;vertical-align:middle!important}
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-hour)::before,
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-minute)::before,
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-second)::before{display:block;margin:0 0 4px;font-size:10px;line-height:1.2;font-weight:600;color:#64748b;white-space:nowrap;text-align:center}
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-hour)::before{content:"Hours"}
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-minute)::before{content:"Minutes"}
+.bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-second)::before{content:"Seconds"}
+html[lang^="uk"] .bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-hour)::before{content:"Години"}
+html[lang^="uk"] .bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-minute)::before{content:"Хвилини"}
+html[lang^="uk"] .bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-second)::before{content:"Секунди"}
+html[lang^="ru"] .bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-hour)::before{content:"Часы"}
+html[lang^="ru"] .bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-minute)::before{content:"Минуты"}
+html[lang^="ru"] .bootstrap-datetimepicker-widget .timepicker-picker td:not(.ccp-time-value-cell):has(.timepicker-second)::before{content:"Секунды"}

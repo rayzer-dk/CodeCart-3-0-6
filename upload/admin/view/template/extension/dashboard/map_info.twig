@@ -1,0 +1,40 @@
+<div class="panel panel-default ccp-world-map-panel">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-globe"></i> {{ heading_title }}</h3>
+  </div>
+  <div class="panel-body ccp-country-orders">
+    <div id="ccp-world-map" class="ccp-world-map" aria-label="{{ heading_title }}"></div>
+    {% if countries %}
+    <div class="table-responsive ccp-world-map-table">
+      <table class="table table-condensed table-hover">
+        <thead><tr><th>{{ text_country }}</th><th class="text-right">{{ text_order }}</th><th class="text-right">{{ text_sale }}</th></tr></thead>
+        <tbody>{% for country in countries|slice(0, 8) %}<tr data-country="{{ country.iso_code_2|lower }}"><td><strong>{{ country.iso_code_2 }}</strong> {{ country.name }}</td><td class="text-right">{{ country.total }}</td><td class="text-right">{{ country.amount }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    {% else %}<p class="text-muted text-center ccp-world-map-empty">{{ text_no_data }}</p>{% endif %}
+  </div>
+</div>
+<style>
+.ccp-world-map-panel{border-top:3px solid #0b6fd3}.ccp-world-map{position:relative;height:250px;min-height:220px;border:1px solid #e3eaf2;border-radius:9px;background:#f8fbff;overflow:hidden;touch-action:none}.ccp-world-map-svg{display:block;width:100%;height:100%;cursor:default;user-select:none}.ccp-world-map-svg.is-zoomed{cursor:grab}.ccp-world-map-svg.is-dragging{cursor:grabbing}.ccp-world-map-region{transition:fill-opacity .12s ease,stroke .12s ease,filter .12s ease;cursor:pointer;outline:none}.ccp-world-map-region:hover,.ccp-world-map-region:focus{stroke:#0b6fd3!important;stroke-width:1.4!important;filter:brightness(.98)}.ccp-world-map-region.is-selected{stroke:#0057d9!important;stroke-width:2.2!important;filter:brightness(.9)}.ccp-world-map-tooltip{position:absolute;z-index:4;max-width:220px;padding:5px 8px;border-radius:5px;background:rgba(31,45,61,.94);color:#fff;font-size:12px;line-height:1.3;pointer-events:none;box-shadow:0 2px 7px rgba(0,0,0,.18)}.ccp-world-map-controls{position:absolute;z-index:3;top:9px;left:9px;display:flex;flex-direction:column;gap:4px}.ccp-world-map-control{display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid #cfd9e5;border-radius:6px;background:#fff;color:#263544;font-size:18px;font-weight:700;line-height:1;box-shadow:0 1px 4px rgba(31,45,61,.14);cursor:pointer}.ccp-world-map-control:hover,.ccp-world-map-control:focus{border-color:#0b6fd3;color:#0b6fd3;outline:none}.ccp-world-map-control:disabled{opacity:.45;cursor:default}.ccp-world-map-table{margin-top:12px}.ccp-world-map-table .table{margin-bottom:0}.ccp-world-map-table tr.is-selected>td{background:#eaf4ff!important}.ccp-world-map-empty{margin:10px 0 0}@media(max-width:767px){.ccp-world-map{height:210px;min-height:190px}.ccp-world-map-control{width:28px;height:28px}}
+html.ccp-admin-dark .ccp-world-map-control{background:#24313e;border-color:#4c5b6c;color:#e6edf5;box-shadow:0 1px 4px rgba(0,0,0,.28)}html.ccp-admin-dark .ccp-world-map-control:hover,html.ccp-admin-dark .ccp-world-map-control:focus{border-color:#2b8cff;color:#79b7ff}html.ccp-admin-dark .ccp-world-map-table tr.is-selected>td{background:#20364a!important}
+</style>
+<script type="text/javascript">
+(function(){
+  var el=document.getElementById('ccp-world-map');
+  if(!el||!window.CodeCartWorldMap){return;}
+  window.CodeCartWorldMap.render(el,{
+    values:{{ map_values_json|raw }},
+    label:{{ heading_title|json_encode|raw }},
+    controlsLabel:{{ text_map_controls|json_encode|raw }},
+    zoomInLabel:{{ text_zoom_in|json_encode|raw }},
+    zoomOutLabel:{{ text_zoom_out|json_encode|raw }},
+    resetLabel:{{ text_map_reset|json_encode|raw }}
+  });
+  el.addEventListener('codecart:mapselect',function(event){
+    var rows=document.querySelectorAll('.ccp-world-map-table tr[data-country]');
+    for(var i=0;i<rows.length;i++){
+      rows[i].classList.toggle('is-selected',!!event.detail&&rows[i].getAttribute('data-country')===event.detail.code);
+    }
+  });
+})();
+</script>

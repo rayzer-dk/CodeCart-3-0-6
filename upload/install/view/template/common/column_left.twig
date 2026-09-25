@@ -1,0 +1,26 @@
+<aside class="cc-sidebar">
+  {% if route|slice(0, 8) != 'upgrade/' %}
+  <div class="cc-step-list">
+    <div class="cc-step-item{% if route == 'install/step_1' %} active{% elseif route != 'install/step_1' %} done{% endif %}"><span>1</span><div>{{ text_license }}</div></div>
+    <div class="cc-step-item{% if route == 'install/step_2' %} active{% elseif route in ['install/step_3','install/step_4'] %} done{% endif %}"><span>2</span><div>{{ text_installation }}</div></div>
+    <div class="cc-step-item{% if route == 'install/step_3' %} active{% elseif route == 'install/step_4' %} done{% endif %}"><span>3</span><div>{{ text_configuration }}</div></div>
+    <div class="cc-step-item{% if route == 'install/step_4' %} active{% endif %}"><span>4</span><div>{{ text_finished }}</div></div>
+  </div>
+  {% else %}
+  <div class="cc-step-list">
+    <div class="cc-step-item active"><span>1</span><div>{{ text_upgrade }}</div></div>
+    <div class="cc-step-item{% if route == 'upgrade/upgrade/success' %} active{% endif %}"><span>2</span><div>{{ text_finished }}</div></div>
+  </div>
+  {% endif %}
+
+  <div class="cc-language">
+    <div class="cc-language__label">{{ text_language }}</div>
+    <div class="cc-language__options" role="group" aria-label="{{ text_language }}">
+      {% for language in languages %}
+      <a href="{{ language.href }}" class="cc-language__option{% if language.code == code %} active{% endif %}"{% if language.code == code %} aria-current="true"{% endif %}>
+        <img src="{{ language.image }}" alt="" width="16" height="12" /> <span>{{ language.name }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</aside>

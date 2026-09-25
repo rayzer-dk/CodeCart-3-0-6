@@ -1,0 +1,44 @@
+<?php
+$_['text_extension'] = 'Доповнення';
+$_['column_google_category'] = 'Категорія Google';
+$_['column_category'] = 'Категорія';
+$_['column_action'] = 'Дія';
+$_['button_category_add'] = 'Додати відповідність';
+$_['heading_title'] = 'Фід товарів Google';
+$_['text_success'] = 'Налаштування фіда товарів Google збережено.';
+$_['text_edit'] = 'Фід товарів Google';
+$_['text_import'] = 'Імпортуйте офіційний текстовий файл таксономії Google лише якщо ще використовуєте старі відповідності категорій. CodeCart PRO також читає Google Product Category ID безпосередньо з категорії та успадковує його від батьківської категорії.';
+$_['text_feed_help'] = 'RSS 2.0 фід товарів для Google Merchant Center. Вивантажує всі активні товари магазину зі стабільними URL, ціною/акційною ціною, наявністю, ідентифікаторами та категоріями. Товари без зображення пропускаються, оскільки image_link є обов’язковим.';
+$_['entry_google_category'] = 'Категорія Google (старе зіставлення)';
+$_['entry_category'] = 'Категорія магазину';
+$_['entry_data_feed'] = 'URL Merchant-фіда';
+$_['entry_status'] = 'Статус';
+$_['entry_language'] = 'Мова фіда';
+$_['entry_currency'] = 'Валюта фіда';
+$_['entry_diagnostics'] = 'Діагностика фіда';
+$_['help_language'] = 'Використовуйте одну мову для одного джерела Merchant Center. Назва, опис і сторінка товару мають бути тією самою мовою.';
+$_['help_currency'] = 'Стабільна валюта для всіх цін у цьому фіді.';
+$_['help_data_feed'] = 'Використовуйте цю адресу як XML-джерело за розкладом у Google Merchant Center.';
+$_['help_google_category'] = 'Необов’язкове старе зіставлення. Поле Google Product Category ID у самій категорії має пріоритет і може успадковуватися від батьківської.';
+$_['button_diagnose'] = 'Перевірити товари';
+$_['button_copy'] = 'Копіювати URL фіда';
+$_['text_fallback_url'] = 'Резервний route URL';
+$_['text_diag_total'] = 'Товарів';
+$_['text_diag_desc'] = 'Описів понад 5000 символів';
+$_['text_diag_image'] = 'Без зображення';
+$_['text_diag_brand'] = 'Без бренду';
+$_['text_diag_identifier'] = 'Без GTIN/MPN (у фіді: identifier_exists=no)';
+$_['text_diag_samples'] = 'Приклади перевищення';
+$_['text_diag_error'] = 'Діагностика не виконана. Перевірте журнал помилок.';
+$_['error_permission'] = 'Недостатньо прав для перегляду або зміни Google Merchant Feed.';
+$_['error_upload'] = 'Файл не може бути завантажений.';
+$_['error_filetype'] = 'Невірний формат файлу.';
+$_['error_filesize'] = 'Розмір файлу перевищує 4 МБ.';
+
+$_['button_download'] = 'Завантажити XML-фід';
+$_['text_feed_disabled'] = 'Фід вимкнений. Увімкніть його та збережіть налаштування, щоб URL почав повертати XML.';
+
+$_['entry_language_feeds'] = 'Фіди всіх мов';
+$_['column_feed_language'] = 'Мова';
+$_['column_feed_url'] = 'URL фіда';
+$_['help_language_feeds'] = 'Для багатомовного магазину створюйте окреме джерело Merchant Center для кожної активної мови. Тут показані готові URL усіх активних мов.';

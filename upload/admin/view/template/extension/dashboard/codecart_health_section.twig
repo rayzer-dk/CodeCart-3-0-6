@@ -1,0 +1,32 @@
+{% if section == 'commerce' %}
+<div class="ccp-kpi-grid ccp-kpi-grid-commerce">
+  {% for item in items %}<a class="ccp-dash-kpi state-{{ item.state }}" href="{{ item.href }}"><i class="fa {{ item.icon }}"></i><span>{{ item.label }}</span><strong>{{ item.value }}</strong></a>{% endfor %}
+</div>
+{% elseif section == 'attention' %}
+  {% if items %}<div class="ccp-attention-list">{% for item in items %}<a class="ccp-attention-item state-{{ item.state }}" href="{{ item.href }}"><i class="fa {% if item.state == 'error' %}fa-times-circle{% else %}fa-exclamation-triangle{% endif %}"></i><div><strong>{{ item.title }}</strong><small>{{ item.detail }}</small></div><i class="fa fa-chevron-right"></i></a>{% endfor %}</div>{% else %}<div class="ccp-empty-ok"><i class="fa fa-check-circle"></i> {{ empty }}</div>{% endif %}
+{% elseif section == 'system' or section == 'security' %}
+<div class="ccp-status-grid">
+  {% for item in items %}
+    {% if section == 'security' %}
+      <button type="button" class="ccp-status-row ccp-status-link ccp-security-help state-{{ item.state }}" data-title="{{ item.label }}" data-help="{{ item.help }}" data-action-href="{{ item.href }}"><span><i class="fa {% if item.state == 'ok' %}fa-check-circle{% elseif item.state == 'error' %}fa-times-circle{% elseif item.state == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i> {{ item.label }}</span><strong>{{ item.value }}</strong><i class="fa fa-chevron-right ccp-status-chevron" aria-hidden="true"></i></button>
+    {% elseif item.href %}
+      <a class="ccp-status-row ccp-status-link state-{{ item.state }}" href="{{ item.href }}"{% if item.detail %} title="{{ item.detail }}"{% endif %}><span><i class="fa {% if item.state == 'ok' %}fa-check-circle{% elseif item.state == 'error' %}fa-times-circle{% elseif item.state == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i> {{ item.label }}</span><strong>{{ item.value }}</strong><i class="fa fa-chevron-right ccp-status-chevron" aria-hidden="true"></i></a>
+    {% else %}
+      <div class="ccp-status-row state-{{ item.state }}"{% if item.detail %} title="{{ item.detail }}"{% endif %}><span><i class="fa {% if item.state == 'ok' %}fa-check-circle{% elseif item.state == 'error' %}fa-times-circle{% elseif item.state == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i> {{ item.label }}</span><strong>{{ item.value }}</strong></div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% if section == 'security' and integrity_items %}<div class="ccp-integrity-list">{% for item in integrity_items %}<code>{{ item.file }}</code> <span class="label label-warning">{{ item.state }}</span>{% endfor %}</div>{% endif %}
+{% elseif section == 'performance' %}
+  {% if performance %}
+  <div class="ccp-performance-head"><div><strong>{{ performance.checked_at }}</strong><small>{{ performance.url }}</small></div><button type="button" class="btn btn-default btn-sm ccp-performance-check" data-url="{{ check_url }}" data-loading-text="..."><i class="fa fa-refresh"></i> {{ button_check }}</button></div>
+  <div class="ccp-status-grid ccp-performance-grid">
+    {% for item in performance_items %}<div class="ccp-status-row{{ item.class }}"><span>{{ item.label }}</span><strong>{{ item.value }}</strong></div>{% endfor %}
+  </div>
+  {% else %}<div class="ccp-performance-empty"><span>{{ text_never_checked }}</span><button type="button" class="btn btn-primary btn-sm ccp-performance-check" data-url="{{ check_url }}" data-loading-text="..."><i class="fa fa-tachometer"></i> {{ button_check }}</button></div>{% endif %}
+{% elseif section == 'seo' %}
+<div class="ccp-seo-summary"><strong class="{% if total_issues %}text-warning{% else %}text-success{% endif %}">{{ total_issues }}</strong><span>{{ text_seo_issues }}</span><div><span class="label {% if schema_enabled %}label-success{% else %}label-warning{% endif %}">{{ text_schema }}: {% if schema_enabled %}ON{% else %}OFF{% endif %}</span> <span class="label {% if sitemap_enabled %}label-success{% else %}label-default{% endif %}">{{ text_sitemap }}: {% if sitemap_enabled %}ON{% else %}OFF{% endif %}</span></div></div>
+{% if items %}<div class="ccp-status-grid">{% for item in items %}<button type="button" class="ccp-status-row ccp-status-link ccp-seo-issue state-warning" data-url="{{ item.url }}" data-title="{{ item.label }}"><span><i class="fa fa-exclamation-triangle"></i> {{ item.label }}</span><strong>{{ item.value }}</strong><i class="fa fa-chevron-right ccp-status-chevron" aria-hidden="true"></i></button>{% endfor %}</div>{% else %}<div class="ccp-empty-ok"><i class="fa fa-check-circle"></i> {{ empty }}</div>{% endif %}
+{% elseif section == 'quick' %}
+<div class="ccp-quick-grid">{% for item in actions %}{% if item.ajax %}<button type="button" class="btn btn-primary ccp-quick-action ccp-quick-ajax" data-url="{{ item.ajax }}" data-loading-text="..."><i class="fa {{ item.icon }}"></i><span>{{ item.label }}</span></button>{% else %}<a class="btn btn-primary ccp-quick-action" href="{{ item.href }}"><i class="fa {{ item.icon }}"></i><span>{{ item.label }}</span></a>{% endif %}{% endfor %}</div>
+{% endif %}

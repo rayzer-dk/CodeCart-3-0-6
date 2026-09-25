@@ -1,0 +1,7 @@
+<section class="ccp-sidebar-module ccp-information-module{% if collapsed_mobile %} ccp-sidebar-module--mobile-collapsed{% endif %}">
+  <div class="ccp-sidebar-module__heading"><h3>{{ heading_title }}</h3><button type="button" class="ccp-sidebar-module__toggle" aria-expanded="{% if collapsed_mobile %}false{% else %}true{% endif %}" title="{{ heading_title }}"><i class="fa fa-chevron-down" aria-hidden="true"></i></button></div>
+  <div class="ccp-sidebar-module__body list-group">
+    {% for information in informations %}<a href="{{ information.href }}" class="list-group-item">{{ information.title }}</a>{% endfor %}
+    <a href="{{ contact }}" class="list-group-item">{{ text_contact }}</a><a href="{{ sitemap }}" class="list-group-item">{{ text_sitemap }}</a>
+  </div>
+</section>

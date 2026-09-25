@@ -1,0 +1,87 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" id="button-import" data-toggle="tooltip" title="{{ button_import }}" class="btn btn-success"><i class="fa fa-upload"></i></button>
+        <button type="submit" form="form-feed" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-google"></i> {{ text_edit }}</h3></div>
+      <div class="panel-body">
+        <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_feed_help }}</div>
+        <style>.ccp-google-legacy-map{margin-top:20px;padding-top:16px;border-top:1px solid #e5e9ef}.ccp-google-legacy-map h4{margin:0 0 14px}.ccp-google-legacy-map #category{margin-bottom:16px}.ccp-google-legacy-form{margin-top:0!important;margin-bottom:18px!important}.ccp-google-legacy-form .input-group{margin-top:9px}</style>
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-feed" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-language"><span data-toggle="tooltip" title="{{ help_language }}">{{ entry_language }}</span></label>
+            <div class="col-sm-10"><select name="feed_google_base_language" id="input-language" class="form-control">{% for code, language in languages %}<option value="{{ code }}"{% if code == feed_google_base_language %} selected{% endif %}>{{ language.name }} ({{ code }})</option>{% endfor %}</select></div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-currency"><span data-toggle="tooltip" title="{{ help_currency }}">{{ entry_currency }}</span></label>
+            <div class="col-sm-10"><select name="feed_google_base_currency" id="input-currency" class="form-control">{% for code, currency in currencies %}<option value="{{ code }}"{% if code == feed_google_base_currency %} selected{% endif %}>{{ currency.title }} ({{ code }})</option>{% endfor %}</select></div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-data-feed">{{ entry_data_feed }}</label>
+            <div class="col-sm-10">
+              <div class="input-group"><input type="text" value="{{ data_feed }}" id="input-data-feed" class="form-control" readonly /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-copy-feed" data-target="#input-data-feed" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div>
+              <p class="help-block">{{ help_data_feed }}</p>
+              {% if feed_google_base_status %}<a href="{{ data_feed }}" class="btn btn-default" target="_blank" rel="noopener" download><i class="fa fa-download"></i> {{ button_download }}</a>{% else %}<button type="button" class="btn btn-default" disabled="disabled" title="{{ text_feed_disabled }}"><i class="fa fa-download"></i> {{ button_download }}</button> <span class="help-block text-muted" style="display:inline-block;margin-left:8px;">{{ text_feed_disabled }}</span>{% endif %}
+              <br /><small class="text-muted">{{ text_fallback_url }}: {{ data_feed_fallback }}</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ entry_language_feeds }}</label>
+            <div class="col-sm-10">
+              <div class="table-responsive"><table class="table table-bordered table-hover ccp-language-feeds"><thead><tr><th>{{ column_feed_language }}</th><th>{{ column_feed_url }}</th><th class="text-center" style="width:110px">{{ column_action }}</th></tr></thead><tbody>
+              {% for feed in language_feeds %}<tr><td><strong>{{ feed.name }}</strong><br><small class="text-muted">{{ feed.code }}</small></td><td><input type="text" id="feed-url-{{ loop.index }}" class="form-control" value="{{ feed.url }}" readonly><small class="text-muted">{{ text_fallback_url }}: {{ feed.fallback }}</small></td><td class="text-center"><button type="button" class="btn btn-default ccp-copy-feed" data-target="#feed-url-{{ loop.index }}" title="{{ button_copy }}"><i class="fa fa-copy"></i></button> <a href="{{ feed.url }}" class="btn btn-default" target="_blank" rel="noopener" title="{{ button_download }}"><i class="fa fa-external-link"></i></a></td></tr>{% endfor %}
+              </tbody></table></div>
+              <p class="help-block">{{ help_language_feeds }}</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10"><select name="feed_google_base_status" id="input-status" class="form-control"><option value="1"{% if feed_google_base_status %} selected{% endif %}>{{ text_enabled }}</option><option value="0"{% if not feed_google_base_status %} selected{% endif %}>{{ text_disabled }}</option></select></div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ entry_diagnostics }}</label>
+            <div class="col-sm-10"><button type="button" id="button-diagnose" class="btn btn-default"><i class="fa fa-stethoscope"></i> {{ button_diagnose }}</button><div id="feed-diagnostics" class="help-block" aria-live="polite"></div></div>
+          </div>
+          <hr />
+          <div class="ccp-google-legacy-map">
+            <h4><i class="fa fa-exchange"></i> {{ entry_google_category }}</h4>
+            <div id="category"></div>
+          <div class="form-group ccp-google-legacy-form">
+            <label class="col-sm-2 control-label">{{ entry_google_category }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="google_base_category" value="" placeholder="{{ entry_google_category }}" id="input-google-category" class="form-control" />
+              <input type="hidden" name="google_base_category_id" value="" />
+              <div class="input-group"><input type="text" name="category" value="" placeholder="{{ entry_category }}" id="input-category" class="form-control" /><input type="hidden" name="category_id" value="" /><span class="input-group-btn"><button type="button" id="button-category-add" title="{{ button_category_add }}" class="btn btn-primary"><i class="fa fa-plus"></i></button></span></div>
+              <p class="help-block">{{ help_google_category }}</p>
+            </div>
+          </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript"><!--
+$('input[name=\'google_base_category\']').autocomplete({'source':function(request,response){$.ajax({url:'index.php?route=extension/feed/google_base/autocomplete&user_token={{ user_token }}&filter_name='+encodeURIComponent(request),dataType:'json',success:function(json){response($.map(json,function(item){return{label:item.name,value:item.google_base_category_id};}));}});},'select':function(item){$(this).val(item.label);$('input[name=\'google_base_category_id\']').val(item.value);}});
+$('input[name=\'category\']').autocomplete({'source':function(request,response){$.ajax({url:'index.php?route=catalog/category/autocomplete&user_token={{ user_token }}&filter_name='+encodeURIComponent(request),dataType:'json',success:function(json){response($.map(json,function(item){return{label:item.name,value:item.category_id};}));}});},'select':function(item){$(this).val(item.label);$('input[name=\'category_id\']').val(item.value);}});
+$('#category').on('click','.pagination a',function(e){e.preventDefault();$('#category').load(this.href);});
+$('#category').load('index.php?route=extension/feed/google_base/category&user_token={{ user_token }}');
+$('#button-category-add').on('click',function(){var b=$(this);$.ajax({url:'index.php?route=extension/feed/google_base/addcategory&user_token={{ user_token }}',type:'post',dataType:'json',data:{google_base_category_id:$('input[name=\'google_base_category_id\']').val(),category_id:$('input[name=\'category_id\']').val()},beforeSend:function(){b.button('loading');},complete:function(){b.button('reset');},success:function(json){if(json.error){alert(json.error);return;}$('#category').load('index.php?route=extension/feed/google_base/category&user_token={{ user_token }}');$('input[name=\'category\'],input[name=\'google_base_category\']').val('');$('input[name=\'category_id\'],input[name=\'google_base_category_id\']').val('');}});});
+$('#category').on('click','.btn-danger',function(){var node=this;$.ajax({url:'index.php?route=extension/feed/google_base/removecategory&user_token={{ user_token }}',type:'post',dataType:'json',data:{category_id:this.value},success:function(json){if(json.error){alert(json.error);return;}$('#category').load('index.php?route=extension/feed/google_base/category&user_token={{ user_token }}');}});});
+$('#button-import').on('click',function(){$('#form-upload').remove();$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display:none"><input type="file" name="file" accept=".txt,text/plain"></form>');$('#form-upload input[name=\'file\']').one('change',function(){var f=new FormData($('#form-upload')[0]);$.ajax({url:'index.php?route=extension/feed/google_base/import&user_token={{ user_token }}',type:'post',dataType:'json',data:f,cache:false,contentType:false,processData:false,success:function(json){if(json.error)alert(json.error);else if(json.success)location.reload();}});}).trigger('click');});
+$('.ccp-copy-feed').on('click',function(){var el=document.querySelector($(this).data('target'));if(!el)return;var value=el.value||'';if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(value);}else{el.select();document.execCommand('copy');window.getSelection().removeAllRanges();}});
+$('#input-language').on('change',function(){var base='{{ data_feed|e('js') }}';var code=this.value;$('#input-data-feed').val(base.replace(/google-merchant-[^\\/]+\\.xml$/, 'google-merchant-'+code+'.xml'));});
+$('#button-diagnose').on('click',function(){var b=$(this),out=$('#feed-diagnostics');b.button('loading');out.removeClass('text-success text-warning text-danger').text('{{ text_loading }}');$.ajax({url:'{{ diagnose|e('js') }}',dataType:'json',complete:function(){b.button('reset');},success:function(json){if(json.error){out.addClass('text-danger').text(json.error);return;}var d=json.data||{};var parts=['{{ text_diag_total|e('js') }}: '+(d.total||0),'{{ text_diag_desc|e('js') }}: '+(d.description_over_5000||0),'{{ text_diag_image|e('js') }}: '+(d.missing_image||0),'{{ text_diag_brand|e('js') }}: '+(d.missing_brand||0),'{{ text_diag_identifier|e('js') }}: '+(d.missing_identifier||0)];if(d.description_samples&&d.description_samples.length)parts.push('{{ text_diag_samples|e('js') }}: '+d.description_samples.join('; '));out.addClass((d.description_over_5000||d.missing_image)?'text-warning':'text-success').text(parts.join(' | '));},error:function(){out.addClass('text-danger').text('{{ text_diag_error|e('js') }}');}});});
+//--></script>
+</div>
+{{ footer }}

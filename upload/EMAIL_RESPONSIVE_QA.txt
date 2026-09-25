@@ -1,0 +1,30 @@
+CodeCart PRO 3.0.6.0 — Responsive Email Layer
+
+Email logo:
+- Original store logo is never modified.
+- EmailLogo creates a cached PNG derivative from WebP/PNG/JPEG/GIF when GD supports the source.
+- Raster canvas is max 600x160 px; display is max 300x80 px.
+- Explicit width/height and a bounded container prevent oversized logos.
+
+HTML email coverage reviewed:
+- Order confirmation
+- Order status change
+- New order admin alert
+- New customer / registration
+- New customer admin alert
+- Password reset
+- Customer transaction
+- Affiliate registration
+- Affiliate admin alert
+- Voucher email
+
+Responsive rules:
+- max content width 600 px
+- mobile padding 14–18 px
+- buttons become full-width on small screens
+- long email/URLs wrap
+- product table becomes stacked on mobile
+- no dependency on storefront CSS
+- inline styles remain as fallback for clients with limited CSS support
+
+Important: email clients can still proxy or transcode remote images. The source WebP in the store is preserved; only the email derivative is PNG.

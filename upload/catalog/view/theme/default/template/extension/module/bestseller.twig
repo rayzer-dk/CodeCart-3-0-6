@@ -1,0 +1,49 @@
+<div class="ccp-native-module ccp-native-module--products ccp-native-module--{{ display_mode }}" style="--ccp-module-cols-desktop:{{ columns_desktop }};--ccp-module-cols-tablet:{{ columns_tablet }};--ccp-module-cols-mobile:{{ columns_mobile }};--ccp-module-image-width:{{ image_width|default(200) }}px;--ccp-module-image-ratio:{{ image_width|default(200) }} / {{ image_height|default(200) }}" data-autoplay="{{ autoplay }}" data-autoplay-delay="{{ autoplay_delay }}" data-loop="{{ loop }}" data-step="{{ carousel_step }}" data-pause-label="{{ text_pause_autoplay }}" data-play-label="{{ text_play_autoplay }}">
+  {% if heading_title or (display_mode == 'carousel' and (show_arrows or autoplay)) %}<div class="ccp-native-module-heading">{% if heading_title %}<h3>{{ heading_title }}</h3>{% else %}<span></span>{% endif %}{% if display_mode == 'carousel' and (show_arrows or autoplay) %}<div class="ccp-native-module-arrows">{% if autoplay %}<button type="button" class="ccp-native-module-autoplay-toggle" title="{{ text_pause_autoplay }}" aria-label="{{ text_pause_autoplay }}" aria-pressed="false"><i class="fa fa-pause" aria-hidden="true"></i></button>{% endif %}{% if show_arrows %}<button type="button" class="ccp-native-module-prev" title="{{ text_previous_products }}" aria-label="{{ text_previous_products }}"><i class="fa fa-angle-left" aria-hidden="true"></i></button><button type="button" class="ccp-native-module-next" title="{{ text_next_products }}" aria-label="{{ text_next_products }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button>{% endif %}</div>{% endif %}</div>{% endif %}
+<div class="ccp-native-module-viewport"><div class="ccp-native-module-track">
+ {% for product in products %}
+  <div class="product-layout ccp-native-module-item">
+    <div class="product-thumb transition">
+      <div class="image"><a href="{{ product.href }}"><img src="{{ product.thumb }}"{% if image_width and image_height %} width="{{ image_width }}" height="{{ image_height }}"{% endif %} alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" loading="lazy" decoding="async" /></a></div>
+      <div class="ccp-product-list-body">
+      <div class="caption">
+        <h4><a href="{{ product.href }}">{{ product.name }}</a></h4>
+        {% if card_content in ['description','both'] and product.description %}<p class="ccp-card-description">{{ product.description|e }}</p>{% endif %}{% if card_content in ['attributes','both'] and product.attributes %}<ul class="ccp-card-attributes">{% for attribute in product.attributes %}<li><span title="{{ attribute.name }}">{{ attribute.name }}</span><strong title="{{ attribute.text }}">{{ attribute.text }}</strong></li>{% endfor %}</ul>{% endif %}
+        {% if product.rating %}
+        <div class="rating">
+          {% for i in 1..5 %}
+          {% if product.rating < i %}
+          <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-2x"></i></span>
+          {% else %}
+          <span class="fa fa-stack"><i class="fa fa-star fa-stack-2x"></i><i class="fa fa-star-o fa-stack-2x"></i></span>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if product.price %}
+        <p class="price">
+          {% if not product.special %}
+          {{ product.price }}
+          {% else %}
+          <span class="price-new">{{ product.special }}</span> <span class="price-old">{{ product.price }}</span>
+          {% endif %}
+          {% if product.tax %}
+          <span class="price-tax">{{ product.tax_label ? product.tax_label : text_tax }} {{ product.tax }}</span>
+          {% endif %}
+        </p>
+        {% endif %}
+      </div>
+      <div class="button-group">
+        {% if product.can_buy is not defined or product.can_buy %}<button type="button" onclick="cart.add('{{ product.product_id }}');" class="ccp-cart-add" data-product-id="{{ product.product_id }}" title="{{ button_cart }}" aria-label="{{ button_cart }}"><i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span></button>{% else %}<button type="button" class="ccp-cart-add is-out-of-stock" disabled="disabled" title="{{ product.stock_status }}" aria-label="{{ product.stock_status }}"><i class="fa fa-ban"></i> <span class="ccp-stock-status">{{ product.stock_status }}</span></button>{% endif %}
+        <button type="button" data-toggle="tooltip" title="{{ button_wishlist }}" onclick="wishlist.add('{{ product.product_id }}');" aria-label="{{ button_wishlist }}"><i class="fa fa-heart"></i></button>
+        <button type="button" data-toggle="tooltip" title="{{ button_compare }}" onclick="compare.add('{{ product.product_id }}');" aria-label="{{ button_compare }}"><i class="fa fa-exchange"></i></button>
+      </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+</div>
+{% if display_mode == 'carousel' and show_dots %}<div class="ccp-native-module-pagination" aria-label="{{ heading_title }}"></div>{% endif %}
+</div>
+

@@ -1,0 +1,29 @@
+{{ header }}
+<div class="cc-page">
+  <div class="container">
+    <div class="cc-layout">
+      <main class="cc-card">
+        <div class="cc-card-head"><div><h1>{{ heading_title }}</h1><p>{{ text_step_4 }}</p></div><div class="cc-step-badge">4 / 4</div></div>
+        <div class="cc-card-body">
+          <div class="cc-complete">
+            <div class="cc-complete-icon"><i class="fa-solid fa-check"></i></div>
+            <h2>{{ text_ready }}</h2>
+            <p>{{ text_ready_description }}</p>
+            <div class="cc-summary">
+              <div class="cc-summary-row"><span>{{ text_version }}</span><strong>CodeCart PRO {{ version }}</strong></div>
+              <div class="cc-summary-row"><span>PHP</span><strong>{{ php_version }}</strong></div>
+              <div class="cc-summary-row"><span>{{ text_database }}</span><strong>{{ database_summary }}</strong></div>
+              <div class="cc-summary-row"><span>{{ text_storage }}</span><strong>{{ storage_summary }}</strong></div>
+              {% if admin_username %}<div class="cc-summary-row"><span>{{ text_admin_login }}</span><strong>{{ admin_username }}</strong></div>{% endif %}
+              <p class="help-block">{{ text_admin_login_help }}</p>
+            </div>
+            <div class="cc-actions"><a href="../" class="btn btn-default"><i class="fa-solid fa-store"></i> {{ text_catalog }}</a><a href="../admin/" class="btn btn-primary"><i class="fa-solid fa-gear"></i> {{ text_admin }}</a></div>
+            <div class="cc-notice"><i class="fa-solid fa-triangle-exclamation"></i> {{ error_warning }}</div>
+          </div>
+        </div>
+      </main>
+      {{ column_left }}
+    </div>
+  </div>
+</div>
+{{ footer }}

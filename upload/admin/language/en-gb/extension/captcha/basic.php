@@ -1,0 +1,19 @@
+<?php
+$_['heading_title'] = 'Local Adaptive CAPTCHA';
+$_['text_extension'] = 'Extensions';
+$_['text_success'] = 'Local CAPTCHA settings have been saved';
+$_['text_edit'] = 'Local adaptive CAPTCHA settings';
+$_['text_local_help'] = 'Recommended Adaptive mode keeps the human step fast with a slider while direct HTTP bots are screened by a server nonce, random honeypot field, minimum age and rate limit. The 9-tile visual challenge is only a fallback. No Google or external API is used.';
+$_['text_mode_adaptive'] = 'Adaptive — quick check + visual fallback';
+$_['text_mode_visual'] = 'Visual — always show 9 tiles';
+$_['text_bot_protection'] = 'Always active: single-use nonce, random hidden honeypot, minimum-age check, local rate limit, one-time verified token and a 9-tile fallback after suspicious or failed verification.';
+$_['entry_status'] = 'Status';
+$_['entry_mode'] = 'Verification mode';
+$_['entry_min_age'] = 'Minimum time';
+$_['entry_bot_protection'] = 'Bot protection';
+$_['help_mode'] = 'Adaptive is recommended for stores because it minimizes customer friction. Visual should only be used when you want a graphical task every time.';
+$_['help_min_age'] = 'The server rejects a verification that arrives earlier than this after challenge creation. 900 ms is recommended. Allowed range: 500–5000 ms.';
+$_['help_bot_protection'] = 'All checks are local and do not require Google reCAPTCHA. They stop most ordinary form/post bots but are not claimed to be absolute protection against full browser automation.';
+$_['error_permission'] = 'You do not have permission to modify CAPTCHA settings';
+$_['error_mode'] = 'Choose a supported CAPTCHA mode';
+$_['error_min_age'] = 'Minimum time must be between 500 and 5000 ms';

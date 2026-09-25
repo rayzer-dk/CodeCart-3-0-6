@@ -1,0 +1,27 @@
+{{ header }}{{ column_left }}
+<div id="content" class="cc-error-log-page">
+  <style>
+  .cc-error-log-page .cc-error-log{max-height:620px;overflow:auto;white-space:pre-wrap;word-break:break-word;padding:12px;margin:0;border:1px solid #dce3eb;border-radius:4px;background:#111820;color:#dce6f0;font-family:Consolas,Monaco,monospace;font-size:12px;line-height:1.45}.cc-error-log-page .cc-line-error{color:#ff8f8f;font-weight:600}.cc-error-log-page .cc-line-warn{color:#f4c66b}.cc-error-log-page .cc-log-meta{margin-bottom:10px;color:#68778a;font-size:12px}.cc-error-log-page .panel{border-top:3px solid #0057d9}html.ccp-admin-dark .cc-error-log-page .panel{background:#18222d!important;border-color:#364554!important;color:#dbe5ef!important}
+  </style>
+  <div class="page-header"><div class="container-fluid"><div class="pull-right">{% if log %}<button type="button" id="cc-copy-error-log" data-toggle="tooltip" title="{{ button_copy }}" class="btn btn-default"><i class="fa fa-copy"></i></button> {% endif %}<a href="{{ download }}" data-toggle="tooltip" title="{{ button_download }}" class="btn btn-primary"><i class="fa fa-download"></i></a> <a onclick="confirm('{{ text_confirm }}') ? location.href='{{ clear }}' : false;" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger"><i class="fa fa-eraser"></i></a></div><h1>{{ heading_title }}</h1><ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul></div></div>
+  <div class="container-fluid">
+    {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    {% if success %}<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"><i class="fa fa-exclamation-triangle"></i> {{ text_list }}</h3></div><div class="panel-body">
+      <div class="cc-log-meta">{{ text_file }}: <strong>{{ log_name }}</strong> · {{ text_size }}: <strong>{{ log_size }}</strong></div>
+      {% if tail_notice %}<div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ tail_notice }}</div>{% endif %}
+      {% if log %}<pre id="cc-error-log" class="cc-error-log" tabindex="0" role="textbox" aria-readonly="true">{{ log }}</pre>{% else %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_empty }}</div>{% endif %}
+    </div></div>
+  </div>
+</div>
+<script>(function(){
+var node=document.getElementById('cc-error-log');if(!node)return;
+var raw=node.textContent,lines=raw.split('\n'),f=document.createDocumentFragment();
+for(var i=0;i<lines.length;i++){var s=document.createElement('span'),l=lines[i];if(/\b(fatal|parse error|uncaught|exception|critical|error)\b/i.test(l))s.className='cc-line-error';else if(/\b(warning|deprecated|notice)\b/i.test(l))s.className='cc-line-warn';s.textContent=l+(i<lines.length-1?'\n':'');f.appendChild(s);}node.textContent='';node.appendChild(f);
+function selectLog(){var range=document.createRange();range.selectNodeContents(node);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}
+node.addEventListener('click',function(){node.focus();});
+node.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==='a'){e.preventDefault();selectLog();}});
+var copy=document.getElementById('cc-copy-error-log');if(copy){copy.addEventListener('click',function(){var text=node.textContent||'';var done=function(){copy.classList.add('btn-success');setTimeout(function(){copy.classList.remove('btn-success');},1000);};if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done).catch(function(){fallback(text,done);});}else{fallback(text,done);}});}
+function fallback(text,done){var a=document.createElement('textarea');a.value=text;a.style.position='fixed';a.style.left='-9999px';document.body.appendChild(a);a.focus();a.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(a);}
+})();</script>
+{{ footer }}

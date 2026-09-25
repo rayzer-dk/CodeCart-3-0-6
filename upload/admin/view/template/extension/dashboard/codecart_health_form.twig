@@ -1,0 +1,17 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header"><div class="container-fluid"><div class="pull-right"><button type="submit" form="form-dashboard" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button> <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div><h1>{{ heading_title }}</h1><ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul></div></div>
+  <div class="container-fluid">{% if error_warning %}<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>{% endif %}
+    <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"><i class="fa fa-dashboard"></i> {{ text_edit }}</h3></div><div class="panel-body">
+      <form action="{{ action }}" method="post" id="form-dashboard" class="form-horizontal">
+        <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_compatibility }}</div>
+        <div class="form-group"><label class="col-sm-3 control-label">{{ entry_status }}</label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="dashboard_codecart_health_status" value="1"{% if dashboard_codecart_health_status %} checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="dashboard_codecart_health_status" value="0"{% if not dashboard_codecart_health_status %} checked{% endif %}> {{ text_disabled }}</label></div></div>
+        <div class="form-group"><label class="col-sm-3 control-label" for="sort-order">{{ entry_sort_order }}</label><div class="col-sm-9"><input type="number" name="dashboard_codecart_health_sort_order" value="{{ dashboard_codecart_health_sort_order }}" id="sort-order" class="form-control"></div></div>
+        <fieldset><legend>{{ text_sections }}</legend><p class="help-block">{{ text_sections_help }}</p>{% for section in sections %}<div class="form-group"><label class="col-sm-3 control-label">{{ section.name }}</label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="dashboard_codecart_health_{{ section.code }}_status" value="1"{% if section.status %} checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="dashboard_codecart_health_{{ section.code }}_status" value="0"{% if not section.status %} checked{% endif %}> {{ text_disabled }}</label></div></div>{% endfor %}</fieldset>
+        <div class="form-group"><label class="col-sm-3 control-label" for="low-stock">{{ entry_low_stock }}</label><div class="col-sm-9"><input type="number" min="0" max="1000000" name="dashboard_codecart_health_low_stock_limit" value="{{ dashboard_codecart_health_low_stock_limit }}" id="low-stock" class="form-control"></div></div>
+        <fieldset><legend>{{ text_quick }}</legend><p class="help-block">{{ text_quick_help }}</p><div class="form-group"><div class="col-sm-offset-3 col-sm-9">{% for action in quick_action_options %}<label class="checkbox-inline"><input type="checkbox" name="dashboard_codecart_health_quick_actions[]" value="{{ action.code }}"{% if action.selected %} checked{% endif %}> {{ action.label }}</label>{% endfor %}</div></div></fieldset>
+      </form>
+    </div></div>
+  </div>
+</div>
+{{ footer }}

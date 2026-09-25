@@ -1,0 +1,197 @@
+{{ header }}
+<div id="checkout-cart" class="container">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href|e('html_attr') }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% if attention %}
+  <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ attention }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endif %}
+  {% if success %}
+  <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endif %}
+  {% if error_warning %}
+  <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endif %}
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class|e('html_attr') }}">{{ content_top }}
+      <div class="ccp-commerce ccp-commerce-{{ commerce_style }}">
+      {% if commerce_style == 'modern' %}
+      <h1>{{ heading_title }}{% if weight %} <small>({{ weight }})</small>{% endif %}</h1>
+      <div class="ccp-cart-layout">
+      <div class="ccp-cart-main">
+      <form action="{{ action|e('html_attr') }}" method="post" enctype="multipart/form-data">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <td class="text-center">{{ column_image }}</td>
+                <td class="text-left">{{ column_name }}</td>
+                <td class="text-left">{{ column_model }}</td>
+                <td class="text-left">{{ column_quantity }}</td>
+                <td class="text-right">{{ column_price }}</td>
+                <td class="text-right">{{ column_total }}</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+            {% for product in products %}
+            <tr>
+              <td class="text-center ccp-cart-product-image">{% if product.thumb %} <a href="{{ product.href|e('html_attr') }}"><img src="{{ product.thumb|e('html_attr') }}" alt="{{ product.name|e('html_attr') }}" title="{{ product.name|e('html_attr') }}" class="img-thumbnail" /></a> {% endif %}</td>
+              <td class="text-left ccp-cart-product-name"><a href="{{ product.href|e('html_attr') }}">{{ product.name }}</a> {% if not product.stock %} <span class="text-danger">***</span> {% endif %}
+                {% if product.option %}
+                {% for option in product.option %} <br/>
+                <small>{{ option.name }}: {{ option.value }}</small> {% endfor %}
+                {% endif %}
+                {% if product.reward %} <br/>
+                <small>{{ product.reward }}</small> {% endif %}
+                {% if product.recurring %} <br/>
+                <span class="label label-info">{{ text_recurring_item }}</span> <small>{{ product.recurring }}</small> {% endif %}</td>
+              <td class="text-left ccp-cart-product-model">{{ product.model }}</td>
+              <td class="text-left ccp-cart-product-quantity"><div class="input-group btn-block">
+                  <input type="text" name="quantity[{{ product.cart_id }}]" value="{{ product.quantity|e('html_attr') }}" size="1" class="form-control ccp-cart-qty" data-cart-id="{{ product.cart_id|e('html_attr') }}" inputmode="numeric" min="0" />
+                  <span class="input-group-btn">
+                  <button type="button" data-cart-id="{{ product.cart_id|e('html_attr') }}" data-toggle="tooltip" title="{{ button_update|e('html_attr') }}" class="btn btn-primary ccp-cart-qty-update" aria-label="{{ button_update|e('html_attr') }}"><i class="fa fa-refresh"></i></button>
+                  <button type="button" data-toggle="tooltip" title="{{ button_remove|e('html_attr') }}" class="btn btn-danger" onclick="cart.remove('{{ product.cart_id }}');" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times-circle"></i></button>
+                  </span></div></td>
+              <td class="text-right ccp-cart-product-price">{{ product.price }}</td>
+              <td class="text-right ccp-cart-product-total">{{ product.total }}</td>
+            </tr>
+            {% endfor %}
+            {% for voucher in vouchers %}
+            <tr>
+              <td class="ccp-cart-product-image"></td>
+              <td class="text-left ccp-cart-product-name">{{ voucher.description }}</td>
+              <td class="text-left ccp-cart-product-model"></td>
+              <td class="text-left ccp-cart-product-quantity"><div class="input-group btn-block">
+                  <input type="text" name="" value="1" size="1" disabled="disabled" class="form-control" />
+                  <span class="input-group-btn">
+                  <button type="button" data-toggle="tooltip" title="{{ button_remove|e('html_attr') }}" class="btn btn-danger" onclick="voucher.remove('{{ voucher.key }}');" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times-circle"></i></button>
+                  </span></div></td>
+              <td class="text-right ccp-cart-product-price">{{ voucher.amount }}</td>
+              <td class="text-right ccp-cart-product-total">{{ voucher.amount }}</td>
+            </tr>
+            {% endfor %}
+              </tbody>
+            
+          </table>
+        </div>
+      </form>
+      </div>
+      <aside class="ccp-cart-side">
+        <div class="ccp-cart-summary-card">
+          <div class="ccp-cart-totals">
+            {% for total in totals %}<div class="ccp-cart-total-row"><span>{{ total.title }}</span><strong>{{ total.text }}</strong></div>{% endfor %}
+          </div>
+          <div class="ccp-cart-checkout-actions"><a href="{{ checkout|e('html_attr') }}" class="btn btn-primary btn-block">{{ button_checkout }}</a><a href="{{ continue|e('html_attr') }}" class="btn btn-default btn-block">{{ button_shopping }}</a></div>
+        </div>
+        {% if modules %}
+        <div class="ccp-cart-extras"><h3>{{ text_next }}</h3><p>{{ text_next_choice }}</p><div class="panel-group" id="accordion">{% for module in modules %}{{ module }}{% endfor %}</div></div>
+        {% endif %}
+      </aside>
+      </div>
+      {% else %}
+      <h1>{{ heading_title }}
+        {% if weight %}
+        &nbsp;({{ weight }})
+        {% endif %} </h1>
+      <form action="{{ action|e('html_attr') }}" method="post" enctype="multipart/form-data">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <td class="text-center">{{ column_image }}</td>
+                <td class="text-left">{{ column_name }}</td>
+                <td class="text-left">{{ column_model }}</td>
+                <td class="text-left">{{ column_quantity }}</td>
+                <td class="text-right">{{ column_price }}</td>
+                <td class="text-right">{{ column_total }}</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+            {% for product in products %}
+            <tr>
+              <td class="text-center">{% if product.thumb %} <a href="{{ product.href|e('html_attr') }}"><img src="{{ product.thumb|e('html_attr') }}" alt="{{ product.name|e('html_attr') }}" title="{{ product.name|e('html_attr') }}" class="img-thumbnail" /></a> {% endif %}</td>
+              <td class="text-left"><a href="{{ product.href|e('html_attr') }}">{{ product.name }}</a> {% if not product.stock %} <span class="text-danger">***</span> {% endif %}
+                {% if product.option %}
+                {% for option in product.option %} <br/>
+                <small>{{ option.name }}: {{ option.value }}</small> {% endfor %}
+                {% endif %}
+                {% if product.reward %} <br/>
+                <small>{{ product.reward }}</small> {% endif %}
+                {% if product.recurring %} <br/>
+                <span class="label label-info">{{ text_recurring_item }}</span> <small>{{ product.recurring }}</small> {% endif %}</td>
+              <td class="text-left">{{ product.model }}</td>
+              <td class="text-left"><div class="input-group btn-block" style="max-width: 200px;">
+                  <input type="text" name="quantity[{{ product.cart_id }}]" value="{{ product.quantity|e('html_attr') }}" size="1" class="form-control ccp-cart-qty" data-cart-id="{{ product.cart_id|e('html_attr') }}" inputmode="numeric" min="0" />
+                  <span class="input-group-btn">
+                  <button type="button" data-cart-id="{{ product.cart_id|e('html_attr') }}" data-toggle="tooltip" title="{{ button_update|e('html_attr') }}" class="btn btn-primary ccp-cart-qty-update" aria-label="{{ button_update|e('html_attr') }}"><i class="fa fa-refresh"></i></button>
+                  <button type="button" data-toggle="tooltip" title="{{ button_remove|e('html_attr') }}" class="btn btn-danger" onclick="cart.remove('{{ product.cart_id }}');" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times-circle"></i></button>
+                  </span></div></td>
+              <td class="text-right">{{ product.price }}</td>
+              <td class="text-right">{{ product.total }}</td>
+            </tr>
+            {% endfor %}
+            {% for voucher in vouchers %}
+            <tr>
+              <td></td>
+              <td class="text-left">{{ voucher.description }}</td>
+              <td class="text-left"></td>
+              <td class="text-left"><div class="input-group btn-block" style="max-width: 200px;">
+                  <input type="text" name="" value="1" size="1" disabled="disabled" class="form-control" />
+                  <span class="input-group-btn">
+                  <button type="button" data-toggle="tooltip" title="{{ button_remove|e('html_attr') }}" class="btn btn-danger" onclick="voucher.remove('{{ voucher.key }}');" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times-circle"></i></button>
+                  </span></div></td>
+              <td class="text-right">{{ voucher.amount }}</td>
+              <td class="text-right">{{ voucher.amount }}</td>
+            </tr>
+            {% endfor %}
+              </tbody>
+            
+          </table>
+        </div>
+      </form>
+      {% if modules %}
+      <h2>{{ text_next }}</h2>
+      <p>{{ text_next_choice }}</p>
+      <div class="panel-group" id="accordion"> {% for module in modules %}
+        {{ module }}
+        {% endfor %} </div>
+      {% endif %} <br/>
+      <div class="row">
+        <div class="col-sm-4 col-sm-offset-8">
+          <table class="table table-bordered">
+            {% for total in totals %}
+            <tr>
+              <td class="text-right"><strong>{{ total.title }}:</strong></td>
+              <td class="text-right">{{ total.text }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      <div class="buttons clearfix">
+        <div class="pull-left"><a href="{{ continue|e('html_attr') }}" class="btn btn-default">{{ button_shopping }}</a></div>
+        <div class="pull-right"><a href="{{ checkout|e('html_attr') }}" class="btn btn-primary">{{ button_checkout }}</a></div>
+      </div>
+      {% endif %}
+      </div>
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+</div>
+{{ footer }} 

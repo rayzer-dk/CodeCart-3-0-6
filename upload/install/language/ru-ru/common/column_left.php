@@ -1,0 +1,2 @@
+<?php
+$_['text_license']='Лицензия'; $_['text_installation']='Проверка'; $_['text_configuration']='Настройка'; $_['text_upgrade']='Обновление'; $_['text_finished']='Готово'; $_['text_language']='Язык';

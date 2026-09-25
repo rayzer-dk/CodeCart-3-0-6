@@ -1,0 +1,47 @@
+{% if error_warning %}
+<div class="alert alert-warning alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>
+{% endif %}
+{% if payment_methods %}
+<p class="{% if quick_checkout %}ccq-payment-heading{% endif %}">{{ text_payment_method }}</p>
+{% if quick_checkout %}<div class="ccq-payment-options">{% endif %}
+{% for payment_method in payment_methods %}
+{% set method_code = payment_method.code|lower %}
+{% set method_icon = 'fa-credit-card' %}
+{% if 'cod' in method_code %}{% set method_icon = 'fa-money' %}{% elseif 'bank' in method_code or 'invoice' in method_code %}{% set method_icon = 'fa-file-text-o' %}{% elseif 'liqpay' in method_code or 'paypal' in method_code or 'card' in method_code %}{% set method_icon = 'fa-credit-card' %}{% endif %}
+<div class="radio{% if quick_checkout %} ccq-payment-option{% endif %}">
+  <label>{% if payment_method.code == code or not code %}
+    {% set code = payment_method.code %}
+    <input type="radio" name="payment_method" value="{{ payment_method.code|e('html_attr') }}" checked="checked" />
+    {% else %}
+    <input type="radio" name="payment_method" value="{{ payment_method.code|e('html_attr') }}" />
+    {% endif %}
+    {% if quick_checkout %}<span class="ccq-payment-icon"><i class="fa {{ method_icon }}" aria-hidden="true"></i></span><span class="ccq-payment-copy"><strong>{{ payment_method.title }}</strong>{% if payment_method.terms %}<small>{{ payment_method.terms }}</small>{% endif %}</span>{% else %}
+    {{ payment_method.title }}{% if payment_method.terms %} ({{ payment_method.terms }}){% endif %}
+    {% endif %}</label>
+</div>
+{% endfor %}
+{% if quick_checkout %}</div>{% endif %}
+{% endif %}
+<p class="ccq-comment-label"><strong>{{ text_comments }}</strong></p>
+<p class="ccq-comment-field">
+  <textarea name="comment" rows="{% if quick_checkout %}3{% else %}8{% endif %}" class="form-control">{{ comment }}</textarea>
+</p>
+{% if text_agree %}
+<div class="buttons">
+  <div class="pull-right">{{ text_agree }}
+    {% if agree %}
+    <input type="checkbox" name="agree" value="1" checked="checked" />
+    {% else %}
+    <input type="checkbox" name="agree" value="1" />
+    {% endif %}
+    &nbsp;
+    <input type="button" value="{% if quick_checkout %}{{ button_quick_order }}{% else %}{{ button_continue }}{% endif %}" id="button-payment-method" data-loading-text="{{ text_loading|e('html_attr') }}" class="btn btn-primary" />
+  </div>
+</div>
+{% else %}
+<div class="buttons">
+  <div class="pull-right">
+    <input type="button" value="{% if quick_checkout %}{{ button_quick_order }}{% else %}{{ button_continue }}{% endif %}" id="button-payment-method" data-loading-text="{{ text_loading|e('html_attr') }}" class="btn btn-primary" />
+  </div>
+</div>
+{% endif %} 

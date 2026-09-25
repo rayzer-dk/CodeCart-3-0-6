@@ -1,0 +1,19 @@
+<?php
+$_['heading_title'] = 'Google Login';
+$_['text_extension'] = 'Extensions';
+$_['text_success'] = 'Google Login settings saved.';
+$_['text_edit'] = 'Google Login settings';
+$_['text_enabled'] = 'Enabled';
+$_['text_disabled'] = 'Disabled';
+$_['text_help'] = 'Simplified secure sign-in with Google OAuth 2.0. Google tokens are not stored. Add the Redirect URI below in Google Cloud Console.';
+$_['entry_status'] = 'Status';
+$_['entry_client_id'] = 'Google Client ID';
+$_['entry_client_secret'] = 'Google Client Secret';
+$_['entry_redirect_uri'] = 'Redirect URI';
+$_['entry_auto_register'] = 'Automatically create customer';
+$_['entry_show_login'] = 'Show on login page';
+$_['entry_show_checkout'] = 'Show in quick checkout';
+$_['help_auto_register'] = 'If the verified Google email does not exist in the store, create a customer account automatically.';
+$_['help_checkout'] = 'Disabled by default to keep guest quick checkout minimal.';
+$_['error_permission'] = 'You do not have permission to modify Google Login.';
+$_['error_credentials'] = 'Google Client ID and Client Secret are required when enabled.';

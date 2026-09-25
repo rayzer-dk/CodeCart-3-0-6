@@ -1,0 +1,24 @@
+<?php
+
+// Heading
+$_['heading_title']    = 'Магазин';
+
+// Text
+$_['text_module']      = 'Модулі';
+$_['text_success']     = 'Налаштування змінені';
+$_['text_edit']        = 'Редагування';
+
+// Entry
+$_['entry_admin']      = 'Тільки адміністратори';
+$_['entry_status']     = 'Статус';
+
+// Error
+$_['error_permission'] = 'У вас недостатньо прав для внесення змін';
+
+// CodeCart PRO: completed Ukrainian language keys.
+$_['help_admin'] = 'Якщо увімкнено, список мультимагазинів буде доступний лише після входу адміністратора.';
+
+// CodeCart PRO: completed Ukrainian language keys.
+$_['text_extension'] = 'Доповнення';
+
+$_['entry_collapsed_mobile'] = 'Згортати на мобільних';

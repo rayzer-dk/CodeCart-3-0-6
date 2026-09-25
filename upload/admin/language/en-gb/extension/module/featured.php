@@ -1,0 +1,66 @@
+<?php
+// Heading
+$_['heading_title']    = 'Featured';
+
+// Text
+$_['text_extension']   = 'Extensions';
+$_['text_success']     = 'Success: You have modified featured module!';
+$_['text_edit']        = 'Edit Featured Module';
+
+// Entry
+$_['entry_name']       = 'Module Name';
+$_['entry_product']    = 'Products';
+$_['entry_limit'] = 'Number of products';
+$_['entry_width']      = 'Width';
+$_['entry_height']     = 'Height';
+$_['entry_status']     = 'Status';
+
+// Help
+$_['help_product']     = '(Autocomplete)';
+
+// Error
+$_['error_permission'] = 'Warning: You do not have permission to modify featured module!';
+$_['error_name']       = 'Module Name must be between 3 and 64 characters!';
+$_['error_width']      = 'Width required!';
+$_['error_height']     = 'Height required!';
+// CodeCart PRO RC78: responsive grid / carousel settings.
+$_['text_display_settings'] = 'Display and carousel';
+$_['text_grid'] = 'Grid';
+$_['text_carousel'] = 'Carousel';
+$_['text_desktop'] = 'Desktop';
+$_['text_tablet'] = 'Tablet';
+$_['text_mobile'] = 'Mobile';
+$_['entry_display_mode'] = 'Display mode';
+$_['entry_columns'] = 'Products per row / view';
+$_['entry_autoplay'] = 'Autoplay';
+$_['entry_autoplay_delay'] = 'Autoplay interval, ms';
+$_['entry_show_arrows'] = 'Navigation arrows';
+$_['entry_loop'] = 'Loop carousel';
+$_['help_display_mode'] = 'Grid keeps products static. Carousel adds touch/arrow navigation without loading an external slider library.';
+$_['help_autoplay_delay'] = 'Used only in carousel mode. Allowed range: 1500–20000 ms.';
+
+$_['entry_show_dots'] = 'Pagination dots';
+$_['entry_carousel_step'] = 'Carousel scroll step';
+$_['text_step_item'] = 'One item';
+$_['text_step_page'] = 'One page';
+$_['help_carousel_step'] = 'Choose whether arrows, swipe and autoplay move by one card or by the current number of visible cards.';
+
+$_['entry_heading'] = 'Storefront heading';
+$_['help_heading'] = 'Optional. Leave blank to use the standard translated module heading for this language.';
+
+$_['entry_show_heading'] = 'Show heading';
+$_['help_show_heading'] = 'Hide the storefront module heading without removing the multilingual heading text.';
+$_['entry_source'] = 'Product source';
+$_['text_source_manual'] = 'Selected products';
+$_['text_source_category'] = 'Category';
+$_['text_source_manufacturer'] = 'Manufacturer';
+$_['text_source_latest'] = 'Latest';
+$_['text_source_popular'] = 'Popular';
+$_['text_source_bestseller'] = 'Bestsellers';
+$_['text_source_special'] = 'Specials';
+$_['entry_category'] = 'Category';
+$_['entry_manufacturer'] = 'Manufacturer';
+$_['entry_include_subcategories'] = 'Include subcategories';
+$_['entry_mobile_peek'] = 'Mobile carousel peek';
+$_['text_peek_off'] = 'Off — use mobile columns';
+$_['help_mobile_peek'] = '1.2–1.4 leaves part of the next card visible on phones.';

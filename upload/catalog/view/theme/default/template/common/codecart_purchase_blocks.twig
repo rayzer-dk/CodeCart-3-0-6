@@ -1,0 +1,20 @@
+{% if purchase_blocks %}
+<div class="ccp-purchase-blocks">
+  {% for block in purchase_blocks %}
+  <section class="ccp-purchase-block ccp-purchase-block--{{ block.type }}">
+    {% if block.title %}<h4 class="ccp-purchase-block__title">{{ block.title }}</h4>{% endif %}
+    {% if block.type == 'info' %}
+      <div class="ccp-purchase-block__info">{{ block.content|raw }}</div>
+    {% elseif block.type == 'size_table' and block.columns %}
+      <div class="table-responsive ccp-purchase-block__table"><table class="table table-bordered table-condensed"><thead><tr>{% for column in block.columns %}<th>{{ column }}</th>{% endfor %}</tr></thead><tbody>{% for row in block.rows %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+    {% elseif block.type == 'sizes' %}
+      <div class="ccp-purchase-block__chips">{% for item in block.items %}<span class="ccp-purchase-chip"><strong>{{ item.label }}</strong>{% if item.value %}<span>{{ item.value }}</span>{% endif %}</span>{% endfor %}</div>
+    {% elseif block.type == 'colors' %}
+      <div class="ccp-purchase-block__chips">{% for item in block.items %}<span class="ccp-purchase-chip ccp-purchase-chip--color">{% if item.swatch %}<i class="ccp-purchase-swatch" style="background-color:{{ item.swatch }}"></i>{% endif %}<strong>{{ item.label }}</strong>{% if item.value and not item.swatch %}<span>{{ item.value }}</span>{% endif %}</span>{% endfor %}</div>
+    {% elseif block.type == 'form' and block.form_html %}
+      <div class="ccp-purchase-block__form">{{ block.form_html|raw }}</div>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>
+{% endif %}

@@ -1,0 +1,75 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-captcha" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="alert alert-info"><i class="fa fa-shield"></i> {{ text_local_help }}</div>
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-captcha" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="captcha_basic_status" id="input-status" class="form-control">
+                {% if captcha_basic_status %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-mode"><span data-toggle="tooltip" title="{{ help_mode }}">{{ entry_mode }}</span></label>
+            <div class="col-sm-10">
+              <select name="captcha_basic_mode" id="input-mode" class="form-control">
+                <option value="adaptive"{% if captcha_basic_mode == 'adaptive' %} selected="selected"{% endif %}>{{ text_mode_adaptive }}</option>
+                <option value="visual"{% if captcha_basic_mode == 'visual' %} selected="selected"{% endif %}>{{ text_mode_visual }}</option>
+              </select>
+              <p class="help-block">{{ help_mode }}</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-min-age"><span data-toggle="tooltip" title="{{ help_min_age }}">{{ entry_min_age }}</span></label>
+            <div class="col-sm-10">
+              <div class="input-group" style="max-width:320px">
+                <input type="number" name="captcha_basic_min_age_ms" value="{{ captcha_basic_min_age_ms }}" min="500" max="5000" step="100" id="input-min-age" class="form-control" />
+                <span class="input-group-addon">ms</span>
+              </div>
+              <p class="help-block">{{ help_min_age }}</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_bot_protection }}">{{ entry_bot_protection }}</span></label>
+            <div class="col-sm-10">
+              <div class="well well-sm" style="margin-bottom:0">{{ text_bot_protection }}</div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

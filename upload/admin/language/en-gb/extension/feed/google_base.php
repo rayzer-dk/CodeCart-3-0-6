@@ -1,0 +1,44 @@
+<?php
+$_['text_extension'] = 'Extensions';
+$_['column_google_category'] = 'Google Category';
+$_['column_category'] = 'Category';
+$_['column_action'] = 'Action';
+$_['button_category_add'] = 'Add mapping';
+$_['heading_title'] = 'Google Product Feed';
+$_['text_success'] = 'Success: Google Product Feed settings have been saved.';
+$_['text_edit'] = 'Google Product Feed';
+$_['text_import'] = 'Import the official Google product taxonomy text file if you still use legacy category mappings. CodeCart PRO also reads the Google Product Category ID saved directly in categories and inherits it from parent categories.';
+$_['text_feed_help'] = 'RSS 2.0 product feed for Google Merchant Center. It exports all active store products with stable URLs, price/sale price, availability, identifiers and category data. Products without an image are skipped because image_link is required.';
+$_['entry_google_category'] = 'Google category (legacy mapping)';
+$_['entry_category'] = 'Store category';
+$_['entry_data_feed'] = 'Merchant feed URL';
+$_['entry_status'] = 'Status';
+$_['entry_language'] = 'Feed language';
+$_['entry_currency'] = 'Feed currency';
+$_['entry_diagnostics'] = 'Feed diagnostics';
+$_['help_language'] = 'Use one language per Merchant Center data source. The product title, description and landing page should use the same language.';
+$_['help_currency'] = 'Stable currency used for all prices in this feed.';
+$_['help_data_feed'] = 'Use this URL as a scheduled XML data source in Google Merchant Center.';
+$_['help_google_category'] = 'Optional legacy mapping. The Google Product Category ID field inside the category itself takes priority and can inherit from a parent category.';
+$_['button_diagnose'] = 'Check products';
+$_['button_copy'] = 'Copy feed URL';
+$_['text_fallback_url'] = 'Fallback route URL';
+$_['text_diag_total'] = 'Products';
+$_['text_diag_desc'] = 'Descriptions over 5000 characters';
+$_['text_diag_image'] = 'Missing image';
+$_['text_diag_brand'] = 'Missing brand';
+$_['text_diag_identifier'] = 'Without GTIN/MPN (feed uses identifier_exists=no)';
+$_['text_diag_samples'] = 'Over-limit examples';
+$_['text_diag_error'] = 'Diagnostics failed. Check the error log.';
+$_['error_permission'] = 'Warning: You do not have permission to access or modify Google Merchant Feed.';
+$_['error_upload'] = 'File could not be uploaded.';
+$_['error_filetype'] = 'Invalid file type.';
+$_['error_filesize'] = 'File size exceeds 4 MB.';
+
+$_['button_download'] = 'Download XML feed';
+$_['text_feed_disabled'] = 'The feed is disabled. Enable it and save settings before the URL starts returning XML.';
+
+$_['entry_language_feeds'] = 'Feeds for all languages';
+$_['column_feed_language'] = 'Language';
+$_['column_feed_url'] = 'Feed URL';
+$_['help_language_feeds'] = 'For a multilingual store, use a separate Merchant Center data source for every active language. Ready URLs for all active languages are shown here.';

@@ -1,0 +1,47 @@
+<div id="codecart-health-dashboard" class="panel panel-default ccp-dashboard-center">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-dashboard"></i> {{ heading_title }}</h3>
+    <div class="pull-right"><a href="{{ setting }}" class="btn btn-default btn-xs" title="{{ text_settings }}"><i class="fa fa-cog"></i></a></div>
+  </div>
+  <div class="panel-body ccp-dashboard-shell">
+    {% for section in sections %}
+    <section class="ccp-dashboard-section" data-section="{{ section.code }}">
+      <div class="ccp-dashboard-section-head"><h4><i class="fa {{ section.icon }}"></i> {{ section.title }}</h4></div>
+      <div class="ccp-dashboard-section-body"><div class="ccp-dashboard-loading"><i class="fa fa-circle-o-notch fa-spin"></i> {{ text_loading }}</div></div>
+    </section>
+    {% endfor %}
+  </div>
+</div>
+<div id="ccp-dashboard-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="{{ text_close }}"><span aria-hidden="true">&times;</span></button><h4 class="modal-title"></h4></div>
+      <div class="modal-body"></div>
+      <div class="modal-footer"><a href="#" class="btn btn-primary ccp-modal-action" style="display:none">{{ text_open }}</a><button type="button" class="btn btn-default" data-dismiss="modal">{{ text_close }}</button></div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+(function($){
+  var root=$('#codecart-health-dashboard');
+  if(!root.length)return;
+  var modal=$('#ccp-dashboard-modal');
+  function esc(text){return $('<div>').text(text==null?'':String(text)).html();}
+  function showModal(title,body,href,label){modal.find('.modal-title').text(title||'');modal.find('.modal-body').html(body||'');var action=modal.find('.ccp-modal-action');if(href){action.attr('href',href).text(label||'{{ text_open|e('js') }}').show();}else{action.hide().attr('href','#');}modal.modal('show');}
+  function loadSection(section){
+    var box=root.find('[data-section="'+section+'"] .ccp-dashboard-section-body');
+    $.ajax({url:'index.php?route=extension/dashboard/codecart_health/section&section='+encodeURIComponent(section)+'&user_token={{ user_token }}',dataType:'html',cache:false,success:function(html){box.html(html);},error:function(xhr){box.html('<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> '+xhr.status+' '+xhr.statusText+'</div>');}});
+  }
+  var loaded={};
+  function ensure(section){if(loaded[section])return;loaded[section]=1;loadSection(section);}
+  ensure('commerce');ensure('attention');
+  if('IntersectionObserver' in window){
+    var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){var section=$(entry.target).data('section');ensure(section);observer.unobserve(entry.target);}});},{rootMargin:'240px 0px'});
+    root.find('[data-section]').each(function(){var section=$(this).data('section');if(section!=='commerce'&&section!=='attention')observer.observe(this);});
+  }else{root.find('[data-section]').each(function(){ensure($(this).data('section'));});}
+  root.on('click','.ccp-performance-check',function(e){e.preventDefault();var b=$(this),url=b.data('url'),box=b.closest('.ccp-dashboard-section-body');box.find('.ccp-performance-error').remove();$.ajax({url:url,dataType:'json',beforeSend:function(){b.button('loading')},complete:function(){b.button('reset')},success:function(j){if(j.error){box.prepend('<div class="alert alert-warning ccp-performance-error"><i class="fa fa-exclamation-triangle"></i> '+$('<div>').text(j.error).html()+'</div>');return;}loadSection('performance');},error:function(x){box.prepend('<div class="alert alert-warning ccp-performance-error"><i class="fa fa-exclamation-triangle"></i> HTTP '+x.status+'</div>');}});});
+  root.on('click','.ccp-quick-ajax',function(e){e.preventDefault();var b=$(this),url=b.data('url');$.ajax({url:url,dataType:'json',beforeSend:function(){b.button('loading')},complete:function(){b.button('reset')},success:function(j){if(j.error){showModal(b.text().trim(),'<div class="alert alert-danger">'+esc(j.error.warning||j.error)+'</div>');return;}if(j.success){b.addClass('btn-success');setTimeout(function(){b.removeClass('btn-success');},1500);}},error:function(x,a,e2){showModal(b.text().trim(),'<div class="alert alert-danger">'+esc(e2+' '+x.statusText)+'</div>');}});});
+  root.on('click','.ccp-security-help',function(){var b=$(this),help=b.data('help')||'',href=b.data('action-href')||'';showModal(b.data('title'),'<p class="ccp-security-explain">'+esc(help)+'</p>',href,'{{ text_security_open|e('js') }}');});
+  root.on('click','.ccp-seo-issue',function(){var b=$(this),title=b.data('title'),url=b.data('url');showModal(title,'<div class="ccp-dashboard-loading"><i class="fa fa-circle-o-notch fa-spin"></i> {{ text_loading|e('js') }}</div>');$.ajax({url:url,dataType:'json',cache:false,success:function(j){if(j.error){modal.find('.modal-body').html('<div class="alert alert-danger">'+esc(j.error)+'</div>');return;}if(!j.items||!j.items.length){modal.find('.modal-body').html('<div class="ccp-empty-ok">{{ text_no_items|e('js') }}</div>');return;}var html='<div class="ccp-issue-list">';$.each(j.items,function(_,item){var href=String(item.href||'').replace(/&amp;/g,'&');html+='<a class="ccp-issue-row" href="'+esc(href)+'"><span>'+esc(item.name)+'</span><small>#'+esc(item.id)+'</small><i class="fa fa-pencil"></i></a>';});html+='</div>';if(j.limited){html+='<div class="help-block">{{ text_list_limited|e('js') }}</div>';}modal.find('.modal-body').html(html);},error:function(x){modal.find('.modal-body').html('<div class="alert alert-danger">HTTP '+esc(x.status)+'</div>');}});});
+})(window.jQuery);
+</script>

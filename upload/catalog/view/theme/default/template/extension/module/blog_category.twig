@@ -1,0 +1,18 @@
+<section class="ccp-sidebar-module ccp-blog-category-module{% if collapsed_mobile %} ccp-sidebar-module--mobile-collapsed{% endif %}">
+  <div class="ccp-sidebar-module__heading">
+    <h3>{{ heading_title }}</h3>
+    <button type="button" class="ccp-sidebar-module__toggle" aria-expanded="{% if collapsed_mobile %}false{% else %}true{% endif %}" title="{{ heading_title }}"><i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+  </div>
+  <div class="ccp-sidebar-module__body list-group">
+    {% for category in categories %}
+      <a href="{{ category.href }}" class="list-group-item ccp-category-module__parent{% if category.blog_category_id == blog_category_id %} active{% endif %}"><span>{{ category.name }}</span>{% if show_count %}<span class="ccp-sidebar-count">{{ category.count }}</span>{% endif %}</a>
+      {% if category.blog_category_id == blog_category_id and category.children %}
+        <div class="ccp-category-module__children">
+          {% for child in category.children %}
+            <a href="{{ child.href }}" class="list-group-item ccp-category-module__child{% if child.blog_category_id == child_id %} active{% endif %}"><span><i class="fa fa-angle-right" aria-hidden="true"></i> {{ child.name }}</span>{% if show_count %}<span class="ccp-sidebar-count">{{ child.count }}</span>{% endif %}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>

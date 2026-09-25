@@ -1,0 +1,119 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-relation" name="relation_action" value="save" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel|default('Cancel') }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul>
+    </div>
+  </div>
+  <div class="container-fluid ccp-relation-page">
+    {% if error_warning %}<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>{% endif %}
+    {% if success %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}</div>{% endif %}
+
+    <div class="row ccp-relation-kpis">
+      <div class="col-sm-3"><div class="ccp-relation-kpi"><span>{{ text_sources }}</span><strong>{{ stats.sources }}</strong></div></div>
+      <div class="col-sm-3"><div class="ccp-relation-kpi"><span>{{ text_product_relations }}</span><strong>{{ stats.products }}</strong></div></div>
+      <div class="col-sm-3"><div class="ccp-relation-kpi"><span>{{ text_article_relations }}</span><strong>{{ stats.articles }}</strong></div></div>
+      <div class="col-sm-3"><div class="ccp-relation-kpi"><span>{{ text_total_relations }}</span><strong>{{ stats.total }}</strong></div></div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-random"></i> {{ text_edit }}</h3></div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-relation" class="form-horizontal">
+          <div class="form-group"><label class="col-sm-3 control-label" for="input-relation-status">{{ entry_status }}</label><div class="col-sm-9"><select name="codecart_relation_status" id="input-relation-status" class="form-control"><option value="1"{% if codecart_relation_status %} selected{% endif %}>{{ text_enabled }}</option><option value="0"{% if not codecart_relation_status %} selected{% endif %}>{{ text_disabled }}</option></select><p class="help-block">{{ text_engine_help }}</p></div></div>
+          <div class="form-group"><label class="col-sm-3 control-label" for="input-relation-storefront">{{ entry_storefront_status }}</label><div class="col-sm-9"><select name="codecart_relation_storefront_status" id="input-relation-storefront" class="form-control"><option value="1"{% if codecart_relation_storefront_status %} selected{% endif %}>{{ text_enabled }}</option><option value="0"{% if not codecart_relation_storefront_status %} selected{% endif %}>{{ text_disabled }}</option></select><p class="help-block">{{ text_storefront_help }}</p></div></div>
+          <div class="form-group"><label class="col-sm-3 control-label" for="input-relation-product-limit">{{ entry_product_limit }}</label><div class="col-sm-3"><input type="number" min="1" max="24" name="codecart_relation_product_limit" value="{{ codecart_relation_product_limit }}" id="input-relation-product-limit" class="form-control"></div><label class="col-sm-3 control-label" for="input-relation-article-limit">{{ entry_article_limit }}</label><div class="col-sm-3"><input type="number" min="0" max="12" name="codecart_relation_article_limit" value="{{ codecart_relation_article_limit }}" id="input-relation-article-limit" class="form-control"></div></div>
+          <div class="form-group"><label class="col-sm-3 control-label">{{ text_scoring }}</label><div class="col-sm-9"><label class="checkbox-inline"><input type="checkbox" name="codecart_relation_in_stock_only" value="1"{% if codecart_relation_in_stock_only %} checked{% endif %}> {{ entry_in_stock }}</label><label class="checkbox-inline"><input type="checkbox" name="codecart_relation_use_manufacturer" value="1"{% if codecart_relation_use_manufacturer %} checked{% endif %}> {{ entry_use_manufacturer }}</label><label class="checkbox-inline"><input type="checkbox" name="codecart_relation_use_attributes" value="1"{% if codecart_relation_use_attributes %} checked{% endif %}> {{ entry_use_attributes }}</label><p class="help-block">{{ text_scoring_help }}</p></div></div>
+          <div class="form-group"><label class="col-sm-3 control-label">{{ text_manual_priority }}</label><div class="col-sm-9"><div class="alert alert-info" style="margin-bottom:0"><i class="fa fa-info-circle"></i> {{ text_manual_priority_help }}</div></div></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-tasks"></i> {{ text_queue }}</h3></div>
+      <div class="panel-body">
+        <p>{{ text_queue_help }}</p>
+        <div class="ccp-relation-queue-state">
+          <span class="label label-warning">{{ text_queue_pending }}: {{ queue_stats.pending }}</span>
+          <span class="label label-info">{{ text_queue_processing }}: {{ queue_stats.processing }}</span>
+          <span class="label label-success">{{ text_queue_done }}: {{ queue_stats.done }}</span>
+          <span class="label label-danger">{{ text_queue_failed }}: {{ queue_stats.failed }}</span>
+          {% if queue_stats.pending > 0 and queue_stats.processing == 0 %}<span class="help-block"><i class="fa fa-clock-o"></i> {{ text_queue_waiting }}</span>{% endif %}
+        </div>
+        <form action="{{ action }}" method="post" style="display:inline-block;margin-right:8px"><input type="hidden" name="relation_action" value="queue_all"><button type="submit" class="btn btn-primary"{% if not codecart_relation_status %} disabled{% endif %}><i class="fa fa-play"></i> {{ button_queue_all }}</button></form>
+        <a href="{{ scheduler_url }}" class="btn btn-info" style="margin-right:8px"><i class="fa fa-tasks"></i> {{ button_scheduler }}</a>
+        <form action="{{ action }}" method="post" style="display:inline-block" onsubmit="return confirm('{{ text_confirm_clear|escape('js') }}');"><input type="hidden" name="relation_action" value="clear_auto"><button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> {{ button_clear }}</button></form>
+      </div>
+    </div>
+
+    <div class="panel panel-default ccp-relation-table-panel">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-table"></i> {{ text_relations_table }}</h3></div>
+      <div class="panel-body">
+        <form action="{{ filter_action }}" method="get" class="ccp-relation-filters">
+          <input type="hidden" name="route" value="catalog/relation">
+          <input type="hidden" name="user_token" value="{{ user_token }}">
+          <div class="row">
+            <div class="col-md-4 col-sm-6"><label>{{ text_search }}</label><input type="search" name="filter_search" value="{{ filter_search }}" class="form-control" placeholder="{{ text_search }}"></div>
+            <div class="col-md-2 col-sm-3"><label>{{ column_type }}</label><select name="filter_type" class="form-control"><option value="">{{ text_all }}</option><option value="product"{% if filter_type == 'product' %} selected{% endif %}>{{ text_product }}</option><option value="article"{% if filter_type == 'article' %} selected{% endif %}>{{ text_article }}</option></select></div>
+            <div class="col-md-2 col-sm-3"><label>{{ column_status }}</label><select name="filter_status" class="form-control"><option value="">{{ text_all }}</option><option value="1"{% if filter_status == '1' %} selected{% endif %}>{{ text_active }}</option><option value="0"{% if filter_status == '0' %} selected{% endif %}>{{ text_inactive }}</option></select></div>
+            <div class="col-md-2 col-sm-3"><label>Limit</label><select name="limit" class="form-control"><option value="25"{% if limit == 25 %} selected{% endif %}>25</option><option value="50"{% if limit == 50 %} selected{% endif %}>50</option><option value="100"{% if limit == 100 %} selected{% endif %}>100</option></select></div>
+            <div class="col-md-2 col-sm-9 ccp-filter-actions"><label>&nbsp;</label><div><button type="submit" class="btn btn-primary" title="{{ button_filter }}"><i class="fa fa-filter"></i> {{ button_filter }}</button> <a href="{{ filter_action }}" class="btn btn-default" title="{{ button_reset }}"><i class="fa fa-refresh"></i></a></div></div>
+          </div>
+        </form>
+
+        <form action="{{ list_action }}" method="post" id="form-relation-list">
+          <div class="ccp-relation-bulk-actions">
+            <button type="submit" name="relation_action" value="bulk_enable" class="btn btn-success btn-sm"><i class="fa fa-check"></i> {{ button_enable }}</button>
+            <button type="submit" name="relation_action" value="bulk_disable" class="btn btn-warning btn-sm"><i class="fa fa-pause"></i> {{ button_disable }}</button>
+            <button type="submit" name="relation_action" value="bulk_delete" class="btn btn-danger btn-sm" onclick="return confirm('{{ text_confirm_delete_selected|escape('js') }}');"><i class="fa fa-trash"></i> {{ button_delete }}</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover ccp-relation-table">
+              <thead><tr>
+                <td class="text-center" style="width:36px"><input type="checkbox" onclick="$('#form-relation-list input[name^=selected]').prop('checked', this.checked);"></td>
+                <td><a href="{{ sort_urls.source }}"{% if sort == 'source' %} class="{{ order|lower }}"{% endif %}>{{ column_source }}</a></td>
+                <td><a href="{{ sort_urls.target }}"{% if sort == 'target' %} class="{{ order|lower }}"{% endif %}>{{ column_target }}</a></td>
+                <td style="width:105px"><a href="{{ sort_urls.type }}"{% if sort == 'type' %} class="{{ order|lower }}"{% endif %}>{{ column_type }}</a></td>
+                <td class="text-right" style="width:90px"><a href="{{ sort_urls.score }}"{% if sort == 'score' %} class="{{ order|lower }}"{% endif %}>{{ column_score }}</a></td>
+                <td>{{ column_reason }}</td>
+                <td class="text-center" style="width:95px"><a href="{{ sort_urls.status }}"{% if sort == 'status' %} class="{{ order|lower }}"{% endif %}>{{ column_status }}</a></td>
+                <td style="width:150px"><a href="{{ sort_urls.date_modified }}"{% if sort == 'date_modified' %} class="{{ order|lower }}"{% endif %}>{{ column_modified }}</a></td>
+              </tr></thead>
+              <tbody>
+              {% if relations %}
+                {% for relation in relations %}
+                <tr>
+                  <td class="text-center"><input type="checkbox" name="selected[]" value="{{ relation.relation_id }}"></td>
+                  <td title="{{ relation.source_name }}"><span class="ccp-cell-ellipsis">{{ relation.source_name }}</span><small>#{{ relation.source_id }}</small></td>
+                  <td title="{{ relation.target_name }}"><span class="ccp-cell-ellipsis">{{ relation.target_name }}</span><small>#{{ relation.target_id }}</small></td>
+                  <td>{% if relation.target_type == 'product' %}<span class="label label-primary">{{ text_product }}</span>{% elseif relation.target_type == 'article' %}<span class="label label-info">{{ text_article }}</span>{% else %}<span class="label label-default">{{ relation.target_type }}</span>{% endif %}</td>
+                  <td class="text-right"><strong>{{ relation.score }}</strong></td>
+                  <td title="{{ relation.reason }}"><span class="ccp-cell-ellipsis">{{ relation.reason ?: '—' }}</span></td>
+                  <td class="text-center">{% if relation.status %}<span class="label label-success">{{ text_active }}</span>{% else %}<span class="label label-default">{{ text_inactive }}</span>{% endif %}</td>
+                  <td>{{ relation.date_modified }}</td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="8" class="text-center text-muted">{{ text_no_data }}</td></tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class="row"><div class="col-sm-6 text-left">{{ pagination }}</div><div class="col-sm-6 text-right ccp-pagination-results">{{ results }}</div></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+.ccp-relation-page .panel{border-top:3px solid #0057d9}.ccp-relation-kpis{margin-bottom:15px}.ccp-relation-kpi{background:#fff;border:1px solid #e1e8ef;border-top:3px solid #0057d9;border-radius:4px;padding:14px 16px;min-height:82px}.ccp-relation-kpi span{display:block;color:#66788a;font-size:12px}.ccp-relation-kpi strong{display:block;font-size:24px;line-height:32px;color:#243447}.ccp-relation-page .checkbox-inline{margin-right:18px;margin-left:0}
+.ccp-relation-queue-state{margin:0 0 14px}.ccp-relation-queue-state .label{display:inline-block;margin:0 6px 6px 0;padding:6px 9px}.ccp-relation-filters{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px;margin-bottom:12px}.ccp-relation-filters label{font-size:12px;color:#526476}.ccp-filter-actions>label{display:block}.ccp-relation-bulk-actions{margin:0 0 10px}.ccp-relation-table{table-layout:fixed;margin-bottom:8px}.ccp-relation-table thead{border-top:3px solid #0057d9;background:#f7f9fc}.ccp-relation-table thead td{font-weight:600;border-right:1px solid #dce4ed;vertical-align:middle}.ccp-relation-table td{vertical-align:middle}.ccp-relation-table td small{display:block;color:#7b8794}.ccp-cell-ellipsis{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ccp-pagination-results{padding-top:20px;color:#66788a}.ccp-relation-table a.asc:after{content:" \f106";font-family:FontAwesome}.ccp-relation-table a.desc:after{content:" \f107";font-family:FontAwesome}
+html.ccp-admin-dark .ccp-relation-kpi{background:#151f2a;border-color:#344454;border-top-color:#2f8cff}html.ccp-admin-dark .ccp-relation-kpi span,html.ccp-admin-dark .ccp-pagination-results{color:#aeb8c5}html.ccp-admin-dark .ccp-relation-kpi strong{color:#edf3f9}html.ccp-admin-dark .ccp-relation-filters{background:#111923;border-color:#344454}html.ccp-admin-dark .ccp-relation-filters label{color:#c5cfda}html.ccp-admin-dark .ccp-relation-table thead{background:#151f2a}html.ccp-admin-dark .ccp-relation-table thead td{border-color:#344454}html.ccp-admin-dark .ccp-relation-table td small{color:#aeb8c5}
+@media(max-width:767px){.ccp-relation-filters [class*="col-"]{margin-bottom:8px}.ccp-pagination-results{text-align:left!important;padding-top:4px}}
+</style>
+{{ footer }}

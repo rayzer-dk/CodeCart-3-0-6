@@ -1,0 +1,284 @@
+{{ header }}{{ column_left }}
+<div id="content">
+<div class="page-header">
+  <div class="container-fluid">
+    <div class="pull-right"><a href="index.php?route=marketplace/modification/refresh&user_token={{ user_token }}" class="btn btn-info" data-toggle="tooltip" title="{{ text_refresh_modifications }}"><i class="fa fa-refresh"></i></a></div>
+    <h1>{{ heading_title }}</h1>
+    <ul class="breadcrumb">
+      {% for breadcrumb in breadcrumbs %}
+      <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title"><i class="fa fa-puzzle-piece"></i> {{ text_upload }}</h3>
+    </div>
+    <div class="panel-body">
+      <form class="form-horizontal">
+        <fieldset>
+          <legend>{{ text_upload }}</legend>
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="button-upload"><span data-toggle="tooltip" title="{{ help_upload }}">{{ entry_upload }}</span></label>
+            <div class="col-sm-10">
+              <button type="button" id="button-upload" data-loading-text="{{ text_loading }}" class="btn btn-primary"><i class="fa fa-upload"></i> {{ button_upload }}</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="codecart-auto-refresh">{{ text_auto_refresh_modifications }}</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline"><input type="checkbox" id="codecart-auto-refresh" value="1"{% if auto_refresh_modifications %} checked="checked"{% endif %}> {{ text_auto_refresh_modifications }}</label>
+              <p class="help-block">{{ help_auto_refresh_modifications }}</p>
+              <div id="codecart-auto-refresh-status"></div>
+            </div>
+          </div>
+        </fieldset>
+        <br/>
+        <fieldset>
+          <legend>{{ text_progress }}</legend>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ entry_progress }}</label>
+            <div class="col-sm-10">
+              <div class="progress">
+                <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
+              </div>
+              <div id="progress-text"></div>
+            </div>
+          </div>
+        </fieldset>
+        <br/>
+        <fieldset>
+          <legend>{{ text_history }}</legend>
+          <div id="history"></div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <script type="text/javascript"><!--
+var codecartAutoRefreshModifications = {% if auto_refresh_modifications %}true{% else %}false{% endif %};
+
+$('#codecart-auto-refresh').on('change', function() {
+    var checkbox = this;
+    var enabled = checkbox.checked ? 1 : 0;
+    $('#codecart-auto-refresh-status').removeClass('text-success text-danger').addClass('text-muted').text('{{ text_loading|escape('js') }}');
+    $.ajax({
+        url: 'index.php?route=marketplace/installer/autoRefresh&user_token={{ user_token }}',
+        type: 'post',
+        dataType: 'json',
+        data: {enabled: enabled},
+        success: function(json) {
+            if (json.error) {
+                checkbox.checked = !checkbox.checked;
+                codecartAutoRefreshModifications = checkbox.checked;
+                $('#codecart-auto-refresh-status').removeClass('text-muted').addClass('text-danger').text(json.error);
+                return;
+            }
+            codecartAutoRefreshModifications = !!json.enabled;
+            $('#codecart-auto-refresh-status').removeClass('text-muted text-danger').addClass('text-success').text(json.success || '{{ text_auto_refresh_saved|escape('js') }}');
+        },
+        error: function() {
+            checkbox.checked = !checkbox.checked;
+            codecartAutoRefreshModifications = checkbox.checked;
+            $('#codecart-auto-refresh-status').removeClass('text-muted').addClass('text-danger').text('{{ text_auto_refresh_failed|escape('js') }}');
+        }
+    });
+});
+
+function codecartRefreshAfterExtensionChange(successMessage, targetSelector) {
+    var $target = targetSelector && targetSelector.jquery ? targetSelector : $(targetSelector);
+    var refreshUrl = 'index.php?route=marketplace/modification/refresh&ajax=1&user_token={{ user_token }}';
+    var refreshPageUrl = 'index.php?route=marketplace/modification/refresh&user_token={{ user_token }}';
+    var modificationsUrl = 'index.php?route=marketplace/modification&user_token={{ user_token }}';
+
+    if (!codecartAutoRefreshModifications) {
+        var $success = $('<span class="text-success"></span>').text(successMessage);
+        var $refresh = $('<a class="btn btn-primary btn-sm" style="margin-left:12px"><i class="fa fa-refresh"></i> {{ text_refresh_modifications|escape('js') }}</a>').attr('href', refreshPageUrl);
+        $target.empty().append($success).append($refresh);
+        return;
+    }
+
+    $target.empty().append($('<span class="text-success"></span>').text(successMessage + ' ')).append($('<span class="text-info"></span>').text('{{ text_refreshing_modifications|escape('js') }}'));
+    $.ajax({
+        url: refreshUrl,
+        type: 'post',
+        dataType: 'json',
+        success: function(json) {
+            var $link = $('<a class="btn btn-default btn-sm" style="margin-left:12px"><i class="fa fa-list"></i> {{ text_refresh_modifications|escape('js') }}</a>').attr('href', modificationsUrl);
+            if (json.error) {
+                $target.empty().append($('<span class="text-warning"></span>').text(successMessage + ' ' + json.error)).append($link);
+            } else {
+                $target.empty().append($('<span class="text-success"></span>').text(successMessage + ' ' + (json.success || ''))).append($link);
+            }
+        },
+        error: function() {
+            var $link = $('<a class="btn btn-warning btn-sm" style="margin-left:12px"><i class="fa fa-exclamation-triangle"></i> {{ text_refresh_modifications|escape('js') }}</a>').attr('href', modificationsUrl);
+            $target.empty().append($('<span class="text-warning"></span>').text(successMessage + ' {{ text_auto_refresh_failed|escape('js') }}')).append($link);
+        }
+    });
+}
+
+$('#history').delegate('.pagination a', 'click', function(e) {
+	e.preventDefault();
+
+	$('#history').load(this.href);
+});
+
+$('#history').load('index.php?route=marketplace/installer/history&user_token={{ user_token }}');
+  
+$('#button-upload').on('click', function() {
+	$('#form-upload').remove();
+
+	$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file" /></form>');
+
+	$('#form-upload input[name=\'file\']').trigger('click');
+
+	if (typeof timer != 'undefined') {
+    	clearInterval(timer);
+	}
+
+	timer = setInterval(function() {
+		if ($('#form-upload input[name=\'file\']').val() != '') {
+			clearInterval(timer);
+
+			// Reset everything
+			$('.alert-dismissible').remove();
+			$('#progress-bar').css('width', '0%');
+			$('#progress-bar').removeClass('progress-bar-danger progress-bar-success');
+			$('#progress-text').html('');
+
+			$.ajax({
+				url: 'index.php?route=marketplace/installer/upload&user_token={{ user_token }}',
+				type: 'post',
+				dataType: 'json',
+				data: new FormData($('#form-upload')[0]),
+				cache: false,
+				contentType: false,
+				processData: false,
+				beforeSend: function() {
+					$('#button-upload').button('loading');
+				},
+				complete: function() {
+					$('#button-upload').button('reset');
+				},
+				success: function(json) {
+					if (json['error']) {
+						$('#progress-bar').addClass('progress-bar-danger');
+						$('#progress-text').html('<div class="text-danger">' + json['error'] + '</div>');
+					}
+			
+					if (json['text']) {
+						$('#progress-bar').css('width', '20%');
+						$('#progress-text').html(json['text']);
+					}
+			
+					if (json['next']) {
+						next(json['next'], 1);
+					}
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				}
+			});
+		}
+	}, 500);
+});
+
+function next(url, i) {
+	i = i + 1;
+
+	$.ajax({
+		url: url,
+		dataType: 'json',
+		success: function(json) {
+			$('#progress-bar').css('width', Math.min(100, Math.round(i * 16.67)) + '%');
+			
+			if (json['error']) {
+				$('#progress-bar').addClass('progress-bar-danger');
+				var $error = $('<div class="text-danger"></div>').text(json['error']);
+				$('#progress-text').empty().append($error);
+				if (json['detail']) {
+					$('#progress-text').append($('<pre class="alert alert-danger" style="margin-top:10px;white-space:pre-wrap;word-break:break-word;"></pre>').text(json['detail']));
+				}
+			}
+
+			if (json['confirm']) {
+				var $warning = $('<div class="text-warning" style="white-space:pre-line"></div>').text(json['confirm']);
+				var $actions = $('<div class="ccp-installer-confirm-actions" style="margin-top:15px"></div>');
+				var $continue = $('<button type="button" class="btn btn-primary"><i class="fa fa-check"></i> {{ button_continue|escape('js') }}</button>');
+				var $cancel = $('<button type="button" class="btn btn-default" style="margin-left:8px"><i class="fa fa-times"></i> {{ button_cancel|escape('js') }}</button>');
+				$('#progress-text').empty().append($warning).append($actions.append($continue).append($cancel));
+				$continue.on('click', function() {
+					$continue.prop('disabled', true);
+					$cancel.prop('disabled', true);
+					if (json['next']) { next(json['next'], i); }
+				});
+				$cancel.on('click', function() {
+					$('#progress-bar').addClass('progress-bar-danger');
+					$actions.remove();
+				});
+				return;
+			}
+
+			if (json['success']) {
+				$('#progress-bar').addClass('progress-bar-success');
+                codecartRefreshAfterExtensionChange(json['success'], '#progress-text');
+				$('#history').load('index.php?route=marketplace/installer/history&user_token={{ user_token }}');
+			}
+			
+			if (json['text']) {
+				$('#progress-text').html(json['text']);
+			}
+			
+			if (json['next']) {
+				next(json['next'], i);
+			}
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		}
+	});
+}
+
+// Uninstall
+$('#history').on('click', '.btn-danger', function(e) {
+	e.preventDefault();
+
+	var element = this;
+
+	$.ajax({
+		url: 'index.php?route=marketplace/install/uninstall&user_token={{ user_token }}&extension_install_id=' + $(this).attr('value'),
+		dataType: 'json',
+		beforeSend: function() {
+			$(element).button('loading');
+		},
+		complete: function() {
+			$(element).button('reset');
+		},
+		success: function(json) {
+			$('.alert-dismissible').remove();
+			
+			if (json['error']) {
+				$('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+			}
+
+			if (json['warning']) {
+				$('#content > .container-fluid').prepend('<div class="alert alert-warning alert-dismissible"><i class="fa fa-exclamation-triangle"></i> ' + json['warning'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+			}
+
+			if (json['success']) {
+                var $notice = $('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> <span class="cc-install-change-result"></span> <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+                $('#content > .container-fluid').prepend($notice);
+                codecartRefreshAfterExtensionChange(json['success'], $notice.find('.cc-install-change-result'));
+
+				$('#history').load('index.php?route=marketplace/installer/history&user_token={{ user_token }}');
+			}
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		}
+	});
+});
+//--></script></div>
+{{ footer }} 

@@ -1,0 +1,107 @@
+{% macro desktop_nested(items, level) %}
+  {% import _self as menu %}
+  {% for item in items %}
+    <li class="ccp-menu-level-{{ level }}{% if item.children %} has-children{% endif %}">
+      <a href="{{ item.href }}">{% if item.thumb and level == 2 %}<img class="ccp-catalog-thumb ccp-catalog-thumb--child" src="{{ item.thumb }}" width="46" height="46" loading="lazy" decoding="async" alt="" aria-hidden="true" />{% endif %}<span>{{ item.name }}</span>{% if item.children %}<i class="fa fa-angle-right" aria-hidden="true"></i>{% endif %}</a>
+      {% if item.children %}<ul class="list-unstyled ccp-menu-nested ccp-menu-nested-{{ level + 1 }}">{{ menu.desktop_nested(item.children, level + 1) }}</ul>{% endif %}
+    </li>
+  {% endfor %}
+{% endmacro %}
+{% macro mobile_nested(items, level) %}
+  {% import _self as menu %}
+  {% for item in items %}
+    <li class="ccp-mobile-catalog-item ccp-mobile-catalog-level-{{ level }}{% if item.children %} has-children{% endif %}">
+      <div class="ccp-mobile-catalog-row">
+        <a href="{{ item.href }}">{{ item.name }}</a>
+        {% if item.children %}<button type="button" class="ccp-mobile-branch-toggle collapsed" data-target="#ccp-mobile-branch-{{ item.category_id }}" aria-expanded="false" aria-controls="ccp-mobile-branch-{{ item.category_id }}" aria-label="{{ item.name }}" title="{{ item.name }}"><i class="fa fa-angle-down" aria-hidden="true"></i></button>{% endif %}
+      </div>
+      {% if item.children %}<ul id="ccp-mobile-branch-{{ item.category_id }}" class="list-unstyled ccp-mobile-catalog-children collapse" aria-hidden="true">{{ menu.mobile_nested(item.children, level + 1) }}</ul>{% endif %}
+    </li>
+  {% endfor %}
+{% endmacro %}
+{% import _self as menu %}
+{% if categories or quick_links %}
+<div class="container">
+  <nav id="menu" class="navbar{% if menu_mode == 'vertical' %} ccp-menu-vertical-mode{% else %} ccp-menu-horizontal-mode{% endif %}">
+
+    {# One canonical mobile catalog for both desktop menu modes. No category images/counts. #}
+    <div class="ccp-mobile-catalog hidden-md hidden-lg">
+      <div class="ccp-mobile-catalog-backdrop" aria-hidden="true"></div>
+      <button type="button" class="ccp-mobile-catalog-button" data-toggle="collapse" data-target="#ccp-mobile-catalog-body" aria-expanded="false" aria-controls="ccp-mobile-catalog-body">
+        <i class="fa fa-bars" aria-hidden="true"></i><span>{{ text_catalog }}</span><i class="fa fa-angle-down ccp-mobile-catalog-caret" aria-hidden="true"></i>
+      </button>
+      <div id="ccp-mobile-catalog-body" class="collapse ccp-mobile-catalog-body">
+        <div class="ccp-mobile-drawer-head">
+          <strong><i class="fa fa-bars" aria-hidden="true"></i> {{ text_catalog }}</strong>
+          <button type="button" class="ccp-mobile-drawer-close" aria-label="{{ text_close }}" title="{{ text_close }}"><i class="fa fa-times" aria-hidden="true"></i></button>
+        </div>
+        <ul class="list-unstyled ccp-mobile-catalog-root">
+          {% for category in categories %}
+          <li class="ccp-mobile-catalog-item ccp-mobile-catalog-level-1{% if category.children %} has-children{% endif %}">
+            <div class="ccp-mobile-catalog-row">
+              <a href="{{ category.href }}">{{ category.name }}</a>
+              {% if category.children %}<button type="button" class="ccp-mobile-branch-toggle collapsed" data-target="#ccp-mobile-branch-{{ category.category_id }}" aria-expanded="false" aria-controls="ccp-mobile-branch-{{ category.category_id }}" aria-label="{{ category.name }}" title="{{ category.name }}"><i class="fa fa-angle-down" aria-hidden="true"></i></button>{% endif %}
+            </div>
+            {% if category.children %}<ul id="ccp-mobile-branch-{{ category.category_id }}" class="list-unstyled ccp-mobile-catalog-children collapse" aria-hidden="true">{{ menu.mobile_nested(category.children, 2) }}</ul>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% if quick_links %}
+        <div class="ccp-mobile-extra-links">
+          <div class="ccp-mobile-extra-separator" aria-hidden="true"></div>
+          <div class="ccp-mobile-extra-title">{{ text_pages }}</div>
+          {% for link in quick_links %}<a href="{{ link.href }}" class="ccp-mobile-extra-link ccp-mobile-extra-link--{{ link.kind|default('custom') }}">{{ link.name }}</a>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if menu_mode == 'vertical' %}
+    <div class="ccp-menu-vertical-bar hidden-xs hidden-sm">
+      <div class="ccp-catalog-dropdown dropdown">
+        <button type="button" class="btn ccp-catalog-button dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bars" aria-hidden="true"></i><span>{{ text_catalog }}</span><i class="fa fa-angle-down ccp-catalog-caret" aria-hidden="true"></i></button>
+        <div class="dropdown-menu ccp-catalog-menu">
+          <ul class="ccp-catalog-level1 list-unstyled">
+            {% for category in categories %}
+            <li class="ccp-catalog-item{% if category.children %} has-children{% endif %}">
+              <a href="{{ category.href }}">{% if category.thumb %}<img class="ccp-catalog-thumb ccp-catalog-thumb--root" src="{{ category.thumb }}" width="38" height="38" loading="lazy" decoding="async" alt="" aria-hidden="true" />{% endif %}<span>{{ category.name }}</span>{% if category.children %}<i class="fa fa-angle-right ccp-catalog-desktop-arrow" aria-hidden="true"></i>{% endif %}</a>
+              {% if category.children %}<div class="ccp-catalog-level2"><strong><a href="{{ category.href }}">{{ category.name }}</a></strong><ul class="list-unstyled ccp-catalog-columns" style="--ccp-menu-columns:{{ category.column }}">{{ menu.desktop_nested(category.children, 2) }}</ul><a href="{{ category.href }}" class="ccp-catalog-see-all"><i class="fa fa-th-large"></i> {{ text_all }} {{ category.name }}</a></div>{% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% if quick_links %}<div class="ccp-menu-quick-links" aria-label="{{ text_pages }}">{% for link in quick_links %}<a class="ccp-menu-quick-link ccp-menu-quick-link--{{ link.kind|default('custom') }}" href="{{ link.href }}">{{ link.name }}</a>{% endfor %}</div>{% endif %}
+    </div>
+    {% else %}
+    <div class="ccp-horizontal-desktop hidden-xs hidden-sm">
+      <div class="navbar-collapse">
+        <ul class="nav navbar-nav ccp-horizontal-tabs">
+          {% for category in categories %}
+          <li class="ccp-menu-parent"{% if category.children %} data-ccp-menu-panel="ccp-menu-panel-{{ category.category_id }}"{% endif %}><a href="{{ category.href }}" class="ccp-menu-parent-link">{{ category.name }}</a></li>
+          {% endfor %}
+          {% for link in quick_links %}<li class="ccp-menu-extra-link"><a href="{{ link.href }}">{{ link.name }}</a></li>{% endfor %}
+        </ul>
+      </div>
+      <div class="ccp-horizontal-panels" aria-live="polite">
+        {% for category in categories %}{% if category.children %}
+        <section id="ccp-menu-panel-{{ category.category_id }}" class="ccp-horizontal-panel" data-ccp-menu-panel-content="{{ category.category_id }}" aria-hidden="true">
+          <div class="ccp-horizontal-panel-head"><a href="{{ category.href }}">{{ category.name }}</a></div>
+          <div class="ccp-horizontal-panel-grid" style="--ccp-menu-columns:{{ category.column }}">
+            {% for child in category.children %}
+            <div class="ccp-horizontal-panel-group{% if child.children %} has-children{% endif %}">
+              <a class="ccp-horizontal-child-link" href="{{ child.href }}">{% if child.thumb %}<img class="ccp-catalog-thumb ccp-catalog-thumb--child" src="{{ child.thumb }}" width="46" height="46" loading="lazy" decoding="async" alt="" aria-hidden="true" />{% endif %}<span>{{ child.name }}</span></a>
+              {% if child.children %}<ul class="list-unstyled ccp-horizontal-third-level">{{ menu.desktop_nested(child.children, 3) }}</ul>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <a href="{{ category.href }}" class="ccp-horizontal-see-all"><i class="fa fa-th-large"></i> {{ text_all }} {{ category.name }}</a>
+        </section>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </nav>
+</div>
+<script src="catalog/view/javascript/codecart/catalog/menu.js?v=3.0.6.0-20260913-4" type="text/javascript" defer></script>
+{% endif %}

@@ -1,0 +1,65 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-feed" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-feed" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="feed_google_sitemap_status" id="input-status" class="form-control">
+                {% if feed_google_sitemap_status %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-data-feed">{{ entry_data_feed }}</label>
+            <div class="col-sm-10">
+              <div class="input-group"><input type="text" readonly id="input-data-feed" class="form-control" value="{{ data_feed }}" /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-copy-sitemap" data-target="#input-data-feed" title="{{ button_copy }}"><i class="fa fa-copy"></i></button><a href="{{ data_feed }}" target="_blank" rel="noopener" class="btn btn-default" title="{{ button_open }}"><i class="fa fa-external-link"></i></a></span></div>
+              <p class="help-block">{{ text_multilingual_help }}</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ entry_language_sitemaps }}</label>
+            <div class="col-sm-10">
+              <div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><th>{{ column_language }}</th><th>{{ column_prefix }}</th><th>{{ column_products_sitemap }}</th><th style="width:100px"></th></tr></thead><tbody>
+                {% for sitemap in language_sitemaps %}<tr><td><strong>{{ sitemap.name }}</strong><br><small class="text-muted">{{ sitemap.code }}</small></td><td>{{ sitemap.prefix ? sitemap.prefix : text_no_prefix }}</td><td><input type="text" id="sitemap-language-{{ loop.index }}" class="form-control" value="{{ sitemap.products }}" readonly /></td><td class="text-center"><button type="button" class="btn btn-default ccp-copy-sitemap" data-target="#sitemap-language-{{ loop.index }}" title="{{ button_copy }}"><i class="fa fa-copy"></i></button> <a href="{{ sitemap.products }}" target="_blank" rel="noopener" class="btn btn-default" title="{{ button_open }}"><i class="fa fa-external-link"></i></a></td></tr>{% endfor %}
+              </tbody></table></div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript"><!--
+$('.ccp-copy-sitemap').on('click', function(){var el=document.querySelector($(this).data('target'));if(!el)return;var value=el.value||'';if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(value);}else{el.select();document.execCommand('copy');if(window.getSelection){window.getSelection().removeAllRanges();}}});
+//--></script>
+</div>
+{{ footer }}

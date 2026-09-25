@@ -1,0 +1,27 @@
+{{ header }}
+<div id="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4" style="margin-top:40px;">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-shield"></i> {{ heading_title }}</h3></div>
+          <div class="panel-body">
+            {% if error_warning %}<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>{% endif %}
+            <p>{{ text_instruction }}</p>
+            <form action="{{ action }}" method="post" autocomplete="off">
+              <div class="form-group">
+                <label for="input-totp-code">{{ text_code }}</label>
+                <input type="text" name="code" value="" id="input-totp-code" class="form-control" inputmode="numeric" autocomplete="one-time-code" maxlength="16" autofocus>
+                <p class="help-block">{{ text_recovery }}</p>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i> {{ button_verify }}</button>
+            </form>
+            <hr>
+            <a href="{{ logout }}" class="btn btn-default btn-block"><i class="fa fa-sign-out"></i> {{ button_logout }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

@@ -1,0 +1,28 @@
+<section class="panel panel-default ccp-sidebar-module ccp-filter-module{% if collapsed_mobile %} ccp-sidebar-module--mobile-collapsed{% endif %}" data-filter-action="{{ action }}" data-auto-apply="{{ auto_apply }}">
+  <div class="panel-heading ccp-sidebar-module__heading">
+    <h3>{{ heading_title }}</h3>
+    <button type="button" class="ccp-sidebar-module__toggle" aria-expanded="{% if collapsed_mobile %}false{% else %}true{% endif %}" title="{{ heading_title }}"><i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+  </div>
+  <div class="ccp-sidebar-module__body">
+    <div class="ccp-filter-groups">
+      {% for filter_group in filter_groups %}
+        <div class="ccp-filter-group is-open">
+          <button type="button" class="ccp-filter-group__toggle" aria-expanded="true"><span>{{ filter_group.name }}</span><i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+          <div class="ccp-filter-group__body" id="filter-group{{ filter_group.filter_group_id }}">
+            {% for filter in filter_group.filter %}
+              <label class="ccp-filter-option{% if filter.filter_id in filter_category %} is-selected{% endif %}">
+                <input type="checkbox" name="filter[]" value="{{ filter.filter_id }}"{% if filter.filter_id in filter_category %} checked="checked"{% endif %} />
+                <span class="ccp-filter-option__name">{{ filter.name }}</span>
+                {% if show_count %}<span class="ccp-filter-option__count">{{ filter.count }}</span>{% endif %}
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="ccp-filter-actions">
+      {% if show_reset and filter_category %}<a href="{{ reset }}" class="btn btn-default" data-filter-reset><i class="fa fa-undo" aria-hidden="true"></i> {{ button_reset }}</a>{% endif %}
+      {% if not auto_apply %}<button type="button" class="btn btn-primary" data-filter-apply>{{ button_filter }}</button>{% endif %}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+{{ header }}{{ column_left }}
+<div id="content" class="ccp-stock-notify">
+  <div class="page-header"><div class="container-fluid"><h1>{{ heading_title }}</h1></div></div>
+  <div class="container-fluid">
+    {% if success %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="row" style="margin-bottom:15px">
+          <div class="col-sm-3"><label>{{ entry_product }}</label><input type="text" id="filter-product" value="{{ filter_product }}" class="form-control"></div>
+          <div class="col-sm-3"><label>{{ entry_email }}</label><input type="text" id="filter-email" value="{{ filter_email }}" class="form-control"></div>
+          <div class="col-sm-2"><label>{{ entry_status }}</label><select id="filter-status" class="form-control"><option value="">{{ text_all }}</option><option value="waiting" {% if filter_status == 'waiting' %}selected{% endif %}>{{ text_waiting }}</option><option value="processing" {% if filter_status == 'processing' %}selected{% endif %}>{{ text_processing }}</option><option value="sent" {% if filter_status == 'sent' %}selected{% endif %}>{{ text_sent }}</option><option value="failed" {% if filter_status == 'failed' %}selected{% endif %}>{{ text_failed }}</option></select></div>
+          <div class="col-sm-2"><label>{{ entry_store }}</label><select id="filter-store" class="form-control"><option value="">{{ text_all }}</option><option value="0" {% if filter_store_id == '0' %}selected{% endif %}>{{ text_main_store }}</option>{% for store in stores %}<option value="{{ store.store_id }}" {% if filter_store_id == store.store_id %}selected{% endif %}>{{ store.name }}</option>{% endfor %}</select></div>
+          <div class="col-sm-2"><label>{{ entry_limit }}</label><div class="input-group"><select id="filter-limit" class="form-control">{% for n in [25,50,100,200] %}<option value="{{ n }}" {% if limit == n %}selected{% endif %}>{{ n }}</option>{% endfor %}</select><span class="input-group-btn"><button type="button" id="button-filter" class="btn btn-primary" title="{{ button_filter }}"><i class="fa fa-filter"></i></button></span></div></div>
+        </div>
+        <form method="post" id="form-stock-notify">
+          <div class="text-right" style="margin-bottom:10px"><button type="button" class="btn btn-info" onclick="submitAction('{{ retry }}')"><i class="fa fa-repeat"></i> {{ button_retry }}</button> <button type="button" class="btn btn-danger" onclick="if(confirm('{{ text_confirm }}'))submitAction('{{ delete }}')"><i class="fa fa-trash"></i> {{ button_delete }}</button></div>
+          <div class="table-responsive"><table class="table table-bordered table-hover" style="border-top:3px solid #0057d9">
+            <thead><tr><td style="width:35px"><input type="checkbox" onclick="$('input[name*=selected]').prop('checked',this.checked)"></td><td><a href="{{ sort_product }}">{{ column_product }}</a></td><td><a href="{{ sort_email }}">{{ column_email }}</a></td><td><a href="{{ sort_store }}">{{ column_store }}</a></td><td><a href="{{ sort_status }}">{{ column_status }}</a></td><td><a href="{{ sort_date }}">{{ column_date }}</a></td><td><a href="{{ sort_sent }}">{{ column_sent }}</a></td></tr></thead>
+            <tbody>{% if rows %}{% for row in rows %}<tr><td><input type="checkbox" name="selected[]" value="{{ row.stock_notify_id }}"></td><td title="{{ row.name }}{% if row.option_label %} — {{ row.option_label }}{% endif %}">{{ row.name }}{% if row.option_label %}<br><small class="text-muted">{{ row.option_label }}</small>{% endif %}</td><td title="{{ row.email }}">{{ row.email }}</td><td>{% if row.store_id == 0 %}{{ text_main_store }}{% else %}#{{ row.store_id }}{% endif %}</td><td>{% if row.status == 'waiting' %}<span class="label label-warning">{{ text_waiting }}</span>{% elseif row.status == 'processing' %}<span class="label label-info">{{ text_processing }}</span>{% elseif row.status == 'sent' %}<span class="label label-success">{{ text_sent }}</span>{% else %}<span class="label label-danger">{{ text_failed }}</span>{% endif %}</td><td>{{ row.date_added }}</td><td>{{ row.date_sent ?: '-' }}</td></tr>{% endfor %}{% else %}<tr><td colspan="7" class="text-center">{{ text_no_results }}</td></tr>{% endif %}</tbody>
+          </table></div>
+        </form>
+        <div class="row"><div class="col-sm-6 text-left">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function stockNotifyUrl(){var u='index.php?route=marketing/stock_notify&user_token={{ user_token }}';var m={filter_product:$('#filter-product').val(),filter_email:$('#filter-email').val(),filter_status:$('#filter-status').val(),filter_store_id:$('#filter-store').val(),limit:$('#filter-limit').val()};$.each(m,function(k,v){if(v!==''&&v!==null)u+='&'+k+'='+encodeURIComponent(v);});return u;}
+$('#button-filter').on('click',function(){location=stockNotifyUrl();});
+function submitAction(url){$('#form-stock-notify').attr('action',url).submit();}
+</script>
+{{ footer }}

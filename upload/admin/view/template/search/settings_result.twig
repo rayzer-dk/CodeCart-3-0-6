@@ -1,0 +1,19 @@
+<div class="oc-search-results ccp-search-settings-results">
+  <div class="oc-search-group">
+    <strong>{{ text_settings }}</strong>
+    {% if settings %}
+      {% for item in settings %}
+      <a href="{{ item.url }}" class="ccp-setting-search-result">
+        <i class="fa fa-cog fa-fw"></i>
+        <span class="ccp-setting-search-copy">
+          <span class="ccp-setting-search-title">{{ item.title }}</span>
+          <small>{{ item.path }}</small>
+          <code title="{{ text_setting_key }}">{{ item.key }}</code>
+        </span>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div class="oc-search-empty">{{ text_no_result }}</div>
+    {% endif %}
+  </div>
+</div>

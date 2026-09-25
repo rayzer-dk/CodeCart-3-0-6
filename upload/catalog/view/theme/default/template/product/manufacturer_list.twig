@@ -1,0 +1,49 @@
+{{ header }}
+<div id="product-manufacturer" class="container">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }}">{{ content_top }}
+      <h1>{{ heading_title }}</h1>
+      {% if categories %}
+      <div class="ccp-manufacturer-index-wrap">
+        <p><strong>{{ text_index }}</strong></p>
+        <div class="ccp-manufacturer-index">{% for category in categories %}<a href="#{{ category.name }}">{{ category.name }}</a>{% endfor %}</div>
+      </div>
+      {% for category in categories %}
+      <div class="ccp-manufacturer-group">
+      <h2 id="{{ category.name }}">{{ category.name }}</h2>
+      {% if category.manufacturer %}
+      <div class="ccp-manufacturer-grid">
+        {% for manufacturer in category.manufacturer %}
+        <div class="ccp-manufacturer-item">
+          <a href="{{ manufacturer.href }}">
+            {% if manufacturer.thumb %}<span class="ccp-manufacturer-thumb"><img src="{{ manufacturer.thumb }}" alt="{{ manufacturer.name }}" loading="lazy" /></span>{% endif %}
+            <span class="ccp-manufacturer-name">{{ manufacturer.name }}</span>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      </div>
+      {% endfor %}
+      {% else %}
+      <p>{{ text_no_results }}</p>
+      <div class="buttons clearfix">
+        <div class="pull-right"><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>
+      </div>
+      {% endif %}
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+</div>
+{{ footer }}

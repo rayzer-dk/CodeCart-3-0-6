@@ -1,0 +1,46 @@
+</main>
+<footer class="ccp-footer">
+  <div class="container">
+    <div class="row ccp-footer-grid">
+      {% if informations %}
+      <section class="col-sm-3 ccp-footer-section">
+        <button type="button" class="ccp-footer-toggle" aria-expanded="false"><span>{{ text_information }}</span><i class="fa fa-angle-down" aria-hidden="true"></i></button>
+        <h5 class="ccp-footer-heading">{{ text_information }}</h5>
+        <div class="ccp-footer-content"><ul class="list-unstyled">{% for information in informations %}<li><a href="{{ information.href }}">{{ information.title }}</a></li>{% endfor %}</ul></div>
+      </section>
+      {% endif %}
+      <section class="col-sm-2 ccp-footer-section">
+        <button type="button" class="ccp-footer-toggle" aria-expanded="false"><span>{{ text_service }}</span><i class="fa fa-angle-down" aria-hidden="true"></i></button>
+        <h5 class="ccp-footer-heading">{{ text_service }}</h5>
+        <div class="ccp-footer-content"><ul class="list-unstyled"><li><a href="{{ contact }}">{{ text_contact }}</a></li><li><a href="{{ return }}">{{ text_return }}</a></li><li><a href="{{ sitemap }}">{{ text_sitemap }}</a></li></ul></div>
+      </section>
+      <section class="col-sm-2 ccp-footer-section">
+        <button type="button" class="ccp-footer-toggle" aria-expanded="false"><span>{{ text_extra }}</span><i class="fa fa-angle-down" aria-hidden="true"></i></button>
+        <h5 class="ccp-footer-heading">{{ text_extra }}</h5>
+        <div class="ccp-footer-content"><ul class="list-unstyled"><li><a href="{{ manufacturer }}">{{ text_manufacturer }}</a></li><li><a href="{{ voucher }}">{{ text_voucher }}</a></li><li><a href="{{ affiliate }}">{{ text_affiliate }}</a></li><li><a href="{{ special }}">{{ text_special }}</a></li></ul></div>
+      </section>
+      <section class="col-sm-2 ccp-footer-section">
+        <button type="button" class="ccp-footer-toggle" aria-expanded="false"><span>{{ text_account }}</span><i class="fa fa-angle-down" aria-hidden="true"></i></button>
+        <h5 class="ccp-footer-heading">{{ text_account }}</h5>
+        <div class="ccp-footer-content"><ul class="list-unstyled"><li><a href="{{ account }}">{{ text_account }}</a></li><li><a href="{{ order }}">{{ text_order }}</a></li><li><a href="{{ wishlist }}">{{ text_wishlist }}</a></li><li><a href="{{ newsletter }}">{{ text_newsletter }}</a></li></ul></div>
+      </section>
+      <section class="col-sm-3 ccp-footer-section ccp-footer-contact">
+        <button type="button" class="ccp-footer-toggle" aria-expanded="false"><span>{{ text_contact }}</span><i class="fa fa-angle-down" aria-hidden="true"></i></button>
+        <h5 class="ccp-footer-heading">{{ text_contact }}</h5>
+        <div class="ccp-footer-content">
+          {% if telephone %}<p><i class="fa-solid fa-phone-volume" aria-hidden="true"></i> <a href="tel:{{ telephone|replace({' ': '', '(': '', ')': '', '-': ''}) }}">{{ telephone }}</a></p>{% endif %}
+          {% if email %}<p><i class="fa fa-envelope" aria-hidden="true"></i> <a href="mailto:{{ email }}">{{ email }}</a></p>{% endif %}
+          {% if address %}<p class="ccp-footer-address"><i class="fa fa-map-marker" aria-hidden="true"></i> <span>{{ address|raw }}</span></p>{% endif %}
+        </div>
+      </section>
+    </div>
+    <div class="ccp-footer-bottom"><p>{{ powered }}</p></div>
+  </div>
+</footer>
+{% for style in styles %}<link href="{{ style.href }}" type="text/css" rel="{{ style.rel }}" media="{{ style.media }}" />{% endfor %}
+{% for script in scripts %}<script src="{{ script }}" type="text/javascript"></script>{% endfor %}
+{% for asset_id, asset in modern_assets %}
+{% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}
+{% if asset.type == 'style' %}<link rel="stylesheet" href="{{ asset.url }}" media="{{ asset.media }}" />{% elseif asset.type == 'script' %}<script src="{{ asset.url }}"{% if asset.module %} type="module"{% else %} type="text/javascript"{% endif %}{% if asset.defer %} defer{% endif %}{% if asset.async %} async{% endif %}></script>{% endif %}
+{% endfor %}
+</body></html>

@@ -1,0 +1,376 @@
+{{ header }}
+<div id="blog-article" class="container ccp-blog-page">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }}">{{ content_top }}
+      <div class="row"> {% if column_left or column_right %}
+        {% set class = 'col-sm-12' %}
+        {% else %}
+        {% set class = 'col-sm-12' %}
+        {% endif %}
+        <div class="{{ class }}"> {% if thumb or images %}
+          <ul class="thumbnails ccp-blog-main-gallery">
+            {% if thumb %}
+            <li><a class="thumbnail" href="{{ popup }}" title="{{ heading_title }}" data-pswp-width="{{ popup_width }}" data-pswp-height="{{ popup_height }}"><img src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" fetchpriority="high" decoding="async" /></a></li>
+            {% endif %}
+            {% if images %}
+            {% for image in images %}
+            <li class="image-additional"><a class="thumbnail" href="{{ image.popup }}" title="{{ heading_title }}" data-pswp-width="{{ image.width }}" data-pswp-height="{{ image.height }}"> <img src="{{ image.thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" loading="lazy" decoding="async" /></a></li>
+            {% endfor %}
+            {% endif %}
+          </ul>
+          {% endif %}
+         
+          <div class="content ccp-blog-article-content">
+		   <h1>{{ heading_title }}</h1>
+            {% if date_added %}<div class="ccp-blog-meta"><span><i class="fa fa-calendar-o"></i> {{ text_date_added }} {{ date_added }}</span></div>{% endif %}
+            <div class="tab-pane active ccp-blog-copy" id="tab-description">{{ description }}</div>
+			{% if review_status %}
+          <div class="rating">
+            <p>{% for i in 1..5 %}
+              {% if rating < i %}<span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>{% else %}<span class="fa fa-stack"><i class="fa fa-star fa-stack-1x"></i><i class="fa fa-star-o fa-stack-1x"></i></span>{% endif %}
+              {% endfor %} 
+			  <a href="" onclick="gotoReview(); return false;">{{ reviews }}</a> / <a href="" onclick="gotoReviewWrite(); return false;">{{ text_write }}</a></p>
+            <hr>
+          </div>
+          {% endif %}
+		  
+		  {% if download_status %}
+			<div class="blog-info">
+			{% if downloads %}
+			<br />
+			{% for download in downloads %}
+			<a href="{{ download.href }}" title=""><i class="fa fa-floppy-o"></i> {{ download.name }} {{ download.size }}</a><br>
+			{% endfor %}
+			<br />
+			{% endif %} 
+			</div>
+		  {% endif %} 
+
+          <div class="ccp-blog-share" aria-label="{{ text_share }}">
+            <strong class="ccp-blog-share__label"><i class="fa fa-share-alt" aria-hidden="true"></i> {{ text_share }}</strong>
+            <div class="ccp-blog-share__actions">
+              <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url_encoded }}" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+              <a href="https://t.me/share/url?url={{ share_url_encoded }}&text={{ share_title_encoded }}" target="_blank" rel="noopener noreferrer" title="Telegram" aria-label="Telegram"><i class="fa fa-telegram"></i></a>
+              <a href="https://wa.me/?text={{ share_title_encoded }}%20{{ share_url_encoded }}" target="_blank" rel="noopener noreferrer" title="WhatsApp" aria-label="WhatsApp"><i class="fa fa-whatsapp"></i></a>
+              <a href="mailto:?subject={{ share_title_encoded }}&body={{ share_url_encoded }}" title="Email" aria-label="Email"><i class="fa fa-envelope"></i></a>
+              <button type="button" class="ccp-blog-share-copy" data-copy-url="{{ share_url }}" title="{{ text_copy_link }}" aria-label="{{ text_copy_link }}"><i class="fa fa-link"></i><span>{{ text_copy_link }}</span></button>
+            </div>
+          </div>
+            
+      {% if products %}
+      <div class="ccp-native-module ccp-native-module--products ccp-native-module--carousel ccp-blog-related-products-carousel" style="--ccp-module-cols-desktop:4;--ccp-module-cols-tablet:3;--ccp-module-cols-mobile:2" data-autoplay="0" data-autoplay-delay="5000" data-loop="1" data-step="item">
+        <div class="ccp-native-module-heading"><h3 class="ccp-blog-related-heading">{{ text_related_product }}</h3><div class="ccp-native-module-arrows"><button type="button" class="ccp-native-module-prev" title="{{ text_previous_related }}" aria-label="{{ text_previous_related }}"><i class="fa fa-angle-left" aria-hidden="true"></i></button><button type="button" class="ccp-native-module-next" title="{{ text_next_related }}" aria-label="{{ text_next_related }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button></div></div>
+        <div class="ccp-native-module-viewport"><div class="ccp-native-module-track">
+        {% for product in products %}
+          <div class="product-layout ccp-native-module-item"><div class="product-thumb transition">
+            <div class="image"><a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" loading="lazy" decoding="async" /></a></div>
+            <div class="ccp-product-list-body"><div class="caption"><h4><a href="{{ product.href }}">{{ product.name }}</a></h4>
+              {% if card_content in ['description','both'] and product.description %}<p class="ccp-card-description">{{ product.description|e }}</p>{% endif %}{% if card_content in ['attributes','both'] and product.attributes %}<ul class="ccp-card-attributes">{% for attribute in product.attributes %}<li><span title="{{ attribute.name }}">{{ attribute.name }}</span><strong title="{{ attribute.text }}">{{ attribute.text }}</strong></li>{% endfor %}</ul>{% endif %}
+              {% if product.rating %}<div class="rating">{% for j in 1..5 %}{% if product.rating < j %}<span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>{% else %}<span class="fa fa-stack"><i class="fa fa-star fa-stack-1x"></i><i class="fa fa-star-o fa-stack-1x"></i></span>{% endif %}{% endfor %}</div>{% endif %}
+              {% if product.price %}<p class="price">{% if not product.special %}{{ product.price }}{% else %}<span class="price-new">{{ product.special }}</span> <span class="price-old">{{ product.price }}</span>{% endif %}{% if product.tax %}<span class="price-tax">{{ text_tax }} {{ product.tax }}</span>{% endif %}</p>{% endif %}
+            </div><div class="button-group"><button type="button" onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');" class="ccp-cart-add" data-product-id="{{ product.product_id }}" title="{{ button_cart }}" aria-label="{{ button_cart }}"><i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span></button><button type="button" data-toggle="tooltip" title="{{ button_wishlist }}" onclick="wishlist.add('{{ product.product_id }}');" aria-label="{{ button_wishlist }}"><i class="fa fa-heart"></i></button><button type="button" data-toggle="tooltip" title="{{ button_compare }}" onclick="compare.add('{{ product.product_id }}');" aria-label="{{ button_compare }}"><i class="fa fa-exchange"></i></button></div></div>
+          </div></div>
+        {% endfor %}
+        </div></div><div class="ccp-native-module-pagination" aria-label="{{ text_related_product }}"></div>
+      </div>
+      {% endif %}
+
+      {% if articles %}
+      <div class="ccp-native-module ccp-native-module--articles ccp-native-module--carousel ccp-blog-related-articles-carousel" style="--ccp-module-cols-desktop:4;--ccp-module-cols-tablet:3;--ccp-module-cols-mobile:2" data-autoplay="0" data-autoplay-delay="5000" data-loop="1" data-step="item">
+        <div class="ccp-native-module-heading"><h3 class="ccp-blog-related-heading">{{ text_related }}</h3><div class="ccp-native-module-arrows"><button type="button" class="ccp-native-module-prev" title="{{ text_previous_related }}" aria-label="{{ text_previous_related }}"><i class="fa fa-angle-left" aria-hidden="true"></i></button><button type="button" class="ccp-native-module-next" title="{{ text_next_related }}" aria-label="{{ text_next_related }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button></div></div>
+        <div class="ccp-native-module-viewport"><div class="ccp-native-module-track">
+        {% for article in articles %}
+          <div class="product-layout ccp-native-module-item"><div class="product-thumb transition">
+            {% if article.thumb %}<div class="image"><a href="{{ article.href }}"><img src="{{ article.thumb }}" alt="{{ article.name }}" title="{{ article.name }}" class="img-responsive" loading="lazy" decoding="async" /></a></div>{% endif %}
+            <div class="caption"><h4><a href="{{ article.href }}">{{ article.name }}</a></h4>{% if article.description %}<p class="ccp-card-description">{{ article.description|e }}</p>{% endif %}{% if article.rating %}<div class="rating">{% for j in 1..5 %}{% if article.rating < j %}<span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>{% else %}<span class="fa fa-stack"><i class="fa fa-star fa-stack-1x"></i><i class="fa fa-star-o fa-stack-1x"></i></span>{% endif %}{% endfor %}</div>{% endif %}</div>
+            <div class="button-group"><button type="button" class="ccp-article-open" title="{{ button_more }}" aria-label="{{ button_more }}" onclick="location.href=('{{ article.href }}');"><span class="hidden-xs hidden-sm hidden-md">{{ button_more }}</span> <i class="fa fa-share"></i></button><button type="button" data-toggle="tooltip" title="{{ article.date_added }}" aria-label="{{ article.date_added }}"><i class="fa fa-clock-o"></i></button><button type="button" data-toggle="tooltip" title="{{ text_views }} {{ article.viewed }}" aria-label="{{ text_views }} {{ article.viewed }}"><i class="fa fa-eye"></i></button></div>
+          </div></div>
+        {% endfor %}
+        </div></div><div class="ccp-native-module-pagination" aria-label="{{ text_related }}"></div>
+      </div>
+      {% endif %}
+
+{% if review_status %}
+            <div class="tab-pane" id="tab-review">
+              <form class="form-horizontal" id="form-review">
+                <div id="review"></div>
+                <h2>{{ text_write }}</h2>
+                {% if review_guest %}
+                <div class="form-group required">
+                  <div class="col-sm-12">
+                    <label class="control-label" for="input-name">{{ entry_name }}</label>
+                    <input type="text" name="name" value="{{ customer_name }}" id="input-name" class="form-control" />
+                  </div>
+                </div>
+                <div class="form-group required">
+                  <div class="col-sm-12">
+                    <label class="control-label" for="input-review">{{ entry_review }}</label>
+                    <textarea name="text" rows="5" id="input-review" class="form-control"></textarea>
+                  </div>
+                </div>
+                <div class="form-group required">
+                  <div class="col-sm-12">
+                    <label class="control-label">{{ entry_rating }}</label>
+                    <div class="ccp-rating-picker" role="radiogroup" aria-label="{{ entry_rating }}" data-rating="0">
+                      {% for score in [1,2,3,4,5] %}
+                      <input type="radio" name="rating" value="{{ score }}" id="rating-{{ score }}" />
+                      <label for="rating-{{ score }}" data-score="{{ score }}" title="{{ score }}/5" aria-label="{{ score }}/5"><i class="fa-solid fa-star" aria-hidden="true"></i></label>
+                      {% endfor %}
+                    </div></div>
+                </div>
+                {{ captcha }}
+                <div class="buttons clearfix">
+                  <div class="pull-right">
+                    <button type="button" id="button-review" data-loading-text="{{ text_loading }}" class="btn btn-primary">{{ button_continue }}</button>
+                  </div>
+                </div>
+                {% else %}
+                {{ text_login }}
+                {% endif %}
+              </form>
+            </div>
+            {% endif %}</div>
+        </div>
+      
+      </div>
+        
+      {% if internal_links %}
+<div class="ccp-internal-links">
+  <h3>{{ text_internal_links }}</h3>
+  <ul class="list-inline">
+    {% for link in internal_links %}<li><a href="{{ link.href }}">{{ link.title }}</a></li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+</div>
+<script type="text/javascript"><!--
+$('#button-cart').on('click', function() {
+	$.ajax({
+		url: 'index.php?route=checkout/cart/add',
+		type: 'post',
+		data: $('#product').find('input, select, textarea').serialize(),
+		dataType: 'json',
+		beforeSend: function() {
+			$('#button-cart').button('loading');
+		},
+		complete: function() {
+			$('#button-cart').button('reset');
+		},
+		success: function(json) {
+			$('.alert-dismissible, .text-danger').remove();
+			$('.form-group').removeClass('has-error');
+
+			if (json['error']) {
+				if (json['error']['option']) {
+					for (i in json['error']['option']) {
+						var element = $('#input-option' + i.replace('_', '-'));
+
+						if (element.parent().hasClass('input-group')) {
+							element.parent().after('<div class="text-danger">' + json['error']['option'][i] + '</div>');
+						} else {
+							element.after('<div class="text-danger">' + json['error']['option'][i] + '</div>');
+						}
+					}
+				}
+
+				if (json['error']['recurring']) {
+					$('select[name=\'recurring_id\']').after('<div class="text-danger">' + json['error']['recurring'] + '</div>');
+				}
+
+				// Highlight any found errors
+				$('.text-danger').parent().addClass('has-error');
+			}
+
+			if (json['success']) {
+				$('.breadcrumb').after('<div class="alert alert-success alert-dismissible">' + json['success'] + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+
+				if (window.CodeCartCartUI) { window.CodeCartCartUI.updateTotal(json['total']); window.CodeCartCartUI.reloadDropdown(); window.CodeCartCartUI.refreshHeaderCart(); } else { $('#cart-total').html('<i class="fa fa-shopping-cart"></i> ' + json['total']); }
+
+				$('html, body').animate({ scrollTop: 0 }, 'slow');
+
+				$('#cart > ul').load('index.php?route=common/cart/info ul li');
+			}
+		},
+        error: function(xhr, ajaxOptions, thrownError) {
+            if (window.CodeCartUI) { window.CodeCartUI.error(xhr, thrownError); } else { alert(thrownError + "\r\n" + xhr.statusText); }
+        }
+	});
+});
+//--></script> 
+<script type="text/javascript"><!--
+$('button[id^=\'button-upload\']').on('click', function() {
+	var node = this;
+
+	$('#form-upload').remove();
+
+	$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file" /></form>');
+
+	$('#form-upload input[name=\'file\']').trigger('click');
+
+	if (typeof timer != 'undefined') {
+    	clearInterval(timer);
+	}
+
+	timer = setInterval(function() {
+		if ($('#form-upload input[name=\'file\']').val() != '') {
+			clearInterval(timer);
+
+			$.ajax({
+				url: 'index.php?route=tool/upload',
+				type: 'post',
+				dataType: 'json',
+				data: new FormData($('#form-upload')[0]),
+				cache: false,
+				contentType: false,
+				processData: false,
+				beforeSend: function() {
+					$(node).button('loading');
+				},
+				complete: function() {
+					$(node).button('reset');
+				},
+				success: function(json) {
+					$('.text-danger').remove();
+
+					if (json['error']) {
+						$(node).parent().find('input').after('<div class="text-danger">' + json['error'] + '</div>');
+					}
+
+					if (json['success']) {
+						if (window.CodeCartUI) { window.CodeCartUI.toast('success', json['success']); } else { alert(json['success']); }
+
+						$(node).parent().find('input').val(json['code']);
+					}
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					if (window.CodeCartUI) { window.CodeCartUI.error(xhr, thrownError); } else { alert(thrownError + "\r\n" + xhr.statusText); }
+				}
+			});
+		}
+	}, 500);
+});
+//--></script> 
+<script type="text/javascript"><!--
+$('#review').delegate('.pagination a', 'click', function(e) {
+    e.preventDefault();
+
+    $('#review').fadeOut('slow');
+
+    $('#review').load(this.href);
+
+    $('#review').fadeIn('slow');
+});
+
+$('#review').load('index.php?route=blog/article/review&article_id={{ article_id }}');
+
+$('#button-review').on('click', function() {
+	$.ajax({
+		url: 'index.php?route=blog/article/write&article_id={{ article_id }}',
+		type: 'post',
+		dataType: 'json',
+		data: $("#form-review").serialize(),
+		beforeSend: function() {
+			$('#button-review').button('loading');
+		},
+		complete: function() {
+			$('#button-review').button('reset');
+		},
+		success: function(json) {
+			$('.ccp-review-feedback, .ccp-captcha-field-error').remove();
+
+			if (json['error']) {
+				if (json['captcha_error']) {
+					var $captchaBox = $('#form-review .ccp-local-captcha').last();
+					var $captchaError = $('<div class="text-danger ccp-captcha-field-error"></div>').text(json['captcha_error']);
+					if ($captchaBox.length) { $captchaBox.after($captchaError); } else { $('#form-review').prepend($captchaError); }
+				} else {
+					$('#form-review').before('<div class="alert alert-danger alert-dismissible ccp-review-feedback"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+				}
+			}
+
+			if (json['captcha_reset'] && window.CodeCartCaptcha && typeof window.CodeCartCaptcha.resetAll === 'function') {
+				window.CodeCartCaptcha.resetAll(document.getElementById('form-review'));
+			}
+
+			if (json['success']) {
+				$('#form-review').before('<div class="alert alert-success alert-dismissible ccp-review-feedback"><i class="fa fa-check-circle"></i> ' + json['success'] + '<button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+				if (window.CodeCartUI && typeof window.CodeCartUI.toast === 'function') { window.CodeCartUI.toast('success', json['success']); }
+
+				$('input[name=\'name\']').val('');
+				$('textarea[name=\'text\']').val('');
+				$('input[name=\'rating\']:checked').prop('checked', false);
+				if (window.CodeCartReviewRatingReset) { window.CodeCartReviewRatingReset(document.getElementById('form-review')); }
+			}
+		}
+	});
+});
+
+$(document).ready(function() {
+{% if gallery_engine == 'photoswipe' %}
+  var articleGallery = null, descriptionGallery = null;
+  function prepareArticleGallery() {
+    if (typeof PhotoSwipeLightbox !== 'function' || typeof PhotoSwipe === 'undefined') { return; }
+    if (!articleGallery) {
+      articleGallery = new PhotoSwipeLightbox({gallery:'#blog-article .thumbnails',children:'a.thumbnail',pswpModule:PhotoSwipe,bgOpacity:.92,wheelToZoom:true,preload:[1,2],showHideAnimationType:'none',showAnimationDuration:0,hideAnimationDuration:0});
+      articleGallery.addFilter('itemData', function(itemData) { itemData.msrc = null; return itemData; });
+      articleGallery.init();
+    }
+    if (!descriptionGallery) {
+      var description = document.getElementById('tab-description');
+      if (description) {
+        var images = description.querySelectorAll('a > img');
+        for (var i=0;i<images.length;i++) {
+          var img=images[i], link=img.parentNode;
+          link.classList.add('ccp-description-gallery-item');
+          link.setAttribute('data-pswp-width', img.naturalWidth || 1600);
+          link.setAttribute('data-pswp-height', img.naturalHeight || 1200);
+          (function(a){var probe=new Image();probe.onload=function(){a.setAttribute('data-pswp-width',this.naturalWidth||1600);a.setAttribute('data-pswp-height',this.naturalHeight||1200);};probe.src=a.href;})(link);
+        }
+        descriptionGallery = new PhotoSwipeLightbox({gallery:'#tab-description',children:'a.ccp-description-gallery-item',pswpModule:PhotoSwipe,bgOpacity:.92,wheelToZoom:true,preload:[1,2],showHideAnimationType:'none',showAnimationDuration:0,hideAnimationDuration:0});
+        descriptionGallery.addFilter('itemData', function(itemData) { itemData.msrc = null; return itemData; });
+        descriptionGallery.init();
+      }
+    }
+  }
+  // PhotoSwipe is loaded before this template. Initialise once and let the
+  // library resolve the exact clicked anchor index (including direct #2/#3 clicks).
+  prepareArticleGallery();
+{% else %}
+  $('.thumbnails').magnificPopup({type:'image',delegate:'a',gallery:{enabled:true}});
+  $('#tab-description').find('a>img').each(function(){ $(this).parent().addClass('gallery'); });
+  $('#tab-description').magnificPopup({delegate:'a.gallery',type:'image',gallery:{enabled:true}});
+{% endif %}
+  gotoReview = function() { var offset=$('#form-review').offset(); if(offset){$('html, body').animate({scrollTop:offset.top-20},'slow');} };
+  gotoReviewWrite = function() { var offset=$('#form-review h2').offset(); if(offset){$('html, body').animate({scrollTop:offset.top-20},'slow');} };
+});
+//--></script>
+
+<script type="text/javascript">
+(function(){
+  var button=document.querySelector('.ccp-blog-share-copy');
+  if(!button){return;}
+  button.addEventListener('click',function(){
+    var url=this.getAttribute('data-copy-url')||window.location.href;
+    var label=this.querySelector('span');
+    var original=label?label.textContent:'';
+    var done=function(){if(label){label.textContent={{ text_link_copied|json_encode|raw }};window.setTimeout(function(){label.textContent=original;},1600);}};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done).catch(function(){});}
+    else{var input=document.createElement('input');input.value=url;document.body.appendChild(input);input.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(input);}
+  });
+})();
+</script>
+{{ footer }} 

@@ -1,0 +1,38 @@
+<div class="modal-dialog ccp-phpinfo-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header ccp-phpinfo-header">
+      <h4 class="modal-title"><i class="fa fa-cog"></i> {{ heading_title }}</h4>
+      <div class="ccp-phpinfo-actions">
+        {% if phpinfo_download_link %}<a href="{{ phpinfo_download_link }}" class="btn btn-primary btn-sm"><i class="fa fa-download"></i> {{ phpinfo_download_text }}</a>{% endif %}
+        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> {{ button_close|default('Close') }}</button>
+      </div>
+    </div>
+    <div class="modal-body ccp-phpinfo-body">
+      <style type="text/css">
+       .ccp-phpinfo-dialog{width:min(980px,calc(100vw - 30px));max-width:980px;margin:30px auto}
+       .ccp-phpinfo-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;position:sticky;top:0;z-index:5;background:#fff;padding-left:16px;padding-right:16px}
+       .ccp-phpinfo-header .modal-title{min-width:0;grid-column:2;text-align:center;margin:0;white-space:nowrap}
+       .ccp-phpinfo-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;grid-column:3;justify-self:end;margin-right:2px}
+       .ccp-phpinfo-body{max-height:calc(100vh - 140px);overflow:auto;background:#fff;color:#222;font-family:sans-serif}
+       .ccp-phpinfo-body pre{margin:0;font-family:monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+       .ccp-phpinfo-body a:link{color:#009;text-decoration:none;background:transparent}
+       .ccp-phpinfo-body a:hover{text-decoration:underline}
+       .ccp-phpinfo-body .center{max-width:100%;overflow-x:auto;text-align:center}
+       .ccp-phpinfo-body .center table{margin:1em auto;text-align:left}
+       .ccp-phpinfo-body .center th{text-align:center!important}
+       .ccp-phpinfo-body table{border-collapse:collapse;border:0;width:100%!important;max-width:100%!important;table-layout:fixed;box-shadow:1px 2px 3px #ccc}
+       .ccp-phpinfo-body td,.ccp-phpinfo-body th{border:1px solid #666;font-size:75%;vertical-align:baseline;padding:4px 5px;overflow-wrap:anywhere;word-break:break-word}
+       .ccp-phpinfo-body h1{font-size:150%}.ccp-phpinfo-body h2{font-size:125%}.ccp-phpinfo-body .p{text-align:left}
+       .ccp-phpinfo-body .e{background:#ccf;width:34%;font-weight:bold}.ccp-phpinfo-body .h{background:#99c;font-weight:bold}.ccp-phpinfo-body .v{background:#ddd;width:auto!important;max-width:none!important;overflow-wrap:anywhere}.ccp-phpinfo-body .v i{color:#999}
+       .ccp-phpinfo-body img{float:right;border:0;max-width:100%;height:auto}.ccp-phpinfo-body hr{width:100%!important;background:#ccc;border:0;height:1px}
+       html.ccp-admin-dark .ccp-phpinfo-header,html.ccp-admin-dark .ccp-phpinfo-body{background:#18212b!important;color:#dce5ef!important}
+       html.ccp-admin-dark .ccp-phpinfo-body a:link{color:#79b9ff!important;background:transparent!important}
+       html.ccp-admin-dark .ccp-phpinfo-body table{box-shadow:none!important}
+       html.ccp-admin-dark .ccp-phpinfo-body td,html.ccp-admin-dark .ccp-phpinfo-body th{border-color:#465363!important;color:#dce5ef!important}
+       html.ccp-admin-dark .ccp-phpinfo-body .e{background:#24364d!important;color:#edf3f9!important}.ccp-admin-dark .ccp-phpinfo-body .h{background:#2d4566!important;color:#fff!important}.ccp-admin-dark .ccp-phpinfo-body .v{background:#202b37!important;color:#dce5ef!important}.ccp-admin-dark .ccp-phpinfo-body .v i{color:#9eacbc!important}
+       @media(max-width:767px){.ccp-phpinfo-dialog{width:calc(100vw - 16px);margin:8px auto}.ccp-phpinfo-header{display:flex;align-items:stretch;flex-direction:column}.ccp-phpinfo-header .modal-title{text-align:center;white-space:normal}.ccp-phpinfo-actions{width:100%;margin-right:0}.ccp-phpinfo-actions .btn{flex:1}.ccp-phpinfo-body{max-height:calc(100vh - 132px);padding:10px}.ccp-phpinfo-body table{min-width:620px!important;table-layout:auto}.ccp-phpinfo-body .center{overflow-x:auto;-webkit-overflow-scrolling:touch}}
+      </style>
+      {{ phpinfo | raw }}
+    </div>
+  </div>
+</div>

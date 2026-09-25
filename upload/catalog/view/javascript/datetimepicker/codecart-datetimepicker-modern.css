@@ -1,0 +1,106 @@
+/* CodeCart PRO DateTimePicker modern skin v1.8.7 */
+.bootstrap-datetimepicker-widget.dropdown-menu{width:258px;padding:8px;font-size:12px;border:1px solid #d9e1ea;border-radius:12px;box-shadow:0 18px 42px rgba(16,24,40,.18);background:#fff;color:#344054;text-shadow:none}
+.bootstrap-datetimepicker-widget.timepicker-sbs{width:430px}
+.bootstrap-datetimepicker-widget table{width:100%;margin:0;color:#344054;text-align:center}
+.bootstrap-datetimepicker-widget table td,.bootstrap-datetimepicker-widget table th{height:30px;line-height:30px;width:30px;padding:0;text-align:center!important;vertical-align:middle!important;border-radius:7px;color:#344054;text-shadow:none}
+.bootstrap-datetimepicker-widget table th{color:#475467;font-weight:500}
+.bootstrap-datetimepicker-widget table td.day{color:#344054}
+.bootstrap-datetimepicker-widget table td.old,.bootstrap-datetimepicker-widget table td.new,.bootstrap-datetimepicker-widget table td.disabled,.bootstrap-datetimepicker-widget table td span.disabled{color:#98a2b3}
+.bootstrap-datetimepicker-widget .picker-switch,.bootstrap-datetimepicker-widget .datepicker-days .picker-switch,.bootstrap-datetimepicker-widget .datepicker-months .picker-switch,.bootstrap-datetimepicker-widget .datepicker-years .picker-switch{color:#101828;font-weight:600;text-align:center!important}
+.bootstrap-datetimepicker-widget table td.day:hover,.bootstrap-datetimepicker-widget table td.hour:hover,.bootstrap-datetimepicker-widget table td.minute:hover,.bootstrap-datetimepicker-widget table td.second:hover,.bootstrap-datetimepicker-widget table thead tr:first-child th:hover,.bootstrap-datetimepicker-widget table td span:hover{background:#f2f4f7;color:#101828}
+.bootstrap-datetimepicker-widget table td.today:before{border-bottom-color:var(--ccp-store-accent,#0b6fd3)}
+.bootstrap-datetimepicker-widget table td.active,.bootstrap-datetimepicker-widget table td.active:hover,.bootstrap-datetimepicker-widget table td span.active{background:var(--ccp-store-accent,#0b6fd3)!important;color:#fff!important;text-shadow:none;border-radius:7px!important}
+.bootstrap-datetimepicker-widget .timepicker-picker table{width:100%;table-layout:auto}
+.bootstrap-datetimepicker-widget .timepicker-picker table td{height:30px;line-height:26px;padding:0 3px;vertical-align:middle!important}
+.bootstrap-datetimepicker-widget .timepicker-picker table td span{width:36px!important;height:28px!important;line-height:28px!important;margin:1px auto!important}
+.bootstrap-datetimepicker-widget .timepicker-hour,.bootstrap-datetimepicker-widget .timepicker-minute,.bootstrap-datetimepicker-widget .timepicker-second{display:block;min-width:30px;font-size:14px;font-weight:600;line-height:24px;color:#101828;text-align:center!important}
+.bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell{height:50px!important;min-width:72px!important;line-height:1.2!important;text-align:center!important}
+.bootstrap-datetimepicker-widget .ccp-time-label{display:block;height:auto!important;width:auto!important;margin:0 0 3px!important;line-height:1.15!important;font-size:10px!important;font-weight:600;color:#667085;text-transform:none;white-space:nowrap;text-align:center!important}
+.bootstrap-datetimepicker-widget .separator{color:#667085}.bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-separator{width:12px!important;min-width:12px!important;max-width:12px!important;padding:0!important}
+.bootstrap-datetimepicker-widget a[data-action]{display:inline-flex;align-items:center;justify-content:center;width:32px;height:28px;padding:0!important;color:var(--ccp-store-accent,#0b6fd3);border-radius:6px}
+.bootstrap-datetimepicker-widget a[data-action] span,.bootstrap-datetimepicker-widget a[data-action] .fa,.bootstrap-datetimepicker-widget a[data-action] .glyphicon{width:auto!important;height:auto!important;line-height:1!important;font-size:11px!important;margin:0!important}
+.bootstrap-datetimepicker-widget .btn{border-radius:6px;padding:4px 8px;color:#344054;background:#f8fafc;border-color:#d0d5dd;text-shadow:none}
+.bootstrap-datetimepicker-widget .btn-primary{background:var(--ccp-store-accent,#0b6fd3)!important;border-color:var(--ccp-store-accent,#0b6fd3)!important;color:#fff!important}
+.bootstrap-datetimepicker-widget.codecart-time-only.dropdown-menu{width:238px;min-width:238px}
+.bootstrap-datetimepicker-widget.codecart-time-only .timepicker-picker table td{height:30px;line-height:26px}
+.bootstrap-datetimepicker-widget.codecart-time-only .timepicker-picker table td.ccp-time-value-cell{height:50px!important;min-width:78px!important}
+.bootstrap-datetimepicker-widget.codecart-time-only .timepicker-picker table td span:not(.ccp-time-label){width:34px!important;height:27px!important;line-height:27px!important}
+
+/* Dark mode follows the storefront theme when picker mode is system/dark. */
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget.dropdown-menu,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget.dropdown-menu{background:#171e27!important;color:#e8edf5!important;border-color:#3a4655!important;box-shadow:0 18px 42px rgba(0,0,0,.42)!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table th,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table th,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td{color:#e8edf5!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget .picker-switch,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table thead tr:first-child th,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .picker-switch,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table thead tr:first-child th{color:#f8fafc!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget .datepicker-days th.dow,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .datepicker-days th.dow{color:#b8c4d4!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget td.day:not(.old):not(.new):not(.disabled),
+html.ccp-theme-dark .bootstrap-datetimepicker-widget td.day:not(.old):not(.new):not(.disabled){color:#f1f5f9!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td.old,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td.new,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td.disabled,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td span.disabled,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td.old,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td.new,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td.disabled,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td span.disabled{color:#8f9bad!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td.day:hover,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td.hour:hover,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td.minute:hover,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td.second:hover,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table thead tr:first-child th:hover,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget table td span:hover,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td.day:hover,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td.hour:hover,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td.minute:hover,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td.second:hover,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table thead tr:first-child th:hover,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget table td span:hover{background:#2a3543!important;color:#fff!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget .timepicker-hour,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget .timepicker-minute,
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget .timepicker-second,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .timepicker-hour,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .timepicker-minute,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .timepicker-second{color:#f8fafc!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget .ccp-time-label,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .ccp-time-label{color:#aeb9c8!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget .separator,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .separator{color:#aeb8c5!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget a[data-action],
+html.ccp-theme-dark .bootstrap-datetimepicker-widget a[data-action]{background:#eef3f8!important;color:var(--ccp-store-accent,#0b6fd3)!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget a[data-action]:hover,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget a[data-action]:hover{background:#fff!important;color:var(--ccp-store-accent-hover,#095eb4)!important}
+html[data-ccp-picker-theme="dark"] .bootstrap-datetimepicker-widget .btn,
+html.ccp-theme-dark .bootstrap-datetimepicker-widget .btn{color:#e8edf5!important;background:#25303d!important;border-color:#465363!important}
+
+@media(prefers-color-scheme:dark){
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget.dropdown-menu{background:#171e27!important;color:#e8edf5!important;border-color:#3a4655!important;box-shadow:0 18px 42px rgba(0,0,0,.42)!important}
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget table,
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget table th,
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget table td{color:#e8edf5!important}
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget table td.old,
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget table td.new{color:#8f9bad!important}
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget .picker-switch,
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget .timepicker-hour,
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget .timepicker-minute,
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget .timepicker-second{color:#f8fafc!important}
+ html[data-ccp-picker-theme="system"]:not(.ccp-theme-dark) .bootstrap-datetimepicker-widget .ccp-time-label{color:#aeb9c8!important}
+}
+
+@media(max-width:767px){
+ .bootstrap-datetimepicker-widget.dropdown-menu{position:fixed!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(360px,calc(100vw - 28px))!important;min-width:0!important;padding:14px!important;z-index:20050!important;box-shadow:0 0 0 100vmax rgba(10,14,20,.42),0 22px 60px rgba(0,0,0,.30)!important}
+ .bootstrap-datetimepicker-widget.timepicker-sbs{width:min(390px,calc(100vw - 28px))!important}
+ .bootstrap-datetimepicker-widget.codecart-time-only.dropdown-menu{width:min(300px,calc(100vw - 28px))!important;min-width:0!important}
+ .bootstrap-datetimepicker-widget table td,.bootstrap-datetimepicker-widget table th{height:40px!important;line-height:40px!important;font-size:14px!important}
+ .bootstrap-datetimepicker-widget .timepicker-picker table td{height:40px!important;line-height:40px!important}
+ .bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell{height:60px!important;min-width:88px!important;line-height:1.2!important}
+ .bootstrap-datetimepicker-widget .timepicker-picker table td span:not(.ccp-time-label){height:38px!important;line-height:38px!important;font-size:16px!important}
+ .bootstrap-datetimepicker-widget .picker-switch{font-size:15px!important}
+}

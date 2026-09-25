@@ -1,0 +1,21 @@
+<?php
+$_['heading_title'] = 'Form';
+$_['text_extension'] = 'Extensions';
+$_['text_success'] = 'Form module settings have been saved.';
+$_['text_edit'] = 'Form placement';
+$_['text_enabled'] = 'Enabled';
+$_['text_disabled'] = 'Disabled';
+$_['text_inline'] = 'Inline form';
+$_['text_button'] = 'Button → popup';
+$_['text_open_forms'] = 'Open form builder';
+$_['entry_name'] = 'Module name';
+$_['entry_form'] = 'Form';
+$_['entry_mode'] = 'Display';
+$_['entry_button_text'] = 'Button text';
+$_['entry_status'] = 'Status';
+$_['help_form'] = 'Choose a reusable form created in Design → Forms.';
+$_['help_mode'] = 'Show the form directly or a button that opens it in a responsive popup.';
+$_['help_button_text'] = 'Optional per-language CTA. Leave empty to use the form title.';
+$_['error_permission'] = 'You do not have permission to modify this module.';
+$_['error_name'] = 'Module name must be between 3 and 64 characters.';
+$_['error_form'] = 'Select a form.';

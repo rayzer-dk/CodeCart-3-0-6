@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<!--[if IE 8 ]><html dir="{{ direction }}" lang="{{ lang }}" class="ie8"><![endif]-->
+<!--[if IE 9 ]><html dir="{{ direction }}" lang="{{ lang }}" class="ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html dir="{{ direction }}" lang="{{ lang }}" data-ccp-picker-theme="{{ theme_datetimepicker_theme }}">
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>{{ title|e }}</title>
+{% if robots %}
+<meta name="robots" content="{{ robots|e }}" />
+{% endif %}
+<base href="{{ base|e }}" />
+{% if description %}
+<meta name="description" content="{{ description|e }}" />
+{% endif %}
+{% if keywords %}
+<meta name="keywords" content="{{ keywords|e }}" />
+{% endif %}
+<meta property="og:title" content="{{ title|e }}" />
+<meta property="og:type" content="{{ og_type|e }}" />
+<meta property="og:url" content="{{ og_url|e }}" />
+{% if og_description %}<meta property="og:description" content="{{ og_description|e }}" />{% endif %}
+{% if og_image %}
+    <meta property="og:image" content="{{ og_image|e }}" />
+    <meta property="og:image:alt" content="{{ title|e }}" />
+{% elseif logo %}
+    <meta property="og:image" content="{{ logo|e }}" />
+    <meta property="og:image:alt" content="{{ name|e }}" />
+{% endif %}
+<meta property="og:site_name" content="{{ name|e }}" />
+<meta name="twitter:card" content="{% if og_image %}summary_large_image{% else %}summary{% endif %}" />
+<meta name="twitter:title" content="{{ title|e }}" />
+{% if og_description %}<meta name="twitter:description" content="{{ og_description|e }}" />{% endif %}
+{% if og_image %}<meta name="twitter:image" content="{{ og_image|e }}" />
+<meta name="twitter:image:alt" content="{{ title|e }}" />{% elseif logo %}<meta name="twitter:image" content="{{ logo|e }}" />
+<meta name="twitter:image:alt" content="{{ name|e }}" />{% endif %}
+{% for alternate in alternate_links %}
+<link rel="alternate" hreflang="{{ alternate.hreflang|e }}" href="{{ alternate.href|e }}" />
+{% endfor %}
+<script src="catalog/view/javascript/jquery/jquery-3.7.1.min.js" type="text/javascript"></script>
+<link href="catalog/view/javascript/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+<script src="catalog/view/javascript/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<link href="{{ font_awesome_css }}" rel="stylesheet" type="text/css" />
+{% if theme_font_key == 'inter' %}<link rel="preload" href="catalog/view/theme/default/fonts/inter/inter-regular.woff2?v=3.019" as="font" type="font/woff2" crossorigin /><link href="catalog/view/theme/default/stylesheet/inter.css?v=3.0.6.0" rel="stylesheet" type="text/css" />{% endif %}
+{% if theme_dark_mode_status %}<script>(function(){try{var m=localStorage.getItem('ccp-theme')||'{{ theme_dark_mode_default }}';if(m==='system'){m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(m==='dark'){document.documentElement.classList.add('ccp-theme-dark');}}catch(e){}})();</script>{% endif %}
+{% if developer_theme %}<link href="catalog/view/theme/default/stylesheet/stylesheet.css?v=3.0.6.0-20260916-133" rel="stylesheet">{% else %}<link href="catalog/view/theme/default/stylesheet/stylesheet.min.css?v=3.0.6.0-20260916-133" rel="stylesheet">{% endif %}
+<style>:root{--ccp-store-accent:{{ theme_accent_color }};--ccp-store-accent-hover:{{ theme_accent_hover }};--ccp-store-button:{{ theme_button_color }};--ccp-store-button-hover:{{ theme_button_hover }};--ccp-store-button-text:{{ theme_button_text_color }};--ccp-store-buy:{{ theme_buy_button_color }};--ccp-store-buy-hover:{{ theme_buy_button_hover }};--ccp-store-buy-text:{{ theme_buy_button_text_color }};--ccp-store-sale:{{ theme_sale_price_color }};--ccp-store-cart:{{ theme_cart_button_color }};--ccp-store-cart-hover:{{ theme_cart_button_hover }};--ccp-store-cart-text:{{ theme_cart_button_text_color }};--ccp-store-text:{{ theme_text_color }};--ccp-store-heading:{{ theme_heading_color }};--ccp-store-h1:{{ theme_h1_color }};--ccp-store-h2:{{ theme_h2_color }};--ccp-store-background:{{ theme_background_color }};--ccp-store-surface:{{ theme_surface_color }};--ccp-store-border:{{ theme_border_color }};--ccp-store-footer-background:{{ theme_footer_background_color }};--ccp-store-footer-text:{{ theme_footer_text_color }};--ccp-store-footer-link:{{ theme_footer_link_color }};--ccp-store-footer-heading:{{ theme_footer_heading_color }};--ccp-store-font:{{ theme_font_family }};--ccp-store-radius:{{ theme_border_radius }}px;}</style>
+{% if theme_custom_css %}<style id="ccp-custom-css">{{ theme_custom_css|raw }}</style>{% endif %}
+{% for style in styles %}
+<link href="{{ style.href }}" type="text/css" rel="{{ style.rel }}" media="{{ style.media }}" />
+{% endfor %}
+{% if font_awesome_unresolved_css %}<style id="ccp-fa-unresolved-placeholder">{{ font_awesome_unresolved_css|raw }}</style>{% endif %}
+{% for asset_id, asset in modern_assets %}
+{% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}
+{% if asset.type == 'style' %}<link rel="stylesheet" href="{{ asset.url }}" media="{{ asset.media }}" />{% elseif asset.type == 'script' %}<script src="{{ asset.url }}"{% if asset.module %} type="module"{% else %} type="text/javascript"{% endif %}{% if asset.defer %} defer{% endif %}{% if asset.async %} async{% endif %}></script>{% endif %}
+{% endfor %}
+{% for script in scripts %}
+<script src="{{ script }}" type="text/javascript"></script>
+{% endfor %}
+<script>window.CodeCartI18n={{ codecart_ui_i18n|json_encode|raw }};</script>
+<script src="catalog/view/javascript/common.js?v=3.0.6.0-20260913-2" type="text/javascript"></script>
+{% if catalog_ajax_status %}<script src="catalog/view/javascript/codecart/catalog/catalog-ajax.js?v=3.0.6.0" type="text/javascript" defer></script>{% endif %}
+{% for link in links %}
+<link href="{{ link.href }}" rel="{{ link.rel }}" />
+{% endfor %}
+{% for analytic in analytics %}
+{{ analytic }}
+{% endfor %}
+</head>
+<body data-ccp-cart-url="{{ shopping_cart }}" data-ccp-cart-add-url="{{ cart_add_url }}" data-ccp-cart-edit-url="{{ cart_edit_url }}" data-ccp-cart-remove-url="{{ cart_remove_url }}" data-ccp-cart-info-url="{{ cart_info_url }}" data-ccp-wishlist-add-url="{{ wishlist_add_url }}" data-ccp-compare-add-url="{{ compare_add_url }}" data-ccp-in-cart="{{ button_in_cart }}">
+<nav id="top">
+  <div class="container">{{ currency }}
+    {{ language }}
+	{{ blog_menu }}
+    <div id="top-links" class="nav pull-right">
+      <ul class="list-inline">
+        {% if theme_header_phone_status and telephone %}<li class="hidden-xs ccp-top-contact"><a href="tel:{{ telephone|replace({' ': '', '(': '', ')': '', '-': ''}) }}" title="{{ telephone }}"><i class="fa-solid fa-phone-volume" aria-hidden="true"></i> <span>{{ telephone }}</span></a></li>{% endif %}
+        {% if theme_header_email_status and email %}<li class="hidden-xs ccp-top-contact hidden-sm"><a href="mailto:{{ email }}" title="{{ email }}"><i class="fa fa-envelope" aria-hidden="true"></i> <span>{{ email }}</span></a></li>{% endif %}
+        {% if theme_dark_mode_status %}<li><button type="button" class="ccp-theme-toggle" title="{{ text_theme_toggle }}" aria-label="{{ text_theme_toggle }}"><i class="fa fa-moon ccp-theme-fa" aria-hidden="true"></i></button></li>{% endif %}
+        <li class="dropdown"><a href="{{ account }}" title="{{ text_account }}" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_account }}</span> <span class="caret"></span></a>
+          <ul class="dropdown-menu dropdown-menu-right">
+            {% if logged %}
+            <li><a href="{{ account }}">{{ text_account }}</a></li>
+            <li><a href="{{ order }}">{{ text_order }}</a></li>
+            <li><a href="{{ transaction }}">{{ text_transaction }}</a></li>
+            <li><a href="{{ download }}">{{ text_download }}</a></li>
+            <li><a href="{{ logout }}">{{ text_logout }}</a></li>
+            {% else %}
+            <li><a href="{{ register }}">{{ text_register }}</a></li>
+            <li><a href="{{ login }}">{{ text_login }}</a></li>
+            {% endif %}
+          </ul>
+        </li>
+        <li><a href="{{ wishlist }}" id="wishlist-total" title="{{ text_wishlist }}"><i class="fa fa-heart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_wishlist }}</span></a></li>
+        {% if not quick_checkout_enabled %}<li><a href="{{ shopping_cart }}" title="{{ text_shopping_cart }}"><i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_shopping_cart }}</span></a></li>{% endif %}
+        <li><a href="{{ checkout }}" title="{{ text_checkout }}"><i class="fa fa-share"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_checkout }}</span></a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<header>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-4 ccp-header-brand-col">
+        <div class="ccp-mobile-header-contacts visible-xs">
+          {% if theme_header_phone_status and telephone %}<a class="ccp-mobile-contact-line" href="tel:{{ telephone|replace({' ': '', '(': '', ')': '', '-': ''}) }}" title="{{ telephone }}"><i class="fa-solid fa-phone-volume"></i><span>{{ telephone }}</span></a>{% endif %}
+          {% if theme_header_email_status and email %}<a class="ccp-mobile-contact-line" href="mailto:{{ email }}" title="{{ email }}"><i class="fa fa-envelope"></i><span>{{ email }}</span></a>{% endif %}
+        </div>
+		<div id="logo">
+          {% if logo %}
+            {% if home == og_url %}
+              <img src="{{ logo }}"{% if logo_srcset %} srcset="{{ logo_srcset }}" sizes="(max-width: 767px) 190px, (max-width: 991px) 240px, {{ logo_width }}px"{% endif %} title="{{ name }}" alt="{{ name }}"{% if logo_width and logo_height %} width="{{ logo_width }}" height="{{ logo_height }}"{% endif %} class="img-responsive" />
+            {% else %}
+              <a href="{{ home }}"><img src="{{ logo }}"{% if logo_srcset %} srcset="{{ logo_srcset }}" sizes="(max-width: 767px) 190px, (max-width: 991px) 240px, {{ logo_width }}px"{% endif %} title="{{ name }}" alt="{{ name }}"{% if logo_width and logo_height %} width="{{ logo_width }}" height="{{ logo_height }}"{% endif %} class="img-responsive" /></a>
+            {% endif %}
+          {% else %}
+            <h1><a href="{{ home }}">{{ name }}</a></h1>
+          {% endif %}
+		</div>
+      </div>
+      <div class="col-sm-5">{{ search }}</div>
+      <div class="col-sm-3">{{ cart }}</div>
+    </div>
+  </div>
+</header>
+{{ menu }}
+<main id="main-content">

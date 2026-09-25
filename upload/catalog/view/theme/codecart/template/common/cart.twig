@@ -1,0 +1,84 @@
+<div id="cart" class="btn-group btn-block{% if quick_checkout_enabled %} ccp-cart-direct{% elseif commerce_style == 'modern' %} ccp-cart-drawer-mode{% endif %}">
+  {% if quick_checkout_enabled %}
+  <a href="{{ checkout }}" class="btn btn-inverse btn-block btn-lg ccp-cart-trigger" title="{{ text_checkout }}"><i class="fa-solid fa-cart-shopping"></i> <span id="cart-total">{{ text_items }}</span></a>
+  {% else %}
+  <button type="button" data-toggle="dropdown" data-loading-text="{{ text_loading }}" class="btn btn-inverse btn-block btn-lg dropdown-toggle ccp-cart-trigger" aria-haspopup="true" aria-expanded="false"><i class="fa fa-shopping-cart"></i> <span id="cart-total">{{ text_items }}</span></button>
+  {% if commerce_style == 'modern' %}
+  <button type="button" class="ccp-cart-drawer-backdrop" tabindex="-1" aria-hidden="true"></button>
+  <ul class="dropdown-menu pull-right ccp-cart-dropdown ccp-cart-modern" role="dialog" aria-modal="true" aria-label="{{ text_cart }}">
+    <li class="ccp-cart-drawer-head"><strong>{{ text_cart }}</strong><button type="button" class="ccp-cart-drawer-close" title="{{ text_close }}" aria-label="{{ text_close }}"><i class="fa fa-times" aria-hidden="true"></i></button></li>
+    {% if products or vouchers %}
+    <li class="ccp-mini-cart-list">
+      {% for product in products %}
+      <div class="ccp-mini-cart-item">
+        <div class="ccp-mini-cart-image">{% if product.thumb %}<a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-thumbnail" /></a>{% endif %}</div>
+        <div class="ccp-mini-cart-info"><a class="ccp-mini-cart-name" href="{{ product.href }}">{{ product.name }}</a>{% if product.option %}{% for option in product.option %}<small>{{ option.name }}: {{ option.value }}</small>{% endfor %}{% endif %}{% if product.recurring %}<small>{{ text_recurring }} {{ product.recurring }}</small>{% endif %}<div class="ccp-mini-cart-qty-row"><div class="ccp-mini-cart-quantity" aria-label="{{ text_quantity }}"><button type="button" class="ccp-mini-cart-qty-btn" data-cart-id="{{ product.cart_id }}" data-quantity="{{ product.quantity - 1 }}"{% if product.quantity <= 1 %} disabled{% endif %} aria-label="−">−</button><span>{{ product.quantity }}</span><button type="button" class="ccp-mini-cart-qty-btn" data-cart-id="{{ product.cart_id }}" data-quantity="{{ product.quantity + 1 }}" aria-label="+">+</button></div><strong class="ccp-mini-cart-line-total">{{ product.total }}</strong></div></div>
+        <button type="button" onclick="cart.remove('{{ product.cart_id }}');" title="{{ button_remove }}" aria-label="{{ button_remove }}" class="btn btn-link ccp-mini-cart-remove"><i class="fa fa-times"></i></button>
+      </div>
+      {% endfor %}
+      {% for voucher in vouchers %}
+      <div class="ccp-mini-cart-item ccp-mini-cart-voucher"><div class="ccp-mini-cart-image"><i class="fa fa-gift"></i></div><div class="ccp-mini-cart-info"><span class="ccp-mini-cart-name">{{ voucher.description }}</span><span class="ccp-mini-cart-qty">1 × {{ voucher.amount }}</span></div><button type="button" onclick="voucher.remove('{{ voucher.key }}');" title="{{ button_remove }}" aria-label="{{ button_remove }}" class="btn btn-link ccp-mini-cart-remove"><i class="fa fa-times"></i></button></div>
+      {% endfor %}
+    </li>
+    <li>
+      <div class="ccp-mini-cart-summary">
+        <div class="ccp-mini-cart-totals">{% for total in totals %}<div><span>{{ total.title }}</span><strong>{{ total.text }}</strong></div>{% endfor %}</div>
+        <div class="ccp-cart-links{% if quick_checkout_enabled %} ccp-cart-links-single{% endif %}">{% if not quick_checkout_enabled %}<a href="{{ cart }}" class="btn btn-default"><i class="fa fa-shopping-cart"></i> {{ text_cart }}</a>{% endif %}<a href="{{ checkout }}" class="btn btn-primary"><i class="fa fa-check"></i> {{ text_checkout }}</a></div>
+      </div>
+    </li>
+    {% else %}
+    <li><p class="text-center ccp-mini-cart-empty">{{ text_empty }}</p></li>
+    {% endif %}
+  </ul>
+  {% else %}
+  <ul class="dropdown-menu pull-right ccp-cart-dropdown">
+    {% if products or vouchers %}
+    <li>
+      <table class="table table-striped">
+        {% for product in products %}
+        <tr>
+          <td class="text-center">{% if product.thumb %} <a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-thumbnail" /></a> {% endif %}</td>
+          <td class="text-left"><a href="{{ product.href }}">{{ product.name }}</a> {% if product.option %}
+            {% for option in product.option %} <br />
+            - <small>{{ option.name }} {{ option.value }}</small> {% endfor %}
+            {% endif %}
+            {% if product.recurring %} <br />
+            - <small>{{ text_recurring }} {{ product.recurring }}</small> {% endif %}</td>
+          <td class="text-right">x {{ product.quantity }}</td>
+          <td class="text-right">{{ product.total }}</td>
+          <td class="text-center"><button type="button" onclick="cart.remove('{{ product.cart_id }}');" title="{{ button_remove }}" class="btn btn-danger btn-xs"><i class="fa fa-times"></i></button></td>
+        </tr>
+        {% endfor %}
+        {% for voucher in vouchers %}
+        <tr>
+          <td class="text-center"></td>
+          <td class="text-left">{{ voucher.description }}</td>
+          <td class="text-right">x&nbsp;1</td>
+          <td class="text-right">{{ voucher.amount }}</td>
+          <td class="text-center text-danger"><button type="button" onclick="voucher.remove('{{ voucher.key }}');" title="{{ button_remove }}" class="btn btn-danger btn-xs"><i class="fa fa-times"></i></button></td>
+        </tr>
+        {% endfor %}
+      </table>
+    </li>
+    <li>
+      <div>
+        <table class="table table-bordered">
+          {% for total in totals %}
+          <tr>
+            <td class="text-right"><strong>{{ total.title }}</strong></td>
+            <td class="text-right">{{ total.text }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div class="ccp-cart-links{% if quick_checkout_enabled %} ccp-cart-links-single{% endif %}">{% if not quick_checkout_enabled %}<a href="{{ cart }}"><i class="fa fa-shopping-cart"></i> <strong>{{ text_cart }}</strong></a>{% endif %}<a href="{{ checkout }}"><i class="fa fa-check"></i> <strong>{{ text_checkout }}</strong></a></div>
+      </div>
+    </li>
+    {% else %}
+    <li>
+      <p class="text-center">{{ text_empty }}</p>
+    </li>
+    {% endif %}
+  </ul>
+  {% endif %}
+  {% endif %}
+</div>

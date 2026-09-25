@@ -1,0 +1,42 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header"><div class="container-fluid"><div class="pull-right">
+    <a href="{{ refresh }}" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-warning"><i class="fa fa-refresh"></i></a>
+    <button type="submit" form="form-currency" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+    <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+  </div><h1>{{ heading_title }}</h1><ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul></div></div>
+  <div class="container-fluid">
+    {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3></div><div class="panel-body">
+      <p class="help-block">{{ text_info }}</p>
+      <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-currency" class="form-horizontal">
+        <div class="form-group"><label class="col-sm-3 control-label" for="input-status"><span data-toggle="tooltip" title="{{ help_status }}">{{ entry_status }}</span></label><div class="col-sm-9"><select name="currency_nbu_status" id="input-status" class="form-control">
+          {% if currency_nbu_status %}<option value="1" selected="selected">{{ text_enabled }}</option><option value="0">{{ text_disabled }}</option>{% else %}<option value="1">{{ text_enabled }}</option><option value="0" selected="selected">{{ text_disabled }}</option>{% endif %}
+        </select><p class="help-block">{{ help_status }}</p></div></div>
+
+        <div class="form-group"><label class="col-sm-3 control-label" for="input-source"><span data-toggle="tooltip" title="{{ help_source }}">{{ entry_source }}</span></label><div class="col-sm-9"><select name="currency_nbu_source" id="input-source" class="form-control">
+          <option value="auto" {% if currency_nbu_source == 'auto' %}selected{% endif %}>{{ text_source_auto }}</option>
+          <option value="statdirectory" {% if currency_nbu_source == 'statdirectory' %}selected{% endif %}>{{ text_source_statdirectory }}</option>
+          <option value="exchange" {% if currency_nbu_source == 'exchange' %}selected{% endif %}>{{ text_source_exchange }}</option>
+        </select><p class="help-block">{{ help_source }}</p></div></div>
+
+        <div class="form-group"><label class="col-sm-3 control-label" for="input-timeout"><span data-toggle="tooltip" title="{{ help_timeout }}">{{ entry_timeout }}</span></label><div class="col-sm-3"><div class="input-group"><input type="number" min="5" max="60" name="currency_nbu_timeout" value="{{ currency_nbu_timeout }}" id="input-timeout" class="form-control"><span class="input-group-addon">{{ text_seconds }}</span></div></div><div class="col-sm-6"><p class="help-block">{{ help_timeout }}</p></div></div>
+
+        <div class="form-group"><label class="col-sm-3 control-label" for="input-disabled"><span data-toggle="tooltip" title="{{ help_include_disabled }}">{{ entry_include_disabled }}</span></label><div class="col-sm-9"><select name="currency_nbu_include_disabled" id="input-disabled" class="form-control">
+          <option value="0" {% if not currency_nbu_include_disabled %}selected{% endif %}>{{ text_no }}</option><option value="1" {% if currency_nbu_include_disabled %}selected{% endif %}>{{ text_yes }}</option>
+        </select><p class="help-block">{{ help_include_disabled }}</p></div></div>
+
+        <div class="form-group"><label class="col-sm-3 control-label" for="input-missing"><span data-toggle="tooltip" title="{{ help_missing_policy }}">{{ entry_missing_policy }}</span></label><div class="col-sm-9"><select name="currency_nbu_missing_policy" id="input-missing" class="form-control">
+          <option value="skip" {% if currency_nbu_missing_policy == 'skip' %}selected{% endif %}>{{ text_missing_skip }}</option>
+          <option value="error" {% if currency_nbu_missing_policy == 'error' %}selected{% endif %}>{{ text_missing_error }}</option>
+        </select><p class="help-block">{{ help_missing_policy }}</p></div></div>
+
+        <div class="form-group"><label class="col-sm-3 control-label">{{ entry_base_currency }}</label><div class="col-sm-9"><p class="form-control-static"><strong>{{ config_currency }}</strong></p><p class="help-block">{{ help_base_currency }}</p></div></div>
+        <div class="form-group"><label class="col-sm-3 control-label" for="input-engine"><span data-toggle="tooltip" title="{{ help_active_provider }}">{{ entry_active_provider }}</span></label><div class="col-sm-9"><select name="config_currency_engine" id="input-engine" class="form-control"><option value="" {% if not config_currency_engine %}selected{% endif %}>{{ text_not_selected }}</option><option value="nbu" {% if config_currency_engine == 'nbu' %}selected{% endif %}>NBU — {{ heading_title }}</option><option value="ecb" {% if config_currency_engine == 'ecb' %}selected{% endif %}>ECB — European Central Bank</option></select><p class="help-block">{{ help_active_provider }}</p></div></div>
+        <div class="form-group"><label class="col-sm-3 control-label" for="input-auto"><span data-toggle="tooltip" title="{{ help_automation_status }}">{{ entry_automation_status }}</span></label><div class="col-sm-9"><select name="config_currency_auto" id="input-auto" class="form-control"><option value="1" {% if config_currency_auto %}selected{% endif %}>{{ text_enabled }}</option><option value="0" {% if not config_currency_auto %}selected{% endif %}>{{ text_disabled }}</option></select><p class="help-block">{{ help_automation_status }}</p></div></div>
+        <div class="form-group"><label class="col-sm-3 control-label">{{ entry_automation }}</label><div class="col-sm-9"><p class="form-control-static">{{ text_automation }}</p></div></div>
+      </form>
+    </div></div>
+  </div>
+</div>
+{{ footer }}

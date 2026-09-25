@@ -1,0 +1,78 @@
+<div class="ccp-purchase-block-admin"
+     data-scope="{{ purchase_block_scope }}"
+     data-type-info="{{ text_purchase_block_info }}"
+     data-type-size-table="{{ text_purchase_block_size_table }}"
+     data-type-sizes="{{ text_purchase_block_sizes }}"
+     data-type-colors="{{ text_purchase_block_colors }}"
+     data-type-form="{{ text_purchase_block_form }}"
+     data-forms="{{ available_forms|json_encode|e('html_attr') }}"
+     data-form-select="{{ entry_purchase_block_form }}"
+     data-form-display="{{ entry_purchase_block_form_display }}"
+     data-form-inline="{{ text_purchase_block_form_inline }}"
+     data-form-button="{{ text_purchase_block_form_button }}"
+     data-form-button-text="{{ entry_purchase_block_form_button_text }}"
+     data-title="{{ entry_purchase_block_title }}"
+     data-content="{{ entry_purchase_block_content }}"
+     data-columns="{{ entry_purchase_block_columns }}"
+     data-rows="{{ entry_purchase_block_rows }}"
+     data-label="{{ entry_purchase_block_item_label }}"
+     data-value="{{ entry_purchase_block_item_value }}"
+     data-add-item="{{ button_purchase_block_add_item }}"
+     data-up="{{ button_purchase_block_up }}"
+     data-down="{{ button_purchase_block_down }}"
+     data-remove="{{ button_remove }}"
+     data-empty="{{ text_purchase_block_empty }}">
+  <input type="hidden" name="purchase_blocks_present" value="1" />
+  {% if not purchase_blocks_master_enabled %}
+  <div class="alert alert-warning ccp-purchase-master-warning"><i class="fa fa-exclamation-triangle"></i> {{ warning_purchase_blocks_master }}{% if purchase_blocks_settings_url %}<a href="{{ purchase_blocks_settings_url }}" class="btn btn-warning btn-xs"><i class="fa fa-cog"></i> {{ button_purchase_blocks_settings }}</a>{% endif %}</div>
+  {% endif %}
+  <div class="form-group">
+    <label class="col-sm-2 control-label" for="input-purchase-block-mode"><span data-toggle="tooltip" title="{{ help_purchase_block_mode }}">{{ entry_purchase_block_mode }}</span></label>
+    <div class="col-sm-10">
+      <select name="purchase_block_mode" id="input-purchase-block-mode" class="form-control ccp-purchase-block-mode">
+        <option value="inherit"{% if purchase_block_mode == 'inherit' %} selected="selected"{% endif %}>{{ text_purchase_block_inherit }}</option>
+        <option value="custom"{% if purchase_block_mode == 'custom' %} selected="selected"{% endif %}>{{ text_purchase_block_custom }}</option>
+        <option value="disabled"{% if purchase_block_mode == 'disabled' %} selected="selected"{% endif %}>{{ text_purchase_block_disabled }}</option>
+      </select>
+      <p class="help-block">{{ help_purchase_block_inheritance }}</p>
+    </div>
+  </div>
+  <div class="ccp-purchase-block-custom{% if purchase_block_mode != 'custom' %} hidden{% endif %}">
+    <ul class="nav nav-tabs ccp-purchase-block-languages">
+      {% for language in languages %}
+      <li{% if loop.first %} class="active"{% endif %}><a href="#purchase-block-{{ purchase_block_scope }}-{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" alt="{{ language.name }}" /> {{ language.name }}</a></li>
+      {% endfor %}
+    </ul>
+    <div class="tab-content">
+      {% for language in languages %}
+      <div class="tab-pane{% if loop.first %} active{% endif %}" id="purchase-block-{{ purchase_block_scope }}-{{ language.language_id }}" data-language-code="{{ language.code }}">
+        <textarea class="ccp-purchase-block-json hidden" name="purchase_blocks_json[{{ language.language_id }}]">{{ (purchase_blocks_json[language.language_id] is defined ? purchase_blocks_json[language.language_id] : '[]')|e }}</textarea>
+        <div class="ccp-purchase-block-toolbar">
+          <span class="ccp-purchase-block-toolbar-title">{{ text_purchase_block_builder }}</span>
+          <div class="btn-group ccp-purchase-block-template-group">
+            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ text_purchase_block_templates }} <span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li><a href="#" data-preset-block="delivery">{{ text_purchase_block_preset_delivery }}</a></li>
+              <li><a href="#" data-preset-block="instruction">{{ text_purchase_block_preset_instruction }}</a></li>
+              <li><a href="#" data-preset-block="rules">{{ text_purchase_block_preset_rules }}</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#" data-preset-block="shoes_eu">{{ text_purchase_block_preset_shoes_eu }}</a></li>
+              <li><a href="#" data-preset-block="women_eu">{{ text_purchase_block_preset_women_eu }}</a></li>
+              <li><a href="#" data-preset-block="men_eu">{{ text_purchase_block_preset_men_eu }}</a></li>
+            </ul>
+          </div>
+          <div class="btn-group ccp-purchase-block-add-group">
+            <button type="button" class="btn btn-primary btn-sm" data-add-block="info"><i class="fa fa-info-circle"></i> {{ button_purchase_block_add_info }}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-add-block="size_table"><i class="fa fa-table"></i> {{ button_purchase_block_add_size_table }}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-add-block="sizes"><i class="fa fa-arrows-h"></i> {{ button_purchase_block_add_sizes }}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-add-block="colors"><i class="fa fa-tint"></i> {{ button_purchase_block_add_colors }}</button>
+            <button type="button" class="btn btn-primary btn-sm" data-add-block="form"><i class="fa fa-wpforms"></i> {{ button_purchase_block_add_form }}</button>
+          </div>
+        </div>
+        <div class="ccp-purchase-block-list"></div>
+        <p class="help-block">{{ help_purchase_block_builder }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

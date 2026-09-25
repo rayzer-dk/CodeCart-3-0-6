@@ -1,0 +1,349 @@
+{{ header }}{{ column_left }}
+<div id="content" class="cc-modification-page">
+<style>
+.cc-modification-page .cc-summary-grid{display:grid;grid-template-columns:repeat(6,minmax(105px,1fr));gap:8px;margin:0 0 12px}.cc-modification-page .cc-summary-card{display:block;padding:8px 10px;border:1px solid #d9e2ec;border-radius:6px;background:#fff;min-height:58px;color:inherit;text-decoration:none!important;cursor:pointer;transition:box-shadow .15s,border-color .15s}.cc-modification-page .cc-summary-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}.cc-modification-page .cc-summary-card.active{box-shadow:0 0 0 2px rgba(0,87,217,.18);border-color:#0057d9}.cc-modification-page .cc-summary-card span{display:block;color:#68778a;font-size:12px}.cc-modification-page .cc-summary-card strong{display:block;margin-top:4px;font-size:19px;line-height:1}.cc-modification-page .cc-summary-card.ok{border-left:4px solid #3c9a57}.cc-modification-page .cc-summary-card.warn{border-left:4px solid #e29a21}.cc-modification-page .cc-summary-card.bad{border-left:4px solid #d9534f}.cc-modification-page .cc-summary-card.info{border-left:4px solid #0b6fd3}.cc-modification-page .cc-summary-meta{margin:-5px 0 15px;color:#6d7885;font-size:12px}.cc-modification-page .cc-mod-table{border-top:3px solid #0057d9}.cc-modification-page .cc-mod-table>thead>tr>td{vertical-align:middle;border-right:1px solid #dce3eb}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-ok>td:first-child{border-left:4px solid #3c9a57}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-warning>td:first-child{border-left:4px solid #e29a21}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-error>td:first-child{border-left:4px solid #d9534f}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-disabled>td:first-child{border-left:4px solid #9aa4af}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-unchecked>td:first-child{border-left:4px solid #5bc0de}.cc-modification-page .cc-result-cell{min-width:180px}.cc-modification-page .cc-result-cell .label{display:inline-block;margin-bottom:4px}.cc-modification-page .cc-problem-button{margin-left:5px;margin-bottom:4px;padding:1px 6px;font-size:11px}.cc-modification-page .cc-issue{border-left:3px solid #d9534f;padding:8px 10px;margin:0 0 8px;background:#fff7f7}.cc-modification-page .cc-issue.warning{border-left-color:#e29a21;background:#fffaf0}.cc-modification-page .cc-issue.info{border-left-color:#5bc0de;background:#f2fbff}.cc-modification-page .cc-issue code{display:block;white-space:pre-wrap;word-break:break-word;margin-top:4px}.cc-modification-page .cc-detail-files{max-height:160px;overflow:auto;white-space:pre-wrap;word-break:break-word}.cc-modification-page .cc-result-cell small{display:block;color:#738092;line-height:1.35}.cc-modification-page .cc-log-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}.cc-modification-page .cc-log-legend .label{font-size:11px;padding:5px 7px}.cc-modification-page .cc-ocmod-log{max-height:560px;overflow:auto;white-space:pre-wrap;word-break:break-word;padding:12px;border:1px solid #dce3eb;border-radius:4px;background:#111820;color:#dce6f0;font-family:Consolas,Monaco,monospace;font-size:12px;line-height:1.45}.cc-modification-page .cc-log-line-ok{color:#89d99b}.cc-modification-page .cc-log-line-warn{color:#f4c66b}.cc-modification-page .cc-log-line-bad{color:#ff8f8f;font-weight:600}.cc-modification-page .cc-log-line-head{color:#7fc0ff;font-weight:600}.cc-modification-page .cc-log-actions{text-align:right;margin-top:10px}.cc-modification-page #cc-ocmod-log{user-select:text;-webkit-user-select:text}.cc-modification-page #cc-copy-ocmod-log,.cc-modification-page #cc-copy-modification-error{min-width:36px}@media(max-width:991px){.cc-modification-page .cc-summary-grid{grid-template-columns:repeat(2,minmax(120px,1fr))}}
+html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!important;border-color:#364554!important;color:#dbe5ef!important}html.ccp-admin-dark .cc-modification-page .cc-summary-card span,html.ccp-admin-dark .cc-modification-page .cc-summary-meta,html.ccp-admin-dark .cc-modification-page .cc-result-cell small{color:#9fb0c1!important}html.ccp-admin-dark .cc-modification-page .cc-issue{background:#251b1d!important;border-color:#d9534f!important;color:#dbe5ef!important}html.ccp-admin-dark .cc-modification-page .cc-issue.warning{background:#272219!important;border-color:#e29a21!important}html.ccp-admin-dark .cc-modification-page .cc-mod-table>thead>tr>td{border-color:#364554!important}
+ .cc-modification-page .cc-main-tabs{margin:0 0 12px}.cc-modification-page .cc-main-tabs>li>a{font-weight:600}.cc-modification-page .cc-main-tabs>li.active>a{border-top:3px solid #0057d9;padding-top:7px}
+</style>
+
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right"><a href="{{ refresh }}" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-info"><i class="fa fa-refresh"></i></a> <a href="{{ clear }}" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-warning"><i class="fa fa-eraser"></i></a>
+        <button type="button" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-modification').submit() : false;"><i class="fa fa-trash-o"></i></button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_refresh }}</div>
+    {% if compatibility_summary %}
+    <div class="cc-summary-grid">
+      <a href="{{ filter_active }}" class="cc-summary-card info{% if compatibility_filter == 'active' %} active{% endif %}" title="{{ text_filter_active }}"><span>{{ text_summary_checked }}</span><strong>{{ compatibility_summary.total|default(0) }}</strong></a>
+      <a href="{{ filter_ok }}" class="cc-summary-card ok{% if compatibility_filter == 'ok' %} active{% endif %}" title="{{ text_filter_ok }}"><span>{{ text_summary_applied }}</span><strong>{{ compatibility_summary.ok|default(0) }}</strong></a>
+      <a href="{{ filter_warning }}" class="cc-summary-card warn{% if compatibility_filter == 'warning' %} active{% endif %}" title="{{ text_filter_warning }}"><span>{{ text_summary_partial }}</span><strong>{{ compatibility_summary.warning|default(0) }}</strong></a>
+      <a href="{{ filter_error }}" class="cc-summary-card bad{% if compatibility_filter == 'error' %} active{% endif %}" title="{{ text_filter_error }}"><span>{{ text_summary_failed }}</span><strong>{{ compatibility_summary.error|default(0) }}</strong></a>
+      <a href="{{ filter_warning }}" class="cc-summary-card info{% if compatibility_filter == 'warning' %} active{% endif %}" title="{{ text_filter_warning }}"><span>{{ text_summary_skipped }}</span><strong>{{ compatibility_summary.skipped_operations|default(0) }}</strong></a>
+      <a href="{{ filter_issues }}" class="cc-summary-card bad{% if compatibility_filter == 'issues' %} active{% endif %}" title="{{ text_filter_issues }}"><span>{{ text_summary_issues }}</span><strong>{{ compatibility_summary.issues|default(0) }}</strong></a>
+    </div>
+    <div class="cc-summary-meta"><i class="fa fa-clock-o"></i> {{ text_last_refresh }}: {{ compatibility_generated_at ?: text_not_available }}{% if compatibility_core_build %} · Core {{ compatibility_core_build }}{% endif %}{% if compatibility_package_build %} · Build {{ compatibility_package_build }}{% endif %}{% if compatibility_filter %} · <a href="{{ filter_all }}"><i class="fa fa-times"></i> {{ text_show_all }}</a>{% endif %}</div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+      </div>
+      <div class="panel-body">
+        {% if modifications %}
+        <div class="form-group">
+          <label class="col-sm-2 control-label">{{ entry_progress }}</label>
+          <div class="col-sm-10">
+            <div class="progress">
+              <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
+            </div>
+            <div id="progress-text"></div>
+          </div>
+        </div>
+        {% endif %}
+        <ul class="nav nav-tabs cc-main-tabs">
+          <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+          <li><a href="#tab-log" data-toggle="tab"><i class="fa fa-file-text-o"></i> {{ tab_log }}</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-general">
+            <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-modification">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover cc-mod-table">
+                  <thead>
+                    <tr>
+                      <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+                      <td class="text-left">{% if sort == 'name' %}
+                        <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a>
+                        {% else %}
+                        <a href="{{ sort_name }}">{{ column_name }}</a>
+                        {% endif %}</td>
+                      <td class="text-left">{% if sort == 'author' %}
+                        <a href="{{ sort_author }}" class="{{ order|lower }}">{{ column_author }}</a>
+                        {% else %}
+                        <a href="{{ sort_author }}">{{ column_author }}</a>
+                        {% endif %}</td>
+                      <td class="text-left">{% if sort == 'version' %}
+                        <a href="{{ sort_version }}" class="{{ order|lower }}">{{ column_version }}</a>
+                        {% else %}
+                        <a href="{{ sort_version }}">{{ column_version }}</a>
+                        {% endif %}</td>
+                      <td class="text-left">{% if sort == 'status' %}
+                        <a href="{{ sort_status }}" class="{{ order|lower }}">{{ column_status }}</a>
+                        {% else %}
+                        <a href="{{ sort_status }}">{{ column_status }}</a>
+                        {% endif %}</td>
+                      <td class="text-left">{% if sort == 'compatibility' %}<a href="{{ sort_compatibility }}" class="{{ order|lower }}">{{ column_apply_result }}</a>{% else %}<a href="{{ sort_compatibility }}">{{ column_apply_result }}</a>{% endif %}</td>
+                      <td class="text-left">{% if sort == 'date_added' %}
+                        <a href="{{ sort_date_added }}" class="{{ order|lower }}">{{ column_date_added }}</a>
+                        {% else %}
+                        <a href="{{ sort_date_added }}">{{ column_date_added }}</a>
+                        {% endif %}</td>
+                      <td class="text-right">{{ column_action }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if modifications %}
+                    {% for modification in modifications %}
+                    <tr class="cc-state-{{ modification.compatibility_state }}">
+                      <td class="text-center">{% if modification.modification_id in selected %}
+                        <input type="checkbox" name="selected[]" value="{{ modification.modification_id }}" checked="checked" />
+                        {% else %}
+                        <input type="checkbox" name="selected[]" value="{{ modification.modification_id }}" />
+                        {% endif %}</td>
+                      <td class="text-left">{{ modification.name }}</td>
+                      <td class="text-left">{{ modification.author }}</td>
+                      <td class="text-left">{{ modification.version }}</td>
+                      <td class="text-left">{{ modification.status }}</td>
+                      <td class="text-left cc-result-cell"><span class="label {{ modification.compatibility_class }}" data-toggle="tooltip" title="{{ modification.compatibility_title }}">{{ modification.compatibility_label }}</span>{% if modification.compatibility_state == 'warning' or modification.compatibility_state == 'error' %}<button type="button" class="btn btn-default btn-xs cc-problem-button" data-modification-id="{{ modification.modification_id }}" data-toggle="tooltip" title="{{ button_problems }}"><i class="fa fa-search"></i> {{ button_problems }}</button>{% endif %}{% if modification.compatibility_metrics %}<small>{{ modification.compatibility_metrics }}</small>{% endif %}</td>
+                      <td class="text-left">{{ modification.date_added }}</td>
+                      <td class="text-right">
+                        <a href="{{modification.edit}}" data-toggle="tooltip" title="{{button_edit}}" class="btn btn-success"><i class="fa fa-pencil"></i></a>
+                        <a href="{{modification.download}}" data-toggle="tooltip" title="{{button_download}}" class="btn btn-primary" download="{{modification.filename}}"><i class="fa fa-download"></i></a>
+                        <button type="button" data-loading-text="{{text_loading}}" data-modification-id="{{modification.modification_id}}" data-toggle="tooltip" title="{{button_upload}}"  class="btn btn-primary button-upload"><i class="fa fa-upload"></i></button>
+                        {% if modification.link %}
+                        <a href="{{ modification.link }}" data-toggle="tooltip" title="{{ button_link }}" class="btn btn-info" target="_blank"><i class="fa fa-link"></i></a>
+                        {% else %}
+                        <button type="button" class="btn btn-info" disabled="disabled"><i class="fa fa-link"></i></button>
+                        {% endif %}
+                        {% if not modification.enabled %}
+                        <a href="{{ modification.enable }}" data-toggle="tooltip" title="{{ button_enable }}" class="btn btn-success"><i class="fa fa-plus-circle"></i></a>
+                        {% else %}
+                        <a href="{{ modification.disable }}" data-toggle="tooltip" title="{{ button_disable }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></a>
+                        {% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                      <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </form>
+            <div class="row">
+              <div class="col-sm-6 text-left">{{ pagination }}</div>
+              <div class="col-sm-6 text-right">{{ results }}</div>
+            </div>
+          </div>
+          <div class="tab-pane" id="tab-log">
+            <div class="cc-log-legend">
+              <span class="label label-success">{{ text_applied }}</span>
+              <span class="label label-warning">{{ text_applied_skips }}</span>
+              <span class="label label-danger">{{ text_not_applied }}</span>
+              <span class="label label-info">{{ text_log_info }}</span>
+            </div>
+            <p class="help-block">{{ text_log_compact_help }}</p>
+            <pre id="cc-ocmod-log" class="cc-ocmod-log">{{ log }}</pre>
+            <div class="cc-log-actions"><button type="button" id="cc-copy-ocmod-log" class="btn btn-default" data-toggle="tooltip" title="{{ text_copy_log }}"><i class="fa fa-copy"></i></button> <a href="{{ download_log }}" class="btn btn-primary" data-toggle="tooltip" title="{{ button_download_log }}"><i class="fa fa-download"></i></a> <a href="{{ clear_log }}" class="btn btn-danger" data-toggle="tooltip" title="{{ button_clear }}"><i class="fa fa-eraser"></i></a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="cc-modification-details" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><button type="button" id="cc-copy-modification-error" class="btn btn-default btn-sm pull-right" data-toggle="tooltip" title="{{ text_copy_error }}"><i class="fa fa-copy"></i></button><h4 class="modal-title"><i class="fa fa-search"></i> {{ text_problem_details }}</h4></div>
+      <div class="modal-body"><div id="cc-modification-details-body">{{ text_problem_loading }}</div></div>
+      <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">{{ button_close|default('Close') }}</button></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+  var step = new Array();
+  var total = 0;
+
+  function ccpCopyText(text, button) { var done=function(){if(button){$(button).addClass('btn-success').removeClass('btn-default');setTimeout(function(){$(button).removeClass('btn-success').addClass('btn-default');},1200);}}; text=String(text||''); if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done);return;} var a=document.createElement('textarea');a.value=text;a.style.position='fixed';a.style.left='-9999px';document.body.appendChild(a);a.focus();a.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(a); }
+  $('#cc-copy-ocmod-log').on('click',function(){ccpCopyText(document.getElementById('cc-ocmod-log')?document.getElementById('cc-ocmod-log').textContent:'',this);});
+  $('#cc-copy-modification-error').on('click',function(){ccpCopyText(document.getElementById('cc-modification-details-body')?document.getElementById('cc-modification-details-body').innerText:'',this);});
+
+  $('.cc-problem-button').on('click', function() {
+    var modificationId = parseInt($(this).attr('data-modification-id'), 10) || 0;
+    var $body = $('#cc-modification-details-body');
+    $body.text('{{ text_problem_loading|escape('js') }}');
+    $('#cc-modification-details').modal('show');
+
+    $.ajax({
+      url: '{{ details_url|escape('js') }}&modification_id=' + modificationId,
+      dataType: 'json',
+      cache: false,
+      success: function(json) {
+        $body.empty();
+        if (json.error) { $body.append($('<div class="alert alert-danger"></div>').text(json.error)); return; }
+        var details = json.details || {};
+        $body.append($('<h4></h4>').text((json.name || '') + (json.code ? ' — ' + json.code : '')));
+        if (details.rolled_back) { $body.append($('<div class="alert alert-danger"></div>').text('{{ text_rolled_back|escape('js') }}')); }
+        if (details.message) { $body.append($('<div class="alert alert-warning"></div>').text(details.message + (details.file ? ' — ' + details.file : ''))); }
+
+        var issues = $.isArray(details.issues) ? details.issues : [];
+        if (!issues.length) {
+          $body.append($('<div class="alert alert-info"></div>').text('{{ text_no_issues|escape('js') }}'));
+        } else {
+          $.each(issues, function(_, issue) {
+            var $issue = $('<div class="cc-issue"></div>').addClass(issue.severity === 'warning' ? 'warning' : 'error');
+            var meta = [];
+            if (issue.operation) { meta.push('{{ text_issue_operation|escape('js') }} #' + issue.operation); }
+            if (issue.file) { meta.push('{{ text_issue_file|escape('js') }}: ' + issue.file); }
+            if (meta.length) { $issue.append($('<strong></strong>').text(meta.join(' · '))); }
+            if (issue.reason) { $issue.append($('<div></div>').text('{{ text_issue_reason|escape('js') }}: ' + issue.reason)); }
+            if (issue.search) { $issue.append($('<code></code>').text('{{ text_issue_search|escape('js') }}: ' + issue.search)); }
+            $body.append($issue);
+          });
+        }
+
+        if ($.isArray(details.changed_files) && details.changed_files.length) {
+          $body.append($('<h5></h5>').text('{{ text_changed_files|escape('js') }}'));
+          $body.append($('<pre class="cc-detail-files"></pre>').text(details.changed_files.join('\n')));
+        }
+      },
+      error: function() { $body.html($('<div class="alert alert-danger"></div>').text('{{ text_problem_load_error|escape('js') }}')); }
+    });
+  });
+
+  $('.button-upload').on('click', function() {
+    $('#form-upload').remove();
+    var modification_id =  $(this).attr('data-modification-id');
+
+    $('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file" /></form>');
+
+    $('#form-upload input[name=\'file\']').trigger('click');
+
+    if (typeof timer != 'undefined') {
+      clearInterval(timer);
+    }
+
+    timer = setInterval(function() {
+      if ($('#form-upload input[name=\'file\']').val() != '') {
+        clearInterval(timer);
+
+        // Reset everything
+        $('.alert').remove();
+        $('#progress-bar').css('width', '0%');
+        $('#progress-bar').removeClass('progress-bar-danger progress-bar-success');
+        $('#progress-text').html('');
+
+        $.ajax({
+          url: 'index.php?route=marketplace/modification/upload&user_token={{user_token}}&modification_id='+modification_id,
+          type: 'post',
+          dataType: 'json',
+          data: new FormData($('#form-upload')[0]),
+          cache: false,
+          contentType: false,
+          processData: false,
+          beforeSend: function() {
+            $('#button-upload').button('loading');
+          },
+          complete: function() {
+            $('#button-upload').button('reset');
+          },
+          success: function(json) {
+            if (json['error']) {
+              $('#progress-bar').addClass('progress-bar-danger');
+              $('#progress-text').html('<div class="text-danger">' + json['error'] + '</div>');
+            }
+
+            if (json['step']) {
+              step = json['step'];
+              total = step.length;
+
+              if (json['overwrite'].length) {
+                html = '';
+
+                for (i = 0; i < json['overwrite'].length; i++) {
+                  html += json['overwrite'][i] + "\n";
+                }
+
+                $('#overwrite').html(html);
+
+                $('#button-continue').prop('disabled', false);
+              } else {
+                next();
+              }
+            }
+          },
+          error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+          }
+        });
+      }
+    }, 500);
+  });
+
+  function next() {
+    data = step.shift();
+
+    if (data) {
+      $('#progress-bar').css('width', (100 - (step.length / total) * 100) + '%');
+      $('#progress-text').html('<span class="text-info">' + data['text'] + '</span>');
+
+      $.ajax({
+        url: data.url,
+        type: 'post',
+        dataType: 'json',
+        data: 'path=' + data.path,
+        success: function(json) {
+          if (json['error']) {
+            $('#progress-bar').addClass('progress-bar-danger');
+            $('#progress-text').html('<div class="text-danger">' + json['error'] + '</div>');
+            $('#button-clear').prop('disabled', false);
+          }
+
+          if (json['success']) {
+            $('#progress-bar').addClass('progress-bar-success');
+            $('#progress-text').html('<span class="text-success">' + json['success'] + '</span>');
+          }
+
+          if (!json['error'] && !json['success']) {
+            next();
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+      });
+    }
+  }
+  function colorizeOcmodLog() {
+    var node = document.getElementById('cc-ocmod-log');
+    if (!node) { return; }
+    var lines = node.textContent.split('\n');
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < lines.length; i++) {
+      var span = document.createElement('span');
+      var line = lines[i];
+      if (/ERROR:|NOT APPLIED|INCOMPATIBLE|ROLLED BACK/i.test(line)) { span.className = 'cc-log-line-bad'; }
+      else if (/SKIPPED OPTIONAL|OPTIONAL SKIP|WARNING/i.test(line)) { span.className = 'cc-log-line-warn'; }
+      else if (/RESULT: APPLIED|RESULT: OK/i.test(line)) { span.className = 'cc-log-line-ok'; }
+      else if (/^MOD:|^===|^CORE:|^DATE:|^SUMMARY:|^CHANGED:/i.test(line)) { span.className = 'cc-log-line-head'; }
+      span.textContent = line + (i < lines.length - 1 ? '\n' : '');
+      fragment.appendChild(span);
+    }
+    node.textContent = '';
+    node.appendChild(fragment);
+  }
+  colorizeOcmodLog();
+  //--></script>
+{{ footer }}

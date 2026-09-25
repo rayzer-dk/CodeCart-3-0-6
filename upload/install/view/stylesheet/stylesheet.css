@@ -1,0 +1,145 @@
+:root {
+  --cc-blue: #0b6fd3;
+  --cc-blue-dark: #0047b3;
+  --cc-text: #253246;
+  --cc-muted: #667085;
+  --cc-border: #dfe5ec;
+  --cc-surface: #ffffff;
+  --cc-bg: #f4f7fb;
+  --cc-success: #239a55;
+  --cc-danger: #c62828;
+  --cc-warning: #a15c00;
+  --cc-radius: 10px;
+}
+html { min-height: 100%; }
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--cc-bg);
+  color: var(--cc-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+a { color: var(--cc-blue); }
+a:hover, a:focus { color: var(--cc-blue-dark); text-decoration: none; }
+.cc-topbar { background: #fff; border-bottom: 1px solid var(--cc-border); }
+.cc-topbar-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.cc-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.cc-brand img { max-width: 220px; max-height: 44px; width: auto; height: auto; object-fit: contain; }
+.cc-brand strong { display: block; font-size: 17px; line-height: 1.15; color: #152238; }
+.cc-brand span { display: block; margin-top: 3px; color: var(--cc-muted); font-size: 12px; }
+.cc-version { color: var(--cc-muted); font-weight: 600; white-space: nowrap; }
+.cc-page { padding: 32px 0 24px; }
+.cc-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 24px; align-items: start; }
+.cc-card, .cc-sidebar {
+  background: var(--cc-surface);
+  border: 1px solid var(--cc-border);
+  border-top: 3px solid var(--cc-blue);
+  border-radius: var(--cc-radius);
+  box-shadow: 0 7px 24px rgba(27, 43, 65, .06);
+}
+.cc-card { overflow: hidden; }
+.cc-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 22px 24px 18px; border-bottom: 1px solid #edf0f4; }
+.cc-card-head h1 { margin: 0; color: #1d2939; font-size: 24px; font-weight: 650; }
+.cc-card-head p { margin: 6px 0 0; color: var(--cc-muted); }
+.cc-step-badge { flex: 0 0 auto; min-width: 62px; padding: 7px 10px; border-radius: 999px; background: #eef5ff; color: var(--cc-blue); text-align: center; font-weight: 700; font-size: 12px; }
+.cc-card-body { padding: 24px; }
+.cc-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 24px; border-top: 1px solid #edf0f4; background: #fbfcfe; }
+.cc-sidebar { padding: 18px; position: sticky; top: 18px; }
+.cc-step-list { display: grid; gap: 6px; }
+.cc-step-item { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 10px; min-height: 42px; padding: 6px 8px; border-radius: 7px; color: var(--cc-muted); }
+.cc-step-item span { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; border: 1px solid #cbd5e1; background: #fff; color: #667085; font-size: 12px; font-weight: 700; }
+.cc-step-item.active { background: #eef5ff; color: #1d2939; font-weight: 650; }
+.cc-step-item.active span { border-color: var(--cc-blue); background: var(--cc-blue); color: #fff; }
+.cc-step-item.done span { border-color: #9ad5ad; background: #edf9f1; color: var(--cc-success); }
+.cc-language { margin-top: 18px; padding-top: 18px; border-top: 1px solid #edf0f4; }
+.cc-language label { display: block; margin-bottom: 7px; color: var(--cc-muted); font-size: 12px; font-weight: 650; }
+.cc-license { max-height: 460px; overflow: auto; padding: 20px; border: 1px solid var(--cc-border); border-radius: 8px; background: #fcfdff; color: #475467; }
+.cc-license h3, .cc-license h4 { color: #1d2939; }
+.cc-section-title { margin: 0 0 12px; color: #344054; font-size: 16px; font-weight: 650; }
+.cc-section-title + .table-responsive, .cc-section-title + .cc-form-section { margin-bottom: 24px; }
+.cc-status-table { margin-bottom: 0; border: 1px solid var(--cc-border); }
+.cc-status-table thead > tr > th { border-top: 3px solid var(--cc-blue) !important; border-bottom: 1px solid var(--cc-border); background: #fbfcfe; color: #475467; font-size: 12px; font-weight: 700; vertical-align: middle; }
+.cc-status-table > tbody > tr > td { vertical-align: middle; border-color: #edf0f4; }
+.cc-state { display: inline-flex; align-items: center; gap: 7px; font-weight: 650; }
+.cc-state.ok { color: var(--cc-success); }
+.cc-state.bad { color: var(--cc-danger); }
+.cc-state.warn { color: var(--cc-warning); }
+.alert { border-radius: 8px; border-width: 1px; }
+.form-control { height: 40px; border-color: #cfd7e3; border-radius: 7px; box-shadow: none; color: #1d2939; }
+.form-control:focus { border-color: #6aa6ff; box-shadow: 0 0 0 3px rgba(0, 87, 217, .08); }
+textarea.form-control { height: auto; }
+.form-horizontal .control-label { color: #475467; padding-top: 10px; }
+.form-group.required .control-label:before { content: "* "; color: var(--cc-danger); font-weight: 700; }
+.cc-form-section { padding: 20px; border: 1px solid var(--cc-border); border-radius: 8px; background: #fcfdff; }
+.cc-form-section .form-group:last-child { margin-bottom: 0; }
+.cc-password { position: relative; }
+.cc-password .form-control { padding-right: 44px; }
+.cc-password-toggle { position: absolute; top: 0; right: 0; height: 40px; width: 42px; border: 0; background: transparent; color: #667085; }
+.help-block { color: #7b8798; }
+.btn { min-height: 40px; border-radius: 7px; font-weight: 650; padding: 9px 18px; }
+.btn-primary { background: var(--cc-blue); border-color: var(--cc-blue); }
+.btn-primary:hover, .btn-primary:focus { background: var(--cc-blue-dark); border-color: var(--cc-blue-dark); }
+.btn-default { background: #fff; border-color: #cfd7e3; color: #475467; }
+.btn i { margin-right: 6px; }
+.cc-complete { text-align: center; padding: 32px 24px 10px; }
+.cc-complete-icon { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: #edf9f1; color: var(--cc-success); font-size: 32px; }
+.cc-complete h2 { margin: 18px 0 7px; color: #1d2939; font-size: 25px; font-weight: 700; }
+.cc-complete p { color: var(--cc-muted); }
+.cc-summary { max-width: 640px; margin: 24px auto; text-align: left; border: 1px solid var(--cc-border); border-radius: 8px; overflow: hidden; }
+.cc-summary-row { display: flex; justify-content: space-between; gap: 18px; padding: 11px 14px; border-bottom: 1px solid #edf0f4; }
+.cc-summary-row:last-child { border-bottom: 0; }
+.cc-summary-row span { color: var(--cc-muted); }
+.cc-summary-row strong { color: #1d2939; text-align: right; }
+.cc-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 20px 0 14px; }
+.cc-notice { margin-top: 20px; padding: 14px 16px; border-radius: 8px; background: #fff8e8; border: 1px solid #f2d18a; color: #76510a; text-align: left; }
+.progress { height: 16px; margin: 14px 0 8px; border-radius: 999px; box-shadow: none; background: #e9eef5; }
+.progress-bar { background: var(--cc-blue); box-shadow: none; transition: width .25s ease; }
+#progress-text { min-height: 24px; color: var(--cc-muted); }
+.cc-footer { padding: 18px 0 30px; color: #7b8798; font-size: 12px; text-align: center; }
+.cc-footer a, .cc-footer span { margin: 0 7px; }
+@media (max-width: 991px) {
+  .cc-layout { grid-template-columns: 1fr; }
+  .cc-sidebar { position: static; order: -1; }
+  .cc-step-list { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .cc-step-item { grid-template-columns: 1fr; text-align: center; justify-items: center; font-size: 11px; }
+}
+@media (max-width: 767px) {
+  .cc-topbar-inner { min-height: 62px; }
+  .cc-brand img { max-width: 150px; max-height: 36px; }
+  .cc-brand div { display: none; }
+  .cc-page { padding-top: 18px; }
+  .cc-layout { gap: 14px; }
+  .cc-card-head, .cc-card-body, .cc-card-footer { padding-left: 16px; padding-right: 16px; }
+  .cc-card-head h1 { font-size: 21px; }
+  .cc-card-footer { align-items: stretch; }
+  .cc-step-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .cc-summary-row { display: block; }
+  .cc-summary-row strong { display: block; margin-top: 3px; text-align: left; word-break: break-word; }
+}
+
+/* Installer layout: give the validation table enough working width so
+   component names and messages read as columns instead of a narrow ribbon. */
+@media (min-width: 992px) {
+  .container { width: 100%; max-width: 1280px; }
+  .cc-layout { grid-template-columns: minmax(0, 1fr) 280px; gap: 26px; }
+  .cc-card-body { padding: 26px; }
+  .cc-status-table { width: 100%; table-layout: fixed; }
+  .cc-status-table th:nth-child(1), .cc-status-table td:nth-child(1) { width: 17%; }
+  .cc-status-table th:nth-child(2), .cc-status-table td:nth-child(2) { width: 16%; }
+  .cc-status-table th:nth-child(3), .cc-status-table td:nth-child(3) { width: 14%; }
+  .cc-status-table th:nth-child(4), .cc-status-table td:nth-child(4) { width: 53%; }
+  .cc-status-table td { overflow-wrap: anywhere; }
+}
+@media (min-width: 1200px) {
+  .cc-page { padding-top: 36px; }
+}
+/* CodeCart PRO Installer 2.0 RC78: preflight and validation details */
+.cc-error-list { margin: 8px 0 0 22px; padding: 0; }
+.cc-error-list li { margin: 3px 0; }
+.cc-backup-confirm { display: block; margin: 18px 0 22px; padding: 12px 14px; border: 1px solid #f2d18a; border-radius: 8px; background: #fff8e8; color: #76510a; font-weight: 600; }
+.cc-backup-confirm input { margin-right: 8px; vertical-align: -1px; }
+
+/* CodeCart PRO Installer 2.0 language selector */
+.cc-language__label{margin-bottom:8px;color:var(--cc-muted);font-size:12px;font-weight:650}.cc-language__options{display:grid;gap:6px}.cc-language__option{display:flex;align-items:center;gap:8px;width:100%;min-height:36px;padding:7px 9px;border:1px solid #dce3eb;border-radius:8px;background:#fff;color:#344054;text-align:left;text-decoration:none;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,background .15s ease}.cc-language__option:hover,.cc-language__option:focus{border-color:#9fc5ed;background:#f7fbff;color:#1d2939;text-decoration:none}.cc-language__option.active{border-color:#0b6fd3;background:#eef6ff;box-shadow:0 0 0 2px rgba(11,111,211,.10)}.cc-language__option img{display:block;flex:0 0 auto;object-fit:cover;border-radius:2px}.cc-language__option span{font-weight:600}

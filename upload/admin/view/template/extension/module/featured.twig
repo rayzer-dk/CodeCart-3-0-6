@@ -1,0 +1,210 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-name">{{ entry_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control" />
+              {% if error_name %}
+              <div class="text-danger">{{ error_name }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_heading }}">{{ entry_heading }}</span></label>
+            <div class="col-sm-10">
+              {% for language in languages %}
+              <div class="input-group" style="margin-bottom:6px"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" alt="{{ language.name }}" /></span><input type="text" name="heading[{{ language.language_id }}]" value="{{ heading[language.language_id] is defined ? heading[language.language_id] : '' }}" class="form-control" maxlength="120" /></div>
+              {% endfor %}
+              <p class="help-block">{{ help_heading }}</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-show-heading"><span data-toggle="tooltip" title="{{ help_show_heading }}">{{ entry_show_heading }}</span></label>
+            <div class="col-sm-10"><select name="show_heading" id="input-show-heading" class="form-control"><option value="1"{% if show_heading %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not show_heading %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div>
+          </div>          
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-source">{{ entry_source }}</label>
+            <div class="col-sm-10"><select name="source" id="input-source" class="form-control">
+              <option value="manual"{% if source == 'manual' %} selected="selected"{% endif %}>{{ text_source_manual }}</option>
+              <option value="category"{% if source == 'category' %} selected="selected"{% endif %}>{{ text_source_category }}</option>
+              <option value="manufacturer"{% if source == 'manufacturer' %} selected="selected"{% endif %}>{{ text_source_manufacturer }}</option>
+              <option value="latest"{% if source == 'latest' %} selected="selected"{% endif %}>{{ text_source_latest }}</option>
+              <option value="popular"{% if source == 'popular' %} selected="selected"{% endif %}>{{ text_source_popular }}</option>
+              <option value="bestseller"{% if source == 'bestseller' %} selected="selected"{% endif %}>{{ text_source_bestseller }}</option>
+              <option value="special"{% if source == 'special' %} selected="selected"{% endif %}>{{ text_source_special }}</option>
+            </select></div>
+          </div>
+          <div class="form-group ccp-featured-source ccp-featured-source-category">
+            <label class="col-sm-2 control-label" for="input-category">{{ entry_category }}</label>
+            <div class="col-sm-10"><input type="text" id="input-category" value="{{ category_name }}" class="form-control" autocomplete="off" /><input type="hidden" name="category_id" value="{{ category_id }}" /><div class="checkbox"><label><input type="checkbox" name="include_subcategories" value="1"{% if include_subcategories %} checked="checked"{% endif %} /> {{ entry_include_subcategories }}</label></div></div>
+          </div>
+          <div class="form-group ccp-featured-source ccp-featured-source-manufacturer">
+            <label class="col-sm-2 control-label" for="input-manufacturer">{{ entry_manufacturer }}</label>
+            <div class="col-sm-10"><input type="text" id="input-manufacturer" value="{{ manufacturer_name }}" class="form-control" autocomplete="off" /><input type="hidden" name="manufacturer_id" value="{{ manufacturer_id }}" /></div>
+          </div>
+          <div class="form-group ccp-featured-source ccp-featured-source-manual">
+            <label class="col-sm-2 control-label" for="input-product"><span data-toggle="tooltip" title="{{ help_product }}">{{ entry_product }}</span></label>
+            <div class="col-sm-10">
+              <input type="text" name="product_name" value="" placeholder="{{ entry_product }}" id="input-product" class="form-control" />
+              <div id="featured-product" class="well well-sm" style="height: 150px; overflow: auto;">
+                {% for product in products %}
+                <div id="featured-product{{ product.product_id }}"><i class="fa fa-minus-circle"></i> {{ product.name }}
+                  <input type="hidden" name="product[]" value="{{ product.product_id }}" />
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-limit">{{ entry_limit }}</label>
+            <div class="col-sm-10">
+              <input type="number" min="1" max="30" name="limit" value="{{ limit }}" placeholder="{{ entry_limit }}" id="input-limit" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-width">{{ entry_width }}</label>
+            <div class="col-sm-10">
+              <input type="number" min="40" max="2000" name="width" value="{{ width }}" placeholder="{{ entry_width }}" id="input-width" class="form-control" />
+              {% if error_width %}
+              <div class="text-danger">{{ error_width }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-height">{{ entry_height }}</label>
+            <div class="col-sm-10">
+              <input type="number" min="40" max="2000" name="height" value="{{ height }}" placeholder="{{ entry_height }}" id="input-height" class="form-control" />
+              {% if error_height %}
+              <div class="text-danger">{{ error_height }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <fieldset class="ccp-native-module-display-settings">
+            <legend>{{ text_display_settings }}</legend>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-display-mode"><span data-toggle="tooltip" title="{{ help_display_mode }}">{{ entry_display_mode }}</span></label>
+              <div class="col-sm-10"><select name="display_mode" id="input-display-mode" class="form-control">
+                <option value="grid"{% if display_mode == 'grid' %} selected="selected"{% endif %}>{{ text_grid }}</option>
+                <option value="carousel"{% if display_mode == 'carousel' %} selected="selected"{% endif %}>{{ text_carousel }}</option>
+              </select></div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label">{{ entry_columns }}</label>
+              <div class="col-sm-10"><div class="row">
+                <div class="col-sm-4"><label for="input-columns-desktop">{{ text_desktop }}</label><input type="number" min="1" max="6" name="columns_desktop" value="{{ columns_desktop }}" id="input-columns-desktop" class="form-control" /></div>
+                <div class="col-sm-4"><label for="input-columns-tablet">{{ text_tablet }}</label><input type="number" min="1" max="4" name="columns_tablet" value="{{ columns_tablet }}" id="input-columns-tablet" class="form-control" /></div>
+                <div class="col-sm-4"><label for="input-columns-mobile">{{ text_mobile }}</label><input type="number" min="1" max="2" name="columns_mobile" value="{{ columns_mobile }}" id="input-columns-mobile" class="form-control" /></div>
+              </div></div>
+            </div>
+            <div class="form-group ccp-carousel-only">
+              <label class="col-sm-2 control-label" for="input-mobile-peek"><span data-toggle="tooltip" title="{{ help_mobile_peek }}">{{ entry_mobile_peek }}</span></label>
+              <div class="col-sm-10"><select name="mobile_peek" id="input-mobile-peek" class="form-control"><option value="0"{% if mobile_peek == '0' %} selected="selected"{% endif %}>{{ text_peek_off }}</option><option value="1.2"{% if mobile_peek == '1.2' %} selected="selected"{% endif %}>1.2</option><option value="1.3"{% if mobile_peek == '1.3' %} selected="selected"{% endif %}>1.3</option><option value="1.4"{% if mobile_peek == '1.4' %} selected="selected"{% endif %}>1.4</option></select></div>
+            </div>
+            <div class="form-group ccp-carousel-only">
+              <label class="col-sm-2 control-label" for="input-autoplay">{{ entry_autoplay }}</label>
+              <div class="col-sm-10"><select name="autoplay" id="input-autoplay" class="form-control"><option value="1"{% if autoplay %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not autoplay %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div>
+            </div>
+            <div class="form-group ccp-carousel-only ccp-autoplay-only">
+              <label class="col-sm-2 control-label" for="input-autoplay-delay"><span data-toggle="tooltip" title="{{ help_autoplay_delay }}">{{ entry_autoplay_delay }}</span></label>
+              <div class="col-sm-10"><input type="number" min="1500" max="20000" step="500" name="autoplay_delay" value="{{ autoplay_delay }}" id="input-autoplay-delay" class="form-control" /></div>
+            </div>
+            <div class="form-group ccp-carousel-only">
+              <label class="col-sm-2 control-label" for="input-show-arrows">{{ entry_show_arrows }}</label>
+              <div class="col-sm-10"><select name="show_arrows" id="input-show-arrows" class="form-control"><option value="1"{% if show_arrows %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not show_arrows %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div>
+            </div>
+            <div class="form-group ccp-carousel-only">
+              <label class="col-sm-2 control-label" for="input-show-dots">{{ entry_show_dots }}</label>
+              <div class="col-sm-10"><select name="show_dots" id="input-show-dots" class="form-control"><option value="1"{% if show_dots %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not show_dots %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div>
+            </div>
+            <div class="form-group ccp-carousel-only">
+              <label class="col-sm-2 control-label" for="input-loop">{{ entry_loop }}</label>
+              <div class="col-sm-10"><select name="loop" id="input-loop" class="form-control"><option value="1"{% if loop %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not loop %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div>
+            </div>
+<div class="form-group ccp-carousel-only">
+              <label class="col-sm-2 control-label" for="input-carousel-step"><span data-toggle="tooltip" title="{{ help_carousel_step }}">{{ entry_carousel_step }}</span></label>
+              <div class="col-sm-10"><select name="carousel_step" id="input-carousel-step" class="form-control"><option value="item"{% if carousel_step == 'item' %} selected="selected"{% endif %}>{{ text_step_item }}</option><option value="page"{% if carousel_step == 'page' %} selected="selected"{% endif %}>{{ text_step_page }}</option></select></div>
+            </div>
+
+          </fieldset>
+<div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="status" id="input-status" class="form-control">
+                {% if status %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript"><!--
+function ccpFeaturedSource(){var source=$('#input-source').val();$('.ccp-featured-source').hide();$('.ccp-featured-source-'+source).show();}$('#input-source').on('change',ccpFeaturedSource);ccpFeaturedSource();
+$('#input-category').autocomplete({source:function(request,response){$.ajax({url:'index.php?route=catalog/category/autocomplete&user_token={{ user_token }}&filter_name='+encodeURIComponent(request),dataType:'json',success:function(json){response($.map(json,function(item){return{label:item.name,value:item.category_id};}));}});},select:function(item){$('#input-category').val(item.label);$('input[name="category_id"]').val(item.value);}});
+$('#input-manufacturer').autocomplete({source:function(request,response){$.ajax({url:'index.php?route=catalog/manufacturer/autocomplete&user_token={{ user_token }}&filter_name='+encodeURIComponent(request),dataType:'json',success:function(json){response($.map(json,function(item){return{label:item.name,value:item.manufacturer_id};}));}});},select:function(item){$('#input-manufacturer').val(item.label);$('input[name="manufacturer_id"]').val(item.value);}});
+// Reorderable drag-and-drop lists
+$('#featured-product div input').before(' <i class="fa fa-hand-grab-o handle"></i> ');
+$('#featured-product').sortable({
+  handle: '.handle',
+  chosenClass: 'handle-active',
+});
+$('input[name=\'product_name\']').autocomplete({
+	source: function(request, response) {
+		$.ajax({
+			url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+			dataType: 'json',
+			success: function(json) {
+				response($.map(json, function(item) {
+					return {
+						label: item['name'],
+						value: item['product_id']
+					}
+				}));
+			}
+		});
+	},
+	select: function(item) {
+		$('input[name=\'product_name\']').val('');
+		
+		$('#featured-product' + item['value']).remove();
+		
+		$('#featured-product').append('<div id="featured-product' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' + item['label'] + '<input type="hidden" name="product[]" value="' + item['value'] + '" /></div>');	
+	}
+});
+	
+$('#featured-product').delegate('.fa-minus-circle', 'click', function() {
+	$(this).parent().remove();
+});
+//--></script></div>
+{{ footer }}

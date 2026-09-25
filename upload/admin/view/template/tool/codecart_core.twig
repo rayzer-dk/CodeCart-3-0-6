@@ -1,0 +1,315 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header"><div class="container-fluid"><div class="pull-right"><button type="submit" form="form-core" class="btn btn-primary" data-toggle="tooltip" title="{{ button_save }}"><i class="fa fa-save"></i></button></div><h1>{{ heading_title }}</h1><ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul></div></div>
+  <div class="container-fluid">
+    {% if error_warning %}<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>{% endif %}
+    {% if success %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}</div>{% endif %}
+    <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"><i class="fa fa-cog"></i> {{ heading_title }}</h3></div><div class="panel-body">
+      <ul class="nav nav-tabs" id="core-tabs">
+        <li><a href="#tab-runtime" data-toggle="tab"><i class="fa fa-heartbeat"></i> {{ text_runtime }}</a></li>
+        <li><a href="#tab-performance" data-toggle="tab"><i class="fa fa-tachometer"></i> {{ text_performance }}</a></li>
+        <li><a href="#tab-architecture" data-toggle="tab"><i class="fa fa-cubes"></i> {{ text_architecture }}</a></li>
+        <li><a href="#tab-security" data-toggle="tab"><i class="fa fa-shield"></i> {{ text_security }}</a></li>
+        <li><a href="#tab-privacy" data-toggle="tab"><i class="fa fa-user-secret"></i> {{ text_privacy }}</a></li>
+        <li><a href="#tab-schema" data-toggle="tab"><i class="fa fa-database"></i> {{ text_schema }}</a></li>
+        <li><a href="#tab-extensions" data-toggle="tab"><i class="fa fa-puzzle-piece"></i> {{ text_extensions }}</a></li>
+        <li><a href="#tab-icons" data-toggle="tab"><i class="fa fa-font"></i> {{ text_icons }}</a></li>
+        <li><a href="#tab-about" data-toggle="tab"><i class="fa fa-info-circle"></i> {{ text_about }}</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane" id="tab-runtime"><p class="help-block">{{ text_runtime_help }}</p><p class="help-block">{{ text_preflight_help }}</p><div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><td>{{ column_component }}</td><td>{{ column_value }}</td><td style="width:120px;">{{ column_state }}</td><td>{{ column_details }}</td></tr></thead><tbody>{% for row in runtime %}<tr><td>{{ row.component }}</td><td>{{ row.value }}</td><td>{% if row.state == 'ok' %}<span class="label label-success">{{ text_ok }}</span>{% elseif row.state == 'error' or row.state == 'missing' %}<span class="label label-danger">{{ text_error }}</span>{% elseif row.state == 'warning' %}<span class="label label-warning">{{ text_warning }}</span>{% else %}<span class="label label-default">{{ text_info }}</span>{% endif %}</td><td>{{ row.message }}</td></tr>{% endfor %}</tbody></table></div><p><a href="{{ notification_link }}" class="btn btn-default"><i class="fa fa-bell"></i> {{ text_system_notifications }}</a> <a href="{{ scheduler_link }}" class="btn btn-default"><i class="fa fa-clock-o"></i> {{ text_scheduler }}</a> <button type="button" class="btn btn-default" id="button-phpinfo" data-url="{{ phpinfo_link }}"><i class="fa fa-info-circle"></i> {{ button_phpinfo }}</button></p><div id="modal-phpinfo" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div></div>
+        <div class="tab-pane" id="tab-performance">
+          <p class="help-block">{{ text_performance_help }}</p>
+          <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_safe_minify_note }}</div>
+          <div class="well well-sm"><strong><i class="fa fa-bar-chart"></i> {{ text_minify_diagnostics }}:</strong> {{ text_minify_available }}: <span class="label label-success">{{ minify_stats.available }}</span> &nbsp; {{ text_minify_stale }}: <span class="label {% if minify_stats.stale %}label-warning{% else %}label-success{% endif %}">{{ minify_stats.stale }}</span> &nbsp; {{ text_minify_active }}: <span class="label label-info">{{ minify_stats.active }}</span></div>
+          <form action="{{ action }}" method="post" class="form-horizontal"><input type="hidden" name="core_action" value="save_performance"><input type="hidden" name="return_tab" value="performance">
+            <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_storefront_minify_css }}">{{ entry_storefront_minify_css }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_storefront_minify_css_status" value="1" {% if codecart_storefront_minify_css_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_storefront_minify_css_status" value="0" {% if not codecart_storefront_minify_css_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ help_storefront_minify_css }}</p></div></div>
+            <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_storefront_minify_js }}">{{ entry_storefront_minify_js }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_storefront_minify_js_status" value="1" {% if codecart_storefront_minify_js_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_storefront_minify_js_status" value="0" {% if not codecart_storefront_minify_js_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ help_storefront_minify_js }}</p></div></div>
+            <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_admin_minify_css }}">{{ entry_admin_minify_css }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_admin_minify_css_status" value="1" {% if codecart_admin_minify_css_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_admin_minify_css_status" value="0" {% if not codecart_admin_minify_css_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ help_admin_minify_css }}</p></div></div>
+            <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_admin_minify_js }}">{{ entry_admin_minify_js }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_admin_minify_js_status" value="1" {% if codecart_admin_minify_js_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_admin_minify_js_status" value="0" {% if not codecart_admin_minify_js_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ help_admin_minify_js }}</p></div></div>
+            <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save_performance }}</button>
+          </form>
+        </div>
+        <div class="tab-pane" id="tab-architecture">
+          <p class="help-block">{{ text_architecture_help }}</p>
+          <div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><td>{{ column_component }}</td><td style="width:140px;">{{ column_state }}</td><td>{{ column_details }}</td></tr></thead><tbody>{% for row in architecture %}<tr><td>{{ row.name }}</td><td>{% if row.status == 'active' or row.status == 'enabled' %}<span class="label label-success">{{ text_enabled }}</span>{% else %}<span class="label label-default">{{ text_disabled }}</span>{% endif %}</td><td>{{ row.details }}</td></tr>{% endfor %}</tbody></table></div>
+          <form action="{{ action }}" method="post" class="form-horizontal"><input type="hidden" name="core_action" value="save_architecture"><input type="hidden" name="return_tab" value="architecture">
+            <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_api_v1_help }}">{{ entry_api_v1_status }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_api_v1_status" value="1" {% if codecart_api_v1_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_api_v1_status" value="0" {% if not codecart_api_v1_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ text_api_v1_help }}</p></div></div>
+            <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save_architecture }}</button>
+          </form>
+        </div>
+        <div class="tab-pane" id="tab-security">
+          <form id="form-core" action="{{ action }}" method="post" class="form-horizontal"><input type="hidden" name="core_action" value="save_security"><input type="hidden" name="return_tab" value="security">
+            <fieldset><legend><i class="fa fa-lock"></i> {{ entry_login_protection }}</legend>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_login_protection_help }}">{{ entry_login_protection }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_admin_login_protection_status" value="1" {% if codecart_admin_login_protection_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_admin_login_protection_status" value="0" {% if not codecart_admin_login_protection_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ text_login_protection_help }}</p></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_login_max_attempts }}">{{ entry_login_max_attempts }}</span></label><div class="col-sm-3"><input type="number" min="3" max="20" name="codecart_admin_login_max_attempts" value="{{ codecart_admin_login_max_attempts }}" class="form-control"></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_login_window }}">{{ entry_login_window }}</span></label><div class="col-sm-3"><input type="number" min="5" max="240" name="codecart_admin_login_window_minutes" value="{{ codecart_admin_login_window_minutes }}" class="form-control"></div></div>
+            </fieldset>
+            <fieldset><legend><i class="fa fa-shield"></i> TOTP MFA</legend>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_totp }}">{{ entry_totp }}</span></label><div class="col-sm-9"><p class="form-control-static">{% if totp_enabled %}<span class="label label-success">{{ text_totp_enabled }}</span> · {{ text_totp_recovery }}: {{ totp_recovery_count }}{% else %}<span class="label label-default">{{ text_totp_disabled }}</span>{% endif %}</p></div></div>
+              {% if not totp_enabled and not totp_pending_secret %}<div class="form-group"><div class="col-sm-9 col-sm-offset-3"><button type="submit" name="requested_action" value="totp_prepare" class="btn btn-default"><i class="fa fa-key"></i> {{ button_totp_prepare }}</button></div></div>{% endif %}
+              {% if totp_pending_secret %}<div class="alert alert-info alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button><div><strong>{{ text_totp_secret }}:</strong> <code>{{ totp_pending_secret }}</code></div><div class="ccp-totp-label"><strong>{{ text_totp_account }}:</strong> {{ totp_pending_label }}</div><div class="ccp-totp-uri-actions"><button type="button" class="btn btn-default btn-xs ccp-copy-value" data-copy-value="{{ totp_pending_uri|e }}" title="{{ button_copy }}"><i class="fa fa-copy"></i> {{ button_copy }} URI</button></div></div><div class="form-group"><label class="col-sm-3 control-label">{{ text_totp_code }}</label><div class="col-sm-4"><input type="text" name="totp_code" class="form-control" inputmode="numeric" autocomplete="one-time-code" maxlength="16"></div><div class="col-sm-5"><button type="submit" name="requested_action" value="totp_enable" class="btn btn-success"><i class="fa fa-check"></i> {{ button_totp_enable }}</button></div></div>{% endif %}
+              {% if totp_enabled %}<div class="form-group"><label class="col-sm-3 control-label">{{ text_totp_code }}</label><div class="col-sm-4"><input type="text" name="totp_code" class="form-control" autocomplete="one-time-code" maxlength="16"></div><div class="col-sm-5"><button type="submit" name="requested_action" value="totp_disable" class="btn btn-danger"><i class="fa fa-times"></i> {{ button_totp_disable }}</button></div></div>{% endif %}
+              {% if totp_recovery_codes %}<div class="alert alert-warning"><strong>{{ text_totp_recovery }}</strong><br><code>{{ totp_recovery_codes|join(' &nbsp; ') }}</code></div>{% endif %}
+            </fieldset>
+            <fieldset><legend><i class="fa fa-desktop"></i> {{ entry_admin_device }}</legend>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_device_fail_open }}">{{ entry_admin_device }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_admin_device_authorize_status" value="1" {% if codecart_admin_device_authorize_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_admin_device_authorize_status" value="0" {% if not codecart_admin_device_authorize_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ text_device_fail_open }}</p></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_customer_device }}">{{ entry_customer_device }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_customer_device_authorize_status" value="1" {% if codecart_customer_device_authorize_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_customer_device_authorize_status" value="0" {% if not codecart_customer_device_authorize_status %}checked{% endif %}> {{ text_disabled }}</label></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label">{{ text_current_user_devices }}</label><div class="col-sm-9"><p class="form-control-static">{{ trusted_admin_devices }}</p><button type="submit" name="requested_action" value="revoke_admin_devices" class="btn btn-warning"><i class="fa fa-ban"></i> {{ button_revoke }}</button></div></div>
+            </fieldset>
+            <fieldset><legend><i class="fa fa-header"></i> {{ entry_security_headers }}</legend>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_security_headers_help }}">{{ entry_security_headers }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_security_headers_status" value="1" {% if codecart_security_headers_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_security_headers_status" value="0" {% if not codecart_security_headers_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ text_security_headers_help }}</p></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_nosniff }}">{{ entry_nosniff }}</span></label><div class="col-sm-9"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_nosniff_status" value="1" {% if codecart_security_nosniff_status %}checked{% endif %}> X-Content-Type-Options: nosniff</label></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_referrer_policy }}">{{ entry_referrer_policy }}</span></label><div class="col-sm-5"><select name="codecart_security_referrer_policy" class="form-control"><option value="strict-origin-when-cross-origin" {% if codecart_security_referrer_policy == 'strict-origin-when-cross-origin' %}selected{% endif %}>strict-origin-when-cross-origin</option><option value="same-origin" {% if codecart_security_referrer_policy == 'same-origin' %}selected{% endif %}>same-origin</option><option value="no-referrer" {% if codecart_security_referrer_policy == 'no-referrer' %}selected{% endif %}>no-referrer</option><option value="origin" {% if codecart_security_referrer_policy == 'origin' %}selected{% endif %}>origin</option><option value="origin-when-cross-origin" {% if codecart_security_referrer_policy == 'origin-when-cross-origin' %}selected{% endif %}>origin-when-cross-origin</option><option value="strict-origin" {% if codecart_security_referrer_policy == 'strict-origin' %}selected{% endif %}>strict-origin</option></select></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_frame_options }}">{{ entry_frame_options }}</span></label><div class="col-sm-2"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_frame_options_status" value="1" {% if codecart_security_frame_options_status %}checked{% endif %}> {{ text_enabled }}</label></div><div class="col-sm-3"><select name="codecart_security_frame_options" class="form-control"><option value="SAMEORIGIN" {% if codecart_security_frame_options == 'SAMEORIGIN' %}selected{% endif %}>SAMEORIGIN</option><option value="DENY" {% if codecart_security_frame_options == 'DENY' %}selected{% endif %}>DENY</option></select></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_permissions_policy }}">{{ entry_permissions_policy }}</span></label><div class="col-sm-2"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_permissions_policy_status" value="1" {% if codecart_security_permissions_policy_status %}checked{% endif %}> {{ text_enabled }}</label></div><div class="col-sm-7"><input type="text" name="codecart_security_permissions_policy" value="{{ codecart_security_permissions_policy }}" class="form-control"></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_csp_report_only_help }}">{{ entry_csp_report_only }}</span></label><div class="col-sm-9"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_csp_report_only_status" value="1" {% if codecart_security_csp_report_only_status %}checked{% endif %}> {{ text_enabled }}</label><p class="help-block">{{ text_csp_report_only_help }}</p></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_csp_policy }}">{{ entry_csp_policy }}</span></label><div class="col-sm-9"><textarea name="codecart_security_csp_report_only_policy" rows="3" class="form-control">{{ codecart_security_csp_report_only_policy }}</textarea></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_hsts_help }}">{{ entry_hsts }}</span></label><div class="col-sm-2"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_hsts_status" value="1" {% if codecart_security_hsts_status %}checked{% endif %}> {{ text_enabled }}</label></div><div class="col-sm-3"><input type="number" min="300" max="63072000" name="codecart_security_hsts_max_age" value="{{ codecart_security_hsts_max_age }}" class="form-control"></div><div class="col-sm-3"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_hsts_subdomains" value="1" {% if codecart_security_hsts_subdomains %}checked{% endif %}> includeSubDomains</label></div><div class="col-sm-9 col-sm-offset-3"><p class="help-block">{{ text_hsts_help }}</p></div></div>
+            </fieldset>
+            <fieldset><legend><i class="fa fa-filter"></i> {{ entry_spam }}</legend><div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_spam_help }}">{{ entry_spam }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_spam_service_status" value="1" {% if codecart_spam_service_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_spam_service_status" value="0" {% if not codecart_spam_service_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ text_spam_help }}</p></div></div></fieldset>
+            <div class="text-right"><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div>
+          </form>
+          <hr><div class="ccp-table-toolbar"><div><h4>{{ text_security_audit }}</h4><p class="help-block">{{ text_retention_auto }}: {{ codecart_security_audit_retention_days }}.</p></div><form action="{{ action }}" method="post" onsubmit="return confirm('{{ text_cleanup_confirm|escape('js') }}');"><input type="hidden" name="requested_action" value="cleanup_security_audit"><input type="hidden" name="return_tab" value="security"><button type="submit" class="btn btn-warning"><i class="fa fa-trash"></i> {{ button_cleanup_old }}</button></form></div><div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><td>{{ column_date }}</td><td>Event</td><td>{{ column_state }}</td><td>IP</td><td>{{ column_details }}</td></tr></thead><tbody>{% if security_audit %}{% for item in security_audit %}<tr><td>{{ item.date_added }}</td><td>{{ item.event }}</td><td>{{ item.outcome }}</td><td>{{ item.ip }}</td><td><span title="{{ item.user_agent }}">{{ item.username }}</span></td></tr>{% endfor %}{% else %}<tr><td colspan="5" class="text-center">{{ text_no_issues }}</td></tr>{% endif %}</tbody></table></div>
+        </div>
+        <div class="tab-pane" id="tab-privacy"><form action="{{ action }}" method="post" class="form-horizontal"><input type="hidden" name="core_action" value="save_privacy"><input type="hidden" name="return_tab" value="privacy"><div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_gdpr }}">{{ entry_gdpr }}</span></label><div class="col-sm-9"><label class="radio-inline"><input type="radio" name="codecart_gdpr_status" value="1" {% if codecart_gdpr_status %}checked{% endif %}> {{ text_enabled }}</label><label class="radio-inline"><input type="radio" name="codecart_gdpr_status" value="0" {% if not codecart_gdpr_status %}checked{% endif %}> {{ text_disabled }}</label><p class="help-block">{{ text_gdpr_help }}</p></div></div><div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_gdpr_retention }}">{{ entry_gdpr_retention }}</span></label><div class="col-sm-3"><input type="number" min="30" max="3650" name="codecart_gdpr_retention_days" value="{{ codecart_gdpr_retention_days }}" class="form-control"></div><div class="col-sm-6"><p class="help-block">{{ text_gdpr_retention_help }}</p></div></div><div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_cookie }}">{{ entry_cookie }}</span></label><div class="col-sm-9"><p class="form-control-static">{% if config_cookie_consent_status %}<span class="label label-success">{{ text_enabled }}</span>{% else %}<span class="label label-default">{{ text_disabled }}</span>{% endif %}</p><p class="help-block">{{ text_cookie_help }}</p><a href="{{ cookie_settings_link }}" class="btn btn-default"><i class="fa fa-cog"></i> {{ button_cookie_settings }}</a></div></div><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></form><hr><div class="ccp-table-toolbar"><div><h4>{{ text_gdpr_requests }}</h4><p class="help-block">{{ text_retention_auto }}: {{ codecart_gdpr_retention_days }}.</p></div><form action="{{ action }}" method="post" onsubmit="return confirm('{{ text_cleanup_confirm|escape('js') }}');"><input type="hidden" name="requested_action" value="cleanup_gdpr"><input type="hidden" name="return_tab" value="privacy"><button type="submit" class="btn btn-warning"><i class="fa fa-trash"></i> {{ button_cleanup_old }}</button></form></div><div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><td>{{ column_request }}</td><td>{{ column_email }}</td><td>{{ column_type }}</td><td>{{ column_state }}</td><td>{{ column_date }}</td><td class="text-right">{{ column_action }}</td></tr></thead><tbody>{% if gdpr_requests %}{% for item in gdpr_requests %}<tr><td>#{{ item.request_id }}</td><td>{{ item.email }}</td><td>{{ item.type }}</td><td>{{ item.status }}</td><td>{{ item.date_added }}</td><td class="text-right">{% if item.type == 'delete' and item.status == 'confirmed' %}<form action="{{ action }}" method="post" style="display:inline" onsubmit="return confirm('{{ text_confirm_delete|escape('js') }}');"><input type="hidden" name="core_action" value="gdpr_delete"><input type="hidden" name="return_tab" value="privacy"><input type="hidden" name="request_id" value="{{ item.request_id }}"><button type="submit" class="btn btn-danger" data-toggle="tooltip" title="{{ button_process_delete }}"><i class="fa fa-user-times"></i></button></form>{% endif %}</td></tr>{% endfor %}{% else %}<tr><td colspan="6" class="text-center">{{ text_no_issues }}</td></tr>{% endif %}</tbody></table></div></div>
+        <div class="tab-pane" id="tab-schema">
+          <p class="help-block">{{ text_schema_readonly }}</p>
+          <p class="help-block">{{ text_schema_external_help }}</p>
+          <div class="ccp-schema-actions">
+            <a href="index.php?route=tool/codecart_core&user_token={{ user_token }}&tab=schema&schema=1" class="btn btn-primary"><i class="fa fa-search"></i> {{ button_scan }}</a>
+          </div>
+          {% if schema_result %}
+          <div class="ccp-schema-head">
+            <div><h4>{{ text_schema }} {{ schema_result.version }}</h4><p class="help-block">{{ text_schema_safe_fix_help }}</p></div>
+          </div>
+          <div class="ccp-schema-summary">
+            {% for key,value in schema_result.summary %}<div class="ccp-schema-stat"><span>{{ key }}</span><strong>{{ value }}</strong></div>{% endfor %}
+          </div>
+          {% if schema_result.issues %}
+          <div class="alert alert-warning ccp-schema-backup"><i class="fa fa-database"></i> {{ text_schema_backup_warning }}</div>
+          <form action="{{ action }}" method="post" class="ccp-schema-repair" onsubmit="return confirm('{{ text_schema_backup_warning|escape('js') }}');">
+            <input type="hidden" name="requested_action" value="schema_safe_fix" />
+            <input type="hidden" name="return_tab" value="schema" />
+            <label class="checkbox-inline"><input type="checkbox" name="schema_backup_confirm" value="1" required="required" /> {{ text_schema_backup_confirm }}</label>
+            <button type="submit" class="btn btn-warning"><i class="fa fa-wrench"></i> {{ button_schema_safe_fix }}</button>
+          </form>
+          <div class="table-responsive ccp-schema-table-wrap">
+            <table class="table table-bordered table-hover ccp-schema-table">
+              <thead><tr><td><a href="#" class="ccp-schema-sort" data-col="0">{{ column_severity }} <i class="fa fa-sort"></i></a></td><td><a href="#" class="ccp-schema-sort" data-col="1">{{ column_type }} <i class="fa fa-sort"></i></a></td><td><a href="#" class="ccp-schema-sort" data-col="2">{{ column_table }} <i class="fa fa-sort"></i></a></td><td><a href="#" class="ccp-schema-sort" data-col="3">{{ column_column }} <i class="fa fa-sort"></i></a></td><td><a href="#" class="ccp-schema-sort" data-col="4">{{ column_message }} <i class="fa fa-sort"></i></a></td></tr></thead>
+              <tbody>
+              {% for issue in schema_result.issues %}
+                <tr class="{% if issue.source == 'external' %}ccp-schema-external{% elseif issue.fixable %}ccp-schema-fixable{% endif %}">
+                  <td>{% if issue.source == 'external' %}<span class="label label-success">{{ text_schema_external_ok }}</span>{% elseif issue.severity == 'error' %}<span class="label label-danger">{{ text_error }}</span>{% elseif issue.severity == 'warning' %}<span class="label label-warning">{{ text_warning }}</span>{% else %}<span class="label label-info">{{ text_info }}</span>{% endif %}</td>
+                  <td>{{ issue.type }}<br>{% if issue.source != 'external' %}{% if issue.fixable %}<span class="label label-primary">{{ text_schema_fixable }}</span>{% else %}<span class="label label-default">{{ text_schema_manual }}</span>{% endif %}{% endif %}</td>
+                  <td><code>{{ issue.table }}</code></td><td>{% if issue.column %}<code>{{ issue.column }}</code>{% else %}—{% endif %}</td><td>{{ issue.message }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_no_issues }}</div>{% endif %}
+          {% else %}<p class="help-block">{{ text_schema_not_scanned }}</p>{% endif %}
+        </div>
+        <div class="tab-pane" id="tab-extensions"><p class="help-block">{{ text_extension_help }}</p><form action="{{ action }}" method="post"><input type="hidden" name="core_action" value="refresh_extensions"><input type="hidden" name="return_tab" value="extensions"><button type="submit" class="btn btn-primary"><i class="fa fa-refresh"></i> {{ button_refresh }}</button></form><br><div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><td>Code</td><td>Name</td><td>Version</td><td>Namespace</td></tr></thead><tbody>{% if modern_extensions %}{% for item in modern_extensions %}<tr><td>{{ item.code }}</td><td>{{ item.name }}</td><td>{{ item.version }}</td><td><code>{{ item.namespace }}</code></td></tr>{% endfor %}{% else %}<tr><td colspan="4" class="text-center">{{ text_no_extensions }}</td></tr>{% endif %}</tbody></table></div></div>
+        <div class="tab-pane ccp-icon-catalog" id="tab-icons">
+          <div class="panel panel-default ccp-icon-scan-panel">
+            <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-search"></i> {{ text_icon_scanner }}</h3></div>
+            <div class="panel-body">
+              <p class="help-block">{{ text_icon_scanner_help }}</p>
+              <form action="{{ action }}" method="post" class="form-horizontal ccp-icon-mode-form"><input type="hidden" name="requested_action" value="icons_save_mode"><input type="hidden" name="return_tab" value="icons"><div class="form-group"><label class="col-sm-3 control-label">{{ text_icon_mode_setting }}</label><div class="col-sm-9">{% for mode,label in icon_mode_options %}<label class="radio-inline"><input type="radio" name="theme_default_icon_mode" value="{{ mode }}" {% if icon_mode_requested == mode %}checked{% endif %}> {{ label }}</label>{% endfor %}<p class="help-block">{{ text_icon_mode_setting_help }}</p><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div></div></form>
+              <div class="ccp-icon-scan-summary">
+                <div><span>{{ text_icon_mode_requested }}</span><strong>{{ icon_mode_requested|upper }}</strong></div>
+                <div><span>{{ text_icon_mode_effective }}</span><strong class="{% if icon_mode_effective == 'full' %}text-warning{% else %}text-success{% endif %}">{{ icon_mode_effective|upper }}</strong></div>
+                <div><span>{{ text_icon_core_count }}</span><strong>{{ icon_core_count }}</strong></div>
+                <div><span>{{ text_icon_files_scanned }}</span><strong>{{ icon_scan.files }}</strong></div>
+                <div><span>{{ text_icon_unknown }}</span><strong>{{ icon_unknown_count }}</strong></div><div><span>{{ text_icon_unresolved }}</span><strong class="{% if icon_unresolved_count %}text-danger{% else %}text-success{% endif %}">{{ icon_unresolved_count }}</strong></div>
+                <div><span>{{ text_icon_last_scan }}</span><strong>{{ icon_scan_time }}</strong></div>
+              </div>
+              {% if icon_scan.scanner_error %}
+                <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ text_icon_scan_error }}<br><small>{{ icon_scan.scanner_error }}</small></div>
+              {% elseif icon_unknown_count %}
+                <div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_icon_fallback_full }}</div>{% if icon_unresolved_count %}<div class="alert alert-danger"><i class="fa-solid fa-circle-xmark"></i> {{ text_icon_resolution_unresolved }}</div>{% endif %}
+              {% else %}
+                <div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_icon_core_active }}</div>
+              {% endif %}
+              <form action="{{ action }}" method="post" class="ccp-icon-rescan-form">
+                <input type="hidden" name="requested_action" value="icons_rescan">
+                <input type="hidden" name="return_tab" value="icons">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-refresh"></i> {{ button_icon_rescan }}</button>
+              </form>
+              {% if icon_scan.occurrences %}
+              <div class="table-responsive ccp-icon-scan-table-wrap">
+                <table class="table table-bordered table-hover ccp-icon-scan-table">
+                  <thead><tr><td>{{ text_icon_unknown }}</td><td>{{ text_icon_kind }}</td><td>{{ text_icon_resolution }}</td><td>{{ text_icon_location }}</td><td style="width:90px;">{{ text_icon_line }}</td></tr></thead>
+                  <tbody>{% for row in icon_scan.occurrences %}<tr><td><code>{% if row.kind == 'class' %}fa-{{ row.icon }}{% else %}{{ row.icon }}{% endif %}</code></td><td>{{ row.kind }}</td><td>{% if row.resolution == 'full' %}<span class="text-warning">{{ text_icon_resolution_full }}</span>{% else %}<span class="text-danger">{{ text_icon_resolution_unresolved }}</span>{% endif %}</td><td><code title="{{ row.file }}">{{ row.file }}</code></td><td>{{ row.line }}</td></tr>{% endfor %}</tbody>
+                </table>
+              </div>
+              {% else %}<p class="text-success"><i class="fa fa-check"></i> {{ text_icon_no_unknown }}</p>{% endif %}
+              <form action="{{ action }}" method="post" class="ccp-icon-extras-form">
+                <input type="hidden" name="return_tab" value="icons">
+                <div class="form-group"><label for="input-icon-extras">{{ entry_icon_extras }}</label>
+                  <textarea id="input-icon-extras" name="icon_extra_names" rows="3" maxlength="20000" class="form-control">{{ icon_extra_names|e }}</textarea>
+                  <p class="help-block">{{ help_icon_extras }}</p>
+                </div>
+                <button type="submit" name="requested_action" value="icons_save_extras" class="btn btn-primary"><i class="fa fa-save" aria-hidden="true"></i> {{ button_icon_save_extras }}</button>
+                <button type="submit" name="requested_action" value="icons_add_found" class="btn btn-default"><i class="fa fa-plus" aria-hidden="true"></i> {{ button_icon_add_found }}</button>
+              </form>
+            </div>
+          </div>
+          <p class="help-block">{{ text_icon_help }}</p>
+          <div class="ccp-icon-package-tabs" role="tablist" aria-label="Font Awesome packages">
+            <button type="button" class="btn btn-primary active" data-icon-package="core"><i class="fa-solid fa-gauge-high"></i> {{ text_icon_core_package }} <span class="badge">{{ icon_catalog|length }}</span></button>
+            <button type="button" class="btn btn-default" data-icon-package="full"><i class="fa-solid fa-icons"></i> {{ text_icon_full_package }} <span class="badge">{{ icon_full_count }}</span></button>
+          </div>
+          <div class="ccp-icon-package-help">
+            <p class="help-block" data-icon-package-help="core">{{ text_icon_core_package_help }}</p>
+            <p class="help-block" data-icon-package-help="full" style="display:none">{{ text_icon_full_package_help }}</p>
+          </div>
+          <p class="help-block ccp-icon-usage"><i class="fa fa-copy"></i> {{ text_icon_usage }}</p>
+          <div class="ccp-icon-toolbar">
+            <div class="input-group ccp-icon-search"><span class="input-group-addon"><i class="fa fa-search"></i></span><input type="search" id="ccp-icon-search" class="form-control" placeholder="{{ text_icon_search }}" autocomplete="off"></div>
+            <div class="ccp-icon-filters" id="ccp-icon-filters">{% for code, label in icon_categories %}<button type="button" class="btn btn-default btn-sm{% if code == 'all' %} active{% endif %}" data-icon-category="{{ code }}">{{ label }}</button>{% endfor %}</div>
+            <div class="ccp-icon-style-filters" id="ccp-icon-style-filters" style="display:none">
+              <button type="button" class="btn btn-default btn-sm active" data-icon-style="all">{{ text_icon_all }}</button>
+              <button type="button" class="btn btn-default btn-sm" data-icon-style="solid">Solid</button>
+              <button type="button" class="btn btn-default btn-sm" data-icon-style="regular">Regular</button>
+              <button type="button" class="btn btn-default btn-sm" data-icon-style="brands">Brands</button>
+            </div>
+          </div>
+          <div class="ccp-icon-copy-status" id="ccp-icon-copy-status" aria-live="polite"></div>
+          <div class="ccp-icon-package" data-icon-package-panel="core">
+            <div class="ccp-icon-grid" id="ccp-icon-grid-core">{% for icon in icon_catalog %}<button type="button" class="ccp-icon-item" data-icon="{{ icon.preview_class }}" data-search="{{ icon.preview_class }} {{ icon.class }} {{ icon.name }}" data-category="{{ icon.category }}" data-style="{{ icon.style }}" title="{{ icon.preview_class }}{% if icon.preview_name != icon.name %} · FA4: {{ icon.class }}{% endif %}"><i class="{{ icon.preview_class }} fa-2x"></i><span>{{ icon.preview_class }}</span><i class="fa fa-copy ccp-icon-copy" aria-hidden="true"></i></button>{% endfor %}</div>
+          </div>
+          <div class="ccp-icon-package" data-icon-package-panel="full" style="display:none">
+            <div class="ccp-icon-full-note"><span class="label label-info">Font Awesome Free 6.7.2</span> {{ text_icon_full_count }}: <strong>{{ icon_full_count }}</strong></div>
+            <div class="ccp-icon-grid ccp-icon-grid-full" id="ccp-icon-grid-full" data-url="{{ icon_full_url }}"><p class="help-block ccp-icon-lazy-status">{{ text_icon_full_package_help }}</p></div>
+          </div>
+        </div>
+        <div class="tab-pane ccp-core-about" id="tab-about">
+          <div class="ccp-about-hero">
+            <div>
+              <h2 class="ccp-about-title"><i class="fa fa-shopping-cart"></i> CodeCart PRO {{ about_version }}</h2>
+              <p class="ccp-about-sub">{{ about_build }} · PHP 8.1–8.5 · OpenCart/ocStore 3.x compatible</p>
+            </div>
+            <a class="btn btn-primary ccp-site-link" href="{{ codecart_website }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link"></i> {{ text_codecart_website }}</a>
+          </div>
+
+          <div class="ccp-kpis">
+            <div class="ccp-kpi"><span><i class="fa fa-random"></i> {{ text_about_legacy_title }}</span><strong>{{ text_about_legacy_value }}</strong><small>{{ text_about_legacy_help }}</small></div>
+            <div class="ccp-kpi"><span><i class="fa fa-shield"></i> {{ text_about_security }}</span><strong>{{ text_about_security_value }}</strong><small>{{ text_about_security_help }}</small></div>
+            <div class="ccp-kpi"><span><i class="fa fa-server"></i> {{ text_about_requirements }}</span><strong>{{ text_about_server_value }}</strong><small>{{ text_about_server_help }}</small></div>
+            <div class="ccp-kpi"><span><i class="fa fa-plug"></i> {{ text_about_modern_title }}</span><strong>{{ text_about_modern_value }}</strong><small>{{ text_about_modern_help }}</small></div>
+          </div>
+
+          <div class="panel-group" id="about-accordion" role="tablist">
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#about-accordion" href="#about-overview" aria-expanded="true"><i class="fa fa-check-circle"></i> {{ text_about_changes }} <span class="pull-right ccp-collapse-chevron"><i class="fa fa-chevron-up"></i></span></a></h4></div>
+              <div id="about-overview" class="panel-collapse collapse in"><div class="panel-body">
+                <div class="row">
+                  <div class="col-md-4"><h4><i class="fa fa-wrench"></i> {{ text_about_fixed }}</h4><ul class="ccp-list">{% for item in about_fixed_items %}<li>{{ item }}</li>{% endfor %}</ul></div>
+                  <div class="col-md-4"><h4><i class="fa fa-line-chart"></i> {{ text_about_improved }}</h4><ul class="ccp-list">{% for item in about_improved_items %}<li>{{ item }}</li>{% endfor %}</ul></div>
+                  <div class="col-md-4"><h4><i class="fa fa-shield"></i> {{ text_about_security }}</h4><ul class="ccp-list">{% for item in about_security_items %}<li>{{ item }}</li>{% endfor %}</ul></div>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#about-accordion" href="#about-requirements"><i class="fa fa-server"></i> {{ text_about_requirements }} <span class="pull-right ccp-collapse-chevron"><i class="fa fa-chevron-down"></i></span></a></h4></div>
+              <div id="about-requirements" class="panel-collapse collapse"><div class="panel-body">
+                <p class="help-block"><i class="fa fa-info-circle"></i> {{ text_server_requirements_help }}</p>
+                <div class="ccp-req-grid">
+                  {% for row in server_requirements %}
+                  <div class="ccp-req">
+                    <div><div class="ccp-req-name">{{ row.name }}</div><div class="ccp-req-value">{{ row.value }}</div></div>
+                    <div class="text-right">
+                      {% if row.required %}<span class="label label-primary">{{ text_required }}</span>{% else %}<span class="label label-default">{{ text_recommended }}</span>{% endif %}
+                      {% if row.ok %}<span class="label label-success"><i class="fa fa-check"></i> OK</span>{% elseif row.required %}<span class="label label-danger"><i class="fa fa-times"></i> {{ text_not_supported }}</span>{% else %}<span class="label label-warning"><i class="fa fa-info"></i> {{ text_recommended }}</span>{% endif %}
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                <p style="margin-top:12px;"><a href="index.php?route=tool/codecart_core&user_token={{ user_token }}&tab=runtime" class="btn btn-default"><i class="fa fa-heartbeat"></i> {{ text_runtime }}</a></p>
+              </div></div>
+            </div>
+
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#about-accordion" href="#about-comparison"><i class="fa fa-table"></i> {{ text_about_comparison }} <span class="pull-right ccp-collapse-chevron"><i class="fa fa-chevron-down"></i></span></a></h4></div>
+              <div id="about-comparison" class="panel-collapse collapse"><div class="panel-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover">
+                    <thead><tr><td>{{ text_component }}</td><td>OpenCart 3.0.5.x</td><td>ocStore 3.0.5.x</td><td>CodeCart PRO 3.0.6.0</td><td style="width:155px;">{{ column_state }}</td></tr></thead>
+                    <tbody>
+                    {% for row in comparison_rows %}
+                      <tr><td><strong>{{ row.component }}</strong></td><td>{{ row.opencart }}</td><td>{{ row.ocstore }}</td><td>{{ row.codecart }}</td><td class="ccp-status">
+                        {% if row.status == 'updated' %}<span class="label label-primary">{{ text_updated }}</span>{% elseif row.status == 'added' %}<span class="label label-success">{{ text_added }}</span>{% elseif row.status == 'removed_runtime' %}<span class="label label-warning">{{ text_removed_runtime }}</span>{% else %}<span class="label label-default">{{ text_legacy }}</span>{% endif %}
+                      </td></tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <p class="help-block ccp-comparison-note"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ text_about_comparison_note }}</p>
+              </div></div>
+            </div>
+
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#about-accordion" href="#about-future"><i class="fa fa-road"></i> {{ text_about_future }} <span class="pull-right ccp-collapse-chevron"><i class="fa fa-chevron-down"></i></span></a></h4></div>
+              <div id="about-future" class="panel-collapse collapse"><div class="panel-body"><ul class="ccp-list">{% for item in about_future_items %}<li>{{ item }}</li>{% endfor %}</ul></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+<script>$(function(){var tab='{{ active_tab|escape('js') }}';$('#core-tabs a[href="#tab-'+tab+'"]').tab('show');$('#core-tabs a[data-toggle="tab"]').on('shown.bs.tab',function(e){var id=$(e.target).attr('href').replace('#tab-','');try{history.replaceState(null,'','index.php?route=tool/codecart_core&user_token={{ user_token }}&tab='+encodeURIComponent(id));}catch(x){}});});</script>
+<script type="text/javascript">
+$('#about-accordion').on('shown.bs.collapse hidden.bs.collapse',function(){ $('#about-accordion .panel-title>a').each(function(){var open=$($(this).attr('href')).hasClass('in');$(this).attr('aria-expanded',open?'true':'false');$(this).find('.ccp-collapse-chevron i').attr('class',open?'fa fa-chevron-up':'fa fa-chevron-down');});});
+</script>
+<script type="text/javascript">
+(function(){
+var input=document.getElementById('ccp-icon-search'),tab=document.getElementById('tab-icons'),filters=document.getElementById('ccp-icon-filters'),styleFilters=document.getElementById('ccp-icon-style-filters'),status=document.getElementById('ccp-icon-copy-status');
+if(!input||!tab)return;
+var activeCategory='all',activeStyle='all',activePackage='core',fullLoaded=false,fullLoading=false;
+function panel(){return tab.querySelector('[data-icon-package-panel="'+activePackage+'"]');}
+function applyFilter(){var q=(input.value||'').toLowerCase(),root=panel();if(!root)return;var items=root.querySelectorAll('.ccp-icon-item');for(var i=0;i<items.length;i++){var icon=(items[i].getAttribute('data-search')||items[i].getAttribute('data-icon')||'').toLowerCase(),cat=items[i].getAttribute('data-category')||'other',style=items[i].getAttribute('data-style')||'solid';var categoryOk=activePackage==='full'||activeCategory==='all'||cat===activeCategory;var styleOk=activePackage==='core'||activeStyle==='all'||(' '+style+' ').indexOf(' '+activeStyle+' ')!==-1;items[i].style.display=(!q||icon.indexOf(q)!==-1)&&categoryOk&&styleOk?'':'none';}}
+function createFullIcon(icon){var button=document.createElement('button');button.type='button';button.className='ccp-icon-item';button.setAttribute('data-icon',icon.class||'');button.setAttribute('data-search',(icon.search||'')+' '+(icon.class||''));button.setAttribute('data-style',icon.style_filter||icon.style||'solid');button.title=(icon.class||'')+' · '+(icon.label||icon.name||'');var preview=document.createElement('i');preview.className=(icon.class||'')+' fa-2x';var name=document.createElement('span');name.textContent=icon.class||'';var styles=document.createElement('small');styles.textContent=Array.isArray(icon.styles)?icon.styles.join('/'):(icon.style_filter||'');var copy=document.createElement('i');copy.className='fa fa-copy ccp-icon-copy';copy.setAttribute('aria-hidden','true');button.appendChild(preview);button.appendChild(name);button.appendChild(styles);button.appendChild(copy);return button;}
+function loadFullIcons(){if(fullLoaded||fullLoading)return;var root=document.getElementById('ccp-icon-grid-full');if(!root)return;var url=root.getAttribute('data-url')||'';if(!url)return;fullLoading=true;root.innerHTML='<p class="help-block ccp-icon-lazy-status"><i class="fa fa-spinner fa-spin"></i> {{ text_icon_loading|escape('js') }}</p>';fetch(url,{credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest'}}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.json();}).then(function(json){var rows=json&&Array.isArray(json.icons)?json.icons:[];root.innerHTML='';var index=0;function chunk(){var fragment=document.createDocumentFragment(),end=Math.min(rows.length,index+120);for(;index<end;index++){fragment.appendChild(createFullIcon(rows[index]));}root.appendChild(fragment);if(index<rows.length){window.requestAnimationFrame(chunk);}else{fullLoaded=true;fullLoading=false;applyFilter();}}chunk();}).catch(function(){fullLoading=false;root.innerHTML='<p class="text-danger"><i class="fa fa-exclamation-circle"></i> {{ text_icon_load_error|escape('js') }}</p>';});}
+function setPackage(name){activePackage=name==='full'?'full':'core';var buttons=tab.querySelectorAll('[data-icon-package]'),panels=tab.querySelectorAll('[data-icon-package-panel]'),helps=tab.querySelectorAll('[data-icon-package-help]');for(var i=0;i<buttons.length;i++){var on=buttons[i].getAttribute('data-icon-package')===activePackage;buttons[i].classList.toggle('active',on);buttons[i].classList.toggle('btn-primary',on);buttons[i].classList.toggle('btn-default',!on);}for(var j=0;j<panels.length;j++){panels[j].style.display=panels[j].getAttribute('data-icon-package-panel')===activePackage?'':'none';}for(var k=0;k<helps.length;k++){helps[k].style.display=helps[k].getAttribute('data-icon-package-help')===activePackage?'':'none';}if(filters)filters.style.display=activePackage==='core'?'':'none';if(styleFilters)styleFilters.style.display=activePackage==='full'?'flex':'none';if(activePackage==='full'){loadFullIcons();}applyFilter();}
+function copyText(value,button){function done(){if(status){status.textContent='{{ text_icon_copied|escape('js') }}: '+value;}button.classList.add('is-copied');setTimeout(function(){button.classList.remove('is-copied');if(status){status.textContent='';}},1400);}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(value).then(done).catch(function(){fallback(value,done);});}else{fallback(value,done);}}
+function fallback(value,done){var ta=document.createElement('textarea');ta.value=value;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(ta);}
+input.addEventListener('input',applyFilter);
+tab.addEventListener('click',function(e){var packageBtn=e.target.closest('[data-icon-package]');if(packageBtn){setPackage(packageBtn.getAttribute('data-icon-package'));return;}var btn=e.target.closest('.ccp-icon-item');if(btn){copyText(btn.getAttribute('data-icon')||'',btn);}});
+if(filters){filters.addEventListener('click',function(e){var btn=e.target.closest('[data-icon-category]');if(!btn)return;activeCategory=btn.getAttribute('data-icon-category')||'all';var buttons=filters.querySelectorAll('[data-icon-category]');for(var i=0;i<buttons.length;i++){buttons[i].classList.toggle('active',buttons[i]===btn);}applyFilter();});}
+if(styleFilters){styleFilters.addEventListener('click',function(e){var btn=e.target.closest('[data-icon-style]');if(!btn)return;activeStyle=btn.getAttribute('data-icon-style')||'all';var buttons=styleFilters.querySelectorAll('[data-icon-style]');for(var i=0;i<buttons.length;i++){buttons[i].classList.toggle('active',buttons[i]===btn);}applyFilter();});}
+setPackage('core');
+})();
+</script>
+<script type="text/javascript">
+$(document).on('click','.ccp-copy-value',function(){
+  var value=$(this).attr('data-copy-value')||'';
+  var fallback=function(){var $t=$('<textarea readonly>').val(value).css({position:'fixed',left:'-9999px'}).appendTo('body');$t[0].select();try{document.execCommand('copy');}catch(e){}$t.remove();};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(value).catch(fallback);}else{fallback();}
+});
+</script>
+
+<script type="text/javascript">
+$('#button-phpinfo').on('click', function(){
+  var $modal=$('#modal-phpinfo');
+  $modal.load($(this).data('url'), function(){ $modal.modal('show'); });
+});
+</script>
+<script>
+(function($){
+  $(document).on('click','.ccp-schema-sort',function(e){
+    e.preventDefault();
+    var $a=$(this),col=parseInt($a.data('col'),10)||0,$table=$a.closest('table'),$body=$table.find('tbody'),rows=$body.find('tr').get();
+    var dir=$a.data('dir')==='asc'?'desc':'asc';
+    $table.find('.ccp-schema-sort').data('dir','').find('i').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
+    $a.data('dir',dir);$a.find('i').removeClass('fa-sort fa-sort-asc fa-sort-desc').addClass(dir==='asc'?'fa-sort-asc':'fa-sort-desc');
+    rows.sort(function(x,y){var a=$.trim($(x).children().eq(col).text()).toLowerCase(),b=$.trim($(y).children().eq(col).text()).toLowerCase();return (a<b?-1:a>b?1:0)*(dir==='asc'?1:-1);});
+    $.each(rows,function(_,row){$body.append(row);});
+  });
+})(jQuery);
+</script>
+{{ footer }}

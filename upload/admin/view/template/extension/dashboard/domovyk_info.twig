@@ -1,0 +1,78 @@
+<div id="domovyk" class="panel panel-default ccp-domovyk">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-heartbeat"></i> {{ heading_title }}</h3>
+    <div class="pull-right ccp-domovyk-links">
+      <a href="{{ diagnostics }}" title="{{ text_diagnostics }}" class="btn btn-info btn-sm"><i class="fa fa-stethoscope"></i> {{ text_diagnostics }}</a>
+      <a href="{{ setting }}" title="{{ text_setting }}" class="btn btn-default btn-sm"><i class="fa fa-cog"></i> {{ text_setting }}</a>
+    </div>
+  </div>
+  <div class="alert-body"></div>
+  <div class="panel-body">
+    <div class="ccp-domovyk-system-grid">
+      <div class="ccp-health-card"><span>{{ text_core }}</span><strong>{{ core_build }}</strong></div>
+      <div class="ccp-health-card"><span>PHP / SAPI</span><strong>{{ phpversion }} / {{ php_sapi }}</strong></div>
+      {% if database_version %}<div class="ccp-health-card"><span>{{ text_database }}</span><strong>{{ database_version }}</strong></div>{% endif %}
+      <div class="ccp-health-card"><span>OPcache</span><strong>{{ opcache_status }}</strong></div>
+      <div class="ccp-health-card{% if cache_fallback %} is-warning{% endif %}" title="{% if cache_fallback %}{{ cache_fallback }}{% endif %}"><span>Cache</span><strong>{% if cache_requested != cache_engine %}{{ cache_requested }} → {% endif %}{{ cache_engine }}</strong><small>{% if cache_generation_mode %}{{ text_cache_o1 }}{% else %}{{ text_cache_file_mode }}{% endif %}</small></div>
+      <div class="ccp-health-card"><span>{{ text_php_gzip }}</span><strong>{{ php_gzip_level }}</strong><small>{% if php_gzip_level == 0 %}{{ text_disabled }}{% else %}{{ text_enabled }}{% endif %}</small></div>
+      <div class="ccp-health-card{% if php_gzip_level > 0 and http_compression %} is-warning{% endif %}"><span>{{ text_http_compression }}</span><strong>{% if http_compression %}{{ http_compression|upper }}{% else %}{{ text_not_checked }}{% endif %}</strong><small>{% if http_compression_server %}{{ http_compression_server }}{% elseif http_compression_checked %}{{ http_compression_checked }}{% else %}{{ text_run_diagnostics }}{% endif %}</small></div>
+      {% if disk_free_space %}<div class="ccp-health-card{% if disk_free_space_warning %} is-warning{% endif %}"><span>{{ text_disk_free_space }}</span><strong>{{ disk_free_space.size }} {{ disk_free_space.unit }}</strong></div>{% endif %}
+    </div>
+
+    <div class="ccp-domovyk-limits">
+      <span><strong>memory_limit:</strong> {{ memory_limit }}</span>
+      <span><strong>upload_max_filesize:</strong> {{ upload_max_filesize }}</span>
+      <span><strong>post_max_size:</strong> {{ post_max_size }}</span>
+      <span><strong>max_execution_time:</strong> {{ max_execution_time }}</span>
+    </div>
+
+    {% if php_gzip_level > 0 and http_compression %}<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ text_double_compression_warning }}</div>{% endif %}
+    {% if disk_free_space_warning %}<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ disk_free_space_warning }}</div>{% endif %}
+
+    <div class="ccp-domovyk-actions">
+      <button type="button" value="theme" title="{{ text_refresh_theme }}" class="btn btn-primary ccp-developer-action"><i class="fa fa-refresh"></i> {{ text_template_cache }}</button>
+      <button type="button" id="ocmod-refresh" title="{{ text_refresh_ocmod }}" class="btn btn-primary"><i class="fa fa-refresh"></i> OCMOD</button>
+      <button type="button" value="allcache" title="{{ entry_allcache }}" class="btn btn-warning ccp-developer-action"><i class="fa fa-trash-o"></i> {{ text_clear_runtime_cache }}</button>
+      <button type="button" value="sass" title="{{ text_rebuild_styles_help }}" class="btn btn-default ccp-developer-action"><i class="fa fa-css3"></i> {{ text_rebuild_styles }}</button>
+      <a href="{{ notifications }}" class="btn btn-default"><i class="fa fa-bell"></i> {{ text_notifications }}: {{ notification_count }}</a>
+      <button type="button" id="ccp-domovyk-phpinfo" class="btn btn-default" data-url="{{ phpinfo_link }}" title="{{ text_phpinfo_help }}"><i class="fa fa-info-circle"></i> {{ text_phpinfo }}</button>
+    </div>
+    <div id="ccp-domovyk-phpinfo-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+
+    <div class="ccp-domovyk-folders">
+      {% for folder in folders %}
+      <div class="ccp-domovyk-folder">
+        <div class="ccp-domovyk-folder-main"><strong>{{ folder.name }}</strong><span class="textFolder">{{ folder.size }}{% if folder.files %} {{ folder.files }}{% endif %}{% if folder.warning_size %} <span class="text-danger">{{ folder.warning_size }}</span>{% endif %}</span></div>
+        <div class="btn-group">
+          <button type="button" value="{{ folder.key }}" class="btn btn-default calcFolder" title="{{ text_calculate }}"><i class="fa fa-calculator"></i> {{ text_calculate }}</button>
+          <button type="button" value="{{ folder.key }}" class="btn btn-danger clearFolder" title="{{ text_clear }}"><i class="fa fa-trash"></i> {{ text_clear }}</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<style>
+#domovyk{border-top:3px solid #0b6fd3}.ccp-domovyk .alert-body{padding:12px 18px 0}.ccp-domovyk .alert-body:empty{display:none}.ccp-domovyk .alert-body .alert{margin:0}#domovyk .panel-heading{min-height:54px;display:flex;align-items:center}.ccp-domovyk-links{margin-left:auto;display:flex;gap:7px}.ccp-domovyk-system-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}.ccp-health-card{min-height:82px;padding:12px 14px;border:1px solid #dbe5f0;border-radius:9px;background:#f8fbff;display:flex;flex-direction:column;gap:5px}.ccp-health-card>span{color:#667085;font-size:12px}.ccp-health-card>strong{color:#1f2937;font-size:15px;word-break:break-word}.ccp-health-card>small{color:#667085}.ccp-health-card.is-warning{border-color:#f2c66d;background:#fffaf0}.ccp-domovyk-limits{display:flex;flex-wrap:wrap;gap:8px 18px;padding:10px 12px;margin-bottom:12px;border:1px solid #eaecf0;border-radius:8px;background:#fff;color:#475467;font-size:12px}.ccp-domovyk-actions{display:flex;flex-wrap:wrap;gap:8px;padding:12px 0;border-top:1px solid #eaecf0;border-bottom:1px solid #eaecf0}.ccp-domovyk-actions .btn{min-height:38px;border-radius:7px}.ccp-domovyk-folders{margin-top:8px}.ccp-domovyk-folder{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #f0f2f5}.ccp-domovyk-folder-main{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.ccp-domovyk-folder-main .textFolder{color:#667085;font-size:12px}.ccp-domovyk-folder .btn{border-radius:6px}.ccp-domovyk-folder .btn-danger{background:#fff;color:#d9534f;border-color:#efc1bf}.ccp-domovyk-folder .btn-danger:hover{background:#d9534f;color:#fff}@media(max-width:1199px){.ccp-domovyk-system-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:767px){.ccp-domovyk-system-grid{grid-template-columns:1fr}.ccp-domovyk-folder{align-items:flex-start;flex-direction:column}.ccp-domovyk-folder .btn-group{display:flex;width:100%}.ccp-domovyk-folder .btn{flex:1}.ccp-domovyk-links .btn{font-size:0}.ccp-domovyk-links .fa{font-size:14px}}
+</style>
+<script type="text/javascript">
+(function($){
+  function show(type,text){ $('#domovyk .alert-body').html('<div class="alert alert-'+type+' alert-dismissible"><i class="fa '+(type==='success'?'fa-check-circle':'fa-exclamation-circle')+'"></i> '+text+' <button type="button" class="close" data-dismiss="alert">&times;</button></div>'); }
+  function action(button, route){ var $b=$(button); $.ajax({url:route,dataType:'json',beforeSend:function(){$b.button('loading')},complete:function(){$b.button('reset')},success:function(j){if(j.error)show('danger',j.error.warning||j.error);else if(j.success)show('success',j.success)},error:function(x,a,e){show('danger',e+' '+x.statusText)}}); }
+  $('#domovyk .ccp-developer-action').on('click',function(){action(this,'index.php?route=common/developer/'+encodeURIComponent(this.value)+'&user_token={{ user_token }}')});
+  $('#domovyk #ocmod-refresh').on('click',function(){action(this,'index.php?route=marketplace/modification/refresh&ajax=1&user_token={{ user_token }}')});
+  $('#domovyk .calcFolder').on('click',function(){var el=this,$row=$(el).closest('.ccp-domovyk-folder');$.ajax({url:'index.php?route=extension/dashboard/domovyk/calc&dir='+encodeURIComponent(el.value)+'&user_token={{ user_token }}',dataType:'json',beforeSend:function(){$(el).button('loading')},complete:function(){$(el).button('reset')},success:function(j){if(j.error)show('danger',j.error.warning||j.error);if(j.success)$row.find('.textFolder').html(j.success)},error:function(x,a,e){show('danger',e+' '+x.statusText)}})});
+  $('#domovyk .clearFolder').on('click',function(){var el=this;if(!window.confirm('{{ text_confirm_clear|e('js') }}'))return;action(el,'index.php?route=extension/dashboard/domovyk/clear&dir='+encodeURIComponent(el.value)+'&user_token={{ user_token }}')});
+  $('#ccp-domovyk-phpinfo').on('click',function(){
+    var $button=$(this),$modal=$('#ccp-domovyk-phpinfo-modal');
+    $.ajax({
+      url:$button.data('url'),
+      dataType:'html',
+      beforeSend:function(){$button.prop('disabled',true);},
+      complete:function(){$button.prop('disabled',false);},
+      success:function(html){$modal.html(html).modal('show');},
+      error:function(x,a,e){show('danger',e+' '+x.statusText);}
+    });
+  });
+})(window.jQuery);
+</script>

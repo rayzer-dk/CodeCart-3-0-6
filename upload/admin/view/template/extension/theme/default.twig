@@ -1,0 +1,783 @@
+{{ header }}{{ column_left }}
+<div id="content" class="ccp-theme-admin">
+<link href="../catalog/view/theme/default/stylesheet/inter.css?v=3.0.6.0" rel="stylesheet" type="text/css" />
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-theme" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-theme" class="form-horizontal">
+          <fieldset>
+            <legend>{{ text_general }}</legend>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-directory"><span data-toggle="tooltip" title="{{ help_directory }}">{{ entry_directory }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_directory" id="input-directory" class="form-control">
+                  {% for directory in directories %}
+                  {% if directory == theme_default_directory %}
+                  <option value="{{ directory }}" selected="selected">{{ directory }}</option>
+                  {% else %}
+                  <option value="{{ directory }}">{{ directory }}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+              <div class="col-sm-10">
+                <select name="theme_default_status" id="input-status" class="form-control">
+                  {% if theme_default_status %}
+                  <option value="1" selected="selected">{{ text_enabled }}</option>
+                  <option value="0">{{ text_disabled }}</option>
+                  {% else %}
+                  <option value="1">{{ text_enabled }}</option>
+                  <option value="0" selected="selected">{{ text_disabled }}</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+
+          <fieldset class="ccp-storefront-modes">
+            <legend><i class="fa fa-plug"></i> {{ text_storefront_modes }}</legend>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-commerce-style"><span data-toggle="tooltip" title="{{ help_commerce_style }}">{{ entry_commerce_style }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_commerce_style" id="input-commerce-style" class="form-control">
+                  {% for value, label in commerce_styles %}<option value="{{ value }}"{% if value == theme_default_commerce_style %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-catalog-ajax"><span data-toggle="tooltip" title="{{ help_catalog_ajax }}">{{ entry_catalog_ajax }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_catalog_ajax_status" id="input-catalog-ajax" class="form-control">
+                  {% if theme_default_catalog_ajax_status %}
+                  <option value="1" selected="selected">{{ text_enabled }}</option>
+                  <option value="0">{{ text_disabled }}</option>
+                  {% else %}
+                  <option value="1">{{ text_enabled }}</option>
+                  <option value="0" selected="selected">{{ text_disabled }}</option>
+                  {% endif %}
+                </select>
+                <p class="help-block">{{ text_catalog_ajax_help }}</p>
+                <button type="button" id="button-catalog-ajax-check" class="btn btn-default" data-loading-text="{{ text_loading }}"><i class="fa fa-check-circle"></i> {{ button_catalog_ajax_check }}</button>
+                <div id="catalog-ajax-check-result" class="alert" style="display:none;margin-top:10px" aria-live="polite"></div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><i class="fa fa-paint-brush"></i> {{ text_appearance }}</legend>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-font-family"><span data-toggle="tooltip" title="{{ help_font_family }}">{{ entry_font_family }}</span></label>
+              <div class="col-sm-10">
+                <div class="row ccp-font-picker-row">
+                  <div class="col-md-5">
+                    <select name="theme_default_font_family" id="input-font-family" class="form-control">
+                      {% for value, label in font_families %}<option value="{{ value }}"{% if value == theme_default_font_family %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-7">
+                    <div id="ccp-font-preview" class="ccp-font-preview" aria-live="polite">
+                      <span class="ccp-font-preview-name">{{ text_font_preview }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-icon-mode"><span data-toggle="tooltip" title="{{ help_icon_mode }}">{{ entry_icon_mode }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_icon_mode" id="input-icon-mode" class="form-control">
+                  {% for value, label in icon_modes %}<option value="{{ value }}"{% if value == theme_default_icon_mode %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-accent-color"><span data-toggle="tooltip" title="{{ help_accent_color }}">{{ entry_accent_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-accent-color-picker" class="ccp-color-picker" data-target="#input-accent-color" value="{{ theme_default_accent_color }}" title="{{ entry_accent_color }}" /></span>
+                  <input type="text" name="theme_default_accent_color" value="{{ theme_default_accent_color }}" id="input-accent-color" class="form-control ccp-color-hex" data-picker="#input-accent-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-accent-hover"><span data-toggle="tooltip" title="{{ help_accent_hover }}">{{ entry_accent_hover }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-accent-hover-picker" class="ccp-color-picker" data-target="#input-accent-hover" value="{{ theme_default_accent_hover }}" title="{{ entry_accent_hover }}" /></span>
+                  <input type="text" name="theme_default_accent_hover" value="{{ theme_default_accent_hover }}" id="input-accent-hover" class="form-control ccp-color-hex" data-picker="#input-accent-hover-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-button-color"><span data-toggle="tooltip" title="{{ help_button_color }}">{{ entry_button_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-button-color-picker" class="ccp-color-picker" data-target="#input-button-color" value="{{ theme_default_button_color }}" title="{{ entry_button_color }}" /></span>
+                  <input type="text" name="theme_default_button_color" value="{{ theme_default_button_color }}" id="input-button-color" class="form-control ccp-color-hex" data-picker="#input-button-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-button-hover"><span data-toggle="tooltip" title="{{ help_button_hover }}">{{ entry_button_hover }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-button-hover-picker" class="ccp-color-picker" data-target="#input-button-hover" value="{{ theme_default_button_hover }}" title="{{ entry_button_hover }}" /></span>
+                  <input type="text" name="theme_default_button_hover" value="{{ theme_default_button_hover }}" id="input-button-hover" class="form-control ccp-color-hex" data-picker="#input-button-hover-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-button-text-color"><span data-toggle="tooltip" title="{{ help_button_text_color }}">{{ entry_button_text_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-button-text-color-picker" class="ccp-color-picker" data-target="#input-button-text-color" value="{{ theme_default_button_text_color }}" title="{{ entry_button_text_color }}" /></span>
+                  <input type="text" name="theme_default_button_text_color" value="{{ theme_default_button_text_color }}" id="input-button-text-color" class="form-control ccp-color-hex" data-picker="#input-button-text-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-buy-button-color"><span data-toggle="tooltip" title="{{ help_buy_button_color }}">{{ entry_buy_button_color }}</span></label>
+                <div class="col-sm-10"><div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-buy-button-color-picker" class="ccp-color-picker" data-target="#input-buy-button-color" value="{{ theme_default_buy_button_color }}" title="{{ entry_buy_button_color }}" /></span>
+                  <input type="text" name="theme_default_buy_button_color" value="{{ theme_default_buy_button_color }}" id="input-buy-button-color" class="form-control ccp-color-hex" data-picker="#input-buy-button-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div></div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-buy-button-hover"><span data-toggle="tooltip" title="{{ help_buy_button_hover }}">{{ entry_buy_button_hover }}</span></label>
+                <div class="col-sm-10"><div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-buy-button-hover-picker" class="ccp-color-picker" data-target="#input-buy-button-hover" value="{{ theme_default_buy_button_hover }}" title="{{ entry_buy_button_hover }}" /></span>
+                  <input type="text" name="theme_default_buy_button_hover" value="{{ theme_default_buy_button_hover }}" id="input-buy-button-hover" class="form-control ccp-color-hex" data-picker="#input-buy-button-hover-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div></div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-buy-button-text"><span data-toggle="tooltip" title="{{ help_buy_button_text_color }}">{{ entry_buy_button_text_color }}</span></label>
+                <div class="col-sm-10"><div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-buy-button-text-picker" class="ccp-color-picker" data-target="#input-buy-button-text" value="{{ theme_default_buy_button_text_color }}" title="{{ entry_buy_button_text_color }}" /></span>
+                  <input type="text" name="theme_default_buy_button_text_color" value="{{ theme_default_buy_button_text_color }}" id="input-buy-button-text" class="form-control ccp-color-hex" data-picker="#input-buy-button-text-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div></div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-sale-price-color"><span data-toggle="tooltip" title="{{ help_sale_price_color }}">{{ entry_sale_price_color }}</span></label>
+                <div class="col-sm-10"><div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-sale-price-color-picker" class="ccp-color-picker" data-target="#input-sale-price-color" value="{{ theme_default_sale_price_color }}" title="{{ entry_sale_price_color }}" /></span>
+                  <input type="text" name="theme_default_sale_price_color" value="{{ theme_default_sale_price_color }}" id="input-sale-price-color" class="form-control ccp-color-hex" data-picker="#input-sale-price-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div></div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-cart-button-color"><span data-toggle="tooltip" title="{{ help_cart_button_color }}">{{ entry_cart_button_color }}</span></label>
+                <div class="col-sm-10"><div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-cart-button-color-picker" class="ccp-color-picker" data-target="#input-cart-button-color" value="{{ theme_default_cart_button_color }}" title="{{ entry_cart_button_color }}" /></span>
+                  <input type="text" name="theme_default_cart_button_color" value="{{ theme_default_cart_button_color }}" id="input-cart-button-color" class="form-control ccp-color-hex" data-picker="#input-cart-button-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div></div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-cart-button-hover"><span data-toggle="tooltip" title="{{ help_cart_button_hover }}">{{ entry_cart_button_hover }}</span></label>
+                <div class="col-sm-10"><div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-cart-button-hover-picker" class="ccp-color-picker" data-target="#input-cart-button-hover" value="{{ theme_default_cart_button_hover }}" title="{{ entry_cart_button_hover }}" /></span>
+                  <input type="text" name="theme_default_cart_button_hover" value="{{ theme_default_cart_button_hover }}" id="input-cart-button-hover" class="form-control ccp-color-hex" data-picker="#input-cart-button-hover-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div></div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-cart-button-text"><span data-toggle="tooltip" title="{{ help_cart_button_text_color }}">{{ entry_cart_button_text_color }}</span></label>
+                <div class="col-sm-10"><div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-cart-button-text-picker" class="ccp-color-picker" data-target="#input-cart-button-text" value="{{ theme_default_cart_button_text_color }}" title="{{ entry_cart_button_text_color }}" /></span>
+                  <input type="text" name="theme_default_cart_button_text_color" value="{{ theme_default_cart_button_text_color }}" id="input-cart-button-text" class="form-control ccp-color-hex" data-picker="#input-cart-button-text-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div></div>
+              </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-text-color"><span data-toggle="tooltip" title="{{ help_text_color }}">{{ entry_text_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-text-color-picker" class="ccp-color-picker" data-target="#input-text-color" value="{{ theme_default_text_color }}" title="{{ entry_text_color }}" /></span>
+                  <input type="text" name="theme_default_text_color" value="{{ theme_default_text_color }}" id="input-text-color" class="form-control ccp-color-hex" data-picker="#input-text-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-heading-color"><span data-toggle="tooltip" title="{{ help_heading_color }}">{{ entry_heading_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-heading-color-picker" class="ccp-color-picker" data-target="#input-heading-color" value="{{ theme_default_heading_color }}" title="{{ entry_heading_color }}" /></span>
+                  <input type="text" name="theme_default_heading_color" value="{{ theme_default_heading_color }}" id="input-heading-color" class="form-control ccp-color-hex" data-picker="#input-heading-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-h1-color"><span data-toggle="tooltip" title="{{ help_h1_color }}">{{ entry_h1_color }}</span></label>
+              <div class="col-sm-10"><div class="input-group ccp-color-control"><span class="input-group-addon"><input type="color" id="input-h1-color-picker" class="ccp-color-picker" data-target="#input-h1-color" value="{{ theme_default_h1_color }}" title="{{ entry_h1_color }}" /></span><input type="text" name="theme_default_h1_color" value="{{ theme_default_h1_color }}" id="input-h1-color" class="form-control ccp-color-hex" data-picker="#input-h1-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" /></div></div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-h2-color"><span data-toggle="tooltip" title="{{ help_h2_color }}">{{ entry_h2_color }}</span></label>
+              <div class="col-sm-10"><div class="input-group ccp-color-control"><span class="input-group-addon"><input type="color" id="input-h2-color-picker" class="ccp-color-picker" data-target="#input-h2-color" value="{{ theme_default_h2_color }}" title="{{ entry_h2_color }}" /></span><input type="text" name="theme_default_h2_color" value="{{ theme_default_h2_color }}" id="input-h2-color" class="form-control ccp-color-hex" data-picker="#input-h2-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" /></div></div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-background-color"><span data-toggle="tooltip" title="{{ help_background_color }}">{{ entry_background_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-background-color-picker" class="ccp-color-picker" data-target="#input-background-color" value="{{ theme_default_background_color }}" title="{{ entry_background_color }}" /></span>
+                  <input type="text" name="theme_default_background_color" value="{{ theme_default_background_color }}" id="input-background-color" class="form-control ccp-color-hex" data-picker="#input-background-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-surface-color"><span data-toggle="tooltip" title="{{ help_surface_color }}">{{ entry_surface_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-surface-color-picker" class="ccp-color-picker" data-target="#input-surface-color" value="{{ theme_default_surface_color }}" title="{{ entry_surface_color }}" /></span>
+                  <input type="text" name="theme_default_surface_color" value="{{ theme_default_surface_color }}" id="input-surface-color" class="form-control ccp-color-hex" data-picker="#input-surface-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-border-color"><span data-toggle="tooltip" title="{{ help_border_color }}">{{ entry_border_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-border-color-picker" class="ccp-color-picker" data-target="#input-border-color" value="{{ theme_default_border_color }}" title="{{ entry_border_color }}" /></span>
+                  <input type="text" name="theme_default_border_color" value="{{ theme_default_border_color }}" id="input-border-color" class="form-control ccp-color-hex" data-picker="#input-border-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-footer-background-color"><span data-toggle="tooltip" title="{{ help_footer_background_color }}">{{ entry_footer_background_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-footer-background-color-picker" class="ccp-color-picker" data-target="#input-footer-background-color" value="{{ theme_default_footer_background_color }}" title="{{ entry_footer_background_color }}" /></span>
+                  <input type="text" name="theme_default_footer_background_color" value="{{ theme_default_footer_background_color }}" id="input-footer-background-color" class="form-control ccp-color-hex" data-picker="#input-footer-background-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-footer-text-color"><span data-toggle="tooltip" title="{{ help_footer_text_color }}">{{ entry_footer_text_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-footer-text-color-picker" class="ccp-color-picker" data-target="#input-footer-text-color" value="{{ theme_default_footer_text_color }}" title="{{ entry_footer_text_color }}" /></span>
+                  <input type="text" name="theme_default_footer_text_color" value="{{ theme_default_footer_text_color }}" id="input-footer-text-color" class="form-control ccp-color-hex" data-picker="#input-footer-text-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-footer-link-color"><span data-toggle="tooltip" title="{{ help_footer_link_color }}">{{ entry_footer_link_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-footer-link-color-picker" class="ccp-color-picker" data-target="#input-footer-link-color" value="{{ theme_default_footer_link_color }}" title="{{ entry_footer_link_color }}" /></span>
+                  <input type="text" name="theme_default_footer_link_color" value="{{ theme_default_footer_link_color }}" id="input-footer-link-color" class="form-control ccp-color-hex" data-picker="#input-footer-link-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-footer-heading-color"><span data-toggle="tooltip" title="{{ help_footer_heading_color }}">{{ entry_footer_heading_color }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group ccp-color-control">
+                  <span class="input-group-addon"><input type="color" id="input-footer-heading-color-picker" class="ccp-color-picker" data-target="#input-footer-heading-color" value="{{ theme_default_footer_heading_color }}" title="{{ entry_footer_heading_color }}" /></span>
+                  <input type="text" name="theme_default_footer_heading_color" value="{{ theme_default_footer_heading_color }}" id="input-footer-heading-color" class="form-control ccp-color-hex" data-picker="#input-footer-heading-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset class="ccp-theme-advanced">
+            <legend><i class="fa fa-moon-o"></i> {{ text_theme_modes }}</legend>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-border-radius"><span data-toggle="tooltip" title="{{ help_border_radius }}">{{ entry_border_radius }}</span></label>
+              <div class="col-sm-10">
+                <div class="input-group" style="max-width:240px">
+                  <input type="number" name="theme_default_border_radius" value="{{ theme_default_border_radius }}" min="0" max="24" step="1" id="input-border-radius" class="form-control" />
+                  <span class="input-group-addon">px</span>
+                </div>
+                <p class="help-block">{{ help_border_radius }}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-dark-mode-status"><span data-toggle="tooltip" title="{{ help_dark_mode }}">{{ entry_dark_mode }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_dark_mode_status" id="input-dark-mode-status" class="form-control">
+                  <option value="1"{% if theme_default_dark_mode_status %} selected{% endif %}>{{ text_enabled }}</option>
+                  <option value="0"{% if not theme_default_dark_mode_status %} selected{% endif %}>{{ text_disabled }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-dark-mode-default"><span data-toggle="tooltip" title="{{ help_dark_mode_default }}">{{ entry_dark_mode_default }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_dark_mode_default" id="input-dark-mode-default" class="form-control">
+                  {% for value, label in dark_mode_defaults %}<option value="{{ value }}"{% if value == theme_default_dark_mode_default %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-datetimepicker-theme"><span data-toggle="tooltip" title="{{ help_datetimepicker_theme }}">{{ entry_datetimepicker_theme }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_datetimepicker_theme" id="input-datetimepicker-theme" class="form-control">
+                  {% for value, label in datetimepicker_themes %}<option value="{{ value }}"{% if value == theme_default_datetimepicker_theme %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-gallery-engine"><span data-toggle="tooltip" title="{{ help_gallery_engine }}">{{ entry_gallery_engine }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_gallery_engine" id="input-gallery-engine" class="form-control">
+                  {% for value, label in gallery_engines %}<option value="{{ value }}"{% if value == theme_default_gallery_engine %} selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-header-phone"><span data-toggle="tooltip" title="{{ help_header_phone }}">{{ entry_header_phone }}</span></label>
+              <div class="col-sm-10"><select name="theme_default_header_phone_status" id="input-header-phone" class="form-control"><option value="1"{% if theme_default_header_phone_status %} selected{% endif %}>{{ text_enabled }}</option><option value="0"{% if not theme_default_header_phone_status %} selected{% endif %}>{{ text_disabled }}</option></select></div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-header-email"><span data-toggle="tooltip" title="{{ help_header_email }}">{{ entry_header_email }}</span></label>
+              <div class="col-sm-10"><select name="theme_default_header_email_status" id="input-header-email" class="form-control"><option value="1"{% if theme_default_header_email_status %} selected{% endif %}>{{ text_enabled }}</option><option value="0"{% if not theme_default_header_email_status %} selected{% endif %}>{{ text_disabled }}</option></select></div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-header-menu-mode"><span data-toggle="tooltip" title="{{ help_header_menu_mode }}">{{ entry_header_menu_mode }}</span></label>
+              <div class="col-sm-10"><select name="theme_default_header_menu_mode" id="input-header-menu-mode" class="form-control"><option value="horizontal"{% if theme_default_header_menu_mode == 'horizontal' %} selected{% endif %}>{{ text_header_menu_horizontal }}</option><option value="vertical"{% if theme_default_header_menu_mode == 'vertical' %} selected{% endif %}>{{ text_header_menu_vertical }}</option></select><p class="help-block">{{ help_header_menu_mode }}</p></div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_header_information }}">{{ entry_header_information }}</span></label>
+              <div class="col-sm-10">
+                <div class="well well-sm" style="max-height:220px;overflow:auto;margin-bottom:8px">{% for information in header_informations %}<label class="checkbox-inline" style="display:block;margin-left:0"><input type="checkbox" name="theme_default_header_information_ids[]" value="{{ information.information_id }}"{% if information.information_id in theme_default_header_information_ids %} checked="checked"{% endif %} /> {{ information.title }}</label>{% endfor %}</div>
+                <p class="help-block">{{ help_header_information }}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-header-product"><span data-toggle="tooltip" title="{{ help_header_products }}">{{ entry_header_products }}</span></label>
+              <div class="col-sm-10">
+                <input type="text" id="input-header-product" class="form-control" placeholder="{{ entry_header_product_search }}" autocomplete="off" />
+                <div id="header-products" class="well well-sm" style="max-height:220px;overflow:auto;margin-top:8px">{% for product in header_products %}<div id="header-product{{ product.product_id }}"><i class="fa fa-minus-circle text-danger" role="button" tabindex="0" title="{{ button_remove }}"></i> {{ product.name }}<input type="hidden" name="theme_default_header_product_ids[]" value="{{ product.product_id }}" /></div>{% endfor %}</div>
+                <p class="help-block">{{ help_header_products }}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_header_custom_links }}">{{ entry_header_custom_links }}</span></label>
+              <div class="col-sm-10">
+                <div id="header-custom-links"></div>
+                <button type="button" id="button-add-header-link" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> {{ button_custom_link_add }}</button>
+                <p class="help-block">{{ help_header_custom_links }}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-custom-css"><span data-toggle="tooltip" title="{{ help_custom_css }}">{{ entry_custom_css }}</span></label>
+              <div class="col-sm-10">
+                <textarea name="theme_default_custom_css" rows="12" id="input-custom-css" class="form-control" spellcheck="false" placeholder=".my-class { ... }">{{ theme_default_custom_css }}</textarea>
+                <p class="help-block">{{ text_custom_css_help }}</p>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>{{ text_product }}</legend>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-catalog-limit"><span data-toggle="tooltip" title="{{ help_product_limit }}">{{ entry_product_limit }}</span></label>
+              <div class="col-sm-10">
+                <input type="text" name="theme_default_product_limit" value="{{ theme_default_product_limit }}" placeholder="{{ entry_product_limit }}" id="input-catalog-limit" class="form-control" />
+                {% if error_product_limit %}
+                <div class="text-danger">{{ error_product_limit }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-description-limit"><span data-toggle="tooltip" title="{{ help_product_description_length }}">{{ entry_product_description_length }}</span></label>
+              <div class="col-sm-10">
+                <input type="text" name="theme_default_product_description_length" value="{{ theme_default_product_description_length }}" placeholder="{{ entry_product_description_length }}" id="input-description-limit" class="form-control" />
+                {% if error_product_description_length %}
+                <div class="text-danger">{{ error_product_description_length }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-product-card-content"><span data-toggle="tooltip" title="{{ help_product_card_content }}">{{ entry_product_card_content }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_product_card_content" id="input-product-card-content" class="form-control">
+                  <option value="none"{% if theme_default_product_card_content == 'none' %} selected="selected"{% endif %}>{{ text_product_card_none }}</option>
+                  <option value="description"{% if theme_default_product_card_content == 'description' %} selected="selected"{% endif %}>{{ text_product_card_description }}</option>
+                  <option value="attributes"{% if theme_default_product_card_content == 'attributes' %} selected="selected"{% endif %}>{{ text_product_card_attributes }}</option>
+                  <option value="both"{% if theme_default_product_card_content == 'both' %} selected="selected"{% endif %}>{{ text_product_card_both }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-product-card-attribute-limit"><span data-toggle="tooltip" title="{{ help_product_card_attribute_limit }}">{{ entry_product_card_attribute_limit }}</span></label>
+              <div class="col-sm-10">
+                <input type="number" min="1" max="10" name="theme_default_product_card_attribute_limit" value="{{ theme_default_product_card_attribute_limit }}" id="input-product-card-attribute-limit" class="form-control" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-option-image-switch"><span data-toggle="tooltip" title="{{ help_option_image_switch_status }}">{{ entry_option_image_switch_status }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_option_image_switch_status" id="input-option-image-switch" class="form-control">
+                  <option value="1"{% if theme_default_option_image_switch_status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                  <option value="0"{% if not theme_default_option_image_switch_status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-purchase-blocks-status"><span data-toggle="tooltip" title="{{ help_purchase_blocks_status }}">{{ entry_purchase_blocks_status }}</span></label>
+              <div class="col-sm-10">
+                <select name="theme_default_purchase_blocks_status" id="input-purchase-blocks-status" class="form-control">
+                  <option value="1"{% if theme_default_purchase_blocks_status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                  <option value="0"{% if not theme_default_purchase_blocks_status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                </select>
+                <p class="help-block">{{ help_purchase_blocks_status }}</p>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset class="ccp-product-extra-tab-settings"><legend><i class="fa fa-folder-open"></i> {{ text_product_extra_tab }}</legend>
+            <div class="form-group"><label class="col-sm-2 control-label" for="input-product-extra-tab-status"><span data-toggle="tooltip" title="{{ help_product_extra_tab_status }}">{{ entry_product_extra_tab_status }}</span></label><div class="col-sm-10"><select name="theme_default_product_extra_tab_status" id="input-product-extra-tab-status" class="form-control"><option value="1"{% if theme_default_product_extra_tab_status %} selected{% endif %}>{{ text_enabled }}</option><option value="0"{% if not theme_default_product_extra_tab_status %} selected{% endif %}>{{ text_disabled }}</option></select></div></div>
+            <div id="product-extra-tab-global-fields"><ul class="nav nav-tabs" id="product-extra-tab-language">{% for language in languages %}<li><a href="#product-extra-tab-language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</a></li>{% endfor %}</ul><div class="tab-content">{% for language in languages %}<div class="tab-pane" id="product-extra-tab-language{{ language.language_id }}"><div class="form-group"><label class="col-sm-2 control-label">{{ entry_product_extra_tab_title }}</label><div class="col-sm-10"><input type="text" maxlength="128" name="theme_default_product_extra_tab_title[{{ language.language_id }}]" value="{{ theme_default_product_extra_tab_title[language.language_id] ? theme_default_product_extra_tab_title[language.language_id] }}" class="form-control" /></div></div><div class="form-group"><label class="col-sm-2 control-label">{{ entry_product_extra_tab_content }}</label><div class="col-sm-10"><textarea name="theme_default_product_extra_tab_content[{{ language.language_id }}]" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ theme_default_product_extra_tab_content[language.language_id] ? theme_default_product_extra_tab_content[language.language_id] }}</textarea></div></div></div>{% endfor %}</div></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>{{ text_image }}</legend>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-category-width">{{ entry_image_category }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_category_width" value="{{ theme_default_image_category_width }}" placeholder="{{ entry_width }}" id="input-image-category-width" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_category_height" value="{{ theme_default_image_category_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_category %}
+                <div class="text-danger">{{ error_image_category }}</div>
+                {% endif %}
+              </div>
+            </div>
+			<div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-manufacturer-width">{{ entry_image_manufacturer }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_manufacturer_width" value="{{ theme_default_image_manufacturer_width }}" placeholder="{{ entry_width }}" id="input-image-manufacturer-width" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_manufacturer_height" value="{{ theme_default_image_manufacturer_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_manufacturer %}
+                <div class="text-danger">{{ error_image_manufacturer }}</div>
+                {% endif %}
+              </div>
+			</div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-thumb-width">{{ entry_image_thumb }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_thumb_width" value="{{ theme_default_image_thumb_width }}" placeholder="{{ entry_width }}" id="input-image-thumb-width" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_thumb_height" value="{{ theme_default_image_thumb_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_thumb %}
+                <div class="text-danger">{{ error_image_thumb }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-popup-width">{{ entry_image_popup }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_popup_width" value="{{ theme_default_image_popup_width }}" placeholder="{{ entry_width }}" id="input-image-popup-width" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_popup_height" value="{{ theme_default_image_popup_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_popup %}
+                <div class="text-danger">{{ error_image_popup }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-product-width">{{ entry_image_product }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_product_width" value="{{ theme_default_image_product_width }}" placeholder="{{ entry_width }}" id="input-image-product-width" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_product_height" value="{{ theme_default_image_product_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_product %}
+                <div class="text-danger">{{ error_image_product }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-additional-width">{{ entry_image_additional }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_additional_width" value="{{ theme_default_image_additional_width }}" placeholder="{{ entry_width }}" id="input-image-additional-width" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_additional_height" value="{{ theme_default_image_additional_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_additional %}
+                <div class="text-danger">{{ error_image_additional }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-related">{{ entry_image_related }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_related_width" value="{{ theme_default_image_related_width }}" placeholder="{{ entry_width }}" id="input-image-related" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_related_height" value="{{ theme_default_image_related_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_related %}
+                <div class="text-danger">{{ error_image_related }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-compare">{{ entry_image_compare }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_compare_width" value="{{ theme_default_image_compare_width }}" placeholder="{{ entry_width }}" id="input-image-compare" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_compare_height" value="{{ theme_default_image_compare_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_compare %}
+                <div class="text-danger">{{ error_image_compare }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-wishlist">{{ entry_image_wishlist }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_wishlist_width" value="{{ theme_default_image_wishlist_width }}" placeholder="{{ entry_width }}" id="input-image-wishlist" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_wishlist_height" value="{{ theme_default_image_wishlist_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_wishlist %}
+                <div class="text-danger">{{ error_image_wishlist }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-cart">{{ entry_image_cart }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_cart_width" value="{{ theme_default_image_cart_width }}" placeholder="{{ entry_width }}" id="input-image-cart" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_cart_height" value="{{ theme_default_image_cart_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_cart %}
+                <div class="text-danger">{{ error_image_cart }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group required">
+              <label class="col-sm-2 control-label" for="input-image-location">{{ entry_image_location }}</label>
+              <div class="col-sm-10">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_location_width" value="{{ theme_default_image_location_width }}" placeholder="{{ entry_width }}" id="input-image-location" class="form-control" />
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="text" name="theme_default_image_location_height" value="{{ theme_default_image_location_height }}" placeholder="{{ entry_height }}" class="form-control" />
+                  </div>
+                </div>
+                {% if error_image_location %}
+                <div class="text-danger">{{ error_image_location }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+(function($) {
+  var fontStacks = {
+    system: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+    inter: 'Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+    arial: 'Arial,Helvetica,sans-serif',
+    verdana: 'Verdana,Geneva,sans-serif',
+    tahoma: 'Tahoma,Verdana,sans-serif',
+    trebuchet: '"Trebuchet MS",Arial,sans-serif',
+    georgia: 'Georgia,"Times New Roman",serif'
+  };
+  function updateFontPreview() {
+    var key = String($('#input-font-family').val() || 'system');
+    $('#ccp-font-preview').css('font-family', fontStacks[key] || fontStacks.system);
+  }
+  $('#input-font-family').on('change', updateFontPreview);
+  updateFontPreview();
+
+  $('.ccp-color-control').closest('.form-group').addClass('ccp-color-item');
+  $('fieldset').each(function(){
+    var $field=$(this), $items=$field.children('.ccp-color-item');
+    if($items.length>1){
+      var $grid=$('<div class="ccp-color-grid"></div>');
+      $items.first().before($grid);
+      $items.appendTo($grid);
+    }
+  });
+
+  function normalizeHex(value) {
+    value = $.trim(String(value || '')).toLowerCase();
+    if (/^#[0-9a-f]{6}$/.test(value)) return value;
+    if (/^[0-9a-f]{6}$/.test(value)) return '#' + value;
+    return '';
+  }
+
+  function syncFromText(input, restoreInvalid) {
+    var $input = $(input);
+    var picker = $input.data('picker');
+    var color = normalizeHex($input.val());
+
+    if (color) {
+      $input.val(color).removeClass('is-invalid');
+      if (picker) $(picker).val(color);
+      return;
+    }
+
+    if (restoreInvalid && picker && normalizeHex($(picker).val())) {
+      $input.val(normalizeHex($(picker).val())).removeClass('is-invalid');
+    } else {
+      $input.addClass('is-invalid');
+    }
+  }
+
+  $('.ccp-color-hex').each(function() { syncFromText(this, true); });
+
+  $(document).on('input change', '.ccp-color-picker', function() {
+    var color = normalizeHex(this.value);
+    var target = $(this).data('target');
+    if (color && target) $(target).val(color).removeClass('is-invalid').trigger('ccp:color-sync');
+  });
+
+  $(document).on('input change', '.ccp-color-hex', function() {
+    syncFromText(this, false);
+  });
+
+  $(document).on('blur', '.ccp-color-hex', function() {
+    syncFromText(this, true);
+  });
+})(jQuery);
+</script>
+
+<script type="text/javascript"><!--
+$('#button-catalog-ajax-check').on('click', function() {
+  var button = $(this);
+  var result = $('#catalog-ajax-check-result');
+  result.hide().removeClass('alert-success alert-warning alert-danger text-success text-warning text-danger');
+  button.button('loading');
+  result.removeClass('text-success text-warning text-danger').text('');
+
+  $.ajax({
+    url: '{{ catalog_ajax_check }}',
+    dataType: 'json',
+    cache: false,
+    success: function(json) {
+      var status = json && json.status ? json.status : 'fail';
+      var klass = status === 'pass' ? 'text-success' : (status === 'warning' ? 'text-warning' : 'text-danger');
+      var text = json && json.message ? json.message : '{{ text_catalog_ajax_check_failed|e('js') }}';
+      if (json && json.items && json.items.length) {
+        text += ' ' + json.items.join(', ');
+      }
+      result.removeClass('alert-success alert-warning alert-danger text-success text-warning text-danger').addClass(status === 'pass' ? 'alert-success' : (status === 'warning' ? 'alert-warning' : 'alert-danger')).text(text).show();
+      if (status === 'fail') {
+        $('#input-catalog-ajax').val('0');
+      }
+    },
+    error: function() {
+      result.removeClass('alert-success alert-warning alert-danger').addClass('alert-danger').text('{{ text_catalog_ajax_check_failed|e('js') }}').show();
+      $('#input-catalog-ajax').val('0');
+    },
+    complete: function() {
+      button.button('reset');
+    }
+  });
+});
+//--></script>
+
+<script type="text/javascript">function ccpToggleGlobalProductExtraTab(){ $('#product-extra-tab-global-fields').toggle($('#input-product-extra-tab-status').val()==='1'); } $('#input-product-extra-tab-status').on('change',ccpToggleGlobalProductExtraTab); ccpToggleGlobalProductExtraTab(); $('#product-extra-tab-language a:first').tab('show');</script>
+
+<script type="text/javascript">
+(function($){
+  $('#input-header-product').autocomplete({
+    source:function(request,response){ $.ajax({url:'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name='+encodeURIComponent(request),dataType:'json',success:function(json){response($.map(json,function(item){return {label:item.name,value:item.product_id};}));}}); },
+    select:function(item){ $('#input-header-product').val(''); if(!$('#header-product'+item.value).length){ $('#header-products').append('<div id="header-product'+item.value+'"><i class="fa fa-minus-circle text-danger" role="button" tabindex="0" title="{{ button_remove|e('js') }}"></i> '+$('<div>').text(item.label).html()+'<input type="hidden" name="theme_default_header_product_ids[]" value="'+item.value+'" /></div>'); } }
+  });
+  $('#header-products').on('click keydown','.fa-minus-circle',function(e){ if(e.type==='click'||e.key==='Enter'||e.key===' '){e.preventDefault();$(this).parent().remove();} });
+  var links={{ theme_default_header_custom_links|json_encode|raw }} || [];
+  var languages={{ languages|json_encode|raw }} || [];
+  function esc(v){return $('<div>').text(v==null?'':String(v)).html();}
+  function addLink(row){ var i=$('#header-custom-links .ccp-header-link-row').length; row=row||{}; var titles=row.title||{}; var html='<div class="panel panel-default ccp-header-link-row" style="padding:12px;margin-bottom:10px"><div class="row">';
+    html+='<div class="col-sm-6">'; $.each(languages,function(_,lang){html+='<div class="input-group" style="margin-bottom:6px"><span class="input-group-addon"><img src="language/'+esc(lang.code)+'/'+esc(lang.code)+'.png" alt="'+esc(lang.name)+'" /></span><input type="text" class="form-control" name="theme_default_header_custom_links['+i+'][title]['+lang.language_id+']" value="'+esc(titles[lang.language_id]||'')+'" placeholder="{{ entry_custom_link_title|e('js') }}" /></div>';}); html+='</div>';
+    html+='<div class="col-sm-4"><input type="text" class="form-control" name="theme_default_header_custom_links['+i+'][href]" value="'+esc(row.href||'')+'" placeholder="https://example.com/page" /></div>';
+    html+='<div class="col-sm-1"><input type="number" class="form-control" name="theme_default_header_custom_links['+i+'][sort_order]" value="'+esc(row.sort_order||0)+'" title="{{ entry_custom_link_sort|e('js') }}" /></div>';
+    html+='<div class="col-sm-1 text-right"><button type="button" class="btn btn-danger btn-sm ccp-remove-header-link" title="{{ button_remove|e('js') }}"><i class="fa fa-minus-circle"></i></button></div></div></div>'; $('#header-custom-links').append(html); }
+  $.each(links,function(_,row){addLink(row);});
+  $('#button-add-header-link').on('click',function(){addLink({});});
+  $('#header-custom-links').on('click','.ccp-remove-header-link',function(){$(this).closest('.ccp-header-link-row').remove();});
+})(jQuery);
+</script>
+
+
+<script type="text/javascript">
+(function($){
+  var focusId = String(window.location.hash || '').replace(/^#/, '');
+  if (!/^[A-Za-z0-9_-]+$/.test(focusId)) { return; }
+
+  window.setTimeout(function(){
+    var el = document.getElementById(focusId);
+    if (!el) { return; }
+    var $group = $(el).closest('.form-group');
+    if ($group.length) {
+      $group.addClass('ccp-setting-search-focus');
+      window.setTimeout(function(){ $group.removeClass('ccp-setting-search-focus'); }, 2600);
+    }
+    if (el.scrollIntoView) { el.scrollIntoView({behavior:'smooth', block:'center'}); }
+  }, 120);
+})(jQuery);
+</script>
+{{ footer }}

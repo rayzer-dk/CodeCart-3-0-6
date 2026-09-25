@@ -1,0 +1,19 @@
+<ul>
+  <li class="result-header">{{ text_orders }}</li>
+  {% if orders is not empty %}
+  {% for order in orders %}
+  <li>
+    <a href="{{ order.url }}" style="display: block; overflow: auto;">
+      <i class="fa fa-money"></i>
+      <span>{{ text_order_id }}{{ order.order_id }}</span>
+      {% if order.customer is defined and order.customer|trim != '' %}<span>{{ order.customer }}</span>{% endif %}
+      <span>{{ order.date_added }}</span>
+    </a>
+  </li>
+  {% endfor %}
+  {% else %}
+  <li>
+    <span class="oc-search-empty" style="display: block; overflow: auto;">{{ text_no_result }}</span>
+  </li>
+  {% endif %}
+</ul>

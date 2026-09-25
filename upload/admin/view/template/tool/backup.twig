@@ -1,0 +1,174 @@
+{{ header }}{{ column_left }}
+<div id="content" class="ccp-data-center">
+  <div class="page-header">
+    <div class="container-fluid">
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          {% if loop.last %}<li aria-current="page">{{ breadcrumb.text }}</li>{% else %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    {% if success %}<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-database"></i> {{ text_data_center }}</h3></div>
+      <div class="panel-body">
+        <ul class="nav nav-tabs ccp-data-tabs">
+          <li class="active"><a href="#tab-catalog" data-toggle="tab"><i class="fa fa-exchange"></i> {{ tab_catalog }}</a></li>
+          <li><a href="#tab-backup" data-toggle="tab"><i class="fa fa-download"></i> {{ tab_backup }}</a></li>
+          <li><a href="#tab-restore" data-toggle="tab"><i class="fa fa-upload"></i> {{ tab_restore }}</a></li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-catalog">
+            <div class="ccp-info-strip"><i class="fa fa-info-circle"></i><div><strong>{{ text_catalog_title }}</strong><div>{{ text_catalog_help }}</div></div></div>
+            <p class="help-block"><i class="fa fa-file-excel-o"></i> {{ text_catalog_export_format }}</p>
+            <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_catalog_vs_sql }}</div>
+            <div class="ccp-xml-feed-link"><span><i class="fa fa-code"></i> {{ text_catalog_xml_help }}</span><a href="{{ merchant_feed_settings }}" class="btn btn-default"><i class="fa fa-external-link"></i> {{ button_xml_feeds }}</a></div>
+            {% if not catalog_xlsx_export_available or not catalog_xlsx_import_available %}<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {% if not catalog_xlsx_export_available %}{{ text_xlsx_export_unavailable }}{% elseif not catalog_xlsx_import_available %}{{ text_xlsx_import_unavailable }}{% endif %}</div>{% endif %}
+
+            <form action="{{ catalog_export }}" method="post" id="form-catalog-export">
+              <input type="hidden" name="catalog_export_format" value="xlsx" />
+              <div class="ccp-entity-grid">
+                {% for entity in catalog_entities %}
+                <label class="ccp-entity-card">
+                  <input type="checkbox" name="catalog_entities[]" value="{{ entity }}" checked="checked" />
+                  <span class="ccp-entity-icon"><i class="fa {{ attribute(_context, 'icon_' ~ entity) }}"></i></span>
+                  <span class="ccp-entity-main"><strong>{{ attribute(_context, 'entity_' ~ entity) }}</strong><small>{{ attribute(_context, 'help_' ~ entity) }}</small></span>
+                  <span class="ccp-entity-count">{{ catalog_counts[entity] is defined ? catalog_counts[entity] : 0 }}</span>
+                </label>
+                {% endfor %}
+              </div>
+              <div class="ccp-export-actions">
+                <label class="ccp-portable"><input type="checkbox" name="portable" value="1" /> <strong>{{ entry_portable }}</strong><small>{{ help_portable }}</small></label>
+                <div class="ccp-catalog-export-cta">
+                  <small class="ccp-export-format-note"><span class="label label-success">XLSX</span> {{ text_catalog_download_target }}</small>
+                  <button type="button" id="button-catalog-export" class="btn btn-primary" {% if not catalog_xlsx_export_available %}disabled="disabled"{% endif %}><i class="fa fa-file-excel-o"></i> {{ button_catalog_export }}</button>
+                </div>
+              </div>
+              <div id="catalog-export-progress" class="ccp-operation-progress" hidden>
+                <div class="ccp-operation-progress__meta"><span class="ccp-progress-label">{{ text_progress_preparing }}</span><span class="ccp-progress-percent">0%</span></div>
+                <div class="progress"><div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div></div>
+              </div>
+            </form>
+
+            <div class="alert alert-info ccp-relation-note"><i class="fa fa-shield"></i> {{ text_relation_preserve }}</div>
+            <hr />
+            <h4><i class="fa fa-upload"></i> {{ text_catalog_import }}</h4>
+            <p class="text-muted">{{ text_catalog_import_help }}</p>
+            <div class="ccp-import-row">
+              <button type="button" id="button-catalog-file" class="btn btn-default" {% if not catalog_xlsx_import_available %}disabled="disabled"{% endif %}><i class="fa fa-folder-open"></i> {{ button_catalog_select }}</button>
+              <span id="catalog-file-name" class="text-muted">{{ text_no_file }}</span>
+            </div>
+            <div id="catalog-preview" class="ccp-preview" hidden></div>
+            <div id="catalog-import-actions" class="ccp-import-actions" hidden>
+              <label><input type="checkbox" id="catalog-overwrite-images" /> {{ entry_overwrite_images }}</label>
+              <button type="button" id="button-catalog-import" class="btn btn-primary"><i class="fa fa-check"></i> {{ button_catalog_import }}</button>
+            </div>
+            <div id="catalog-import-progress" class="ccp-operation-progress" hidden>
+              <div class="ccp-operation-progress__meta"><span class="ccp-progress-label">{{ text_progress_uploading }}</span><span class="ccp-progress-percent">0%</span></div>
+              <div class="progress"><div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="tab-backup">
+            <div class="ccp-info-strip"><i class="fa fa-shield"></i><div><strong>{{ text_sql_backup_title }}</strong><div>{{ text_sql_backup_help }}</div></div></div><div class="alert alert-warning"><i class="fa fa-lock"></i> {{ text_sql_sensitive_warning }}</div>
+            <form action="{{ export }}" method="post" enctype="multipart/form-data" id="form-export" class="form-horizontal">
+              <input type="hidden" name="backup_export_format" value="sql" />
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_export }}</label>
+                <div class="col-sm-10">
+                  <div class="well well-sm ccp-table-picker">{% for table in tables %}<label class="checkbox-inline ccp-table-check"><input type="checkbox" name="backup[]" value="{{ table }}"{% if table not in volatile_backup_tables %} checked="checked"{% endif %} /> {{ table }}</label>{% endfor %}</div>
+                  <button type="button" data-check="all" class="btn btn-link">{{ text_select_all }}</button> /
+                  <button type="button" data-check="none" class="btn btn-link">{{ text_unselect_all }}</button>
+                </div>
+              </div>
+              <div class="form-group"><div class="col-sm-10 col-sm-offset-2"><button type="submit" class="btn btn-primary"><i class="fa fa-download"></i> {{ button_export }}</button></div></div>
+            </form>
+          </div>
+
+          <div class="tab-pane" id="tab-restore">
+            <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ text_restore_warning }}</div>
+            <form class="form-horizontal">
+              <div class="form-group"><label class="col-sm-2 control-label">{{ entry_progress }}</label><div class="col-sm-10"><div id="progress-import" class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div></div></div>
+              <div class="form-group"><div class="col-sm-10 col-sm-offset-2"><button type="button" id="button-import" class="btn btn-danger"><i class="fa fa-upload"></i> {{ button_import }}</button></div></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<style>
+.ccp-data-center .panel>.panel-body{padding:18px}.ccp-data-tabs{white-space:nowrap;overflow-x:auto;overflow-y:hidden}.ccp-info-strip{display:flex;gap:12px;align-items:flex-start;margin:4px 0 18px;padding:13px 15px;border:1px solid #dce7f3;border-radius:7px;background:#f7fbff}.ccp-info-strip>i{margin-top:2px;color:#0b6fd3}.ccp-info-strip strong{display:block;margin-bottom:3px}.ccp-entity-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.ccp-entity-card{display:flex;align-items:center;gap:11px;min-height:82px;margin:0;padding:12px 14px;border:1px solid #dfe5ec;border-radius:8px;background:#fff;cursor:pointer}.ccp-entity-card:hover{border-color:#8bbdec}.ccp-entity-card>input{margin:0}.ccp-entity-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:7px;background:#eef6ff;color:#0b6fd3}.ccp-entity-main{display:flex;flex:1;min-width:0;flex-direction:column}.ccp-entity-main small{margin-top:3px;color:#687587;font-weight:400}.ccp-entity-count{min-width:32px;padding:3px 8px;border-radius:12px;background:#eef2f6;text-align:center;font-weight:600}.ccp-xml-feed-link{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:10px 12px;border:1px solid #dce7f3;border-radius:7px;background:#fbfdff}.ccp-xml-feed-link>span{min-width:0}.ccp-xml-feed-link .btn{flex:0 0 auto}html.ccp-admin-dark .ccp-xml-feed-link{background:#1b2530;border-color:#344454}.ccp-export-actions,.ccp-import-actions,.ccp-import-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}.ccp-catalog-export-cta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:520px}.ccp-export-format-note{display:block;color:#526173;text-align:right;line-height:1.35}.ccp-export-format-note .label{margin-right:5px}html.ccp-admin-dark .ccp-export-format-note{color:#aeb9c6}.ccp-portable{display:flex;align-items:flex-start;gap:8px;margin:0}.ccp-portable small{display:block;color:#687587;font-weight:400}.ccp-preview{margin-top:16px;border:1px solid #dfe5ec;border-radius:8px;overflow:hidden}.ccp-preview table{margin:0;border-top:3px solid #0b6fd3}.ccp-preview-summary{padding:12px 14px;background:#f7f9fb;border-bottom:1px solid #dfe5ec}.ccp-table-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-height:300px;overflow:auto}.ccp-table-check{margin:0!important;padding:6px 8px 6px 28px!important;overflow:hidden;text-overflow:ellipsis}.ccp-import-actions{justify-content:flex-end}.ccp-import-actions label{margin-right:auto;font-weight:400}.ccp-data-center .progress{margin-bottom:0}.ccp-operation-progress{margin-top:14px;padding:10px 12px;border:1px solid #dfe5ec;border-radius:7px;background:#f8fafc}.ccp-operation-progress__meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px;font-size:12px}.ccp-progress-label{font-weight:600}.ccp-progress-percent{font-variant-numeric:tabular-nums;color:#687587}.ccp-operation-progress .progress{height:14px}.ccp-relation-note{margin:16px 0 0}html.ccp-admin-dark .ccp-entity-card,html.ccp-admin-dark .ccp-info-strip,html.ccp-admin-dark .ccp-preview-summary{background:#1b2530;border-color:#344454}html.ccp-admin-dark .ccp-entity-count,html.ccp-admin-dark .ccp-entity-icon{background:#243342}html.ccp-admin-dark .ccp-operation-progress{background:#1b2530;border-color:#344454}html.ccp-admin-dark .ccp-progress-percent{color:#aeb8c5}@media(max-width:991px){.ccp-entity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ccp-table-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.ccp-entity-grid,.ccp-table-picker{grid-template-columns:1fr}.ccp-xml-feed-link,.ccp-export-actions,.ccp-import-actions{align-items:stretch;flex-direction:column}.ccp-export-actions .btn,.ccp-import-actions .btn{width:100%}.ccp-import-actions label{margin-right:0}.ccp-data-center .panel>.panel-body{padding:12px}}
+</style>
+<script type="text/javascript"><!--
+(function($){
+'use strict';
+var catalogToken='';
+function esc(v){return $('<div/>').text(v==null?'':String(v)).html();}
+function alertBox(type,text){$('.ccp-data-center>.container-fluid>.alert').remove();$('.ccp-data-center>.container-fluid').prepend('<div class="alert alert-'+type+' alert-dismissible"><i class="fa fa-'+(type==='success'?'check-circle':'exclamation-circle')+'"></i> '+esc(text)+' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');}
+function setProgress(id,pct,label,active){var $box=$('#'+id),$bar=$box.find('.progress-bar'),safe=Math.max(0,Math.min(100,parseInt(pct,10)||0));$box.prop('hidden',false);$box.find('.ccp-progress-label').text(label||'');$box.find('.ccp-progress-percent').text(safe+'%');$bar.attr('aria-valuenow',safe).css('width',safe+'%').toggleClass('active',!!active);}
+function hideProgress(id,delay){window.setTimeout(function(){$('#'+id).prop('hidden',true);},delay||0);}
+$('[data-check="all"]').on('click',function(){$('#form-export :checkbox').prop('checked',true);});
+$('[data-check="none"]').on('click',function(){$('#form-export :checkbox').prop('checked',false);});
+
+$('#form-catalog-export').off('submit.ccpCatalogExport').on('submit.ccpCatalogExport',function(e){e.preventDefault();return false;});
+$('#button-catalog-export').off('click.ccpCatalogExport').on('click.ccpCatalogExport',function(e){
+  e.preventDefault();e.stopImmediatePropagation();
+  var form=document.getElementById('form-catalog-export'),$form=$(form),$btn=$(this);
+  if(!$form.find('input[name="catalog_entities[]"]:checked').length){alertBox('danger','{{ error_catalog_entities|e('js') }}');return false;}
+  var xhr=new XMLHttpRequest(),fd=new FormData(form),url=$form.attr('action');
+  $btn.prop('disabled',true);setProgress('catalog-export-progress',15,'{{ text_progress_preparing|e('js') }}',true);
+  xhr.open('POST',url,true);xhr.responseType='blob';
+  xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
+  xhr.onprogress=function(ev){if(ev.lengthComputable&&ev.total>0){setProgress('catalog-export-progress',Math.min(95,25+Math.round((ev.loaded/ev.total)*70)),'{{ text_progress_preparing|e('js') }}',true);}};
+  xhr.onload=function(){
+    var marker=(xhr.getResponseHeader('X-CodeCart-Export')||'').toLowerCase();
+    var type=(xhr.getResponseHeader('Content-Type')||'').toLowerCase();
+    if(xhr.status<200||xhr.status>=300||marker.indexOf('catalog-')!==0||type.indexOf('application/sql')!==-1||type.indexOf('text/html')!==-1){
+      var reader=new FileReader();
+      reader.onload=function(){var message='{{ error_catalog_export|e('js') }}';try{var parsed=JSON.parse(String(reader.result||''));if(parsed&&parsed.error){message=parsed.error;}}catch(ignore){}alertBox('danger',message);};
+      reader.readAsText(xhr.response||new Blob());
+      setProgress('catalog-export-progress',0,'{{ error_catalog_export|e('js') }}',false);hideProgress('catalog-export-progress',900);$btn.prop('disabled',false);return;
+    }
+    var disposition=xhr.getResponseHeader('Content-Disposition')||'',match=disposition.match(/filename="?([^";]+)"?/i),filename=match&&match[1]?match[1]:'codecart_catalog.xlsx';
+    var blob=xhr.response,objectUrl=window.URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=objectUrl;link.download=filename;link.style.display='none';document.body.appendChild(link);link.click();document.body.removeChild(link);window.setTimeout(function(){window.URL.revokeObjectURL(objectUrl);},1000);
+    setProgress('catalog-export-progress',100,'{{ text_progress_done|e('js') }}',false);hideProgress('catalog-export-progress',1000);$btn.prop('disabled',false);
+  };
+  xhr.onerror=function(){alertBox('danger','{{ error_catalog_export|e('js') }}');hideProgress('catalog-export-progress',800);$btn.prop('disabled',false);};
+  xhr.send(fd);
+  return false;
+});
+
+$('#button-catalog-file').on('click',function(){
+  $('#form-catalog-upload').remove();$('body').append('<form id="form-catalog-upload" enctype="multipart/form-data" style="display:none"><input type="file" name="catalog_import" accept=".xlsx,.zip" /></form>');
+  var $input=$('#form-catalog-upload input');$input.on('change',function(){
+    if(!this.files||!this.files.length){return;}$('#catalog-file-name').text(this.files[0].name);var fd=new FormData($('#form-catalog-upload')[0]);$('#button-catalog-file').button('loading');setProgress('catalog-import-progress',0,'{{ text_progress_uploading|e('js') }}',false);
+    $.ajax({url:'{{ catalog_preview|replace({'&amp;':'&'}) }}',type:'post',data:fd,dataType:'json',processData:false,contentType:false,cache:false,xhr:function(){var x=$.ajaxSettings.xhr();if(x.upload){x.upload.addEventListener('progress',function(e){if(e.lengthComputable&&e.total>0){var pct=Math.min(60,Math.round((e.loaded/e.total)*60));setProgress('catalog-import-progress',pct,'{{ text_progress_uploading|e('js') }}',false);}},false);}return x;},beforeSend:function(){setProgress('catalog-import-progress',3,'{{ text_progress_uploading|e('js') }}',false);}}).done(function(json){
+      setProgress('catalog-import-progress',75,'{{ text_progress_checking|e('js') }}',true);
+      if(json.error){catalogToken='';$('#catalog-preview,#catalog-import-actions').prop('hidden',true);alertBox('danger',json.error);hideProgress('catalog-import-progress',800);return;}
+      var p=json.preview||{},html='<div class="ccp-preview-summary"><strong>{{ text_preview }}</strong>';
+      if(p.errors&&p.errors.length){html+='<div class="text-danger">'+p.errors.map(esc).join('<br>')+'</div>';}if(p.warnings&&p.warnings.length){html+='<div class="text-warning">'+p.warnings.map(esc).join('<br>')+'</div>';}html+='</div><div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><th>{{ column_table }}</th><th>{{ column_rows }}</th><th>{{ column_columns }}</th><th>{{ column_status }}</th></tr></thead><tbody>';
+      (p.sheets||[]).forEach(function(s){html+='<tr><td>'+esc(s.table)+'</td><td>'+esc(s.rows)+'</td><td>'+esc(s.columns)+'</td><td><span class="label label-success">OK</span></td></tr>';});html+='</tbody></table></div>';
+      $('#catalog-preview').html(html).prop('hidden',false);catalogToken=p.ok?p.token:'';$('#catalog-import-actions').prop('hidden',!p.ok);setProgress('catalog-import-progress',100,'{{ text_progress_done|e('js') }}',false);hideProgress('catalog-import-progress',1000);
+    }).fail(function(xhr){alertBox('danger',xhr.statusText||'HTTP error');hideProgress('catalog-import-progress',800);}).always(function(){$('#button-catalog-file').button('reset');});
+  });$input.trigger('click');
+});
+
+$('#button-catalog-import').on('click',function(){
+  if(!catalogToken){return;}if(!window.confirm('{{ text_catalog_confirm|e('js') }}')){return;}var $btn=$(this);$btn.button('loading');setProgress('catalog-import-progress',5,'{{ text_progress_importing|e('js') }}',true);
+  $.ajax({url:'{{ catalog_import|replace({'&amp;':'&'}) }}',type:'post',dataType:'json',data:{token:catalogToken,overwrite_images:$('#catalog-overwrite-images').prop('checked')?1:0},beforeSend:function(){setProgress('catalog-import-progress',15,'{{ text_progress_importing|e('js') }}',true);}}).done(function(json){if(json.error){alertBox('danger',json.error);hideProgress('catalog-import-progress',800);return;}var r=json.result||{};setProgress('catalog-import-progress',100,'{{ text_progress_done|e('js') }}',false);alertBox('success',(json.success||'')+' '+('{{ text_catalog_result|e('js') }}').replace('%s',r.inserted_or_updated||0).replace('%b',r.backup||''));catalogToken='';$('#catalog-preview,#catalog-import-actions').prop('hidden',true);hideProgress('catalog-import-progress',1400);}).fail(function(xhr){alertBox('danger',xhr.statusText||'HTTP error');hideProgress('catalog-import-progress',800);}).always(function(){$btn.button('reset');});
+});
+
+$('#button-import').on('click',function(){if(!window.confirm('{{ text_restore_confirm|e('js') }}')){return;}$('#form-upload').remove();$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display:none"><input type="file" name="import" accept=".sql" /></form>');var $input=$('#form-upload input[name="import"]');$input.on('change',function(){if(!this.files||!this.files.length){return;}$('#progress-import .progress-bar').attr('aria-valuenow',0).css('width','0%');var fd=new FormData($('#form-upload')[0]);$('#button-import').button('loading');$.ajax({url:'index.php?route=tool/backup/import&user_token={{ user_token }}',type:'post',dataType:'json',data:fd,cache:false,contentType:false,processData:false}).done(handleSql).fail(function(xhr){alertBox('danger',xhr.statusText||'HTTP error');}).always(function(){$('#button-import').button('reset');});});$input.trigger('click');});
+function handleSql(json){if(json.error){alertBox('danger',json.error);return;}if(json.success){alertBox('success',json.success);}if(json.total){$('#progress-import .progress-bar').attr('aria-valuenow',json.total).css('width',json.total+'%');}if(json.next){$.ajax({url:json.next,dataType:'json'}).done(handleSql).fail(function(xhr){alertBox('danger',xhr.statusText||'HTTP error');});}}
+})(window.jQuery);
+//--></script>
+</div>
+{{ footer }}

@@ -1,0 +1,426 @@
+<?php
+// *	@source		See SOURCE.txt for source and other copyright.
+// *	@license	GNU General Public License version 3; see LICENSE.txt
+
+// Heading
+$_['heading_title']                  = 'Settings';
+
+// Text
+$_['text_stores']                    = 'Stores';
+$_['text_success']                   = 'Success: You have modified settings!';
+$_['text_edit']                      = 'Edit Setting';
+$_['text_product']                   = 'Products';
+$_['text_review']                    = 'Reviews';
+$_['text_voucher']                   = 'Vouchers';
+$_['text_tax']                       = 'Taxes';
+$_['text_account']                   = 'Account';
+$_['text_checkout']                  = 'Checkout';
+$_['text_stock']                     = 'Stock';
+$_['text_affiliate']                 = 'Affiliates';
+$_['text_captcha']                   = 'Captcha';
+$_['text_register']                  = 'Register';
+$_['text_guest']                     = 'Guest Checkout';
+$_['text_return']                    = 'Returns';
+$_['text_contact']                   = 'Contact';
+$_['text_shipping']                  = 'Shipping Address';
+$_['text_payment']                   = 'Payment Address';
+$_['text_mail']                      = 'Mail';
+$_['text_smtp']                      = 'SMTP';
+$_['text_mail_alert']                = 'Mail Alerts';
+$_['text_mail_account']              = 'Register';
+$_['text_mail_affiliate']            = 'Affiliate';
+$_['text_mail_order']                = 'Orders';
+$_['text_mail_review']               = 'Reviews';
+$_['text_general']                   = 'General';
+$_['text_security']                  = 'Security';
+$_['text_upload']                    = 'Uploads';
+$_['text_error']                     = 'Error Handling';
+
+// Entry
+$_['entry_meta_title']               = 'Meta Title';
+$_['entry_meta_description']         = 'Meta Tag Description';
+$_['entry_meta_keyword']             = 'Meta Tag Keywords';
+$_['entry_layout']                   = 'Default Layout';
+$_['entry_theme']                    = 'Theme';
+$_['entry_name']                     = 'Store Name';
+$_['entry_owner']                    = 'Store Owner';
+$_['entry_address']                  = 'Address';
+$_['entry_geocode']                  = 'Geocode';
+$_['entry_map_url']                   = 'Directions map';
+$_['entry_email']                    = 'E-Mail';
+$_['entry_telephone']                = 'Telephone';
+$_['entry_fax']                      = 'Fax';
+$_['entry_image']                    = 'Image';
+$_['entry_open']                     = 'Opening Times';
+$_['entry_comment']                  = 'Comment';
+$_['entry_location']                 = 'Store Location';
+$_['entry_country']                  = 'Country';
+$_['entry_zone']                     = 'Region / State';
+$_['entry_timezone']                 = 'Time Zone';
+$_['entry_language']                 = 'Language';
+$_['entry_admin_language']           = 'Administration Language';
+$_['entry_currency']                 = 'Currency';
+$_['entry_currency_auto']            = 'Auto Update Currency';
+$_['entry_currency_engine']          = 'Currency Rate Engine';
+$_['entry_symbol_left_space']        = 'Left Currency Symbol Space';
+$_['entry_symbol_right_space']       = 'Right Currency Symbol Space';
+$_['entry_length_class']             = 'Length Class';
+$_['entry_weight_class']             = 'Weight Class';
+$_['entry_limit_admin']              = 'Default Items Per Page (Admin)';
+$_['entry_limit_autocomplete']     = 'Default Items for search with autocomplete Page (Admin)';
+$_['entry_product_count']            = 'Category Product Count';
+$_['entry_review']                   = 'Allow Reviews';
+$_['entry_review_guest']             = 'Allow Guest Reviews';
+$_['entry_voucher_min']              = 'Voucher Min';
+$_['entry_voucher_max']              = 'Voucher Max';
+$_['entry_tax']                      = 'Display Prices With Tax';
+$_['entry_tax_default']              = 'Use Store Tax Address';
+$_['entry_tax_customer']             = 'Use Customer Tax Address';
+$_['entry_customer_online']          = 'Customers Online';
+$_['entry_customer_activity']        = 'Customers Activity';
+$_['entry_customer_search']          = 'Log Customer Searches';
+$_['entry_customer_group']           = 'Customer Group';
+$_['entry_customer_group_display']   = 'Customer Groups';
+$_['entry_customer_price']           = 'Login Display Prices';
+$_['entry_login_attempts']           = 'Max Login Attempts';
+$_['entry_account']                  = 'Account Terms';
+$_['entry_cart_weight']              = 'Display Weight on Cart Page';
+$_['entry_checkout_guest']           = 'Guest Checkout';
+$_['entry_checkout']                 = 'Checkout Terms';
+$_['entry_invoice_prefix']           = 'Invoice Prefix';
+$_['entry_order_status']             = 'Order Status';
+$_['entry_processing_status']        = 'Processing Order Status';
+$_['entry_complete_status']          = 'Complete Order Status';
+$_['entry_fraud_status']             = 'Fraud Order Status';
+$_['entry_api']                      = 'API User';
+$_['entry_stock_display']            = 'Display Stock';
+$_['entry_stock_warning']            = 'Show Out Of Stock Warning';
+$_['entry_stock_checkout']           = 'Stock Checkout';
+$_['entry_affiliate_group']          = 'Affiliate Group';
+$_['entry_affiliate_approval']       = 'Affiliate Requires Approval';
+$_['entry_affiliate_auto']           = 'Automatic Commission';
+$_['entry_affiliate_commission']     = 'Affiliate Commission (%)';
+$_['entry_affiliate']                = 'Affiliate Terms';
+$_['entry_return']                   = 'Return Terms';
+$_['entry_return_status']            = 'Return Status';
+$_['entry_captcha']                  = 'Captcha';
+$_['entry_captcha_page']             = 'Captcha Page';
+$_['entry_logo']                     = 'Store Logo';
+$_['entry_icon']                     = 'Icon';
+$_['entry_mail_engine']              = 'Mail Engine';
+$_['entry_mail_parameter']           = 'Mail Parameters';
+$_['entry_mail_smtp_hostname']       = 'SMTP Hostname';
+$_['entry_mail_smtp_username']       = 'SMTP Username';
+$_['entry_mail_smtp_password']       = 'SMTP Password';
+$_['entry_mail_smtp_port']           = 'SMTP Port';
+$_['entry_mail_smtp_timeout']        = 'SMTP Timeout';
+$_['entry_mail_alert']               = 'Alert Mail';
+$_['entry_mail_alert_email']         = 'Additional Alert Mail';
+$_['entry_secure']                   = 'Use SSL';
+$_['entry_shared']                   = 'Use Shared Sessions';
+$_['entry_robots']                   = 'Robots';
+$_['entry_seo_url']                  = 'Use SEO URLs';
+$_['entry_file_max_size']            = 'Max File Size';
+$_['entry_file_ext_allowed']         = 'Allowed File Extensions';
+$_['entry_file_mime_allowed']        = 'Allowed File Mime Types';
+$_['entry_maintenance']              = 'Maintenance Mode';
+$_['entry_password']                 = 'Allow Forgotten Password';
+$_['entry_encryption']               = 'Encryption Key';
+$_['entry_compression'] = 'PHP GZIP compression level';
+$_['entry_error_display']            = 'Display Errors';
+$_['entry_error_log']                = 'Log Errors';
+$_['entry_error_filename']           = 'Error Log Filename';
+$_['entry_status']                   = 'Status';
+$_['entry_seo_pro']                   	= 'Enable SeoPro';
+$_['entry_page_postfix']               	= 'Page postfix (like .html)';
+$_['entry_config_seo_url_include_path']	= 'Product url with categories';
+$_['entry_config_seo_url_cache']        = 'Enable seo pro cache';
+$_['entry_seopro_addslash']			   = 'Add slash for end of url';
+$_['entry_seopro_lowercase']		   = 'URLs lowercase';
+$_['entry_noindex_status']	         = 'Manage noindex';
+$_['help_noindex_status']             = 'Recommended enabled. The system applies noindex to entities where Index is disabled and to technical SEO duplicates covered by the active rules.';
+$_['entry_noindex_disallow_params']	 = 'Not use noindex for page with get params:';
+
+// Help
+$_['help_geocode']                   = 'Please enter your store location geocode manually.';
+$_['help_map_url']                    = 'Enter an HTTPS embeddable map URL (for example Google Maps with output=embed). Only the URL is stored; iframe HTML is not required.';
+$_['help_open']                      = 'Fill in your store\'s opening times.';
+$_['help_comment']                   = 'This field is for any special notes you would like to tell the customer i.e. Store does not accept cheques.';
+$_['help_location']                  = 'The different store locations you have that you want displayed on the contact us form.';
+$_['help_currency']                  = 'Change the default currency. Clear your browser cache to see the change and reset your existing cookie.';
+$_['help_currency_auto']             = 'Set your store to automatically update currencies daily. It requires a chosen Currency Rate Engine.';
+$_['help_symbol_left_space']         = 'Optionally add a blank space after the left currency symbol.';
+$_['help_symbol_right_space']        = 'Optionally add a blank space before the right currency symbol.';
+$_['help_limit_admin']               = 'Determines how many admin items are shown per page (orders, customers, etc).';
+$_['help_limit_autocomplete']      = 'Determines how many items are shown for search with autocomplete (attributes, options, filters, products, etc).';
+$_['help_product_count']             = 'Show the number of products inside the subcategories in the storefront header category menu. Be warned, this will cause an extreme performance hit for stores with a lot of subcategories!';
+$_['help_review']                    = 'Enable/Disable new review entry and display of existing reviews.';
+$_['help_review_guest']              = 'Allow guests to post reviews.';
+$_['help_voucher_min']               = 'Minimum amount a customer can purchase a voucher for.';
+$_['help_voucher_max']               = 'Maximum amount a customer can purchase a voucher for.';
+$_['help_tax_default']               = 'Use the store address to calculate taxes if customer is not logged in. You can choose to use the store address for the customer\'s shipping or payment address.';
+$_['help_tax_customer']              = 'Use the customer\'s default address when they login to calculate taxes. You can choose to use the default address for the customer\'s shipping or payment address.';
+$_['help_customer_online']           = 'Track customers online via the customer reports section.';
+$_['help_customer_activity']         = 'Track customers activity via the customer reports section.';
+$_['help_customer_group']            = 'Default customer group.';
+$_['help_customer_group_display']    = 'Display customer groups that new customers can select to use such as wholesale and business when signing up.';
+$_['help_customer_price']            = 'Only show prices when a customer is logged in.';
+$_['help_login_attempts']            = 'Maximum login attempts allowed before the account is locked for 1 hour. Customer and affliate accounts can be unlocked on the customer or affliate admin pages. Admin account can be unlocked on reset password.';
+$_['help_account']                   = 'Forces people to agree to terms before an account can be created.';
+$_['help_invoice_prefix']            = 'Set the invoice prefix (e.g. INV-2011-00). Invoice IDs will start at 1 for each unique prefix.';
+$_['help_cart_weight']               = 'Show the cart weight on the cart page.';
+$_['help_checkout_guest']            = 'Allow customers to checkout without creating an account. This will not be available when a downloadable product is in the shopping cart.';
+$_['help_checkout']                  = 'Forces people to agree to terms before a customer can checkout.';
+$_['help_order_status']              = 'Set the default order status when an order is processed.';
+$_['help_processing_status']         = 'Set the order status the customer\'s order must reach before the order starts stock subtraction and coupon, voucher and rewards redemption.';
+$_['help_complete_status']           = 'Set the order status the customer\'s order must reach before they are allowed to access their downloadable products and gift vouchers.';
+$_['help_fraud_status']              = 'Set the order status when a customer is suspected of trying to alter the order payment details or use a coupon, gift voucher or reward points that have already been used.';
+$_['help_api']                       = 'Default API user the admin should use.';
+$_['help_stock_display']             = 'Display stock quantity on the product page.';
+$_['help_stock_warning']             = 'Display out of stock message on the shopping cart page if a product is out of stock but stock checkout is yes. (Warning always shows if stock checkout is no)';
+$_['help_stock_checkout']            = 'Allow customers to still checkout if the products they are ordering are not in stock.';
+$_['help_affiliate_approval']        = 'Automatically approve any new affiliates who sign up.';
+$_['help_affiliate_auto']            = 'Automatically add commission when each order reaches the complete status.';
+$_['help_affiliate_commission']      = 'The default affiliate commission percentage.';
+$_['help_affiliate']                 = 'Forces people to agree to terms before an affiliate account can be created.';
+$_['help_return']                    = 'Forces people to agree to terms before a return can be created.';
+$_['help_return_status']             = 'Set the default return status when a return request is submitted.';
+$_['help_captcha']                   = 'Captcha to use for registration, login, contact and reviews.';
+$_['help_icon']                      = 'The icon should be a PNG that is 16px x 16px.';
+$_['help_mail_engine']               = 'Only choose \'Mail\' unless your host has disabled the php mail function.';
+$_['help_mail_parameter']            = 'When using \'Mail\', additional mail parameters can be added here (e.g. -f email@storeaddress.com).';
+$_['help_mail_smtp_hostname']        = 'Add \'tls://\' or \'ssl://\' prefix if security connection is required. (e.g. tls://smtp.gmail.com, ssl://smtp.gmail.com).';
+$_['help_mail_smtp_password']        = 'For gmail you might need to setup a application specific password here: https://security.google.com/settings/security/apppasswords.';
+$_['help_mail_alert']                = 'Select which features you would like to receive an alert email on when a customer uses them.';
+$_['help_mail_alert_email']          = 'Any additional emails you want to receive the alert email, in addition to the main store email. (comma separated).';
+$_['help_secure']                    = 'To use SSL check with your host if a SSL certificate is installed and add the SSL URL to the catalog and admin config files.';
+$_['help_shared']                    = 'Try to share the session cookie between stores so the cart can be passed between different domains.';
+$_['help_robots']                    = 'A list of web crawler user agents that shared sessions will not be used with. Use separate lines for each user agent.';
+$_['help_seo_url']                   = 'To use SEO URLs, apache module mod-rewrite must be installed and you need to rename the htaccess.txt to .htaccess.';
+$_['help_file_max_size']             = 'The maximum image file size you can upload in Image Manager. Enter as byte.';
+$_['help_file_ext_allowed']          = 'Add which file extensions are allowed to be uploaded. Use a new line for each value.';
+$_['help_file_mime_allowed']         = 'Add which file mime types are allowed to be uploaded. Use a new line for each value.';
+$_['help_maintenance']               = 'Prevents customers from browsing your store. They will instead see a maintenance message. If logged in as admin, you will see the store as normal.';
+$_['help_password']                  = 'Allow forgotten password to be used for the admin. This will be disabled automatically if the system detects a hack attempt.';
+$_['help_encryption']                = 'Please provide a secret key that will be used to encrypt private information when processing orders.';
+$_['help_compression'] = 'Level 0–9. HTTPS is not a compression method. If nginx, Apache, Cloudflare or a CDN already returns Content-Encoding gzip, br or zstd, keep PHP GZIP at 0 to avoid wasting PHP CPU.';
+$_['help_seo_pro']     				 = "Let's make seo great again!";
+
+// Error
+$_['error_warning']                  = 'Warning: Please check the form carefully for errors!';
+$_['error_permission']               = 'Warning: You do not have permission to modify settings!';
+$_['error_meta_title']               = 'Title must be between 3 and 32 characters!';
+$_['error_name']                     = 'Store Name must be between 3 and 32 characters!';
+$_['error_owner']                    = 'Store Owner must be between 3 and 64 characters!';
+$_['error_address']                  = 'Store Address must be between 10 and 256 characters!';
+$_['error_email']                    = 'E-Mail Address does not appear to be valid!';
+$_['error_telephone']                = 'Telephone must be between 3 and 32 characters!';
+$_['error_limit']                    = 'Limit required!';
+$_['error_login_attempts']           = 'Login Attempts must be greater than 0!';
+$_['error_customer_group_display'] = 'You must include the default customer group if you are going to use this feature!';
+$_['error_voucher_min']              = 'Minimum voucher amount required!';
+$_['error_voucher_max']              = 'Maximum voucher amount required!';
+$_['error_processing_status']        = 'You must choose at least 1 order process status';
+$_['error_complete_status']          = 'You must choose at least 1 order complete status';
+$_['error_log_required']             = 'Error Log Filename required!';
+$_['error_log_invalid']              = 'Error Log Filename invalid!';
+$_['error_log_extension']            = 'Error Log Filename extension needs to be .log!';
+$_['error_encryption']               = 'Encryption Key must be between 32 and 1024 characters!';
+$_['entry_auto_seo_url'] = 'Generate SEO URL on create';
+$_['help_auto_seo_url'] = 'For new products, categories, manufacturers, information pages and blog articles an SEO keyword is generated from the title. Existing entities are never changed automatically during editing.';
+
+
+// CodeCart PRO storefront image optimization
+$_['text_image_optimization'] = 'Storefront image optimization';
+$_['entry_image_webp'] = 'Automatic WebP on storefront';
+$_['help_image_webp'] = 'When enabled, JPG/PNG images generated by the storefront image service are converted on demand to WebP for browsers that advertise WebP support. Original files are never changed; old clients and CLI/feed requests keep the original format.';
+$_['entry_image_webp_quality'] = 'WebP quality';
+$_['help_image_webp_quality'] = 'Quality from 60 to 95. 82 is a good default for product images and keeps files small without obvious visual loss.';
+$_['text_image_webp_supported'] = 'WebP is available in the active PHP GD profile. The first request creates the optimized cache file; later requests reuse it.';
+$_['text_image_webp_unsupported'] = 'The active PHP GD profile has no WebP encoder. The store will safely continue with original JPG/PNG images.';
+$_['text_image_webp_quality_hint'] = 'Recommended: 82. Changing quality creates a new cache filename, so old derivatives are not reused.';
+
+// CodeCart PRO core appearance / SEO
+$_['tab_appearance'] = 'Appearance';
+$_['text_admin_appearance'] = 'Admin Appearance';
+$_['entry_admin_accent_color'] = 'Admin Accent Color';
+$_['entry_admin_sidebar_color'] = 'Sidebar Color';
+$_['entry_admin_surface_color'] = 'Workspace Background';
+$_['help_admin_accent_color'] = 'Primary buttons, active controls and focus accents in the administration area.';
+$_['help_admin_sidebar_color'] = 'Main administration navigation background.';
+$_['help_admin_surface_color'] = 'Neutral administration workspace background. Use a light color for best compatibility with legacy modules.';
+$_['entry_schema_status'] = 'Built-in JSON-LD Schema';
+$_['help_schema_status'] = 'Outputs WebSite/Organization, Product, BreadcrumbList, CollectionPage and BlogPosting. Disable only when another extension already outputs equivalent JSON-LD to avoid duplicates.';
+
+$_['text_storefront_appearance'] = 'Default storefront theme';
+$_['help_storefront_appearance'] = 'These colors apply only to the bundled default theme. Third-party themes such as UniShop2 are not recolored.';
+$_['entry_storefront_accent_color'] = 'Storefront accent color';
+$_['entry_storefront_accent_hover'] = 'Storefront hover color';
+$_['help_storefront_accent_color'] = 'Primary accent for buttons, links and bundled default-theme UI.';
+$_['help_storefront_accent_hover'] = 'Darker hover/focus shade for the bundled default theme.';
+$_['entry_storefront_button_color'] = 'Primary button color';
+$_['entry_storefront_button_hover'] = 'Button hover color';
+$_['entry_storefront_button_text_color'] = 'Button text color';
+$_['entry_storefront_buy_button_color'] = 'Buy button color';
+$_['entry_storefront_buy_button_hover'] = 'Buy button hover color';
+$_['entry_storefront_buy_button_text_color'] = 'Buy button text color';
+$_['entry_storefront_text_color'] = 'Main text color';
+$_['entry_storefront_heading_color'] = 'H1–H6 heading color';
+$_['entry_storefront_background_color'] = 'Page background';
+$_['entry_storefront_surface_color'] = 'Panel and surface background';
+$_['entry_storefront_border_color'] = 'Border color';
+$_['entry_storefront_footer_background_color'] = 'Footer background';
+$_['entry_storefront_footer_text_color'] = 'Footer text';
+$_['entry_storefront_footer_link_color'] = 'Footer links';
+$_['entry_storefront_footer_heading_color'] = 'Footer headings';
+$_['help_storefront_button_color'] = 'Background of primary default-theme buttons, including the cart button.';
+$_['help_storefront_button_hover'] = 'Primary-button color on hover, focus and active states.';
+$_['help_storefront_button_text_color'] = 'Text and icon color on primary buttons.';
+$_['help_storefront_buy_button_color'] = 'Dedicated background color for the main Buy/Add to Cart button on product pages.';
+$_['help_storefront_buy_button_hover'] = 'Color of the main Buy button on hover, focus and after successful cart addition.';
+$_['help_storefront_buy_button_text_color'] = 'Text and icon color of the main Buy button.';
+$_['help_storefront_text_color'] = 'Main body-text color of the bundled default storefront.';
+$_['help_storefront_heading_color'] = 'Base color for H1, H2, H3, H4, H5 and H6. Footer headings are configured separately.';
+$_['help_storefront_background_color'] = 'Main page background of the bundled default theme.';
+$_['help_storefront_surface_color'] = 'Neutral surfaces such as the top bar, breadcrumb and panels.';
+$_['help_storefront_border_color'] = 'Primary border color for fields, cards, panels and utility surfaces.';
+$_['help_storefront_footer_background_color'] = 'Bundled default-theme footer background.';
+$_['help_storefront_footer_text_color'] = 'Regular text in the bundled footer.';
+$_['help_storefront_footer_link_color'] = 'Links in the bundled footer.';
+$_['help_storefront_footer_heading_color'] = 'Section headings in the bundled footer.';
+
+$_['text_cookie_privacy'] = 'Privacy and cookies';
+$_['entry_cookie_consent'] = 'Cookie consent window';
+$_['entry_cookie_days'] = 'Consent lifetime, days';
+$_['entry_cookie_information'] = 'Cookie policy page';
+$_['help_cookie_consent'] = 'System consent UI manages Necessary/Analytics/Marketing. Disable it when another CMP or banner already fully controls cookie consent.';
+$_['help_cookie_information'] = 'Optional information page with a detailed cookie policy. Bundled Google Analytics will not run until Analytics consent is granted.';
+
+$_['entry_cookie_consent_accent'] = 'Cookie window colour';
+$_['help_cookie_consent_accent'] = 'Accent colour for the built-in consent window. It does not recolour a third-party theme.';
+
+$_['entry_cookie_accent'] = 'Cookie accent color';
+$_['help_cookie_accent'] = 'Primary button color for the system consent window. It does not recolor the storefront theme.';
+
+
+$_['entry_cookie_privacy_information'] = 'Privacy policy page';
+$_['help_cookie_privacy_information'] = 'Optional separate privacy information page. If not selected, only the cookie policy link is shown.';
+$_['entry_seo_filter_index_mode'] = 'Filter page indexing';
+$_['help_seo_filter_index_mode'] = 'Safe noindex mode is recommended by default. Allowlist indexes only explicitly listed category/filter combinations.';
+$_['entry_seo_filter_allowlist'] = 'Allowed SEO filter combinations';
+$_['help_seo_filter_allowlist'] = 'One entry per line: category_id:filter_id,filter_id. Example: 20:3,7. Filter IDs are normalized and sorted.';
+$_['entry_seo_presentation_noindex'] = 'Noindex sorting and limit URLs';
+$_['help_seo_presentation_noindex'] = 'Pages that differ only by sort/order/limit should not create search duplicates. Pagination page=2+ remains a separate indexable page.';
+$_['text_seo_filter_noindex'] = 'Noindex all filtered pages (recommended)';
+$_['text_seo_filter_allowlist'] = 'Index Allowlist only';
+$_['text_seo_filter_legacy'] = 'Legacy rules';
+
+$_['entry_internal_linking'] = 'Internal linking';
+$_['help_internal_linking'] = 'Shows related links from existing category, manufacturer, product and blog relations. It never rewrites description text automatically.';
+
+$_['entry_cache_engine'] = 'Cache backend';
+$_['help_cache_engine'] = 'File works everywhere. APCu, Memcached and Redis require the corresponding PHP extension and service in the active WEB/FPM profile.';
+$_['help_cache_engine_note'] = 'This is not compression. APCu is recommended for a single PHP server; Redis is preferred for shared cache across multiple processes/servers. Core safely falls back to File Cache when the selected backend is unavailable. Global APCu/Redis/Memcached clears use CodeCart PRO generation namespaces in O(1).';
+
+// CodeCart PRO configurable checkout fields
+$_['entry_checkout_fields'] = 'Optional checkout fields';
+$_['help_checkout_fields'] = 'Choose which secondary fields are shown in the standard checkout.';
+$_['help_checkout_fields_note'] = 'Core delivery fields remain enabled for compatibility. Disabled fields are removed from guest/registration/address forms and stored as empty values. Review payment, shipping, CRM and ERP integrations after changing this setting.';
+$_['entry_checkout_field_lastname'] = 'Last name';
+$_['help_checkout_field_lastname'] = 'Disable only if your shipping/payment integrations do not require a family name.';
+$_['entry_checkout_field_telephone'] = 'Telephone';
+$_['help_checkout_field_telephone'] = 'Disable only if delivery, payment or CRM integrations do not require a phone number.';
+$_['entry_checkout_field_company'] = 'Company';
+$_['help_checkout_field_company'] = 'Optional company/organisation field.';
+$_['entry_checkout_field_address_2'] = 'Address line 2';
+$_['help_checkout_field_address_2'] = 'Optional second address line.';
+$_['entry_checkout_field_postcode'] = 'Postcode';
+$_['help_checkout_field_postcode'] = 'Disable only if your delivery methods do not require a postcode.';
+
+$_['entry_email_logo'] = 'Email logo';
+$_['help_email_logo'] = 'Recommended: PNG or JPEG, 600×160 px (2× for Retina). The email version is automatically fitted to a maximum of 300×80 px and normalized to an email-safe format. WebP is fine as the source file; no re-upload is required.';
+$_['entry_apple_touch_icon'] = 'Apple Touch Icon';
+$_['help_apple_touch_icon'] = 'Optional home-screen icon for Apple devices. Recommended: 180×180 PNG.';
+$_['entry_catalog_fallback_image'] = 'Catalog fallback image';
+$_['help_catalog_fallback_image'] = 'Optional image used when a requested catalog image is missing. Leave empty to keep the standard behavior.';
+$_['entry_social_preview_image'] = 'Social preview image';
+$_['help_social_preview_image'] = 'Optional default image for Open Graph/Twitter previews when the current page has no own image. Recommended: 1200×630 JPG/PNG/WebP.';
+
+$_['text_cache_extension_unavailable'] = 'PHP extension unavailable';
+
+$_['entry_storefront_sale_price_color'] = 'Sale price color';
+$_['entry_storefront_cart_button_color'] = 'Products / cart button color';
+$_['entry_storefront_cart_button_hover'] = 'Products button hover color';
+$_['entry_storefront_cart_button_text_color'] = 'Products button text color';
+$_['help_storefront_sale_price_color'] = 'Color used for sale/special prices in bundled product cards and product pages.';
+$_['help_storefront_cart_button_color'] = 'Background of the large products/cart button in the bundled storefront header.';
+$_['help_storefront_cart_button_hover'] = 'Color of that button on hover and focus.';
+$_['help_storefront_cart_button_text_color'] = 'Text and icon color of that button.';
+
+// CodeCart PRO digital checkout profile
+$_['entry_digital_checkout'] = 'Digital products';
+$_['entry_digital_checkout_status'] = 'Simplified digital checkout';
+$_['help_digital_checkout'] = 'Separate checkout profile for carts containing downloadable products that do not require shipping.';
+$_['help_digital_checkout_note'] = 'OFF by default. When enabled and the cart contains downloads only (Requires Shipping = No), E-Mail plus the selected fields below are shown. E-Mail is always required for the order and download access. Country and region remain required for tax/payment compatibility. Files become available only after the order reaches a Complete status.';
+$_['help_digital_checkout_email'] = 'E-Mail is always required for digital orders and download notifications.';
+$_['entry_checkout_field_address_1'] = 'Address line 1';
+$_['entry_checkout_field_city'] = 'City';
+
+// CodeCart PRO RC63: quick checkout and flexible fields
+$_['entry_quick_checkout_status'] = 'Quick checkout';
+$_['help_quick_checkout_status'] = 'Combines cart and guest checkout on one compact page. Legacy checkout remains available as a compatibility fallback.';
+$_['entry_checkout_email_fallback'] = 'Fallback E-Mail';
+$_['help_checkout_email_fallback'] = 'Stored in an order when E-Mail is hidden or optional and the customer leaves it empty. No customer message is sent to this placeholder address.';
+$_['text_checkout_required'] = 'Required';
+$_['text_checkout_optional'] = 'Optional';
+$_['text_checkout_hidden'] = 'Hidden';
+$_['text_checkout_custom_labels'] = 'Field label';
+$_['column_checkout_field'] = 'Field';
+$_['column_checkout_mode'] = 'Visibility / requirement';
+$_['column_checkout_label'] = 'Storefront label';
+$_['entry_checkout_field_firstname'] = 'First name';
+$_['entry_checkout_field_email'] = 'E-Mail';
+$_['entry_checkout_field_country'] = 'Country';
+$_['entry_checkout_field_zone'] = 'Region / State';
+
+$_['entry_cookie_icon'] = 'Cookie control icon';
+$_['entry_cookie_custom_icon'] = 'Custom cookie icon';
+$_['help_cookie_icon'] = 'Choose a built-in icon for the cookie consent reopen button or use your own image.';
+$_['help_cookie_custom_icon'] = 'Used when the option above is set to Custom icon. Prefer a transparent PNG/WebP/SVG.';
+$_['text_cookie_icon_shield_cookie_check'] = 'Shield with cookie and check';
+$_['text_cookie_icon_shield_lock_check'] = 'Shield with lock and check';
+$_['text_cookie_icon_lock_circle_check'] = 'Round lock with check';
+$_['text_cookie_icon_hand_shield_check'] = 'Protected by hand';
+$_['text_cookie_icon_shield_lock'] = 'Shield with lock';
+$_['text_cookie_icon_cookie_orbit'] = 'Cookie with orbit';
+$_['text_cookie_icon_cookie_document'] = 'Cookie document';
+$_['text_cookie_icon_custom'] = 'Custom icon';
+
+$_['entry_tax_display'] = 'Catalog price display';
+$_['help_tax_display'] = 'Controls storefront catalog price presentation only. Cart, checkout, tax totals and order calculations are not changed.';
+$_['text_tax_display_native'] = 'Native OpenCart behaviour (recommended for compatibility)';
+$_['text_tax_display_none'] = 'OpenCart primary price only (no secondary line)';
+$_['text_tax_display_gross_net'] = 'Price incl. VAT + secondary price excl. VAT';
+$_['text_tax_display_gross_tax'] = 'Price incl. VAT + secondary VAT amount only';
+$_['text_tax_display_net_gross'] = 'Price excl. VAT + secondary price incl. VAT';
+$_['entry_currency_trim_zeros'] = 'Hide .00 in storefront prices';
+$_['help_currency_trim_zeros'] = 'When enabled, prices with a zero fractional part are shown without trailing zeros (100 instead of 100.00). Values such as 100.50 keep their decimals. Calculations and stored precision are unchanged.';
+
+// CodeCart PRO RC86: separate admin submenu appearance.
+$_['entry_admin_submenu_color'] = 'Submenu Color';
+$_['help_admin_submenu_color'] = 'Background of nested sidebar menu items, configurable independently from the main sidebar.';
+
+$_['text_email_logo_current_label'] = 'Current:';
+$_['text_email_logo_current'] = '%s, %s×%s px, %s KB. A compact email version will be prepared automatically.';
+$_['text_email_logo_current_none'] = 'no email logo selected — the normal store logo is used.';
+$_['entry_valide_params'] = 'Allowed GET parameters';
+$_['help_valide_params'] = 'Enter one parameter per line.';
+$_['help_config_seo_url_include_path'] = '/category/subcategory/product';
+
+$_['entry_image_avif'] = 'Prefer AVIF on storefront';
+$_['help_image_avif'] = 'When enabled and PHP GD can encode AVIF, compatible browsers receive AVIF first. Browsers without AVIF fall back to WebP and then the original format. AVIF is optional because first-time encoding is more CPU-intensive.';
+$_['entry_image_avif_quality'] = 'AVIF quality';
+$_['help_image_avif_quality'] = 'Quality from 45 to 90. 72 is a balanced default for storefront photos.';
+$_['text_image_avif_supported'] = 'AVIF encoding is available. Negotiation order is AVIF → WebP → original.';
+$_['text_image_avif_unsupported'] = 'AVIF encoding is unavailable in the active PHP GD profile. WebP/original fallback remains active.';
+$_['text_image_avif_quality_hint'] = 'Recommended: 72. AVIF generation is cached; originals are never changed.';

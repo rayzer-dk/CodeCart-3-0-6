@@ -1,0 +1,119 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+	  <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_help }}</div>
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-name">{{ entry_name }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control" />
+              {% if error_name %}
+              <div class="text-danger">{{ error_name }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_heading }}">{{ entry_heading }}</span></label>
+            <div class="col-sm-10">
+              {% for language in languages %}
+              <div class="input-group" style="margin-bottom:6px"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" alt="{{ language.name }}" /></span><input type="text" name="heading[{{ language.language_id }}]" value="{{ heading[language.language_id] is defined ? heading[language.language_id] : '' }}" class="form-control" maxlength="120" /></div>
+              {% endfor %}
+              <p class="help-block">{{ help_heading }}</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-show-heading"><span data-toggle="tooltip" title="{{ help_show_heading }}">{{ entry_show_heading }}</span></label>
+            <div class="col-sm-10"><select name="show_heading" id="input-show-heading" class="form-control"><option value="1"{% if show_heading %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not show_heading %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-limit">{{ entry_limit }}</label>
+            <div class="col-sm-10">
+              <input type="number" min="1" max="30" name="limit" value="{{ limit }}" placeholder="{{ entry_limit }}" id="input-limit" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-width">{{ entry_width }}</label>
+            <div class="col-sm-10">
+              <input type="number" min="40" max="2000" name="width" value="{{ width }}" placeholder="{{ entry_width }}" id="input-width" class="form-control" />
+              {% if error_width %}
+              <div class="text-danger">{{ error_width }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-height">{{ entry_height }}</label>
+            <div class="col-sm-10">
+              <input type="number" min="40" max="2000" name="height" value="{{ height }}" placeholder="{{ entry_height }}" id="input-height" class="form-control" />
+              {% if error_height %}
+              <div class="text-danger">{{ error_height }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <fieldset class="ccp-native-module-display-settings">
+            <legend>{{ text_display_settings }}</legend>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-display-mode"><span data-toggle="tooltip" title="{{ help_display_mode }}">{{ entry_display_mode }}</span></label>
+              <div class="col-sm-10"><select name="display_mode" id="input-display-mode" class="form-control"><option value="grid"{% if display_mode == 'grid' %} selected="selected"{% endif %}>{{ text_grid }}</option><option value="carousel"{% if display_mode == 'carousel' %} selected="selected"{% endif %}>{{ text_carousel }}</option></select></div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label">{{ entry_columns }}</label>
+              <div class="col-sm-10"><div class="row">
+                <div class="col-sm-4"><label for="input-columns-desktop">{{ text_desktop }}</label><input type="number" min="1" max="6" name="columns_desktop" value="{{ columns_desktop }}" id="input-columns-desktop" class="form-control" /></div>
+                <div class="col-sm-4"><label for="input-columns-tablet">{{ text_tablet }}</label><input type="number" min="1" max="4" name="columns_tablet" value="{{ columns_tablet }}" id="input-columns-tablet" class="form-control" /></div>
+                <div class="col-sm-4"><label for="input-columns-mobile">{{ text_mobile }}</label><input type="number" min="1" max="2" name="columns_mobile" value="{{ columns_mobile }}" id="input-columns-mobile" class="form-control" /></div>
+              </div></div>
+            </div>
+            <div class="form-group ccp-carousel-only"><label class="col-sm-2 control-label" for="input-autoplay">{{ entry_autoplay }}</label><div class="col-sm-10"><select name="autoplay" id="input-autoplay" class="form-control"><option value="1"{% if autoplay %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not autoplay %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div></div>
+            <div class="form-group ccp-carousel-only ccp-autoplay-only"><label class="col-sm-2 control-label" for="input-autoplay-delay"><span data-toggle="tooltip" title="{{ help_autoplay_delay }}">{{ entry_autoplay_delay }}</span></label><div class="col-sm-10"><input type="number" min="1500" max="20000" step="500" name="autoplay_delay" value="{{ autoplay_delay }}" id="input-autoplay-delay" class="form-control" /></div></div>
+            <div class="form-group ccp-carousel-only"><label class="col-sm-2 control-label" for="input-show-arrows">{{ entry_show_arrows }}</label><div class="col-sm-10"><select name="show_arrows" id="input-show-arrows" class="form-control"><option value="1"{% if show_arrows %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not show_arrows %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div></div>
+            <div class="form-group ccp-carousel-only"><label class="col-sm-2 control-label" for="input-show-dots">{{ entry_show_dots }}</label><div class="col-sm-10"><select name="show_dots" id="input-show-dots" class="form-control"><option value="1"{% if show_dots %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not show_dots %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div></div>
+            <div class="form-group ccp-carousel-only"><label class="col-sm-2 control-label" for="input-loop">{{ entry_loop }}</label><div class="col-sm-10"><select name="loop" id="input-loop" class="form-control"><option value="1"{% if loop %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not loop %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div></div>
+<div class="form-group ccp-carousel-only">
+              <label class="col-sm-2 control-label" for="input-carousel-step"><span data-toggle="tooltip" title="{{ help_carousel_step }}">{{ entry_carousel_step }}</span></label>
+              <div class="col-sm-10"><select name="carousel_step" id="input-carousel-step" class="form-control"><option value="item"{% if carousel_step == 'item' %} selected="selected"{% endif %}>{{ text_step_item }}</option><option value="page"{% if carousel_step == 'page' %} selected="selected"{% endif %}>{{ text_step_page }}</option></select></div>
+            </div>
+
+          </fieldset>
+<div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="status" id="input-status" class="form-control">
+                {% if status %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

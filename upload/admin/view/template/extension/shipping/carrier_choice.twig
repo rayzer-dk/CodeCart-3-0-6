@@ -1,0 +1,152 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-shipping" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul>
+    </div>
+  </div>
+  <div class="container-fluid ccp-carrier-choice-admin">
+    {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    <div id="carrier-choice-message"></div>
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-truck"></i> {{ text_edit }}</h3></div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-shipping" class="form-horizontal">
+          <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ help_carriers }}</div>
+          <div class="form-group{% if error_carriers %} has-error{% endif %}">
+            <label class="col-sm-2 control-label">{{ entry_carriers }}</label>
+            <div class="col-sm-10">
+              {% if error_carriers %}<div class="text-danger" style="margin-bottom:10px">{{ error_carriers }}</div>{% endif %}
+              <div class="table-responsive">
+                <table id="carrier-choice-table" class="table table-bordered table-hover">
+                  <thead><tr><th>{{ column_name }}</th><th style="width:180px">{{ column_provider }}</th><th style="width:115px">{{ column_cost }}</th><th class="text-center" style="width:95px">{{ column_status }}</th><th class="text-right" style="width:85px">{{ column_sort_order }}</th><th class="text-right" style="width:138px">{{ column_action }}</th></tr></thead>
+                  <tbody>
+                    {% set carrier_row = 0 %}
+                    {% for carrier in shipping_carrier_choice_carriers %}
+                    <tr id="carrier-row{{ carrier_row }}" class="ccp-carrier-main-row">
+                      <td>
+                        <input type="hidden" name="shipping_carrier_choice_carriers[{{ carrier_row }}][id]" value="{{ carrier.id|e }}" />
+                        {% for language in languages %}
+                        <div class="input-group ccp-carrier-language">
+                          <span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" alt="{{ language.code }}" /></span>
+                          <input type="text" class="form-control" name="shipping_carrier_choice_carriers[{{ carrier_row }}][name][{{ language.language_id }}]" value="{{ carrier.name[language.language_id]|default('')|e }}" placeholder="{{ entry_name }}" />
+                        </div>
+                        {% endfor %}
+                      </td>
+                      <td>
+                        <select class="form-control ccp-provider-select" name="shipping_carrier_choice_carriers[{{ carrier_row }}][provider]" data-row="{{ carrier_row }}">
+                          {% for provider_code, provider_name in provider_options %}<option value="{{ provider_code }}" {% if carrier.provider == provider_code %}selected="selected"{% endif %}>{{ provider_name }}</option>{% endfor %}
+                        </select>
+                        <small class="text-muted ccp-city-count" data-carrier-id="{{ carrier.id|e }}">{{ text_cached_cities }}: <strong>{{ carrier.city_count }}</strong></small>
+                      </td>
+                      <td><input type="number" min="0" step="0.01" class="form-control" name="shipping_carrier_choice_carriers[{{ carrier_row }}][cost]" value="{{ carrier.cost|e }}" /></td>
+                      <td class="text-center"><input type="checkbox" name="shipping_carrier_choice_carriers[{{ carrier_row }}][status]" value="1" {% if carrier.status %}checked="checked"{% endif %} /></td>
+                      <td><input type="number" class="form-control text-right" name="shipping_carrier_choice_carriers[{{ carrier_row }}][sort_order]" value="{{ carrier.sort_order }}" /></td>
+                      <td class="text-right ccp-carrier-action-cell">
+                        <div class="ccp-carrier-actions">
+                          <button type="button" class="btn btn-info ccp-toggle-provider" data-row="{{ carrier_row }}" data-toggle="tooltip" title="{{ button_provider_settings }}"><i class="fa fa-cog"></i></button>
+                          <button type="button" class="btn btn-primary ccp-sync-cities" data-row="{{ carrier_row }}" data-carrier-id="{{ carrier.id|e }}" data-full-sync="{{ carrier.full_sync ? '1' : '0' }}" data-toggle="tooltip" title="{{ button_sync_cities }}"><i class="fa fa-refresh"></i></button>
+                          <button type="button" class="btn btn-danger" data-toggle="tooltip" title="{{ button_remove }}" onclick="$('#carrier-row{{ carrier_row }},#carrier-provider-row{{ carrier_row }}').remove();"><i class="fa fa-minus-circle"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr id="carrier-provider-row{{ carrier_row }}" class="ccp-provider-row">
+                      <td colspan="6">
+                        <div class="ccp-provider-settings" data-row="{{ carrier_row }}">
+                          <div class="ccp-provider-help alert alert-default"><i class="fa fa-info-circle"></i> <span></span></div>
+                          <div class="row ccp-credentials ccp-cred-nova_poshta">
+                            <div class="col-sm-6"><label>{{ entry_api_key }}</label><div class="input-group ccp-secret-group"><input type="password" class="form-control ccp-secret" name="shipping_carrier_choice_carriers[{{ carrier_row }}][api_key]" value="{{ carrier.api_key|e }}" autocomplete="new-password" /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-secret-toggle" title="{{ button_show_secret }}"><i class="fa fa-eye"></i></button></span></div></div>
+                          </div>
+                          <div class="row ccp-credentials ccp-cred-meest">
+                            <div class="col-sm-4"><label>{{ entry_api_login }}</label><input type="text" class="form-control" name="shipping_carrier_choice_carriers[{{ carrier_row }}][api_login]" value="{{ carrier.api_login|e }}" autocomplete="off" /></div>
+                            <div class="col-sm-4"><label>{{ entry_api_password }}</label><div class="input-group ccp-secret-group"><input type="password" class="form-control ccp-secret" name="shipping_carrier_choice_carriers[{{ carrier_row }}][api_password]" value="{{ carrier.api_password|e }}" autocomplete="new-password" /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-secret-toggle" title="{{ button_show_secret }}"><i class="fa fa-eye"></i></button></span></div></div>
+                          </div>
+                          <div class="row ccp-credentials ccp-cred-ukrposhta">
+                            <div class="col-sm-8"><label>{{ entry_api_token }}</label><div class="input-group ccp-secret-group"><input type="password" class="form-control ccp-secret" name="shipping_carrier_choice_carriers[{{ carrier_row }}][api_token]" value="{{ carrier.api_token|e }}" autocomplete="new-password" /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-secret-toggle" title="{{ button_show_secret }}"><i class="fa fa-eye"></i></button></span></div></div>
+                          </div>
+                          <input type="hidden" name="shipping_carrier_choice_carriers[{{ carrier_row }}][api_key]" class="ccp-placeholder-api-key" value="{{ carrier.api_key|e }}" disabled />
+                        </div>
+                      </td>
+                    </tr>
+                    {% set carrier_row = carrier_row + 1 %}
+                    {% endfor %}
+                  </tbody>
+                  <tfoot><tr><td colspan="6" class="text-right"><button type="button" class="btn btn-primary" id="button-add-carrier"><i class="fa fa-plus-circle"></i> {{ button_add_carrier }}</button></td></tr></tfoot>
+                </table>
+              </div>
+              <div class="help-block">{{ help_names }}</div>
+            </div>
+          </div>
+
+          <div class="form-group"><label class="col-sm-2 control-label">{{ entry_compact_checkout }}</label><div class="col-sm-10"><select name="shipping_carrier_choice_compact_checkout" class="form-control"><option value="1" {% if shipping_carrier_choice_compact_checkout %}selected{% endif %}>{{ text_enabled }}</option><option value="0" {% if not shipping_carrier_choice_compact_checkout %}selected{% endif %}>{{ text_disabled }}</option></select><div class="help-block">{{ help_compact_checkout }}</div></div></div>
+          <div class="form-group"><label class="col-sm-2 control-label">{{ entry_tax_class }}</label><div class="col-sm-10"><select name="shipping_carrier_choice_tax_class_id" class="form-control"><option value="0">{{ text_none }}</option>{% for tax_class in tax_classes %}<option value="{{ tax_class.tax_class_id }}" {% if tax_class.tax_class_id == shipping_carrier_choice_tax_class_id %}selected{% endif %}>{{ tax_class.title }}</option>{% endfor %}</select></div></div>
+          <div class="form-group"><label class="col-sm-2 control-label">{{ entry_geo_zone }}</label><div class="col-sm-10"><select name="shipping_carrier_choice_geo_zone_id" class="form-control"><option value="0">{{ text_all_zones }}</option>{% for geo_zone in geo_zones %}<option value="{{ geo_zone.geo_zone_id }}" {% if geo_zone.geo_zone_id == shipping_carrier_choice_geo_zone_id %}selected{% endif %}>{{ geo_zone.name }}</option>{% endfor %}</select></div></div>
+          <div class="form-group"><label class="col-sm-2 control-label">{{ entry_status }}</label><div class="col-sm-10"><select name="shipping_carrier_choice_status" class="form-control"><option value="1" {% if shipping_carrier_choice_status %}selected{% endif %}>{{ text_enabled }}</option><option value="0" {% if not shipping_carrier_choice_status %}selected{% endif %}>{{ text_disabled }}</option></select></div></div>
+          <div class="form-group"><label class="col-sm-2 control-label">{{ entry_sort_order }}</label><div class="col-sm-10"><input type="number" name="shipping_carrier_choice_sort_order" value="{{ shipping_carrier_choice_sort_order }}" class="form-control" /></div></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+.ccp-carrier-choice-admin .panel{border-top:3px solid #0057d9}
+.ccp-carrier-choice-admin .table>thead>tr>th{border-top:3px solid #0057d9!important;border-right:1px solid #d9e0e8;vertical-align:middle}
+.ccp-carrier-choice-admin .ccp-carrier-main-row>td{vertical-align:middle}
+.ccp-carrier-language+.ccp-carrier-language{margin-top:5px}
+.ccp-provider-row td{background:#f8fafc}
+.ccp-provider-settings{padding:10px 12px}
+.ccp-provider-help{margin-bottom:10px}
+.ccp-credentials{display:none;margin-left:-7px;margin-right:-7px}
+.ccp-credentials>[class*="col-"]{padding-left:7px;padding-right:7px}
+.ccp-provider-row{display:none}
+.ccp-city-count{display:block;margin-top:6px}
+.ccp-carrier-choice-admin .ccp-carrier-main-row .form-control,.ccp-carrier-choice-admin .ccp-provider-settings .form-control,.ccp-carrier-choice-admin .ccp-secret-group>.input-group-btn>.btn{height:38px;min-height:38px}
+.ccp-carrier-choice-admin .ccp-secret-group>.input-group-btn>.btn{width:42px;min-width:42px;padding:8px 10px;display:flex;align-items:center;justify-content:center}
+.ccp-carrier-choice-admin .ccp-secret-group{width:100%}
+.ccp-carrier-action-cell{white-space:nowrap}
+.ccp-carrier-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:nowrap;white-space:nowrap}
+.ccp-carrier-actions .btn{width:38px;height:38px;min-width:38px;padding:8px 9px;display:inline-flex;align-items:center;justify-content:center}
+.ccp-carrier-choice-admin .ccp-provider-help.alert-default{border:1px solid #d9e0e8;background:#fff;color:#44505c}
+html.ccp-admin-dark .ccp-carrier-choice-admin .ccp-provider-row>td{background:#111b25!important;border-color:#344250!important;color:#d7dee7!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .ccp-provider-help.alert-default{background:#172330!important;border-color:#344250!important;color:#d7dee7!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .input-group-addon{background:#1b2835!important;border-color:#41505f!important;color:#d7dee7!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .text-muted,html.ccp-admin-dark .ccp-carrier-choice-admin .help-block{color:#9cabb9!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .table>tfoot>tr>td{background:#111b25!important;border-color:#344250!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .ccp-provider-settings label{color:#d7dee7!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .ccp-provider-settings .form-control{background:#101923!important;border-color:#41505f!important;color:#e5edf5!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .ccp-provider-settings .form-control:focus{border-color:#2f8cff!important;box-shadow:0 0 0 1px rgba(47,140,255,.2)!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .ccp-secret-group>.input-group-btn>.btn{background:#243342!important;border-color:#41505f!important;color:#d7e7f7!important}
+html.ccp-admin-dark .ccp-carrier-choice-admin .ccp-secret-group>.input-group-btn>.btn:hover,html.ccp-admin-dark .ccp-carrier-choice-admin .ccp-secret-group>.input-group-btn>.btn:focus{background:#2c3d4e!important;border-color:#55708c!important;color:#fff!important}
+</style>
+<script type="text/javascript"><!--
+(function($){
+  var row={{ carrier_row }};
+  var providers={{ provider_options|json_encode|raw }};
+  var help={pickup:'{{ help_provider_pickup|escape('js') }}',manual:'{{ help_provider_manual|escape('js') }}',nova_poshta:'{{ help_provider_nova_poshta|escape('js') }}',meest:'{{ help_provider_meest|escape('js') }}',delivery:'{{ help_provider_delivery|escape('js') }}',ukrposhta:'{{ help_provider_ukrposhta|escape('js') }}'};
+  function providerOptions(selected){var h='';$.each(providers,function(code,name){h+='<option value="'+code+'"'+(code===selected?' selected="selected"':'')+'>'+name+'</option>';});return h;}
+  function refreshProvider(r){var $select=$('.ccp-provider-select[data-row="'+r+'"]'),p=$select.val()||'pickup',$box=$('.ccp-provider-settings[data-row="'+r+'"]');$box.find('.ccp-credentials').hide();$box.find('.ccp-cred-'+p).show();$box.find('.ccp-provider-help span').text(help[p]||'');var $sync=$('#carrier-row'+r+' .ccp-sync-cities');$sync.prop('disabled',p==='pickup'||p==='manual').attr('aria-disabled',(p==='pickup'||p==='manual')?'true':'false');}
+  function addCarrier(){var id='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);var names='';{% for language in languages %}names+='<div class="input-group ccp-carrier-language"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name|escape('js') }}" alt="{{ language.code }}" /></span><input type="text" class="form-control" name="shipping_carrier_choice_carriers['+row+'][name][{{ language.language_id }}]" value="" placeholder="{{ entry_name|escape('js') }}" /></div>';{% endfor %}
+    var main='<tr id="carrier-row'+row+'" class="ccp-carrier-main-row"><td><input type="hidden" name="shipping_carrier_choice_carriers['+row+'][id]" value="'+id+'" />'+names+'</td><td><select class="form-control ccp-provider-select" name="shipping_carrier_choice_carriers['+row+'][provider]" data-row="'+row+'">'+providerOptions('pickup')+'</select><small class="text-muted ccp-city-count" data-carrier-id="'+id+'">{{ text_cached_cities|escape('js') }}: <strong>0</strong></small></td><td><input type="number" min="0" step="0.01" class="form-control" name="shipping_carrier_choice_carriers['+row+'][cost]" value="0.0000" /></td><td class="text-center"><input type="checkbox" name="shipping_carrier_choice_carriers['+row+'][status]" value="1" checked /></td><td><input type="number" class="form-control text-right" name="shipping_carrier_choice_carriers['+row+'][sort_order]" value="'+row+'" /></td><td class="text-right ccp-carrier-action-cell"><div class="ccp-carrier-actions"><button type="button" class="btn btn-info ccp-toggle-provider" data-row="'+row+'" title="{{ button_provider_settings|escape('js') }}"><i class="fa fa-cog"></i></button><button type="button" class="btn btn-primary ccp-sync-cities" data-row="'+row+'" data-carrier-id="'+id+'" title="{{ button_sync_cities|escape('js') }}"><i class="fa fa-refresh"></i></button><button type="button" class="btn btn-danger" title="{{ button_remove|escape('js') }}" onclick="$(\'#carrier-row'+row+',#carrier-provider-row'+row+'\').remove();"><i class="fa fa-minus-circle"></i></button></div></td></tr>';
+    var detail='<tr id="carrier-provider-row'+row+'" class="ccp-provider-row"><td colspan="6"><div class="ccp-provider-settings" data-row="'+row+'"><div class="ccp-provider-help alert alert-default"><i class="fa fa-info-circle"></i> <span></span></div><div class="row ccp-credentials ccp-cred-nova_poshta"><div class="col-sm-6"><label>{{ entry_api_key|escape('js') }}</label><div class="input-group ccp-secret-group"><input type="password" class="form-control ccp-secret" name="shipping_carrier_choice_carriers['+row+'][api_key]" autocomplete="new-password"/><span class="input-group-btn"><button type="button" class="btn btn-default ccp-secret-toggle" title="{{ button_show_secret|escape('js') }}"><i class="fa fa-eye"></i></button></span></div></div></div><div class="row ccp-credentials ccp-cred-meest"><div class="col-sm-4"><label>{{ entry_api_login|escape('js') }}</label><input type="text" class="form-control" name="shipping_carrier_choice_carriers['+row+'][api_login]" autocomplete="off"/></div><div class="col-sm-4"><label>{{ entry_api_password|escape('js') }}</label><div class="input-group ccp-secret-group"><input type="password" class="form-control ccp-secret" name="shipping_carrier_choice_carriers['+row+'][api_password]" autocomplete="new-password"/><span class="input-group-btn"><button type="button" class="btn btn-default ccp-secret-toggle" title="{{ button_show_secret|escape('js') }}"><i class="fa fa-eye"></i></button></span></div></div></div><div class="row ccp-credentials ccp-cred-ukrposhta"><div class="col-sm-8"><label>{{ entry_api_token|escape('js') }}</label><div class="input-group ccp-secret-group"><input type="password" class="form-control ccp-secret" name="shipping_carrier_choice_carriers['+row+'][api_token]" autocomplete="new-password"/><span class="input-group-btn"><button type="button" class="btn btn-default ccp-secret-toggle" title="{{ button_show_secret|escape('js') }}"><i class="fa fa-eye"></i></button></span></div></div></div></div></td></tr>';
+    $('#carrier-choice-table tbody').append(main+detail);refreshProvider(row);row++;
+  }
+  $('#button-add-carrier').on('click',addCarrier);
+  $(document).on('change','.ccp-provider-select',function(){refreshProvider($(this).data('row'));});
+  $(document).on('click','.ccp-toggle-provider',function(){var r=$(this).data('row');refreshProvider(r);$('#carrier-provider-row'+r).toggle();});
+  $(document).on('click','.ccp-secret-toggle',function(){var $i=$(this).closest('.input-group').find('.ccp-secret'),show=$i.attr('type')==='password';$i.attr('type',show?'text':'password');$(this).find('i').toggleClass('fa-eye',!show).toggleClass('fa-eye-slash',show);});
+  function escapeHtml(value){return $('<div>').text(value==null?'':String(value)).html();}
+  function parseJsonResponse(text){text=$.trim(text||'');if(!text){throw new Error('Empty response');}try{return JSON.parse(text);}catch(e){var first=text.indexOf('{'),last=text.lastIndexOf('}');if(first!==-1&&last>first){return JSON.parse(text.substring(first,last+1));}throw e;}}
+  $(document).on('click','.ccp-sync-cities',function(){
+    var $b=$(this),id=String($b.data('carrier-id')||''),r=$b.data('row'),$main=$('#carrier-row'+r),$detail=$('#carrier-provider-row'+r);
+    var carrier={provider:$main.find('.ccp-provider-select').val()||'manual',api_key:$detail.find('input[name$="[api_key]"]:not(:disabled)').val()||'',api_login:$detail.find('input[name$="[api_login]"]').val()||'',api_password:$detail.find('input[name$="[api_password]"]').val()||'',api_token:$detail.find('input[name$="[api_token]"]').val()||''};
+    $.ajax({url:'{{ sync_url|escape('js') }}',type:'post',dataType:'text',data:{carrier_id:id,carrier:carrier},beforeSend:function(){$b.prop('disabled',true).find('i').addClass('fa-spin');},complete:function(){$b.find('i').removeClass('fa-spin');refreshProvider(r);},success:function(raw){var j;try{j=parseJsonResponse(raw);}catch(e){$('#carrier-choice-message').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_invalid_json|escape('js') }} (HTTP 200)</div>');return;}if(j.error){$('#carrier-choice-message').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> '+escapeHtml(j.error)+'</div>');return;}$('#carrier-choice-message').html('<div class="alert alert-success"><i class="fa fa-check-circle"></i> '+escapeHtml(j.success||'OK')+'</div>');$('.ccp-city-count[data-carrier-id="'+id+'"]').find('strong').text(j.count||0);},error:function(xhr,textStatus,errorThrown){var detail='HTTP '+xhr.status;if(xhr.responseText){detail+=' — '+$.trim($('<div>').html(xhr.responseText).text()).substring(0,300);}else if(errorThrown){detail+=' — '+errorThrown;}$('#carrier-choice-message').html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> '+escapeHtml(detail)+'</div>');}});
+  });
+  $('.ccp-provider-select').each(function(){refreshProvider($(this).data('row'));});
+})(jQuery);
+//--></script>
+{{ footer }}

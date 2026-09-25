@@ -1,0 +1,105 @@
+{% if error_warning %}
+<div class="alert alert-warning alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>
+{% endif %}
+{% if shipping_methods %}
+<div class="ccp-shipping-methods">
+  <p>{{ text_shipping_method }}</p>
+  {% for shipping_method in shipping_methods %}
+    <div class="ccp-shipping-group">
+      <p><strong>{{ shipping_method.title }}</strong></p>
+      {% if not shipping_method.error %}
+        {% for quote in shipping_method.quote %}
+          {% set is_selected = quote.code == code or not code %}
+          {% if is_selected %}{% set code = quote.code %}{% endif %}
+          {% set shipping_provider = quote.provider|default('') %}
+          {% set shipping_icon = shipping_provider == 'pickup' ? 'fa-shopping-bag' : 'fa-truck' %}
+          <div class="ccp-shipping-option{% if is_selected %} is-selected{% endif %}" data-provider="{{ shipping_provider|e('html_attr') }}">
+            <div class="radio">
+              <label>
+                <input type="radio" name="shipping_method" value="{{ quote.code|e('html_attr') }}"{% if is_selected %} checked="checked"{% endif %}
+                  data-carrier-id="{{ quote.carrier_id|default('')|e('html_attr') }}"
+                  data-requires-location="{{ quote.requires_location|default(false) ? '1' : '0'|e('html_attr') }}" />
+                <span class="ccp-shipping-icon"><i class="fa {{ shipping_icon }}" aria-hidden="true"></i></span>
+                <span class="ccp-shipping-copy"><strong>{{ quote.title }}</strong><small>{{ quote.text }}</small></span>
+              </label>
+            </div>
+            {% if quote.requires_location|default(false) %}
+              {% set same_carrier = carrier_delivery.carrier_id|default('') == quote.carrier_id|default('') %}
+              <div class="ccp-carrier-location{% if is_selected %} is-active{% endif %}" data-carrier-id="{{ quote.carrier_id|e('html_attr') }}"{% if not is_selected %} style="display:none"{% endif %}>
+                <div class="row">
+                  <div class="col-sm-6 ccp-carrier-city-wrap">
+                    <label class="control-label">{{ text_carrier_city }}</label>
+                    <input type="text" class="form-control ccp-carrier-city-search" autocomplete="off" placeholder="{{ text_carrier_city_placeholder|e('html_attr') }}" value="{% if same_carrier %}{{ carrier_delivery.city_name|default('') }}{% endif %}" />
+                    <input type="hidden" name="delivery_city_id" class="ccp-carrier-city-id" value="{% if same_carrier %}{{ carrier_delivery.city_external_id|default('') }}{% endif %}"{% if not is_selected %} disabled="disabled"{% endif %} />
+                    <div class="ccp-carrier-city-results" hidden></div>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="control-label">{{ text_carrier_branch }}</label>
+                    <select name="delivery_branch_id" class="form-control ccp-carrier-branch" data-selected="{% if same_carrier %}{{ carrier_delivery.branch_external_id|default('') }}{% endif %}"{% if not is_selected %} disabled="disabled"{% endif %}>
+                      <option value="">{{ text_carrier_branch_placeholder }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="ccp-carrier-error text-danger" aria-live="polite"></div>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-danger alert-dismissible">{{ shipping_method.error }}</div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+<p><strong>{{ text_comments }}</strong></p>
+<p><textarea name="comment" rows="{% if quick_checkout %}3{% else %}8{% endif %}" class="form-control">{{ comment }}</textarea></p>
+<div class="buttons">
+  <div class="pull-right"><input type="button" value="{{ button_continue|e('html_attr') }}" id="button-shipping-method" data-loading-text="{{ text_loading|e('html_attr') }}" class="btn btn-primary" /></div>
+</div>
+<style>
+.ccp-shipping-option{border:1px solid #dce3eb;border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}.ccp-shipping-option:hover{border-color:#9fc4eb}.ccp-shipping-option.is-selected{border-color:#0b6fd3;box-shadow:0 0 0 2px rgba(11,111,211,.11)}.ccp-shipping-option .radio{margin:0}.ccp-shipping-option .radio label{display:flex;align-items:center;gap:10px;width:100%;margin:0;cursor:pointer}.ccp-shipping-option .radio input{margin:0}.ccp-shipping-icon{display:flex;align-items:center;justify-content:center;width:38px;height:38px;flex:0 0 38px;border-radius:9px;background:#edf6ff;color:#0b6fd3;font-size:17px}.ccp-shipping-copy{display:flex;min-width:0;flex:1 1 auto;flex-direction:column;line-height:1.25}.ccp-shipping-copy strong{font-size:13px}.ccp-shipping-copy small{margin-top:3px;color:#667789}.ccp-shipping-option[data-provider="pickup"] .ccp-shipping-icon{background:#eef9f0;color:#26843c}.ccp-carrier-location{margin-top:10px;padding-top:10px;border-top:1px solid #e8edf3}.ccp-carrier-city-wrap{position:relative}.ccp-carrier-city-results{position:absolute;z-index:50;top:100%;left:15px;right:15px;max-height:240px;overflow:auto;background:#fff;border:1px solid #c9d4e0;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.14)}.ccp-carrier-city-item{display:block;width:100%;border:0;border-bottom:1px solid #eef2f6;background:#fff;padding:9px 10px;text-align:left}.ccp-carrier-city-item:hover,.ccp-carrier-city-item:focus{background:#f2f7fd;outline:0}.ccp-carrier-city-item small{display:block;color:#6b7785}.ccp-carrier-error{min-height:18px;margin-top:5px}.ccp-theme-dark .ccp-shipping-option{background:#172330;border-color:#3a4b5e}.ccp-theme-dark .ccp-shipping-icon{background:#22364c;color:#70b7ff}.ccp-theme-dark .ccp-shipping-option[data-provider="pickup"] .ccp-shipping-icon{background:#203b2b;color:#77cf8c}.ccp-theme-dark .ccp-shipping-copy small{color:#aebdcb}.ccp-theme-dark .ccp-shipping-option.is-selected{border-color:#2787e5}.ccp-theme-dark .ccp-carrier-location{border-color:#324357}.ccp-theme-dark .ccp-carrier-city-results,.ccp-theme-dark .ccp-carrier-city-item{background:#172330;border-color:#34465a;color:#e8eef5}.ccp-theme-dark .ccp-carrier-city-item:hover,.ccp-theme-dark .ccp-carrier-city-item:focus{background:#213449}.ccp-theme-dark .ccp-carrier-city-item small{color:#aebdcb}
+</style>
+<script type="text/javascript">
+(function($){
+'use strict';
+var cityUrl={{ carrier_city_url|json_encode|raw }};
+var branchUrl={{ carrier_branch_url|json_encode|raw }};
+var textBranchPlaceholder={{ text_carrier_branch_placeholder|json_encode|raw }};
+var textBranchLoading={{ text_carrier_branch_loading|json_encode|raw }};
+var textNoResults={{ text_carrier_no_results|json_encode|raw }};
+var textUnavailable={{ error_directory_unavailable|json_encode|raw }};
+var cityTimer=null, cityRequest=null, branchRequest=null;
+
+function activeCarrier(){return $('.ccp-shipping-option input[name="shipping_method"]:checked').closest('.ccp-shipping-option');}
+function activateCarrier(){
+  $('.ccp-shipping-option').removeClass('is-selected').find('.ccp-carrier-location').removeClass('is-active').hide().find('input[name="delivery_city_id"],select[name="delivery_branch_id"]').prop('disabled',true);
+  var $option=activeCarrier().addClass('is-selected'),$box=$option.find('.ccp-carrier-location');
+  if($box.length){$box.addClass('is-active').show().find('input[name="delivery_city_id"],select[name="delivery_branch_id"]').prop('disabled',false);if($box.find('.ccp-carrier-city-id').val()){loadBranches($box,false);}}
+}
+function showCityResults($box,rows){
+  var $list=$box.find('.ccp-carrier-city-results').empty();
+  if(!rows||!rows.length){$('<div class="ccp-carrier-city-item"></div>').text(textNoResults).appendTo($list);$list.prop('hidden',false);return;}
+  $.each(rows,function(_,row){var $b=$('<button type="button" class="ccp-carrier-city-item"></button>').attr('data-id',row.id||'').attr('data-name',row.name||'');$('<span></span>').text(row.name||'').appendTo($b);if(row.region||row.district){$('<small></small>').text([row.region||'',row.district||''].filter(Boolean).join(', ')).appendTo($b);$b.appendTo($list);});
+  $list.prop('hidden',false);
+}
+function searchCities($box){
+  var term=$.trim($box.find('.ccp-carrier-city-search').val()),carrierId=$box.data('carrier-id');
+  if(term.length<2){$box.find('.ccp-carrier-city-results').prop('hidden',true).empty();return;}
+  if(cityRequest){cityRequest.abort();}
+  cityRequest=$.ajax({url:cityUrl,type:'get',dataType:'json',data:{carrier_id:carrierId,q:term},success:function(json){if(json&&json.error){$box.find('.ccp-carrier-error').text(json.error);return;}showCityResults($box,json&&json.cities?json.cities:[]);},error:function(xhr,status){if(status!=='abort'){$box.find('.ccp-carrier-error').text(textUnavailable);}},complete:function(){cityRequest=null;}});
+}
+function loadBranches($box,forceReset){
+  var cityId=$box.find('.ccp-carrier-city-id').val(),carrierId=$box.data('carrier-id'),$select=$box.find('.ccp-carrier-branch'),wanted=forceReset?'':($select.attr('data-selected')||$select.val()||'');
+  if(!cityId){$select.html($('<option></option>').val('').text(textBranchPlaceholder));return;}
+  if(branchRequest){branchRequest.abort();}
+  $select.prop('disabled',true).html($('<option></option>').val('').text(textBranchLoading));
+  branchRequest=$.ajax({url:branchUrl,type:'get',dataType:'json',data:{carrier_id:carrierId,city_id:cityId},success:function(json){$select.empty().append($('<option></option>').val('').text(textBranchPlaceholder));if(json&&json.error){$box.find('.ccp-carrier-error').text(json.error);return;}$.each(json&&json.branches?json.branches:[],function(_,row){var $o=$('<option></option>').val(row.id||'').text(row.name||'');if(wanted&&String(row.id)===String(wanted)){$o.prop('selected',true);}$select.append($o);});$select.attr('data-selected','');},error:function(xhr,status){if(status!=='abort'){$box.find('.ccp-carrier-error').text(textUnavailable);}},complete:function(){$select.prop('disabled',false);branchRequest=null;}});
+}
+$(document).off('change.ccpCarrier','input[name="shipping_method"]').on('change.ccpCarrier','input[name="shipping_method"]',activateCarrier);
+$(document).off('input.ccpCarrier','.ccp-carrier-city-search').on('input.ccpCarrier','.ccp-carrier-city-search',function(){var $box=$(this).closest('.ccp-carrier-location');$box.find('.ccp-carrier-city-id').val('');$box.find('.ccp-carrier-branch').html($('<option></option>').val('').text(textBranchPlaceholder));$box.find('.ccp-carrier-error').text('');clearTimeout(cityTimer);cityTimer=setTimeout(function(){searchCities($box);},250);});
+$(document).off('click.ccpCarrier','.ccp-carrier-city-item[data-id]').on('click.ccpCarrier','.ccp-carrier-city-item[data-id]',function(){var $item=$(this),$box=$item.closest('.ccp-carrier-location');$box.find('.ccp-carrier-city-search').val($item.attr('data-name'));$box.find('.ccp-carrier-city-id').val($item.attr('data-id'));$box.find('.ccp-carrier-city-results').prop('hidden',true).empty();$box.find('.ccp-carrier-error').text('');loadBranches($box,true);});
+$(document).off('blur.ccpCarrier','.ccp-carrier-city-search').on('blur.ccpCarrier','.ccp-carrier-city-search',function(){var $box=$(this).closest('.ccp-carrier-location');setTimeout(function(){$box.find('.ccp-carrier-city-results').prop('hidden',true);},150);});
+activateCarrier();
+})(jQuery);
+</script>

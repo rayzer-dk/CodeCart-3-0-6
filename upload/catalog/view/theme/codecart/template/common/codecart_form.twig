@@ -1,0 +1,52 @@
+{% macro fields(fields, text_required, text_select, instance) %}
+  {% for field in fields %}
+  <div class="form-group ccp-form-field ccp-form-field--{{ field.type }}" data-field="{{ field.key }}">
+    {% if field.type != 'checkbox' %}<label for="{{ instance }}-{{ field.key }}">{{ field.label }}{% if field.required %}<span class="ccp-form-required" aria-hidden="true">*</span>{% endif %}</label>{% endif %}
+    {% if field.type == 'textarea' %}
+      <textarea name="field[{{ field.key }}]" id="{{ instance }}-{{ field.key }}" rows="4" class="form-control" placeholder="{{ field.placeholder }}"{% if field.required %} required="required"{% endif %}></textarea>
+    {% elseif field.type == 'select' %}
+      <select name="field[{{ field.key }}]" id="{{ instance }}-{{ field.key }}" class="form-control"{% if field.required %} required="required"{% endif %}><option value="">{{ text_select }}</option>{% for option in field.options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}</select>
+    {% elseif field.type == 'checkbox' %}
+      <label class="ccp-form-checkbox"><input type="checkbox" name="field[{{ field.key }}]" value="1"{% if field.required %} required="required"{% endif %}> <span>{{ field.label }}{% if field.required %}<span class="ccp-form-required" aria-hidden="true">*</span>{% endif %}</span></label>
+    {% else %}
+      <input type="{{ field.type == 'email' ? 'email' : (field.type == 'tel' ? 'tel' : 'text') }}" name="field[{{ field.key }}]" id="{{ instance }}-{{ field.key }}" value="" class="form-control" placeholder="{{ field.placeholder }}"{% if field.required %} required="required"{% endif %}>
+    {% endif %}
+    <div class="ccp-form-field-error" aria-live="polite"></div>
+  </div>
+  {% endfor %}
+{% endmacro %}
+{% import _self as form_ui %}
+{% if kind == 'info' %}
+  {% set info_body %}{% if form.description %}<div class="ccp-form-description ccp-form-information-content">{{ form.description|raw }}</div>{% endif %}{% endset %}
+  {% if mode == 'button' %}
+  <div class="ccp-form-launch"><button type="button" class="btn btn-primary ccp-form-open" data-toggle="modal" data-target="#{{ instance }}-modal" aria-controls="{{ instance }}-modal"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ button_text }}</button></div>
+  <div class="modal fade ccp-form-modal ccp-form-modal--info" id="{{ instance }}-modal" tabindex="-1" role="dialog" aria-labelledby="{{ instance }}-title">
+    <div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="{{ text_close }}"><span aria-hidden="true">&times;</span></button>{% if form.title %}<h4 class="modal-title" id="{{ instance }}-title">{{ form.title }}</h4>{% endif %}</div><div class="modal-body">{{ info_body }}</div></div></div>
+  </div>
+  {% else %}
+  <section class="ccp-form-card ccp-form-card--info" id="{{ instance }}">{% if form.title %}<h3 class="ccp-form-title">{{ form.title }}</h3>{% endif %}{{ info_body }}</section>
+  {% endif %}
+{% else %}
+  {% set form_body %}
+  <form class="ccp-reusable-form" action="{{ action }}" method="post" data-ccp-form data-client-error="{{ text_client_error }}" novalidate>
+    <input type="hidden" name="form_id" value="{{ form_id }}">
+    <input type="hidden" name="form_token" value="{{ token }}">
+    <input type="hidden" name="context_type" value="{{ context_type }}">
+    <input type="hidden" name="context_id" value="{{ context_id }}">
+    <input type="hidden" name="context_url" value="{{ context_url }}">
+    <div class="ccp-form-honeypot" aria-hidden="true"><label>Website<input type="text" name="{{ honeypot_name }}" value="" tabindex="-1" autocomplete="off"></label></div>
+    {% if form.description %}<div class="ccp-form-description">{{ form.description|raw }}</div>{% endif %}
+    <div class="ccp-form-grid">{{ form_ui.fields(fields, text_required, text_select, instance) }}</div>
+    <div class="ccp-form-message" role="status" aria-live="polite"></div>
+    <div class="ccp-form-actions"><button type="submit" class="btn btn-primary ccp-form-submit"><span>{{ submit_text }}</span><i class="fa fa-spinner fa-spin ccp-form-spinner" aria-hidden="true"></i></button></div>
+  </form>
+  {% endset %}
+  {% if mode == 'button' %}
+  <div class="ccp-form-launch"><button type="button" class="btn btn-primary ccp-form-open" data-toggle="modal" data-target="#{{ instance }}-modal" aria-controls="{{ instance }}-modal"><i class="fa fa-envelope-o" aria-hidden="true"></i> {{ button_text }}</button></div>
+  <div class="modal fade ccp-form-modal" id="{{ instance }}-modal" tabindex="-1" role="dialog" aria-labelledby="{{ instance }}-title">
+    <div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="{{ text_close }}"><span aria-hidden="true">&times;</span></button>{% if form.title %}<h4 class="modal-title" id="{{ instance }}-title">{{ form.title }}</h4>{% endif %}</div><div class="modal-body">{{ form_body }}</div></div></div>
+  </div>
+  {% else %}
+  <section class="ccp-form-card" id="{{ instance }}">{% if form.title %}<h3 class="ccp-form-title">{{ form.title }}</h3>{% endif %}{{ form_body }}</section>
+  {% endif %}
+{% endif %}

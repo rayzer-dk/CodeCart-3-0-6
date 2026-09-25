@@ -1,0 +1,175 @@
+{{ header }}
+<div id="checkout-checkout" class="container ccq-checkout">
+  {% if error_warning %}
+  <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>
+  {% endif %}
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}{% set class = 'col-sm-6' %}{% elseif column_left or column_right %}{% set class = 'col-sm-9' %}{% else %}{% set class = 'col-sm-12' %}{% endif %}
+    <div id="content" class="{{ class|e('html_attr') }}">{{ content_top }}
+      <div class="ccp-commerce ccp-commerce-modern ccq-shell">
+        <div class="ccq-heading">
+          <div><h1>{{ heading_title }}</h1><p>{{ text_quick_subtitle }}</p></div>
+          <a href="{{ login|e('html_attr') }}" class="ccq-login"><i class="fa fa-user"></i> {{ text_quick_login }}</a>
+        </div>
+        <div id="ccq-global-message"></div>
+        <div class="ccq-layout">
+          <main class="ccq-main">
+            <section class="ccq-card ccq-card-active" id="ccq-contact-card">
+              <div class="ccq-card-heading"><i class="fa fa-user"></i><strong>{{ text_quick_contact }}</strong></div>
+              {% if google_login %}<div class="ccq-google-login-wrap">{{ google_login }}</div>{% endif %}
+              <div id="collapse-payment-address" class="ccq-card-body"><div class="ccq-loading"><i class="fa fa-refresh fa-spin"></i></div></div>
+            </section>
+            {% if shipping_required %}
+            <section class="ccq-card" id="ccq-shipping-card">
+              <div class="ccq-card-heading"><i class="fa fa-truck"></i><strong>{{ text_quick_shipping }}</strong></div>
+              <div id="collapse-shipping-method" class="ccq-card-body"><div class="ccq-placeholder">{{ text_quick_fill_contact }}</div></div>
+            </section>
+            {% endif %}
+            <section class="ccq-card" id="ccq-payment-card">
+              <div class="ccq-card-heading"><i class="fa fa-credit-card"></i><strong>{{ text_quick_payment }}</strong></div>
+              <div id="collapse-payment-method" class="ccq-card-body"><div class="ccq-placeholder">{% if shipping_required %}{{ text_quick_choose_shipping }}{% else %}{{ text_quick_fill_contact }}{% endif %}</div></div>
+            </section>
+            <section class="ccq-card" id="ccq-confirm-card" style="display:none">
+              <div class="ccq-card-heading"><i class="fa fa-check-circle-o"></i><strong>{{ text_quick_confirm }}</strong></div>
+              <div id="collapse-checkout-confirm" class="ccq-card-body"></div>
+            </section>
+          </main>
+          <aside class="ccq-aside" id="ccq-cart">{{ quick_cart }}</aside>
+        </div>
+      </div>
+      {{ content_bottom }}
+    </div>
+    {{ column_right }}
+  </div>
+</div>
+<script type="text/javascript">
+(function($) {
+  'use strict';
+  var addressReady = false;
+  var shippingRequired = {{ shipping_required ? 'true' : 'false' }};
+  var cartRequest = null;
+
+  function showGlobal(message, type) {
+    if (!message) { $('#ccq-global-message').empty(); return; }
+    $('#ccq-global-message').html('<div class="alert alert-' + (type || 'info') + ' alert-dismissible"><button type="button" class="close" data-dismiss="alert">&times;</button>' + message + '</div>');
+  }
+  function requestError(xhr, thrownError) {
+    if (window.CodeCartUI) { window.CodeCartUI.error(xhr, thrownError); }
+    else { showGlobal((thrownError || '') + ' ' + (xhr.statusText || ''), 'danger'); }
+  }
+  function setCardReady(selector, ready) { $(selector).toggleClass('ccq-card-active', !!ready); }
+  function clearConfirm() { $('#collapse-checkout-confirm').empty(); $('#ccq-confirm-card').hide(); }
+  function loading() { return '<div class="ccq-loading"><i class="fa fa-refresh fa-spin"></i></div>'; }
+
+  function loadGuest() {
+    $.ajax({url:'index.php?route=checkout/guest&quick=1',dataType:'html',cache:false,success:function(html){var $box=$('#collapse-payment-address').html(html);if(window.CodeCartCaptcha&&typeof window.CodeCartCaptcha.initAll==='function'){window.CodeCartCaptcha.initAll($box[0]);}},error:requestError});
+  }
+  function reloadCartSummary(callback) {
+    $.ajax({url:'index.php?route=checkout/checkout/quickCart',dataType:'html',cache:false,success:function(html){$('#ccq-cart').html(html);if(typeof callback==='function'){callback();}},error:requestError});
+  }
+  function refreshPaymentCards() {
+    $('#collapse-payment-method .ccq-payment-option').each(function(){
+      var $option=$(this);
+      $option.toggleClass('is-selected',$option.find('input[name="payment_method"]:checked').length>0);
+    });
+  }
+  function loadPayment() {
+    clearConfirm();
+    $('#collapse-payment-method').html(loading());
+    $.ajax({url:'index.php?route=checkout/payment_method&quick=1',dataType:'html',cache:false,success:function(html){$('#collapse-payment-method').html(html);refreshPaymentCards();setCardReady('#ccq-payment-card',true);},error:requestError});
+  }
+  function saveShipping() {
+    if (!$('#collapse-shipping-method input[name="shipping_method"]:checked').length) { return; }
+    clearConfirm();
+    $.ajax({url:'index.php?route=checkout/shipping_method/save&quick=1',type:'post',data:$('#collapse-shipping-method :input').serialize(),dataType:'json',success:function(json){
+      if(json.redirect){location=json.redirect;return;}
+      $('#collapse-shipping-method .alert').remove();
+      if(json.error&&json.error.warning){$('#collapse-shipping-method').prepend('<div class="alert alert-danger">'+json.error.warning+'</div>');return;}
+      reloadCartSummary(loadPayment);
+    },error:requestError});
+  }
+  function loadShipping() {
+    clearConfirm();
+    $('#collapse-payment-method').html('<div class="ccq-placeholder">{{ text_quick_choose_shipping|escape('js') }}</div>');
+    setCardReady('#ccq-payment-card',false);
+    $('#collapse-shipping-method').html(loading());
+    $.ajax({url:'index.php?route=checkout/shipping_method&quick=1',dataType:'html',cache:false,success:function(html){
+      $('#collapse-shipping-method').html(html);setCardReady('#ccq-shipping-card',true);
+      if($('#collapse-shipping-method input[name="shipping_method"]:checked').length){var $selected=$('#collapse-shipping-method input[name="shipping_method"]:checked');if($selected.attr('data-requires-location')!=='1'||$('#collapse-shipping-method .ccp-carrier-location.is-active select[name="delivery_branch_id"]').val()){saveShipping();}}
+    },error:requestError});
+  }
+  function afterAddressSaved() {
+    addressReady=true; setCardReady('#ccq-contact-card',true);
+    if(shippingRequired){loadShipping();}else{loadPayment();}
+  }
+  function renderGuestErrors(json) {
+    $('#collapse-payment-address .alert, #collapse-payment-address .text-danger').remove();
+    $('#collapse-payment-address .form-group').removeClass('has-error');
+    if(!json.error){return;}
+    var first='';
+    $.each(json.error,function(key,message){
+      if(!first){first=message;}
+      var normalized=key.replace('_','-');
+      var $element=$('#input-payment-'+normalized);
+      if(!$element.length&&key.indexOf('custom_field')===0){$element=$('#input-payment-'+key.replace('custom_field','custom-field'));}
+      if($element.length){$element.after('<div class="text-danger">'+message+'</div>');$element.closest('.form-group').addClass('has-error');}
+    });
+    if(first){$('#collapse-payment-address').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> '+first+'</div>');}
+  }
+
+  $(document).on('click','#button-guest',function(){
+    var $button=$(this);
+    $.ajax({url:'index.php?route=checkout/guest/save&quick=1',type:'post',data:$('#collapse-payment-address :input').serialize(),dataType:'json',beforeSend:function(){$button.button('loading');},complete:function(){$button.button('reset');},success:function(json){
+      if(json.redirect){location=json.redirect;return;}
+      if(json.error){renderGuestErrors(json);if(json.error.captcha&&window.CodeCartCaptcha&&typeof window.CodeCartCaptcha.resetAll==='function'){window.CodeCartCaptcha.resetAll($('#collapse-payment-address')[0],true);}return;}
+      renderGuestErrors({});afterAddressSaved();
+    },error:requestError});
+  });
+  $(document).on('change','#collapse-shipping-method input[name="shipping_method"]',function(){if($(this).attr('data-requires-location')!=='1'){saveShipping();}});
+  $(document).on('change','#collapse-shipping-method select[name="delivery_branch_id"]',function(){if($(this).val()){saveShipping();}});
+  $(document).on('click','#button-shipping-method',function(e){e.preventDefault();saveShipping();});
+  $(document).on('change','#collapse-payment-method input, #collapse-payment-method textarea',function(){refreshPaymentCards();clearConfirm();});
+  $(document).on('click','#button-payment-method',function(){
+    var $button=$(this);
+    $.ajax({url:'index.php?route=checkout/payment_method/save',type:'post',data:$('#collapse-payment-method :input').serialize(),dataType:'json',beforeSend:function(){$button.button('loading');},complete:function(){$button.button('reset');},success:function(json){
+      $('#collapse-payment-method .alert').remove();
+      if(json.redirect){location=json.redirect;return;}
+      if(json.error&&json.error.warning){$('#collapse-payment-method').prepend('<div class="alert alert-danger">'+json.error.warning+'</div>');return;}
+      reloadCartSummary(function(){
+        $('#collapse-checkout-confirm').html(loading());
+        $.ajax({url:'index.php?route=checkout/confirm&quick=1',dataType:'html',cache:false,success:function(html){
+          $('#collapse-checkout-confirm').html(html);
+          window.setTimeout(function(){
+            var $confirm=$('#collapse-checkout-confirm #button-confirm').first();
+            if($confirm.length){$confirm.trigger('click');return;}
+            var $form=$('#collapse-checkout-confirm form').first();
+            var $submit=$form.find('button[type="submit"],input[type="submit"]').first();
+            if($form.length&&$submit.length){$form.trigger('submit');return;}
+            $('#ccq-confirm-card').show().addClass('ccq-card-active');
+          },30);
+        },error:requestError});
+      });
+    },error:requestError});
+  });
+
+  function updateCart(cartId, quantity) {
+    if(cartRequest){cartRequest.abort();}
+    cartRequest=$.ajax({url:'index.php?route=checkout/checkout/quickCartUpdate',type:'post',data:{cart_id:cartId,quantity:quantity},dataType:'json',success:function(json){
+      if(json.redirect){location=json.redirect;return;}
+      if(json.error){showGlobal(json.error,'danger');reloadCartSummary();return;}
+      if(json.html){$('#ccq-cart').html(json.html);}
+      if(window.CodeCartCartUI&&typeof window.CodeCartCartUI.refreshHeaderCart==='function'){window.CodeCartCartUI.refreshHeaderCart();}
+      showGlobal('{{ text_quick_cart_updated|escape('js') }}','success');clearConfirm();
+      if(addressReady){if(shippingRequired){loadShipping();}else{loadPayment();}}
+    },error:function(xhr,ajaxOptions,thrownError){if(thrownError!=='abort'){requestError(xhr,thrownError);}},complete:function(){cartRequest=null;}});
+  }
+  $(document).on('click','#ccq-cart [data-action]',function(){
+    var $row=$(this).closest('.ccq-cart-product'), cartId=$row.data('cart-id'); if(!cartId){return;}
+    var $input=$row.find('.ccq-qty input'), quantity=parseInt($input.val(),10)||0, minimum=parseInt($row.find('.ccq-qty').data('minimum'),10)||1, action=$(this).data('action');
+    if(action==='plus'){quantity++;} if(action==='minus'){quantity=Math.max(minimum,quantity-1);} if(action==='remove'){quantity=0;} updateCart(cartId,quantity);
+  });
+  $(document).on('change','#ccq-cart .ccq-qty input',function(){var $row=$(this).closest('.ccq-cart-product');updateCart($row.data('cart-id'),parseInt($(this).val(),10)||0);});
+  loadGuest();
+})(jQuery);
+</script>
+{{ footer }}

@@ -1,0 +1,4 @@
+Swiper 3 is retained only for OpenCart 3 Legacy Compatibility.
+The bundled default theme does not load it in current CodeCart PRO releases.
+Do not use Swiper 3 for new Core or Modern Extension code.
+It remains at the historical path so existing third-party themes/modules do not break.

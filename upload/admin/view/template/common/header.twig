@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html dir="{{ direction }}" lang="{{ lang }}">
+<head>
+<meta charset="UTF-8" />
+<script>(function(){try{var m=localStorage.getItem('codecart_admin_theme')||'light';var d=m==='dark'||(m==='system'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('ccp-admin-dark',d);document.documentElement.setAttribute('data-ccp-admin-theme',m);}catch(e){}})();</script>
+<title>{{ title }}</title>
+<base href="{{ base }}" />
+{% if description %}
+<meta name="description" content="{{ description }}" />
+{% endif %}
+{% if keywords %}
+<meta name="keywords" content="{{ keywords }}" />
+{% endif %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script type="text/javascript" src="view/javascript/jquery/jquery-3.7.1.min.js"></script>
+<script type="text/javascript" src="view/javascript/bootstrap/js/bootstrap.min.js"></script>
+<link href="view/stylesheet/bootstrap.css" type="text/css" rel="stylesheet" />
+<link href="view/javascript/font-awesome/css/font-awesome.min.css?v=6.7.2-cc177" type="text/css" rel="stylesheet" />
+<script src="view/javascript/datetimepicker/codecart-native-datetimepicker.js?v=3.0.6.0-dtp187" type="text/javascript"></script>
+<link href="view/javascript/datetimepicker/codecart-native-datetimepicker.css?v=3.0.6.0-dtp187" type="text/css" rel="stylesheet" media="screen" />
+<link type="text/css" href="view/stylesheet/stylesheet.css?v=3.0.6.0-20260915-10" rel="stylesheet" media="screen" />
+<style>:root{--ccp-admin-accent:{{ admin_accent_color }};--ccp-admin-sidebar:{{ admin_sidebar_color }};--ccp-admin-submenu:{{ admin_submenu_color }};--ccp-admin-surface:{{ admin_surface_color }};}</style>
+{% for style in styles %}
+<link type="text/css" href="{{ style.href }}" rel="{{ style.rel }}" media="{{ style.media }}" />
+{% endfor %}
+{% for link in links %}
+<link href="{{ link.href }}" rel="{{ link.rel }}" />
+{% endfor %}
+{% if not has_store_favicon %}<link rel="icon" type="image/webp" href="view/image/favicon.webp?v={{ package_build }}" />{% endif %}
+{% if (current_route|default('')) in ['extension/module/uni_settings','extension/theme/unishop2'] %}<style id="ccp-unishop-admin-compat">#unishop .nav-pills>li>a.section-0,#unishop .nav-pills>li>a.section-1,#unishop .nav-pills>li>a.section-2{position:relative;display:block;box-sizing:border-box;width:100%;padding-right:38px!important;white-space:normal;overflow:visible}#unishop .nav-pills>li>a.section-0>i,#unishop .nav-pills>li>a.section-1>i,#unishop .nav-pills>li>a.section-2>i{position:absolute;right:12px;top:50%;margin-top:-7px}#unishop .nav-pills .new-sticker{right:34px!important;top:50%!important;margin-top:-7px!important}#unishop .uni_set{min-width:0}#unishop #module{min-width:0;overflow:hidden}</style>{% endif %}
+<script src="view/javascript/editor/opencart.js?v=3.0.6.0" type="text/javascript"></script>
+<script>window.CodeCartI18n={{ codecart_ui_i18n|json_encode|raw }};</script>
+<script src="view/javascript/common.js?v=3.0.6.0" type="text/javascript"></script>
+<script src="view/javascript/codecart-admin-ui.js?v=3.0.6.0" type="text/javascript"></script>
+{% for asset_id, asset in modern_assets %}
+{% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}
+{% if asset.type == 'style' %}<link rel="stylesheet" href="{{ asset.url }}" media="{{ asset.media }}" />{% elseif asset.type == 'script' %}<script src="{{ asset.url }}"{% if asset.module %} type="module"{% else %} type="text/javascript"{% endif %}{% if asset.defer %} defer{% endif %}{% if asset.async %} async{% endif %}></script>{% endif %}
+{% endfor %}
+<link type="text/css" href="view/stylesheet/codecart-admin-dark.css?v=3.0.6.0-b126" rel="stylesheet" media="screen" />
+{% for script in scripts %}
+<script type="text/javascript" src="{{ script }}"></script>
+{% endfor %}
+</head>
+<body>
+<div id="container">
+<header id="header" class="navbar navbar-static-top">
+  <div class="container-fluid">
+    <div id="header-logo" class="navbar-header"><a href="{{ home }}" class="navbar-brand"><img src="view/image/logo.webp?v={{ package_build }}" alt="{{ heading_title }}" title="{{ heading_title }}" /></a></div>
+    {% if logged %}<a href="#" id="button-menu" class="hidden-md hidden-lg"><span class="fa fa-bars"></span></a>
+    <ul class="nav pull-left">
+      <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown"  title="{{ text_new }}"><i class="fa fa-plus fa-lg"></i> <span class="header-item">{{ text_new }}</span></a>
+        <ul class="dropdown-menu dropdown-menu-left alerts-dropdown">
+          <li><a href="{{ new_product }}" style="display: block; overflow: auto;">{{ text_new_product }}</a></li>
+          <li><a href="{{ new_category }}" style="display: block; overflow: auto;">{{ text_new_category }}</a></li>
+          <li><a href="{{ new_manufacturer }}" style="display: block; overflow: auto;">{{ text_new_manufacturer }}</a></li>
+          <li><a href="{{ new_customer }}" style="display: block; overflow: auto;">{{ text_new_customer }}</a></li>
+          <li><a href="{{ new_download }}" style="display: block; overflow: auto;">{{ text_new_download }}</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div id="oc-search-div" class="col-sm-3 col-md-3 pull-left">
+      {{ search }}
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="ccp-modification-refresh-menu ccp-ocmod-state-{{ ocmod_state }}"><a href="{{ modification_refresh }}" title="{{ ocmod_state_title }}" aria-label="{{ ocmod_state_title }}"><i class="fa fa-refresh" aria-hidden="true"></i><span class="ccp-ocmod-state-dot" aria-hidden="true"></span><span class="sr-only">{{ ocmod_state_title }}</span></a></li>
+      <li class="ccp-admin-theme-menu"><a href="#" id="ccp-admin-theme-toggle" role="button" title="{{ text_admin_theme_toggle }}" aria-label="{{ text_admin_theme_toggle }}" aria-pressed="false"><i class="fa fa-moon" aria-hidden="true"></i><span class="sr-only">{{ text_admin_theme }}</span></a></li>
+      <li class="dropdown ccp-notification-menu"><a href="#" class="dropdown-toggle ccp-notification-toggle" data-toggle="dropdown" title="{{ text_system_notifications }}" aria-label="{{ text_system_notifications }}"><i class="fa fa-bell"></i>{% if notification_count %}<span class="ccp-notification-count">{{ notification_count }}</span>{% endif %}</a>
+        <ul class="dropdown-menu dropdown-menu-right ccp-notification-dropdown">
+          <li class="dropdown-header"><i class="fa fa-bell-o"></i> {{ text_system_notifications }}</li>
+          {% if system_notifications %}{% for item in system_notifications %}<li class="ccp-notification-item ccp-notification-{{ item.severity }}"><a href="{{ notifications_href }}"><span class="ccp-notification-icon"><i class="fa {% if item.severity == 'critical' or item.severity == 'error' %}fa-exclamation-circle{% elseif item.severity == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i></span><span class="ccp-notification-copy"><strong>{{ item.title }}</strong><small>{{ item.message }}</small></span></a></li>{% endfor %}{% else %}<li class="ccp-notification-empty"><a href="{{ notifications_href }}">{{ text_no_system_notifications }}</a></li>{% endif %}
+          <li role="separator" class="divider"></li><li class="ccp-notification-all"><a href="{{ notifications_href }}"><i class="fa fa-list fa-fw"></i> {{ text_all_system_notifications }}</a></li>
+        </ul>
+      </li>
+      <li class="dropdown ccp-admin-profile"><a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ firstname }} {{ lastname }}">{% if image %}<img src="{{ image }}" alt="{{ firstname }} {{ lastname }}" title="{{ username }}" id="user-profile" class="img-circle" />{% else %}<span id="user-profile" class="ccp-admin-profile-fallback img-circle" title="{{ username }}" aria-hidden="true"><i class="fa fa-user"></i></span>{% endif %}<span class="ccp-admin-profile-name hidden-xs">{{ firstname }} {{ lastname }}</span> <i class="fa fa-caret-down fa-fw"></i></a>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li><a href="{{ profile }}"><i class="fa fa-user-circle-o fa-fw"></i> {{ text_profile }}</a></li>
+          <li role="separator" class="divider"></li>
+          <li class="dropdown-header">{{ text_store }}</li>
+          {% for store in stores %}
+          <li><a href="{{ store.href }}" target="_blank">{{ store.name }}</a></li>
+          {% endfor %}
+          <li role="separator" class="divider"></li>
+          <li class="dropdown-header">{{ text_help }}</li>
+          <li><a href="{{ codecart_homepage }}" target="_blank" rel="noopener"><i class="fa fa-globe fa-fw"></i> {{ text_homepage }}</a></li>
+          <li><a href="{{ codecart_documentation }}" download><i class="fa fa-file-archive-o fa-fw"></i> {{ text_documentation }}</a></li>
+          <li><a href="{{ codecart_forum }}" target="_blank" rel="noopener"><i class="fa fa-comments-o fa-fw"></i> {{ text_support }}</a></li>
+        </ul>
+      </li>
+      <li><a href="{{ logout }}"><i class="fa fa-sign-out"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_logout }}</span></a></li>
+    </ul>
+    {% endif %} </div>
+</header>

@@ -1,0 +1,25 @@
+<form>
+	<div class="row">
+		<div class="col-sm-6">
+			<div class="address">{{ shipping_address['firstname']|e }} {{ shipping_address['lastname']|e }}<br />{{ shipping_address['address_1']|e }}{% if shipping_address['address_2'] %}, {{ shipping_address['address_2']|e }}{% endif %}<br />{{ shipping_address['city']|e }}, {{ shipping_address['zone']|e }} {{ shipping_address['postcode']|e }}, {{ shipping_address['country']|e }}{% if guest['telephone'] %}<br />{{ guest['telephone']|e }}{% endif %}</div>
+			<input type="hidden" name="firstname" value="{{ shipping_address['firstname']|e }}" id="input_shipping_firstname" />
+			<input type="hidden" name="lastname" value="{{ shipping_address['lastname']|e }}" id="input_shipping_lastname" />
+			<input type="hidden" name="address_1" value="{{ shipping_address['address_1']|e }}" id="input_shipping_address_1" />
+			<input type="hidden" name="address_2" value="{{ shipping_address['address_2']|e }}" id="input_shipping_address_2" />
+			<input type="hidden" name="city" value="{{ shipping_address['city']|e }}" id="input_shipping_city" />
+			<input type="hidden" name="postcode" value="{{ shipping_address['postcode']|e }}" id="input_shipping_postcode" />
+			<input type="hidden" name="country_id" value="{{ shipping_address['country_id'] }}" id="input_shipping_country" />
+			<input type="hidden" name="zone_id" value="{{ shipping_address['zone_id'] }}" id="input_shipping_zone" />
+			<input type="hidden" name="telephone" value="{{ guest['telephone']|e }}" id="input_telephone" />
+		</div>
+		<div class="col-sm-6">
+			<div class="text-right">
+				<button class="button-edit btn btn-default">{{ button_edit }}</button>
+			</div>
+		</div>
+	</div>
+	<br />
+	<div class="text-center">
+		<button class="button-confirm btn btn-primary">{{ button_confirm }}</button>
+	</div>
+</form>

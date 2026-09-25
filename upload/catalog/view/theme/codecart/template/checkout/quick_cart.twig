@@ -1,0 +1,28 @@
+<div class="ccq-cart-box">
+  <div class="ccq-cart-title"><i class="fa fa-shopping-cart"></i><strong>{{ text_quick_cart }}</strong></div>
+  {% for product in products %}
+  <div class="ccq-cart-product" data-cart-id="{{ product.cart_id|e('html_attr') }}">
+    {% if product.thumb %}<a href="{{ product.href|e('html_attr') }}" class="ccq-cart-thumb"><img src="{{ product.thumb|e('html_attr') }}" alt="{{ product.name|e('html_attr') }}" /></a>{% endif %}
+    <div class="ccq-cart-info">
+      <a href="{{ product.href|e('html_attr') }}" class="ccq-cart-name">{{ product.name }}</a>
+      {% if product.model %}<small>{{ product.model }}</small>{% endif %}
+      {% for option in product.option %}<small>{{ option.name }}: {{ option.value }}</small>{% endfor %}
+      <div class="ccq-cart-price">{{ product.price }}</div>
+    </div>
+    <div class="ccq-cart-actions">
+      <div class="ccq-qty" data-minimum="{{ product.minimum|e('html_attr') }}">
+        <button type="button" class="btn btn-default" data-action="minus" title="−" aria-label="− {{ product.name }}"><i class="fa fa-minus"></i></button>
+        <input type="number" min="{{ product.minimum|e('html_attr') }}" value="{{ product.quantity|e('html_attr') }}" class="form-control" aria-label="{{ product.name|e('html_attr') }}" />
+        <button type="button" class="btn btn-default" data-action="plus" title="+" aria-label="+ {{ product.name }}"><i class="fa fa-plus"></i></button>
+      </div>
+      <button type="button" class="btn btn-link ccq-remove" data-action="remove" title="{{ button_remove|e('html_attr') }}" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times"></i></button>
+    </div>
+  </div>
+  {% endfor %}
+  {% for voucher in vouchers %}
+  <div class="ccq-cart-voucher"><span>{{ voucher.description }}</span><strong>{{ voucher.amount }}</strong></div>
+  {% endfor %}
+  <div class="ccq-totals">
+    {% for total in totals %}<div><span>{{ total.title }}</span><strong>{{ total.text }}</strong></div>{% endfor %}
+  </div>
+</div>

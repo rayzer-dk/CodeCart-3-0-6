@@ -1,0 +1,7 @@
+/* CodeCart PRO editor integration: loaded only on admin pages that contain Summernote. */
+.ccp-codemirror-theme-wrap{display:none!important;margin-left:4px;vertical-align:top}
+.note-editor.codeview .ccp-codemirror-theme-wrap{display:inline-block!important}
+.ccp-codemirror-theme{width:auto;min-width:118px;height:30px;padding:4px 24px 4px 8px;font-size:12px;line-height:20px}
+.note-editor.codeview .note-editing-area .CodeMirror{height:320px;min-height:220px;border:0;border-radius:0;font-size:13px;line-height:1.45}
+.note-editor.codeview .note-editing-area .CodeMirror-scroll{min-height:220px}
+.note-editor.codeview .note-editing-area>.note-codable{display:none!important}

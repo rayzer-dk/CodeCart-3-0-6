@@ -1,0 +1,50 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-wpforms"></i> {{ text_edit }}</h3></div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+          <div class="form-group{% if error_name %} has-error{% endif %}">
+            <label class="col-sm-2 control-label" for="input-name">{{ entry_name }}</label>
+            <div class="col-sm-10"><input type="text" name="name" value="{{ name }}" id="input-name" class="form-control" />{% if error_name %}<div class="text-danger">{{ error_name }}</div>{% endif %}</div>
+          </div>
+          <div class="form-group{% if error_form %} has-error{% endif %}">
+            <label class="col-sm-2 control-label" for="input-form"><span data-toggle="tooltip" title="{{ help_form }}">{{ entry_form }}</span></label>
+            <div class="col-sm-10">
+              <div class="input-group"><select name="form_id" id="input-form" class="form-control"><option value="0">—</option>{% for item in forms %}<option value="{{ item.form_id }}"{% if form_id == item.form_id %} selected="selected"{% endif %}>{{ item.title ? item.title : item.name }}{% if not item.status %} [OFF]{% endif %}</option>{% endfor %}</select><span class="input-group-btn"><a href="{{ forms_url }}" target="_blank" class="btn btn-default" title="{{ text_open_forms }}"><i class="fa fa-external-link"></i></a></span></div>
+              {% if error_form %}<div class="text-danger">{{ error_form }}</div>{% endif %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-mode"><span data-toggle="tooltip" title="{{ help_mode }}">{{ entry_mode }}</span></label>
+            <div class="col-sm-10"><select name="mode" id="input-mode" class="form-control"><option value="inline"{% if mode == 'inline' %} selected="selected"{% endif %}>{{ text_inline }}</option><option value="button"{% if mode == 'button' %} selected="selected"{% endif %}>{{ text_button }}</option></select></div>
+          </div>
+          <div id="button-text-wrap"{% if mode != 'button' %} class="hidden"{% endif %}>
+            <div class="form-group ccp-form-language-tabs">
+              <div class="col-sm-offset-2 col-sm-10"><ul class="nav nav-tabs">{% for language in languages %}<li{% if loop.first %} class="active"{% endif %}><a href="#form-button-text-{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" alt="{{ language.name }}" /> {{ language.name }}</a></li>{% endfor %}</ul></div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_button_text }}">{{ entry_button_text }}</span></label>
+              <div class="col-sm-10"><div class="tab-content">{% for language in languages %}<div class="tab-pane{% if loop.first %} active{% endif %}" id="form-button-text-{{ language.language_id }}"><input type="text" name="button_text[{{ language.language_id }}]" value="{{ button_text[language.language_id] is defined ? button_text[language.language_id] : '' }}" class="form-control" /></div>{% endfor %}</div></div>
+            </div>
+          </div>
+          <div class="form-group"><label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label><div class="col-sm-10"><select name="status" id="input-status" class="form-control"><option value="1"{% if status %} selected="selected"{% endif %}>{{ text_enabled }}</option><option value="0"{% if not status %} selected="selected"{% endif %}>{{ text_disabled }}</option></select></div></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">$('#input-mode').on('change',function(){$('#button-text-wrap').toggleClass('hidden',this.value!=='button');});</script>
+{{ footer }}

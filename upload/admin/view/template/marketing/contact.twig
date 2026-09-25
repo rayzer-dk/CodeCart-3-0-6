@@ -1,0 +1,374 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button id="button-send" data-loading-text="{{ text_loading }}" data-toggle="tooltip" title="{{ button_send }}" class="btn btn-primary" onclick="send('index.php?route=marketing/contact/send&user_token={{ user_token }}');"><i class="fa fa-envelope"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-envelope"></i> {{ heading_title }}</h3>
+      </div>
+      <div class="panel-body">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-store">{{ entry_store }}</label>
+            <div class="col-sm-10">
+              <select name="store_id" id="input-store" class="form-control">
+                <option value="0">{{ text_default }}</option>               
+                {% for store in stores %}
+                <option value="{{ store.store_id }}">{{ store.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-to">{{ entry_to }}</label>
+            <div class="col-sm-10">
+              <select name="to" id="input-to" class="form-control">
+                <option value="newsletter">{{ text_newsletter }}</option>
+                <option value="customer_all">{{ text_customer_all }}</option>
+                <option value="customer_group">{{ text_customer_group }}</option>
+                <option value="customer">{{ text_customer }}</option>
+                <option value="affiliate_all">{{ text_affiliate_all }}</option>
+                <option value="affiliate">{{ text_affiliate }}</option>
+                <option value="product">{{ text_product }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group to" id="to-customer-group">
+            <label class="col-sm-2 control-label" for="input-customer-group">{{ entry_customer_group }}</label>
+            <div class="col-sm-10">
+              <select name="customer_group_id" id="input-customer-group" class="form-control">
+                {% for customer_group in customer_groups %}
+                <option value="{{ customer_group.customer_group_id }}">{{ customer_group.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group to" id="to-customer">
+            <label class="col-sm-2 control-label" for="input-customer"><span data-toggle="tooltip" title="{{ help_customer }}">{{ entry_customer }}</span></label>
+            <div class="col-sm-10">
+              <input type="text" name="customers" value="" placeholder="{{ entry_customer }}" id="input-customer" class="form-control" />
+              <div class="well well-sm" style="height: 150px; overflow: auto;"></div>
+            </div>
+          </div>
+          <div class="form-group to" id="to-affiliate">
+            <label class="col-sm-2 control-label" for="input-affiliate"><span data-toggle="tooltip" title="{{ help_affiliate }}">{{ entry_affiliate }}</span></label>
+            <div class="col-sm-10">
+              <input type="text" name="affiliates" value="" placeholder="{{ entry_affiliate }}" id="input-affiliate" class="form-control" />
+              <div class="well well-sm" style="height: 150px; overflow: auto;"></div>
+            </div>
+          </div>
+          <div class="form-group to" id="to-product">
+            <label class="col-sm-2 control-label" for="input-product"><span data-toggle="tooltip" title="{{ help_product }}">{{ entry_product }}</span></label>
+            <div class="col-sm-10">
+              <input type="text" name="products" value="" placeholder="{{ entry_product }}" id="input-product" class="form-control" />
+              <div class="well well-sm" style="height: 150px; overflow: auto;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-mail-template">{{ entry_template }}</label>
+            <div class="col-sm-10">
+              <div class="row">
+                <div class="col-sm-5">
+                  <select name="template_id" id="input-mail-template" class="form-control">
+                    <option value="">{{ text_template_new }}</option>
+                    {% for template_id, template in mail_templates %}
+                    <option value="{{ template_id|escape }}">{{ template.name|escape }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-sm-4">
+                  <input type="text" name="template_name" value="" placeholder="{{ entry_template_name }}" id="input-template-name" class="form-control" />
+                </div>
+                <div class="col-sm-3">
+                  <button type="button" id="button-template-load" class="btn btn-default" data-toggle="tooltip" title="{{ button_template_load }}"><i class="fa fa-folder-open"></i></button>
+                  <button type="button" id="button-template-save" class="btn btn-primary" data-toggle="tooltip" title="{{ button_template_save }}"><i class="fa fa-save"></i></button>
+                  <button type="button" id="button-template-preview" class="btn btn-info" data-toggle="tooltip" title="{{ button_template_preview }}"><i class="fa fa-eye"></i></button>
+                  <button type="button" id="button-template-delete" class="btn btn-danger" data-toggle="tooltip" title="{{ button_template_delete }}"><i class="fa fa-trash"></i></button>
+                </div>
+              </div>
+              <p class="help-block">{{ help_template_variables }}</p>
+            </div>
+          </div>
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-subject">{{ entry_subject }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="subject" value="" placeholder="{{ entry_subject }}" id="input-subject" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group required">
+            <label class="col-sm-2 control-label" for="input-message">{{ entry_message }}</label>
+            <div class="col-sm-10">
+              <textarea name="message" placeholder="{{ entry_message }}" id="input-message" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-history"></i> {{ text_campaign_history }}</h3></div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover" style="border-top:3px solid #0057d9;margin-bottom:0;">
+          <thead><tr><td>{{ column_campaign }}</td><td>{{ column_audience }}</td><td>{{ column_progress }}</td><td>{{ column_status }}</td><td>{{ column_date_added }}</td></tr></thead>
+          <tbody>{% if recent_campaigns %}{% for campaign in recent_campaigns %}<tr><td>#{{ campaign.campaign_id }} — {{ campaign.subject }}</td><td>{{ campaign.audience }}</td><td>{{ campaign.sent }}/{{ campaign.total }}{% if campaign.failed %} · failed {{ campaign.failed }}{% endif %}{% if campaign.suppressed %} · suppressed {{ campaign.suppressed }}{% endif %}</td><td>{% if campaign.status == 'queued' %}<span class="label label-warning">{{ text_campaign_queued_status }}</span>{% elseif campaign.status == 'sending' %}<span class="label label-info">{{ text_campaign_sending }}</span>{% elseif campaign.status == 'completed' %}<span class="label label-success">{{ text_campaign_completed }}</span>{% else %}<span class="label label-default">{{ text_campaign_empty }}</span>{% endif %}</td><td>{{ campaign.date_added }}</td></tr>{% endfor %}{% else %}<tr><td colspan="5" class="text-center">{{ text_no_results }}</td></tr>{% endif %}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-mail-preview" tabindex="-1" role="dialog" aria-labelledby="mail-preview-title">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="{{ button_close }}"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="mail-preview-title">{{ text_template_preview }}</h4>
+        </div>
+        <div class="modal-body">
+          <iframe id="mail-preview-frame" sandbox="" style="width:100%;height:520px;border:1px solid #ddd;background:#fff;"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript"><!--
+$('select[name=\'to\']').on('change', function() {
+	$('.to').hide();
+
+	$('#to-' + this.value.replace('_', '-')).show();
+});
+
+$('select[name=\'to\']').trigger('change');
+//--></script> 
+  <script type="text/javascript"><!--
+function mailTemplateAlert(type, message) {
+	$('.mail-template-alert').remove();
+	$('#content > .container-fluid').prepend('<div class="mail-template-alert alert alert-' + type + ' alert-dismissible"><i class="fa fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + $('<div>').text(message).html() + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+}
+
+function currentMailHtml() {
+	if ($('#input-message').next('.note-editor').length && typeof $('#input-message').summernote === 'function') {
+		return $('#input-message').summernote('code');
+	}
+	return $('#input-message').val();
+}
+
+$('#button-template-load').on('click', function() {
+	var templateId = $('#input-mail-template').val();
+	if (!templateId) { return; }
+	$.getJSON('{{ template_load_url }}&template_id=' + encodeURIComponent(templateId), function(json) {
+		if (json.error) { mailTemplateAlert('danger', json.error); return; }
+		$('#input-template-name').val(json.template.name || '');
+		$('#input-subject').val(json.template.subject || '');
+		$('#input-message').val(json.template.message || '');
+		if (typeof $('#input-message').summernote === 'function') { $('#input-message').summernote('code', json.template.message || ''); }
+	});
+});
+
+$('#button-template-save').on('click', function() {
+	$.ajax({
+		url: '{{ template_save_url }}',
+		type: 'post',
+		dataType: 'json',
+		data: {
+			template_id: $('#input-mail-template').val(),
+			template_name: $('#input-template-name').val(),
+			subject: $('#input-subject').val(),
+			message: currentMailHtml()
+		},
+		success: function(json) {
+			if (json.error) { mailTemplateAlert('danger', json.error); return; }
+			var tpl = json.template;
+			var option = $('#input-mail-template option[value="' + tpl.id + '"]');
+			if (option.length) { option.text(tpl.name); } else { $('#input-mail-template').append($('<option>', {value: tpl.id, text: tpl.name})); }
+			$('#input-mail-template').val(tpl.id);
+			mailTemplateAlert('success', json.success);
+		}
+	});
+});
+
+$('#button-template-delete').on('click', function() {
+	var templateId = $('#input-mail-template').val();
+	if (!templateId || !confirm('{{ text_confirm }}')) { return; }
+	$.ajax({
+		url: '{{ template_delete_url }}',
+		type: 'post',
+		dataType: 'json',
+		data: {template_id: templateId},
+		success: function(json) {
+			if (json.error) { mailTemplateAlert('danger', json.error); return; }
+			$('#input-mail-template option[value="' + templateId + '"]').remove();
+			$('#input-mail-template').val('');
+			$('#input-template-name').val('');
+			mailTemplateAlert('success', json.success);
+		}
+	});
+});
+
+$('#button-template-preview').on('click', function() {
+	var html = currentMailHtml();
+	var replacements = {
+		'{' + '{ customer_name }' + '}': '{{ text_preview_customer }}',
+		'{' + '{ store_name }' + '}': '{{ text_preview_store }}',
+		'{' + '{ store_url }' + '}': 'https://example.com/',
+		'{' + '{ unsubscribe_url }' + '}': 'https://example.com/index.php?route=account/newsletter'
+	};
+	Object.keys(replacements).forEach(function(key) { html = html.split(key).join(replacements[key]); });
+	var doc = '<!doctype html><html><head><meta charset="utf-8"><title>' + $('<div>').text($('#input-subject').val()).html() + '</title></head><body>' + html + '</body></html>';
+	var frame = document.getElementById('mail-preview-frame');
+	frame.srcdoc = doc;
+	$('#modal-mail-preview').modal('show');
+});
+
+// Customers
+$('input[name=\'customers\']').autocomplete({
+	'source': function(request, response) {
+		$.ajax({
+			url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+			dataType: 'json',
+			success: function(json) {
+				response($.map(json, function(item) {
+					return {
+						label: item['name'],
+						value: item['customer_id']
+					}
+				}));
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			}
+		});
+	},
+	'select': function(item) {
+		$('input[name=\'customers\']').val('');
+
+		$('#customer' + item['value']).remove();
+
+		$('#input-customer').parent().find('.well').append('<div id="customer' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' + item['label'] + '<input type="hidden" name="customer[]" value="' + item['value'] + '" /></div>');
+	}
+});
+
+$('#input-customer').parent().find('.well').delegate('.fa-minus-circle', 'click', function() {
+	$(this).parent().remove();
+});
+
+// Affiliates
+$('input[name=\'affiliates\']').autocomplete({
+	'source': function(request, response) {
+		$.ajax({
+			url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request) + '&filter_affiliate=1',
+			dataType: 'json',
+			success: function(json) {
+				response($.map(json, function(item) {
+					return {
+						label: item['name'],
+						value: item['customer_id']
+					}
+				}));
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			}
+		});
+	},
+	'select': function(item) {
+		$('input[name=\'affiliates\']').val('');
+
+		$('#affiliate' + item['value']).remove();
+
+		$('#input-affiliate').parent().find('.well').append('<div id="affiliate' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' + item['label'] + '<input type="hidden" name="affiliate[]" value="' + item['value'] + '" /></div>');
+	}
+});
+
+$('#input-affiliate').parent().find('.well').delegate('.fa-minus-circle', 'click', function() {
+	$(this).parent().remove();
+});
+
+// Products
+$('input[name=\'products\']').autocomplete({
+	'source': function(request, response) {
+		$.ajax({
+			url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+			dataType: 'json',
+			success: function(json) {
+				response($.map(json, function(item) {
+					return {
+						label: item['name'],
+						value: item['product_id']
+					}
+				}));
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			}
+		});
+	},
+	'select': function(item) {
+		$('input[name=\'products\']').val('');
+
+		$('#product' + item['value']).remove();
+
+		$('#input-product').parent().find('.well').append('<div id="product' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' + item['label'] + '<input type="hidden" name="product[]" value="' + item['value'] + '" /></div>');
+	}
+});
+
+$('#input-product').parent().find('.well').delegate('.fa-minus-circle', 'click', function() {
+	$(this).parent().remove();
+});
+
+function send(url) {
+	$.ajax({
+		url: url,
+		type: 'post',
+		data: $('#content select, #content input, #content textarea'),
+		dataType: 'json',
+		beforeSend: function() {
+			$('#button-send').button('loading');
+		},
+		success: function(json) {
+			$('.alert-dismissible, .text-danger').remove();
+
+			if (json['error']) {
+				if (json['error']['warning']) {
+					$('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error']['warning'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+				}
+
+				if (json['error']['email']) {
+					$('#content > .container-fluid').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> ' + json['error']['email'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+				}
+
+				if (json['error']['subject']) {
+					$('input[name=\'subject\']').after('<div class="text-danger">' + json['error']['subject'] + '</div>');
+				}
+
+				if (json['error']['message']) {
+					$('textarea[name=\'message\']').parent().append('<div class="text-danger">' + json['error']['message'] + '</div>');
+				}
+			}
+
+			if (json['success']) {
+				$('#content > .container-fluid').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i>  ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+			}
+				
+			if (json['next']) {
+				send(json['next']);
+			} else {
+				$('#button-send').button('reset');
+			}
+			
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		}
+	});
+}
+//--></script></div>
+{{ footer }}

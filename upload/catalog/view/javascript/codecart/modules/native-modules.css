@@ -1,0 +1,225 @@
+/* CodeCart PRO native storefront modules. Loaded only when a compatible module renders. */
+/* CodeCart PRO RC78 Category Wall */
+.ccp-category-wall{margin:18px 0 24px}.ccp-category-wall__title{margin:0}.ccp-category-wall__card{position:relative;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden;padding-bottom:46px;border:1px solid var(--ccp-store-border,#e2e8f0);border-radius:10px;background:var(--ccp-store-surface,#fff);color:var(--ccp-store-heading,#1f2937);box-shadow:0 3px 12px rgba(15,23,42,.06);text-decoration:none;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}.ccp-category-wall__card:hover,.ccp-category-wall__card:focus{transform:translateY(-2px);border-color:var(--ccp-store-accent,#0b6fd3);box-shadow:0 8px 20px rgba(15,23,42,.12);color:var(--ccp-store-accent,#0b6fd3);text-decoration:none}.ccp-category-wall__image{position:relative;display:flex;align-items:center;justify-content:center;height:auto;aspect-ratio:var(--ccp-category-image-ratio,4 / 3);padding:10px;background:#fff;overflow:hidden}.ccp-category-wall__image img{display:block;width:100%;height:100%;object-fit:contain}.ccp-category-wall__card--contain .ccp-category-wall__image img{object-fit:contain}.ccp-category-wall__card--cover .ccp-category-wall__image img{object-fit:cover}.ccp-category-wall__name{display:block;padding:11px 10px 12px;text-align:center;font-weight:700;line-height:1.25}.ccp-category-wall__name small{color:#64748b;font-weight:500}html.ccp-theme-dark .ccp-category-wall__card{background:var(--ccp-store-surface,#1b232d);border-color:var(--ccp-store-border,#374250);color:var(--ccp-store-heading,#f4f7fb)}html.ccp-theme-dark .ccp-category-wall__image{background:#fff}@media(max-width:600px){.ccp-category-wall__name{padding:9px 7px;font-size:13px}}
+
+/* CodeCart PRO RC79 native content modules: shared responsive grid/carousel engine. */
+.ccp-native-module,.ccp-native-product-module{width:100%;max-width:100%;min-width:0;position:relative;margin-bottom:22px;overflow:hidden}
+.ccp-native-module-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.ccp-native-module-heading h3{margin:0;min-width:0}
+.ccp-native-module-arrows{display:flex;gap:6px;flex:0 0 auto}
+.ccp-native-module-arrows button{position:relative;width:34px;height:34px;min-width:34px;min-height:34px;border:1px solid #dce2e8;border-radius:50%;background:#fff;color:#374151;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:background .16s ease,border-color .16s ease,transform .16s ease,opacity .16s ease}
+.ccp-native-module-arrows button:after{content:"";position:absolute;inset:-5px;border-radius:50%}.ccp-native-module-arrows button:hover{background:#f5f7f9;border-color:#bdc6cf}.ccp-native-module-arrows button:active{transform:scale(.96)}.ccp-native-module-arrows button:disabled{opacity:.35;cursor:default}
+.ccp-native-module-viewport{width:100%;max-width:100%;min-width:0;overflow:hidden}
+.ccp-native-module--grid .ccp-native-module-track,.ccp-native-product-module--grid .ccp-native-module-track{display:grid;grid-template-columns:repeat(var(--ccp-module-cols-desktop,4),minmax(0,1fr));gap:15px;min-width:0}
+.ccp-native-module--grid .ccp-native-module-item,.ccp-native-product-module--grid .ccp-native-module-item{width:auto!important;float:none!important;padding:0!important;min-width:0}
+.ccp-native-module--carousel .ccp-native-module-track,.ccp-native-product-module--carousel .ccp-native-module-track{display:flex;align-items:stretch;width:100%;max-width:100%;box-sizing:border-box;margin:0;will-change:transform;transition:transform .32s cubic-bezier(.22,.61,.36,1);touch-action:pan-y;transform:translate3d(0,0,0)}
+.ccp-native-module--carousel:not(.ccp-native-module--ready) .ccp-native-module-viewport,.ccp-native-product-module--carousel:not(.ccp-native-module--ready) .ccp-native-module-viewport{overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.ccp-native-module--carousel:not(.ccp-native-module--ready) .ccp-native-module-track,.ccp-native-product-module--carousel:not(.ccp-native-module--ready) .ccp-native-module-track{transform:none!important;transition:none!important;will-change:auto}
+.ccp-native-module--carousel:not(.ccp-native-module--ready) .ccp-native-module-item,.ccp-native-product-module--carousel:not(.ccp-native-module--ready) .ccp-native-module-item{scroll-snap-align:start}
+.ccp-native-module--carousel .ccp-native-module-item,.ccp-native-product-module--carousel .ccp-native-module-item{float:none!important;width:auto!important;box-sizing:border-box!important;flex:0 0 calc(100% / var(--ccp-module-cols-current,var(--ccp-module-cols-desktop,4)))!important;max-width:calc(100% / var(--ccp-module-cols-current,var(--ccp-module-cols-desktop,4)))!important;padding-left:7.5px!important;padding-right:7.5px!important;min-width:0}
+.ccp-native-module-pagination{display:flex;align-items:center;justify-content:center;gap:6px;min-height:18px;margin:10px 0 0}
+.ccp-native-module-pagination[hidden]{display:none!important}
+.ccp-native-module-dot{position:relative;display:inline-flex!important;align-items:center;justify-content:center;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;padding:0!important;border:0!important;border-radius:50%;background:transparent!important;box-shadow:none!important;cursor:pointer}
+.ccp-native-module-dot:before{content:"";display:block;width:8px;height:8px;border:1px solid #b8c2cc;border-radius:50%;background:#d9e0e6;transition:transform .15s ease,background .15s ease,border-color .15s ease}.ccp-native-module-dot.is-active:before{background:var(--ccp-store-accent,#0b6fd3);border-color:var(--ccp-store-accent,#0b6fd3);transform:scale(1.15)}
+.ccp-native-module--articles .ccp-native-module-item>.product-thumb,.ccp-native-module--products .ccp-native-module-item>.product-thumb{display:flex;flex-direction:column;width:100%;height:100%;margin-bottom:0;min-width:0}
+.ccp-native-module .product-thumb .caption{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding:16px 18px;min-width:0}
+.ccp-native-module .product-thumb h4{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:20px;min-height:40px;max-height:40px;margin:0 0 8px}
+.ccp-native-module .product-thumb .price{margin-top:auto;margin-bottom:0;padding-top:8px}
+.ccp-native-module .product-thumb .button-group{display:flex;margin-top:auto;flex:0 0 auto}
+.ccp-native-module .product-thumb .button-group button{float:none;line-height:1.3;min-height:42px;padding:9px 6px}
+.ccp-native-module .product-thumb .image{display:flex;align-items:center;justify-content:center;height:210px;padding:12px;background:#fff;overflow:hidden}
+.ccp-native-module .product-thumb .image a{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.ccp-native-module .product-thumb .image img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+@media(max-width:767px){.ccp-native-module .product-thumb .caption{padding:12px 10px}.ccp-native-module .product-thumb .image{height:150px;padding:8px}}
+.ccp-native-module--categories .ccp-category-wall__card{height:100%}
+html.ccp-theme-dark .ccp-native-module-arrows button{background:#202a35;border-color:#374250;color:#dbe3ec}
+html.ccp-theme-dark .ccp-native-module-arrows button:hover{background:#293542;border-color:#4b5a6b}
+html.ccp-theme-dark .ccp-native-module-dot:before{background:#657386;border-color:#8592a2}
+html.ccp-theme-dark .ccp-native-module-dot.is-active:before{background:var(--ccp-store-accent,#0b6fd3);border-color:var(--ccp-store-accent,#0b6fd3)}
+@media(max-width:991px){.ccp-native-module,.ccp-native-product-module{--ccp-module-cols-current:var(--ccp-module-cols-tablet,3)}.ccp-native-module--grid .ccp-native-module-track,.ccp-native-product-module--grid .ccp-native-module-track{grid-template-columns:repeat(var(--ccp-module-cols-tablet,3),minmax(0,1fr))}}
+@media(max-width:767px){.ccp-native-module,.ccp-native-product-module{margin-bottom:16px;--ccp-module-cols-current:var(--ccp-module-cols-mobile,2)}.ccp-native-module--grid .ccp-native-module-track,.ccp-native-product-module--grid .ccp-native-module-track{grid-template-columns:repeat(var(--ccp-module-cols-mobile,2),minmax(0,1fr));gap:10px}.ccp-native-module--carousel .ccp-native-module-item,.ccp-native-product-module--carousel .ccp-native-module-item{padding-left:5px!important;padding-right:5px!important}.ccp-native-module--carousel .ccp-native-module-track,.ccp-native-product-module--carousel .ccp-native-module-track{margin-left:0;margin-right:0}.ccp-native-module-arrows button{width:28px;height:28px;min-width:28px;min-height:28px;font-size:12px}.ccp-native-module-arrows button i{font-size:12px;line-height:1}.ccp-native-module-heading{align-items:flex-start}.ccp-native-module-arrows{gap:4px}.ccp-native-module-pagination{margin-top:8px}}
+@media(prefers-reduced-motion:reduce){.ccp-native-module--carousel .ccp-native-module-track,.ccp-native-product-module--carousel .ccp-native-module-track{transition:none!important}}
+
+/* CodeCart PRO RC79: compact responsive navigation/filter modules. */
+.ccp-sidebar-module{margin-bottom:20px;border:1px solid var(--ccp-store-border,#e2e8f0);border-radius:var(--ccp-store-radius,8px);background:var(--ccp-store-surface,#fff);overflow:hidden}
+.ccp-sidebar-module__heading{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:10px 13px;border-bottom:1px solid var(--ccp-store-border,#e2e8f0);background:rgba(11,111,211,.04)}
+.ccp-sidebar-module__heading h3{margin:0;font-size:16px;line-height:1.35;color:var(--ccp-store-heading,#263238)}
+.ccp-sidebar-module__toggle{position:relative;display:none;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:0;background:transparent;color:var(--ccp-store-text,#334155);border-radius:6px}
+.ccp-sidebar-module__toggle:after{content:"";position:absolute;inset:-5px}.ccp-sidebar-module__toggle i,.ccp-filter-group__toggle i{transition:transform .18s ease}
+.ccp-sidebar-module.is-open .ccp-sidebar-module__toggle i,.ccp-filter-group.is-open>.ccp-filter-group__toggle i{transform:rotate(180deg)}
+.ccp-sidebar-module>.list-group,.ccp-sidebar-module .list-group{margin:0}
+.ccp-sidebar-module .list-group-item{display:flex;align-items:center;justify-content:space-between;gap:8px;border-left:0;border-right:0;margin:0;border-radius:0!important;min-width:0}
+.ccp-sidebar-module .list-group-item:first-child{border-top:0}
+.ccp-sidebar-module .list-group-item:last-child{border-bottom:0}
+.ccp-sidebar-module .list-group-item>span:first-child{min-width:0;overflow-wrap:anywhere}
+.ccp-sidebar-count,.ccp-filter-option__count{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;min-width:25px;height:22px;padding:0 7px;border-radius:11px;background:rgba(11,111,211,.09);color:var(--ccp-store-accent,#0b6fd3);font-size:11px;font-weight:600}
+.ccp-category-module__children .list-group-item{padding-left:24px;background:rgba(148,163,184,.04)}
+.ccp-filter-module.panel{border-radius:var(--ccp-store-radius,8px)!important}
+.ccp-filter-module .panel-heading{margin:0;border:0;border-bottom:1px solid var(--ccp-store-border,#e2e8f0);border-radius:0}
+.ccp-filter-groups{padding:0}
+.ccp-filter-group+.ccp-filter-group{border-top:1px solid var(--ccp-store-border,#e2e8f0)}
+.ccp-filter-group__toggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border:0;background:transparent;color:var(--ccp-store-heading,#263238);font-size:14px;font-weight:600;text-align:left}
+.ccp-filter-group__body{display:none;padding:3px 10px 9px}
+.ccp-filter-group.is-open>.ccp-filter-group__body{display:block}
+.ccp-filter-option{display:flex;align-items:center;gap:8px;min-height:36px;margin:0;padding:6px 4px;border-radius:6px;cursor:pointer;font-weight:400}
+.ccp-filter-option:hover,.ccp-filter-option.is-selected{background:rgba(11,111,211,.06)}
+.ccp-filter-option input{margin:0;flex:0 0 auto}
+.ccp-filter-option__name{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.ccp-filter-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:11px 12px;border-top:1px solid var(--ccp-store-border,#e2e8f0)}
+.ccp-filter-actions .btn{min-width:96px}
+html.ccp-theme-dark .ccp-sidebar-module,html.ccp-theme-dark .ccp-sidebar-module__heading,html.ccp-theme-dark .ccp-filter-module .panel-heading{background:var(--ccp-store-surface,#1b232d);border-color:var(--ccp-store-border,#374250)}
+html.ccp-theme-dark .ccp-sidebar-module__heading h3,html.ccp-theme-dark .ccp-filter-group__toggle{color:#f1f5f9}
+html.ccp-theme-dark .ccp-filter-option:hover,html.ccp-theme-dark .ccp-filter-option.is-selected,html.ccp-theme-dark .ccp-category-module__children .list-group-item{background:rgba(97,173,255,.08)}
+@media(max-width:767px){.ccp-sidebar-module__toggle{display:inline-flex}.ccp-sidebar-module--mobile-collapsed:not(.is-open)>.ccp-sidebar-module__body{display:none}.ccp-sidebar-module--mobile-collapsed.is-open>.ccp-sidebar-module__body{display:block}.ccp-sidebar-module__heading{min-height:42px;padding:7px 10px}.ccp-sidebar-module__heading h3{font-size:15px}.ccp-filter-actions{position:sticky;bottom:0;z-index:2;background:var(--ccp-store-surface,#fff)}html.ccp-theme-dark .ccp-filter-actions{background:var(--ccp-store-surface,#1b232d)}}
+@media(prefers-reduced-motion:reduce){.ccp-sidebar-module__toggle i,.ccp-filter-group__toggle i{transition:none}}
+.ccp-store-module__intro{margin:0;padding:10px 13px;color:var(--ccp-store-text,#64748b)}
+.ccp-html-module{max-width:100%;min-width:0;overflow-wrap:anywhere}
+.ccp-html-module__content{max-width:100%;min-width:0}
+.ccp-html-module__content img,.ccp-html-module__content video,.ccp-html-module__content iframe,.ccp-html-module__content object,.ccp-html-module__content embed{max-width:100%}
+.ccp-html-module__content img,.ccp-html-module__content video{height:auto}
+.ccp-html-module__content table{max-width:100%}
+@media(max-width:767px){.ccp-html-module__content table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}}
+
+/* CodeCart PRO RC79: native Brands wall / carousel. */
+.ccp-manufacturer-wall{margin:18px 0 24px}.ccp-manufacturer-wall__title{margin:0}.ccp-manufacturer-wall__card{display:flex;flex-direction:column;align-items:stretch;justify-content:center;height:100%;min-width:0;overflow:hidden;border:1px solid var(--ccp-store-border,#e2e8f0);border-radius:10px;background:var(--ccp-store-surface,#fff);color:var(--ccp-store-heading,#1f2937);text-decoration:none;box-shadow:0 3px 12px rgba(15,23,42,.05);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}.ccp-manufacturer-wall__card:hover,.ccp-manufacturer-wall__card:focus{transform:translateY(-2px);border-color:var(--ccp-store-accent,#0b6fd3);box-shadow:0 8px 20px rgba(15,23,42,.11);color:var(--ccp-store-accent,#0b6fd3);text-decoration:none}.ccp-manufacturer-wall__image{display:flex;align-items:center;justify-content:center;width:min(100%,var(--ccp-manufacturer-image-width,180px));height:auto;aspect-ratio:var(--ccp-manufacturer-image-ratio,9 / 5);margin:0 auto;padding:14px;background:#fff;overflow:hidden;box-sizing:border-box}.ccp-manufacturer-wall__image img{width:100%;height:100%}.ccp-manufacturer-wall__card--contain .ccp-manufacturer-wall__image img{object-fit:contain}.ccp-manufacturer-wall__card--cover .ccp-manufacturer-wall__image img{object-fit:cover}.ccp-manufacturer-wall__name{display:block;padding:9px 10px 11px;text-align:center;font-weight:650;line-height:1.25}html.ccp-theme-dark .ccp-manufacturer-wall__card{background:var(--ccp-store-surface,#1b232d);border-color:var(--ccp-store-border,#374250);color:var(--ccp-store-heading,#f4f7fb)}html.ccp-theme-dark .ccp-manufacturer-wall__image{background:#fff}@media(max-width:600px){.ccp-manufacturer-wall__image{width:min(100%,var(--ccp-manufacturer-image-width,180px));height:auto;padding:10px}.ccp-manufacturer-wall__name{padding:8px 7px;font-size:13px}}
+
+
+/* CodeCart PRO carousel controls: compact visuals with a usable hit target. */
+.ccp-native-module-autoplay-toggle[hidden]{display:none!important}
+.ccp-native-module-arrows button:focus-visible,.ccp-native-module-dot:focus-visible{outline:2px solid var(--ccp-store-accent,#0b6fd3);outline-offset:2px}
+
+/* Mobile product titles: keep three readable lines without changing card height. */
+@media(max-width:767px){.ccp-native-module--products .product-thumb h4,.ccp-native-product-module .product-thumb h4{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;min-height:57px;max-height:57px;line-height:19px}}
+
+
+/* Stable category-wall image geometry. */
+.ccp-native-module--not-scrollable .ccp-native-module-heading.is-controls-only{display:none}
+.ccp-native-module--not-scrollable .ccp-native-module-pagination{display:none!important}
+.ccp-category-wall__image picture{display:block;width:100%;height:100%}
+.ccp-category-wall__card--text-only{justify-content:center;min-height:88px}
+.ccp-category-wall__card--text-only .ccp-category-wall__name{padding:18px 12px}
+@media(max-width:767px){.ccp-category-wall__image{aspect-ratio:var(--ccp-category-image-ratio-mobile,var(--ccp-category-image-ratio,4 / 3))}}
+
+/* Compact autoplay control. */
+.ccp-native-module-arrows .ccp-native-module-autoplay-toggle{width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;padding:0;border:0!important;border-radius:0!important;background:transparent!important;color:var(--ccp-store-accent,#0b6fd3)!important;box-shadow:none!important;font-size:13px}
+.ccp-native-module-arrows .ccp-native-module-autoplay-toggle i{font-size:13px;line-height:1;color:inherit;margin:0!important}
+.ccp-native-module-arrows .ccp-native-module-autoplay-toggle:hover,.ccp-native-module-arrows .ccp-native-module-autoplay-toggle:focus,.ccp-native-module-arrows .ccp-native-module-autoplay-toggle:active{background:transparent!important;border:0!important;color:var(--ccp-store-accent,#0b6fd3)!important;box-shadow:none!important}
+.ccp-native-module-arrows .ccp-native-module-autoplay-toggle:focus-visible{outline:2px solid rgba(11,111,211,.35);outline-offset:2px}
+html.ccp-theme-dark .ccp-native-module-arrows .ccp-native-module-autoplay-toggle,html.ccp-theme-dark .ccp-native-module-arrows .ccp-native-module-autoplay-toggle:hover,html.ccp-theme-dark .ccp-native-module-arrows .ccp-native-module-autoplay-toggle:focus{background:transparent!important;border:0!important;color:var(--ccp-store-accent,#5aa9e6)!important;box-shadow:none!important}
+
+/* CodeCart PRO RC83: clearer carousel navigation, stable sidebar geometry and category affordance. */
+.ccp-native-module--carousel,.ccp-native-product-module--carousel{position:relative}
+.ccp-native-module--carousel .ccp-native-module-arrows,.ccp-native-product-module--carousel .ccp-native-module-arrows{position:static!important}
+.ccp-native-module--carousel .ccp-native-module-prev,.ccp-native-module--carousel .ccp-native-module-next,.ccp-native-product-module--carousel .ccp-native-module-prev,.ccp-native-product-module--carousel .ccp-native-module-next{position:absolute!important;top:50%;z-index:7;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;margin-top:-17px;background:#fff!important;border:1px solid rgba(11,111,211,.24)!important;color:var(--ccp-store-accent,#0b6fd3)!important;box-shadow:0 5px 14px rgba(15,23,42,.16)!important}
+.ccp-native-module--carousel .ccp-native-module-prev,.ccp-native-product-module--carousel .ccp-native-module-prev{left:4px}
+.ccp-native-module--carousel .ccp-native-module-next,.ccp-native-product-module--carousel .ccp-native-module-next{right:4px}
+.ccp-native-module--carousel .ccp-native-module-prev:hover,.ccp-native-module--carousel .ccp-native-module-next:hover,.ccp-native-product-module--carousel .ccp-native-module-prev:hover,.ccp-native-product-module--carousel .ccp-native-module-next:hover{background:#f4f9fd!important;border-color:var(--ccp-store-accent,#0b6fd3)!important;box-shadow:0 7px 18px rgba(15,23,42,.20)!important}
+.ccp-native-module--carousel .ccp-native-module-prev:active,.ccp-native-module--carousel .ccp-native-module-next:active,.ccp-native-product-module--carousel .ccp-native-module-prev:active,.ccp-native-product-module--carousel .ccp-native-module-next:active{background:#fff!important;box-shadow:0 5px 14px rgba(15,23,42,.16)!important;transform:scale(.96)!important}
+.ccp-native-module--carousel .ccp-native-module-autoplay-toggle,.ccp-native-product-module--carousel .ccp-native-module-autoplay-toggle{position:absolute!important;top:4px;right:6px;z-index:8;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important}
+.ccp-native-module--sidebar{--ccp-module-cols-current:1!important}
+.ccp-native-module--sidebar .ccp-native-module-item{flex:0 0 100%!important;max-width:100%!important}
+
+.ccp-category-wall__main-link{display:flex;flex-direction:column;min-width:0;color:inherit;text-decoration:none}
+.ccp-category-wall__main-link:hover,.ccp-category-wall__main-link:focus{color:var(--ccp-store-accent,#0b6fd3);text-decoration:none}
+.ccp-category-wall__subcategories{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:0 34px 12px 10px;font-size:12px;line-height:1.35}
+.ccp-category-wall__subcategories a{display:flex;align-items:center;min-height:24px;padding:3px 0;color:#475569;text-decoration:none;white-space:normal;overflow-wrap:anywhere;max-width:100%}
+.ccp-category-wall__subcategories a:hover,.ccp-category-wall__subcategories a:focus{color:var(--ccp-store-accent,#0b6fd3);text-decoration:underline}
+.ccp-category-wall__all-link{position:absolute;left:10px;right:50px;bottom:12px;color:var(--ccp-store-accent,#0b6fd3);font-size:12px;font-weight:600;text-decoration:none}.ccp-category-wall__all-link:hover,.ccp-category-wall__all-link:focus-visible{color:var(--ccp-store-accent-hover,#095eb4);text-decoration:underline}.ccp-category-wall__corner-link{position:absolute;right:0;bottom:0;width:38px;height:38px;background:#0b6fd3;color:#fff!important;clip-path:polygon(100% 0,100% 100%,0 100%);text-decoration:none!important;z-index:3}
+.ccp-category-wall__corner-link i{position:absolute;right:6px;bottom:6px;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:14px;text-align:center;transform:rotate(45deg);transform-origin:50% 50%}
+.ccp-category-wall__corner-link:hover,.ccp-category-wall__corner-link:focus-visible{background:#095eb4;color:#fff!important}
+@media(max-width:767px){.ccp-native-module--carousel .ccp-native-module-prev,.ccp-native-module--carousel .ccp-native-module-next,.ccp-native-product-module--carousel .ccp-native-module-prev,.ccp-native-product-module--carousel .ccp-native-module-next{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;margin-top:-14px;font-size:12px}.ccp-native-module-arrows button:after{inset:-8px}.ccp-category-wall__subcategories{font-size:11px;padding-right:32px}}
+
+/* CodeCart PRO RC83: side columns always render a single readable card. */
+#column-left .ccp-native-module-track,#column-left .ccp-native-product-module .ccp-native-module-track,#column-right .ccp-native-module-track,#column-right .ccp-native-product-module .ccp-native-module-track{grid-template-columns:minmax(0,1fr)!important;--ccp-module-cols-current:1!important}
+#column-left .ccp-native-module-item,#column-left .ccp-native-product-module .ccp-native-module-item,#column-right .ccp-native-module-item,#column-right .ccp-native-product-module .ccp-native-module-item{flex:0 0 100%!important;max-width:100%!important;width:100%!important}
+
+/* RC83: pointer focus must not flatten carousel controls; keyboard focus keeps its ring. */
+.ccp-native-module--carousel .ccp-native-module-prev:focus:not(:focus-visible),.ccp-native-module--carousel .ccp-native-module-next:focus:not(:focus-visible),.ccp-native-product-module--carousel .ccp-native-module-prev:focus:not(:focus-visible),.ccp-native-product-module--carousel .ccp-native-module-next:focus:not(:focus-visible){outline:0!important;background:#fff!important;border-color:rgba(11,111,211,.24)!important;color:var(--ccp-store-accent,#0b6fd3)!important;box-shadow:0 5px 14px rgba(15,23,42,.16)!important}
+
+
+/* CodeCart PRO RC86 compact equal-height cards: no blank content reservation. */
+.ccp-native-module-track{align-items:stretch}
+.ccp-native-module--products .ccp-native-module-item,.ccp-native-module--articles .ccp-native-module-item,.ccp-native-product-module .ccp-native-module-item{align-self:stretch;display:flex}
+.ccp-native-module--products .ccp-native-module-item>.product-thumb,.ccp-native-module--articles .ccp-native-module-item>.product-thumb,.ccp-native-product-module .ccp-native-module-item>.product-thumb{width:100%;height:100%}
+.ccp-native-module .ccp-card-description{min-width:0;min-height:0!important;max-height:4.2em!important;overflow:hidden!important;overflow-wrap:anywhere}
+.ccp-native-module .ccp-card-attributes{min-width:0;min-height:0!important;max-height:none!important;height:auto!important;overflow:visible!important;overflow-wrap:anywhere}
+.ccp-native-module .ccp-card-attributes li span,.ccp-native-module .ccp-card-attributes li strong{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccp-native-module .ccp-card-attributes.is-empty{display:none!important}
+/* RC90: grid column count comes only from the module configuration variables. */
+
+/* RC86: card bodies stretch so action rows share one bottom edge without reserving blank description space. */
+.ccp-native-module--products .product-thumb>.ccp-product-list-body,.ccp-native-product-module .product-thumb>.ccp-product-list-body{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;min-height:0;width:100%;overflow:visible}
+.ccp-native-module--products .product-thumb>.ccp-product-list-body>.caption,.ccp-native-product-module .product-thumb>.ccp-product-list-body>.caption{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.ccp-native-module--products .product-thumb>.ccp-product-list-body>.button-group,.ccp-native-product-module .product-thumb>.ccp-product-list-body>.button-group{margin-top:auto;flex:0 0 auto}
+
+/* CodeCart PRO RC90: visual separation for recommended-reading/article modules. */
+.ccp-native-module--articles{margin-top:18px}
+.ccp-native-module--articles:first-child{margin-top:0}
+
+/* CodeCart PRO RC90: instant reset used by seamless DOM rotation. */
+.ccp-native-module--carousel .ccp-native-module-track--instant,.ccp-native-product-module--carousel .ccp-native-module-track--instant{transition:none!important}
+
+/* CodeCart PRO RC91: lock carousel navigation only during the active transition. */
+.ccp-native-module.is-animating .ccp-native-module-prev,.ccp-native-module.is-animating .ccp-native-module-next,.ccp-native-product-module.is-animating .ccp-native-module-prev,.ccp-native-product-module.is-animating .ccp-native-module-next{pointer-events:none;opacity:.55}
+
+/* CodeCart PRO 3.0.6.0: presentation/mobile defaults — two cards per row; category wall becomes a static grid. */
+@media(max-width:767px){
+  .ccp-native-module--categories.ccp-native-module--carousel.ccp-category-wall--mobile-grid .ccp-native-module-viewport{overflow:visible!important}
+  .ccp-native-module--categories.ccp-native-module--carousel.ccp-category-wall--mobile-grid .ccp-native-module-track{display:grid!important;grid-template-columns:repeat(var(--ccp-module-cols-mobile,2),minmax(0,1fr))!important;gap:10px!important;transform:none!important;margin:0!important;width:100%!important;transition:none!important}
+  .ccp-native-module--categories.ccp-native-module--carousel.ccp-category-wall--mobile-grid .ccp-native-module-item{width:auto!important;max-width:none!important;min-width:0!important;padding:0!important}
+  .ccp-native-module--categories.ccp-native-module--carousel.ccp-category-wall--mobile-grid .ccp-native-module-prev,
+  .ccp-native-module--categories.ccp-native-module--carousel.ccp-category-wall--mobile-grid .ccp-native-module-next,
+  .ccp-native-module--categories.ccp-native-module--carousel.ccp-category-wall--mobile-grid .ccp-native-module-arrows,
+  .ccp-native-module--categories.ccp-native-module--carousel.ccp-category-wall--mobile-grid .ccp-native-module-pagination,
+  .ccp-native-module--categories.ccp-native-module--carousel.ccp-category-wall--mobile-grid .ccp-native-module-autoplay-toggle{display:none!important}
+  .ccp-native-product-module--grid .ccp-native-module-track,.ccp-native-module--products.ccp-native-module--grid .ccp-native-module-track{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+
+/* CodeCart PRO 3.0.6.0: category image dimensions are real layout dimensions, not only resize quality. */
+.ccp-category-wall__image{
+  width:min(100%,var(--ccp-category-image-width,320px));
+  height:auto;
+  aspect-ratio:var(--ccp-category-image-ratio,4 / 3);
+  align-self:center;
+  margin:0 auto;
+  flex:0 0 auto;
+  box-sizing:border-box;
+}
+.ccp-category-wall__image picture{display:flex;width:100%;height:100%;align-items:center;justify-content:center}
+.ccp-category-wall__image img{width:100%;height:100%;object-fit:contain}
+@media(max-width:767px){
+  .ccp-category-wall__image{
+    width:min(100%,var(--ccp-category-image-width-mobile,var(--ccp-category-image-width,320px)));
+    height:auto;
+    aspect-ratio:var(--ccp-category-image-ratio-mobile,var(--ccp-category-image-ratio,4 / 3));
+  }
+}
+
+/* Keep the manufacturer hover border inside the clipped carousel viewport. */
+.ccp-native-module--manufacturers.ccp-native-module--carousel .ccp-native-module-viewport{padding-top:3px;margin-top:-3px}
+
+/* CodeCart PRO 3.0.6.0: image settings control the real visible image box, not only resize quality. */
+.ccp-native-module--products .product-thumb>.image,
+.ccp-native-module--articles .product-thumb>.image,
+.ccp-native-product-module .product-thumb>.image{
+  width:min(100%,var(--ccp-module-image-width,220px));
+  height:auto!important;
+  aspect-ratio:var(--ccp-module-image-ratio,1 / 1);
+  margin-left:auto;
+  margin-right:auto;
+  box-sizing:border-box;
+}
+.ccp-native-module--products .product-thumb>.image img,
+.ccp-native-module--articles .product-thumb>.image img,
+.ccp-native-product-module .product-thumb>.image img{width:100%;height:100%;object-fit:contain}
+@media(max-width:767px){
+ .ccp-native-module--products .product-thumb>.image,
+ .ccp-native-module--articles .product-thumb>.image,
+ .ccp-native-product-module .product-thumb>.image{width:min(100%,var(--ccp-module-image-width,220px));height:auto!important}
+}
+
+/* CodeCart PRO 3.0.6.0 card hover safety: reserve vertical breathing room inside clipped carousel viewports. */
+.ccp-native-module--carousel .ccp-native-module-viewport,.ccp-native-product-module--carousel .ccp-native-module-viewport{padding-top:4px;box-sizing:border-box}
+.ccp-category-wall__corner-link{right:0!important;bottom:0!important;width:38px!important;height:38px!important;overflow:hidden}
+.ccp-category-wall__corner-link i{display:none!important}
+.ccp-category-wall__corner-link:after{content:'›';position:absolute;right:6px;bottom:6px;width:14px;height:14px;color:#fff;font-family:Arial,sans-serif;font-size:18px;font-weight:700;line-height:14px;text-align:center;transform:rotate(45deg);transform-origin:50% 50%;pointer-events:none}

@@ -1,0 +1,36 @@
+<fieldset class="ccp-captcha">
+  <legend>{{ text_captcha }}</legend>
+  <div class="form-group required">
+    <div class="ccp-local-captcha{% if captcha_show_visual %} is-visual-mode{% endif %}" data-mode="{{ captcha_mode }}" data-nonce="{{ captcha_nonce }}" data-verify-url="{{ captcha_verify }}" data-refresh-url="{{ captcha_refresh }}" data-selected-text="{{ text_visual_selected }}" data-refresh-error="{{ error_refresh }}" data-verify-error="{{ error_captcha }}" data-verified-text="{{ text_verified }}" data-min-age="{{ captcha_min_age_ms }}" data-max-attempts="{{ captcha_max_attempts }}" data-expires-at="{{ captcha_expires_at }}">
+      <div class="ccp-captcha-honeypot" aria-hidden="true">
+        <label for="ccp-hp-{{ captcha_nonce }}">Website</label>
+        <input type="text" id="ccp-hp-{{ captcha_nonce }}" name="{{ captcha_honeypot_name }}" value="" tabindex="-1" autocomplete="off" inputmode="none" />
+      </div>
+      <input type="hidden" name="captcha" value="" />
+      <input type="hidden" name="captcha_nonce" value="{{ captcha_nonce }}" />
+
+      <div class="ccp-human-check{% if captcha_show_visual %} is-hidden{% endif %}">
+        <div class="ccp-human-slider" role="button" tabindex="0" aria-label="{{ text_slide }}">
+          <div class="ccp-human-slider__track" aria-hidden="true"></div>
+          <div class="ccp-human-slider__fill"></div>
+          <span class="ccp-human-slider__text">{{ text_slide }}</span>
+          <span class="ccp-human-slider__handle" aria-hidden="true"><i class="fa-solid fa-angles-right"></i></span>
+        </div>
+        <div class="ccp-human-check__alternatives"><button type="button" class="ccp-human-check__visual-switch"><i class="fa-solid fa-image" aria-hidden="true"></i> {{ button_visual_fallback }}</button></div>
+      </div>
+
+      <div class="ccp-visual-fallback{% if not captcha_show_visual %} is-hidden{% endif %}">
+        <div class="ccp-local-captcha__prompt"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span class="ccp-local-captcha__prompt-text">{{ captcha_prompt }}</span></div>
+        <div class="ccp-local-captcha__stage">
+          <img class="ccp-local-captcha__image"{% if captcha_show_visual %} src="{{ captcha_image_url }}"{% endif %} alt="{{ text_visual_image }}" width="312" height="312" loading="eager" decoding="async" />
+          <div class="ccp-local-captcha__grid" role="group" aria-label="{{ text_visual_options }}">
+            {% for index in captcha_indexes %}<label class="ccp-local-captcha__choice" aria-label="{{ text_visual_option }} {{ index + 1 }}" data-index="{{ index }}"><input type="checkbox" name="captcha_tiles[]" value="{{ index }}" /><span></span></label>{% endfor %}
+          </div>
+        </div>
+        <div class="ccp-local-captcha__actions"><span class="ccp-local-captcha__status" aria-live="polite"></span><button type="button" class="ccp-local-captcha__refresh"><i class="fa-solid fa-rotate" aria-hidden="true"></i> {{ button_refresh }}</button></div>
+      </div>
+      <div class="ccp-human-check__status" aria-live="polite"></div>
+    </div>
+    {% if error_captcha %}<div class="text-danger ccp-captcha-error">{{ error_captcha }}</div>{% endif %}
+  </div>
+</fieldset>

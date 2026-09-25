@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
+@media only screen and (max-width:620px){.ccp-wrap{width:100%!important;max-width:100%!important}.ccp-pad{padding:18px 14px!important}.ccp-stack,.ccp-stack td{display:block!important;width:100%!important;box-sizing:border-box!important}.ccp-mobile-center{text-align:center!important}.ccp-hide-mobile{display:none!important}.ccp-product-table thead{display:none!important}.ccp-product-table,.ccp-product-table tbody,.ccp-product-table tr,.ccp-product-table td{display:block!important;width:100%!important;box-sizing:border-box!important}.ccp-product-table tr{border-bottom:1px solid #e5e7eb!important;padding:10px 0!important}.ccp-product-table td{border:0!important;text-align:left!important;padding:6px 10px!important}.ccp-product-table td:before{display:inline-block!important;min-width:92px;font-weight:700;color:#667085}.ccp-product-table td:nth-child(2):before{content:'Model: '}.ccp-product-table td:nth-child(3):before{content:'Qty: '}.ccp-product-table td:nth-child(4):before{content:'Price: '}.ccp-product-table td:nth-child(5):before{content:'Total: '}.ccp-btn{display:block!important;width:100%!important;box-sizing:border-box!important;text-align:center!important}.ccp-address{margin-bottom:12px!important}.ccp-logo{max-width:300px!important;height:auto!important}}
+</style>
+<title>{{ title }}</title>
+</head>
+<body style="margin:0; padding:24px 12px; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:1.5; color:#1f2937;">
+<div style="width:100%; max-width:680px; margin:0 auto; background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:24px; box-sizing:border-box;">
+  <div style="text-align:center;padding:0 0 20px;margin-bottom:22px;border-bottom:1px solid #eef1f4;"><a href="{{ store_url }}" title="{{ store_name }}"><img class="ccp-logo" src="{{ logo }}" alt="{{ store_name }}" width="{{ logo_width }}" height="{{ logo_height }}" style="display:block;width:{{ logo_width }}px;height:{{ logo_height }}px;max-width:300px;max-height:80px;object-fit:contain;margin:0 auto;border:0;" /></a></div><div style="text-align:center;margin-bottom:20px;"><img src="{{ image }}" alt="{{ store_name }}" style="max-width:100%;height:auto;border:0;" /></div>
+  <div>
+    <p style="margin-top: 0px; margin-bottom: 20px;">{{ text_greeting }}</p>
+    <p style="margin-top: 0px; margin-bottom: 20px;">{{ text_from }}</p>
+    {% if message %}
+    <p style="margin-top: 0px; margin-bottom: 20px;">{{ text_message }}</p>
+    <p style="margin-top: 0px; margin-bottom: 20px;">{{ message }}</p>
+    {% endif %}
+    <p style="margin-top: 0px; margin-bottom: 20px;">{{ text_redeem }}</p>
+    <p style="margin-top: 0px; margin-bottom: 20px;"><a href="{{ store_url }}" title="{{ store_name }}">{{ store_url }}</a></p>
+    <p style="margin-top: 0px; margin-bottom: 20px;">{{ text_footer }}</p>
+  </div>
+</div>
+</body>
+</html>

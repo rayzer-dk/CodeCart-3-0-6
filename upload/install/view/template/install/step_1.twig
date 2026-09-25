@@ -1,0 +1,19 @@
+{{ header }}
+<div class="cc-page">
+  <div class="container">
+    <div class="cc-layout">
+      <main class="cc-card">
+        <div class="cc-card-head">
+          <div><h1>{{ heading_title }}</h1><p>{{ text_step_1 }}</p></div>
+          <div class="cc-step-badge">1 / 4</div>
+        </div>
+        <form action="{{ action }}" method="post">
+          <div class="cc-card-body"><div class="cc-license">{{ text_terms }}</div></div>
+          <div class="cc-card-footer"><span></span><button type="submit" class="btn btn-primary">{{ button_continue }} <i class="fa-solid fa-arrow-right"></i></button></div>
+        </form>
+      </main>
+      {{ column_left }}
+    </div>
+  </div>
+</div>
+{{ footer }}

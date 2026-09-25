@@ -1,0 +1,47 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /system/
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /download/
+Disallow: /cgi-bin/
+Disallow: /*route=account/
+Disallow: /*route=affiliate/
+Disallow: /*route=checkout/
+Disallow: /*route=common/language
+Disallow: /*route=common/currency
+Disallow: /*route=common/cart
+Disallow: /*route=common/header
+Disallow: /*route=common/footer
+Disallow: /*route=common/column_
+Disallow: /*route=common/maintenance
+Disallow: /*route=product/compare
+Disallow: /*route=product/search
+Disallow: /*route=product/product*&manufacturer_id=
+Disallow: /catalog/controller/
+Disallow: /catalog/language/
+Disallow: /catalog/model/
+Disallow: /search
+
+# Deliberately do NOT block filter/sort/order/limit/page/tracking parameters here.
+# The storefront must be crawlable enough for canonical/meta robots and the
+# indexable-filter allowlist to be evaluated correctly.
+
+Allow: /catalog/view/javascript/
+Allow: /catalog/view/theme/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$
+Allow: /*.avif$
+Allow: /*.woff$
+Allow: /*.woff2$
+Allow: /*.ttf$
+
+# Add only sitemap URLs that actually exist for this store. Do not hard-code a
+# domain or language prefixes in the distributable Core robots.txt.
+# Sitemap: https://example.com/sitemap.xml
