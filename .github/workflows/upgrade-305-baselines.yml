@@ -251,6 +251,7 @@ jobs:
           # Candidate migration fix under test. It will be packaged as the next
           # build only after all four upgrade scenarios pass.
           cp upload/install/model/upgrade/3052.php codecart-prod/upload/install/model/upgrade/3052.php
+          cp upload/system/library/codecart/migration.php codecart-prod/upload/system/library/codecart/migration.php
 
           cp store/upload/config.php /tmp/catalog-config.php
           cp store/upload/admin/config.php /tmp/admin-config.php
