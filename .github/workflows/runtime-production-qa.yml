@@ -64,7 +64,7 @@ jobs:
           path: artifact
           github-token: ${{ github.token }}
           repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36149185379
+          run-id: 36165972162
 
       - name: Verify and extract production ZIP
         shell: bash
@@ -78,7 +78,7 @@ jobs:
           mkdir runtime
           unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d runtime
           test -f runtime/upload/system/storage/vendor/autoload.php
-          grep -q "CODECART_PACKAGE_BUILD', '1.7.5'" runtime/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.7.7'" runtime/upload/index.php
 
       - name: Clean install on MariaDB
         shell: bash
@@ -273,7 +273,7 @@ jobs:
           path: artifact
           github-token: ${{ github.token }}
           repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36149185379
+          run-id: 36165972162
 
       - name: Verify, extract and clean install
         shell: bash
