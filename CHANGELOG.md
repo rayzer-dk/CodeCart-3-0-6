@@ -9,6 +9,17 @@ Runtime QA
 - The previous production artifact passed clean-install runtime QA on MariaDB 11.4 and MySQL 8.4, including storefront/admin HTTP smoke, Redis tagged cache, guest COD checkout, duplicate callback protection, persistent mail queue, SMTP delivery and Scheduler.
 - Build 1.7.6 is rebuilt and re-tested through the same production and ocStore upgrade pipelines.
 
+# CodeCart PRO 3.0.6.0 Build 1.7.6
+
+Upgrade reliability
+- Installer 2.0 ignores stale legacy OpenCart/ocStore migration files left on disk by overlay updates and executes only CodeCart 3.0.6 migrations (3052+).
+- Fixes the reproduced ocStore 3.0.4.1 upgrade failure where legacy migration 1010 was re-run and queried the already-removed url_alias table.
+- Clean-install behavior is unchanged; UPDATE continues to preserve config, active theme, catalog and SEO data.
+
+Runtime QA
+- The previous production artifact passed clean-install runtime QA on MariaDB 11.4 and MySQL 8.4, including storefront/admin HTTP smoke, Redis tagged cache, guest COD checkout, duplicate callback protection, persistent mail queue, SMTP delivery and Scheduler.
+- Build 1.7.6 is rebuilt and re-tested through the same production and ocStore upgrade pipelines.
+
 # CodeCart PRO 3.0.6.0 Build 1.7.5
 
 Localization / QA
