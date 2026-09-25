@@ -20,7 +20,7 @@ jobs:
       - id: check
         shell: bash
         run: |
-          if [ -f upload/index.php ] && [ -f upload/admin/index.php ] && [ -f upload/system/startup.php ]; then
+          if [ -f upload/index.php ] && [ -f upload/admin/index.php ] && [ -f upload/system/startup.php ] && [ -f upload/install/opencart.sql ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
             echo "CodeCart source tree is present."
           else
@@ -86,10 +86,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          items=(upload install documentation tools composer.json composer.lock)
+          items=(upload documentation tools composer.json composer.lock)
           [ -f README_FIRST.txt ] && items+=(README_FIRST.txt)
           [ -f README.md ] && items+=(README.md)
           [ -f CHANGELOG.md ] && items+=(CHANGELOG.md)
+          [ -f THIRD_PARTY_DEPENDENCIES.json ] && items+=(THIRD_PARTY_DEPENDENCIES.json)
           zip -qr artifacts/CodeCart_PRO_3.0.6.0_PRODUCTION.zip "${items[@]}"
 
       - name: Checksums
