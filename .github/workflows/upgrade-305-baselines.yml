@@ -225,14 +225,14 @@ jobs:
             q "SELECT COUNT(*) FROM oc_article" >/tmp/base-article-count
           fi
 
-      - name: Download latest CodeCart 1.7.6 production artifact
+      - name: Download exact CodeCart 1.7.7 production artifact
         uses: actions/download-artifact@v8
         with:
           name: CodeCart-production
           path: artifact
           github-token: ${{ github.token }}
           repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36161964772
+          run-id: 36165972162
 
       - name: Verify and overlay CodeCart
         shell: bash
@@ -246,12 +246,7 @@ jobs:
 
           mkdir codecart-prod
           unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d codecart-prod
-          grep -q "CODECART_PACKAGE_BUILD', '1.7.6'" codecart-prod/upload/index.php
-
-          # Candidate migration fix under test. It will be packaged as the next
-          # build only after all four upgrade scenarios pass.
-          cp upload/install/model/upgrade/3052.php codecart-prod/upload/install/model/upgrade/3052.php
-          cp upload/system/library/codecart/migration.php codecart-prod/upload/system/library/codecart/migration.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.7.7'" codecart-prod/upload/index.php
 
           cp store/upload/config.php /tmp/catalog-config.php
           cp store/upload/admin/config.php /tmp/admin-config.php
