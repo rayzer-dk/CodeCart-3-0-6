@@ -31,5 +31,6 @@
     "sort-packages": true,
     "allow-plugins": {}
   },
+  "minimum-stability": "stable",
   "prefer-stable": true
 }
