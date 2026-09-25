@@ -10,8 +10,28 @@ permissions:
   contents: read
 
 jobs:
+  source-ready:
+    name: Source tree present
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        shell: bash
+        run: |
+          if [ -f upload/index.php ] && [ -f upload/admin/index.php ] && [ -f upload/system/startup.php ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "CodeCart source tree is present."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "CodeCart source tree has not been imported yet. Production checks are intentionally skipped."
+          fi
+
   php-matrix:
     name: PHP ${{ matrix.php }}
+    needs: source-ready
+    if: needs.source-ready.outputs.ready == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -28,19 +48,19 @@ jobs:
           coverage: none
           tools: composer:v2
 
-      - name: Validate Composer
+      - name: Validate Composer lock
         run: composer validate --strict
 
-      - name: Install Composer dependencies
-        run: composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+      - name: Install locked production dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
       - name: Release checks
         run: php tools/release_check.php
 
   package:
     name: Build one-upload package
-    if: github.event_name != 'pull_request'
-    needs: php-matrix
+    needs: [source-ready, php-matrix]
+    if: github.event_name != 'pull_request' && needs.source-ready.outputs.ready == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -55,16 +75,22 @@ jobs:
           coverage: none
           tools: composer:v2
 
-      - name: Install production dependencies
-        run: composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+      - name: Install locked production dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
       - name: Release checks
         run: php tools/release_check.php
 
       - name: Build one-upload ZIP
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p artifacts
-          zip -qr artifacts/CodeCart_PRO_3.0.6.0_PRODUCTION.zip upload install documentation tools README_FIRST.txt CHANGELOG.md composer.json composer.lock 2>/dev/null ||           zip -qr artifacts/CodeCart_PRO_3.0.6.0_PRODUCTION.zip upload install documentation tools README.md CHANGELOG.md composer.json composer.lock
+          items=(upload install documentation tools composer.json composer.lock)
+          [ -f README_FIRST.txt ] && items+=(README_FIRST.txt)
+          [ -f README.md ] && items+=(README.md)
+          [ -f CHANGELOG.md ] && items+=(CHANGELOG.md)
+          zip -qr artifacts/CodeCart_PRO_3.0.6.0_PRODUCTION.zip "${items[@]}"
 
       - name: Checksums
         run: sha256sum artifacts/*.zip | tee artifacts/SHA256SUMS.txt
