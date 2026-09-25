@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a reproducible CodeCart problem
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: build
+    attributes:
+      label: CodeCart build
+      placeholder: "1.7.6"
+    validations:
+      required: true
+  - type: dropdown
+    id: php
+    attributes:
+      label: PHP version
+      options: ["8.1", "8.2", "8.3", "8.4", "8.5", "Other"]
+  - type: dropdown
+    id: db
+    attributes:
+      label: Database
+      options: ["MariaDB", "MySQL", "Unknown"]
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Remove passwords, API keys, license keys and personal data before posting.
+      render: shell
