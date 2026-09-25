@@ -138,7 +138,7 @@ jobs:
               jq -e '.success' /tmp/upgrade-next.json >/dev/null
               break
             fi
-            url="$next"
+            url="http://127.0.0.1:8081/install/$next"
             step=$((step+1))
           done
           test "$step" -lt 20
@@ -189,7 +189,7 @@ jobs:
             fi
             next="$(jq -r '.next // empty' /tmp/upgrade2-next.json)"
             if [ -z "$next" ]; then break; fi
-            url="$next"
+            url="http://127.0.0.1:8081/install/$next"
           done
 
           marker="$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE code='qa' AND \`key\`='qa_upgrade_marker' LIMIT 1")"
