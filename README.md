@@ -2,7 +2,7 @@
 
 Private development repository for CodeCart 3.0.6.
 
-Current source baseline: CodeCart PRO 3.0.6.0 Build 1.7.5.
+Current source baseline: CodeCart PRO 3.0.6.0 Build 1.7.6.
 
 ## Release model
 
@@ -19,4 +19,4 @@ Do not commit real `config.php`, `admin/config.php`, credentials, API keys, runt
 
 ## Source status
 
-Source import status: complete for CodeCart PRO 3.0.6.0 Build 1.7.5. Production CI reconstructs vendor from composer.lock and validates the source on PHP 8.1–8.5 before packaging.
+Source import status: complete for CodeCart PRO 3.0.6.0 Build 1.7.6. Production CI reconstructs vendor from composer.lock and validates the source on PHP 8.1–8.5 before packaging.
