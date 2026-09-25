@@ -134,8 +134,8 @@ jobs:
           BASE='http://127.0.0.1:8080'
           COOKIE=/tmp/shop.cookies
           PID="$(cat /tmp/product-id)"
-          COUNTRY="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE `key`='config_country_id' LIMIT 1")"
-          ZONE="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE `key`='config_zone_id' LIMIT 1")"
+          COUNTRY="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e 'SELECT value FROM oc_setting WHERE `key`="config_country_id" LIMIT 1')"
+          ZONE="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e 'SELECT value FROM oc_setting WHERE `key`="config_zone_id" LIMIT 1')"
 
           curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d "product_id=$PID" -d 'quantity=1'             "$BASE/index.php?route=checkout/cart/add" >/tmp/cart-add.json
           jq -e '.success' /tmp/cart-add.json >/dev/null
