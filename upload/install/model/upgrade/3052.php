@@ -102,7 +102,39 @@ class ModelUpgrade3052 extends Model {
                 throw new \RuntimeException('Transactional table ' . $table . ' is 256 MB or larger and still uses ' . $engine . '. Run php cli.php db:preflight and php cli.php db:migrate --backup-confirmed --large before continuing the upgrade.');
             }
 
-            $this->db->query("ALTER TABLE `" . str_replace('`', '``', $table) . "` ENGINE=InnoDB");
+            $restoreSqlMode = null;
+
+            // OpenCart/ocStore 3.0.5.x ships product.date_available with
+            // DEFAULT '0000-00-00'. MySQL 8.x strict mode rejects that legacy
+            // default while rebuilding the MyISAM table as InnoDB (error 1067).
+            // Preserve merchant row values, modernize only the default, perform
+            // the engine conversion in the same relaxed session, then restore
+            // the exact previous sql_mode.
+            if ($name === 'product') {
+                $dateColumn = $this->db->query("SHOW COLUMNS FROM `" . str_replace('`', '``', $table) . "` LIKE 'date_available'");
+
+                if ($dateColumn->num_rows && (string)$dateColumn->row['Default'] === '0000-00-00') {
+                    $modeQuery = $this->db->query("SELECT @@SESSION.sql_mode AS sql_mode");
+
+                    if ($modeQuery->num_rows) {
+                        $restoreSqlMode = (string)$modeQuery->row['sql_mode'];
+                        $parts = array_filter(array_map('trim', explode(',', $restoreSqlMode)), function($part) {
+                            return !in_array(strtoupper($part), array('STRICT_TRANS_TABLES','STRICT_ALL_TABLES','NO_ZERO_DATE','NO_ZERO_IN_DATE'), true);
+                        });
+                        $this->db->query("SET SESSION sql_mode='" . $this->db->escape(implode(',', $parts)) . "'");
+                    }
+
+                    $this->db->query("ALTER TABLE `" . str_replace('`', '``', $table) . "` MODIFY `date_available` DATE NOT NULL DEFAULT '1970-01-01'");
+                }
+            }
+
+            try {
+                $this->db->query("ALTER TABLE `" . str_replace('`', '``', $table) . "` ENGINE=InnoDB");
+            } finally {
+                if ($restoreSqlMode !== null) {
+                    $this->db->query("SET SESSION sql_mode='" . $this->db->escape($restoreSqlMode) . "'");
+                }
+            }
 
             $verify = $this->db->query("SELECT ENGINE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . $this->db->escape($table) . "' LIMIT 1");
             if (!$verify->num_rows || strtoupper((string)$verify->row['ENGINE']) !== 'INNODB') {
