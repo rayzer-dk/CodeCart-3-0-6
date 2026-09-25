@@ -194,14 +194,8 @@ jobs:
           SQL
 
           if [ "$BASELINE" = "ocStore 3.0.5.0-Beta" ]; then
-            mysql -h127.0.0.1 -uroot -proot codecart_upgrade <<'SQL'
-            UPDATE oc_product_description
-            SET meta_h1='QA-PRODUCT-H1-PRESERVE'
-            ORDER BY product_id,language_id LIMIT 1;
-            UPDATE oc_category_description
-            SET meta_h1='QA-CATEGORY-H1-PRESERVE'
-            ORDER BY category_id,language_id LIMIT 1;
-            SQL
+            mysql -h127.0.0.1 -uroot -proot codecart_upgrade -e "UPDATE oc_product_description SET meta_h1='QA-PRODUCT-H1-PRESERVE' ORDER BY product_id,language_id LIMIT 1"
+            mysql -h127.0.0.1 -uroot -proot codecart_upgrade -e "UPDATE oc_category_description SET meta_h1='QA-CATEGORY-H1-PRESERVE' ORDER BY category_id,language_id LIMIT 1"
           fi
 
       - name: Capture baseline invariants
