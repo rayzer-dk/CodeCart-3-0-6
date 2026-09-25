@@ -6,8 +6,10 @@ Upgrade reliability
 - Clean-install behavior is unchanged; UPDATE continues to preserve config, active theme, catalog and SEO data.
 
 Runtime QA
-- The previous production artifact passed clean-install runtime QA on MariaDB 11.4 and MySQL 8.4, including storefront/admin HTTP smoke, Redis tagged cache, guest COD checkout, duplicate callback protection, persistent mail queue, SMTP delivery and Scheduler.
-- Build 1.7.6 is rebuilt and re-tested through the same production and ocStore upgrade pipelines.
+- The production artifact passed clean-install runtime QA on MariaDB 10.11 and MySQL 8.4, including storefront/admin HTTP smoke, Redis tagged cache, persistent mail queue, SMTP delivery and Scheduler.
+- Deep commerce release QA passed on MariaDB 10.11 and MySQL 8.4: full guest checkout, COD confirmation, duplicate payment-confirm protection, stock decrement/restore, one-use coupon enforcement, voucher accounting, order cancellation reversal and repeat-cancel idempotency.
+- PayPal capture/refund/void/reauthorize/tracker mutation endpoints are gated by POST, user_token/hash_equals and modify permission before provider access. Provider-side refund/capture remains an external sandbox/live integration test requiring PayPal credentials.
+- Build 1.7.6 passed the PHP 8.1, 8.2, 8.3, 8.4 and 8.5 release matrix and the ocStore 3.0.4.1 upgrade runtime pipeline.
 
 # CodeCart PRO 3.0.6.0 Build 1.7.5
 
