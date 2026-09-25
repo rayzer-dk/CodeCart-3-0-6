@@ -1,4 +1,4 @@
-CodeCart PRO 3.0.6.0 Build 1.7.5
+CodeCart PRO 3.0.6.0 Build 1.7.6
 
 Create and verify a full files/database backup. Upload only the contents of upload/ to the web root. Open /install/ and follow Installer 2.0. PHP 8.1–8.5 is supported.
 
