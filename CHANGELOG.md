@@ -1,3 +1,13 @@
+# CodeCart PRO 3.0.6.0 Build 1.7.7
+
+Upgrade compatibility
+- Fixed OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta upgrades on MySQL 8.x when legacy product.date_available still uses DEFAULT '0000-00-00'. The migration preserves existing row values, replaces only the invalid default with 1970-01-01 in a temporary compatible session and restores the original SQL mode after the InnoDB conversion.
+- Fixed legacy MyISAM/utf8mb4 upload.code index creation on MySQL where a full VARCHAR(255) key exceeds the 1000-byte MyISAM key limit. CodeCart now uses a compatible 191-character prefix index.
+- Exact source fingerprints were verified against the supplied OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta archives before upgrade testing.
+- Full upgrade QA passed for OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta on both MariaDB 10.11 and MySQL 8.4.
+- Upgrade QA verified preservation of products, categories, SEO URLs, store settings, active theme, customers, orders, OCMOD records and Events. ocStore-specific meta_h1 and blog data were also preserved.
+- Re-running Installer 2.0 UPDATE passed idempotency checks and storefront/admin login remained functional after upgrade.
+
 # CodeCart PRO 3.0.6.0 Build 1.7.6
 
 Upgrade reliability
