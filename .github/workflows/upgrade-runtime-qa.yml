@@ -31,7 +31,7 @@ jobs:
           --health-retries=20
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
@@ -78,7 +78,7 @@ jobs:
           mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',category_id,parent_id,top,sort_order,status,date_added) ORDER BY category_id SEPARATOR '|'),256) FROM oc_category" > /tmp/base-category-hash
 
       - name: Download exact CodeCart production artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CodeCart-production
           path: artifact
