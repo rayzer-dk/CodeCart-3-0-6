@@ -1,0 +1,391 @@
+name: Upgrade QA 3.0.5 Baselines
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/upgrade-305-baselines.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  upgrade:
+    name: ${{ matrix.baseline }} / ${{ matrix.db_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - baseline: OpenCart 3.0.5.1
+            repo_url: https://github.com/opencart/opencart.git
+            ref: 3.0.5.1
+            db_name: MariaDB 10.11
+            db_image: mariadb:10.11
+          - baseline: OpenCart 3.0.5.1
+            repo_url: https://github.com/opencart/opencart.git
+            ref: 3.0.5.1
+            db_name: MySQL 8.4
+            db_image: mysql:8.4
+          - baseline: ocStore 3.0.5.0-Beta
+            repo_url: https://github.com/ocStore/ocStore.git
+            ref: d33016d4cfa2632b7833e6f2311d8c9f37587145
+            db_name: MariaDB 10.11
+            db_image: mariadb:10.11
+          - baseline: ocStore 3.0.5.0-Beta
+            repo_url: https://github.com/ocStore/ocStore.git
+            ref: d33016d4cfa2632b7833e6f2311d8c9f37587145
+            db_name: MySQL 8.4
+            db_image: mysql:8.4
+
+    services:
+      db:
+        image: ${{ matrix.db_image }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: codecart_upgrade
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: codecart_upgrade
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, xmlwriter, mysqli, pdo_mysql, gd, fileinfo
+          coverage: none
+          tools: composer:v2
+
+      - name: Install QA utilities
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq rsync
+
+      - name: Fetch exact baseline source
+        shell: bash
+        env:
+          REPO_URL: ${{ matrix.repo_url }}
+          REF: ${{ matrix.ref }}
+        run: |
+          set -euo pipefail
+          git init -q baseline-src
+          cd baseline-src
+          git remote add origin "$REPO_URL"
+          git fetch -q --depth 1 origin "$REF"
+          git checkout -q FETCH_HEAD
+          cd ..
+          test -f baseline-src/upload/install/cli_install.php
+          test -f baseline-src/upload/install/opencart.sql
+
+      - name: Verify baseline fingerprint against uploaded source archives
+        shell: bash
+        env:
+          BASELINE: ${{ matrix.baseline }}
+        run: |
+          set -euo pipefail
+          check() {
+            local file="$1" expected="$2"
+            actual="$(sha256sum "baseline-src/$file" | awk '{print $1}')"
+            if [ "$actual" != "$expected" ]; then
+              echo "Fingerprint mismatch: $file" >&2
+              echo "expected=$expected" >&2
+              echo "actual=$actual" >&2
+              exit 1
+            fi
+          }
+
+          if [ "$BASELINE" = "OpenCart 3.0.5.1" ]; then
+            check upload/index.php f666e05679a94d4ec80d18b556ebea54c087ba4fac8a602c947323939d7c264b
+            check upload/admin/index.php 9bb14dffc856d914abea514539c616e6987c08ede846f37c83bc1f09a431f03b
+            check upload/install/opencart.sql 0727235e3104f07a62b887ec1b588095bfc9a878aa4c9814d4fbdbf69caee5e9
+            check upload/install/cli_install.php dbe8adcfe0b3634989e2cf31d4637e7178d3fd2d8cbdd6bb06ecabefdfdcdaa3
+            check upload/system/startup.php 7ef2df49f08e68c9df35cbb42bf7330e148d2f0a867c44ee4ff08c8fbe3ccca1
+            check upload/catalog/model/checkout/order.php 1b3f1e136cc7a74db21c18c81bf3d7995151e7d3eaa2b1d073b1f9b5ded03faf
+            check upload/catalog/controller/startup/seo_url.php 90ff6620467b4597de197f7d9c56d830cfcf22898e79afe616fc2d0a97ed8e71
+            check composer.lock b89d363d4f4a2568af553cd32bee7ddfec7a59b016562883044dc587a2b81a3b
+          else
+            check upload/index.php 313204b696a30e52445fa97e780b949b9af9834af128b34b2804476e4a28c57d
+            check upload/admin/index.php 4e828eab8cc89fda65ec738f4d6c3def57582412c6c6740185a339f257c8c23f
+            check upload/install/opencart.sql 9769725f12a2b6f2be90c8e4b028156160c00481a118bda89180af2997b1c20c
+            check upload/install/cli_install.php 6b482be61cdeb0da2ec679584c1b1020aceff51e669ec982ba603e79e46f7e16
+            check upload/system/startup.php 9553290c119de767b6f01b7e5a2c7024debc005a9835f67f289c193b9a0e5246
+            check upload/catalog/model/checkout/order.php 1b3f1e136cc7a74db21c18c81bf3d7995151e7d3eaa2b1d073b1f9b5ded03faf
+            check upload/catalog/controller/startup/seo_url.php 9abf2991303bbaee9855b41071313161c4c7aacf40ff17b71250c4a41291b1bc
+            check composer.lock 1fc85f42d8fe6a06709096dd51c2c57c8188d92e20032957b5f0ae611d085dd5
+          fi
+
+      - name: Install baseline dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd baseline-src
+          composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Build baseline store tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p store
+          cp -a baseline-src/upload store/upload
+
+      - name: Install baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd store/upload/install
+          php cli_install.php install             --db_hostname 127.0.0.1             --db_username root             --db_password root             --db_database codecart_upgrade             --db_prefix oc_             --db_driver mysqli             --db_port 3306             --username admin             --password 'Admin123!QA'             --email admin@example.test             --http_server http://127.0.0.1:8082/
+
+      - name: Seed upgrade preservation fixtures
+        shell: bash
+        env:
+          BASELINE: ${{ matrix.baseline }}
+        run: |
+          set -euo pipefail
+          mysql -h127.0.0.1 -uroot -proot codecart_upgrade <<'SQL'
+          INSERT INTO oc_setting (store_id,code,`key`,value,serialized)
+          VALUES (0,'qa','qa_upgrade_marker','PRESERVE-ME-305',0);
+
+          INSERT INTO oc_seo_url (store_id,language_id,query,keyword)
+          SELECT 0,language_id,'qa_marker=305','qa-upgrade-305'
+          FROM oc_language WHERE status=1 ORDER BY sort_order,language_id LIMIT 1;
+
+          INSERT INTO oc_modification
+            (extension_install_id,name,code,author,version,link,xml,status,date_added)
+          VALUES
+            (0,'QA Preserve Modification','qa_preserve_mod','QA','1.0.0','',
+             '<modification><name>QA Preserve</name><code>qa_preserve_mod</code><version>1.0.0</version><author>QA</author></modification>',
+             1,NOW());
+
+          INSERT INTO oc_event (code,`trigger`,action,status,sort_order)
+          VALUES ('qa_preserve_event','catalog/model/catalog/product/getProduct/after','extension/module/qa_preserve/event',1,999);
+
+          SET SESSION sql_mode='';
+          INSERT INTO oc_customer
+            (customer_group_id,store_id,language_id,firstname,lastname,email,telephone,password,salt,newsletter,status,safe,date_added)
+          SELECT
+            1,0,language_id,'QA','Customer','qa-preserve@example.test','+4511111111',
+            SHA1('qa-pass'),'',1,1,1,NOW()
+          FROM oc_language WHERE status=1 ORDER BY sort_order,language_id LIMIT 1;
+
+          INSERT INTO oc_order
+            (store_id,store_name,store_url,customer_id,customer_group_id,firstname,lastname,email,telephone,
+             payment_firstname,payment_lastname,payment_address_1,payment_city,payment_country,payment_country_id,
+             payment_zone,payment_zone_id,payment_method,payment_code,
+             shipping_firstname,shipping_lastname,shipping_address_1,shipping_city,shipping_country,shipping_country_id,
+             shipping_zone,shipping_zone_id,shipping_method,shipping_code,comment,total,order_status_id,
+             language_id,currency_id,currency_code,currency_value,ip,date_added,date_modified)
+          SELECT
+            0,'QA Store','http://127.0.0.1:8082/',customer_id,1,'QA','Customer','qa-order@example.test','+4522222222',
+            'QA','Customer','Upgrade Street 1','Kyiv','Ukraine',0,'',0,'Cash','cod',
+            'QA','Customer','Upgrade Street 1','Kyiv','Ukraine',0,'',0,'Flat','flat.flat',
+            'QA-UPGRADE-ORDER-305',123.4500,1,
+            language_id,1,'USD',1.00000000,'127.0.0.1',NOW(),NOW()
+          FROM oc_customer WHERE email='qa-preserve@example.test' LIMIT 1;
+          SQL
+
+          if [ "$BASELINE" = "ocStore 3.0.5.0-Beta" ]; then
+            mysql -h127.0.0.1 -uroot -proot codecart_upgrade <<'SQL'
+            UPDATE oc_product_description
+            SET meta_h1='QA-PRODUCT-H1-PRESERVE'
+            ORDER BY product_id,language_id LIMIT 1;
+            UPDATE oc_category_description
+            SET meta_h1='QA-CATEGORY-H1-PRESERVE'
+            ORDER BY category_id,language_id LIMIT 1;
+            SQL
+          fi
+
+      - name: Capture baseline invariants
+        shell: bash
+        env:
+          BASELINE: ${{ matrix.baseline }}
+        run: |
+          set -euo pipefail
+          q() { mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "$1"; }
+
+          q "SELECT value FROM oc_setting WHERE `key`='config_theme' LIMIT 1" >/tmp/base-theme
+          q "SELECT value FROM oc_setting WHERE `key`='config_language' LIMIT 1" >/tmp/base-language
+          q "SELECT value FROM oc_setting WHERE `key`='config_currency' LIMIT 1" >/tmp/base-currency
+
+          q "SELECT COUNT(*) FROM oc_product" >/tmp/base-product-count
+          q "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',product_id,model,quantity,price,status,date_added) ORDER BY product_id SEPARATOR '|'),256) FROM oc_product" >/tmp/base-product-hash
+          q "SELECT COUNT(*) FROM oc_category" >/tmp/base-category-count
+          q "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',category_id,parent_id,top,sort_order,status,date_added) ORDER BY category_id SEPARATOR '|'),256) FROM oc_category" >/tmp/base-category-hash
+          q "SELECT COUNT(*) FROM oc_seo_url" >/tmp/base-seo-count
+          q "SELECT COUNT(*) FROM oc_modification" >/tmp/base-mod-count
+          q "SELECT COUNT(*) FROM oc_event" >/tmp/base-event-count
+          q "SELECT COUNT(*) FROM oc_customer" >/tmp/base-customer-count
+          q "SELECT COUNT(*) FROM oc_order" >/tmp/base-order-count
+
+          if [ "$BASELINE" = "ocStore 3.0.5.0-Beta" ]; then
+            q "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name LIKE 'oc_blog_%'" >/tmp/base-blog-tables
+            q "SELECT COUNT(*) FROM oc_article" >/tmp/base-article-count
+          fi
+
+      - name: Download latest CodeCart 1.7.6 production artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: CodeCart-production
+          path: artifact
+          github-token: ${{ github.token }}
+          repository: rayzer-dk/CodeCart-3-0-6
+          run-id: 36161964772
+
+      - name: Verify and overlay CodeCart
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd artifact
+          expected="$(awk '{print $1}' SHA256SUMS.txt)"
+          actual="$(sha256sum CodeCart_PRO_3.0.6.0_PRODUCTION.zip | awk '{print $1}')"
+          test "$actual" = "$expected"
+          cd ..
+
+          mkdir codecart-prod
+          unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d codecart-prod
+          grep -q "CODECART_PACKAGE_BUILD', '1.7.6'" codecart-prod/upload/index.php
+
+          cp store/upload/config.php /tmp/catalog-config.php
+          cp store/upload/admin/config.php /tmp/admin-config.php
+          rsync -a codecart-prod/upload/ store/upload/
+          cp /tmp/catalog-config.php store/upload/config.php
+          cp /tmp/admin-config.php store/upload/admin/config.php
+
+          test -f store/upload/system/library/codecart/migration.php
+          test -f store/upload/system/storage/vendor/autoload.php
+
+      - name: Start upgraded codebase
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd store
+          php -S 127.0.0.1:8082 -t upload >/tmp/upgrade-305-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS 'http://127.0.0.1:8082/install/index.php?route=upgrade/upgrade' >/tmp/upgrade-page.html; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/upgrade-305-http.log
+          exit 1
+
+      - name: Run Installer 2.0 update
+        shell: bash
+        run: |
+          set -euo pipefail
+          COOKIE=/tmp/upgrade305.cookies
+          BASE='http://127.0.0.1:8082/install/index.php?route=upgrade/upgrade'
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/tmp/upgrade-page.html
+          url="$BASE/next&step=1&backup=1"
+
+          for i in {1..30}; do
+            curl -fsS -c "$COOKIE" -b "$COOKIE" "$url" >/tmp/upgrade-next.json
+            if jq -e '.error' /tmp/upgrade-next.json >/dev/null 2>&1; then
+              cat /tmp/upgrade-next.json
+              exit 1
+            fi
+            next="$(jq -r '.next // empty' /tmp/upgrade-next.json)"
+            if [ -z "$next" ]; then
+              jq -e '.success' /tmp/upgrade-next.json >/dev/null
+              break
+            fi
+            url="http://127.0.0.1:8082/install/$next"
+          done
+
+      - name: Verify no data loss or baseline conflicts
+        shell: bash
+        env:
+          BASELINE: ${{ matrix.baseline }}
+        run: |
+          set -euo pipefail
+          q() { mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "$1"; }
+
+          test "$(q "SELECT value FROM oc_setting WHERE code='qa' AND `key`='qa_upgrade_marker' LIMIT 1")" = "PRESERVE-ME-305"
+          test "$(q "SELECT keyword FROM oc_seo_url WHERE query='qa_marker=305' LIMIT 1")" = "qa-upgrade-305"
+          test "$(q "SELECT COUNT(*) FROM oc_modification WHERE code='qa_preserve_mod' AND status=1")" = "1"
+          test "$(q "SELECT COUNT(*) FROM oc_event WHERE code='qa_preserve_event' AND status=1")" = "1"
+          test "$(q "SELECT COUNT(*) FROM oc_customer WHERE email='qa-preserve@example.test'")" = "1"
+          test "$(q "SELECT COUNT(*) FROM oc_order WHERE comment='QA-UPGRADE-ORDER-305' AND total=123.4500")" = "1"
+
+          test "$(q "SELECT value FROM oc_setting WHERE `key`='config_theme' LIMIT 1")" = "$(cat /tmp/base-theme)"
+          test "$(q "SELECT value FROM oc_setting WHERE `key`='config_language' LIMIT 1")" = "$(cat /tmp/base-language)"
+          test "$(q "SELECT value FROM oc_setting WHERE `key`='config_currency' LIMIT 1")" = "$(cat /tmp/base-currency)"
+
+          test "$(q "SELECT COUNT(*) FROM oc_product")" = "$(cat /tmp/base-product-count)"
+          test "$(q "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',product_id,model,quantity,price,status,date_added) ORDER BY product_id SEPARATOR '|'),256) FROM oc_product")" = "$(cat /tmp/base-product-hash)"
+          test "$(q "SELECT COUNT(*) FROM oc_category")" = "$(cat /tmp/base-category-count)"
+          test "$(q "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',category_id,parent_id,top,sort_order,status,date_added) ORDER BY category_id SEPARATOR '|'),256) FROM oc_category")" = "$(cat /tmp/base-category-hash)"
+
+          test "$(q "SELECT COUNT(*) FROM oc_seo_url")" -ge "$(cat /tmp/base-seo-count)"
+          test "$(q "SELECT COUNT(*) FROM oc_modification")" -ge "$(cat /tmp/base-mod-count)"
+          test "$(q "SELECT COUNT(*) FROM oc_event")" -ge "$(cat /tmp/base-event-count)"
+          test "$(q "SELECT COUNT(*) FROM oc_customer")" = "$(cat /tmp/base-customer-count)"
+          test "$(q "SELECT COUNT(*) FROM oc_order")" = "$(cat /tmp/base-order-count)"
+
+          test "$(q "SELECT value FROM oc_setting WHERE `key`='codecart_core_schema_version' LIMIT 1")" = "3.0.6.0"
+          test "$(q "SELECT value FROM oc_setting WHERE `key`='codecart_presentation_schema_version' LIMIT 1")" = "27"
+          test "$(q "SELECT value FROM oc_setting WHERE `key`='theme_codecart_status' LIMIT 1")" = "1"
+
+          critical_bad="$(q "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN ('oc_setting','oc_product','oc_product_option_value','oc_order','oc_order_product','oc_order_option','oc_order_total','oc_order_history','oc_customer','oc_customer_reward','oc_coupon_history','oc_voucher_history') AND engine <> 'InnoDB'")"
+          test "$critical_bad" = "0"
+
+          if [ "$BASELINE" = "ocStore 3.0.5.0-Beta" ]; then
+            test "$(q "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='oc_product_description' AND column_name='meta_h1'")" = "1"
+            test "$(q "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='oc_category_description' AND column_name='meta_h1'")" = "1"
+            test "$(q "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name LIKE 'oc_blog_%'")" = "$(cat /tmp/base-blog-tables)"
+            test "$(q "SELECT COUNT(*) FROM oc_article")" = "$(cat /tmp/base-article-count)"
+            test "$(q "SELECT COUNT(*) FROM oc_product_description WHERE meta_h1='QA-PRODUCT-H1-PRESERVE'")" = "1"
+            test "$(q "SELECT COUNT(*) FROM oc_category_description WHERE meta_h1='QA-CATEGORY-H1-PRESERVE'")" = "1"
+          fi
+
+      - name: Re-run update for idempotency
+        shell: bash
+        run: |
+          set -euo pipefail
+          COOKIE=/tmp/upgrade305-2.cookies
+          BASE='http://127.0.0.1:8082/install/index.php?route=upgrade/upgrade'
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/dev/null
+          url="$BASE/next&step=1&backup=1"
+
+          for i in {1..30}; do
+            curl -fsS -c "$COOKIE" -b "$COOKIE" "$url" >/tmp/upgrade2-next.json
+            if jq -e '.error' /tmp/upgrade2-next.json >/dev/null 2>&1; then
+              cat /tmp/upgrade2-next.json
+              exit 1
+            fi
+            next="$(jq -r '.next // empty' /tmp/upgrade2-next.json)"
+            if [ -z "$next" ]; then break; fi
+            url="http://127.0.0.1:8082/install/$next"
+          done
+
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT value FROM oc_setting WHERE code='qa' AND `key`='qa_upgrade_marker' LIMIT 1")" = "PRESERVE-ME-305"
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT COUNT(*) FROM oc_order WHERE comment='QA-UPGRADE-ORDER-305'")" = "1"
+
+      - name: Post-update storefront and admin login
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS http://127.0.0.1:8082/ >/tmp/home305.html
+          curl -fsS -c /tmp/admin305.cookies http://127.0.0.1:8082/admin/ >/tmp/admin305-login.html
+          curl -sS -b /tmp/admin305.cookies -c /tmp/admin305.cookies -D /tmp/admin305.headers -o /tmp/admin305.body             -X POST -d 'username=admin&password=Admin123!QA'             'http://127.0.0.1:8082/admin/index.php?route=common/login'
+          grep -qi 'user_token=' /tmp/admin305.headers
+          ! grep -Eqi 'Fatal error|Parse error|Uncaught (Error|Exception)' /tmp/home305.html
+
+      - name: Error log gate
+        if: always()
+        shell: bash
+        run: |
+          echo '--- upgrade HTTP log ---'
+          cat /tmp/upgrade-305-http.log 2>/dev/null || true
+          echo '--- application error log ---'
+          cat store/upload/system/storage/logs/error.log 2>/dev/null || true
+          if grep -Eqi 'PHP (Fatal|Parse|Warning|Deprecated)|Uncaught (Exception|Error)|mysqli_sql_exception' store/upload/system/storage/logs/error.log 2>/dev/null; then
+            exit 1
+          fi
