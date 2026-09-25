@@ -5,7 +5,7 @@
         "admin/controller/catalog/product.php": "b10ae68d196f30894c9756252fb7b867361a1c6070f048402ffc4d8f3bb5bc32",
         "admin/controller/common/developer.php": "17199613d4138c01b737756534f435d885820e26b64d73a59c11c3427f2614cc",
         "admin/controller/common/footer.php": "5f5c1333d1f2087761d0464cc89b19dbe4dda8e4c3782377759f6d1e215d95cf",
-        "admin/controller/common/header.php": "8359044b0f8d3760608e1c65258defe74be5a161a7db6c6708054ebf0b1f1c8d",
+        "admin/controller/common/header.php": "eebfd890264ba2a2ad5d2e074b92e3ee79c714d074949f444d1e6604af1f082b",
         "admin/controller/common/security.php": "32372322f0869ba817c8fb490937f4521dfe08f4796a72802913bb6285200487",
         "admin/controller/design/form.php": "79db6ce3b9b9761ef4c0b5331335e68ed6ecb3af1c314fd3bdb1cdf550ac71bb",
         "admin/controller/extension/currency/nbu.php": "7259b154baa320e91065dd3220808ebfb7e35897ae05b0df5d980eabea4ff8f2",
@@ -40,7 +40,7 @@
         "admin/controller/tool/backup.php": "9d62916681d0d452c006aef7cb50e522a1a156d00a9c9e642d1c7722b2ce8671",
         "admin/controller/tool/catalog_transfer.php": "bd2b88a7c4eb983df1657cf688d3207146d0be83950da9fbd9a8bbdab49fd0aa",
         "admin/controller/tool/codecart_core.php": "63dd1b26cc5820c95dbf37bb3a3046863f64d3980067e60bcaf819d67ee7e83a",
-        "admin/index.php": "9b46f7148ef965960a71fe5e11952615e19ae2878da450897b983728fe941c08",
+        "admin/index.php": "87503256c717c44426ec2c93493eb2e699acbcb776b9d246c0ecd8cbd5a54ba9",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "6bd4be0a8f634c7dc3f56d7e537f070e39cdf375777899996d83bd8e4517fe8d",
         "admin/language/en-gb/en-gb.png": "d3108ef6764c006a34819c1d660d7e270098c41167a749d1a9a85b47d1566570",
@@ -307,9 +307,9 @@
         "catalog/view/theme/default/template/product/product.twig": "74c58b581e97cba29e6d349e396ffe9aa301a3f6f2e9722934ea86e8a6e1cb4c",
         "catalog/view/theme/default/template/product/search.twig": "694d3110cf38f17d5dc0bc432275a30dbb8d314a7f68058be393da58d89e3227",
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
-        "cli.php": "c2a125a0c8d67ed1ece151cc972a2d7602ed1843cb6ba030d8121221ab0cd4ef",
-        "cron.php": "51f360cfa012fe7c025a0fa573e35ee2a0a539405633c17d7a8c4b725b20642b",
-        "index.php": "07cdd5217a31bea37186baa69023e16fd2521067ff940752b5c9ae5445f8c0d6",
+        "cli.php": "7960c3a8e5b1e67f04982be8a18b0cbad6f113eb51715edede928833c6dbcaa8",
+        "cron.php": "75bfd406bf6d67b1197e1a46a1438527ca8242bb892b297ffe239222eadd7923",
+        "index.php": "e2ea8feef29546f2490ada5cc72a1147bcd0e48141c0fa78722acd2015dcd529",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "bfd8de074c8a052a0309c6299774241eda12a142d345944bcb7d28c126fcbde9",
         "system/config/codecart_fontawesome_core_manifest.json": "c1d84e18e25171392a20e8bbdc31a24f6d9af3b68ae82d1464c4294dde5fe128",
@@ -333,7 +333,7 @@
         "system/library/cart/currency.php": "c7e4776619dd1098c1ffd4551cca8b217e41fcb6eaecc99080352ee0a3433df7",
         "system/library/cart/tax.php": "64bf2bf6ce7387480583fc8df3554bee1d5c84fc7a7ae39cb6481652af61eb9b",
         "system/library/codecart/assets/default-logo.webp": "a7925690b8cdd350322dc83f2f2624aad4ba4d5a8b06b1dae3066ac1373314ef",
-        "system/library/codecart/migration.php": "3c5e44aa2826fc65a6c221763f32d791da0ffd1f38d013549272cee37154fea2",
+        "system/library/codecart/migration.php": "1f3f6ef39bc9a3a7c52110fa8f49cdf30ed5e9911f5d8d54cf94184df8376482",
         "system/library/codecart/psr4.php": "076111a8df68d9dfae36ff57d50fa711c3b761d4d8b71d7eb3f2a91317a12bb7",
         "system/library/codecart/src/ApiV1.php": "a2bb0f7b768b3dc9c96d20d74fd3b66ce57bf527c554ede12f9ae9a95ffbd865",
         "system/library/codecart/src/AssetManager.php": "749d5d1d82f7222b9e3b7a6e90603f3320fbb85257e7d451c59b7b1b300b7be9",
@@ -391,5 +391,5 @@
         "catalog/controller/cron/mail_delivery.php": "90d7160c60fb2a1f38de84a4ff12ea826c1880181e6d6211a79ae47bd40826c0",
         "catalog/controller/cron/queue_worker.php": "8165aa080f3e6927c149c49b81ba7e5e03b78c50ffc9ca69f714e113d52e89da"
     },
-    "version": "1.7.6"
+    "version": "1.7.7"
 }
