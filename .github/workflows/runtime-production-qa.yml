@@ -45,7 +45,7 @@ jobs:
           - 8025:8025
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup PHP 8.4
         uses: shivammathur/setup-php@v2
@@ -58,7 +58,7 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq
 
       - name: Download exact production artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CodeCart-production
           path: artifact
@@ -254,7 +254,7 @@ jobs:
           --health-retries=30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup PHP 8.4
         uses: shivammathur/setup-php@v2
@@ -267,7 +267,7 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client
 
       - name: Download exact production artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CodeCart-production
           path: artifact
