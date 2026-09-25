@@ -92,8 +92,8 @@ jobs:
           test -n "$PRODUCT_ID"
           echo "$PRODUCT_ID" >/tmp/product-id
 
-          mysql -h127.0.0.1 -uroot -proot codecart <<SQL
-          UPDATE oc_product SET quantity=1, subtract=1, minimum=1 WHERE product_id=$PRODUCT_ID;
+          mysql -h127.0.0.1 -uroot -proot codecart -e "UPDATE oc_product SET quantity=1, subtract=1, minimum=1 WHERE product_id=$PRODUCT_ID"
+          mysql -h127.0.0.1 -uroot -proot codecart <<'SQL'
           UPDATE oc_setting SET value='2' WHERE store_id=0 AND code='payment_cod' AND `key`='payment_cod_order_status_id';
           DELETE FROM oc_coupon WHERE code='QA-ONE-USE';
           INSERT INTO oc_coupon
