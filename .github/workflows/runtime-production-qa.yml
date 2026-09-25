@@ -174,15 +174,15 @@ jobs:
           jq -e '.success' /tmp/cart-add.json >/dev/null
 
           curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d 'firstname=Runtime' -d 'lastname=Tester'             -d 'email=runtime@example.test' -d 'telephone=+4512345678'             -d 'company=' -d 'address_1=Test Street 1' -d 'address_2='             -d 'city=Kyiv' -d 'postcode=01001'             -d "country_id=$COUNTRY" -d "zone_id=$ZONE" -d 'shipping_address=1'             "$BASE/index.php?route=checkout/guest/save" >/tmp/guest.json
-          jq -e 'has("error")|not' /tmp/guest.json >/dev/null
+          jq -e 'if type=="array" then length==0 else (has("error")|not) end' /tmp/guest.json >/dev/null
 
           curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/shipping_method" >/tmp/shipping.html
           curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d 'shipping_method=flat.flat' -d 'comment=Runtime QA'             "$BASE/index.php?route=checkout/shipping_method/save" >/tmp/shipping.json
-          jq -e 'has("error")|not' /tmp/shipping.json >/dev/null
+          jq -e 'if type=="array" then length==0 else (has("error")|not) end' /tmp/shipping.json >/dev/null
 
           curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/payment_method" >/tmp/payment.html
           curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST             -d 'payment_method=cod' -d 'agree=1'             "$BASE/index.php?route=checkout/payment_method/save" >/tmp/payment.json
-          jq -e 'has("error")|not' /tmp/payment.json >/dev/null
+          jq -e 'if type=="array" then length==0 else (has("error")|not) end' /tmp/payment.json >/dev/null
 
           curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE/index.php?route=checkout/confirm" >/tmp/confirm.html
           TOKEN="$(grep -o "codecart_payment_token: '[^']*'" /tmp/confirm.html | head -1 | cut -d"'" -f2)"
