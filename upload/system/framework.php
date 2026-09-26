@@ -238,6 +238,7 @@ $registry->set('codecart_service_container', new \CodeCart\Core\ServiceContainer
 $registry->set('codecart_extension_points', new \CodeCart\Core\ExtensionPoints());
 $registry->set('codecart_asset_manager', new \CodeCart\Core\AssetManager($registry));
 $registry->set('codecart_compat', new \CodeCart\Core\CompatibilityLayer($registry));
+$registry->set('codecart_compatibility_framework', new \CodeCart\Core\CompatibilityFramework($registry));
 $registry->set('codecart_search', new \CodeCart\Core\SearchAdapter());
 $registry->set('codecart_api_v1', new \CodeCart\Core\ApiV1($registry));
 
