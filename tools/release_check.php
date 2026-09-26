@@ -152,6 +152,16 @@ if (is_file($localeCheck)) {
     }
 }
 
+$unishopCheck = $root . '/tools/check_unishop2_compat.php';
+if (is_file($unishopCheck)) {
+    passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($unishopCheck), $unishopCode);
+    if ($unishopCode !== 0) {
+        fail($errors, 'UniShop2 compatibility gate failed');
+    } else {
+        pass('UniShop2 compatibility gate');
+    }
+}
+
 if ($errors) {
     fwrite(STDERR, PHP_EOL . 'RELEASE CHECK FAILED: ' . count($errors) . ' issue(s).' . PHP_EOL);
     exit(1);
