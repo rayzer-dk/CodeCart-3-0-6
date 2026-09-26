@@ -4,63 +4,73 @@ declare(strict_types=1);
 $root = dirname(__DIR__);
 $checks = [
     'upload/admin/view/template/common/header.twig' => [
-        "extension/module/uni_settings",
-        "extension/theme/unishop2",
-        "ccp-unishop-admin-compat",
+        'extension/module/uni_settings',
+        'extension/theme/unishop2',
+        'ccp-unishop-admin-compat',
+    ],
+    'upload/system/library/codecart/src/CompatibilityAdapterInterface.php' => [
+        'interface CompatibilityAdapterInterface',
+        'public function adapt(',
+        'public function satisfiesOcmod(',
+    ],
+    'upload/system/library/codecart/src/CompatibilityFramework.php' => [
+        'final class CompatibilityFramework',
+        'public function apply(',
+        'public function ocmodSatisfied(',
+        'Unishop2Compatibility',
+    ],
+    'upload/system/library/codecart/src/Unishop2Compatibility.php' => [
+        "return 'theme.unishop2';",
+        "case 'catalog.menu.data':",
+        "case 'catalog.category_module.full_tree':",
+        "case 'catalog.category_page.subcategories':",
+        "case 'catalog.category_page.banner_in_category':",
+        "case 'catalog.product.option_image_size':",
+        "case 'catalog.product.option_value':",
+        "case 'catalog.banner.item':",
+        'public function satisfiesOcmod(',
     ],
     'upload/catalog/controller/common/menu.php' => [
-        "config_theme') === 'unishop2'",
-        "\$children_data = array();",
-        "\$children = \$this->model_catalog_category->getCategories(\$category['category_id']);",
-        "// Level 1",
+        "codecart_compatibility_framework",
+        "apply('catalog.menu.data'",
     ],
     'upload/catalog/controller/extension/module/category.php' => [
-        "config_theme') === 'unishop2'",
-        "if (isset(\$this->request->get['path'])) {",
-        "if (\$category['category_id'] == \$data['category_id']) {",
-        "\$children = \$this->model_catalog_category->getCategories(\$category['category_id']);",
-    ],
-    'upload/catalog/controller/extension/module/banner.php' => [
-        "\$setting['width'] = \$width;",
-        "\$setting['height'] = \$height;",
-        "\$this->model_tool_image->resize(\$result['image'], \$setting['width'], \$setting['height'])",
+        "codecart_compatibility_framework",
+        "apply('catalog.category_module.full_tree'",
     ],
     'upload/catalog/controller/product/category.php' => [
-        "\$data['categories'] = array();",
-        "\$results = \$this->model_catalog_category->getCategories(\$category_id);",
-        "\$data['categories'][] = array(",
+        "apply('catalog.category_page.subcategories'",
+        "apply('catalog.category_page.banner_in_category'",
     ],
     'upload/catalog/controller/product/product.php' => [
-        "show_ended_option_value",
-        "option_img_small_w",
-        "option_img_small_h",
+        "apply('catalog.product.option_image_size'",
+        "apply('catalog.product.option_value'",
+    ],
+    'upload/catalog/controller/extension/module/banner.php' => [
+        "apply('catalog.banner.item'",
     ],
 ];
 
 $errors = [];
-
 foreach ($checks as $relative => $needles) {
     $path = $root . '/' . $relative;
-
     if (!is_file($path)) {
         $errors[] = 'Missing compatibility file: ' . $relative;
         continue;
     }
-
-    $content = (string)file_get_contents($path);
-
+    $source = (string)file_get_contents($path);
     foreach ($needles as $needle) {
-        if (strpos($content, $needle) === false) {
-            $errors[] = 'Missing UniShop2 compatibility contract in ' . $relative . ': ' . $needle;
+        if (strpos($source, $needle) === false) {
+            $errors[] = 'Missing compatibility contract in ' . $relative . ': ' . $needle;
         }
     }
 }
 
 if ($errors) {
     foreach ($errors as $error) {
-        fwrite(STDERR, "[FAIL] " . $error . PHP_EOL);
+        fwrite(STDERR, '[FAIL] ' . $error . PHP_EOL);
     }
     exit(1);
 }
 
-fwrite(STDOUT, "[PASS] UniShop2 v3.6.5.2 compatibility contracts" . PHP_EOL);
+fwrite(STDOUT, '[PASS] UniShop2 v3.6.6.0 Compatibility Framework contracts' . PHP_EOL);
