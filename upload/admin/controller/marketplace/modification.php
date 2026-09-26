@@ -873,7 +873,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		// UniShop2 deliberately targets a broad OpenCart/ocStore controller set.
 		// These branches do not exist in CodeCart's equivalent controllers, or the
 		// behavior is provided natively by the UniShop2 compatibility layer.
-		if ($search === "$data['products'][] = array(" &&
+		if ($search === '$data[\'products\'][] = array(' &&
 			in_array($path, array(
 				'catalog/controller/extension/module/category.php',
 				'catalog/controller/blog/category.php',
@@ -884,13 +884,13 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 
 		if ($path === 'catalog/controller/product/product.php' &&
 			in_array($search, array(
-				"($option_value['quantity'] > 0)",
-				"$this->model_tool_image->resize($option_value['image'], 50, 50),"
+				'($option_value[\'quantity\'] > 0)',
+				'$this->model_tool_image->resize($option_value[\'image\'], 50, 50),'
 			), true)) {
 			return true;
 		}
 
-		if ($search === "$result = isset($product_info) && isset($setting) ? $product_info : $result;" &&
+		if ($search === '$result = isset($product_info) && isset($setting) ? $product_info : $result;' &&
 			in_array($path, array(
 				'catalog/controller/extension/module/blog_latest.php',
 				'catalog/controller/extension/module/blog_featured.php',
