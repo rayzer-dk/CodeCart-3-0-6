@@ -24,3 +24,5 @@ Source import status: complete for CodeCart PRO 3.0.6.0 Build 1.7.8. Production 
 ## Validated upgrade baselines
 
 Validated upgrade paths include ocStore 3.0.4.1, OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta. OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta are tested on both MariaDB 10.11 and MySQL 8.4 with preservation and idempotency checks.
+
+UniShop2 v3.6.5.2 compatibility adapter: validated against the supplied theme package; PHP 8.3 + compatible ionCube Loader is required by UniShop2.
