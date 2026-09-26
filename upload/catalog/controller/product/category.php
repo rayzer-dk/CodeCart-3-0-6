@@ -163,42 +163,30 @@ class ControllerProductCategory extends Controller {
 			);
 			$data['description'] = html_entity_decode($category_info['description'], ENT_QUOTES, 'UTF-8');
 			$data['description'] = $this->load->controller('common/codecart_form/shortcodes', array('html'=>$data['description'],'context'=>$category_context));
+
+			$compatibility = $this->registry->get('codecart_compatibility_framework');
+			$subcategoryContract = $compatibility ? $compatibility->apply('catalog.category_page.subcategories', array('enabled' => true, 'images' => false, 'category_id' => (int)$category_id)) : array('enabled' => true, 'images' => false);
+			$data['categories'] = [];
+			if (!empty($subcategoryContract['enabled'])) {
+				$subcategories = $this->model_catalog_category->getCategories((int)$category_id);
+				$showSubcategoryImages = !empty($subcategoryContract['images']);
+				foreach ($subcategories as $subcategory) {
+					$subcategoryThumb = '';
+					if ($showSubcategoryImages && !empty($subcategory['image'])) {
+						$subcategoryThumb = $this->model_tool_image->resize($subcategory['image'], $data['thumb_width'], $data['thumb_height']);
+					}
+					$subcategoryItem = array(
+						'name' => $subcategory['name'],
+						'thumb' => $subcategoryThumb,
+						'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . (int)$subcategory['category_id'])
+					);
+					$data['categories'][] = $subcategoryItem;
+				}
+			}
+			$bannerContract = $compatibility ? $compatibility->apply('catalog.category_page.banner_in_category', array('enabled' => false, 'page' => (int)$page, 'category_id' => (int)$category_id)) : array('enabled' => false);
+			$data['banner_in_category'] = !empty($bannerContract['enabled']) ? $this->load->controller('extension/module/uni_banner_in_category', $category_id) : '';
 			// Category purchase/content blocks are configuration templates for products in this category.
 			// They are intentionally not rendered on the category page itself.
-
-			$url = '';
-
-			if (isset($this->request->get['filter'])) {
-				$url .= '&filter=' . $this->request->get['filter'];
-			}
-
-			if (isset($this->request->get['sort'])) {
-				$url .= '&sort=' . $this->request->get['sort'];
-			}
-
-			if (isset($this->request->get['order'])) {
-				$url .= '&order=' . $this->request->get['order'];
-			}
-
-			if (isset($this->request->get['limit'])) {
-				$url .= '&limit=' . $this->request->get['limit'];
-			}
-
-			$data['categories'] = array();
-
-			$results = $this->model_catalog_category->getCategories($category_id);
-
-			foreach ($results as $result) {
-				$filter_data = array(
-					'filter_category_id'  => $result['category_id'],
-					'filter_sub_category' => true
-				);
-
-				$data['categories'][] = array(
-					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
-					'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $result['category_id'] . $url)
-				);
-			}
 
 			$data['products'] = array();
 
