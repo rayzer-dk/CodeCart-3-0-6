@@ -1,5 +1,15 @@
 # CodeCart PRO 3.0.6.0 Build 1.7.8
 
+UniShop2 v3.6.5.2 compatibility
+- Added an isolated OpenCart 3 legacy menu contract used only when UniShop2 is active, allowing its menu OCMOD to restore icons, banners, landing links, third-level categories and menu cache without replacing CodeCart's optimized menu for other themes.
+- Added an isolated legacy Category module contract for UniShop2 while preserving the optimized CodeCart category module for other themes.
+- Restored standard category-page subcategory data hooks so UniShop2 can apply its subcategory disable/image and banner-in-category settings.
+- Restored the banner width/height OCMOD anchor while retaining CodeCart input sanitization.
+- Added equivalent UniShop2 product-option behavior for displaying ended option values and theme-sized option thumbnails without removing CodeCart option-image validation.
+- Existing admin compatibility for extension/module/uni_settings and extension/theme/unishop2 remains active to prevent the UniShop settings sidebar from shifting or overlapping.
+- Added a release gate that verifies the UniShop2 compatibility contracts on every production build.
+- Compatibility remains isolated: when UniShop2 is absent, these legacy paths are not used.
+
 Upgrade compatibility
 - Fixed OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta upgrades on MySQL 8.x when legacy product.date_available still uses DEFAULT '0000-00-00'. The migration preserves existing row values, replaces only the invalid default with 1970-01-01 in a temporary compatible session and restores the original SQL mode after the InnoDB conversion.
 - Fixed legacy MyISAM/utf8mb4 upload.code index creation on MySQL where a full VARCHAR(255) key exceeds the 1000-byte MyISAM key limit. CodeCart now uses a compatible 191-character prefix index.
