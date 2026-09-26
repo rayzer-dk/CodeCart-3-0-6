@@ -25,7 +25,7 @@
         "admin/controller/localisation/currency.php": "e463ef9ea5162a5e8e12e556d3b29de269ede7fa6af79063a706583450a522dc",
         "admin/controller/localisation/zone.php": "8e3d5daf60f2b9e3c96ef0b751d17e3dea429ae22ffb869eb2d590575f4f77ed",
         "admin/controller/marketplace/install.php": "340cba306e738dbce8acec7a07b1710c48697900a52a44a9769b52e03d7ca4c9",
-        "admin/controller/marketplace/modification.php": "3fd7762d074dc03e482ef10ceb3f3d4312598e42c1d21e0df846c8ac2cac5108",
+        "admin/controller/marketplace/modification.php": "ac13c8a345bdd0dc9119154b04c4a98e17fee88209d5e329b7ef9ecbad2baef1",
         "admin/controller/sale/abandoned_cart.php": "a4c94bad187c42d98d1ca7e794ff72d197fc0958e8d85952d4d8afb34fdbf7d3",
         "admin/controller/setting/setting.php": "0846bb92ecf660696c604426acb4db8341e7b57c441e9f32a7a30d0c6fd12156",
         "admin/controller/setting/store.php": "25eb155a7a1ab20c18e38aa1d8e5ed39cb6caa039af4fa22dfb09865a644c0d6",
