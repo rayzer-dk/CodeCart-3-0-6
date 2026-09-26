@@ -1,5 +1,5 @@
 name: Commerce Release Gate
-# Build 1.8.2 deep commerce validation
+# Build 1.8.2 deep commerce validation v2
 
 on:
   workflow_dispatch:
