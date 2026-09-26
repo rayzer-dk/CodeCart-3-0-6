@@ -1,0 +1,26 @@
+<?php
+$_['heading_title'] = 'Оплата monobank Modern';
+$_['text_title'] = 'Картой / monobank';
+$_['text_extension'] = 'Расширения';
+$_['text_home'] = 'Главная';
+$_['text_edit'] = 'Оплата monobank Modern 1.0.0';
+$_['text_success'] = 'Настройки monobank сохранены.';
+$_['text_enabled'] = 'Включено';
+$_['text_disabled'] = 'Выключено';
+$_['entry_token'] = 'Токен мерчанта';
+$_['entry_total'] = 'Минимальная сумма заказа';
+$_['entry_geo_zone'] = 'Геозона';
+$_['entry_success_status'] = 'Статус успешной оплаты';
+$_['entry_processing_status'] = 'Статус обработки / hold';
+$_['entry_failure_status'] = 'Статус неуспешной оплаты';
+$_['entry_status'] = 'Статус';
+$_['entry_debug'] = 'Диагностический журнал';
+$_['entry_sort_order'] = 'Порядок сортировки';
+$_['help_token'] = 'X-Token из кабинета мерчанта monobank. Токен не записывается в журнал модуля.';
+$_['help_webhook'] = 'Публичный callback URL. Webhook проверяется по ECDSA-подписи x-sign.';
+$_['button_save'] = 'Сохранить';
+$_['button_cancel'] = 'Отмена';
+$_['button_test'] = 'Проверить соединение';
+$_['button_confirm'] = 'Оплатить через monobank';
+$_['error_permission'] = 'У вас нет прав для изменения этого способа оплаты.';
+$_['error_token'] = 'Укажите токен мерчанта Monobank перед включением способа оплаты.';
