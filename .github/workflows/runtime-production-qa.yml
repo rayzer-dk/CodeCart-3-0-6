@@ -1,4 +1,5 @@
 name: Runtime Production QA
+# UniShop2 Build 1.7.8 validation
 
 on:
   workflow_dispatch:
@@ -64,7 +65,7 @@ jobs:
           path: artifact
           github-token: ${{ github.token }}
           repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36222973386
+          run-id: 36225107604
 
       - name: Verify and extract production ZIP
         shell: bash
@@ -273,7 +274,7 @@ jobs:
           path: artifact
           github-token: ${{ github.token }}
           repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36222973386
+          run-id: 36225107604
 
       - name: Verify, extract and clean install
         shell: bash
