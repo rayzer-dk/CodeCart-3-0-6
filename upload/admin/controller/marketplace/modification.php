@@ -593,6 +593,12 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 										$modification[$key]=$replaced;
 									}
 
+									if (!$status && $this->applyKnownOcmodCompatibility($current_code, $key, $search_element, $add_element, $modification[$key])) {
+										$status = true;
+										$ignored_operations++;
+										$log[] = 'COMPATIBILITY: CodeCart adapter applied for ' . $current_code . ' in ' . $key;
+									}
+
 									if ($status) { $applied_matches++; }
 
 									if (!$status) {
@@ -1545,6 +1551,215 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
         $data['footer'] = $this->load->controller('common/footer');
 
         $this->response->setOutput($this->load->view('marketplace/modification_form', $data));
+    }
+
+
+    private function applyKnownOcmodCompatibility($code, $key, $searchElement, $addElement, &$content) {
+        if (strcasecmp(trim((string)$code), 'UniShop2 template') !== 0) {
+            return false;
+        }
+
+        $search = trim((string)$searchElement->textContent);
+
+        // UniShop2 v3.6.5.2 is written against the stock OpenCart/ocStore 3 menu.
+        // CodeCart builds the same tree in one query, so the original line anchors no
+        // longer exist. Decorate the already-built tree instead of restoring the N+1 code.
+        if ($key === 'catalog/controller/common/menu.php') {
+            $menuNeedles = array(
+                '$children_data = array();',
+                "$category['name'],",
+                "$children = $this->model_catalog_category->getCategories($category['category_id']);",
+                '// Level 1'
+            );
+
+            if (in_array($search, $menuNeedles, true)) {
+                if (strpos($content, 'CODECART_UNISHOP2_MENU_COMPAT') === false) {
+                    $anchor = "$data['quick_links'] = array_merge($data['extra_links'], $data['product_links']);";
+                    if (strpos($content, $anchor) === false) {
+                        return false;
+                    }
+
+                    $block = <<<'PHP'
+
+        // CODECART_UNISHOP2_MENU_COMPAT
+        if (isset($uniset) && is_array($uniset) && !empty($data['categories'])) {
+            $uniSecondLevelImages = isset($uniset['menu']['second_level']['image']) && is_array($uniset['menu']['second_level']['image'])
+                ? array_map('intval', $uniset['menu']['second_level']['image']) : array();
+            $uniThirdLevelLimit = isset($uniset['menu']['third_level']['limit']) ? max(0, (int)$uniset['menu']['third_level']['limit']) : 0;
+
+            foreach ($data['categories'] as &$uniCategory) {
+                $uniCategoryId = isset($uniCategory['category_id']) ? (int)$uniCategory['category_id'] : 0;
+                $uniCategory['icon'] = isset($data['icons'][$uniCategoryId]) ? $data['icons'][$uniCategoryId] : array();
+                $uniCategory['banner'] = isset($data['banners'][$uniCategoryId]) && (int)$uniCategory['column'] > 1 ? $data['banners'][$uniCategoryId] : array();
+                $uniShowChildImage = in_array($uniCategoryId, $uniSecondLevelImages, true);
+
+                if (!empty($uniCategory['children']) && is_array($uniCategory['children'])) {
+                    foreach ($uniCategory['children'] as &$uniChild) {
+                        $uniChild['image'] = $uniShowChildImage && !empty($uniChild['thumb']) ? $uniChild['thumb'] : '';
+
+                        if (!empty($uniChild['children']) && is_array($uniChild['children']) && $uniThirdLevelLimit > 0 && count($uniChild['children']) > $uniThirdLevelLimit) {
+                            $uniChild['more'] = count($uniChild['children']);
+                            $uniChild['children'] = array_slice($uniChild['children'], 0, $uniThirdLevelLimit);
+                        } else {
+                            $uniChild['more'] = 0;
+                        }
+                    }
+                    unset($uniChild);
+                }
+            }
+            unset($uniCategory);
+        }
+
+PHP;
+                    $content = str_replace($anchor, $block . '        ' . $anchor, $content);
+                }
+
+                return true;
+            }
+        }
+
+        // Banner controller uses sanitized local width/height variables in CodeCart.
+        if ($key === 'catalog/controller/extension/module/banner.php' &&
+            $search === "'image' => $this->model_tool_image->resize($result['image'], $setting['width'], $setting['height'])") {
+            $anchor = "'image' => $this->model_tool_image->resize($result['image'], $width, $height)";
+            if (strpos($content, $anchor) === false) {
+                return false;
+            }
+            $replacement = $anchor . ",\n\t\t\t\t\t'width' => $width,\n\t\t\t\t\t'height' => $height";
+            $content = str_replace($anchor, $replacement, $content);
+            return true;
+        }
+
+        // Category module already uses one getAllCategories() query and batched product
+        // counts. Expand second-level data for all root categories only when UniShop is
+        // configured; this matches UniShop's intended operation without reintroducing N+1.
+        if ($key === 'catalog/controller/extension/module/category.php') {
+            $categoryNeedles = array(
+                "if (isset($this->request->get['path'])) {",
+                "if ($category['category_id'] == $data['category_id']) {",
+                "$children = $this->model_catalog_category->getCategories($category['category_id']);"
+            );
+
+            if (in_array($search, $categoryNeedles, true)) {
+                if (strpos($content, 'CODECART_UNISHOP2_CATEGORY_MODULE_COMPAT') === false) {
+                    $old = <<<'PHP'
+			if ($parent_id === $data['category_id']) {
+				$children_by_parent[$data['category_id']][] = $category;
+				$count_ids[] = (int)$category['category_id'];
+			}
+PHP;
+                    $new = <<<'PHP'
+			// CODECART_UNISHOP2_CATEGORY_MODULE_COMPAT
+			$uniExpandCategoryTree = is_array($this->config->get('config_unishop2'));
+			if ($parent_id > 0 && ($parent_id === $data['category_id'] || $uniExpandCategoryTree)) {
+				$children_by_parent[$parent_id][] = $category;
+				$count_ids[] = (int)$category['category_id'];
+			}
+PHP;
+                    if (strpos($content, $old) === false) {
+                        return false;
+                    }
+                    $content = str_replace($old, $new, $content);
+                }
+                return true;
+            }
+
+            // These two product-card operations are optional in UniShop itself and do
+            // not match the stock ocStore category module either.
+            if ($search === "$data['products'][] = array(") {
+                return true;
+            }
+        }
+
+        // Restore UniShop subcategory and banner data on CodeCart's optimized category page.
+        if ($key === 'catalog/controller/product/category.php') {
+            $categoryPageNeedles = array(
+                '$this->model_catalog_category->getCategories($category_id);',
+                "$data['categories'][] = array(",
+                "$data['categories'] = array();"
+            );
+
+            if (in_array($search, $categoryPageNeedles, true)) {
+                if (strpos($content, 'CODECART_UNISHOP2_CATEGORY_PAGE_COMPAT') === false) {
+                    $anchor = "\t\t\t$data['products'] = array();";
+                    if (strpos($content, $anchor) === false) {
+                        return false;
+                    }
+
+                    $block = <<<'PHP'
+			// CODECART_UNISHOP2_CATEGORY_PAGE_COMPAT
+			$uniCategorySettings = $this->config->get('config_unishop2');
+			$data['categories'] = array();
+			if (is_array($uniCategorySettings) && !isset($uniCategorySettings['catalog']['subcategory']['disabled'])) {
+				$uniSubcategories = $this->model_catalog_category->getCategories($category_id);
+				$uniCountIds = array();
+				foreach ($uniSubcategories as $uniSubcategory) {
+					$uniCountIds[] = (int)$uniSubcategory['category_id'];
+				}
+				$uniCounts = $this->config->get('config_product_count') && $uniCountIds
+					? $this->model_catalog_product->getCategoryProductCounts($uniCountIds, true) : array();
+
+				foreach ($uniSubcategories as $uniSubcategory) {
+					$uniSubcategoryId = (int)$uniSubcategory['category_id'];
+					$uniName = (string)$uniSubcategory['name'];
+					if ($this->config->get('config_product_count')) {
+						$uniName .= ' (' . (int)($uniCounts[$uniSubcategoryId] ?? 0) . ')';
+					}
+					$data['categories'][] = array(
+						'name' => $uniName,
+						'thumb' => isset($uniCategorySettings['catalog']['subcategory']['image']) && !empty($uniSubcategory['image'])
+							? $this->model_tool_image->resize(
+								$uniSubcategory['image'],
+								$this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_width'),
+								$this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height')
+							) : '',
+						'href' => $this->url->link(
+							'product/category',
+							'path=' . (isset($this->request->get['path']) ? (string)$this->request->get['path'] : (string)$category_id) . '_' . $uniSubcategoryId
+						)
+					);
+				}
+			}
+			$data['banner_in_category'] = $page == 1 && $this->config->get('module_uni_banner_in_category_status')
+				? $this->load->controller('extension/module/uni_banner_in_category', $category_id) : '';
+
+PHP;
+                    $content = str_replace($anchor, $block . $anchor, $content);
+                }
+                return true;
+            }
+        }
+
+        // CodeCart already keeps out-of-stock option values in the data set and marks
+        // them with available/ended metadata after UniShop's other operations apply.
+        if ($key === 'catalog/controller/product/product.php' && $search === "($option_value['quantity'] > 0)") {
+            return true;
+        }
+
+        if ($key === 'catalog/controller/product/product.php' &&
+            $search === "$this->model_tool_image->resize($option_value['image'], 50, 50),") {
+            $anchor = "'image'                   => $option_image !== '' ? $this->model_tool_image->resize($option_image, 50, 50) : '',";
+            if (strpos($content, $anchor) === false) {
+                return false;
+            }
+            $replacement = "'image'                   => $option_image !== '' ? $this->model_tool_image->resize($option_image, max(1, (int)($option_img_small_w / 2)), max(1, (int)($option_img_small_h / 2))) : '',";
+            $content = str_replace($anchor, $replacement, $content);
+            return true;
+        }
+
+        // These optional operations also do not match the supplied stock ocStore
+        // 3.0.5.0-Beta source. Treat them as upstream-optional instead of reporting
+        // them as CodeCart compatibility regressions.
+        $upstreamOptional = array(
+            'catalog/controller/blog/category.php' => array("$data['products'][] = array("),
+            'catalog/controller/blog/latest.php' => array("$data['products'][] = array("),
+            'catalog/controller/extension/module/blog_latest.php' => array('$result = isset($product_info) && isset($setting) ? $product_info : $result;'),
+            'catalog/controller/extension/module/blog_featured.php' => array('$result = isset($product_info) && isset($setting) ? $product_info : $result;'),
+            'catalog/controller/extension/module/featured_article.php' => array('$result = isset($product_info) && isset($setting) ? $product_info : $result;'),
+            'catalog/controller/extension/module/featured_product.php' => array('$result = isset($product_info) && isset($setting) ? $product_info : $result;')
+        );
+
+        return isset($upstreamOptional[$key]) && in_array($search, $upstreamOptional[$key], true);
     }
 
     protected function validateForm() {
