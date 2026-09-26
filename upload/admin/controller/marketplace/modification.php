@@ -605,8 +605,9 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 										$search_preview = $search_element ? $this->shortCompatibilityMessage((string)$search_element->textContent) : '';
 										if ($error=='skip') {
 											$skipped_operations++;
-											$issues[] = array('severity'=>$this->isLanguageTargetFile($key) ? 'info' : 'warning','operation'=>$operation_index,'file'=>$key,'reason'=>'Optional search code not found','search'=>$search_preview);
-											$log[]='SKIPPED OPTIONAL [OP '.$operation_index.']: search code not found';
+											$known_compatibility_skip = $this->isKnownOptionalCompatibilitySkip($current_code, $key, (string)$search_element->textContent);
+											$issues[] = array('severity'=>($this->isLanguageTargetFile($key) || $known_compatibility_skip) ? 'info' : 'warning','operation'=>$operation_index,'file'=>$key,'reason'=>$known_compatibility_skip ? 'Optional compatibility branch not applicable to this CodeCart controller' : 'Optional search code not found','search'=>$search_preview);
+											$log[]='SKIPPED OPTIONAL [OP '.$operation_index.']: '.($known_compatibility_skip ? 'known non-applicable compatibility branch' : 'search code not found');
 											continue;
 										}
 										$build_errors++; $mod_failed=true; $mod_issue=$error=='abort'?'Required search code not found (abort)':'Required search code not found'; $mod_issue_file=$key;
@@ -859,6 +860,46 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 	private function isLanguageTargetFile($path) {
 		$path = str_replace('\\', '/', strtolower((string)$path));
 		return strpos($path, '/language/') !== false || strpos($path, '/language/') === 0 || strpos($path, 'language/') === 0;
+	}
+
+	private function isKnownOptionalCompatibilitySkip($code, $path, $search) {
+		if ((string)$code !== 'UniShop2 template') {
+			return false;
+		}
+
+		$path = str_replace('\\', '/', (string)$path);
+		$search = trim((string)$search);
+
+		// UniShop2 deliberately targets a broad OpenCart/ocStore controller set.
+		// These branches do not exist in CodeCart's equivalent controllers, or the
+		// behavior is provided natively by the UniShop2 compatibility layer.
+		if ($search === "$data['products'][] = array(" &&
+			in_array($path, array(
+				'catalog/controller/extension/module/category.php',
+				'catalog/controller/blog/category.php',
+				'catalog/controller/blog/latest.php'
+			), true)) {
+			return true;
+		}
+
+		if ($path === 'catalog/controller/product/product.php' &&
+			in_array($search, array(
+				"($option_value['quantity'] > 0)",
+				"$this->model_tool_image->resize($option_value['image'], 50, 50),"
+			), true)) {
+			return true;
+		}
+
+		if ($search === "$result = isset($product_info) && isset($setting) ? $product_info : $result;" &&
+			in_array($path, array(
+				'catalog/controller/extension/module/blog_latest.php',
+				'catalog/controller/extension/module/blog_featured.php',
+				'catalog/controller/extension/module/featured_article.php'
+			), true)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private function countCompatibilityIssues(array $issues, $severity) {
