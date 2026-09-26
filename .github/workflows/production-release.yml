@@ -2,7 +2,7 @@ name: Production Release Check
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 'qa/**' ]
   pull_request:
   workflow_dispatch:
 
@@ -85,12 +85,25 @@ jobs:
       - name: Release checks
         run: php tools/release_check.php
 
+      - name: Build optional bonus extensions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bonuses
+          if [ -d bonus-source/monobank_payment ]; then
+            (
+              cd bonus-source/monobank_payment
+              zip -qr "$GITHUB_WORKSPACE/bonuses/Monobank_Payment_Modern_v1.1.0.ocmod.zip" README.md upload
+            )
+          fi
+
       - name: Build one-upload ZIP
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
           items=(upload documentation tools composer.json composer.lock)
+          [ -d bonuses ] && items+=(bonuses)
           [ -f README_FIRST.txt ] && items+=(README_FIRST.txt)
           [ -f README.md ] && items+=(README.md)
           [ -f CHANGELOG.md ] && items+=(CHANGELOG.md)
