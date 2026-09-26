@@ -1567,14 +1567,14 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
         if ($key === 'catalog/controller/common/menu.php') {
             $menuNeedles = array(
                 '$children_data = array();',
-                "$category['name'],",
-                "$children = $this->model_catalog_category->getCategories($category['category_id']);",
+                '$category[\'name\'],',
+                '$children = $this->model_catalog_category->getCategories($category[\'category_id\']);',
                 '// Level 1'
             );
 
             if (in_array($search, $menuNeedles, true)) {
                 if (strpos($content, 'CODECART_UNISHOP2_MENU_COMPAT') === false) {
-                    $anchor = "$data['quick_links'] = array_merge($data['extra_links'], $data['product_links']);";
+                    $anchor = '$data[\'quick_links\'] = array_merge($data[\'extra_links\'], $data[\'product_links\']);';
                     if (strpos($content, $anchor) === false) {
                         return false;
                     }
@@ -1620,8 +1620,8 @@ PHP;
 
         // Banner controller uses sanitized local width/height variables in CodeCart.
         if ($key === 'catalog/controller/extension/module/banner.php' &&
-            $search === "'image' => $this->model_tool_image->resize($result['image'], $setting['width'], $setting['height'])") {
-            $anchor = "'image' => $this->model_tool_image->resize($result['image'], $width, $height)";
+            $search === '\'image\' => $this->model_tool_image->resize($result[\'image\'], $setting[\'width\'], $setting[\'height\'])') {
+            $anchor = '\'image\' => $this->model_tool_image->resize($result[\'image\'], $width, $height)';
             if (strpos($content, $anchor) === false) {
                 return false;
             }
@@ -1635,9 +1635,9 @@ PHP;
         // configured; this matches UniShop's intended operation without reintroducing N+1.
         if ($key === 'catalog/controller/extension/module/category.php') {
             $categoryNeedles = array(
-                "if (isset($this->request->get['path'])) {",
-                "if ($category['category_id'] == $data['category_id']) {",
-                "$children = $this->model_catalog_category->getCategories($category['category_id']);"
+                'if (isset($this->request->get[\'path\'])) {',
+                'if ($category[\'category_id\'] == $data[\'category_id\']) {',
+                '$children = $this->model_catalog_category->getCategories($category[\'category_id\']);'
             );
 
             if (in_array($search, $categoryNeedles, true)) {
@@ -1666,7 +1666,7 @@ PHP;
 
             // These two product-card operations are optional in UniShop itself and do
             // not match the stock ocStore category module either.
-            if ($search === "$data['products'][] = array(") {
+            if ($search === '$data[\'products\'][] = array(') {
                 return true;
             }
         }
@@ -1675,13 +1675,13 @@ PHP;
         if ($key === 'catalog/controller/product/category.php') {
             $categoryPageNeedles = array(
                 '$this->model_catalog_category->getCategories($category_id);',
-                "$data['categories'][] = array(",
-                "$data['categories'] = array();"
+                '$data[\'categories\'][] = array(',
+                '$data[\'categories\'] = array();'
             );
 
             if (in_array($search, $categoryPageNeedles, true)) {
                 if (strpos($content, 'CODECART_UNISHOP2_CATEGORY_PAGE_COMPAT') === false) {
-                    $anchor = "\t\t\t$data['products'] = array();";
+                    $anchor = "\t\t\t" . '$data[\'products\'] = array();';
                     if (strpos($content, $anchor) === false) {
                         return false;
                     }
@@ -1732,12 +1732,12 @@ PHP;
 
         // CodeCart already keeps out-of-stock option values in the data set and marks
         // them with available/ended metadata after UniShop's other operations apply.
-        if ($key === 'catalog/controller/product/product.php' && $search === "($option_value['quantity'] > 0)") {
+        if ($key === 'catalog/controller/product/product.php' && $search === '($option_value[\'quantity\'] > 0)') {
             return true;
         }
 
         if ($key === 'catalog/controller/product/product.php' &&
-            $search === "$this->model_tool_image->resize($option_value['image'], 50, 50),") {
+            $search === '$this->model_tool_image->resize($option_value[\'image\'], 50, 50),') {
             $anchor = "'image'                   => $option_image !== '' ? $this->model_tool_image->resize($option_image, 50, 50) : '',";
             if (strpos($content, $anchor) === false) {
                 return false;
@@ -1751,8 +1751,8 @@ PHP;
         // 3.0.5.0-Beta source. Treat them as upstream-optional instead of reporting
         // them as CodeCart compatibility regressions.
         $upstreamOptional = array(
-            'catalog/controller/blog/category.php' => array("$data['products'][] = array("),
-            'catalog/controller/blog/latest.php' => array("$data['products'][] = array("),
+            'catalog/controller/blog/category.php' => array('$data[\'products\'][] = array('),
+            'catalog/controller/blog/latest.php' => array('$data[\'products\'][] = array('),
             'catalog/controller/extension/module/blog_latest.php' => array('$result = isset($product_info) && isset($setting) ? $product_info : $result;'),
             'catalog/controller/extension/module/blog_featured.php' => array('$result = isset($product_info) && isset($setting) ? $product_info : $result;'),
             'catalog/controller/extension/module/featured_article.php' => array('$result = isset($product_info) && isset($setting) ? $product_info : $result;'),
