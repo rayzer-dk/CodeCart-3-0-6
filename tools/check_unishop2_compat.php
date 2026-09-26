@@ -11,7 +11,6 @@ $checks = [
     'upload/system/library/codecart/src/CompatibilityAdapterInterface.php' => [
         'interface CompatibilityAdapterInterface',
         'public function adapt(',
-        'public function satisfiesOcmod(',
     ],
     'upload/system/library/codecart/src/CompatibilityFramework.php' => [
         'final class CompatibilityFramework',
