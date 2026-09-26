@@ -4,6 +4,8 @@ class ControllerExtensionModuleBanner extends Controller {
 		$width = max(1, min(3840, (int)($setting['width'] ?? 300)));
 		$height = max(1, min(3840, (int)($setting['height'] ?? 200)));
 		$banner_id = max(0, (int)($setting['banner_id'] ?? 0));
+		$setting['width'] = $width;
+		$setting['height'] = $height;
 		$data['image_width'] = $width;
 		$data['image_height'] = $height;
 		$effect = isset($setting['effect']) ? (string)$setting['effect'] : 'slide';
@@ -35,7 +37,7 @@ class ControllerExtensionModuleBanner extends Controller {
 				$data['banners'][] = array(
 					'title' => $result['title'],
 					'link'  => $result['link'],
-					'image' => $this->model_tool_image->resize($result['image'], $width, $height)
+					'image' => $this->model_tool_image->resize($result['image'], $setting['width'], $setting['height'])
 				);
 			}
 		}
