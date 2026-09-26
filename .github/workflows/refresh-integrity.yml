@@ -1,5 +1,5 @@
 name: Refresh Integrity Manifest
-# UniShop2 compatibility refresh trigger
+# UniShop2 compatibility refresh trigger 2
 
 on:
   workflow_dispatch:
