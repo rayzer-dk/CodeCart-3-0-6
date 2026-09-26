@@ -3,6 +3,11 @@ class ControllerApiV1Search extends Controller {
     public function index() {
         $api = $this->registry->get('codecart_api_v1');
         if (!$api->enabled()) { $api->disabled($this->response); return; }
+        if (!$this->allowRequest()) {
+            $this->response->addHeader('Retry-After: 60');
+            $api->respond($this->response,array('ok'=>false,'error'=>array('code'=>'rate_limit','message'=>'Too many API requests.')),429);
+            return;
+        }
         $q = isset($this->request->get['q']) ? trim((string)$this->request->get['q']) : '';
         $limit = isset($this->request->get['limit']) ? (int)$this->request->get['limit'] : 20;
         $limit = max(1, min(50, $limit));
@@ -46,5 +51,29 @@ class ControllerApiV1Search extends Controller {
         if (!isset($payload['items']) || !is_array($payload['items'])) $payload['items'] = $items;
         $payload['count'] = count($payload['items']);
         $api->respond($this->response,array('ok'=>true,'data'=>$payload));
+    }
+
+
+    private function allowRequest() {
+        $ip = isset($this->request->server['REMOTE_ADDR']) ? (string)$this->request->server['REMOTE_ADDR'] : 'unknown';
+        $bucket = (int)floor(time() / 60);
+        $dir = rtrim(DIR_CACHE, '/\\') . DIRECTORY_SEPARATOR . 'codecart-api-rate';
+        if (!is_dir($dir) && !@mkdir($dir, 0750, true) && !is_dir($dir)) { return true; }
+        $file = $dir . DIRECTORY_SEPARATOR . hash('sha256', $ip . '|' . $bucket) . '.json';
+        $fp = @fopen($file, 'c+');
+        if (!$fp) { return true; }
+        $allowed = true;
+        if (@flock($fp, LOCK_EX)) {
+            $raw = stream_get_contents($fp);
+            $data = json_decode((string)$raw, true);
+            $count = is_array($data) && isset($data['count']) ? (int)$data['count'] : 0;
+            $count++;
+            $allowed = $count <= 120;
+            ftruncate($fp, 0); rewind($fp);
+            fwrite($fp, json_encode(array('count'=>$count,'expires'=>($bucket+1)*60), JSON_UNESCAPED_SLASHES));
+            fflush($fp); @flock($fp, LOCK_UN);
+        }
+        fclose($fp);
+        return $allowed;
     }
 }
