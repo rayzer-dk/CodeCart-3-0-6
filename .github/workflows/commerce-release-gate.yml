@@ -218,7 +218,32 @@ jobs:
             ' "$F" "$ACTION"
           done
 
-The requested file reference is not currently visible. Use files.search or files.list to rediscover the file, then retry with a returned ref_id or file_id.
+      - name: Stock=1 parallel checkout race
+        if: matrix.db_name == 'MariaDB 10.11'
+        shell: bash
+        run: bash tools/qa_stock_race.sh
+
+      - name: Chromium full guest checkout
+        if: matrix.db_name == 'MariaDB 10.11'
+        shell: bash
+        run: |
+          set -euo pipefail
+          PID="$(cat /tmp/product-id)"
+          mysql -h127.0.0.1 -uroot -proot codecart -e "UPDATE oc_product SET quantity=5 WHERE product_id=$PID"
+          npm install --no-save playwright >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          PRODUCT_ID="$PID" node tools/qa_browser_checkout.js
+          test "$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_order WHERE email='browser@example.test' AND order_status_id>0")" = "1"
+
+      - name: Signed Monobank webhook and stale-event idempotency
+        if: matrix.db_name == 'MariaDB 10.11'
+        shell: bash
+        run: bash tools/qa_monobank_webhook.sh
+
+      - name: Parallel HTTP load smoke
+        if: matrix.db_name == 'MariaDB 10.11'
+        shell: bash
+        run: bash tools/qa_load_smoke.sh
 
       - name: Error log gate
         if: always()
