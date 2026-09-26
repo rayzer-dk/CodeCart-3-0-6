@@ -1,4 +1,4 @@
-# CodeCart PRO 3.0.6.0 Build 1.7.7
+# CodeCart PRO 3.0.6.0 Build 1.7.8
 
 Upgrade compatibility
 - Fixed OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta upgrades on MySQL 8.x when legacy product.date_available still uses DEFAULT '0000-00-00'. The migration preserves existing row values, replaces only the invalid default with 1970-01-01 in a temporary compatible session and restores the original SQL mode after the InnoDB conversion.
