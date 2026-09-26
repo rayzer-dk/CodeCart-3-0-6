@@ -6,7 +6,10 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch({headless:true});
   const page = await browser.newPage();
   const errors = [];
-  page.on('pageerror', e => errors.push(String(e)));
+  page.on('pageerror', e => errors.push(e.stack || String(e)));
+  page.on('console', msg => {
+    if (msg.type() === 'error') console.error('BROWSER_CONSOLE_ERROR:', msg.text());
+  });
   await page.goto(`${base}/index.php?route=product/product&product_id=${pid}`, {waitUntil:'networkidle'});
   await page.locator('#button-cart').click();
   await page.goto(`${base}/index.php?route=checkout/checkout`, {waitUntil:'networkidle'});
