@@ -1,6 +1,9 @@
-# CodeCart 3.0.6.0 Build 1.8.2
+# CodeCart 3.0.6.0 Build 1.8.3
 
 Fixed:
+- Fixed malformed inline JavaScript in checkout shipping carrier city results, reproduced by real Chromium/Playwright E2E.
+- Aligned UniShop2 release gate with the Compatibility Framework: OCMOD satisfaction is an optional adapter capability rather than a mandatory base-interface method.
+- Fixed Monobank webhook QA SQL quoting so signed webhook and stale-event idempotency are exercised on live MariaDB.
 - Proxy no longer exposes absolute server paths to visitors when an unavailable method is called; details go to the server log.
 - Google Login secret is no longer rendered back into admin HTML; blank input preserves the stored secret.
 - API v1 search has a per-IP rate limit.
@@ -10,6 +13,10 @@ Fixed:
 
 Changed:
 - Bonus Monobank Payment Modern updated to v1.1.0 with one-invoice-per-order locking, currency_value-aware amount calculation, unique order id and safe secret handling.
+
+Runtime QA:
+- Live ocStore 3.0.4.1 -> CodeCart upgrade on MariaDB passed data preservation, Installer 2.0 migration, repeat-upgrade idempotency, storefront/admin login and error-log gates.
+- Live commerce QA passed on MySQL 8.4 and MariaDB 10.11, including stock=1 concurrent checkout, Chromium guest checkout, signed Monobank webhook/stale-event idempotency and parallel HTTP load smoke.
 
 # CodeCart PRO 3.0.6.0 Build 1.8.2
 
