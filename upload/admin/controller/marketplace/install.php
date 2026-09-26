@@ -509,7 +509,9 @@ class ControllerMarketplaceInstall extends Controller {
 			'admin/view/image/', 'admin/view/javascript/', 'admin/view/stylesheet/', 'admin/view/template/',
 			'catalog/controller/', 'catalog/language/', 'catalog/model/',
 			'catalog/view/javascript/', 'catalog/view/theme/',
-			'system/config/', 'system/library/', 'image/catalog/'
+			// Native CodeCart Modern Extensions live in system/extension/<code>/.
+			// The path still passes traversal checks and the installer journals overwritten files.
+			'system/config/', 'system/library/', 'system/extension/', 'image/catalog/'
 		);
 		foreach ($allowed as $prefix) { if (strpos($path, $prefix) === 0) { return true; } }
 		return false;
