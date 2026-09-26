@@ -3,7 +3,7 @@ name: Upgrade Runtime QA
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main, 'qa/**' ]
     paths:
       - '.github/workflows/upgrade-runtime-qa.yml'
 
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   ocstore-upgrade:
-    name: ocStore 3.0.4.1 to CodeCart 1.7.8
+    name: ocStore 3.0.4.1 to CodeCart 1.8.2
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -77,33 +77,21 @@ jobs:
           mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SELECT COUNT(*) FROM oc_category" > /tmp/base-category-count
           mysql -h127.0.0.1 -uroot -proot -N codecart_upgrade -e "SET SESSION group_concat_max_len=10000000; SELECT SHA2(GROUP_CONCAT(CONCAT_WS('#',category_id,parent_id,top,sort_order,status,date_added) ORDER BY category_id SEPARATOR '|'),256) FROM oc_category" > /tmp/base-category-hash
 
-      - name: Download exact CodeCart production artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: CodeCart-production
-          path: artifact
-          github-token: ${{ github.token }}
-          repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36222973386
+      - name: Install locked CodeCart dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Verify and overlay CodeCart
+      - name: Overlay current Build 1.8.2 source
         shell: bash
         run: |
           set -euo pipefail
-          cd artifact
-          expected="$(awk '{print $1}' SHA256SUMS.txt)"
-          actual="$(sha256sum CodeCart_PRO_3.0.6.0_PRODUCTION.zip | awk '{print $1}')"
-          test "$actual" = "$expected"
-          cd ..
-          mkdir codecart-prod
-          unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d codecart-prod
           cp store/upload/config.php /tmp/catalog-config.php
           cp store/upload/admin/config.php /tmp/admin-config.php
-          rsync -a codecart-prod/upload/ store/upload/
+          rsync -a upload/ store/upload/
           cp /tmp/catalog-config.php store/upload/config.php
           cp /tmp/admin-config.php store/upload/admin/config.php
           test -f store/upload/system/library/codecart/migration.php
           test -f store/upload/system/storage/vendor/autoload.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.8.2'" store/upload/index.php
 
       - name: Start upgraded codebase
         shell: bash
