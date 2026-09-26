@@ -4,52 +4,6 @@ class ControllerExtensionModuleCategory extends Controller {
 		$this->load->language('extension/module/category');
 		$data['heading_title'] = $this->language->get('heading_title');
 
-		// UniShop2 keeps the standard OpenCart 3 category-module OCMOD contract.
-		// Isolate that structure to UniShop; all other themes use CodeCart's optimized module.
-		if ((string)$this->config->get('config_theme') === 'unishop2' || is_array($this->config->get('config_unishop2'))) {
-			if (isset($this->request->get['path'])) {
-				$parts = explode('_', (string)$this->request->get['path']);
-			} else {
-				$parts = array();
-			}
-
-			$data['category_id'] = isset($parts[0]) ? (int)$parts[0] : 0;
-			$data['child_id'] = isset($parts[1]) ? (int)$parts[1] : 0;
-
-			$this->load->model('catalog/category');
-			$this->load->model('catalog/product');
-
-			$data['categories'] = array();
-			$categories = $this->model_catalog_category->getCategories(0);
-
-			foreach ($categories as $category) {
-				$children_data = array();
-
-				if ($category['category_id'] == $data['category_id']) {
-					$children = $this->model_catalog_category->getCategories($category['category_id']);
-
-					foreach ($children as $child) {
-						$filter_data = array('filter_category_id' => $child['category_id'], 'filter_sub_category' => true);
-						$children_data[] = array(
-							'category_id' => $child['category_id'],
-							'name' => $child['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
-							'href' => $this->url->link('product/category', 'path=' . $category['category_id'] . '_' . $child['category_id'])
-						);
-					}
-				}
-
-				$filter_data = array('filter_category_id' => $category['category_id'], 'filter_sub_category' => true);
-				$data['categories'][] = array(
-					'category_id' => $category['category_id'],
-					'name' => $category['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
-					'children' => $children_data,
-					'href' => $this->url->link('product/category', 'path=' . $category['category_id'])
-				);
-			}
-
-			return $this->load->view('extension/module/category', $data);
-		}
-
 		$parts = isset($this->request->get['path']) ? explode('_', (string)$this->request->get['path']) : array();
 		$data['category_id'] = isset($parts[0]) ? (int)$parts[0] : 0;
 		$data['child_id'] = isset($parts[1]) ? (int)$parts[1] : 0;
@@ -58,6 +12,10 @@ class ControllerExtensionModuleCategory extends Controller {
 
 		$this->load->model('catalog/category');
 		$this->load->model('catalog/product');
+
+		$compatibility = $this->registry->get('codecart_compatibility_framework');
+		$treeContract = $compatibility ? $compatibility->apply('catalog.category_module.full_tree', array('value' => false)) : array('value' => false);
+		$uniFullTree = !empty($treeContract['value']);
 
 		$all_categories = $this->model_catalog_category->getAllCategories();
 		$categories = array();
@@ -69,8 +27,8 @@ class ControllerExtensionModuleCategory extends Controller {
 				$categories[] = $category;
 				$count_ids[] = (int)$category['category_id'];
 			}
-			if ($parent_id === $data['category_id']) {
-				$children_by_parent[$data['category_id']][] = $category;
+			if (($uniFullTree && $parent_id > 0) || (!$uniFullTree && $parent_id === $data['category_id'])) {
+				$children_by_parent[$parent_id][] = $category;
 				$count_ids[] = (int)$category['category_id'];
 			}
 		}
