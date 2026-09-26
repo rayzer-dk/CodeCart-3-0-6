@@ -116,6 +116,19 @@ class ControllerUpgradeUpgrade extends Controller {
         $phpOk = version_compare(PHP_VERSION, '8.1.0', '>=') && version_compare(PHP_VERSION, '8.6.0', '<');
         $add('PHP', PHP_VERSION, $phpOk ? 'ok' : 'blocker', $this->language->get('preflight_php'));
 
+        // Third-party compatibility notices are informative only. CodeCart itself supports PHP 8.1–8.5;
+        // the administrator may intentionally run a legacy theme/payment on a lower PHP version.
+        $uniDetected = is_file(DIR_OPENCART . 'admin/controller/extension/module/uni_settings.php') || is_dir(DIR_OPENCART . 'catalog/view/theme/unishop2');
+        if ($uniDetected && version_compare(PHP_VERSION, '8.4.0', '>=')) {
+            $add('UniShop2', 'detected / PHP ' . PHP_VERSION, 'warning', 'Installed UniShop2 releases may require PHP 8.3 and ionCube. This warning does not block the CodeCart update.');
+        }
+        if ((bool)$this->config->get('module_pp_braintree_button_status') && version_compare(PHP_VERSION, '8.4.0', '>=')) {
+            $add('Legacy Braintree Button', 'enabled', 'warning', 'Legacy Braintree files are preserved. Verify this payment integration on the selected PHP version.');
+        }
+        if ((bool)$this->config->get('payment_divido_status') || (bool)$this->config->get('module_divido_calculator_status')) {
+            $add('Legacy Divido', 'enabled', 'warning', 'Divido is not part of CodeCart Core. Active legacy files are preserved and must be verified separately.');
+        }
+
         $extensions = array(
             'mysqli / pdo_mysql' => extension_loaded('mysqli') || extension_loaded('pdo_mysql'),
             'gd' => extension_loaded('gd'), 'curl' => extension_loaded('curl'), 'openssl' => extension_loaded('openssl'),
