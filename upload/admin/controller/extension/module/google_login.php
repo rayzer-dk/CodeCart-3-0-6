@@ -13,7 +13,11 @@ class ControllerExtensionModuleGoogleLogin extends Controller {
                 $post[$key] = !empty($post[$key]) ? '1' : '0';
             }
             $post['module_google_login_client_id'] = substr(trim((string)($post['module_google_login_client_id'] ?? '')), 0, 255);
-            $post['module_google_login_client_secret'] = substr(trim((string)($post['module_google_login_client_secret'] ?? '')), 0, 255);
+            $secretInput = substr(trim((string)($post['module_google_login_client_secret'] ?? '')), 0, 255);
+            if ($secretInput === '') {
+                $secretInput = (string)$this->config->get('module_google_login_client_secret');
+            }
+            $post['module_google_login_client_secret'] = $secretInput;
             $this->model_setting_setting->editSetting('module_google_login', $post);
             $this->session->data['success'] = $this->language->get('text_success');
             $this->response->redirect($this->url->link('extension/module/google_login', 'user_token=' . $this->session->data['user_token'], true));
@@ -32,6 +36,7 @@ class ControllerExtensionModuleGoogleLogin extends Controller {
         $keys = array('module_google_login_status','module_google_login_client_id','module_google_login_client_secret','module_google_login_auto_register','module_google_login_show_login','module_google_login_show_checkout');
         foreach ($keys as $key) {
             $data[$key] = isset($this->request->post[$key]) ? $this->request->post[$key] : $this->config->get($key);
+            if ($key === 'module_google_login_client_secret') { $data[$key] = ''; }
         }
         $data['button_show_secret'] = $this->language->get('button_show_secret');
         $data['button_copy'] = $this->language->get('button_copy');
@@ -58,6 +63,7 @@ class ControllerExtensionModuleGoogleLogin extends Controller {
         if ($enabled) {
             $id = trim((string)($this->request->post['module_google_login_client_id'] ?? ''));
             $secret = trim((string)($this->request->post['module_google_login_client_secret'] ?? ''));
+            if ($secret === '') { $secret = trim((string)$this->config->get('module_google_login_client_secret')); }
             if ($id === '' || $secret === '') { $this->error['warning'] = $this->language->get('error_credentials'); }
         }
         return !$this->error;
