@@ -225,14 +225,14 @@ jobs:
             q "SELECT COUNT(*) FROM oc_article" >/tmp/base-article-count
           fi
 
-      - name: Download exact CodeCart 1.7.7 production artifact
+      - name: Download exact CodeCart 1.7.8 production artifact
         uses: actions/download-artifact@v8
         with:
           name: CodeCart-production
           path: artifact
           github-token: ${{ github.token }}
           repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36165972162
+          run-id: 36222973386
 
       - name: Verify and overlay CodeCart
         shell: bash
@@ -246,7 +246,7 @@ jobs:
 
           mkdir codecart-prod
           unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d codecart-prod
-          grep -q "CODECART_PACKAGE_BUILD', '1.7.7'" codecart-prod/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.7.8'" codecart-prod/upload/index.php
 
           cp store/upload/config.php /tmp/catalog-config.php
           cp store/upload/admin/config.php /tmp/admin-config.php
