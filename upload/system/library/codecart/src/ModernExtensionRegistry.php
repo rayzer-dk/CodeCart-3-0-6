@@ -25,29 +25,40 @@ final class ModernExtensionRegistry {
         }
         usort($items, function ($a, $b) { return strcmp($a['code'], $b['code']); });
         $this->writeRegistry($items);
+        self::registerNamespaces($items);
         return $items;
     }
 
     public function all(): array {
         $file = $this->registryFile();
         if (!is_file($file)) { return $this->refresh(); }
+        $rootMtime = is_dir($this->systemRoot) ? (int)@filemtime($this->systemRoot) : 0;
+        $registryMtime = (int)@filemtime($file);
+        if ($rootMtime > $registryMtime) {
+            return $this->refresh();
+        }
         $json = json_decode((string)file_get_contents($file), true);
         return is_array($json) ? $json : array();
     }
 
     public static function bootstrap(): void {
-        if (!defined('DIR_STORAGE') || !defined('DIR_SYSTEM') || !class_exists('CodeCartPsr4')) { return; }
+        if (!defined('DIR_STORAGE') || !defined('DIR_SYSTEM') || !class_exists('\\CodeCartPsr4')) { return; }
         $file = rtrim(DIR_STORAGE, '/\\') . '/codecart/modern_extensions.json';
         if (!is_file($file)) { return; }
         $items = json_decode((string)file_get_contents($file), true);
         if (!is_array($items)) { return; }
+        self::registerNamespaces($items);
+    }
+
+    private static function registerNamespaces(array $items): void {
+        if (!defined('DIR_SYSTEM') || !class_exists('\\CodeCartPsr4')) { return; }
         $base = realpath(rtrim(DIR_SYSTEM, '/\\') . '/extension');
         if ($base === false) { return; }
         foreach ($items as $item) {
-            if (empty($item['namespace']) || empty($item['src'])) { continue; }
+            if (empty($item['namespace']) || empty($item['code'])) { continue; }
             $src = realpath(rtrim(DIR_SYSTEM, '/\\') . '/extension/' . $item['code'] . '/src');
             if ($src === false || strpos($src, $base . DIRECTORY_SEPARATOR) !== 0) { continue; }
-            CodeCartPsr4::register((string)$item['namespace'], $src . DIRECTORY_SEPARATOR);
+            \CodeCartPsr4::register((string)$item['namespace'], $src . DIRECTORY_SEPARATOR);
         }
     }
 
@@ -58,7 +69,7 @@ final class ModernExtensionRegistry {
         if (!is_array($data)) { return array(); }
         $folder = basename($dir);
         $code = isset($data['code']) ? trim((string)$data['code']) : '';
-        $namespace = isset($data['namespace']) ? trim((string)$data['namespace'], " \\t\n\r\\") . '\\' : '';
+        $namespace = isset($data['namespace']) ? trim((string)$data['namespace'], " \t\n\r\\") . '\\' : '';
         if ($code !== $folder || !preg_match('/^[a-z][a-z0-9_.-]{1,63}$/', $code)) { return array(); }
         if ($namespace === '' || !preg_match('/^(?:[A-Za-z_][A-Za-z0-9_]*\\\\)+$/', $namespace)) { return array(); }
         if (!is_dir($dir . '/src')) { return array(); }
@@ -67,7 +78,7 @@ final class ModernExtensionRegistry {
         $version = isset($data['version']) ? substr(trim((string)$data['version']), 0, 32) : '';
         if ($version !== '' && !preg_match('/^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/', $version)) { return array(); }
         $capabilities = array();
-        foreach (array('permissions','migrations','services','events','extension_points','scheduler','queue','assets','api','webhooks') as $key) {
+        foreach (array('permissions','migrations','services','events','extension_points','scheduler','queue','assets','api','webhooks','compatibility') as $key) {
             if (isset($data[$key]) && is_array($data[$key])) { $capabilities[$key] = $data[$key]; }
         }
         return array(
