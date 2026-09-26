@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS oc_monobank_modern_invoice (
   UNIQUE KEY uq_order_id (order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 DELETE FROM oc_setting WHERE code='payment_monobank_modern';
-INSERT INTO oc_setting(store_id,code,`key`,value,serialized) VALUES
+INSERT INTO oc_setting(store_id,code,\`key\`,value,serialized) VALUES
 (0,'payment_monobank_modern','payment_monobank_modern_status','1',0),
 (0,'payment_monobank_modern','payment_monobank_modern_success_status_id','2',0),
 (0,'payment_monobank_modern','payment_monobank_modern_processing_status_id','1',0),
