@@ -1,14 +1,51 @@
-# CodeCart PRO 3.0.6.0 Build 1.7.8
+# CodeCart 3.0.6.0 Build 1.8.2
 
-UniShop2 v3.6.5.2 compatibility
-- Added an isolated OpenCart 3 legacy menu contract used only when UniShop2 is active, allowing its menu OCMOD to restore icons, banners, landing links, third-level categories and menu cache without replacing CodeCart's optimized menu for other themes.
-- Added an isolated legacy Category module contract for UniShop2 while preserving the optimized CodeCart category module for other themes.
-- Restored standard category-page subcategory data hooks so UniShop2 can apply its subcategory disable/image and banner-in-category settings.
-- Restored the banner width/height OCMOD anchor while retaining CodeCart input sanitization.
-- Added equivalent UniShop2 product-option behavior for displaying ended option values and theme-sized option thumbnails without removing CodeCart option-image validation.
-- Existing admin compatibility for extension/module/uni_settings and extension/theme/unishop2 remains active to prevent the UniShop settings sidebar from shifting or overlapping.
-- Added a release gate that verifies the UniShop2 compatibility contracts on every production build.
-- Compatibility remains isolated: when UniShop2 is absent, these legacy paths are not used.
+Fixed:
+- Proxy no longer exposes absolute server paths to visitors when an unavailable method is called; details go to the server log.
+- Google Login secret is no longer rendered back into admin HTML; blank input preserves the stored secret.
+- API v1 search has a per-IP rate limit.
+- Legacy Braintree cleanup deletes only known stock controller/template files by SHA-256 and never removes an active integration.
+- Active legacy Divido is preserved during update and reported as a compatibility warning instead of being removed.
+- UniShop2/Braintree/Divido compatibility notices never block PHP 8.4/8.5 update; CodeCart Core remains PHP 8.1–8.5.
+
+Changed:
+- Bonus Monobank Payment Modern updated to v1.1.0 with one-invoice-per-order locking, currency_value-aware amount calculation, unique order id and safe secret handling.
+
+# CodeCart PRO 3.0.6.0 Build 1.8.2
+
+## Added — Modern Extension bonus
+- Added `bonuses/Monobank_Payment_Modern_v1.1.0.ocmod.zip` as an optional demonstration extension.
+- The payment method appears in Extensions -> Payments through thin OpenCart bridge files while API/webhook/idempotency logic is loaded from `system/extension/monobank_payment` through Modern Extension Registry.
+- The bonus is not installed or enabled automatically.
+
+
+## Compatibility Framework
+
+- Replaced direct UniShop2 calls in catalog controllers with a generic Compatibility Framework.
+- Added `CompatibilityAdapterInterface` and isolated runtime adapter execution with safe failure logging.
+- UniShop2 is now the first built-in theme adapter instead of a Core-specific special case.
+- Added installable compatibility adapters through modern extension `manifest.json` capability `compatibility.adapters`.
+- External adapters are restricted to their extension namespace and must implement the official interface.
+- OCMOD diagnostics now query the generic Compatibility Framework; adapters can optionally declare legacy OCMOD searches they supersede.
+- Added stable contracts for menu, category module/page, product options and banner data.
+- Preserved OFF-means-OFF: an installed but inactive theme does not execute its adapter.
+- Preserved CodeCart batched category loading and modern image pipeline; no old ocStore/OpenCart N+1 implementation was restored.
+- Added developer documentation in `documentation/COMPATIBILITY_FRAMEWORK.md`.
+- Fixed Modern Extension Registry namespace normalization that could trim a trailing `t`, and fixed global `CodeCartPsr4` registration so newly installed adapter namespaces can be registered correctly.
+
+
+UniShop2 compatibility
+- Added an isolated `CodeCart\Core\Unishop2Compatibility` adapter for UniShop2 v3.6.6.0. The adapter activates only when UniShop2 is the active theme and does not affect the default CodeCart storefront.
+- Restored the functional equivalents of 13 UniShop2 OCMOD contracts that no longer match the modern CodeCart catalog core: mega-menu (4), category module (3), category page (3), product options (2) and banner (1).
+- Preserved CodeCart batched category loading instead of reintroducing UniShop/OpenCart N+1 `getCategories()` loops or legacy category cache behavior.
+- UniShop menu data now receives icon/banner metadata, second-level images, third-level children/limits and landing-link compatibility from the existing CodeCart category tree.
+- UniShop category pages receive subcategory visibility/images and `uni_banner_in_category` support without replacing CodeCart category routing/SEO logic.
+- UniShop product options receive compatible ended/maximum/image-size fields while preserving CodeCart option-image switching and modern image pipeline.
+- Standard banner items expose UniShop `width`/`height` aliases while retaining CodeCart slider effects and third-party Swiper fallback.
+- OCMOD diagnostics recognize the 13 superseded UniShop2 search operations as satisfied by the CodeCart compatibility layer instead of reporting false compatibility warnings.
+- UniShop2 fix Installer/Twig operations already implemented by CodeCart are likewise recognized as compatibility-satisfied; the legacy global SQL-mode relaxation is intentionally not claimed as equivalent.
+
+# CodeCart PRO 3.0.6.0 Build 1.7.7
 
 Upgrade compatibility
 - Fixed OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta upgrades on MySQL 8.x when legacy product.date_available still uses DEFAULT '0000-00-00'. The migration preserves existing row values, replaces only the invalid default with 1970-01-01 in a temporary compatible session and restores the original SQL mode after the InnoDB conversion.
