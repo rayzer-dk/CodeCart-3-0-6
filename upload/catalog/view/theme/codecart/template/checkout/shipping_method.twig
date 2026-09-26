@@ -80,7 +80,7 @@ function activateCarrier(){
 function showCityResults($box,rows){
   var $list=$box.find('.ccp-carrier-city-results').empty();
   if(!rows||!rows.length){$('<div class="ccp-carrier-city-item"></div>').text(textNoResults).appendTo($list);$list.prop('hidden',false);return;}
-  $.each(rows,function(_,row){var $b=$('<button type="button" class="ccp-carrier-city-item"></button>').attr('data-id',row.id||'').attr('data-name',row.name||'');$('<span></span>').text(row.name||'').appendTo($b);if(row.region||row.district){$('<small></small>').text([row.region||'',row.district||''].filter(Boolean).join(', ')).appendTo($b);$b.appendTo($list);});
+  $.each(rows,function(_,row){var $b=$('<button type="button" class="ccp-carrier-city-item"></button>').attr('data-id',row.id||'').attr('data-name',row.name||'');$('<span></span>').text(row.name||'').appendTo($b);if(row.region||row.district){$('<small></small>').text([row.region||'',row.district||''].filter(Boolean).join(', ')).appendTo($b);}$b.appendTo($list);});
   $list.prop('hidden',false);
 }
 function searchCities($box){
