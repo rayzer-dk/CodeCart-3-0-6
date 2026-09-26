@@ -504,7 +504,7 @@ class ControllerProductProduct extends Controller {
 				}
 
 				foreach ($option['product_option_value'] as $option_value) {
-						$option_available = !$option_value['subtract'] || ((int)$option_value['quantity'] > 0);
+						$option_available = !$option_value['subtract'] || ((int)$option_value['quantity'] > 0) || (isset($show_ended_option_value) && $show_ended_option_value);
 						if (!$option_available) { $has_unavailable_option = true; }
 						if ((($this->config->get('config_customer_price') && $this->customer->isLogged()) || !$this->config->get('config_customer_price')) && (float)$option_value['price']) {
 							$price = \CodeCart\Core\TaxDisplay::primary($this->registry, $option_value['price'], (int)$product_info['tax_class_id'], $product_tax_display_mode);
@@ -533,7 +533,7 @@ class ControllerProductProduct extends Controller {
 							'product_option_value_id' => $option_value['product_option_value_id'],
 							'option_value_id'         => $option_value['option_value_id'],
 							'name'                    => $option_value['name'],
-							'image'                   => $option_image !== '' ? $this->model_tool_image->resize($option_image, 50, 50) : '',
+							'image'                   => $option_image !== '' ? $this->model_tool_image->resize($option_image, isset($option_img_small_w) ? max(1, (int)($option_img_small_w / 2)) : 50, isset($option_img_small_h) ? max(1, (int)($option_img_small_h / 2)) : 50) : '',
 							'image_main'              => $option_image_main,
 							'image_popup'             => $option_image_popup,
 							'image_popup_width'       => $option_image_popup_width,
