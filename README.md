@@ -2,7 +2,7 @@
 
 Private development repository for CodeCart 3.0.6.
 
-Current source baseline: CodeCart PRO 3.0.6.0 Build 1.7.8.
+Current source baseline: CodeCart PRO 3.0.6.0 Build 1.8.2.
 
 ## Release model
 
@@ -19,10 +19,11 @@ Do not commit real `config.php`, `admin/config.php`, credentials, API keys, runt
 
 ## Source status
 
-Source import status: complete for CodeCart PRO 3.0.6.0 Build 1.7.8. Production CI reconstructs vendor from composer.lock and validates the source on PHP 8.1–8.5 before packaging.
+Source import status: complete for CodeCart PRO 3.0.6.0 Build 1.8.2. Production CI reconstructs vendor from composer.lock and validates the source on PHP 8.1–8.5 before packaging.
 
 ## Validated upgrade baselines
 
 Validated upgrade paths include ocStore 3.0.4.1, OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta. OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta are tested on both MariaDB 10.11 and MySQL 8.4 with preservation and idempotency checks.
 
-UniShop2 v3.6.5.2 compatibility adapter: validated against the supplied theme package; PHP 8.3 + compatible ionCube Loader is required by UniShop2.
+
+Optional bonus: `bonuses/Monobank_Payment_Modern_v1.1.0.ocmod.zip` demonstrates a Modern Extension payment integration and is not installed by default.
