@@ -30,6 +30,6 @@ jobs:
             echo "Manifest already current."
             exit 0
           fi
-          git commit -m "Refresh Build 1.7.7 integrity manifest"
+          git commit -m "Refresh Build 1.7.8 integrity manifest"
           git pull --rebase origin main
           git push
