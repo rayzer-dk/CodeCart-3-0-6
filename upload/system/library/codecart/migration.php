@@ -47,6 +47,7 @@ class Migration {
             $this->finalizeStorageRelocation();
             $this->removePublicComposerMetadata();
             $this->syncStagedVendorToExternalStorage($forceRepair);
+            $this->cleanupObsoleteLegacyCoreFiles();
             $this->removeObsoleteCookiePresetPngs();
 
             // Package-only maintenance update: filesystem work is complete; do not rerun DB migration.
@@ -3007,6 +3008,59 @@ class Migration {
         }
         @rename($marker, dirname($marker) . DIRECTORY_SEPARATOR . 'storage-relocation.completed');
         if ($this->log) { $this->log->write('CodeCart PRO storage relocation: previous storage preserved at ' . $old . '; automatic deletion is disabled.'); }
+    }
+
+
+    private function cleanupObsoleteLegacyCoreFiles() {
+        if (!defined('DIR_SYSTEM')) { return; }
+
+        $root = dirname(rtrim(DIR_SYSTEM, '/\\')) . DIRECTORY_SEPARATOR;
+
+        // Remove only known stock OpenCart/ocStore files that are absent from CodeCart.
+        // Never remove an enabled legacy payment/module automatically.
+        $bluepayEnabled = (bool)$this->config->get('payment_bluepay_redirect_status') || (bool)$this->config->get('payment_bluepay_hosted_status');
+        if (!$bluepayEnabled) {
+            $known = array(
+                'admin/view/template/extension/payment/bluepay_redirect.twig' => array('ba3cd0cfb848ea4bf4c57c6e472f215c89f1512ec3c1c3b914cc6cc0e8044c31'),
+                'catalog/view/theme/default/template/extension/payment/bluepay_redirect.twig' => array('8a8a5b249dd23c0afc26466800d8f95e7bbeeae2f751020e2a71b85af1fa32b6')
+            );
+            foreach ($known as $relative => $hashes) {
+                $file = $root . str_replace('/', DIRECTORY_SEPARATOR, $relative);
+                if (!is_file($file)) { continue; }
+                $hash = @hash_file('sha256', $file);
+                if ($hash && in_array($hash, $hashes, true)) { @unlink($file); }
+            }
+        }
+
+        $braintreeEnabled = (bool)$this->config->get('module_pp_braintree_button_status');
+        if (!$braintreeEnabled) {
+            foreach (array(
+                'admin/controller/extension/module/pp_braintree_button.php',
+                'admin/view/template/extension/module/pp_braintree_button.twig',
+                'catalog/controller/extension/module/pp_braintree_button.php',
+                'catalog/view/theme/default/template/extension/module/pp_braintree_button.twig'
+            ) as $relative) {
+                $file = $root . str_replace('/', DIRECTORY_SEPARATOR, $relative);
+                if (is_file($file)) { @unlink($file); }
+            }
+
+            // Stock ocStore 3.0.4.1 bundled an old PHP-incompatible Braintree SDK.
+            // Keep third-party/active integrations safe: remove it only when the stock
+            // Braintree button is disabled. Modern package vendor remains authoritative.
+            $legacyBraintree = rtrim(DIR_STORAGE, '/\\') . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'braintree' . DIRECTORY_SEPARATOR . 'braintree_php';
+            if (is_dir($legacyBraintree)) { $this->removeDirectory($legacyBraintree); }
+            $publicBraintree = rtrim(DIR_SYSTEM, '/\\') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'braintree' . DIRECTORY_SEPARATOR . 'braintree_php';
+            if (is_dir($publicBraintree) && str_replace('\\','/', $publicBraintree) !== str_replace('\\','/', $legacyBraintree)) { $this->removeDirectory($publicBraintree); }
+        }
+
+        // Divido was a legacy bundled dependency and is intentionally not part of CodeCart.
+        // Remove only the old bundled SDK directory; no merchant media/settings are touched.
+        foreach (array(
+            rtrim(DIR_STORAGE, '/\\') . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'divido' . DIRECTORY_SEPARATOR . 'divido-php',
+            rtrim(DIR_SYSTEM, '/\\') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'divido' . DIRECTORY_SEPARATOR . 'divido-php'
+        ) as $legacyDivido) {
+            if (is_dir($legacyDivido)) { $this->removeDirectory($legacyDivido); }
+        }
     }
 
     private function removeObsoleteCookiePresetPngs() {
