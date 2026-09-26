@@ -1,4 +1,4 @@
-CodeCart PRO 3.0.6.0 — Build 1.7.7
+CodeCart PRO 3.0.6.0 — Build 1.7.8
 
 PRODUCTION INSTALL / UPDATE
 
