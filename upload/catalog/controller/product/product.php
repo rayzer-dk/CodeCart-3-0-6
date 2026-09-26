@@ -495,6 +495,9 @@ class ControllerProductProduct extends Controller {
 			$has_unavailable_option = false;
 			$has_datetime_option = false;
 			$option_image_switch_enabled = (bool)$this->config->get('theme_default_option_image_switch_status');
+			$compatibility = $this->registry->get('codecart_compatibility_framework');
+			$optionSizeContract = $compatibility ? $compatibility->apply('catalog.product.option_image_size', array('width' => 50, 'height' => 50, 'product_id' => (int)$this->request->get['product_id'])) : array('width' => 50, 'height' => 50);
+			$uniOptionImageSize = array(max(1, (int)$optionSizeContract['width']), max(1, (int)$optionSizeContract['height']));
 
 			foreach ($this->model_catalog_product->getProductOptions($this->request->get['product_id']) as $option) {
 				$product_option_value_data = array();
@@ -504,7 +507,7 @@ class ControllerProductProduct extends Controller {
 				}
 
 				foreach ($option['product_option_value'] as $option_value) {
-						$option_available = !$option_value['subtract'] || ((int)$option_value['quantity'] > 0) || (isset($show_ended_option_value) && $show_ended_option_value);
+						$option_available = !$option_value['subtract'] || ((int)$option_value['quantity'] > 0);
 						if (!$option_available) { $has_unavailable_option = true; }
 						if ((($this->config->get('config_customer_price') && $this->customer->isLogged()) || !$this->config->get('config_customer_price')) && (float)$option_value['price']) {
 							$price = \CodeCart\Core\TaxDisplay::primary($this->registry, $option_value['price'], (int)$product_info['tax_class_id'], $product_tax_display_mode);
@@ -529,11 +532,11 @@ class ControllerProductProduct extends Controller {
 							}
 						}
 
-						$product_option_value_data[] = array(
+						$optionValueData = array(
 							'product_option_value_id' => $option_value['product_option_value_id'],
 							'option_value_id'         => $option_value['option_value_id'],
 							'name'                    => $option_value['name'],
-							'image'                   => $option_image !== '' ? $this->model_tool_image->resize($option_image, isset($option_img_small_w) ? max(1, (int)($option_img_small_w / 2)) : 50, isset($option_img_small_h) ? max(1, (int)($option_img_small_h / 2)) : 50) : '',
+							'image'                   => $option_image !== '' ? $this->model_tool_image->resize($option_image, $uniOptionImageSize[0], $uniOptionImageSize[1]) : '',
 							'image_main'              => $option_image_main,
 							'image_popup'             => $option_image_popup,
 							'image_popup_width'       => $option_image_popup_width,
@@ -544,6 +547,9 @@ class ControllerProductProduct extends Controller {
 							'subtract'                => (int)$option_value['subtract'],
 							'available'               => $option_available ? 1 : 0
 						);
+						$optionValueContract = $compatibility ? $compatibility->apply('catalog.product.option_value', array('value' => $optionValueData, 'raw_price' => (float)$option_value['price'], 'product_id' => (int)$this->request->get['product_id'])) : array('value' => $optionValueData);
+					$optionValueData = isset($optionValueContract['value']) && is_array($optionValueContract['value']) ? $optionValueContract['value'] : $optionValueData;
+						$product_option_value_data[] = $optionValueData;
 				}
 
 				$data['options'][] = array(
