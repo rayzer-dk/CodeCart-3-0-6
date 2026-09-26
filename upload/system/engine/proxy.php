@@ -46,9 +46,11 @@ class Proxy extends \stdClass {
 		if (isset($this->{$key})) {		
 			return call_user_func_array($this->{$key}, $arg_data);	
 		} else {
-			$trace = debug_backtrace();
-			
-			exit('<b>Notice</b>:  Undefined property: Proxy::' . $key . ' in <b>' . $trace[1]['file'] . '</b> on line <b>' . $trace[1]['line'] . '</b>');
+			$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+			$file = isset($trace[1]['file']) ? (string)$trace[1]['file'] : 'unknown';
+			$line = isset($trace[1]['line']) ? (int)$trace[1]['line'] : 0;
+			@error_log('CodeCart Proxy: undefined method/property Proxy::' . $key . ' at ' . $file . ':' . $line);
+			throw new \RuntimeException('Requested component method is unavailable. Check the application error log.');
 		}
 	}
 }
