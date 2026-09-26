@@ -1,0 +1,23 @@
+{
+  "manifest_version": 1,
+  "code": "monobank_payment",
+  "name": "Monobank Payment Modern",
+  "version": "1.1.0",
+  "namespace": "CodeCart\\Extension\\MonobankPayment",
+  "permissions": [
+    "extension/payment/monobank_modern"
+  ],
+  "services": [
+    "CodeCart\\Extension\\MonobankPayment\\ApiClient",
+    "CodeCart\\Extension\\MonobankPayment\\PaymentService",
+    "CodeCart\\Extension\\MonobankPayment\\WebhookVerifier"
+  ],
+  "api": [
+    "GET /api/merchant/details",
+    "POST /api/merchant/invoice/create",
+    "GET /api/merchant/pubkey"
+  ],
+  "webhooks": [
+    "extension/payment/monobank_modern/webhook"
+  ]
+}
