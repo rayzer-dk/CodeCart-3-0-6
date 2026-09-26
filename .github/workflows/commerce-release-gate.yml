@@ -54,14 +54,14 @@ jobs:
       - name: Install QA utilities
         run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq
 
-      - name: Download Build 1.7.6 production artifact
+      - name: Download Build 1.7.8 production artifact
         uses: actions/download-artifact@v8
         with:
           name: CodeCart-production
           path: artifact
           github-token: ${{ github.token }}
           repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36152845918
+          run-id: 36223381835
 
       - name: Verify and extract
         shell: bash
@@ -74,7 +74,7 @@ jobs:
           cd ..
           mkdir runtime
           unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d runtime
-          grep -q "CODECART_PACKAGE_BUILD', '1.7.6'" runtime/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.7.8'" runtime/upload/index.php
           test -f runtime/upload/system/storage/vendor/autoload.php
 
       - name: Clean install
