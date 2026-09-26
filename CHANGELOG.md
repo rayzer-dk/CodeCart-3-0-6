@@ -17,6 +17,7 @@ Changed:
 Runtime QA:
 - Live ocStore 3.0.4.1 -> CodeCart upgrade on MariaDB passed data preservation, Installer 2.0 migration, repeat-upgrade idempotency, storefront/admin login and error-log gates.
 - Live commerce QA passed on MySQL 8.4 and MariaDB 10.11, including stock=1 concurrent checkout, Chromium guest checkout, signed Monobank webhook/stale-event idempotency and parallel HTTP load smoke.
+- Build 1.8.3 integrity manifest was regenerated from the final main source tree.
 
 # CodeCart PRO 3.0.6.0 Build 1.8.2
 
