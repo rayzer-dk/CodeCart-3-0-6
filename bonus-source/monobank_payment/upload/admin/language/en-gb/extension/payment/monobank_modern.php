@@ -1,0 +1,26 @@
+<?php
+$_['heading_title'] = 'Monobank Payment Modern';
+$_['text_title'] = 'Card / monobank';
+$_['text_extension'] = 'Extensions';
+$_['text_home'] = 'Home';
+$_['text_edit'] = 'Monobank Payment Modern 1.0.0';
+$_['text_success'] = 'Monobank settings saved.';
+$_['text_enabled'] = 'Enabled';
+$_['text_disabled'] = 'Disabled';
+$_['entry_token'] = 'Merchant token';
+$_['entry_total'] = 'Minimum order total';
+$_['entry_geo_zone'] = 'Geo zone';
+$_['entry_success_status'] = 'Successful payment status';
+$_['entry_processing_status'] = 'Processing / hold status';
+$_['entry_failure_status'] = 'Failed payment status';
+$_['entry_status'] = 'Status';
+$_['entry_debug'] = 'Debug log';
+$_['entry_sort_order'] = 'Sort order';
+$_['help_token'] = 'X-Token from the monobank merchant cabinet. The token is never written to module logs.';
+$_['help_webhook'] = 'Public callback URL. Webhooks are verified using the ECDSA x-sign signature.';
+$_['button_save'] = 'Save';
+$_['button_cancel'] = 'Cancel';
+$_['button_test'] = 'Test connection';
+$_['button_confirm'] = 'Pay with monobank';
+$_['error_permission'] = 'You do not have permission to modify this payment method.';
+$_['error_token'] = 'Enter the Monobank merchant token before enabling the payment method.';
