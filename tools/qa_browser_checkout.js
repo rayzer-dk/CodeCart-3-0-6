@@ -10,6 +10,11 @@ const { chromium } = require('playwright');
   page.on('console', msg => {
     if (msg.type() === 'error') console.error('BROWSER_CONSOLE_ERROR:', msg.text());
   });
+  page.on('response', async response => {
+    if (response.url().includes('route=checkout/confirm')) {
+      try { console.log('CHECKOUT_CONFIRM_HTML:', await response.text()); } catch (_) {}
+    }
+  });
   await page.goto(`${base}/index.php?route=product/product&product_id=${pid}`, {waitUntil:'networkidle'});
   await page.locator('#button-cart').click();
   await page.goto(`${base}/index.php?route=checkout/checkout`, {waitUntil:'networkidle'});
@@ -29,8 +34,10 @@ const { chromium } = require('playwright');
   if (await shipping.count()) await shipping.first().check();
   await page.locator('#button-shipping-method').click();
   await page.locator('#button-payment-method').waitFor({state:'visible'});
+  const cod = page.locator('input[name="payment_method"][value="cod"]');
   const payment = page.locator('input[name="payment_method"]');
-  if (await payment.count()) await payment.first().check();
+  if (await cod.count()) await cod.check();
+  else if (await payment.count()) await payment.first().check();
   const agree = page.locator('input[name="agree"]');
   if (await agree.count()) await agree.check();
   await page.locator('#button-payment-method').click();
