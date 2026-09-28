@@ -156,7 +156,16 @@ class ControllerCommonHeader extends Controller {
 		$data['theme_custom_css'] = $custom_css;
 
 		$data['name'] = $this->config->get('config_name');
-		$data['developer_theme'] = (bool)$this->config->get('developer_theme');
+		// OpenCart stores developer_theme=1 as the normal production default (it
+		// controls template caching). It must not force the unminified stylesheet.
+		// Serve stylesheet.css only when the minified copy is missing or was not built
+		// from the current source (for example after a merchant edited stylesheet.css).
+		$stylesheet_theme = (string)$this->config->get('config_theme') === 'default' ? (string)$this->config->get('theme_default_directory') : (string)$this->config->get('config_theme');
+		$stylesheet_theme = preg_replace('/[^a-zA-Z0-9_-]/', '', $stylesheet_theme);
+		$stylesheet_dir = DIR_APPLICATION . 'view/theme/' . ($stylesheet_theme !== '' ? $stylesheet_theme : 'default') . '/stylesheet/';
+		$stylesheet_source = $stylesheet_dir . 'stylesheet.css';
+		$stylesheet_min = $stylesheet_dir . 'stylesheet.min.css';
+		$data['developer_theme'] = $this->isMinifiedStylesheetStale($stylesheet_source, $stylesheet_min);
 
 		$data['logo_width'] = 0;
 		$data['logo_height'] = 0;
@@ -409,4 +418,40 @@ class ControllerCommonHeader extends Controller {
 		return array_values($alternates);
 	}
 
+
+	private function isMinifiedStylesheetStale($source, $minified) {
+		if (!is_file($minified)) {
+			return true;
+		}
+
+		if (!is_file($source)) {
+			return false;
+		}
+
+		$signature = md5($source . '|' . (int)@filemtime($source) . '|' . (int)@filesize($source) . '|' . (int)@filemtime($minified) . '|' . (int)@filesize($minified));
+		$marker = DIR_CACHE . 'codecart.stylesheet.' . $signature;
+
+		if (is_file($marker)) {
+			return trim((string)@file_get_contents($marker)) === '1';
+		}
+
+		$stale = false;
+		$head = (string)@file_get_contents($minified, false, null, 0, 256);
+
+		if (preg_match('/source stylesheet\.css sha256:([a-f0-9]{64})/', $head, $match)) {
+			$stale = !hash_equals($match[1], (string)hash_file('sha256', $source));
+		} else {
+			$stale = (int)@filemtime($source) > (int)@filemtime($minified);
+		}
+
+		foreach ((array)glob(DIR_CACHE . 'codecart.stylesheet.*') as $old) {
+			if (is_file($old) && filemtime($old) < time() - 86400) {
+				@unlink($old);
+			}
+		}
+
+		@file_put_contents($marker, $stale ? '1' : '0', LOCK_EX);
+
+		return $stale;
+	}
 }

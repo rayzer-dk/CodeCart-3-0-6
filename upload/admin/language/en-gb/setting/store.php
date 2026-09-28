@@ -114,3 +114,6 @@ $_['text_tax_display_gross_tax'] = 'Price incl. VAT + secondary VAT amount only'
 $_['text_tax_display_net_gross'] = 'Price excl. VAT + secondary price incl. VAT';
 $_['entry_currency_trim_zeros'] = 'Hide .00 in storefront prices';
 $_['help_currency_trim_zeros'] = 'When enabled, prices with a zero fractional part are shown without trailing zeros (100 instead of 100.00). Values such as 100.50 keep their decimals. Calculations and stored precision are unchanged.';
+$_['text_email_logo_current'] = '%s, %s×%s px, %s KB. A compact email version will be prepared automatically.';
+$_['text_email_logo_current_none'] = 'no email logo selected — the normal store logo is used.';
+$_['text_email_logo_current_label'] = 'Current:';

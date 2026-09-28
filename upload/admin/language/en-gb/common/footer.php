@@ -40,3 +40,7 @@ $_['project_close'] = 'Close';
 $_['project_crypto_title'] = 'Cryptocurrency';
 
 $_['project_crypto_note'] = 'The Open button launches a compatible crypto wallet using a URI scheme. If your wallet does not support it, copy the address or scan the QR code.';
+$_['text_report_subject'] = 'CodeCart PRO — report';
+$_['text_report_body'] = 'Type: bug / suggestion / improvement
+Page: 
+Description: ';

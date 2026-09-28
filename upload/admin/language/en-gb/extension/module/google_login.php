@@ -17,3 +17,4 @@ $_['help_auto_register'] = 'If the verified Google email does not exist in the s
 $_['help_checkout'] = 'Disabled by default to keep guest quick checkout minimal.';
 $_['error_permission'] = 'You do not have permission to modify Google Login.';
 $_['error_credentials'] = 'Google Client ID and Client Secret are required when enabled.';
+$_['button_show_secret'] = 'Show / hide private key';

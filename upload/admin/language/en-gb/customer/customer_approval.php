@@ -26,3 +26,5 @@ $_['entry_date_added']      = 'Date Added';
 
 // Error
 $_['error_permission']      = 'Warning: You do not have permission to modify customer approvals!';
+$_['error_warning'] = 'Warning: Please check the form carefully for errors!';
+$_['text_filter'] = 'Filter';

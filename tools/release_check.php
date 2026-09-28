@@ -142,6 +142,32 @@ if ($debugHits) {
     pass('Debug-call sweep: clean');
 }
 
+// First-party minified theme stylesheets must be built from the current source.
+// The build writes the source SHA-256 into the first comment of stylesheet.min.css.
+foreach (array('codecart', 'default') as $themeName) {
+    $cssDir = $root . '/upload/catalog/view/theme/' . $themeName . '/stylesheet/';
+    if (!is_file($cssDir . 'stylesheet.css')) {
+        continue;
+    }
+    $minHead = is_file($cssDir . 'stylesheet.min.css') ? (string)file_get_contents($cssDir . 'stylesheet.min.css', false, null, 0, 256) : '';
+    if (!preg_match('/source stylesheet\.css sha256:([a-f0-9]{64})/', $minHead, $cssMatch)) {
+        fail($errors, 'Minified stylesheet has no source hash marker: ' . $themeName);
+    } elseif (!hash_equals($cssMatch[1], hash_file('sha256', $cssDir . 'stylesheet.css'))) {
+        fail($errors, 'Minified stylesheet is stale for theme ' . $themeName . ': rebuild stylesheet.min.css from stylesheet.css');
+    }
+}
+pass('Minified theme stylesheets are in sync with source');
+
+$languageCheck = $root . '/tools/check_language_packs.php';
+if (is_file($languageCheck)) {
+    passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($languageCheck), $languageCode);
+    if ($languageCode !== 0) {
+        fail($errors, 'Language pack gate failed');
+    } else {
+        pass('Language pack gate');
+    }
+}
+
 $localeCheck = $root . '/tools/check_uk_locale.php';
 if (is_file($localeCheck)) {
     passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($localeCheck), $localeCode);

@@ -49,3 +49,5 @@ $_['error_keyword']     = 'SEO URL already in use!';
 $_['error_unique']      = 'SEO URL must be unique!';
 $_['error_product']     = 'Warning: This manufacturer cannot be deleted as it is currently assigned to %s products!';
 $_['button_generate_seo_url'] = 'Generate SEO URL';
+$_['error_meta_title'] = 'Meta Title must be greater than 1 and less than 255 characters!';
+$_['error_meta_h1'] = 'HTML Tag H1 must be greater than 0 and less than 255 characters!';

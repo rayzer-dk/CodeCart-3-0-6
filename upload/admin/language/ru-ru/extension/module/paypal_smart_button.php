@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'PayPal Smart Button';
 $_['text_extensions'] = 'Расширения';
 $_['text_edit'] = 'Настройки PayPal Smart Button';

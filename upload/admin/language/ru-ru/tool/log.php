@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Журнал ошибок';
 $_['text_success'] = 'Журнал ошибок очищен.';
 $_['text_list'] = 'Журнал ошибок';

@@ -3491,6 +3491,12 @@ class ControllerExtensionPaymentPayPal extends Controller {
 	}
 	
 	public function enableRecurring() {
+		if (!$this->validateFinancialActionRequest()) {
+			return;
+		}
+
+		$data = array();
+
 		if ($this->config->get('payment_paypal_status') && !empty($this->request->post['order_recurring_id'])) {
 			$this->load->language('extension/payment/paypal');
 			
@@ -3510,6 +3516,12 @@ class ControllerExtensionPaymentPayPal extends Controller {
 	}
 	
 	public function disableRecurring() {
+		if (!$this->validateFinancialActionRequest()) {
+			return;
+		}
+
+		$data = array();
+
 		if ($this->config->get('payment_paypal_status') && !empty($this->request->post['order_recurring_id'])) {
 			$this->load->language('extension/payment/paypal');
 			

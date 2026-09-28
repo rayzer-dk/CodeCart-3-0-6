@@ -1,12 +1,21 @@
 name: Runtime Production QA
-# Build 1.8.3 current-source runtime validation
+# Build 1.8.4 current-source runtime validation
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'upload/**'
+      - 'tools/**'
+      - 'composer.lock'
+      - '.github/workflows/runtime-production-qa.yml'
   push:
     branches: [ main, 'qa/**' ]
     paths:
       - '.github/workflows/runtime-production-qa.yml'
+      - 'upload/**'
+      - 'tools/**'
+      - 'composer.lock'
 
 permissions:
   actions: read
@@ -61,14 +70,14 @@ jobs:
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Stage current Build 1.8.3 source
+      - name: Stage current Build 1.8.4 source
         shell: bash
         run: |
           set -euo pipefail
           mkdir runtime
           cp -a upload runtime/upload
           test -f runtime/upload/system/storage/vendor/autoload.php
-          grep -q "CODECART_PACKAGE_BUILD', '1.8.3'" runtime/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.8.4'" runtime/upload/index.php
 
       - name: Clean install on MariaDB
         shell: bash
@@ -86,7 +95,7 @@ jobs:
           queue="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='codecart' AND table_name='oc_codecart_queue'")"
           worker="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_codecart_scheduler WHERE code='core.queue.worker' AND status=1")"
           non_innodb="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='codecart' AND table_type='BASE TABLE' AND engine <> 'InnoDB'")"
-          test "$schema" = "27"
+          test "$schema" = "28"
           test "$theme" = "codecart"
           test "$queue" = "1"
           test "$worker" = "1"
@@ -259,13 +268,13 @@ jobs:
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Stage current Build 1.8.3 source and clean install
+      - name: Stage current Build 1.8.4 source and clean install
         shell: bash
         run: |
           set -euo pipefail
           mkdir runtime
           cp -a upload runtime/upload
-          grep -q "CODECART_PACKAGE_BUILD', '1.8.3'" runtime/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.8.4'" runtime/upload/index.php
           cd runtime/upload/install
           php cli_install.php install             --db_hostname 127.0.0.1             --db_username root             --db_password root             --db_database codecart             --db_driver mysqli             --db_port 3306             --username admin             --password 'Admin123!QA'             --email admin@example.test             --http_server http://127.0.0.1:8080/
 
@@ -275,7 +284,7 @@ jobs:
           set -euo pipefail
           schema="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='codecart_presentation_schema_version' LIMIT 1")"
           theme="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='config_theme' LIMIT 1")"
-          test "$schema" = "27"
+          test "$schema" = "28"
           test "$theme" = "codecart"
           cd runtime
           php -S 127.0.0.1:8080 -t upload > /tmp/codecart-http.log 2>&1 &

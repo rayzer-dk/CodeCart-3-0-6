@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Двухфакторная аутентификация';
 $_['text_instruction'] = 'Введите шестизначный код из приложения-аутентификатора или один из резервных кодов.';
 $_['text_code'] = 'Код подтверждения';

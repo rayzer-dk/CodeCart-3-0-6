@@ -30,4 +30,3 @@ $_['text_name_desc'] 	= 'Name (Z - A)';
 $_['text_default']   	= 'Default';
 
 $_['button_more']       = 'more';
-?>

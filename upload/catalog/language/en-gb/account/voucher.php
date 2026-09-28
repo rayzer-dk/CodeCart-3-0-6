@@ -30,3 +30,4 @@ $_['error_email']      = 'E-Mail Address does not appear to be valid!';
 $_['error_theme']      = 'You must select a theme!';
 $_['error_amount']     = 'Amount must be between %s and %s!';
 $_['error_agree']      = 'Warning: You must agree that the gift certificates are non-refundable!';
+$_['text_order_number'] = 'Order number';

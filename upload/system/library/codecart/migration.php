@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '27';
+    const PRESENTATION_SCHEMA_VERSION = '28';
 
     private $db;
     private $config;
@@ -201,6 +201,8 @@ class Migration {
             $this->ensureGoogleLoginModule();
             $this->currentStep = 'dashboard_health';
             $this->ensureDashboardHealthInfrastructure();
+            $this->currentStep = 'dashboard.legacy_domovoy';
+            $this->migrateLegacyDomovoyDashboard();
             // Existing SEO/blog rows are never cleaned implicitly during UPDATE.
             $this->updateDatabaseModernizationFlag();
             $this->currentStep = 'legacy_extra_email';
@@ -2831,6 +2833,56 @@ class Migration {
     }
 
 
+    /**
+     * ocStore <= 3.0.3.x ships the "domovoy" dashboard, renamed to "domovyk" in
+     * ocStore 3.0.4+ / CodeCart. The legacy controller is not PHP 8 compatible
+     * (warnings on every dashboard view and a directory-size scan on each load).
+     * Move its settings/permissions to domovyk and uninstall only the legacy
+     * extension record; files are left untouched.
+     */
+    private function migrateLegacyDomovoyDashboard() {
+        if (!$this->tableExists('extension') || !$this->tableExists('setting')) { return; }
+        $legacy = $this->db->query("SELECT extension_id FROM `" . DB_PREFIX . "extension` WHERE type='dashboard' AND code='domovoy' LIMIT 1");
+        if (!$legacy->num_rows) { return; }
+        $modern = rtrim(DIR_SYSTEM, '/\\') . '/../admin/controller/extension/dashboard/domovyk.php';
+        if (!is_file($modern)) { return; }
+
+        $current = $this->db->query("SELECT extension_id FROM `" . DB_PREFIX . "extension` WHERE type='dashboard' AND code='domovyk' LIMIT 1");
+        if (!$current->num_rows) {
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "extension` SET type='dashboard', code='domovyk'");
+            $rows = $this->db->query("SELECT store_id, `key`, value, serialized FROM `" . DB_PREFIX . "setting` WHERE code='dashboard_domovoy'");
+            foreach ($rows->rows as $row) {
+                $key = preg_replace('/^dashboard_domovoy_/', 'dashboard_domovyk_', (string)$row['key']);
+                $exists = $this->db->query("SELECT setting_id FROM `" . DB_PREFIX . "setting` WHERE store_id='" . (int)$row['store_id'] . "' AND `key`='" . $this->db->escape($key) . "' LIMIT 1");
+                if (!$exists->num_rows) {
+                    $this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET store_id='" . (int)$row['store_id'] . "', code='dashboard_domovyk', `key`='" . $this->db->escape($key) . "', value='" . $this->db->escape((string)$row['value']) . "', serialized='" . (int)$row['serialized'] . "'");
+                }
+            }
+        }
+
+        if ($this->tableExists('user_group')) {
+            $groups = $this->db->query("SELECT user_group_id, permission FROM `" . DB_PREFIX . "user_group`");
+            foreach ($groups->rows as $group) {
+                $permission = json_decode((string)$group['permission'], true);
+                if (!is_array($permission)) { continue; }
+                $changed = false;
+                foreach (array('access', 'modify') as $type) {
+                    if (isset($permission[$type]) && is_array($permission[$type]) && in_array('extension/dashboard/domovoy', $permission[$type], true) && !in_array('extension/dashboard/domovyk', $permission[$type], true)) {
+                        $permission[$type][] = 'extension/dashboard/domovyk';
+                        $changed = true;
+                    }
+                }
+                if ($changed) {
+                    $this->db->query("UPDATE `" . DB_PREFIX . "user_group` SET permission='" . $this->db->escape(json_encode($permission)) . "' WHERE user_group_id='" . (int)$group['user_group_id'] . "'");
+                }
+            }
+        }
+
+        $this->db->query("DELETE FROM `" . DB_PREFIX . "extension` WHERE type='dashboard' AND code='domovoy'");
+        $this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE code='dashboard_domovoy'");
+        if ($this->log) { $this->log->write('CodeCart PRO: legacy ocStore dashboard "domovoy" was migrated to "domovyk".'); }
+    }
+
     private function ensureDashboardHealthInfrastructure() {
         if ($this->tableExists('extension')) {
             $q = $this->db->query("SELECT extension_id FROM `" . DB_PREFIX . "extension` WHERE type='dashboard' AND code='codecart_health' LIMIT 1");
@@ -3163,7 +3215,7 @@ class Migration {
         $this->config->set('codecart_db_modernization_required', $required);
 
         if ($required && $this->log) {
-            $this->log->write('CodeCart PRO database modernization required: run php cli.php db:preflight and php cli.php db:migrate after a verified database backup.');
+            $this->log->write('CodeCart PRO database modernization required: after a verified database backup open Admin > Core / Compatibility > Database Schema > Modernize tables, or run php cli.php db:preflight and php cli.php db:migrate --backup-confirmed.');
         }
     }
 

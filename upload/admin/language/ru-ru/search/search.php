@@ -1,19 +1,20 @@
 <?php
-$_['text_search_options']           = 'Параметры поиска';
-$_['text_catalog']                  = 'Каталог';
-$_['text_customers']                = 'Покупатели';
-$_['text_orders']                   = 'Заказы';
-$_['text_products']                 = 'Товары';
-$_['text_categories']               = 'Категории';
-$_['text_manufacturers']            = 'Производители';
-$_['text_catalog_placeholder']      = 'Название, модель, артикул';
-$_['text_customers_placeholder']    = 'Имя, фамилия, E-Mail';
-$_['text_orders_placeholder']       = 'Номер заказа, счет, имя, фамилия, E-mail';
-$_['text_search_placeholder']       = 'Поиск';
-$_['text_no_result']                = '- ничего не найдено -';
-$_['text_order_id']                 = 'Номер заказа: ';
-$_['text_empty_query']              = 'Введите поисковый запрос.';
-$_['error_permission']              = 'У вас нет прав для поиска в этом разделе.';
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
+$_['text_search_options'] = 'Параметры поиска';
+$_['text_catalog'] = 'Каталог';
+$_['text_customers'] = 'Покупатели';
+$_['text_orders'] = 'Заказы';
+$_['text_products'] = 'Товары';
+$_['text_categories'] = 'Категории';
+$_['text_manufacturers'] = 'Производители';
+$_['text_catalog_placeholder'] = 'Название, модель, артикул';
+$_['text_customers_placeholder'] = 'Имя, фамилия, E-Mail';
+$_['text_orders_placeholder'] = 'Номер заказа, счет, имя, фамилия, E-mail';
+$_['text_search_placeholder'] = 'Поиск';
+$_['text_no_result'] = '- ничего не найдено -';
+$_['text_order_id'] = 'Номер заказа: ';
+$_['text_empty_query'] = 'Введите поисковый запрос.';
+$_['error_permission'] = 'У вас нет прав для поиска в этом разделе.';
 $_['text_content'] = 'Контент и модули';
 $_['text_information'] = 'Информационные страницы';
 $_['text_articles'] = 'Статьи';
@@ -23,7 +24,6 @@ $_['text_catalog_examples'] = 'товар: Название товара|кат�
 $_['text_customers_examples'] = 'клиент: Имя или фамилия|email: адрес@example.com|телефон: номер телефона';
 $_['text_orders_examples'] = 'заказ: номер заказа|счёт: номер счёта|клиент: имя или фамилия';
 $_['text_content_examples'] = 'страница: Название страницы|статья: Название статьи|модуль: Название модуля';
-
 $_['text_settings'] = 'Настройки';
 $_['text_settings_placeholder'] = 'Название настройки, ключ или раздел';
 $_['text_settings_examples'] = 'настройка: SEO URL|настройка: SMTP|настройка: кеш|настройка: оформление|ключ: config_seo_url';

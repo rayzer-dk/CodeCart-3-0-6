@@ -480,7 +480,11 @@ class ControllerBlogCategory extends Controller {
 
         $this->load->model('blog/category');
 
-        if (isset($this->request->post['selected'])) {
+        if (!$this->user->hasPermission('modify', 'blog/category')) {
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
+
+        if (isset($this->request->post['selected']) && !$this->error) {
 
             foreach ($this->request->post['selected'] as $blog_category_id) {
                 $this->model_blog_category->editCategoryStatus($blog_category_id, 1);
@@ -515,7 +519,11 @@ class ControllerBlogCategory extends Controller {
 
         $this->load->model('blog/category');
 
-        if (isset($this->request->post['selected'])) {
+        if (!$this->user->hasPermission('modify', 'blog/category')) {
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
+
+        if (isset($this->request->post['selected']) && !$this->error) {
 
             foreach ($this->request->post['selected'] as $blog_category_id) {
                 $this->model_blog_category->editCategoryStatus($blog_category_id, 0);

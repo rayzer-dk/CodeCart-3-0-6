@@ -1,0 +1,28 @@
+{{ header }}
+<div class="cc-page">
+  <div class="container">
+    <div class="cc-layout">
+      <main class="cc-card">
+        <div class="cc-card-head"><div><h1>{{ heading_title }}</h1><p>{{ text_upgrade }}</p></div></div>
+        <div class="cc-card-body">
+          <div class="alert alert-info"><i class="fa-solid fa-lock"></i> {{ text_login_required }}</div>
+          {% if error_login %}<div class="alert alert-danger"><i class="fa-solid fa-circle-xmark"></i> {{ error_login }}</div>{% endif %}
+          <form action="{{ action }}" method="post" autocomplete="off" class="cc-form-section">
+            <input type="hidden" name="login_token" value="{{ login_token }}">
+            <div class="form-group">
+              <label for="input-username">{{ entry_username }}</label>
+              <input type="text" name="username" id="input-username" class="form-control" required autocomplete="username" autofocus>
+            </div>
+            <div class="form-group">
+              <label for="input-password">{{ entry_password }}</label>
+              <input type="password" name="password" id="input-password" class="form-control" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket"></i> {{ button_login }}</button>
+          </form>
+        </div>
+      </main>
+      {{ column_left }}
+    </div>
+  </div>
+</div>
+{{ footer }}

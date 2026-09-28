@@ -163,7 +163,7 @@ if ($config->get('db_autostart')) {
 
 	// Load the small set of bootstrap settings required before the Session layer.
 	// Reuse the existing timezone query so UPDATE migration adds no SQL on steady-state requests.
-	$query = $db->query("SELECT `key`, `value` FROM `" . DB_PREFIX . "setting` WHERE store_id = '0' AND `key` IN ('config_timezone', 'codecart_core_schema_version', 'codecart_presentation_schema_version', 'codecart_scheduler_key', 'codecart_cache_engine')");
+	$query = $db->query("SELECT `key`, `value` FROM `" . DB_PREFIX . "setting` WHERE store_id = '0' AND `key` IN ('config_timezone', 'codecart_core_schema_version', 'codecart_presentation_schema_version', 'codecart_scheduler_key', 'codecart_cache_engine', 'codecart_db_strict_mode')");
 
 	foreach ($query->rows as $setting) {
 		$config->set($setting['key'], $setting['value']);
@@ -185,6 +185,16 @@ if ($config->get('db_autostart')) {
 	$core_schema = (string)$config->get('codecart_core_schema_version');
 	$presentation_schema = (string)$config->get('codecart_presentation_schema_version');
 	$config->set('codecart_upgrade_required', $core_schema !== CodeCart\Migration::VERSION || $presentation_schema !== CodeCart\Migration::PRESENTATION_SCHEMA_VERSION);
+
+	// OpenCart 3.x core, ocStore and the third-party extension ecosystem are written for
+	// OpenCart's session SQL mode (see upstream system/library/db/mysqli.php). Under the
+	// server default STRICT_TRANS_TABLES many legitimate INSERTs that omit NOT NULL columns
+	// without defaults fail with MySQL 1364 after the preceding DELETE already ran, which
+	// loses data (product options, manufacturer/article descriptions, geo zones...).
+	// Strict mode stays available as an explicit opt-in: codecart_db_strict_mode = 1.
+	if (!(int)$config->get('codecart_db_strict_mode')) {
+		$db->query("SET SESSION sql_mode = 'NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION'");
+	}
 
 	// Sync PHP and DB time zones
 	$db->query("SET time_zone = '" . $db->escape(date('P')) . "'");
@@ -293,9 +303,7 @@ $response->output();
 if (isset($db) && PHP_SAPI !== 'cli' && !defined('CODECART_CLI')) {
     register_shutdown_function(function() use ($registry, $log) {
         try {
-            if (function_exists('fastcgi_finish_request')) {
-                @fastcgi_finish_request();
-            }
+            \CodeCart\Core\Heartbeat::finishRequest();
             (new \CodeCart\Core\Heartbeat($registry))->run(300);
         } catch (\Throwable $e) {
             if ($log) { $log->write('CodeCart PRO heartbeat bootstrap failed: ' . $e->getMessage()); }

@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Наложенный платеж';
 $_['text_extension'] = 'Дополнения';
 $_['text_success'] = 'Настройки наложенного платежа изменены.';

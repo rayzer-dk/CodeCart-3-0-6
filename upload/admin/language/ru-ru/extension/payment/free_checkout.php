@@ -1,6 +1,6 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Бесплатное оформление (итог 0)';
-$_['text_payment'] = 'Оплата';
 $_['text_extension'] = 'Дополнения';
 $_['text_success'] = 'Настройки изменены';
 $_['text_edit'] = 'Редактирование';
@@ -9,3 +9,4 @@ $_['entry_order_status'] = 'Статус заказа после оформле�
 $_['entry_status'] = 'Статус';
 $_['entry_sort_order'] = 'Порядок сортировки';
 $_['error_permission'] = 'У вас недостаточно прав для внесения изменений';
+$_['text_payment'] = 'Оплата';

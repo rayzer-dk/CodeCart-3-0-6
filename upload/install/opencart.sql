@@ -9837,7 +9837,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 
 -- CodeCart PRO core schema marker
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_core_schema_version', '3.0.6.0', 0);
-INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_presentation_schema_version', '27', 0);
+INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_presentation_schema_version', '28', 0);
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_setting_serialized_default', '1', 0);
 
 

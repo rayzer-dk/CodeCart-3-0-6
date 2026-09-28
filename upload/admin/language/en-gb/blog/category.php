@@ -51,3 +51,5 @@ $_['error_meta_title']       = 'Meta Title must be greater than 0 and less than 
 $_['error_meta_h1']          = 'HTML Tag H1 must be greater than 0 and less than 255 characters!';
 $_['error_keyword']          = 'SEO keyword already in use!';
 $_['button_generate_seo_url'] = 'Generate SEO URL';
+$_['text_separator'] = ' &gt; ';
+$_['text_keyword'] = 'Do not use spaces, instead replace spaces with - and make sure the SEO URL is globally unique.';

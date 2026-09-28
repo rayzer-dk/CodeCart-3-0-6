@@ -11,3 +11,4 @@ $_['button_more']   = 'more';
 $_['text_tax']      = 'Ex Tax:';
 $_['text_tax_amount'] = 'Tax amount:';
 $_['text_tax_included'] = 'Incl. VAT:';
+$_['text_reviews'] = '%s reviews';

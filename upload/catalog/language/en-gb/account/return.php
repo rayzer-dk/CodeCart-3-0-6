@@ -62,3 +62,4 @@ $_['error_model']        = 'Product Model must be greater than 3 and less than 6
 $_['error_reason']       = 'You must select a return product reason!';
 $_['error_agree']        = 'Warning: You must agree to the %s!';
 $_['error_rate'] = 'Too many attempts. Please try again a little later.';
+$_['text_order_number'] = 'Order number';

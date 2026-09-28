@@ -1,8 +1,6 @@
 <?php
-// Heading
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Аналитика продаж';
-
-// Text
 $_['text_extension'] = 'Дополнения';
 $_['text_success'] = 'Настройки изменены';
 $_['text_edit'] = 'Редактирование';
@@ -12,16 +10,10 @@ $_['text_day'] = 'Сегодня';
 $_['text_week'] = 'Неделя';
 $_['text_month'] = 'Месяц';
 $_['text_year'] = 'Год';
-
-// Entry
 $_['entry_status'] = 'Статус';
 $_['entry_sort_order'] = 'Порядок сортировки';
 $_['entry_width'] = 'Ширина';
-
-// Error
 $_['error_permission'] = 'У вас недостаточно прав для изменения настроек';
-
-// Localized dashboard chart axis labels
 $_['text_month_1'] = 'Янв';
 $_['text_month_2'] = 'Фев';
 $_['text_month_3'] = 'Мар';

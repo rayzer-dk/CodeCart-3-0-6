@@ -813,7 +813,11 @@ class ControllerBlogArticle extends Controller {
 
         $this->load->model('blog/article');
 
-        if (isset($this->request->post['selected'])) {
+        if (!$this->user->hasPermission('modify', 'blog/article')) {
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
+
+        if (isset($this->request->post['selected']) && !$this->error) {
 
             foreach ($this->request->post['selected'] as $article_id) {
                 $this->model_blog_article->editArticleStatus($article_id, 1);
@@ -848,7 +852,11 @@ class ControllerBlogArticle extends Controller {
 
         $this->load->model('blog/article');
 
-        if (isset($this->request->post['selected'])) {
+        if (!$this->user->hasPermission('modify', 'blog/article')) {
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
+
+        if (isset($this->request->post['selected']) && !$this->error) {
 
             foreach ($this->request->post['selected'] as $article_id) {
                 $this->model_blog_article->editArticleStatus($article_id, 0);

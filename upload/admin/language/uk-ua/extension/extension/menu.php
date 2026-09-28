@@ -14,3 +14,4 @@ $_['column_action']    = 'Дія';
 
 // Error
 $_['error_permission'] = 'У вас недостатньо прав для внесення змін';
+$_['text_layout'] = 'Макети';

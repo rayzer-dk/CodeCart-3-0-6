@@ -424,3 +424,4 @@ $_['help_image_avif_quality'] = 'Quality from 45 to 90. 72 is a balanced default
 $_['text_image_avif_supported'] = 'AVIF encoding is available. Negotiation order is AVIF → WebP → original.';
 $_['text_image_avif_unsupported'] = 'AVIF encoding is unavailable in the active PHP GD profile. WebP/original fallback remains active.';
 $_['text_image_avif_quality_hint'] = 'Recommended: 72. AVIF generation is cached; originals are never changed.';
+$_['text_required'] = 'Required';

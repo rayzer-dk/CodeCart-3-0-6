@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['text_extension'] = 'Дополнения';
 $_['column_google_category'] = 'Категория Google';
 $_['column_category'] = 'Категория';
@@ -34,10 +35,8 @@ $_['error_permission'] = 'Недостаточно прав для просмо�
 $_['error_upload'] = 'Файл не может быть загружен.';
 $_['error_filetype'] = 'Неверный тип файла.';
 $_['error_filesize'] = 'Размер файла превышает 4 МБ.';
-
 $_['button_download'] = 'Скачать XML-фид';
 $_['text_feed_disabled'] = 'Фид выключен. Включите его и сохраните настройки, чтобы URL начал возвращать XML.';
-
 $_['entry_language_feeds'] = 'Фиды всех языков';
 $_['column_feed_language'] = 'Язык';
 $_['column_feed_url'] = 'URL фида';

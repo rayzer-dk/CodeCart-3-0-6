@@ -87,34 +87,32 @@ class ModelCatalogProduct extends Model {
 			return array();
 		}
 
-		$id_list = implode(',', $ids);
-		$sql = "SELECT p.product_id, p.model, p.image, p.price AS base_price, p.quantity, p.tax_class_id, p.tax_display_mode, p.minimum, pd.name, pd.description, "
-			. "(SELECT price FROM " . DB_PREFIX . "product_discount pd2 WHERE pd2.product_id = p.product_id AND pd2.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' AND pd2.quantity = '1' AND ((pd2.date_start < NOW()) AND (pd2.date_end < '1000-01-01' OR pd2.date_end > NOW())) ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS discount, "
-			. "(SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' AND ((ps.date_start < NOW()) AND (ps.date_end < '1000-01-01' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special, "
-			. "(SELECT AVG(r.rating) FROM " . DB_PREFIX . "review r WHERE r.product_id = p.product_id AND r.status = '1') AS rating, "
-			. "(SELECT COUNT(*) FROM " . DB_PREFIX . "review r2 WHERE r2.product_id = p.product_id AND r2.status = '1') AS reviews, "
-			. "(SELECT ss.name FROM " . DB_PREFIX . "stock_status ss WHERE ss.stock_status_id = p.stock_status_id AND ss.language_id = '" . (int)$this->config->get('config_language_id') . "') AS stock_status "
-			. "FROM " . DB_PREFIX . "product p INNER JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) INNER JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id) "
-			. "WHERE p.product_id IN (" . $id_list . ") AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "' ORDER BY FIELD(p.product_id," . $id_list . ")";
-		$query = $this->db->query($sql);
+		// Product cards keep the historical OpenCart/ocStore getProduct() row contract
+		// (ean, isbn, mpn, date_available, manufacturer, weight, ...). Themes such as
+		// UniShop2 and third-party OCMOD modules read these keys from $result inside
+		// product-list loops. The rows are still hydrated in one batched query.
+		$rows = $this->getProductsByIdsFull($ids);
 		$products = array();
-		foreach ($query->rows as $row) {
-			$products[] = array(
-				'product_id' => (int)$row['product_id'],
-				'name' => (string)$row['name'],
-				'model' => (string)$row['model'],
-				'description' => (string)$row['description'],
-				'image' => (string)$row['image'],
-				'quantity' => (int)$row['quantity'],
-				'stock_status' => (string)$row['stock_status'],
-				'price' => ($row['discount'] !== null ? (float)$row['discount'] : (float)$row['base_price']),
-				'special' => ($row['special'] !== null ? (float)$row['special'] : null),
-				'tax_class_id' => (int)$row['tax_class_id'],
-				'tax_display_mode' => isset($row['tax_display_mode']) ? (string)$row['tax_display_mode'] : 'inherit',
-				'minimum' => max(1, (int)$row['minimum']),
-				'rating' => round($row['rating'] === null ? 0 : (float)$row['rating']),
-				'reviews' => (int)$row['reviews']
-			);
+		foreach ($ids as $id) {
+			if (!isset($rows[$id])) {
+				continue;
+			}
+			$row = $rows[$id];
+			$row['product_id'] = (int)$row['product_id'];
+			$row['name'] = (string)$row['name'];
+			$row['model'] = (string)$row['model'];
+			$row['description'] = (string)$row['description'];
+			$row['image'] = (string)$row['image'];
+			$row['quantity'] = (int)$row['quantity'];
+			$row['stock_status'] = (string)$row['stock_status'];
+			$row['price'] = (float)$row['price'];
+			$row['special'] = ($row['special'] !== null ? (float)$row['special'] : null);
+			$row['tax_class_id'] = (int)$row['tax_class_id'];
+			$row['tax_display_mode'] = (string)$row['tax_display_mode'];
+			$row['minimum'] = max(1, (int)$row['minimum']);
+			$row['rating'] = round((float)$row['rating']);
+			$row['reviews'] = (int)$row['reviews'];
+			$products[] = $row;
 		}
 		return $products;
 	}
@@ -245,10 +243,43 @@ class ModelCatalogProduct extends Model {
 			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
+		$sql = $this->pruneListingSubqueries($sql);
+
 		$query = $this->db->query($sql);
 		$ids = array();
 		foreach ($query->rows as $result) { $ids[] = (int)$result['product_id']; }
 		return $this->getProductsByIdsFull($ids);
+	}
+
+	/**
+	 * The listing query only returns product IDs; prices/ratings are hydrated later
+	 * in one batch. Correlated rating/discount/special subqueries are therefore only
+	 * needed when the ORDER BY/HAVING (including third-party OCMOD additions) uses
+	 * them. Otherwise MySQL evaluates them for every matching row before LIMIT,
+	 * which dominates category/manufacturer pages on large catalogs.
+	 */
+	private function pruneListingSubqueries($sql) {
+		$group = (int)$this->config->get('config_customer_group_id');
+		$columns = array(
+			'rating' => ", (SELECT AVG(rating) AS total FROM " . DB_PREFIX . "review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.product_id) AS rating",
+			'discount' => ", (SELECT price FROM " . DB_PREFIX . "product_discount pd2 WHERE pd2.product_id = p.product_id AND pd2.customer_group_id = '" . $group . "' AND pd2.quantity = '1' AND ((pd2.date_start < NOW()) AND (pd2.date_end < '1000-01-01' OR pd2.date_end > NOW())) ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS discount",
+			'special' => ", (SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . $group . "' AND ((ps.date_start < NOW()) AND (ps.date_end < '1000-01-01' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special"
+		);
+
+		$head = 'SELECT p.product_id' . implode('', $columns);
+		if (strpos($sql, $head) !== 0) {
+			return $sql; // Modified by a third-party extension: keep it untouched.
+		}
+
+		$tail = substr($sql, strlen($head));
+		$keep = '';
+		foreach ($columns as $alias => $expression) {
+			if (preg_match('/\b' . $alias . '\b/', $tail)) {
+				$keep .= $expression;
+			}
+		}
+
+		return 'SELECT p.product_id' . $keep . $tail;
 	}
 
 	public function getProductSpecials($data = array()) {
@@ -888,15 +919,24 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function checkProductCategory($product_id, $category_ids) {
-		
 		$implode = array();
 
-		foreach ($category_ids as $category_id) {
-			$implode[] = (int)$category_id;
+		foreach ((array)$category_ids as $category_id) {
+			if ((int)$category_id > 0) {
+				$implode[(int)$category_id] = (int)$category_id;
+			}
 		}
-		
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id IN(" . implode(',', $implode) . ")");
-  	    return $query->row;
+
+		if (!$implode) {
+			return array();
+		}
+
+		// Category listings include products from subcategories (filter_sub_category),
+		// so a product linked as path=20 may belong only to a child of category 20.
+		// Accept direct membership and membership in any descendant of the path.
+		$query = $this->db->query("SELECT p2c.product_id FROM " . DB_PREFIX . "product_to_category p2c LEFT JOIN " . DB_PREFIX . "category_path cp ON (cp.category_id = p2c.category_id) WHERE p2c.product_id = '" . (int)$product_id . "' AND (p2c.category_id IN (" . implode(',', $implode) . ") OR cp.path_id IN (" . implode(',', $implode) . ")) LIMIT 1");
+
+		return $query->row;
 	}
 	public function getStockNotificationSelection($product_id, array $options) {
 		$ids = array();

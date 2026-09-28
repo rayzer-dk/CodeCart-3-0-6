@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Мои персональные данные';
 $_['text_home'] = 'Главная';
 $_['text_account'] = 'Учётная запись';

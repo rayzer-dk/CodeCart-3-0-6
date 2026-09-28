@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Ядро / Совместимость';
 $_['text_home'] = 'Главная';
 $_['text_runtime'] = 'Среда';
@@ -67,8 +68,16 @@ $_['button_revoke'] = 'Отозвать';
 $_['error_permission'] = 'Недостаточно прав.';
 $_['error_gdpr_disabled'] = 'GDPR Manager выключен.';
 $_['error_action'] = 'Неизвестное действие.';
-
 $_['button_cookie_settings'] = 'Настроить cookies';
+$_['column_details'] = 'Пояснение';
+$_['column_severity'] = 'Уровень';
+$_['text_info'] = 'Информация';
+$_['text_warning'] = 'Внимание';
+$_['text_error'] = 'Ошибка';
+$_['text_external'] = 'Стороннее/пользовательское';
+$_['text_core'] = 'Ядро';
+$_['text_schema_external_help'] = 'Дополнительные таблицы, колонки и индексы сторонних модулей показываются только информационно и никогда не удаляются автоматически.';
+$_['text_preflight_help'] = 'Проверка выполняется в реальном WEB/FPM-профиле этого домена. Публичный phpinfo.php для постоянной диагностики не нужен.';
 $_['entry_login_protection'] = 'Защита входа администратора';
 $_['entry_login_max_attempts'] = 'Неудачные попытки на логин/IP';
 $_['entry_login_window'] = 'Окно попыток, минут';
@@ -95,12 +104,10 @@ $_['button_totp_enable'] = 'Включить TOTP';
 $_['button_totp_disable'] = 'Выключить TOTP';
 $_['button_copy'] = 'Копировать';
 $_['error_totp_prepare'] = 'Сначала начните настройку TOTP.';
-
 $_['entry_nosniff'] = 'Защита от MIME sniffing';
 $_['entry_referrer_policy'] = 'Referrer-Policy';
 $_['entry_csp_policy'] = 'Политика CSP Report-Only';
 $_['text_csp_report_only_help'] = 'Report-Only фиксирует нарушения политики, но не блокирует legacy inline-скрипты. Принудительный CSP включайте только после проверки отчётов.';
-
 $_['text_about'] = 'О системе';
 $_['text_about_overview'] = 'Обзор';
 $_['text_about_requirements'] = 'Требования сервера';
@@ -137,26 +144,34 @@ $_['text_about_server_help'] = 'Preflight проверяет реальный с
 $_['text_about_modern_title'] = 'Modern Extensions';
 $_['text_about_modern_value'] = 'Services · Queue · API';
 $_['text_about_modern_help'] = 'Фундамент для новых модулей без разрушения OpenCart 3 compatibility layer.';
-$_['about_fixed_items'] = array('PHP 8.1–8.5: устранены критические несовместимости ядра и deprecated-вызовы.','Усилены MySQLi/PDO, сессии, File Manager, OCMOD, SMTP/cron и языковые SEO URL.','Исправлены дубли URL, page=1, canonical, sitemap/blog и проблемы с GD/FPM.','Обновление не удаляет сторонние платежи, CRM/1С, таблицы или модули.');
-$_['about_improved_items'] = array('InnoDB + utf8mb4 для новой установки; Schema Registry для безопасного контроля обновлений.','WebP/AVIF, пакетная загрузка изображений и нормализация имён файлов.','Redis/APCu/Memcached/File cache, Scheduler, Queue, Preflight и System Notification Center.','Современнее админка и default theme без замены Bootstrap 3/FA4 для Legacy-модулей.');
-$_['about_security_items'] = array('password_hash/password_verify, защищённые сессии, rate limiting и аудит входов.','TOTP MFA, проверка неизвестных устройств, GDPR и Cookie Consent.','Безопаснее установка ZIP-расширений, проверка DOM до OCMOD refresh, контроль File Manager.','Security Headers Manager: nosniff, Referrer-Policy, опциональный HSTS и CSP Report-Only.');
-$_['about_future_items'] = array('Legacy Core сохраняет MVC-L, Registry, Loader, старые routes, OCMOD, Events, jQuery, Bootstrap 3 и FA4.','Modern Core добавляет PSR-4, Services, Repositories, Manifest, Migrations, Queue, Scheduler, Assets, API и Webhooks.','Extension Points позволяют новым модулям расширять систему без XML-патчей контроллеров и Twig.','Это позволяет модернизировать систему постепенно без разрушения экосистемы OpenCart 3.');
-
-$_['column_details'] = 'Пояснение';
-$_['column_severity'] = 'Уровень';
-$_['text_core'] = 'Ядро';
-$_['text_error'] = 'Ошибка';
-$_['text_external'] = 'Стороннее/пользовательское';
-$_['text_info'] = 'Информация';
-$_['text_preflight_help'] = 'Проверка выполняется в реальном WEB/FPM-профиле этого домена. Публичный phpinfo.php для постоянной диагностики не нужен.';
-$_['text_schema_external_help'] = 'Дополнительные таблицы, колонки и индексы сторонних модулей показываются только информационно и никогда не удаляются автоматически.';
-$_['text_warning'] = 'Внимание';
+$_['about_fixed_items'] = array (
+  0 => 'PHP 8.1–8.5: устранены критические несовместимости ядра и deprecated-вызовы.',
+  1 => 'Усилены MySQLi/PDO, сессии, File Manager, OCMOD, SMTP/cron и языковые SEO URL.',
+  2 => 'Исправлены дубли URL, page=1, canonical, sitemap/blog и проблемы с GD/FPM.',
+  3 => 'Обновление не удаляет сторонние платежи, CRM/1С, таблицы или модули.',
+);
+$_['about_improved_items'] = array (
+  0 => 'InnoDB + utf8mb4 для новой установки; Schema Registry для безопасного контроля обновлений.',
+  1 => 'WebP/AVIF, пакетная загрузка изображений и нормализация имён файлов.',
+  2 => 'Redis/APCu/Memcached/File cache, Scheduler, Queue, Preflight и System Notification Center.',
+  3 => 'Современнее админка и default theme без замены Bootstrap 3/FA4 для Legacy-модулей.',
+);
+$_['about_security_items'] = array (
+  0 => 'password_hash/password_verify, защищённые сессии, rate limiting и аудит входов.',
+  1 => 'TOTP MFA, проверка неизвестных устройств, GDPR и Cookie Consent.',
+  2 => 'Безопаснее установка ZIP-расширений, проверка DOM до OCMOD refresh, контроль File Manager.',
+  3 => 'Security Headers Manager: nosniff, Referrer-Policy, опциональный HSTS и CSP Report-Only.',
+);
+$_['about_future_items'] = array (
+  0 => 'Legacy Core сохраняет MVC-L, Registry, Loader, старые routes, OCMOD, Events, jQuery, Bootstrap 3 и FA4.',
+  1 => 'Modern Core добавляет PSR-4, Services, Repositories, Manifest, Migrations, Queue, Scheduler, Assets, API и Webhooks.',
+  2 => 'Extension Points позволяют новым модулям расширять систему без XML-патчей контроллеров и Twig.',
+  3 => 'Это позволяет модернизировать систему постепенно без разрушения экосистемы OpenCart 3.',
+);
 $_['text_icons'] = 'Иконки';
 $_['text_icon_search'] = 'Поиск по названию иконки';
 $_['text_icon_help'] = 'Каталог Font Awesome 6.7.2 + FA4 compatibility и CodeCart PRO aliases. Нажмите на иконку, чтобы скопировать её CSS-класс.';
-
 $_['text_modern_social_icons'] = 'Современные социальные иконки';
-
 $_['diag_loaded'] = 'загружено';
 $_['diag_missing'] = 'отсутствует';
 $_['diag_supported'] = 'поддерживается';
@@ -228,8 +243,6 @@ $_['schema_msg_missing_unique_index'] = 'Уникальный индекс от�
 $_['schema_msg_external_table'] = 'Дополнительная таблица стороннего модуля или пользователя; только информация';
 $_['schema_msg_external_column'] = 'Дополнительное поле стороннего модуля или пользователя; только информация';
 $_['schema_msg_external_index'] = 'Дополнительный индекс стороннего модуля или пользователя; только информация';
-
-// RC47 Schema Registry guidance and explicit safe repair
 $_['button_schema_safe_fix'] = 'Исправить безопасные проблемы';
 $_['text_schema_safe_fix_help'] = 'В таблице теперь указано, что означает каждая проблема и что делать. Кнопка исправляет только engine/кодировку и отсутствующие неуникальные индексы. Отсутствующие таблицы, поля, изменение типов и уникальные индексы оставлены ручными, чтобы не повредить данные и модули.';
 $_['text_schema_backup_warning'] = 'Перед любым исправлением схемы сделайте полный backup базы данных и файлов сайта. ALTER TABLE на больших таблицах может временно блокировать запись, поэтому выполняйте его при низкой нагрузке.';
@@ -255,7 +268,6 @@ $_['schema_meaning_missing_index'] = 'Отсутствует эталонный 
 $_['schema_action_missing_index'] = 'Безопасное исправление добавляет только неуникальные индексы. Уникальные исправляются вручную после проверки дублей.';
 $_['schema_meaning_external'] = 'Это дополнительная таблица, поле или индекс стороннего модуля/доработки. Ошибкой CodeCart PRO это не является.';
 $_['schema_action_external'] = 'Ничего делать не нужно. CodeCart PRO не удаляет и не изменяет сторонние объекты схемы.';
-
 $_['text_icon_all'] = 'Все';
 $_['text_icon_social'] = 'Соцсети';
 $_['text_icon_commerce'] = 'Магазин';
@@ -269,17 +281,13 @@ $_['text_icon_development'] = 'Разработка';
 $_['text_icon_other'] = 'Другие';
 $_['text_icon_copied'] = 'Скопировано';
 $_['text_icon_usage'] = 'Скопированный класс можно использовать в Twig/HTML, например <i class="fa-solid fa-cart-shopping"></i>. Для брендов используется стандартный синтаксис Font Awesome 6, например <i class="fa-brands fa-x-twitter"></i>.';
-// CodeCart PRO RC61 retention controls
 $_['entry_gdpr_retention'] = 'Хранение истории GDPR, дней';
 $_['text_gdpr_retention_help'] = 'Автоматически удаляются только старые обработанные или отменённые запросы. Активные pending/confirmed не удаляются.';
 $_['text_retention_auto'] = 'Автоматическая очистка, дней';
 $_['button_cleanup_old'] = 'Очистить старые';
 $_['text_cleanup_done'] = 'Удалено старых записей: %d';
 $_['text_cleanup_confirm'] = 'Очистить записи старше установленного срока хранения?';
-
 $_['text_totp_account'] = 'Учётная запись';
-
-// CodeCart PRO RC67 contextual field guidance
 $_['help_login_max_attempts'] = 'Сколько неудачных попыток разрешить до временной блокировки. Рекомендуется 5–7; меньше может мешать администратору, больше ослабляет защиту.';
 $_['help_login_window'] = 'Период, в котором считаются неудачные попытки. Рекомендуется 15 минут.';
 $_['help_totp'] = 'Дополнительный одноразовый код из Authenticator. Рекомендуется для всех администраторов с доступом к настройкам, заказам или модулям.';
@@ -292,7 +300,6 @@ $_['help_csp_policy'] = 'Политика Content-Security-Policy в режим�
 $_['help_gdpr'] = 'Управляет запросами на экспорт/анонимизацию персональных данных. Заказы и бухгалтерские записи автоматически не удаляются.';
 $_['help_gdpr_retention'] = 'Сколько дней хранить завершённые/отменённые GDPR-запросы. Рекомендуется 365; активные запросы не очищаются.';
 $_['help_cookie'] = 'Статус Cookie Consent и переход к его отдельным настройкам. Необязательные cookies должны запускаться только после согласия.';
-
 $_['text_icon_scanner'] = 'Сканер совместимости иконок';
 $_['text_icon_scanner_help'] = 'Проверяет реальные файлы витрины и скомпилированный catalog OCMOD. Для каждой иконки вне Core показывает CSS-класс, файл и строку. AUTO в таком случае безопасно переключается на Full Compatibility.';
 $_['text_icon_mode_requested'] = 'Настроенный режим';
@@ -321,23 +328,20 @@ $_['text_icon_scan_error'] = 'Сканер не смог завершить пр
 $_['text_icon_manual_build_help'] = 'Ручные добавления в Core задаются при релизной сборке в system/config/codecart_fontawesome_core_manifest.json. Добавьте имя без fa- в manual_extra_icons. Ошибочные, неизвестные и не входящие в Free имена пропускаются с предупреждением и не останавливают всю сборку. На production шрифты не перекомпилируются.';
 $_['button_icon_rescan'] = 'Проверить иконки';
 $_['text_icon_scan_complete'] = 'Проверка иконок завершена: файлов %d, иконок вне Core %d.';
-
 $_['text_icon_core_package'] = 'Core / Минимальный';
 $_['text_icon_full_package'] = 'Полный Free';
 $_['text_icon_core_package_help'] = 'Core — лёгкий минимальный набор, который реально загружается на витрине в режиме Core/AUTO. AUTO переключается на Full, если установленному расширению нужна иконка вне Core.';
 $_['text_icon_full_package_help'] = 'Полный каталог Font Awesome Free 6.7.2. Просмотр полного каталога не заставляет витрину загружать весь пакет — это справочник и копирование классов.';
 $_['text_icon_full_count'] = 'Иконок в полном Free';
 $_['text_icon_styles'] = 'Стили';
-
 $_['entry_icon_extras'] = 'Дополнительные иконки Core';
 $_['help_icon_extras'] = 'Скопируйте классы иконок из полного Free ниже и вставьте через пробел или запятую. Сохраните набор или добавьте все доступные иконки, найденные сканером. Загружаются только необходимые небольшие файлы шрифтов. Неизвестные названия пропускаются. Чтобы убрать иконку из набора, удалите её название и сохраните.';
 $_['button_icon_add_found'] = 'Добавить найденные иконки';
 $_['button_icon_save_extras'] = 'Сохранить набор иконок';
 $_['text_icon_extras_saved'] = 'Дополнительных иконок сохранено: %d. Неизвестных названий пропущено: %d. Встроенные иконки Core уже доступны.';
 $_['error_icon_extras'] = 'Не удалось сохранить набор иконок. Проверьте ввод и наличие всех файлов сборки.';
-
 $_['button_phpinfo'] = 'PHP Info';
-
+$_['button_phpinfo_download'] = 'Скачать PHP Info';
 $_['text_icon_loading'] = 'Загрузка полного каталога иконок…';
 $_['text_icon_load_error'] = 'Не удалось загрузить полный каталог иконок.';
 $_['text_architecture'] = 'Архитектура';
@@ -359,8 +363,6 @@ $_['text_opt_in'] = 'По выбору';
 $_['text_read_only'] = 'Только чтение каталога; стандартный API OpenCart и checkout не изменяются.';
 $_['entry_api_v1_status'] = 'REST API v1';
 $_['button_save_architecture'] = 'Сохранить настройки архитектуры';
-
-// Storefront performance
 $_['text_performance'] = 'Производительность';
 $_['text_performance_help'] = 'Безопасные настройки оптимизации CSS и JavaScript для витрины и админки.';
 $_['entry_storefront_minify_css'] = 'Использовать минифицированные CSS витрины, если доступны';
@@ -373,11 +375,70 @@ $_['help_admin_minify_css'] = 'Использовать локальный *.min
 $_['help_admin_minify_js'] = 'Использовать локальный *.min.js в админке только когда рядом с исходным JavaScript существует актуальная минифицированная версия. Порядок скриптов не меняется.';
 $_['text_safe_minify_note'] = 'Безопасный режим: система не склеивает файлы и не выполняет рискованную runtime-минификацию стороннего кода. Если проверенной .min-версии нет, автоматически используется исходный файл.';
 $_['button_save_performance'] = 'Сохранить производительность';
-
 $_['text_minify_diagnostics'] = 'Диагностика min-ресурсов';
-
 $_['text_minify_available'] = 'Доступно актуальных min-файлов';
-
 $_['text_minify_stale'] = 'Устаревших min-файлов';
-
 $_['text_minify_active'] = 'Активно по текущим настройкам';
+$_['text_db_modernize'] = 'Модернизация таблиц БД (InnoDB + utf8mb4)';
+$_['text_db_modernize_help'] = 'Конвертирует все таблицы магазина, включая таблицы сторонних модулей, в InnoDB/utf8mb4 по одной таблице за запрос — подходит для хостинга без SSH. Таблицы от 256 MB пропускаются: для них используйте php cli.php db:migrate --backup-confirmed --large.';
+$_['text_db_modernize_ok'] = 'Все таблицы уже используют InnoDB и utf8mb4.';
+$_['text_db_modernize_running'] = 'Сконвертировано таблиц: %s, осталось: %s…';
+$_['text_db_modernize_done'] = 'Готово. Сконвертировано таблиц: %s, осталось: %s.';
+$_['text_db_modernize_large'] = 'большая — только CLI';
+$_['button_db_modernize'] = 'Модернизировать таблицы';
+$_['column_engine'] = 'Движок';
+$_['column_collation'] = 'Кодировка';
+$_['column_size'] = 'Размер';
+
+// Localized diagnostics and comparison table
+$_['diag_component_runtime_php'] = 'PHP';
+$_['diag_component_ext_xmlreader'] = 'XMLReader';
+$_['diag_component_runtime_opcache'] = 'OPcache';
+$_['diag_component_upload_store_limit'] = 'Лимит загрузки файлов магазина';
+$_['diag_component_upload_extension_limit'] = 'Лимит установщика расширений';
+$_['diag_component_security_display_errors'] = 'display_errors';
+$_['diag_component_http_https'] = 'HTTPS';
+$_['diag_component_path_storage_public'] = 'Доступность storage из веба';
+$_['diag_component_db_version'] = 'MySQL/MariaDB';
+$_['diag_component_db_strict_sql'] = 'Строгий режим SQL';
+$_['diag_component_db_modern'] = 'Движок / кодировка БД';
+$_['diag_component_db_schema_version'] = 'Версия схемы Core';
+$_['diag_component_db_migration_history'] = 'История миграций';
+$_['diag_component_db_connection'] = 'База данных';
+$_['diag_component_cron_health'] = 'Пульс cron';
+$_['diag_component_queue_failed'] = 'Ошибки очереди';
+$_['diag_component_mail_smtp'] = 'SMTP';
+$_['diag_component_mail_engine'] = 'Почтовый движок';
+$_['diag_component_disk_free'] = 'Свободное место на диске';
+$_['diag_msg_xlsx_stream'] = 'Большие XLSX импортируются в потоковом режиме XMLReader.';
+$_['diag_msg_xlsx_simplexml'] = 'Обычный импорт XLSX работает через SimpleXML, но очень большие книги могут потребовать значительно больше памяти.';
+$_['diag_optional_cache_backends'] = 'необязательные бэкенды кэша';
+$_['diag_storage_cache_logs'] = 'Storage / кэш / журналы';
+$_['cmp_content_editor'] = 'Редактор контента';
+$_['cmp_image_formats'] = 'Форматы изображений';
+$_['cmp_cache_backends'] = 'Бэкенды кэша';
+$_['cmp_scheduler_queue'] = 'Планировщик / очередь';
+$_['cmp_system_notifications'] = 'Системные уведомления';
+$_['cmp_spam_service'] = 'Центральный антиспам';
+$_['cmp_builtin'] = 'Встроено';
+$_['cmp_builtin_optin'] = 'Встроено, включается вручную после UPDATE';
+$_['cmp_totp'] = 'TOTP + доверенные устройства';
+$_['cmp_schema'] = 'Диагностика только для чтения + миграции';
+$_['cmp_modern'] = 'PSR-4 / сервисы / манифесты / точки расширения';
+$_['cmp_spam_scope'] = 'контакты / отзывы / регистрация / восстановление пароля / возвраты / GDPR';
+$_['cmp_form_specific'] = 'отдельно для каждой формы';
+$_['cmp_core_dashboard'] = 'Дашборд ядра';
+$_['cmp_legacy_assets'] = 'не используется дашбордом ядра; legacy-файлы сохранены';
+$_['cmp_slider'] = 'Слайдер CodeCart PRO; Swiper 3 как legacy';
+$_['cmp_jquery_legacy'] = '3.7.1 (legacy-ядро)';
+$_['cmp_bootstrap_legacy'] = '3.4.1 (legacy-ядро)';
+$_['cmp_scss_cli'] = '2.1.0, только вручную / CLI';
+$_['cmp_scss_runtime_oc'] = '2.1.0 во время работы';
+$_['cmp_scss_runtime_ocs'] = '2.0.1 во время работы';
+$_['cmp_seo'] = 'SeoPro + языковые префиксы + политика canonical/фильтров';
+$_['cmp_images'] = 'JPEG/PNG/WebP/AVIF + безопасный fallback';
+$_['cmp_cache'] = 'File / APCu / Memcached / Redis + fallback';
+$_['cmp_file'] = 'Файлы';
+$_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + совместимость с FA4';
+$_['cmp_summernote'] = 'Summernote 0.9.1 локально';
+$_['diag_msg_sql_compat'] = 'Совместимый с OpenCart режим SQL (стандарт для модулей OpenCart/ocStore). Строгий режим включается настройкой codecart_db_strict_mode = 1.';

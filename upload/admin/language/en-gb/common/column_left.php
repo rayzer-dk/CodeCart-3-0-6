@@ -89,3 +89,8 @@ $_['text_abandoned_cart'] = 'Abandoned carts';
 $_['text_auto_relation'] = 'Auto Relations';
 
 $_['text_stock_notify'] = 'Stock notifications';
+$_['text_blog_article'] = 'Blog articles';
+$_['text_blog_category'] = 'Blog categories';
+$_['text_blog_review'] = 'Blog reviews';
+$_['text_blog_setting'] = 'Blog settings';
+$_['text_blog'] = 'Blog';

@@ -54,3 +54,12 @@ $_['preflight_files_help'] = 'Matching names and replacement of Core files are e
 
 $_['text_repair_mode'] = 'Repair current build';
 $_['text_repair_help'] = 'Force a repair when reinstalling the same Build: resynchronise the bundled Composer/vendor to the active storage, clear template cache and invalidate the OCMOD build marker. Database migrations remain idempotent and are not reset.';
+
+// Administrator verification for UPDATE on an installed store
+$_['text_login_required'] = 'This store is already installed. Sign in with a store administrator account that can manage users or extensions to view the preflight and run UPDATE.';
+$_['entry_username'] = 'Administrator username';
+$_['entry_password'] = 'Password';
+$_['button_login'] = 'Sign in';
+$_['error_login'] = 'Invalid username or password, or the account has no administrator permissions.';
+$_['error_login_attempts'] = 'Too many failed attempts. Try again in 15 minutes.';
+$_['error_login_required'] = 'The installer session is not authorised or has expired. Reload the page and sign in again.';

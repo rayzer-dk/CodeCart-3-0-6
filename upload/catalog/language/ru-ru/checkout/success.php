@@ -1,5 +1,5 @@
 <?php
-// CodeCart PRO Russian checkout success language.
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Заказ оформлен';
 $_['heading_title_customer'] = 'Заказ №%s оформлен';
 $_['text_basket'] = 'Корзина';

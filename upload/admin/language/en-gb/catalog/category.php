@@ -111,3 +111,6 @@ $_['button_relation_suggest'] = 'Auto pick';
 $_['text_relation_button_help'] = 'Automatically picks suggestions into the standard manual fields. This is a form-filling helper, not an Auto Relation Layer write. Changes are applied only after the normal form save.';
 $_['text_relation_autofill_result'] = 'Auto pick added to the manual field: %a. Selected now: %t. Limit: %m. Click Save. Auto Relation Layer is generated separately through the background queue.';
 $_['text_relation_selected_count'] = 'Selected in this field: %t. Auto-selection limit: %m.';
+$_['js_purchase_presets_json'] = '{}';
+$_['error_meta_h1'] = 'HTML Tag H1 must be greater than 0 and less than 255 characters!';
+$_['text_separator'] = ' &gt; ';

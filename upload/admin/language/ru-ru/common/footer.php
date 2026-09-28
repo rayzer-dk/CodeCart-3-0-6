@@ -1,5 +1,6 @@
 <?php
-$_['text_footer'] = '<a href="https://codecartpro.com/" target="_blank" rel="noopener">CodeCart PRO</a> &copy; ' . date('Y') . '.';
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
+$_['text_footer'] = '<a href="https://codecartpro.com/" target="_blank" rel="noopener">CodeCart PRO</a> &copy; 2026.';
 $_['text_project_support'] = 'Поддержка проекта';
 $_['text_support'] = 'Поддержка';
 $_['text_report'] = 'Сообщить';
@@ -36,7 +37,9 @@ $_['project_link_support'] = 'Поддержка и обратная связь'
 $_['project_support_title'] = 'Ошибки, предложения и улучшения';
 $_['project_support_text'] = 'Присылайте сообщения об ошибках, замечания и идеи на support@codecartpro.com. Приоритет получают улучшения, полезные для системы в целом и многих магазинов, а не индивидуальные доработки под одного клиента.';
 $_['project_close'] = 'Закрыть';
-
 $_['project_crypto_title'] = 'Криптовалюта';
-
 $_['project_crypto_note'] = 'Кнопка «Перейти» открывает совместимый криптокошелёк через URI-схему. Если кошелёк не поддерживает такую ссылку, скопируйте адрес или используйте QR-код.';
+$_['text_report_subject'] = 'CodeCart PRO — сообщение';
+$_['text_report_body'] = 'Тип: ошибка / предложение / доработка
+Страница: 
+Описание: ';

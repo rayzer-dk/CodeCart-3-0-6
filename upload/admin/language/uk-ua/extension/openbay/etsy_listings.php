@@ -9,7 +9,7 @@ $_['text_etsy']                 = 'Etsy';
 $_['text_link_saved']           = 'Item has been linked';
 $_['text_activate']         	= 'Activate';
 $_['text_deactivate']         	= 'Deactivate';
-$_['text_add_link']         	= 'Додати ссылку';
+$_['text_add_link']         	= 'Додати посилання';
 $_['text_delete_link']         	= 'Delete link';
 $_['text_delete']         		= 'Delete listing';
 $_['text_status_stock']         = 'Stock not synced';
@@ -37,7 +37,7 @@ $_['column_action']				= 'Дія';
 // Entry
 $_['entry_limit']				= 'Page limit';
 $_['entry_status']				= 'Статус';
-$_['entry_keywords']			= 'Ключевые слова';
+$_['entry_keywords']			= 'Ключові слова';
 $_['entry_name']				= 'Назва товара';
 $_['entry_etsy_id']				= 'Etsy item ID';
 

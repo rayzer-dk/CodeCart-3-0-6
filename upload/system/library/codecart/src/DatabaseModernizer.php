@@ -67,7 +67,12 @@ class DatabaseModernizer {
         );
     }
 
-    public function migrate($includeLarge = false) {
+    /**
+     * @param bool $includeLarge convert tables >= 256 MB (CLI only by policy)
+     * @param int  $limit        0 = all tables; N = stop after N converted tables (web batches)
+     */
+    public function migrate($includeLarge = false, $limit = 0) {
+        $limit = max(0, (int)$limit);
         $lock = 'codecart_db_modernizer_' . substr(hash('sha256', DB_DATABASE . '|' . DB_PREFIX), 0, 32);
         $acquired = false;
         $result = array('changed' => array(), 'skipped' => array(), 'errors' => array());
@@ -126,6 +131,9 @@ class DatabaseModernizer {
                         $this->db->query("ALTER TABLE `" . $this->identifier($table) . "` " . implode(', ', $clauses));
                     }
                     $result['changed'][] = $table;
+                    if ($limit > 0 && count($result['changed']) >= $limit) {
+                        break;
+                    }
                 } catch (\Throwable $e) {
                     $result['errors'][] = array('table' => $table, 'error' => $e->getMessage());
                     if ($this->log) {

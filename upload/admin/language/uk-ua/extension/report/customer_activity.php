@@ -8,7 +8,7 @@ $_['text_list']           = 'Список активності покупців'
 $_['text_address_add']    = '<a href="customer_id=%d">%s</a> - добавлена нова адреса';
 $_['text_address_edit']   = '<a href="customer_id=%d">%s</a> - оновлена адреса';
 $_['text_address_delete'] = '<a href="customer_id=%d">%s</a> - видалена одна з адрес';
-$_['text_edit']           = '<a href="customer_id=%d">%s</a> - обновлена інформація покупця';
+$_['text_edit']           = 'Редагування: Звіт активності покупців';
 $_['text_forgotten']      = '<a href="customer_id=%d">%s</a> - запит нового пароля';
 $_['text_login']          = '<a href="customer_id=%d">%s</a> - виконаний вхід в обліковий запис';
 $_['text_password']       = '<a href="customer_id=%d">%s</a> - оновлений пароль';

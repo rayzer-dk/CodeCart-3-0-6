@@ -32,3 +32,4 @@ $_['ui_increase'] = 'Збільшити';
 $_['ui_decrease'] = 'Зменшити';
 $_['ui_upload'] = 'Завантажити';
 $_['ui_action'] = 'Дія';
+$_['text_logged'] = 'Ви увійшли як <a href="%s">%s</a> (<a href="%s">Вийти</a>)';

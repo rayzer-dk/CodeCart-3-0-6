@@ -64,3 +64,4 @@ $_['text_template_rules_info'] = 'Rules / notes';
 $_['text_template_shoes_eu'] = 'EU shoe sizes';
 $_['text_template_clothing_women_eu'] = 'EU women sizes';
 $_['text_template_clothing_men_eu'] = 'EU men sizes';
+$_['js_presets_json'] = '{}';

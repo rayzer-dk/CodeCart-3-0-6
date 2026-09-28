@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Google Login';
 $_['text_extension'] = 'Расширения';
 $_['text_success'] = 'Настройки Google Login сохранены.';
@@ -17,3 +18,4 @@ $_['help_auto_register'] = 'Если подтверждённого Google e-mai
 $_['help_checkout'] = 'По умолчанию выключено, чтобы не усложнять гостевое быстрое оформление.';
 $_['error_permission'] = 'У вас нет прав на изменение Google Login.';
 $_['error_credentials'] = 'Для включения нужны Google Client ID и Client Secret.';
+$_['button_show_secret'] = 'Показать / скрыть приватный ключ';

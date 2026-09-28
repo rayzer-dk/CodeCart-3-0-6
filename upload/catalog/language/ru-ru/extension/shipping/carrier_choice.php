@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['text_title'] = 'Перевозчик';
 $_['text_city'] = 'Населённый пункт';
 $_['text_city_placeholder'] = 'Начните вводить название города';

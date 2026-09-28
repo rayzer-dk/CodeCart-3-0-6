@@ -103,3 +103,5 @@ $_['text_log_compact_help'] = 'Combined OCMOD log. Results, skips and errors are
 
 $_['text_copy_log'] = 'Copy log';
 $_['text_copy_error'] = 'Copy errors';
+$_['error_name'] = 'Option Name must be between 1 and 128 characters!';
+$_['error_warning'] = 'Warning: Please check the form carefully for errors!';

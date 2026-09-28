@@ -64,3 +64,7 @@ $_['button_relation_suggest'] = 'Auto pick';
 $_['text_relation_button_help'] = 'Automatically picks suggestions into the standard manual fields. This is a form-filling helper, not an Auto Relation Layer write. Changes are applied only after the normal form save.';
 $_['text_relation_autofill_result'] = 'Auto pick added to the manual field: %a. Selected now: %t. Limit: %m. Click Save. Auto Relation Layer is generated separately through the background queue.';
 $_['text_relation_selected_count'] = 'Selected in this field: %t. Auto-selection limit: %m.';
+$_['error_unique'] = 'SEO URL must be unique!';
+$_['text_filter'] = 'Filter';
+$_['help_main_category'] = 'Select main category';
+$_['text_keyword'] = 'Do not use spaces, instead replace spaces with - and make sure the SEO URL is globally unique.';

@@ -79,6 +79,24 @@
           <div class="ccp-schema-actions">
             <a href="index.php?route=tool/codecart_core&user_token={{ user_token }}&tab=schema&schema=1" class="btn btn-primary"><i class="fa fa-search"></i> {{ button_scan }}</a>
           </div>
+          <div class="panel panel-default ccp-db-modernize" id="ccp-db-modernize">
+            <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-database"></i> {{ text_db_modernize }}</h3></div>
+            <div class="panel-body">
+              <p class="help-block">{{ text_db_modernize_help }}</p>
+              {% if db_legacy_tables %}
+              <div class="table-responsive"><table class="table table-bordered table-condensed">
+                <thead><tr><td>{{ column_table }}</td><td>{{ column_engine }}</td><td>{{ column_collation }}</td><td class="text-right">{{ column_size }}</td></tr></thead>
+                <tbody>{% for row in db_legacy_tables %}<tr data-table="{{ row.table|e }}"><td><code>{{ row.table }}</code>{% if row.large %} <span class="label label-warning">{{ text_db_modernize_large }}</span>{% endif %}</td><td>{{ row.engine }}</td><td>{{ row.collation }}</td><td class="text-right">{{ row.size }}</td></tr>{% endfor %}</tbody>
+              </table></div>
+              <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ text_schema_backup_warning }}</div>
+              <label class="checkbox-inline"><input type="checkbox" id="ccp-db-backup-confirm" value="1" /> {{ text_schema_backup_confirm }}</label>
+              <button type="button" class="btn btn-warning" id="ccp-db-modernize-run" data-url="{{ db_modernize_url|e('html_attr') }}"><i class="fa fa-cogs"></i> {{ button_db_modernize }}</button>
+              <div class="ccp-db-modernize-status help-block" aria-live="polite"></div>
+              {% else %}
+              <div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_db_modernize_ok }}</div>
+              {% endif %}
+            </div>
+          </div>
           {% if schema_result %}
           <div class="ccp-schema-head">
             <div><h4>{{ text_schema }} {{ schema_result.version }}</h4><p class="help-block">{{ text_schema_safe_fix_help }}</p></div>
@@ -309,6 +327,26 @@ $('#button-phpinfo').on('click', function(){
     $a.data('dir',dir);$a.find('i').removeClass('fa-sort fa-sort-asc fa-sort-desc').addClass(dir==='asc'?'fa-sort-asc':'fa-sort-desc');
     rows.sort(function(x,y){var a=$.trim($(x).children().eq(col).text()).toLowerCase(),b=$.trim($(y).children().eq(col).text()).toLowerCase();return (a<b?-1:a>b?1:0)*(dir==='asc'?1:-1);});
     $.each(rows,function(_,row){$body.append(row);});
+  });
+})(jQuery);
+</script>
+<script>
+(function($){
+  var texts={running:'{{ text_db_modernize_running|e('js') }}',done:'{{ text_db_modernize_done|e('js') }}'};
+  $(document).on('click','#ccp-db-modernize-run',function(){
+    var $btn=$(this),$status=$('#ccp-db-modernize .ccp-db-modernize-status'),url=$btn.data('url'),converted=0,failed=[];
+    if(!$('#ccp-db-backup-confirm').is(':checked')){$('#ccp-db-backup-confirm').closest('label').addClass('text-danger');return;}
+    $btn.prop('disabled',true);
+    var step=function(){
+      $.ajax({url:url,type:'post',dataType:'json',data:{backup_confirm:1}}).done(function(json){
+        if(json.error){$status.html($('<span class="text-danger">').text(json.error));$btn.prop('disabled',false);return;}
+        $.each(json.changed||[],function(_,t){converted++;$('#ccp-db-modernize tr[data-table="'+t+'"]').addClass('success');});
+        $.each(json.errors||[],function(_,e){failed.push(e.table+': '+e.error);});
+        $status.text(texts.running.replace('%s',converted).replace('%s',json.remaining));
+        if(json.done||json.remaining===0){$status.text(texts.done.replace('%s',converted).replace('%s',json.remaining));if(failed.length){$status.append($('<pre class="text-danger">').text(failed.join('\n')));}$btn.prop('disabled',false);}else{step();}
+      }).fail(function(xhr){$status.html($('<span class="text-danger">').text(xhr.status+' '+xhr.statusText));$btn.prop('disabled',false);});
+    };
+    step();
   });
 })(jQuery);
 </script>

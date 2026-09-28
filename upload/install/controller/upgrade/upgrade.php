@@ -4,6 +4,14 @@ class ControllerUpgradeUpgrade extends Controller {
         $this->load->language('upgrade/upgrade');
         $this->document->setTitle($this->language->get('heading_title'));
 
+        // An installed store must never expose UPDATE/Repair or its preflight
+        // diagnostics to anonymous visitors: /install/ is uploaded again with every
+        // update and is often left on the server. Require store administrator
+        // credentials before showing or running anything.
+        if (!$this->isAuthorized()) {
+            return $this->renderLogin();
+        }
+
         foreach (array(
             'heading_title','text_upgrade','text_server','text_steps','text_error','text_clear','text_admin','text_user','text_setting','text_store','text_backup',
             'text_preflight','text_preflight_help','text_component','text_current','text_status','text_ok','text_warning','text_blocker','text_backup_confirm',
@@ -27,9 +35,62 @@ class ControllerUpgradeUpgrade extends Controller {
         $this->response->setOutput($this->load->view('upgrade/upgrade', $data));
     }
 
+    public function login() {
+        $this->load->language('upgrade/upgrade');
+
+        if (!isset($this->request->server['REQUEST_METHOD']) || strtoupper((string)$this->request->server['REQUEST_METHOD']) !== 'POST') {
+            $this->response->redirect($this->url->link('upgrade/upgrade'));
+            return;
+        }
+
+        $expected = isset($this->session->data['codecart_upgrade_login_token']) ? (string)$this->session->data['codecart_upgrade_login_token'] : '';
+        $provided = isset($this->request->post['login_token']) ? (string)$this->request->post['login_token'] : '';
+        $attempts = isset($this->session->data['codecart_upgrade_login_attempts']) ? (int)$this->session->data['codecart_upgrade_login_attempts'] : 0;
+        $blockedUntil = isset($this->session->data['codecart_upgrade_login_blocked']) ? (int)$this->session->data['codecart_upgrade_login_blocked'] : 0;
+
+        if ($blockedUntil > time()) {
+            $this->session->data['codecart_upgrade_login_error'] = $this->language->get('error_login_attempts');
+        } elseif ($expected === '' || $provided === '' || !hash_equals($expected, $provided)) {
+            $this->session->data['codecart_upgrade_login_error'] = $this->language->get('error_login');
+        } else {
+            $username = isset($this->request->post['username']) ? trim((string)$this->request->post['username']) : '';
+            $password = isset($this->request->post['password']) ? (string)$this->request->post['password'] : '';
+            $userId = $this->verifyAdministrator($username, $password);
+
+            if ($userId > 0) {
+                if (function_exists('session_regenerate_id') && session_status() === PHP_SESSION_ACTIVE) {
+                    @session_regenerate_id(true);
+                }
+                $this->session->data['codecart_upgrade_user_id'] = $userId;
+                $this->session->data['codecart_upgrade_authorized_at'] = time();
+                unset($this->session->data['codecart_upgrade_login_attempts'], $this->session->data['codecart_upgrade_login_error'], $this->session->data['codecart_upgrade_login_blocked']);
+            } else {
+                usleep(random_int(300000, 800000));
+                $attempts++;
+                $this->session->data['codecart_upgrade_login_attempts'] = $attempts;
+                if ($attempts >= 5) {
+                    $this->session->data['codecart_upgrade_login_blocked'] = time() + 900;
+                    $this->session->data['codecart_upgrade_login_attempts'] = 0;
+                }
+                $this->session->data['codecart_upgrade_login_error'] = $this->language->get('error_login');
+                if ($this->log) {
+                    $this->log->write('Installer UPDATE: failed administrator verification from ' . (isset($this->request->server['REMOTE_ADDR']) ? (string)$this->request->server['REMOTE_ADDR'] : 'unknown') . '.');
+                }
+            }
+        }
+
+        unset($this->session->data['codecart_upgrade_login_token']);
+        $this->response->redirect($this->url->link('upgrade/upgrade'));
+    }
+
     public function next() {
         $this->load->language('upgrade/upgrade');
         $json = array();
+
+        if (!$this->isAuthorized()) {
+            $json['error'] = $this->language->get('error_login_required');
+            return $this->json($json);
+        }
         $step = isset($this->request->get['step']) ? (int)$this->request->get['step'] : 1;
         if ($step < 1) { $step = 1; }
         $repair = !empty($this->request->get['repair']);
@@ -333,6 +394,52 @@ class ControllerUpgradeUpgrade extends Controller {
         }
 
         return array('rows'=>$rows, 'blockers'=>$blockers, 'warnings'=>$warnings);
+    }
+
+    private function isAuthorized() {
+        $userId = isset($this->session->data['codecart_upgrade_user_id']) ? (int)$this->session->data['codecart_upgrade_user_id'] : 0;
+        $at = isset($this->session->data['codecart_upgrade_authorized_at']) ? (int)$this->session->data['codecart_upgrade_authorized_at'] : 0;
+        if ($userId <= 0 || $at <= 0 || (time() - $at) > 7200) {
+            return false;
+        }
+        $this->session->data['codecart_upgrade_authorized_at'] = time();
+        return true;
+    }
+
+    private function verifyAdministrator($username, $password) {
+        if ($username === '' || $password === '' || !$this->registry->has('db') || !defined('DB_PREFIX')) {
+            return 0;
+        }
+        try {
+            $query = $this->db->query("SELECT u.user_id, u.password, u.salt, ug.permission FROM `" . DB_PREFIX . "user` u LEFT JOIN `" . DB_PREFIX . "user_group` ug ON (ug.user_group_id = u.user_group_id) WHERE u.username = '" . $this->db->escape($username) . "' AND u.status = '1' LIMIT 1");
+        } catch (\Throwable $e) {
+            return 0;
+        }
+        if (!$query->num_rows || !codecart_password_verify($password, (string)$query->row['password'], isset($query->row['salt']) ? (string)$query->row['salt'] : '')) {
+            return 0;
+        }
+        // Only a store administrator who may manage extensions/users can update Core.
+        $permission = json_decode((string)$query->row['permission'], true);
+        $modify = is_array($permission) && isset($permission['modify']) && is_array($permission['modify']) ? $permission['modify'] : array();
+        if (!array_intersect(array('user/user_permission', 'marketplace/installer', 'tool/codecart_core'), $modify)) {
+            return 0;
+        }
+        return (int)$query->row['user_id'];
+    }
+
+    private function renderLogin() {
+        foreach (array('heading_title', 'text_upgrade', 'text_login_required', 'entry_username', 'entry_password', 'button_login') as $key) {
+            $data[$key] = $this->language->get($key);
+        }
+        $data['error_login'] = isset($this->session->data['codecart_upgrade_login_error']) ? (string)$this->session->data['codecart_upgrade_login_error'] : '';
+        unset($this->session->data['codecart_upgrade_login_error']);
+        $this->session->data['codecart_upgrade_login_token'] = bin2hex(random_bytes(16));
+        $data['login_token'] = $this->session->data['codecart_upgrade_login_token'];
+        $data['action'] = $this->url->link('upgrade/upgrade/login');
+        $data['header'] = $this->load->controller('common/header');
+        $data['footer'] = $this->load->controller('common/footer');
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $this->response->setOutput($this->load->view('upgrade/login', $data));
     }
 
     private function json(array $json) {

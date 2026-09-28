@@ -37,3 +37,4 @@ $_['text_refresh_modifications'] = 'Refresh modifications';
 $_['text_refresh_modifications_clean'] = 'Modifications cache is current.';
 $_['text_refresh_modifications_pending'] = 'Modifications changed: refresh OCMOD cache.';
 $_['text_refresh_modifications_issues'] = 'OCMOD cache was refreshed, but compatibility issues were found.';
+$_['text_logged'] = 'You are logged in as %s';

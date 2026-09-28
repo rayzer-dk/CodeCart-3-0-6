@@ -116,3 +116,11 @@ $_['error_3ds_system_unavailable']			= 'We could not process the transaction wit
 $_['error_3ds_system_bypassed'] 			= 'We could not process the transaction with this card. 3D Secure was skipped as authentication system did not require a challenge.';
 $_['error_payment']							= 'Please choose another payment method or <a href="%s" target="_blank">contact us</a>.';
 $_['error_timeout'] 	  					= 'Sorry, PayPal is currently busy. Please try again later!';
+$_['text_coupon'] = 'Coupon (%s)';
+$_['text_voucher'] = 'Gift Certificate';
+$_['text_reward'] = 'Reward Points';
+$_['error_coupon'] = 'Warning: Coupon is either invalid, expired or reached it\'s usage limit!';
+$_['error_voucher'] = 'Warning: Gift Voucher is either invalid or the balance has been used up!';
+$_['error_reward'] = 'Warning: Please enter the amount of reward points to use!';
+$_['error_points'] = 'Warning: You don\'t have %s reward points!';
+$_['error_maximum'] = 'Warning: The maximum number of points that can be applied is %s!';

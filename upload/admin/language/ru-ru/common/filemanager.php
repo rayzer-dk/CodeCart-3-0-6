@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Менеджер изображений';
 $_['text_uploaded'] = 'Файл загружен';
 $_['text_uploaded_renamed'] = 'Загружено изображений: %d; нормализовано имён файлов: %d. Кириллица и пробелы заменены на безопасные латинские имена.';
@@ -23,8 +24,5 @@ $_['text_webp_confirm_all'] = 'Преобразовать все JPG и PNG в i
 $_['text_webp_progress'] = 'Преобразование WebP: обработано %d из %d...';
 $_['error_webp_support'] = 'Преобразование WebP недоступно: в PHP GD не включена поддержка WebP.';
 $_['error_webp_select'] = 'Выберите хотя бы одно изображение JPG или PNG.';
-
 $_['button_select'] = 'Выбрать';
-
-// CodeCart PRO safe SVG
 $_['error_svg_unsafe'] = 'Небезопасное содержимое SVG заблокировано. SVG очищается и не может содержать скрипты, встроенный контент, CSS, обработчики событий или внешние URL.';

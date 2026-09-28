@@ -1,4 +1,4 @@
-CodeCart PRO 3.0.6.0 Build 1.8.3 — UniShop2 v3.6.6.0 compatibility
+CodeCart PRO 3.0.6.0 Build 1.8.4 — UniShop2 v3.6.6.0 compatibility
 
 Supported target
 - UniShop2 v3.6.6.0 on PHP 8.1–8.3 with a compatible ionCube Loader. UniShop2 itself does not declare PHP 8.4/8.5 support, even though CodeCart core supports PHP 8.1–8.5.

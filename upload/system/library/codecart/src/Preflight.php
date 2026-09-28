@@ -86,7 +86,8 @@ final class Preflight {
             $mode = $this->db->query('SELECT @@SESSION.sql_mode AS sql_mode');
             $sqlMode = $mode->num_rows ? strtoupper((string)$mode->row['sql_mode']) : '';
             $strict = strpos($sqlMode, 'STRICT_TRANS_TABLES') !== false || strpos($sqlMode, 'STRICT_ALL_TABLES') !== false;
-            $this->row($rows, 'db.strict_sql', 'Strict SQL mode', $strict ? 'active' : 'not active', $strict ? 'ok' : 'warning', $strict ? 'Core is running with a strict SQL mode.' : 'Compatibility SQL mode is active. Use strict SQL mode after the compatibility check reports no blockers.');
+            $strictRequested = (int)$this->config->get('codecart_db_strict_mode') === 1;
+            $this->row($rows, 'db.strict_sql', 'Strict SQL mode', $strict ? 'active' : 'not active', ($strict || !$strictRequested) ? 'ok' : 'warning', $strict ? 'Core is running with a strict SQL mode.' : ($strictRequested ? 'Compatibility SQL mode is active. Use strict SQL mode after the compatibility check reports no blockers.' : 'OpenCart-compatible SQL mode (default for OpenCart/ocStore modules).'));
 
             $bad = $this->db->query("SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA='" . $this->db->escape(DB_DATABASE) . "' AND (ENGINE<>'InnoDB' OR TABLE_COLLATION NOT LIKE 'utf8mb4%')");
             $count = (int)($bad->row['total'] ?? 0);

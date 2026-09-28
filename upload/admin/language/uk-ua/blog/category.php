@@ -50,3 +50,4 @@ $_['error_meta_title']       = 'Мета-тег Title має містити ві
 $_['error_meta_h1']	         = 'HTML-тег H1 має містити від 0 до 255 символів';
 $_['error_keyword']          = 'Вказаний SEO URL вже використовується';
 $_['button_generate_seo_url'] = 'Згенерувати SEO URL';
+$_['text_separator'] = ' &gt; ';

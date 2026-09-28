@@ -1,3 +1,30 @@
+# CodeCart 3.0.6 Build 1.8.4
+
+Security:
+- Installer 2.0 UPDATE on an already installed store now requires store administrator credentials (a user with modify permission for users, extensions or Core). Previously any visitor could open /install/, read preflight diagnostics and run UPDATE/"Repair current build", which invalidated the OCMOD build marker and disabled all modifications (UniShop2 storefront lost its CSS/JS) until an administrator refreshed Modifications.
+- Administration always sends X-Frame-Options: SAMEORIGIN and CSP frame-ancestors 'self' (opt-out: codecart_security_admin_frame_protection=0). Storefront framing settings are unchanged.
+- Blog category/article enable/disable and PayPal recurring enable/disable now require modify permission (PayPal also POST + user_token).
+
+Fixed:
+- Product pages opened from a parent category returned 404 when the product belongs only to a subcategory, although category listings include subcategory products. checkProductCategory() now accepts descendants of the path via category_path.
+- Product card rows (latest/bestseller/popular/special/featured modules, wishlist, recently viewed, related, CMS/blog products) again expose the full historical getProduct() contract (ean, isbn, mpn, date_available, manufacturer, weight, ...). UniShop2 and third-party OCMOD code no longer raise warnings and the "New" sticker works again.
+- ru-ru admin and storefront language packs were partial overlays: an overlay update replaced complete ocStore ru-ru files and Russian stores fell back to English (cart, checkout, account, product page, admin). Complete ru-ru packs are shipped now; new CodeCart strings are translated.
+- uk-ua: checkout step numbers are printf placeholders again (guest checkout showed "Step 6" where step 4 was expected); password-reset mail showed a literal "%s"; return activity lost its link; untranslated PayPal Smart Button strings.
+- The default/codecart themes served the unminified stylesheet in the normal production state (developer_theme=1 is OpenCart's default) and the shipped codecart stylesheet.min.css was stale. The minified file is now built from the source with a SHA-256 marker and served unless a merchant edited stylesheet.css.
+- robots.txt advertised /sitemap.xml on a clean install while the sitemap feed was not enabled (404 for crawlers). Web and CLI installers now enable the Google Sitemap feed.
+- Text logo is an H1 only on the home page (no duplicate H1 on product/category pages); compact text logo on mobile.
+
+Performance:
+- Category/manufacturer/search listing query no longer evaluates rating/discount/special correlated subqueries for every matching row unless the active sort uses them (20k products: category page 0.55 s -> 0.25 s; manufacturer 0.44 s -> 0.16 s). Third-party modified SQL is left untouched.
+- Theme Editor overrides and design/translation overrides are resolved with one query per request instead of one query per template/language file (home page 100 -> 57 SQL queries).
+- Traffic heartbeat no longer runs scheduled work (currency providers, mail queue) inside the visitor request on mod_php/CGI: it uses fastcgi_finish_request/litespeed_finish_request or a detached loopback cron request, with automatic fallback when loopback is blocked.
+
+Improved:
+- Core / Compatibility > Database Schema: "Modernize tables" converts remaining MyISAM/non-utf8mb4 tables (including third-party tables not covered by Schema Registry) one table per request, for hosting without SSH. The modernization flag is refreshed after safe schema repair.
+- Release gates: language pack completeness/placeholder gate, minified stylesheet freshness gate; heavy runtime/upgrade CI gates now run on source changes and the 3.0.5 baseline gate tests the current source instead of a pinned 1.7.8 artifact.
+
+Upgrade note: after uploading 1.8.4 and running UPDATE (administrator sign-in required), refresh Extensions > Modifications.
+
 # CodeCart 3.0.6.0 Build 1.8.3
 
 Fixed:

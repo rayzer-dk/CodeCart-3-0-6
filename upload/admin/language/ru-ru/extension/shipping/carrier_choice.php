@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Выбор перевозчика';
 $_['text_extension'] = 'Расширения';
 $_['text_success'] = 'Настройки способа доставки сохранены.';

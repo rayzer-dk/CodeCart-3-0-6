@@ -18,3 +18,4 @@ $_['text_message']  = '<p>There was a problem processing your payment and the or
 
 <p>If the problem persists please <a href="%s">contact us</a> with the details of the order you are trying to place.</p>
 ';
+$_['text_order_number'] = 'Order number';

@@ -9,3 +9,4 @@ $_['text_order_status'] = 'Статус замовлення:';
 $_['text_product']      = 'Товари';
 $_['text_total']        = 'Разом';
 $_['text_comment']      = 'Коментар до замовлення:';
+$_['text_model'] = 'Модель';

@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Карусель';
 $_['text_extension'] = 'Расширения';
 $_['text_success'] = 'Настройки карусели изменены.';
@@ -24,9 +25,8 @@ $_['entry_show_arrows'] = 'Стрелки навигации';
 $_['entry_show_dots'] = 'Точки навигации';
 $_['entry_loop'] = 'Зацикливание';
 $_['help_autoplay_delay'] = 'Допустимый диапазон 1500–20000 мс. Автопрокрутка приостанавливается при наведении, фокусе и в неактивной вкладке.';
-$_['text_module'] = 'Модули';
-
 $_['entry_carousel_step'] = 'Шаг перелистывания';
 $_['text_step_item'] = 'Один элемент';
 $_['text_step_page'] = 'Одна страница';
 $_['help_carousel_step'] = 'Выберите, перемещают ли стрелки, свайп и автопрокрутка один элемент или всю видимую страницу.';
+$_['text_module'] = 'Модули';

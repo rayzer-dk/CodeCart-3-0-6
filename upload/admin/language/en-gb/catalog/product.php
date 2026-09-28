@@ -238,3 +238,9 @@ $_['text_none_category'] = ' --- No category --- ';
 $_['text_none_manufacturer'] = ' --- No manufacturer --- ';
 
 $_['text_stock_notify_waiting'] = 'Waiting for stock';
+$_['text_enabled_short'] = 'On';
+$_['text_disabled_short'] = 'Off';
+$_['js_purchase_presets_json'] = '{}';
+$_['error_meta_h1'] = 'HTML Tag H1 must be greater than 0 and less than 255 characters!';
+$_['text_all'] = 'All';
+$_['text_action'] = 'Action';

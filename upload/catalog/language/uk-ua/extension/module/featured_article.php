@@ -9,3 +9,4 @@ $_['button_more']   = 'читати повністю';
 $_['text_tax']      = 'Без податку:';
 $_['text_tax_amount'] = 'ПДВ:';
 $_['text_tax_included'] = 'З ПДВ:';
+$_['text_reviews'] = 'Відгуків: %s';

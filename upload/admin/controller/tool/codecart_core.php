@@ -88,6 +88,9 @@ class ControllerToolCodeCartCore extends Controller {
         try { $data['security_audit'] = (new \CodeCart\Core\SecurityAudit($this->registry))->recent(50); } catch (\Throwable $e) { $data['security_audit'] = array(); $data['security_audit_error'] = $e->getMessage(); }
 
         try { $data['runtime'] = $this->localizeDiagnosticRows((new \CodeCart\Core\Preflight($this->registry))->rows()); } catch (\Throwable $e) { $data['runtime'] = array(array('component'=>'CodeCart Core','value'=>'partial','state'=>'warning','message'=>$e->getMessage())); }
+        $data['db_legacy_tables'] = $this->legacyDatabaseTables();
+        $data['db_modernize_url'] = str_replace('&amp;', '&', $this->url->link('tool/codecart_core/dbModernize', 'user_token=' . $this->session->data['user_token'], true));
+        foreach (array('text_db_modernize','text_db_modernize_help','text_db_modernize_ok','text_db_modernize_running','text_db_modernize_done','text_db_modernize_large','button_db_modernize','column_engine','column_collation','column_size') as $dbKey) { $data[$dbKey] = $this->language->get($dbKey); }
         $data['schema_result'] = array();
         if (!empty($this->request->get['schema'])) {
             $data['schema_result'] = $this->localizeSchemaResult((new \CodeCart\Core\SchemaRegistry($this->registry))->diff(300));
@@ -108,7 +111,7 @@ class ControllerToolCodeCartCore extends Controller {
             if (!is_array($data[$listKey])) { $data[$listKey] = array(); }
         }
         $data['server_requirements'] = $this->localizeServerRequirements($this->serverRequirements());
-        $data['comparison_rows'] = $this->comparisonRows();
+        $data['comparison_rows'] = $this->localizeComparisonRows($this->comparisonRows());
         $data['icon_catalog'] = $this->iconCatalog();
         $data['icon_full_count'] = $this->iconFullCount();
         $data['icon_full_catalog'] = array();
@@ -371,6 +374,7 @@ class ControllerToolCodeCartCore extends Controller {
                 throw new \RuntimeException($this->language->get('text_schema_backup_warning'));
             }
             $repair = (new \CodeCart\Core\SchemaRegistry($this->registry))->repairSafe(300);
+            $this->refreshDatabaseModernizationFlag();
             $this->session->data['success'] = sprintf($this->language->get('text_schema_fix_result'), (int)$repair['fixed'], (int)$repair['skipped']);
             if (!empty($repair['errors'])) {
                 $this->session->data['error_warning'] = sprintf($this->language->get('text_schema_fix_errors'), (int)$repair['errors']);
@@ -391,6 +395,69 @@ class ControllerToolCodeCartCore extends Controller {
 
     private function currentUsername() {
         try { $q=$this->db->query("SELECT username FROM `".DB_PREFIX."user` WHERE user_id='".(int)$this->user->getId()."' LIMIT 1"); return $q->num_rows?(string)$q->row['username']:''; } catch (\Throwable $e) { return ''; }
+    }
+
+    public function dbModernize() {
+        $this->ensureCodeCartCoreAutoload();
+        $this->load->language('tool/codecart_core');
+        $json = array();
+
+        $provided = isset($this->request->get['user_token']) ? (string)$this->request->get['user_token'] : '';
+        $expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+
+        if (!isset($this->request->server['REQUEST_METHOD']) || strtoupper((string)$this->request->server['REQUEST_METHOD']) !== 'POST') {
+            $json['error'] = 'Invalid request method.';
+        } elseif ($provided === '' || $expected === '' || !hash_equals($expected, $provided)) {
+            $json['error'] = 'Invalid security token.';
+        } elseif (!$this->user->hasPermission('modify', 'tool/codecart_core')) {
+            $json['error'] = $this->language->get('error_permission');
+        } elseif (empty($this->request->post['backup_confirm'])) {
+            $json['error'] = $this->language->get('text_schema_backup_warning');
+        }
+
+        if (!$json) {
+            try {
+                @set_time_limit(300);
+                // One table per request keeps every web request short on shared hosting.
+                // Tables >= 256 MB are skipped here and left for php cli.php db:migrate --large.
+                $result = (new \CodeCart\Core\DatabaseModernizer($this->registry))->migrate(false, 1);
+                $json['changed'] = $result['changed'];
+                $json['errors'] = $result['errors'];
+                $json['skipped'] = count($result['skipped']);
+                $json['remaining'] = count($this->legacyDatabaseTables());
+                $json['done'] = empty($result['changed']);
+            } catch (\Throwable $e) {
+                $json['error'] = $e->getMessage();
+            }
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    private function legacyDatabaseTables() {
+        try {
+            $query = $this->db->query("SELECT TABLE_NAME, ENGINE, TABLE_COLLATION, (DATA_LENGTH + INDEX_LENGTH) AS bytes FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' AND LEFT(TABLE_NAME, " . (int)strlen(DB_PREFIX) . ") = '" . $this->db->escape(DB_PREFIX) . "' AND (UPPER(ENGINE) <> 'INNODB' OR (TABLE_COLLATION IS NOT NULL AND TABLE_COLLATION NOT LIKE 'utf8mb4\\_%')) ORDER BY TABLE_NAME ASC");
+        } catch (\Throwable $e) {
+            return array();
+        }
+        $rows = array();
+        foreach ($query->rows as $row) {
+            $rows[] = array(
+                'table' => (string)$row['TABLE_NAME'],
+                'engine' => (string)$row['ENGINE'],
+                'collation' => (string)$row['TABLE_COLLATION'],
+                'size' => round(((int)$row['bytes']) / 1048576, 2) . ' MB',
+                'large' => (int)$row['bytes'] >= 268435456
+            );
+        }
+        return $rows;
+    }
+
+    private function refreshDatabaseModernizationFlag() {
+        $required = $this->legacyDatabaseTables() ? 1 : 0;
+        $this->upsertSetting('codecart_core', 'codecart_db_modernization_required', $required);
+        $this->config->set('codecart_db_modernization_required', $required);
     }
 
     public function iconsFull() {
@@ -483,13 +550,18 @@ class ControllerToolCodeCartCore extends Controller {
             'loaded'=>'diag_loaded','missing'=>'diag_missing','supported'=>'diag_supported','not supported'=>'diag_not_supported','enabled'=>'diag_enabled','disabled'=>'diag_disabled','recommended'=>'diag_recommended','optional'=>'diag_optional','active'=>'diag_active','not active'=>'diag_not_active','writable'=>'diag_writable','inside document root'=>'diag_inside_root','outside document root'=>'diag_outside_root','unknown'=>'diag_unknown','never'=>'diag_never','not configured'=>'diag_not_configured','check failed'=>'diag_check_failed','On'=>'diag_enabled','Off'=>'diag_disabled'
         );
         $messageMap = array(
-            'Supported: PHP 8.1–8.5 in the WEB/FPM profile.'=>'diag_msg_php','Required WEB/FPM extension.'=>'diag_msg_required_ext','Required image format.'=>'diag_msg_required_image','Recommended for native AVIF support.'=>'diag_msg_avif','Recommended for production.'=>'diag_msg_production','Current WEB/FPM value.'=>'diag_msg_current_web','Applied to customer/admin generic file uploads in addition to PHP limits.'=>'diag_msg_upload_limit','Compressed .ocmod.zip limit; extracted archives also have entry/path safety limits.'=>'diag_msg_extension_limit','Production should use Off with log_errors On.'=>'diag_msg_display_errors','Required for production checkout and secure cookies.'=>'diag_msg_https','Writable.'=>'diag_msg_writable','Directory must exist and be writable.'=>'diag_msg_not_writable','Prefer storage outside the public web root.'=>'diag_msg_storage','Core is running with a strict SQL mode.'=>'diag_msg_strict_ok','Compatibility SQL mode is active. Use strict SQL mode after the compatibility check reports no blockers.'=>'diag_msg_strict_warn','Use Database Modernizer only after a full backup.'=>'diag_msg_db_modernize','Schema version matches this build.'=>'diag_msg_schema_ok','Core schema version differs from this build. Run the migration check.'=>'diag_msg_schema_warn','Latest recorded Core migration.'=>'diag_msg_migration_latest','No CodeCart PRO Core migration records are available yet.'=>'diag_msg_migration_none','Review Scheduler / Queue.'=>'diag_msg_queue','Configuration check only; delivery still requires a send-test.'=>'diag_msg_smtp','Current OpenCart mail engine.'=>'diag_msg_mail','Low disk space can break cache, image generation, logs and updates.'=>'diag_msg_disk'
+            'Supported: PHP 8.1–8.5 in the WEB/FPM profile.'=>'diag_msg_php','Required WEB/FPM extension.'=>'diag_msg_required_ext','Required image format.'=>'diag_msg_required_image','Recommended for native AVIF support.'=>'diag_msg_avif','Recommended for production.'=>'diag_msg_production','Current WEB/FPM value.'=>'diag_msg_current_web','Applied to customer/admin generic file uploads in addition to PHP limits.'=>'diag_msg_upload_limit','Compressed .ocmod.zip limit; extracted archives also have entry/path safety limits.'=>'diag_msg_extension_limit','Production should use Off with log_errors On.'=>'diag_msg_display_errors','Required for production checkout and secure cookies.'=>'diag_msg_https','Writable.'=>'diag_msg_writable','Directory must exist and be writable.'=>'diag_msg_not_writable','Prefer storage outside the public web root.'=>'diag_msg_storage','Core is running with a strict SQL mode.'=>'diag_msg_strict_ok','Compatibility SQL mode is active. Use strict SQL mode after the compatibility check reports no blockers.'=>'diag_msg_strict_warn','Use Database Modernizer only after a full backup.'=>'diag_msg_db_modernize','Schema version matches this build.'=>'diag_msg_schema_ok','Core schema version differs from this build. Run the migration check.'=>'diag_msg_schema_warn','Latest recorded Core migration.'=>'diag_msg_migration_latest','No CodeCart PRO Core migration records are available yet.'=>'diag_msg_migration_none','Review Scheduler / Queue.'=>'diag_msg_queue','Configuration check only; delivery still requires a send-test.'=>'diag_msg_smtp','Current OpenCart mail engine.'=>'diag_msg_mail','Low disk space can break cache, image generation, logs and updates.'=>'diag_msg_disk','OpenCart-compatible SQL mode (default for OpenCart/ocStore modules).'=>'diag_msg_sql_compat','Large XLSX imports use streaming XMLReader mode.'=>'diag_msg_xlsx_stream','Regular XLSX import remains available through SimpleXML, but very large workbooks can require significantly more memory.'=>'diag_msg_xlsx_simplexml'
         );
         foreach ($rows as &$row) {
             $value = isset($row['value']) ? (string)$row['value'] : '';
             if (isset($valueMap[$value])) { $row['value'] = $this->language->get($valueMap[$value]); }
             $message = isset($row['message']) ? (string)$row['message'] : '';
             if (isset($messageMap[$message])) { $row['message'] = $this->language->get($messageMap[$message]); }
+            if (!empty($row['id'])) {
+                $componentKey = 'diag_component_' . preg_replace('/[^a-z0-9]+/', '_', strtolower((string)$row['id']));
+                $componentText = $this->language->get($componentKey);
+                if ($componentText !== $componentKey) { $row['component'] = $componentText; }
+            }
             if (strpos($value, 'legacy tables: ') === 0) { $row['value'] = 'InnoDB / utf8mb4 · ' . substr($value, 15); }
         }
         unset($row);
@@ -497,10 +569,34 @@ class ControllerToolCodeCartCore extends Controller {
     }
 
     private function localizeServerRequirements(array $rows) {
-        $valueMap = array('loaded'=>'diag_loaded','missing'=>'diag_missing','supported'=>'diag_supported','optional'=>'diag_optional','enabled'=>'diag_enabled','recommended'=>'diag_recommended','active'=>'diag_active','check server'=>'diag_not_active','writable'=>'diag_writable','check permissions'=>'diag_missing','On'=>'diag_enabled','Off'=>'diag_disabled');
+        $valueMap = array('loaded'=>'diag_loaded','missing'=>'diag_missing','supported'=>'diag_supported','optional'=>'diag_optional','enabled'=>'diag_enabled','recommended'=>'diag_recommended','active'=>'diag_active','check server'=>'diag_not_active','writable'=>'diag_writable','check permissions'=>'diag_missing','On'=>'diag_enabled','Off'=>'diag_disabled','optional cache backends'=>'diag_optional_cache_backends');
+        $nameMap = array('Storage / cache / logs'=>'diag_storage_cache_logs');
         foreach ($rows as &$row) {
             $value = isset($row['value']) ? (string)$row['value'] : '';
             if (isset($valueMap[$value])) { $row['value'] = $this->language->get($valueMap[$value]); }
+            if (isset($row['name'], $nameMap[$row['name']])) { $row['name'] = $this->language->get($nameMap[$row['name']]); }
+        }
+        unset($row);
+        return $rows;
+    }
+
+    private function localizeComparisonRows(array $rows) {
+        $map = array(
+            'Content editor'=>'cmp_content_editor','Image formats'=>'cmp_image_formats','Cache backends'=>'cmp_cache_backends','Scheduler / Queue'=>'cmp_scheduler_queue',
+            'System Notifications'=>'cmp_system_notifications','Central Spam Service'=>'cmp_spam_service','Built-in'=>'cmp_builtin','Built-in, opt-in on UPDATE'=>'cmp_builtin_optin',
+            'TOTP + trusted device layer'=>'cmp_totp','Read-only diagnostics + migrations'=>'cmp_schema','PSR-4 / Services / Manifest / Extension Points'=>'cmp_modern',
+            'contact / reviews / registration / forgotten / returns / GDPR'=>'cmp_spam_scope','form-specific'=>'cmp_form_specific','Core Dashboard'=>'cmp_core_dashboard',
+            'not used by Core Dashboard; Legacy assets retained'=>'cmp_legacy_assets','CodeCart PRO Slider; Swiper 3 Legacy'=>'cmp_slider','3.7.1 Legacy Core'=>'cmp_jquery_legacy','3.4.1 Legacy Core'=>'cmp_bootstrap_legacy',
+            '2.1.0 manual / CLI only'=>'cmp_scss_cli','2.1.0 runtime'=>'cmp_scss_runtime_oc','2.0.1 runtime'=>'cmp_scss_runtime_ocs','SeoPro + language prefixes + canonical/faceted policy'=>'cmp_seo',
+            'JPEG/PNG/WebP/AVIF + safe fallback'=>'cmp_images','File / APCu / Memcached / Redis + fallback'=>'cmp_cache','File'=>'cmp_file','6.7.2 + AUTO/Core/Full + FA4 compatibility'=>'cmp_fa','Summernote 0.9.1 local'=>'cmp_summernote'
+        );
+        foreach ($rows as &$row) {
+            foreach (array('component','opencart','ocstore','codecart') as $field) {
+                if (isset($row[$field], $map[$row[$field]])) {
+                    $text = $this->language->get($map[$row[$field]]);
+                    if ($text !== $map[$row[$field]]) { $row[$field] = $text; }
+                }
+            }
         }
         unset($row);
         return $rows;

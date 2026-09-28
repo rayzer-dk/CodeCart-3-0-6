@@ -1,0 +1,35 @@
+<?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
+$_['heading_title'] = 'Поиск';
+$_['heading_tag'] = 'По тегу - ';
+$_['text_search'] = 'Товары, соответствующие критериям поиска';
+$_['text_keyword'] = 'Ключевые слова';
+$_['text_category'] = 'Все категории';
+$_['text_sub_category'] = 'Поиск в подкатегориях';
+$_['text_empty'] = 'Нет товаров, которые соответствуют критериям поиска.';
+$_['text_quantity'] = 'Кол-во:';
+$_['text_manufacturer'] = 'Производитель:';
+$_['text_model'] = 'Код Товара:';
+$_['text_points'] = 'Бонусные баллы:';
+$_['text_price'] = 'Цена:';
+$_['text_tax'] = 'Без НДС:';
+$_['text_reviews'] = 'На основе %s отзывов.';
+$_['text_compare'] = 'Сравнение товаров (%s)';
+$_['text_sort'] = 'Сортировка:';
+$_['text_default'] = 'По умолчанию';
+$_['text_name_asc'] = 'Название (А - Я)';
+$_['text_name_desc'] = 'Название (Я - А)';
+$_['text_price_asc'] = 'Цена (низкая &gt; высокая)';
+$_['text_price_desc'] = 'Цена (высокая &gt; низкая)';
+$_['text_rating_asc'] = 'Рейтинг (начиная с низкого)';
+$_['text_rating_desc'] = 'Рейтинг (начиная с высокого)';
+$_['text_model_asc'] = 'Код Товара (А - Я)';
+$_['text_model_desc'] = 'Код Товара (Я - А)';
+$_['text_limit'] = 'Показать:';
+$_['entry_search'] = 'Поиск';
+$_['entry_description'] = 'Искать в описании товаров';
+$_['text_search_corrected'] = 'Точных совпадений не найдено. Показаны результаты для: %s';
+$_['text_tax_amount'] = 'НДС:';
+$_['text_tax_included'] = 'С НДС:';
+$_['text_search_min_length'] = 'Введите не менее 2 символов для поиска.';
+$_['text_search_suggestion'] = 'Возможно, вы имели в виду: %s';

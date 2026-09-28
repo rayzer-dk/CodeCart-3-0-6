@@ -27,3 +27,4 @@ $_['error_email']    = 'E-Mail Address does not appear to be valid!';
 $_['error_enquiry']  = 'Enquiry must be between 10 and 3000 characters!';
 $_['error_rate_limit'] = 'Please wait before sending another request and try again shortly.';
 $_['error_send']       = 'The message could not be sent right now. Please try again later.';
+$_['text_order_number'] = 'Order number';

@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Проверка';
 $_['entry_captcha'] = 'Проверка';
 $_['error_captcha'] = 'Не удалось подтвердить проверку. Попробуйте ещё раз';

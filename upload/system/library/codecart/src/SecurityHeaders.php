@@ -13,6 +13,16 @@ final class SecurityHeaders {
     }
 
     public function apply(bool $admin = false): void {
+        // The administration is never embedded by a foreign origin. Clickjacking
+        // protection for admin is therefore on by default and independent of the
+        // storefront header settings (payment widgets may legitimately frame the
+        // storefront). Opt-out only via codecart_security_admin_frame_protection=0.
+        $adminFrameProtection = $admin && (string)$this->config->get('codecart_security_admin_frame_protection') !== '0';
+        if ($adminFrameProtection) {
+            $this->response->addHeader('X-Frame-Options: SAMEORIGIN');
+            $this->response->addHeader("Content-Security-Policy: frame-ancestors 'self'");
+        }
+
         if (!(int)$this->config->get('codecart_security_headers_status')) {
             return;
         }
@@ -27,7 +37,7 @@ final class SecurityHeaders {
             $this->response->addHeader('Referrer-Policy: ' . $referrer);
         }
 
-        if ((int)$this->config->get('codecart_security_frame_options_status')) {
+        if (!$adminFrameProtection && (int)$this->config->get('codecart_security_frame_options_status')) {
             $frame = strtoupper(trim((string)$this->config->get('codecart_security_frame_options')));
             if (!in_array($frame, array('DENY','SAMEORIGIN'), true)) {
                 $frame = 'SAMEORIGIN';

@@ -1,9 +1,16 @@
-CodeCart PRO 3.0.6.0 Build 1.8.3 UPDATE
+CodeCart PRO 3.0.6.0 Build 1.8.4 UPDATE
 
 Create and verify a full files/database backup. Preserve config.php, admin/config.php, image/ and the real DIR_STORAGE. Upload the contents of upload/ over the store, open /install/, choose UPDATE and finish all steps. The previous shared vendor is retained at DIR_STORAGE/codecart/vendor-previous/ for legacy compatibility.
 
 Same-build repair
-If Build 1.8.3 is already installed and files were damaged, upload the same package again and choose UPDATE with “Repair current build”. Repair force-resynchronizes the packaged Composer/vendor to the active DIR_STORAGE, clears template cache and invalidates the previous OCMOD build marker. Completed database migrations are not reset or reapplied destructively.
+If Build 1.8.4 is already installed and files were damaged, upload the same package again and choose UPDATE with “Repair current build”. Repair force-resynchronizes the packaged Composer/vendor to the active DIR_STORAGE, clears template cache and invalidates the previous OCMOD build marker. Completed database migrations are not reset or reapplied destructively.
+
+Build 1.8.4 notes
+- UPDATE on an installed store asks for a store administrator login (user with modify permission for users, extensions or Core). Anonymous visitors can no longer see the preflight or run UPDATE/Repair.
+- Refresh Extensions > Modifications after UPDATE (the package build changed, so the previous generated OCMOD tree is intentionally inactive until refresh).
+- Delete /install/ after the update is verified.
+- Remaining MyISAM/non-utf8mb4 tables can be converted from Core / Compatibility > Database Schema > Modernize tables (one table per request, no SSH needed). Tables of 256 MB or more: php cli.php db:migrate --backup-confirmed --large.
+- Russian (ru-ru) stores: complete ru-ru packs are shipped; previously partial files replaced complete ocStore ru-ru files and Russian storefronts showed English strings.
 
 File replacement policy
 Core application files in the package are expected to replace same-name Core files during an update. This is not an UPDATE blocker. The preflight blocks only conditions that make migration unsafe, such as an unsupported PHP/runtime profile, unreadable configuration, missing required source schema or unavailable writable storage. Active OCMOD overlaps and foreign Composer packages are reported as warnings so they can be reviewed after the update.

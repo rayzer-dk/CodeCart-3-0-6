@@ -143,3 +143,4 @@ $_['text_subtotal'] = 'Subtotal';
 $_['text_shipping_total'] = 'Shipping Total';
 $_['text_tax_total'] = 'Tax Total';
 $_['text_discount_total'] = 'Discounts / Credits';
+$_['text_ip_add'] = 'Add your IP (%s) to the API allow list';

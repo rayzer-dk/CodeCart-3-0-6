@@ -2,13 +2,21 @@ name: Upgrade QA 3.0.5 Baselines
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'upload/**'
+      - 'tools/**'
+      - 'composer.lock'
+      - '.github/workflows/upgrade-305-baselines.yml'
   push:
     branches: [ main ]
     paths:
       - '.github/workflows/upgrade-305-baselines.yml'
+      - 'upload/**'
+      - 'tools/**'
+      - 'composer.lock'
 
 permissions:
-  actions: read
   contents: read
 
 jobs:
@@ -225,37 +233,23 @@ jobs:
             q "SELECT COUNT(*) FROM oc_article" >/tmp/base-article-count
           fi
 
-      - name: Download exact CodeCart 1.7.8 production artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: CodeCart-production
-          path: artifact
-          github-token: ${{ github.token }}
-          repository: rayzer-dk/CodeCart-3-0-6
-          run-id: 36222973386
+      - name: Install locked CodeCart dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Verify and overlay CodeCart
+      - name: Overlay current CodeCart source
         shell: bash
         run: |
           set -euo pipefail
-          cd artifact
-          expected="$(awk '{print $1}' SHA256SUMS.txt)"
-          actual="$(sha256sum CodeCart_PRO_3.0.6.0_PRODUCTION.zip | awk '{print $1}')"
-          test "$actual" = "$expected"
-          cd ..
-
-          mkdir codecart-prod
-          unzip -oq artifact/CodeCart_PRO_3.0.6.0_PRODUCTION.zip -d codecart-prod
-          grep -q "CODECART_PACKAGE_BUILD', '1.7.8'" codecart-prod/upload/index.php
-
+          # Always test the source being released. Pinning an old artifact here
+          # previously meant the 3.0.5 baselines were not re-validated for new builds.
           cp store/upload/config.php /tmp/catalog-config.php
           cp store/upload/admin/config.php /tmp/admin-config.php
-          rsync -a codecart-prod/upload/ store/upload/
+          rsync -a upload/ store/upload/
           cp /tmp/catalog-config.php store/upload/config.php
           cp /tmp/admin-config.php store/upload/admin/config.php
-
           test -f store/upload/system/library/codecart/migration.php
           test -f store/upload/system/storage/vendor/autoload.php
+          grep -q "CODECART_PACKAGE_BUILD" store/upload/index.php
 
       - name: Start upgraded codebase
         shell: bash
@@ -277,6 +271,10 @@ jobs:
           COOKIE=/tmp/upgrade305.cookies
           BASE='http://127.0.0.1:8082/install/index.php?route=upgrade/upgrade'
           curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/tmp/upgrade-page.html
+          # Installer UPDATE on an installed store requires administrator verification.
+          LOGIN_TOKEN="$(grep -o 'name="login_token" value="[^"]*"' /tmp/upgrade-page.html | cut -d'"' -f4)"
+          test -n "$LOGIN_TOKEN"
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST --data-urlencode "login_token=$LOGIN_TOKEN" -d 'username=admin' --data-urlencode 'password=Admin123!QA' "$BASE/login" >/dev/null
           url="$BASE/next&step=1&backup=1"
 
           for i in {1..30}; do
@@ -324,7 +322,7 @@ jobs:
           test "$(q "SELECT COUNT(*) FROM oc_order")" = "$(cat /tmp/base-order-count)"
 
           test "$(q 'SELECT value FROM oc_setting WHERE `key`="codecart_core_schema_version" LIMIT 1')" = "3.0.6.0"
-          test "$(q 'SELECT value FROM oc_setting WHERE `key`="codecart_presentation_schema_version" LIMIT 1')" = "27"
+          test "$(q 'SELECT value FROM oc_setting WHERE `key`="codecart_presentation_schema_version" LIMIT 1')" = "28"
           test "$(q 'SELECT value FROM oc_setting WHERE `key`="theme_codecart_status" LIMIT 1')" = "1"
 
           critical_bad="$(q "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN ('oc_setting','oc_product','oc_product_option_value','oc_order','oc_order_product','oc_order_option','oc_order_total','oc_order_history','oc_customer','oc_customer_reward','oc_coupon_history','oc_voucher_history') AND engine <> 'InnoDB'")"
@@ -345,7 +343,10 @@ jobs:
           set -euo pipefail
           COOKIE=/tmp/upgrade305-2.cookies
           BASE='http://127.0.0.1:8082/install/index.php?route=upgrade/upgrade'
-          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/dev/null
+          curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/tmp/upgrade305-2-page.html
+          LOGIN_TOKEN="$(grep -o 'name="login_token" value="[^"]*"' /tmp/upgrade305-2-page.html | cut -d'"' -f4)"
+          test -n "$LOGIN_TOKEN"
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST --data-urlencode "login_token=$LOGIN_TOKEN" -d 'username=admin' --data-urlencode 'password=Admin123!QA' "$BASE/login" >/dev/null
           url="$BASE/next&step=1&backup=1"
 
           for i in {1..30}; do

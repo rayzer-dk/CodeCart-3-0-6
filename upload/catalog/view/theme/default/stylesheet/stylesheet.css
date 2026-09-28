@@ -132,6 +132,9 @@ div.required .control-label:before {
 	max-height: 92px;
 	object-fit: contain;
 }
+/* Text logo: one semantic H1 only on the home page; product/category pages keep their own H1. */
+#logo .ccp-logo-text{margin:0;font-size:33px;font-weight:500;line-height:1.15;overflow-wrap:anywhere}
+@media (max-width: 767px){#logo .ccp-logo-text{font-size:22px}}
 /* search */
 #search {
 	margin-bottom: 10px;

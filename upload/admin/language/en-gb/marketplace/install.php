@@ -33,3 +33,4 @@ $_['error_journal'] = 'Extension files were installed, but the rollback journal 
 $_['error_uninstall_restore'] = 'The extension could not be safely uninstalled because original files could not be restored.';
 $_['warning_uninstall_changed'] = '%d installed file(s) were changed after installation and were left untouched to prevent data loss.';
 $_['error_xml_install'] = 'The modification XML could not be applied safely. Installed files were rolled back.';
+$_['error_rollback_incomplete'] = 'Extension files could not be installed and the automatic rollback did not complete. Check the installation journal and restore the files from a backup.';

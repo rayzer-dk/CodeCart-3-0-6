@@ -1,0 +1,7 @@
+<?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
+$_['heading_title'] = 'Выход';
+$_['text_message'] = '<p>Вы вышли из Вашего Личного Кабинета.</p><p>Ваша корзина покупок была сохранена. Она будет восстановлена при следующем входе в Ваш Личный Кабинет.</p>';
+$_['text_account'] = 'Личный кабинет';
+$_['text_logout'] = 'Выход';
+$_['text_order_number'] = 'Номер заказа';

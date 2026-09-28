@@ -16,3 +16,4 @@ $_['text_search']        = 'Search';
 $_['text_all']           = 'Show All';
 $_['button_in_cart'] = 'In Cart';
 $_['text_theme_toggle'] = 'Switch theme';
+$_['text_logged'] = 'You are logged in as <a href="%s">%s</a> (<a href="%s">Logout</a>)';

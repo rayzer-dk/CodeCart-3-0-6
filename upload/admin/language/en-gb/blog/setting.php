@@ -49,3 +49,4 @@ $_['error_limit']       	           = 'Limit required!';
 $_['error_image_article']              = 'Article List Size dimensions required!';
 $_['error_image_category']             = 'Category List Size dimensions required!';
 $_['error_image_related']              = 'Related article Image Size dimensions required!';
+$_['help_comment'] = 'This field is for any special notes you would like to tell the customer i.e. Store does not accept cheques.';

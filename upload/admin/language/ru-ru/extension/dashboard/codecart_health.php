@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Состояние магазина';
 $_['heading_title_dashboard'] = 'Центр состояния магазина';
 $_['text_home'] = 'Главная';
@@ -117,7 +118,6 @@ $_['quick_diagnostics'] = 'Диагностика';
 $_['quick_scheduler'] = 'Cron / Queue';
 $_['quick_logs'] = 'Логи';
 $_['text_cache_done'] = 'Готово';
-
 $_['text_performance_failed'] = 'Не удалось выполнить проверку скорости витрины. Подробности записаны в журнал ошибок.';
 $_['text_performance_url_missing'] = 'URL витрины не настроен.';
 $_['text_close'] = 'Закрыть';

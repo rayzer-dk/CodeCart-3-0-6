@@ -1,21 +1,135 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
+$_['heading_title'] = 'Товары';
+$_['text_success'] = 'Настройки успешно изменены!';
+$_['text_list'] = 'Список товаров';
+$_['text_add'] = 'Добавить';
+$_['text_edit'] = 'Редактирование';
+$_['text_filter'] = 'Фильтр';
+$_['text_plus'] = '+';
+$_['text_minus'] = '-';
+$_['text_default'] = 'По умолчанию';
+$_['text_option'] = 'Опции';
+$_['text_option_value'] = 'Значение опции';
+$_['text_percent'] = 'Процент';
+$_['text_amount'] = 'Фиксированная сумма';
+$_['text_keyword'] = 'Должен быть уникальным на всю систему, без пробелов и спецсимволов';
+$_['column_name'] = 'Название';
+$_['column_model'] = 'Код товара';
+$_['column_image'] = 'Изображение';
+$_['column_price'] = 'Цена';
+$_['column_quantity'] = 'Количество';
+$_['column_status'] = 'Статус';
+$_['column_noindex'] = 'Индекс';
+$_['column_action'] = 'Действие';
+$_['entry_name'] = 'Название товара';
+$_['entry_description'] = 'Описание';
+$_['entry_meta_title'] = 'Мета-тег Title';
+$_['entry_meta_h1'] = 'HTML-тег H1';
+$_['entry_meta_keyword'] = 'Мета-тег Keywords';
+$_['entry_meta_description'] = 'Мета-тег Description';
+$_['entry_store'] = 'Магазины';
+$_['entry_keyword'] = 'SEO URL';
+$_['entry_model'] = 'Код товара';
+$_['entry_sku'] = 'SKU';
+$_['entry_upc'] = 'UPC';
+$_['entry_ean'] = 'EAN';
+$_['entry_jan'] = 'JAN';
+$_['entry_isbn'] = 'ISBN';
+$_['entry_mpn'] = 'MPN';
+$_['entry_location'] = 'Расположение';
 $_['entry_shipping'] = 'Необходима доставка';
-
-$_['help_shipping'] = 'Для цифрового товара выберите «Нет» и добавьте защищённый файл во вкладке «Связи → Файлы для загрузки». Этапы доставки пропускаются автоматически. Покупателю требуется аккаунт, а файл становится доступен только после статуса заказа «Завершено».';
-
-// CodeCart PRO product delivery type
-$_['text_shipping_required'] = 'Физический / гибридный — нужна доставка';
-$_['text_shipping_not_required'] = 'Цифровой / услуга — без доставки';
-
-$_['help_download_updates'] = 'Завершённая покупка даёт право на файлы, которые сейчас привязаны к этому товару. Для новой версии можно заменить файл в существующей загрузке или привязать новую загрузку — прежние покупатели увидят текущие файлы. Снимок на момент покупки остаётся резервом, если все текущие файлы будут удалены.';
+$_['entry_manufacturer'] = 'Производитель';
+$_['entry_date_available'] = 'Дата поступления';
+$_['entry_quantity'] = 'Количество';
+$_['entry_minimum'] = 'Минимальное количество';
+$_['entry_stock_status'] = 'Отсутствие на складе';
+$_['entry_price'] = 'Цена';
+$_['entry_tax_class'] = 'Класс налога';
+$_['entry_points'] = 'Бонусные баллы';
+$_['entry_option_points'] = 'Бонусные баллы';
+$_['entry_subtract'] = 'Вычитать со склада';
+$_['entry_weight_class'] = 'Единица измерения веса';
+$_['entry_weight'] = 'Вес';
+$_['entry_dimension'] = 'Размеры (Д х Ш х В)';
+$_['entry_length_class'] = 'Единица измерения длины';
+$_['entry_length'] = 'Длина';
+$_['entry_width'] = 'Ширина';
+$_['entry_height'] = 'Высота';
+$_['entry_image'] = 'Изображение';
+$_['entry_additional_image'] = 'Дополнительные изображения';
+$_['entry_customer_group'] = 'Группа покупателей';
+$_['entry_date_start'] = 'Дата начала';
+$_['entry_date_end'] = 'Дата окончания';
+$_['entry_priority'] = 'Приоритет';
+$_['entry_attribute'] = 'Характеристики';
+$_['entry_attribute_group'] = 'Группа характеристик';
+$_['entry_text'] = 'Текст';
+$_['entry_option'] = 'Опции';
+$_['entry_option_value'] = 'Значение опции';
+$_['entry_required'] = 'Необходимо';
+$_['entry_status'] = 'Статус';
+$_['entry_sort_order'] = 'Порядок сортировки';
+$_['entry_category'] = 'Категории';
+$_['entry_sub_category'] = 'включая подкатегории';
+$_['entry_main_category'] = 'Главная категория';
+$_['entry_min'] = 'От';
+$_['entry_max'] = 'До';
+$_['entry_filter'] = 'Фильтры';
+$_['entry_download'] = 'Файлы для скачивания';
+$_['entry_related'] = 'Рекомендуемые товары';
+$_['entry_related_article'] = 'Рекомендуем почитать';
+$_['entry_tag'] = 'Теги товара';
+$_['entry_reward'] = 'Бонусные баллы';
+$_['entry_layout'] = 'Изменить макет';
+$_['entry_recurring'] = 'Регулярный платеж';
+$_['entry_noindex'] = 'Индексация';
+$_['help_sku'] = 'SKU - Код производителя';
+$_['help_upc'] = 'Универсальный Код товара';
+$_['help_ean'] = 'Европейский Код товара';
+$_['help_jan'] = 'Японский Код товара';
+$_['help_isbn'] = 'Международный стандартный книжный номер';
+$_['help_mpn'] = 'Код Партии товара Производителя';
+$_['help_manufacturer'] = '(Автозаполнение)';
+$_['help_minimum'] = 'Минимальное количество заказа этого товара';
+$_['help_stock_status'] = 'Статус, показываемый, когда товара нет на складе (количество = 0)';
+$_['help_points'] = 'Количество баллов для покупки товара. Поставьте 0, чтобы не использовать баллы.';
+$_['help_category'] = '(Автозаполнение)';
+$_['help_filter'] = '(Автозаполнение)';
+$_['help_download'] = '(Автозаполнение)';
+$_['help_related'] = '(Автозаполнение)';
+$_['help_tag'] = 'разделяются запятой';
+$_['help_main_category'] = 'Select main category';
+$_['help_noindex'] = 'Индексация в поисковых системах Google, Yandex, Bing и других';
+$_['error_warning'] = 'Внимательно проверьте форму на ошибки!';
+$_['error_permission'] = 'У вас недостаточно прав для внесения изменений!';
+$_['error_name'] = 'Название должно содержать от 3 до 255 символов!';
+$_['error_meta_title'] = 'Мета-тег Title должен содержать от 0 до 255 символов!';
+$_['error_model'] = 'Код Товара товара должна содержать от 3 до 64 символов!';
+$_['error_keyword'] = 'SEO URL уже используется!';
+$_['error_unique'] = 'SEO URL должен быть уникальным!';
 $_['button_image_multiple'] = 'Выбрать несколько изображений';
 $_['button_image_drag'] = 'Перетащить для сортировки';
 $_['button_image_main'] = 'Сделать главным изображением';
-
+$_['help_shipping'] = 'Для цифрового товара выберите «Нет» и добавьте защищённый файл во вкладке «Связи → Файлы для загрузки». Этапы доставки пропускаются автоматически. Покупателю требуется аккаунт, а файл становится доступен только после статуса заказа «Завершено».';
+$_['text_shipping_required'] = 'Физический / гибридный — нужна доставка';
+$_['text_shipping_not_required'] = 'Цифровой / услуга — без доставки';
+$_['help_download_updates'] = 'Завершённая покупка даёт право на файлы, которые сейчас привязаны к этому товару. Для новой версии можно заменить файл в существующей загрузке или привязать новую загрузку — прежние покупатели увидят текущие файлы. Снимок на момент покупки остаётся резервом, если все текущие файлы будут удалены.';
 $_['entry_google_product_category_id'] = 'Google Product Category ID';
 $_['help_google_product_category_id'] = 'Числовой ID таксономии Google для Merchant-фидов. Оставьте пустым, чтобы унаследовать значение из главной или ближайшей родительской категории товара.';
-
-// CodeCart PRO RC86: compatibility-safe product taxonomy shortcuts.
+$_['tab_extra'] = 'Дополнительная вкладка';
+$_['entry_extra_tab_mode'] = 'Дополнительная вкладка товара';
+$_['text_extra_tab_global'] = 'Использовать общую вкладку';
+$_['text_extra_tab_custom'] = 'Своя для этого товара';
+$_['text_extra_tab_disabled'] = 'Не показывать для этого товара';
+$_['entry_extra_tab_title'] = 'Название вкладки';
+$_['entry_extra_tab_content'] = 'Содержимое вкладки';
+$_['help_extra_tab_mode'] = 'Используйте общую вкладку магазина, замените её для этого товара или скройте только для этого товара.';
+$_['error_extra_tab_title'] = 'Название дополнительной вкладки не должно превышать 128 символов!';
+$_['button_extra_tab_global'] = 'Для выбранных товаров использовать общую дополнительную вкладку магазина';
+$_['button_extra_tab_hidden'] = 'Скрыть дополнительную вкладку для выбранных';
+$_['text_extra_tab_bulk_global_success'] = 'Для %s выбранных товаров включено использование общей дополнительной вкладки.';
+$_['text_extra_tab_bulk_hidden_success'] = 'Для %s выбранных товаров дополнительная вкладка скрыта.';
 $_['text_attribute_quick_tools'] = 'Быстрая работа с характеристиками';
 $_['help_attribute_quick_tools'] = 'Создайте или откройте штатный справочник в новой вкладке, затем добавьте характеристику товару через стандартное автодополнение. Сохранение товара остаётся штатным.';
 $_['button_attribute_create'] = 'Создать характеристику';
@@ -24,17 +138,14 @@ $_['text_option_quick_tools'] = 'Быстрая работа с опциями';
 $_['help_option_quick_tools'] = 'Создайте опцию в штатном справочнике в новой вкладке, затем найдите её в этом товаре. Структура БД и стандартное сохранение OpenCart не меняются.';
 $_['button_option_create'] = 'Создать опцию';
 $_['button_option_manage'] = 'Справочник опций';
-
-$_['entry_tax_display_mode'] = "Отображение НДС для товара";
-$_['help_tax_display_mode'] = "Переопределяет глобальный режим показа НДС только для этого товара. Расчёт налогов и оформление заказа не изменяются.";
-$_['text_tax_display_inherit'] = "Использовать общую настройку";
-$_['text_tax_display_native'] = "Штатное отображение OpenCart";
-$_['text_tax_display_none'] = "Только основная цена";
-$_['text_tax_display_gross_net'] = "Цена с НДС + без НДС";
-$_['text_tax_display_gross_tax'] = "Цена с НДС + сумма НДС";
-$_['text_tax_display_net_gross'] = "Цена без НДС + с НДС";
-
-// CodeCart PRO RC86: inherited purchase-area information blocks.
+$_['entry_tax_display_mode'] = 'Отображение НДС для товара';
+$_['help_tax_display_mode'] = 'Переопределяет глобальный режим показа НДС только для этого товара. Расчёт налогов и оформление заказа не изменяются.';
+$_['text_tax_display_inherit'] = 'Использовать общую настройку';
+$_['text_tax_display_native'] = 'Штатное отображение OpenCart';
+$_['text_tax_display_none'] = 'Только основная цена';
+$_['text_tax_display_gross_net'] = 'Цена с НДС + без НДС';
+$_['text_tax_display_gross_tax'] = 'Цена с НДС + сумма НДС';
+$_['text_tax_display_net_gross'] = 'Цена без НДС + с НДС';
 $_['tab_purchase_blocks'] = 'Контентные блоки';
 $_['entry_purchase_block_mode'] = 'Контентные блоки';
 $_['text_purchase_block_inherit'] = 'Наследовать';
@@ -62,7 +173,6 @@ $_['button_purchase_block_add_size_table'] = 'Таблица размеров';
 $_['button_purchase_block_add_sizes'] = 'Размеры';
 $_['button_purchase_block_add_colors'] = 'Цвета';
 $_['help_purchase_block_builder'] = 'Сохранение выполняется только штатной кнопкой сохранения товара/категории. Штатные опции и характеристики OpenCart не изменяются.';
-
 $_['text_purchase_block_form'] = 'Форма / CTA';
 $_['entry_purchase_block_form'] = 'Форма';
 $_['entry_purchase_block_form_display'] = 'Отображение';
@@ -72,9 +182,7 @@ $_['text_purchase_block_form_inline'] = 'Показать форму сразу'
 $_['text_purchase_block_form_button'] = 'Кнопка + всплывающее окно';
 $_['warning_purchase_blocks_master'] = 'Блоки сохраняются, но их вывод на витрине глобально выключен в настройках стандартной темы.';
 $_['button_purchase_blocks_settings'] = 'Открыть настройки темы';
-
 $_['button_generate_seo_url'] = 'Сгенерировать SEO URL';
-
 $_['text_purchase_block_templates'] = 'Шаблоны';
 $_['text_purchase_block_preset_delivery'] = 'Условия доставки';
 $_['text_purchase_block_preset_instruction'] = 'Инструкция использования';
@@ -82,10 +190,7 @@ $_['text_purchase_block_preset_rules'] = 'Правила / важная инфо
 $_['text_purchase_block_preset_shoes_eu'] = 'Таблица размеров обуви EU';
 $_['text_purchase_block_preset_women_eu'] = 'Женские размеры одежды EU';
 $_['text_purchase_block_preset_men_eu'] = 'Мужские размеры одежды EU';
-
-// CodeCart PRO product list filters
 $_['entry_seo_url'] = 'SEO URL';
-
 $_['button_relation_suggest'] = 'Автоподбор';
 $_['button_relation_selected'] = 'Сгенерировать автосвязи для выбранных';
 $_['button_add_selected'] = 'Добавить выбранное в форму';
@@ -93,11 +198,15 @@ $_['text_relation_products'] = 'Предложенные товары';
 $_['text_relation_articles'] = 'Предложенные статьи';
 $_['text_relation_score'] = 'Релевантность';
 $_['text_relation_added'] = 'Предложения добавлены в форму. Для сохранения нажмите стандартную кнопку «Сохранить».';
-
 $_['text_relation_button_help'] = 'Автоматически подбирает варианты в стандартные ручные поля. Это помощник заполнения формы, а не запись в Auto Relation Layer. Изменения применятся только после обычного сохранения формы.';
 $_['text_relation_autofill_result'] = 'Автоподбор в ручное поле добавил: %a. Сейчас выбрано: %t. Лимит: %m. Нажмите «Сохранить». Auto Relation Layer генерируется отдельно через фоновую очередь.';
 $_['text_relation_selected_count'] = 'Сейчас выбрано в поле: %t. Лимит автоподбора: %m.';
 $_['text_none_category'] = ' --- Без категории --- ';
 $_['text_none_manufacturer'] = ' --- Без производителя --- ';
-
 $_['text_stock_notify_waiting'] = 'Ждут наличия';
+$_['text_enabled_short'] = 'Вкл';
+$_['text_disabled_short'] = 'Выкл';
+$_['js_purchase_presets_json'] = '{}';
+$_['error_meta_h1'] = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
+$_['text_all'] = 'Все';
+$_['text_action'] = 'Действие';

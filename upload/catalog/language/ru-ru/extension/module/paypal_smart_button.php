@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['text_title'] = 'PayPal';
 $_['text_checkout_payment_address'] = 'Платёжный адрес';
 $_['text_checkout_shipping_address'] = 'Адрес доставки';
@@ -19,7 +20,7 @@ $_['text_recurring'] = '%s каждые %s %s';
 $_['text_recurring_item'] = 'Регулярный платёж';
 $_['text_payment_recurring'] = 'Профиль регулярного платежа';
 $_['text_trial_description'] = '%s каждые %d %s, %d платежей, затем';
-$_['text_payment_description'] = '%s каждые %d %s';
+$_['text_payment_description'] = '%s каждые %d %s в течение %d платежей';
 $_['text_payment_cancel'] = '%s каждые %d %s до отмены';
 $_['column_image'] = 'Изображение';
 $_['column_name'] = 'Товар';
@@ -69,3 +70,11 @@ $_['text_loading'] = 'Загрузка...';
 $_['button_upload'] = 'Загрузить файл';
 $_['button_close'] = 'Закрыть';
 $_['button_calendar'] = 'Открыть выбор даты и времени';
+$_['text_coupon'] = 'Купон (%s)';
+$_['text_voucher'] = 'Подарочный сертификат';
+$_['text_reward'] = 'Бонусные баллы';
+$_['error_coupon'] = 'Купон либо недействителен, либо истек срок его действия, либо достигнут предел его использования!';
+$_['error_voucher'] = 'Подарочный сертификат недействителен или уже был использован!';
+$_['error_reward'] = 'Укажите количество бонусных баллов, которые хотите использовать!';
+$_['error_points'] = 'У Вас нет %s бонусных баллов!';
+$_['error_maximum'] = 'Максимальное количество бонусных баллов, которые могут быть использованы, составляет %s!';

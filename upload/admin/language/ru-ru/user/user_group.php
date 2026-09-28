@@ -1,0 +1,17 @@
+<?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
+$_['heading_title'] = 'Группы пользователей';
+$_['text_success'] = 'Настройки успешно изменены!';
+$_['text_list'] = 'Список групп пользователей';
+$_['text_add'] = 'Добавить';
+$_['text_edit'] = 'Редактирование';
+$_['column_name'] = 'Название группы пользователей';
+$_['column_action'] = 'Действие';
+$_['entry_name'] = 'Название группы пользователей';
+$_['entry_access'] = 'Разрешён просмотр';
+$_['entry_modify'] = 'Разрешено внесение изменений';
+$_['error_permission'] = 'У вас недостаточно прав для внесения изменений!';
+$_['error_name'] = 'Название должно содержать от 3 до 64 символов!';
+$_['error_user'] = 'Эту группу пользователей нельзя удалить, поскольку в нее входит %s пользователей!';
+$_['help_hide'] = 'Selected extensions will not be displayed on the pages of the module, payments, deliveries';
+$_['entry_hide'] = 'Hide extensions';

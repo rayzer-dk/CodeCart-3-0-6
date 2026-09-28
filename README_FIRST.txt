@@ -1,4 +1,4 @@
-CodeCart PRO 3.0.6.0 — Build 1.8.3
+CodeCart PRO 3.0.6.0 — Build 1.8.4
 
 PRODUCTION INSTALL / UPDATE
 
@@ -9,7 +9,8 @@ Existing store update:
 - Make a full backup of files and database first.
 - Preserve the existing config.php and admin/config.php, image/ and the real storage directory.
 - Upload the CONTENTS of upload/ over the existing store files.
-- Open /install/ and use UPDATE mode. Do not import install/opencart.sql into an existing store.
+- Open /install/ and use UPDATE mode. Sign in with a store administrator account (required since Build 1.8.4). Do not import install/opencart.sql into an existing store.
+- After UPDATE refresh Extensions > Modifications, then delete the install/ directory from the server.
 - Reinstalling the same Build for repair is supported: enable “Repair current build” in UPDATE. It force-resynchronizes the packaged Composer/vendor to the active storage, clears template cache and invalidates the old OCMOD build marker without rerunning completed DB migrations.
 
 Clean installation:

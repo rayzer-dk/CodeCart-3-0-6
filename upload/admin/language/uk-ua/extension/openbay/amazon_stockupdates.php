@@ -6,7 +6,7 @@ $_['text_openbay']						= 'OpenBay Pro';
 $_['text_amazon']						= 'Amazon EU';
 
 // Text
-$_['text_empty']                    	= 'Нет данных!';
+$_['text_empty']                    	= 'Немає даних!';
 
 // Entry
 $_['entry_date_start']               	= 'Дата начала';

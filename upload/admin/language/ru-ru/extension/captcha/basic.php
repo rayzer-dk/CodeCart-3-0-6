@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Локальная адаптивная CAPTCHA';
 $_['text_extension'] = 'Дополнения';
 $_['text_success'] = 'Настройки локальной CAPTCHA сохранены';

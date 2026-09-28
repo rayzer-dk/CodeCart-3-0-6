@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Аккаунт';
 $_['text_register'] = 'Регистрация';
 $_['text_login'] = 'Вход';

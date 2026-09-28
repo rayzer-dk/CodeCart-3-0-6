@@ -1,8 +1,10 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Данные / Резервные копии';
 $_['text_data_center'] = 'Центр данных';
 $_['text_success'] = 'Восстановление базы данных успешно завершено.';
-$_['text_select_all'] = 'Выбрать всё'; $_['text_unselect_all'] = 'Снять выбор';
+$_['text_select_all'] = 'Выбрать всё';
+$_['text_unselect_all'] = 'Снять выбор';
 $_['text_catalog_title'] = 'Импорт / Экспорт каталога';
 $_['text_catalog_help'] = 'Безопасный массовый перенос и редактирование каталога. XLSX использует логические имена таблиц без префикса БД и перед импортом сверяется с реальной схемой OpenCart/ocStore.';
 $_['text_catalog_export_format'] = 'Без флажка «Переносимый пакет» выгружается XLSX. С флажком — ZIP, содержащий catalog.xlsx и доступные файлы image/catalog.';
@@ -13,21 +15,60 @@ $_['text_catalog_import_help'] = 'Сначала файл только пров�
 $_['text_xlsx_unavailable'] = 'Импорт/экспорт XLSX недоступен: в WEB/FPM PHP должны быть активны ZIP и SimpleXML.';
 $_['text_xlsx_export_unavailable'] = 'Экспорт XLSX недоступен: в WEB/FPM PHP должно быть активно расширение ZIP.';
 $_['text_xlsx_import_unavailable'] = 'Импорт XLSX недоступен: в WEB/FPM PHP должны быть активны расширения ZIP и SimpleXML.';
-$_['text_no_file'] = 'Файл не выбран'; $_['text_preview'] = 'Предварительная проверка'; $_['text_processing'] = 'Обработка…';
+$_['text_no_file'] = 'Файл не выбран';
+$_['text_preview'] = 'Предварительная проверка';
+$_['text_processing'] = 'Обработка…';
 $_['text_catalog_confirm'] = 'Импорт обновит или добавит записи каталога с совпадающими ID. Перед записью будет создан автоматический SQL-снимок. Продолжить?';
-$_['text_catalog_import_success'] = 'Импорт каталога завершён.'; $_['text_catalog_result'] = 'Обновлено/добавлено записей: %s. Резервная копия: %b';
-$_['text_sql_backup_title'] = 'Резервная копия базы данных'; $_['text_sql_backup_help'] = 'SQL-копия предназначена для аварийного восстановления. Для массового редактирования каталога используйте вкладку «Каталог».';
-$_['text_restore_warning'] = 'Восстановление SQL меняет данные магазина. Перед операцией убедитесь, что есть актуальная полная копия сайта и базы данных.'; $_['text_restore_confirm'] = 'Восстановление SQL может заменить текущие данные затрагиваемых таблиц. Продолжить?';
-$_['tab_catalog'] = 'Каталог XLSX / ZIP'; $_['tab_backup'] = 'База данных SQL'; $_['tab_restore'] = 'Восстановление БД';
-$_['entry_export'] = 'Таблицы'; $_['entry_progress'] = 'Прогресс'; $_['entry_portable'] = 'Пакет с изображениями'; $_['help_portable'] = 'ZIP содержит catalog.xlsx и доступные файлы из image/catalog. Обычный XLSX содержит только пути к изображениям.'; $_['entry_overwrite_images'] = 'Заменять существующие изображения файлами из пакета';
-$_['entity_products'] = 'Товары'; $_['entity_categories'] = 'Категории'; $_['entity_manufacturers'] = 'Производители'; $_['entity_options'] = 'Опции'; $_['entity_attributes'] = 'Характеристики'; $_['entity_filters'] = 'Фильтры';
-$_['help_products'] = 'Описания, категории, фото, опции, характеристики, акции, скидки, магазины и связи'; $_['help_categories'] = 'Дерево, описания, магазины, макеты, фильтры и SEO'; $_['help_manufacturers'] = 'Производители, магазины и макеты'; $_['help_options'] = 'Опции и все их значения'; $_['help_attributes'] = 'Группы характеристик и характеристики'; $_['help_filters'] = 'Группы фильтров и значения';
-$_['icon_products'] = 'fa-cube'; $_['icon_categories'] = 'fa-folder-open'; $_['icon_manufacturers'] = 'fa-tags'; $_['icon_options'] = 'fa-list-alt'; $_['icon_attributes'] = 'fa-sliders'; $_['icon_filters'] = 'fa-filter';
-$_['button_export'] = 'Скачать резервную копию БД (.sql)'; $_['button_import'] = 'Восстановить из SQL'; $_['button_catalog_export'] = 'Экспортировать каталог в XLSX'; $_['button_catalog_select'] = 'Выбрать XLSX или ZIP'; $_['button_catalog_import'] = 'Импортировать после проверки';
-$_['column_table'] = 'Таблица'; $_['column_rows'] = 'Строк'; $_['column_columns'] = 'Совместимых полей'; $_['column_status'] = 'Статус';
-$_['error_permission'] = 'Недостаточно прав для изменения данных магазина.'; $_['error_export'] = 'Выберите хотя бы одну таблицу.'; $_['error_file'] = 'Файл не найден или не читается.'; $_['error_filesize'] = 'Размер SQL-копии превышает 128 МБ.'; $_['error_filetype'] = 'Разрешён только корректный SQL-файл резервной копии OpenCart.'; $_['error_catalog_entities'] = 'Выберите хотя бы один раздел каталога.'; $_['error_catalog_file'] = 'Выберите корректный файл каталога.'; $_['error_catalog_export'] = 'Не удалось создать файл экспорта каталога.';
+$_['text_catalog_import_success'] = 'Импорт каталога завершён.';
+$_['text_catalog_result'] = 'Обновлено/добавлено записей: %s. Резервная копия: %b';
+$_['text_sql_backup_title'] = 'Резервная копия базы данных';
+$_['text_sql_backup_help'] = 'SQL-копия предназначена для аварийного восстановления. Для массового редактирования каталога используйте вкладку «Каталог».';
+$_['text_restore_warning'] = 'Восстановление SQL меняет данные магазина. Перед операцией убедитесь, что есть актуальная полная копия сайта и базы данных.';
+$_['text_restore_confirm'] = 'Восстановление SQL может заменить текущие данные затрагиваемых таблиц. Продолжить?';
+$_['tab_catalog'] = 'Каталог XLSX / ZIP';
+$_['tab_backup'] = 'База данных SQL';
+$_['tab_restore'] = 'Восстановление БД';
+$_['entry_export'] = 'Таблицы';
+$_['entry_progress'] = 'Прогресс';
+$_['entry_portable'] = 'Пакет с изображениями';
+$_['help_portable'] = 'ZIP содержит catalog.xlsx и доступные файлы из image/catalog. Обычный XLSX содержит только пути к изображениям.';
+$_['entry_overwrite_images'] = 'Заменять существующие изображения файлами из пакета';
+$_['entity_products'] = 'Товары';
+$_['entity_categories'] = 'Категории';
+$_['entity_manufacturers'] = 'Производители';
+$_['entity_options'] = 'Опции';
+$_['entity_attributes'] = 'Характеристики';
+$_['entity_filters'] = 'Фильтры';
+$_['help_products'] = 'Описания, категории, фото, опции, характеристики, акции, скидки, магазины и связи';
+$_['help_categories'] = 'Дерево, описания, магазины, макеты, фильтры и SEO';
+$_['help_manufacturers'] = 'Производители, магазины и макеты';
+$_['help_options'] = 'Опции и все их значения';
+$_['help_attributes'] = 'Группы характеристик и характеристики';
+$_['help_filters'] = 'Группы фильтров и значения';
+$_['icon_products'] = 'fa-cube';
+$_['icon_categories'] = 'fa-folder-open';
+$_['icon_manufacturers'] = 'fa-tags';
+$_['icon_options'] = 'fa-list-alt';
+$_['icon_attributes'] = 'fa-sliders';
+$_['icon_filters'] = 'fa-filter';
+$_['button_export'] = 'Скачать резервную копию БД (.sql)';
+$_['button_import'] = 'Восстановить из SQL';
+$_['button_catalog_export'] = 'Экспортировать каталог в XLSX';
+$_['button_catalog_select'] = 'Выбрать XLSX или ZIP';
+$_['button_catalog_import'] = 'Импортировать после проверки';
+$_['column_table'] = 'Таблица';
+$_['column_rows'] = 'Строк';
+$_['column_columns'] = 'Совместимых полей';
+$_['column_status'] = 'Статус';
+$_['error_permission'] = 'Недостаточно прав для изменения данных магазина.';
+$_['error_export'] = 'Выберите хотя бы одну таблицу.';
+$_['error_file'] = 'Файл не найден или не читается.';
+$_['error_filesize'] = 'Размер SQL-копии превышает 128 МБ.';
+$_['error_filetype'] = 'Разрешён только корректный SQL-файл резервной копии OpenCart.';
+$_['error_catalog_entities'] = 'Выберите хотя бы один раздел каталога.';
+$_['error_catalog_file'] = 'Выберите корректный файл каталога.';
+$_['error_catalog_export'] = 'Не удалось создать файл экспорта каталога.';
 $_['error_restore_table'] = 'SQL-файл содержит таблицу, которая не относится к текущему магазину. Восстановление остановлено.';
-
 $_['text_progress_preparing'] = 'Подготовка файла…';
 $_['text_progress_uploading'] = 'Загрузка файла…';
 $_['text_progress_checking'] = 'Проверка структуры…';
@@ -35,10 +76,7 @@ $_['text_progress_importing'] = 'Запись данных в каталог…'
 $_['text_progress_downloading'] = 'Загрузка готового файла…';
 $_['text_progress_done'] = 'Готово';
 $_['text_relation_preserve'] = 'Безопасный режим: импорт не удаляет существующие дополнительные категории, опции, характеристики и другие связи товара, если соответствующей строки нет в файле. Для главной категории используется совместимое сопоставление OpenCart/ocStore.';
-
 $_['text_sql_sensitive_warning'] = 'SQL-копия может содержать хэши паролей, API-ключи, настройки почты и другие конфиденциальные данные. Храните файл как секрет. Временные таблицы session и api_session по умолчанию не выбраны.';
-
 $_['text_catalog_xml_help'] = 'XML не дублирует перенос каталога: для Google Merchant и внешних интеграций используйте отдельные XML-фиды для каждого активного языка.';
 $_['button_xml_feeds'] = 'Открыть XML-фиды';
-
 $_['error_restore_query'] = 'Ошибка SQL при восстановлении таблицы';

@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['code'] = 'ru';
 $_['direction'] = 'ltr';
 $_['date_format_short'] = 'd.m.Y';
@@ -15,7 +16,7 @@ $_['text_select'] = ' --- Выберите --- ';
 $_['text_all_zones'] = 'Все зоны';
 $_['text_pagination'] = 'Показано с %d по %d из %d (всего %d страниц)';
 $_['text_loading'] = 'Загрузка...';
-$_['text_agree'] = 'Я прочитал(а) и согласен(на) с условиями <a href="%s" class="agree">%s</a>';
+$_['text_no_results'] = 'Нет результатов';
 $_['button_address_add'] = 'Добавить адрес';
 $_['button_back'] = 'Назад';
 $_['button_continue'] = 'Продолжить';
@@ -51,7 +52,7 @@ $_['button_reward'] = 'Применить бонусные баллы';
 $_['button_quote'] = 'Узнать цены';
 $_['button_list'] = 'Список';
 $_['button_grid'] = 'Сетка';
-$_['button_compact']        = 'Компактный';
+$_['button_compact'] = 'Компактный';
 $_['button_map'] = 'Посмотреть карту';
 $_['error_exception'] = 'Ошибка кода(%s): %s в %s на строке %s';
 $_['error_upload_1'] = 'Размер загружаемого файла превышает значение upload_max_filesize в php.ini!';
@@ -62,7 +63,7 @@ $_['error_upload_6'] = 'Не найдены во временной папке!'
 $_['error_upload_7'] = 'Ошибка записи!';
 $_['error_upload_8'] = 'Запрещено загружать файлы данного типа!';
 $_['error_upload_999'] = 'Неизвестная ошибка!';
-$_['datepicker'] = 'ru-ru';
-$_['text_no_results'] = 'Нет результатов';
 $_['error_curl'] = 'CURL: Error Code(%s): %s';
+$_['datepicker'] = 'ru-ru';
+$_['text_agree'] = 'Я прочитал(а) и согласен(на) с условиями <a href="%s" class="agree">%s</a>';
 $_['error_agree'] = 'Вы должны прочитать и согласиться с %s!';

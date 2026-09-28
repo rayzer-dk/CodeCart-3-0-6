@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['text_required'] = 'Обязательное поле';
 $_['text_select'] = 'Выберите';
 $_['text_form_error'] = 'Проверьте заполнение формы.';

@@ -1,6 +1,49 @@
 <?php
-
-// CodeCart PRO RC86: inherited purchase-area information blocks.
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
+$_['heading_title'] = 'Категории';
+$_['text_success'] = 'Настройки успешно изменены!';
+$_['text_list'] = 'Список категорий';
+$_['text_add'] = 'Добавить';
+$_['text_edit'] = 'Редактирование';
+$_['text_default'] = 'По умолчанию';
+$_['text_category_total'] = 'Всего категорий: ';
+$_['text_keyword'] = 'Должен быть уникальным на всю систему, без пробелов и спецсимволов.';
+$_['column_name'] = 'Название категории';
+$_['column_sort_order'] = 'Порядок сортировки';
+$_['column_noindex'] = 'Индексация';
+$_['column_action'] = 'Действие';
+$_['entry_name'] = 'Название категории';
+$_['entry_meta_h1'] = 'HTML-тег H1';
+$_['entry_description'] = 'Описание';
+$_['entry_meta_title'] = 'Мета-тег Title';
+$_['entry_meta_keyword'] = 'Мета-тег Keywords';
+$_['entry_meta_description'] = 'Мета-тег Description';
+$_['entry_store'] = 'Магазины';
+$_['entry_keyword'] = 'SEO URL';
+$_['entry_parent'] = 'Родительская категория';
+$_['entry_filter'] = 'Фильтры';
+$_['entry_image'] = 'Изображение';
+$_['entry_top'] = 'Главное меню';
+$_['entry_column'] = 'Столбцы';
+$_['entry_sort_order'] = 'Порядок сортировки';
+$_['entry_status'] = 'Статус';
+$_['entry_layout'] = 'Изменить макет';
+$_['entry_noindex'] = 'Индексация';
+$_['entry_related_wb'] = 'Рекомендуемые товары:';
+$_['entry_related_article'] = 'Рекомендуемые статьи:';
+$_['help_filter'] = '(Автозаполнение)';
+$_['help_top'] = 'Показывать в главном меню (только для главных родительских категорий).';
+$_['help_column'] = 'Количество столбцов в выпадающем меню категории (только для главных родительских категорий)';
+$_['help_related'] = '(Автозаполнение)';
+$_['error_warning'] = 'Внимательно проверьте форму на ошибки!';
+$_['error_permission'] = 'У вас недостаточно прав для внесения изменений!';
+$_['error_name'] = 'Название должно содержать от 2 до 255 символов!';
+$_['error_meta_title'] = 'Мета-тег Title должен содержать от 0 до 255 символов!';
+$_['error_keyword'] = 'SEO URL уже используется!';
+$_['error_unique'] = 'SEO URL должен быть уникальным!';
+$_['error_parent'] = 'Выбранная родительская категория не может быть текущей категорией или её потомком!';
+$_['entry_google_product_category_id'] = 'Google Product Category ID';
+$_['help_google_product_category_id'] = 'Числовой ID таксономии Google для Merchant-фидов. Оставьте пустым, чтобы унаследовать значение от ближайшей родительской категории.';
 $_['tab_purchase_blocks'] = 'Контентные блоки';
 $_['entry_purchase_block_mode'] = 'Контентные блоки';
 $_['text_purchase_block_inherit'] = 'Наследовать';
@@ -28,7 +71,6 @@ $_['button_purchase_block_add_size_table'] = 'Таблица размеров';
 $_['button_purchase_block_add_sizes'] = 'Размеры';
 $_['button_purchase_block_add_colors'] = 'Цвета';
 $_['help_purchase_block_builder'] = 'Сохранение выполняется только штатной кнопкой сохранения товара/категории. Штатные опции и характеристики OpenCart не изменяются.';
-
 $_['text_purchase_block_form'] = 'Форма / CTA';
 $_['entry_purchase_block_form'] = 'Форма';
 $_['entry_purchase_block_form_display'] = 'Отображение';
@@ -38,7 +80,7 @@ $_['text_purchase_block_form_inline'] = 'Показать форму сразу'
 $_['text_purchase_block_form_button'] = 'Кнопка + всплывающее окно';
 $_['warning_purchase_blocks_master'] = 'Блоки сохраняются, но их вывод на витрине глобально выключен в настройках стандартной темы.';
 $_['button_purchase_blocks_settings'] = 'Открыть настройки темы';
-
+$_['button_generate_seo_url'] = 'Сгенерировать SEO URL';
 $_['text_purchase_block_templates'] = 'Шаблоны';
 $_['text_purchase_block_preset_delivery'] = 'Условия доставки';
 $_['text_purchase_block_preset_instruction'] = 'Инструкция использования';
@@ -46,8 +88,10 @@ $_['text_purchase_block_preset_rules'] = 'Правила / важная инфо
 $_['text_purchase_block_preset_shoes_eu'] = 'Таблица размеров обуви EU';
 $_['text_purchase_block_preset_women_eu'] = 'Женские размеры одежды EU';
 $_['text_purchase_block_preset_men_eu'] = 'Мужские размеры одежды EU';
-
 $_['button_relation_suggest'] = 'Автоподбор';
 $_['text_relation_button_help'] = 'Автоматически подбирает варианты в стандартные ручные поля. Это помощник заполнения формы, а не запись в Auto Relation Layer. Изменения применятся только после обычного сохранения формы.';
 $_['text_relation_autofill_result'] = 'Автоподбор в ручное поле добавил: %a. Сейчас выбрано: %t. Лимит: %m. Нажмите «Сохранить». Auto Relation Layer генерируется отдельно через фоновую очередь.';
 $_['text_relation_selected_count'] = 'Сейчас выбрано в поле: %t. Лимит автоподбора: %m.';
+$_['js_purchase_presets_json'] = '{}';
+$_['error_meta_h1'] = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
+$_['text_separator'] = ' &gt; ';

@@ -8,6 +8,13 @@ class ControllerCronCodeCart extends Controller {
             return 'Forbidden';
         }
 
+        // Detached heartbeat/loopback and external cron callers may disconnect
+        // immediately; scheduled work must still complete.
+        @ignore_user_abort(true);
+        if (!empty($this->request->get['heartbeat'])) {
+            \CodeCart\Core\Heartbeat::markLoopbackRun();
+        }
+
         $scheduler = new \CodeCart\Core\Scheduler($this->registry);
         $queue = new \CodeCart\Core\Queue($this->registry);
         $mode = isset($this->request->get['mode']) ? (string)$this->request->get['mode'] : 'all';

@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Автосвязи';
 $_['text_home'] = 'Главная';
 $_['text_catalog'] = 'Каталог';
@@ -48,7 +49,6 @@ $_['error_permission'] = 'У вас нет прав для управления 
 $_['error_disabled'] = 'Auto Relation Layer выключен. Сначала включите его в Каталог → Автосвязи.';
 $_['error_product'] = 'Не удалось определить товар.';
 $_['error_selected'] = 'Выберите хотя бы один товар.';
-
 $_['reason_same_category'] = 'та же категория';
 $_['reason_parent_category'] = 'родительская категория';
 $_['reason_subcategory'] = 'подкатегория';
@@ -56,7 +56,6 @@ $_['reason_manufacturer'] = 'тот же производитель';
 $_['reason_attributes'] = 'общих атрибутов: %s';
 $_['reason_name'] = 'совпадений в названии: %s';
 $_['reason_text'] = 'текстовых совпадений: %s';
-
 $_['error_category'] = 'Категория не найдена.';
 $_['error_article'] = 'Статья блога не найдена.';
 $_['reason_same_blog_category'] = 'Та же категория блога';

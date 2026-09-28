@@ -1,12 +1,21 @@
 name: Upgrade Runtime QA
-# Build 1.8.3 verification trigger
+# Build 1.8.4 verification trigger
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'upload/**'
+      - 'tools/**'
+      - 'composer.lock'
+      - '.github/workflows/upgrade-runtime-qa.yml'
   push:
     branches: [ main, 'qa/**' ]
     paths:
       - '.github/workflows/upgrade-runtime-qa.yml'
+      - 'upload/**'
+      - 'tools/**'
+      - 'composer.lock'
 
 permissions:
   actions: read
@@ -14,7 +23,7 @@ permissions:
 
 jobs:
   ocstore-upgrade:
-    name: ocStore 3.0.4.1 to CodeCart 1.8.3
+    name: ocStore 3.0.4.1 to CodeCart 1.8.4
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -81,7 +90,7 @@ jobs:
       - name: Install locked CodeCart dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Overlay current Build 1.8.3 source
+      - name: Overlay current Build 1.8.4 source
         shell: bash
         run: |
           set -euo pipefail
@@ -92,7 +101,7 @@ jobs:
           cp /tmp/admin-config.php store/upload/admin/config.php
           test -f store/upload/system/library/codecart/migration.php
           test -f store/upload/system/storage/vendor/autoload.php
-          grep -q "CODECART_PACKAGE_BUILD', '1.8.3'" store/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.8.4'" store/upload/index.php
 
       - name: Start upgraded codebase
         shell: bash
@@ -113,6 +122,10 @@ jobs:
           COOKIE=/tmp/upgrade.cookies
           BASE='http://127.0.0.1:8081/install/index.php?route=upgrade/upgrade'
           curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/tmp/upgrade-page.html
+          # Installer UPDATE on an installed store requires administrator verification.
+          LOGIN_TOKEN="$(grep -o 'name="login_token" value="[^"]*"' /tmp/upgrade-page.html | cut -d'"' -f4)"
+          test -n "$LOGIN_TOKEN"
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST --data-urlencode "login_token=$LOGIN_TOKEN" -d 'username=admin' --data-urlencode 'password=Admin123!QA' "$BASE/login" >/dev/null
 
           step=1
           url="$BASE/next&step=1&backup=1"
@@ -151,7 +164,7 @@ jobs:
           test "$marker" = "PRESERVE-ME"
           test "$seo" = "qa-upgrade-marker"
           test "$theme" = "$(cat /tmp/base-theme)"
-          test "$schema" = "27"
+          test "$schema" = "28"
           test "$core" = "3.0.6.0"
           test "$codecart_theme" = "1"
           test "$product_count" = "$(cat /tmp/base-product-count)"
@@ -169,6 +182,10 @@ jobs:
           COOKIE=/tmp/upgrade2.cookies
           BASE='http://127.0.0.1:8081/install/index.php?route=upgrade/upgrade'
           curl -fsS -c "$COOKIE" -b "$COOKIE" "$BASE" >/tmp/upgrade2-page.html
+          # Installer UPDATE on an installed store requires administrator verification.
+          LOGIN_TOKEN="$(grep -o 'name="login_token" value="[^"]*"' /tmp/upgrade2-page.html | cut -d'"' -f4)"
+          test -n "$LOGIN_TOKEN"
+          curl -fsS -c "$COOKIE" -b "$COOKIE" -X POST --data-urlencode "login_token=$LOGIN_TOKEN" -d 'username=admin' --data-urlencode 'password=Admin123!QA' "$BASE/login" >/dev/null
           url="$BASE/next&step=1&backup=1"
           for i in {1..20}; do
             curl -fsS -c "$COOKIE" -b "$COOKIE" "$url" >/tmp/upgrade2-next.json

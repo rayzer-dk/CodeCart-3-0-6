@@ -68,6 +68,12 @@ class ModelInstallInstall extends Model {
 			$db->query("DELETE FROM `" . $data['db_prefix'] . "setting` WHERE `key` = 'codecart_scheduler_key'");
 			$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` SET store_id = '0', code = 'codecart_core', `key` = 'codecart_scheduler_key', value = '" . $db->escape($scheduler_key) . "', serialized = '0'");
 
+			// robots.txt advertises /sitemap.xml on a clean install, so the sitemap feed must be active.
+			$db->query("DELETE FROM `" . $data['db_prefix'] . "extension` WHERE `type` = 'feed' AND `code` = 'google_sitemap'");
+			$db->query("INSERT INTO `" . $data['db_prefix'] . "extension` SET `type` = 'feed', `code` = 'google_sitemap'");
+			$db->query("DELETE FROM `" . $data['db_prefix'] . "setting` WHERE `key` = 'feed_google_sitemap_status'");
+			$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` SET store_id = '0', code = 'feed_google_sitemap', `key` = 'feed_google_sitemap_status', value = '1', serialized = '0'");
+
 			$db->query("DELETE FROM `" . $data['db_prefix'] . "setting` WHERE `key` = 'codecart_db_modernization_required'");
 			$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` SET store_id = '0', code = 'codecart_core', `key` = 'codecart_db_modernization_required', value = '0', serialized = '0'");
 

@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Формы';
 $_['text_home'] = 'Главная';
 $_['text_list'] = 'Формы';
@@ -7,6 +8,17 @@ $_['text_success'] = 'Форма сохранена.';
 $_['text_enabled'] = 'Включено';
 $_['text_disabled'] = 'Выключено';
 $_['text_copy'] = 'Копировать';
+$_['text_templates'] = 'Шаблоны форм';
+$_['text_template_help'] = 'Шаблон заполняет заголовок, описание и набор полей для всех языков. После этого всё можно изменить вручную.';
+$_['text_template_callback'] = 'Заказать звонок';
+$_['text_template_question'] = 'Задать вопрос';
+$_['text_template_price'] = 'Уточнить цену / наличие';
+$_['text_template_selection'] = 'Подобрать товар';
+$_['text_template_part'] = 'Подобрать запчасть';
+$_['text_template_restock'] = 'Сообщить о поступлении';
+$_['text_template_quote'] = 'Коммерческое предложение';
+$_['text_template_size'] = 'Помочь подобрать размер';
+$_['text_template_confirm'] = 'Заменить текущее содержимое формы данными выбранного шаблона?';
 $_['text_fields'] = 'Поля формы';
 $_['text_fields_empty'] = 'Полей пока нет. Добавьте нужные поля кнопками выше.';
 $_['text_field_text'] = 'Текст';
@@ -42,7 +54,6 @@ $_['help_shortcode'] = 'Первый код выводит форму сразу
 $_['error_permission'] = 'У вас нет прав на изменение форм.';
 $_['error_name'] = 'Название должно содержать от 2 до 128 символов.';
 $_['error_recipient'] = 'Укажите корректный email получателя.';
-
 $_['entry_kind'] = 'Тип';
 $_['text_kind_request'] = 'Форма отправки';
 $_['text_kind_info'] = 'Информационный блок';
@@ -53,3 +64,4 @@ $_['text_template_rules_info'] = 'Правила / уточнения';
 $_['text_template_shoes_eu'] = 'Размеры обуви EU';
 $_['text_template_clothing_women_eu'] = 'Женские размеры EU';
 $_['text_template_clothing_men_eu'] = 'Мужские размеры EU';
+$_['js_presets_json'] = '{}';

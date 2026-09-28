@@ -1,4 +1,5 @@
 <?php
+// CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Подтверждение нового устройства';
 $_['text_instruction'] = 'На e-mail учётной записи отправлен шестизначный код. Введите его в течение 10 минут.';
 $_['entry_code'] = 'Код безопасности';

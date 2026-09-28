@@ -147,3 +147,4 @@ $_['text_subtotal'] = 'Проміжна сума';
 $_['text_shipping_total'] = 'Вартість доставки';
 $_['text_tax_total'] = 'Податки';
 $_['text_discount_total'] = 'Знижки / кредити';
+$_['text_ip_add'] = 'Додати ваш IP (%s) до списку дозволених API';
