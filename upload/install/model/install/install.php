@@ -12,38 +12,21 @@ class ModelInstallInstall extends Model {
 				throw new \RuntimeException('Could not load SQL file: ' . $file);
 			}
 
-			$lines = file($file);
+			$script = file_get_contents($file);
 
-			if ($lines === false) {
+			if ($script === false) {
 				throw new \RuntimeException('Could not read SQL file: ' . $file);
 			}
 
-			$sql = '';
-
-			foreach ($lines as $line) {
-				if ($line && (substr($line, 0, 2) != '--') && (substr($line, 0, 1) != '#')) {
-					$sql .= $line;
-
-					if (preg_match('/;\s*$/', $line)) {
-						$sql = str_replace("DROP TABLE IF EXISTS `oc_", "DROP TABLE IF EXISTS `" . $data['db_prefix'], $sql);
-						$sql = str_replace("CREATE TABLE `oc_", "CREATE TABLE `" . $data['db_prefix'], $sql);
-						$sql = str_replace("INSERT INTO `oc_", "INSERT INTO `" . $data['db_prefix'], $sql);
-
-						$db->query($sql);
-						$sql = '';
-					}
-				}
-			}
-
-			if (trim($sql) !== '') {
-				throw new \RuntimeException('The SQL schema contains an unterminated statement.');
+			foreach (\CodeCart\Core\SqlScript::statements($script) as $statement) {
+				$db->query(\CodeCart\Core\SqlScript::applyPrefix($statement, (string)$data['db_prefix']));
 			}
 
 			$db->query("SET CHARACTER SET utf8mb4");
 			$db->query("SET collation_connection = 'utf8mb4_unicode_ci'");
 
 			$db->query("DELETE FROM `" . $data['db_prefix'] . "user` WHERE user_id = '1'");
-			$db->query("INSERT INTO `" . $data['db_prefix'] . "user` SET user_id = '1', user_group_id = '1', username = '" . $db->escape($data['username']) . "', salt = '', password = '" . $db->escape(codecart_password_hash($data['password'])) . "', firstname = 'CodeCart', lastname = 'Pro', email = '" . $db->escape($data['email']) . "', status = '1', image = '', code = '', ip = '', date_added = NOW()");
+			$db->query("INSERT INTO `" . $data['db_prefix'] . "user` SET user_id = '1', user_group_id = '1', username = '" . $db->escape($data['username']) . "', salt = '', password = '" . $db->escape(codecart_password_hash($data['password'])) . "', firstname = 'CodeCart', lastname = 'Pro', email = '" . $db->escape($data['email']) . "', status = '1', image = 'catalog/profile-pic.webp', code = '', ip = '', date_added = NOW()");
 
 			$db->query("DELETE FROM `" . $data['db_prefix'] . "setting` WHERE `key` = 'config_email'");
 			$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` SET `code` = 'config', `key` = 'config_email', value = '" . $db->escape($data['email']) . "', serialized = '0'");

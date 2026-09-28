@@ -6,6 +6,9 @@ class ControllerExtensionThemeCodecart extends Controller {
 	private $error = array();
 
 	public function index() {
+		$store_id = isset($this->request->get['store_id']) ? (int)$this->request->get['store_id'] : 0;
+		$this->request->get['store_id'] = $store_id;
+
 		$this->load->language('extension/theme/codecart');
 
 		$this->document->setTitle($this->language->get('heading_title'));
@@ -13,6 +16,8 @@ class ControllerExtensionThemeCodecart extends Controller {
 		$this->load->model('setting/setting');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+			// CodeCart Theme always renders from its own directory; legacy default stays a filesystem fallback only.
+			$this->request->post['theme_codecart_directory'] = 'codecart';
 			$allowed_fonts = array('system', 'inter', 'arial', 'verdana', 'tahoma', 'trebuchet', 'georgia');
 			if (!isset($this->request->post['theme_codecart_font_family']) || !in_array((string)$this->request->post['theme_codecart_font_family'], $allowed_fonts, true)) {
 				$this->request->post['theme_codecart_font_family'] = 'system';
@@ -105,18 +110,29 @@ class ControllerExtensionThemeCodecart extends Controller {
 				}
 			}
 
-			$this->model_setting_setting->editSetting('theme_codecart', $this->request->post, $this->request->get['store_id']);
+			$this->model_setting_setting->editSetting('theme_codecart', $this->request->post, $store_id);
 
 			// CodeCart PRO compatibility alias: core storefront features from the OpenCart 3 legacy layer
 			// still read theme_default_* keys. Keep them synchronized only when the CodeCart theme itself is saved.
-			$legacy_theme_settings = array();
-			foreach ($this->request->post as $key => $value) {
-				if (strpos((string)$key, 'theme_codecart_') === 0) {
-					$legacy_theme_settings['theme_default_' . substr((string)$key, 15)] = $value;
+			// Only when CodeCart Theme is the active theme of this store: on an upgraded
+			// OpenCart/ocStore store the Default theme may be active with its own directory
+			// (e.g. unishop2), and replacing the whole theme_default group switched the
+			// storefront to CodeCart templates and discarded the merchant's Default settings.
+			// Merge into the existing group and never touch its directory/status.
+			$active_theme = (string)$this->model_setting_setting->getSettingValue('config_theme', $store_id);
+			if ($active_theme === '' && (int)$store_id === 0) { $active_theme = (string)$this->config->get('config_theme'); }
+			if ($active_theme === 'codecart') {
+				$legacy_theme_settings = $this->model_setting_setting->getSetting('theme_default', $store_id);
+				foreach ($this->request->post as $key => $value) {
+					if (strpos((string)$key, 'theme_codecart_') === 0) {
+						$legacy_key = 'theme_default_' . substr((string)$key, 15);
+						if ($legacy_key === 'theme_default_directory' || $legacy_key === 'theme_default_status') { continue; }
+						$legacy_theme_settings[$legacy_key] = $value;
+					}
 				}
-			}
-			if ($legacy_theme_settings) {
-				$this->model_setting_setting->editSetting('theme_default', $legacy_theme_settings, $this->request->get['store_id']);
+				if (!isset($legacy_theme_settings['theme_default_directory'])) { $legacy_theme_settings['theme_default_directory'] = 'default'; }
+				if (!isset($legacy_theme_settings['theme_default_status'])) { $legacy_theme_settings['theme_default_status'] = 1; }
+				$this->model_setting_setting->editSetting('theme_default', $legacy_theme_settings, $store_id);
 			}
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -222,10 +238,10 @@ class ControllerExtensionThemeCodecart extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('extension/theme/codecart', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->request->get['store_id'], true)
+			'href' => $this->url->link('extension/theme/codecart', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $store_id, true)
 		);
 
-		$data['action'] = $this->url->link('extension/theme/codecart', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $this->request->get['store_id'], true);
+		$data['action'] = $this->url->link('extension/theme/codecart', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $store_id, true);
 
 		$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=theme', true);
 		foreach (array('text_theme_modes','entry_dark_mode','help_dark_mode','entry_dark_mode_default','help_dark_mode_default','entry_datetimepicker_theme','help_datetimepicker_theme','entry_gallery_engine','help_gallery_engine','entry_header_phone','help_header_phone','entry_header_email','help_header_email','entry_header_menu_mode','help_header_menu_mode','text_header_menu_horizontal','text_header_menu_vertical','entry_header_information','help_header_information','entry_header_products','help_header_products','entry_header_custom_links','help_header_custom_links','entry_custom_link_title','entry_custom_link_url','entry_custom_link_sort','button_custom_link_add','entry_header_product_search','text_menu_products','entry_custom_css','help_custom_css','text_custom_css_help','entry_border_radius','help_border_radius','entry_h1_color','help_h1_color','entry_h2_color','help_h2_color','entry_product_card_content','help_product_card_content','text_product_card_description','text_product_card_attributes','entry_option_image_switch_status','help_option_image_switch_status','entry_purchase_blocks_status','help_purchase_blocks_status','text_font_preview','text_product_extra_tab','entry_product_extra_tab_status','help_product_extra_tab_status','entry_product_extra_tab_title','entry_product_extra_tab_content') as $language_key) {
@@ -234,7 +250,7 @@ class ControllerExtensionThemeCodecart extends Controller {
 		$data['catalog_ajax_check'] = str_replace('&amp;', '&', $this->url->link('extension/theme/codecart/catalogAjaxCheck', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . (isset($this->request->get['store_id']) ? (int)$this->request->get['store_id'] : 0), true));
 
 		if (isset($this->request->get['store_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
-			$setting_info = $this->model_setting_setting->getSetting('theme_codecart', $this->request->get['store_id']);
+			$setting_info = $this->model_setting_setting->getSetting('theme_codecart', $store_id);
 		}
 		
 		if (isset($this->request->post['theme_codecart_directory'])) {
@@ -242,7 +258,7 @@ class ControllerExtensionThemeCodecart extends Controller {
 		} elseif (isset($setting_info['theme_codecart_directory'])) {
 			$data['theme_codecart_directory'] = $setting_info['theme_codecart_directory'];
 		} else {
-			$data['theme_codecart_directory'] = 'default';
+			$data['theme_codecart_directory'] = 'codecart';
 		}		
 
 		$data['directories'] = array();
@@ -676,13 +692,13 @@ class ControllerExtensionThemeCodecart extends Controller {
 			$store_id = isset($this->request->get['store_id']) ? (int)$this->request->get['store_id'] : 0;
 			$this->load->model('setting/setting');
 			$settings = $this->model_setting_setting->getSetting('theme_codecart', $store_id);
-			$directory = isset($settings['theme_codecart_directory']) ? (string)$settings['theme_codecart_directory'] : 'default';
-			if ($directory !== 'default') {
+			$directory = isset($settings['theme_codecart_directory']) ? (string)$settings['theme_codecart_directory'] : 'codecart';
+			if ($directory !== 'codecart') {
 				$json['status']='fail'; $json['message']=$this->language->get('text_catalog_ajax_check_theme'); $json['items'][]=$directory;
 			}
 			$asset=DIR_CATALOG.'view/javascript/codecart/catalog/catalog-ajax.js';
 			if (!is_file($asset) || !is_readable($asset)) { $json['status']='fail'; $json['message']=$this->language->get('text_catalog_ajax_check_asset'); }
-			$targets=array('catalog/view/theme/default/template/product/category.twig','catalog/view/theme/default/template/product/manufacturer_info.twig','catalog/view/theme/default/template/product/search.twig','catalog/view/theme/default/template/product/special.twig','catalog/view/theme/default/template/extension/module/filter.twig');
+			$targets=array('catalog/view/theme/codecart/template/product/category.twig','catalog/view/theme/codecart/template/product/manufacturer_info.twig','catalog/view/theme/codecart/template/product/search.twig','catalog/view/theme/codecart/template/product/special.twig','catalog/view/theme/codecart/template/extension/module/filter.twig');
 			$touching=array();
 			try {
 				$q=$this->db->query("SELECT `name`,`code`,`xml` FROM `".DB_PREFIX."modification` WHERE `status`='1' ORDER BY `name` ASC");

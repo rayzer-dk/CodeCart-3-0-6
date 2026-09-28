@@ -391,6 +391,7 @@ class ControllerMailOrder extends Controller {
 			$data['text_order_status'] = $this->language->get('text_order_status');
 			$data['text_product'] = $this->language->get('text_product');
 			$data['text_model'] = $this->language->get('text_model');
+			$data['text_quantity'] = $this->language->get('text_quantity');
 			$data['text_total'] = $this->language->get('text_total');
 			$data['text_comment'] = $this->language->get('text_comment');
 			

@@ -43,6 +43,15 @@ class ControllerMarketplaceExtension extends Controller {
 		
 			if ($this->user->hasPermission('access', 'extension/extension/' . $extension)) {
 				$files = safe_glob(DIR_APPLICATION . 'controller/extension/' . $extension . '/*.php', GLOB_BRACE);
+				if ($extension === 'theme') {
+					$this->load->model('setting/extension');
+					$installed_themes = $this->model_setting_extension->getInstalled('theme');
+					$install_origin = strtolower((string)$this->config->get('codecart_install_origin'));
+					$native_codecart_install = ($install_origin === 'fresh') || ($install_origin === '' && !in_array('default', $installed_themes, true));
+					if ($native_codecart_install) {
+						$files = array_values(array_filter($files, function($theme_file) { return basename($theme_file, '.php') !== 'default'; }));
+					}
+				}
 		
 				$data['categories'][] = array(
 					'code' => $extension,

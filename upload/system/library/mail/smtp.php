@@ -43,6 +43,8 @@ class Smtp extends \stdClass {
 			$message .= chunk_split(base64_encode($this->text)) . PHP_EOL;
 		} else {
 			$message = '--' . $boundary . PHP_EOL;
+			$message .= 'Content-Type: multipart/related; boundary="' . $boundary . '_rel"' . PHP_EOL . PHP_EOL;
+			$message .= '--' . $boundary . '_rel' . PHP_EOL;
 			$message .= 'Content-Type: multipart/alternative; boundary="' . $boundary . '_alt"' . PHP_EOL . PHP_EOL;
 			$message .= '--' . $boundary . '_alt' . PHP_EOL;
 			$message .= 'Content-Type: text/plain; charset="utf-8"' . PHP_EOL;
@@ -59,6 +61,30 @@ class Smtp extends \stdClass {
 			$message .= 'Content-Transfer-Encoding: base64' . PHP_EOL . PHP_EOL;
 			$message .= chunk_split(base64_encode($this->html)) . PHP_EOL;
 			$message .= '--' . $boundary . '_alt--' . PHP_EOL;
+		}
+
+		if (!empty($this->inline_images) && is_array($this->inline_images)) {
+			foreach ($this->inline_images as $inline) {
+				if (!is_array($inline)) { continue; }
+				$filename = isset($inline['filename']) ? (string)$inline['filename'] : '';
+				$cid = isset($inline['cid']) ? preg_replace('/[^A-Za-z0-9._-]/', '', (string)$inline['cid']) : '';
+				$mime = isset($inline['mime']) ? (string)$inline['mime'] : 'image/png';
+				if ($filename === '' || $cid === '' || !is_file($filename) || !is_readable($filename)) { continue; }
+				if (strpos($mime, 'image/') !== 0) { $mime = 'image/png'; }
+				$content = file_get_contents($filename);
+				if ($content === false) { continue; }
+				$message .= '--' . $boundary . '_rel' . PHP_EOL;
+				$message .= 'Content-Type: ' . $mime . '; name="' . $cid . '"' . PHP_EOL;
+				$message .= 'Content-Transfer-Encoding: base64' . PHP_EOL;
+				$message .= 'Content-Disposition: inline; filename="' . $cid . '"' . PHP_EOL;
+				$message .= 'Content-ID: <' . $cid . '>' . PHP_EOL;
+				$message .= 'X-Attachment-Id: ' . $cid . PHP_EOL . PHP_EOL;
+				$message .= chunk_split(base64_encode($content));
+			}
+		}
+
+		if ($this->html) {
+			$message .= '--' . $boundary . '_rel--' . PHP_EOL;
 		}
 
 		foreach ($this->attachments as $attachment) {

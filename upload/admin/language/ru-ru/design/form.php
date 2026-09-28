@@ -64,4 +64,29 @@ $_['text_template_rules_info'] = 'Правила / уточнения';
 $_['text_template_shoes_eu'] = 'Размеры обуви EU';
 $_['text_template_clothing_women_eu'] = 'Женские размеры EU';
 $_['text_template_clothing_men_eu'] = 'Мужские размеры EU';
+
+$_['text_form_usage_title'] = 'Где отображать формы';
+$_['text_form_usage_product'] = 'Один товар: Каталог → Товары → Контентные блоки → добавить «Форма».';
+$_['text_form_usage_category_products'] = 'Товары категории: Каталог → Категории → Контентные блоки. Товары наследуют ближайший настроенный шаблон категории.';
+$_['text_form_usage_category_page'] = 'На самой странице категории: создать модуль CodeCart Form и разместить его в Дизайн → Макеты; назначить макет категории.';
+$_['text_form_usage_global'] = 'На всех товарах/категориях: разместить модуль CodeCart Form в соответствующем макете Product или Category.';
+$_['text_form_usage_shortcode'] = 'В информационном/контентном блоке: использовать shortcode, показанный в таблице ниже.';
+
+$_['entry_button_icon'] = 'Иконка кнопки';
+$_['entry_button_colors'] = 'Оформление кнопки';
+$_['entry_button_bg'] = 'Цвет фона';
+$_['entry_button_text_color'] = 'Цвет текста';
+$_['entry_button_hover_bg'] = 'Цвет при наведении';
+$_['help_button_style'] = 'Базовый стиль кнопки формы. В конкретном товаре или категории его можно переопределить.';
+$_['help_status_global'] = 'Отключение действует глобально: форма или информационный блок перестаёт выводиться в товарах, категориях, shortcode и модулях.';
+
+$_['column_kind'] = 'Тип';
+$_['text_kind_request_short'] = 'Форма';
+$_['text_kind_info_short'] = 'Информационный блок';
+
+$_['button_choose_icon'] = 'Выбрать иконку';
+$_['button_clear_icon'] = 'Очистить иконку';
+$_['text_icon_picker_title'] = 'Выбор иконки';
+$_['text_icon_search'] = 'Поиск иконки...';
+$_['text_icon_loading'] = 'Загрузка каталога иконок...';
 $_['js_presets_json'] = '{}';

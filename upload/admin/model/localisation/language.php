@@ -200,7 +200,38 @@ class ModelLocalisationLanguage extends Model {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "recurring_description SET recurring_id = '" . (int)$recurring['recurring_id'] . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($recurring['name'])."'");
 		}
 
+		// ocStore/CodeCart content tables that the OpenCart list above does not know about.
+		// Without a copy, manufacturers, blog, product extra tabs, forms and content blocks
+		// were empty/invisible in a newly added language until re-entered by hand.
+		foreach (array('manufacturer_description', 'blog_category_description', 'article_description', 'product_extra_tab', 'codecart_form_description', 'codecart_purchase_block') as $table) {
+			$this->copyLanguageRows($table, (int)$this->config->get('config_language_id'), (int)$language_id);
+		}
+
+		$this->cache->delete('manufacturer');
+
 		return $language_id;
+	}
+
+	private function copyLanguageRows($table, $source_language_id, $target_language_id) {
+		if ($source_language_id < 1 || $target_language_id < 1 || $source_language_id === $target_language_id) { return; }
+		$exists = $this->db->query("SHOW TABLES LIKE '" . $this->db->escape(DB_PREFIX . $table) . "'");
+		if (!$exists->num_rows) { return; }
+		$columns = array();
+		$has_language = false;
+		foreach ($this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . $table . "`")->rows as $column) {
+			// Auto-increment ids must be regenerated, not duplicated.
+			if (stripos((string)$column['Extra'], 'auto_increment') !== false) { continue; }
+			$columns[] = (string)$column['Field'];
+			if ($column['Field'] === 'language_id') { $has_language = true; }
+		}
+		if (!$has_language || count($columns) < 2) { return; }
+		$insert = array();
+		$select = array();
+		foreach ($columns as $column) {
+			$insert[] = '`' . $column . '`';
+			$select[] = $column === 'language_id' ? "'" . (int)$target_language_id . "'" : '`' . $column . '`';
+		}
+		$this->db->query("INSERT IGNORE INTO `" . DB_PREFIX . $table . "` (" . implode(', ', $insert) . ") SELECT " . implode(', ', $select) . " FROM `" . DB_PREFIX . $table . "` WHERE language_id = '" . (int)$source_language_id . "'");
 	}
 
 	public function editLanguage($language_id, $data) {

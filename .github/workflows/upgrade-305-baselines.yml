@@ -322,7 +322,7 @@ jobs:
           test "$(q "SELECT COUNT(*) FROM oc_order")" = "$(cat /tmp/base-order-count)"
 
           test "$(q 'SELECT value FROM oc_setting WHERE `key`="codecart_core_schema_version" LIMIT 1')" = "3.0.6.0"
-          test "$(q 'SELECT value FROM oc_setting WHERE `key`="codecart_presentation_schema_version" LIMIT 1')" = "28"
+          test "$(q 'SELECT value FROM oc_setting WHERE `key`="codecart_presentation_schema_version" LIMIT 1')" = "32"
           test "$(q 'SELECT value FROM oc_setting WHERE `key`="theme_codecart_status" LIMIT 1')" = "1"
 
           critical_bad="$(q "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN ('oc_setting','oc_product','oc_product_option_value','oc_order','oc_order_product','oc_order_option','oc_order_total','oc_order_history','oc_customer','oc_customer_reward','oc_coupon_history','oc_voucher_history') AND engine <> 'InnoDB'")"

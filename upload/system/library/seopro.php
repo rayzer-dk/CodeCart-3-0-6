@@ -57,6 +57,12 @@ class SeoPro {
     public function prepareRoute($parts) {
 
         if (!empty($parts) && is_array($parts)) {
+            // A trailing slash produces an empty path segment. It is routing
+            // syntax, not a SEO keyword, and must never turn a valid URL into 404.
+            $parts = array_values(array_filter($parts, static function ($part) {
+                return trim((string)$part) !== '';
+            }));
+
             foreach($parts as $id => $part) {
                 $query = null;
 
@@ -455,7 +461,12 @@ class SeoPro {
         }
 
         if ($this->config->get('config_seo_url_cache')) {
-            if (isset($this->queries[$lookup_keyword][$store_id][$language_id])) {
+            // Old SeoPro caches can use a flat keyword=>query shape. Do not
+            // interpret scalar string offsets as store/language cache levels.
+            if (isset($this->queries[$lookup_keyword]) && is_array($this->queries[$lookup_keyword])
+                && isset($this->queries[$lookup_keyword][$store_id]) && is_array($this->queries[$lookup_keyword][$store_id])
+                && isset($this->queries[$lookup_keyword][$store_id][$language_id])
+                && is_string($this->queries[$lookup_keyword][$store_id][$language_id])) {
                 $query = $this->queries[$lookup_keyword][$store_id][$language_id];
             }
         }
@@ -470,6 +481,36 @@ class SeoPro {
 
             $_query = $this->db->query("SELECT query FROM " . DB_PREFIX . "seo_url WHERE " . $keyword_condition . " AND store_id = '" . $store_id . "' AND language_id = '" . (int)$language_id . "' ORDER BY seo_url_id DESC LIMIT 1");
             $query = !empty($_query->row) ? (string)$_query->row['query'] : null;
+
+            // In native prefix mode an unprefixed path belongs to the configured
+            // default language. Resolve against it before returning a false 404.
+            if (($query === null || $query === '') && $this->config->get('codecart_language_prefix_enabled')
+                && trim((string)$this->config->get('codecart_language_prefix_current')) === '') {
+                $defaultCode = (string)$this->config->get('config_language');
+                if ($defaultCode !== '') {
+                    $defaultLanguage = $this->db->query("SELECT language_id FROM " . DB_PREFIX . "language WHERE code = '" . $this->db->escape($defaultCode) . "' AND status = '1' LIMIT 1");
+                    if ($defaultLanguage->num_rows && (int)$defaultLanguage->row['language_id'] !== (int)$language_id) {
+                        $language_id = (int)$defaultLanguage->row['language_id'];
+                        $_query = $this->db->query("SELECT query FROM " . DB_PREFIX . "seo_url WHERE " . $keyword_condition . " AND store_id = '" . $store_id . "' AND language_id = '" . (int)$language_id . "' ORDER BY seo_url_id DESC LIMIT 1");
+                        $query = !empty($_query->row) ? (string)$_query->row['query'] : null;
+
+                        // An unprefixed URL is owned by the configured default language.
+                        // If a stale session/cache left another language active, align the
+                        // runtime as soon as the default-language alias is confirmed.
+                        if ($query !== null && $query !== '') {
+                            $this->config->set('config_language_id', $language_id);
+                            if ($this->session) {
+                                $this->session->data['language'] = $defaultCode;
+                            }
+                            if (class_exists('Language')) {
+                                $language = new Language($defaultCode);
+                                $language->load($defaultCode);
+                                $this->registry->set('language', $language);
+                            }
+                        }
+                    }
+                }
+            }
 
             if ($query !== null && $query !== '') {
                 if (!isset($this->queries[$lookup_keyword])) $this->queries[$lookup_keyword] = array();
@@ -489,7 +530,10 @@ class SeoPro {
             $language_id = $this->config->get('config_language_id');
 
         if ($this->config->get('config_seo_url_cache')) {
-            if (isset($this->keywords[$query][$store_id][$language_id])) {
+            if (isset($this->keywords[$query]) && is_array($this->keywords[$query])
+                && isset($this->keywords[$query][$store_id]) && is_array($this->keywords[$query][$store_id])
+                && isset($this->keywords[$query][$store_id][$language_id])
+                && is_string($this->keywords[$query][$store_id][$language_id])) {
                 $keyword = $this->keywords[$query][$store_id][$language_id];
             }
         }

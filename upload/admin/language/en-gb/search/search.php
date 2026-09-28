@@ -25,9 +25,14 @@ $_['text_content_placeholder'] = 'Information, articles, modules';
 $_['text_catalog_examples'] = 'product: Product name|category: Category name|manufacturer: Manufacturer name|sku: Product SKU';
 $_['text_customers_examples'] = 'customer: Name or surname|email: address@example.com|phone: phone number';
 $_['text_orders_examples'] = 'order: order number|invoice: invoice number|customer: name or surname';
-$_['text_content_examples'] = 'page: Page title|article: Article title|module: Module name';
+$_['text_content_examples'] = 'page: Page title|article: Article title|module: HTML Content|module: Category Wall';
 
 $_['text_settings'] = 'Settings';
 $_['text_settings_placeholder'] = 'Setting name, key or section';
-$_['text_settings_examples'] = 'setting: SEO URL|setting: SMTP|setting: cache|setting: checkout|key: config_seo_url';
+$_['text_settings_examples'] = 'setting: SEO URL|section: Icons|section: System Notifications|setting: SMTP|key: config_seo_url';
 $_['text_setting_key'] = 'Setting key';
+
+$_['text_module_instance'] = 'Instance';
+$_['text_settings_fields'] = 'Setting fields';
+$_['text_system_pages'] = 'Sections & tools';
+$_['text_route'] = 'Route';

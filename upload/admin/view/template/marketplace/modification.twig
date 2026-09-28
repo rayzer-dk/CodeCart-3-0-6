@@ -40,7 +40,7 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
       <a href="{{ filter_warning }}" class="cc-summary-card info{% if compatibility_filter == 'warning' %} active{% endif %}" title="{{ text_filter_warning }}"><span>{{ text_summary_skipped }}</span><strong>{{ compatibility_summary.skipped_operations|default(0) }}</strong></a>
       <a href="{{ filter_issues }}" class="cc-summary-card bad{% if compatibility_filter == 'issues' %} active{% endif %}" title="{{ text_filter_issues }}"><span>{{ text_summary_issues }}</span><strong>{{ compatibility_summary.issues|default(0) }}</strong></a>
     </div>
-    <div class="cc-summary-meta"><i class="fa fa-clock-o"></i> {{ text_last_refresh }}: {{ compatibility_generated_at ?: text_not_available }}{% if compatibility_core_build %} · Core {{ compatibility_core_build }}{% endif %}{% if compatibility_package_build %} · Build {{ compatibility_package_build }}{% endif %}{% if compatibility_filter %} · <a href="{{ filter_all }}"><i class="fa fa-times"></i> {{ text_show_all }}</a>{% endif %}</div>
+    <div class="cc-summary-meta"><i class="fa fa-clock-o"></i> {{ text_last_refresh }}: {{ compatibility_generated_at ?: text_not_available }}{% if compatibility_core_build %} · Core {{ compatibility_core_build }}{% endif %}{% if compatibility_filter %} · <a href="{{ filter_all }}"><i class="fa fa-times"></i> {{ text_show_all }}</a>{% endif %}</div>
     {% endif %}
     <div class="panel panel-default">
       <div class="panel-heading">

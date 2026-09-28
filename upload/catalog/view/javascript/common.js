@@ -175,21 +175,27 @@ $(document).ready(function() {
 		}
 	});
 
-	// Telephone fields accept only digits, spaces, hyphens and parentheses.
-	// This delegated handler also covers checkout/account fields injected by AJAX.
+	// Telephone fields accept digits, spaces, hyphens, parentheses and one leading "+"
+	// (international format, e.g. +380...). Also covers fields injected by AJAX.
+	function cleanPhoneValue(value) {
+		value = String(value || '');
+		var plus = /^\s*\+/.test(value);
+		value = value.replace(/[^0-9()\-\s]/g, '');
+		return plus ? '+' + value.replace(/^\s+/, '') : value;
+	}
 	function sanitizePhoneField(input) {
-		var clean = String(input.value || '').replace(/[^0-9()\-\s]/g, '');
+		var clean = cleanPhoneValue(input.value);
 		if (input.value !== clean) { input.value = clean; }
 	}
 	$(document).on('focus', 'input[name="telephone"], input[name*="telephone"], input[type="tel"]', function() {
-		$(this).attr({'inputmode':'tel','autocomplete':'tel','pattern':'[0-9()\s-]*'});
+		$(this).attr({'inputmode':'tel','autocomplete':'tel','pattern':'\\+?[0-9()\\s-]*'});
 	}).on('input paste', 'input[name="telephone"], input[name*="telephone"], input[type="tel"]', function() {
 		var input = this; window.setTimeout(function(){ sanitizePhoneField(input); }, 0);
 	}).on('keydown', 'input[name="telephone"], input[name*="telephone"], input[type="tel"]', function(e) {
 		if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) { return; }
-		if (!/[0-9()\-\s]/.test(e.key)) { e.preventDefault(); }
+		if (!/[0-9()\-\s]/.test(e.key) && !(e.key === '+' && this.selectionStart === 0 && String(this.value || '').indexOf('+') === -1)) { e.preventDefault(); }
 	});
-	$('input[name="telephone"], input[name*="telephone"], input[type="tel"]').attr({'inputmode':'tel','autocomplete':'tel','pattern':'[0-9()\s-]*'});
+	$('input[name="telephone"], input[name*="telephone"], input[type="tel"]').attr({'inputmode':'tel','autocomplete':'tel','pattern':'\\+?[0-9()\\s-]*'});
 
 	// Currency
 	$('#form-currency .currency-select').on('click', function(e) {
@@ -876,13 +882,14 @@ $(document).delegate('.agree', 'click', function(e) {
 })();
 
 
-/* CodeCart PRO telephone input guard: digits, spaces, hyphens and parentheses only. */
+/* CodeCart PRO telephone input guard: one leading "+", digits, spaces, hyphens and parentheses. */
 (function($){
 'use strict';
-var allowed=/^[0-9()\s-]*$/;
-$(document).on('focus','input[type="tel"],input[name*="telephone"]',function(){$(this).attr({'inputmode':'tel','autocomplete':'tel','pattern':'[0-9()\\s-]*'});});
-$(document).on('input','input[type="tel"],input[name*="telephone"]',function(){var v=String(this.value||'');if(!allowed.test(v)){this.value=v.replace(/[^0-9()\s-]/g,'');}});
-$(document).on('paste','input[type="tel"],input[name*="telephone"]',function(e){var t=(e.originalEvent||e).clipboardData;if(t){var v=t.getData('text');if(!allowed.test(v)){e.preventDefault();var clean=v.replace(/[^0-9()\s-]/g,'');document.execCommand('insertText',false,clean);}}});
+var allowed=/^\+?[0-9()\s-]*$/;
+function clean(v){v=String(v||'');var plus=/^\s*\+/.test(v);v=v.replace(/[^0-9()\s-]/g,'');return plus?'+'+v.replace(/^\s+/,''):v;}
+$(document).on('focus','input[type="tel"],input[name*="telephone"]',function(){$(this).attr({'inputmode':'tel','autocomplete':'tel','pattern':'\\+?[0-9()\\s-]*'});});
+$(document).on('input','input[type="tel"],input[name*="telephone"]',function(){var v=String(this.value||'');if(!allowed.test(v)){this.value=clean(v);}});
+$(document).on('paste','input[type="tel"],input[name*="telephone"]',function(e){var t=(e.originalEvent||e).clipboardData;if(t){var v=t.getData('text');if(!allowed.test(v)){e.preventDefault();document.execCommand('insertText',false,clean(v));}}});
 })(window.jQuery);
 
 

@@ -19,6 +19,12 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
         }
 
         $data['error_warning'] = isset($this->error['warning']) ? $this->error['warning'] : '';
+        if (isset($this->session->data['success'])) {
+            $data['success'] = $this->session->data['success'];
+            unset($this->session->data['success']);
+        } else {
+            $data['success'] = '';
+        }
         $data['error_carriers'] = isset($this->error['carriers']) ? $this->error['carriers'] : '';
         $data['breadcrumbs'] = array();
         $data['breadcrumbs'][] = array('text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true));
@@ -26,7 +32,7 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
         $data['breadcrumbs'][] = array('text' => $this->language->get('heading_title'), 'href' => $this->url->link('extension/shipping/carrier_choice', 'user_token=' . $this->session->data['user_token'], true));
         $data['action'] = $this->url->link('extension/shipping/carrier_choice', 'user_token=' . $this->session->data['user_token'], true);
         $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=shipping', true);
-        $data['sync_url'] = $this->url->link('extension/shipping/carrier_choice/syncCities', 'user_token=' . $this->session->data['user_token'], true);
+        $data['sync_url'] = str_replace('&amp;', '&', $this->url->link('extension/shipping/carrier_choice/syncCities', 'user_token=' . $this->session->data['user_token'], true));
 
         $languages = $this->model_localisation_language->getLanguages();
         $data['languages'] = array();

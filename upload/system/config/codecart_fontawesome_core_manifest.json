@@ -66,6 +66,7 @@
     "fax",
     "file",
     "file-lines",
+    "file-text-o",
     "files-o",
     "filter",
     "fire-flame-curved",
@@ -90,6 +91,7 @@
     "magnifying-glass",
     "map-marker",
     "minus",
+    "money",
     "money-bill",
     "moon",
     "newspaper",
@@ -164,7 +166,9 @@
   "manual_extra_icons": [
     "pause",
     "play",
-    "lightbulb-o"
+    "lightbulb-o",
+    "file-text-o",
+    "money"
   ],
   "manual_extra_skipped": [],
   "full_free_icons": [
@@ -5252,7 +5256,9 @@
     "whatsapp": "brands",
     "x-twitter": "brands",
     "xmark": "solid",
-    "youtube": "brands"
+    "youtube": "brands",
+    "file-text-o": "solid",
+    "money": "solid"
   },
   "core_icon_preview_names": {
     "address-book": "address-book",
@@ -5409,7 +5415,9 @@
     "whatsapp": "whatsapp",
     "x-twitter": "x-twitter",
     "xmark": "xmark",
-    "youtube": "youtube"
+    "youtube": "youtube",
+    "file-text-o": "file-lines",
+    "money": "money-bill"
   },
   "core_supported_names": [
     "address-book",

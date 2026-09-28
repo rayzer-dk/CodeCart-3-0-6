@@ -19,7 +19,7 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
         $carrier = $this->model_extension_shipping_carrier_choice->getCarrierByQuoteKey($carrierId);
         if (!$carrier) { $json['error'] = $this->language->get('error_carrier'); return $this->json($json); }
         try { $json['cities'] = $this->model_extension_shipping_carrier_choice->searchCities($carrier, $term, 20); }
-        catch (Throwable $e) { $json['error'] = $this->language->get('error_directory_unavailable'); }
+        catch (Throwable $e) { $this->logFailure('city search', $carrier, $e); $json['error'] = $this->language->get('error_directory_unavailable'); }
         return $this->json($json);
     }
 
@@ -42,7 +42,7 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
         $carrier = $this->model_extension_shipping_carrier_choice->getCarrierByQuoteKey($carrierId);
         if (!$carrier) { $json['error'] = $this->language->get('error_carrier'); return $this->json($json); }
         try { $json['branches'] = $this->model_extension_shipping_carrier_choice->getBranches($carrier, $cityId); }
-        catch (Throwable $e) { $json['error'] = $this->language->get('error_directory_unavailable'); }
+        catch (Throwable $e) { $this->logFailure('branch lookup', $carrier, $e); $json['error'] = $this->language->get('error_directory_unavailable'); }
         return $this->json($json);
     }
 
@@ -76,6 +76,16 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
             // The mandatory per-session ceiling above remains active if the central limiter fails.
             return true;
         }
+    }
+
+    private function logFailure($action, array $carrier, \Throwable $e) {
+        // The buyer sees a generic message; the merchant needs the carrier's reason
+        // (invalid key, quota, network) in the error log. Secrets are masked.
+        $message = trim(preg_replace('/\s+/', ' ', strip_tags((string)$e->getMessage())));
+        foreach (array('api_key', 'api_login', 'api_password', 'api_token') as $key) {
+            if (!empty($carrier[$key])) { $message = str_replace((string)$carrier[$key], '[masked]', $message); }
+        }
+        $this->log->write('Carrier ' . $action . ' failed [' . (isset($carrier['provider']) ? $carrier['provider'] : 'unknown') . ']: ' . substr($message, 0, 500));
     }
 
     private function json(array $json) {

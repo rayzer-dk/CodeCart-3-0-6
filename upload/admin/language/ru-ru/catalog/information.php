@@ -1,13 +1,13 @@
 <?php
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
-$_['heading_title'] = 'Статьи';
+$_['heading_title'] = 'Информационные страницы';
 $_['text_success'] = 'Настройки успешно изменены!';
-$_['text_list'] = 'Список cтатей';
+$_['text_list'] = 'Список страниц';
 $_['text_add'] = 'Добавить';
 $_['text_edit'] = 'Редактирование';
 $_['text_default'] = 'По умолчанию';
 $_['text_keyword'] = 'Должен быть уникальным на всю систему, без пробелов и спецсимволов.';
-$_['column_title'] = 'Название статьи';
+$_['column_title'] = 'Название страницы';
 $_['column_sort_order'] = 'Порядок сортировки';
 $_['column_noindex'] = 'Индексация';
 $_['column_action'] = 'Действие';

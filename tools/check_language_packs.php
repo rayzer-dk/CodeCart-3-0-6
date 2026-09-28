@@ -66,10 +66,10 @@ foreach (array('catalog', 'admin') as $area) {
     foreach ($iterator as $file) {
         if (substr((string)$file, -4) !== '.php') { continue; }
         $source = (string)file_get_contents((string)$file);
-        preg_match_all('/this->load->language\(\s*[\'"]([a-z0-9_\/]+)[\'"]\s*\)/', $source, $match);
+        preg_match_all('/(?:this->load->language|\$language->load)\(\s*[\'"]([a-z0-9_\/]+)[\'"]\s*\)/', $source, $match);
         $routes = array_values(array_unique($match[1]));
         if (!$routes) { continue; }
-        preg_match_all('/this->language->get\(\s*[\'"]([a-z0-9_]+)[\'"]\s*\)(?!\s*->)/', $source, $match);
+        preg_match_all('/(?:this->language|\$language)->get\(\s*[\'"]([a-z0-9_]+)[\'"]\s*\)(?!\s*->)/', $source, $match);
         $needed = array_fill_keys($match[1], true);
         preg_match_all('/\$data\[\s*[\'"]([a-z0-9_]+)[\'"]\s*\]\s*=/', $source, $match);
         $assigned = array_fill_keys($match[1], true);
@@ -78,12 +78,20 @@ foreach (array('catalog', 'admin') as $area) {
             $template = $templateDir . $view . '.twig';
             if (!is_file($template)) { continue; }
             preg_match_all('/\{\{\s*((?:text|entry|button|column|error|help|tab|heading|legend|placeholder|success|warning)_[a-z0-9_]+)\s*(?:\||\}\})/', (string)file_get_contents($template), $tm);
-            foreach ($tm[1] as $key) { if (!isset($assigned[$key])) { $needed[$key] = true; } }
+            foreach ($tm[1] as $key) { if (!isset($assigned[$key]) && !isset($needed[$key])) { $needed[$key] = 'twig'; } }
         }
+        $availableBy = array();
+        $union = array();
         foreach (array('en-gb', 'uk-ua', 'ru-ru') as $language) {
             $available = $load($root . '/upload/' . $area . '/language/' . $language . '/' . $language . '.php');
             foreach ($routes as $route) { $available += $load($root . '/upload/' . $area . '/language/' . $language . '/' . $route . '.php'); }
-            foreach (array_keys($needed) as $key) {
+            $availableBy[$language] = $available;
+            $union += $available;
+        }
+        foreach ($availableBy as $language => $available) {
+            foreach ($needed as $key => $origin) {
+                // A twig variable that no language defines is controller data (e.g. a form value), not a phrase.
+                if ($origin === 'twig' && !array_key_exists($key, $union)) { continue; }
                 if (!array_key_exists($key, $available)) {
                     $errors[] = $area . '/' . $language . ': ' . substr((string)$file, strlen($controllerDir) + 1) . ' uses missing key ' . $key;
                 }

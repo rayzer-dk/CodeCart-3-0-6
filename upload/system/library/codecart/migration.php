@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '28';
+    const PRESENTATION_SCHEMA_VERSION = '32';
 
     private $db;
     private $config;
@@ -180,6 +180,7 @@ class Migration {
             // Existing administrator profile data is never rebranded during UPDATE.
             // Existing storefront presentation is preserved on UPDATE.
             $this->ensureCoreFeatureDefaults();
+            $this->ensureSeoModeConsistency();
             $this->ensureBundledDemoPresentationData();
             $this->enableConfiguredPurchaseBlocksFromRc88();
             $this->localizeBundledUkrainianDefaults();
@@ -203,6 +204,12 @@ class Migration {
             $this->ensureDashboardHealthInfrastructure();
             $this->currentStep = 'dashboard.legacy_domovoy';
             $this->migrateLegacyDomovoyDashboard();
+            $this->currentStep = 'module.invalid_json_settings';
+            $this->repairInvalidModuleSettings();
+            $this->currentStep = 'forms.entity_encoded_texts';
+            $this->repairEntityEncodedFormTexts();
+            $this->currentStep = 'catalog.category_path_consistency';
+            $this->repairInconsistentCategoryPaths();
             // Existing SEO/blog rows are never cleaned implicitly during UPDATE.
             $this->updateDatabaseModernizationFlag();
             $this->currentStep = 'legacy_extra_email';
@@ -257,8 +264,21 @@ class Migration {
             return;
         }
 
-        // UPDATE policy: install CodeCart Theme as an additional selectable theme only.
-        // Never modify config_theme/config_template here; the merchant's active theme must remain untouched.
+        // Theme policy:
+        // - CLEAN install: CodeCart Theme is the only registered system theme.
+        // - UPDATE from OpenCart/ocStore: preserve every previously installed/active theme and
+        //   register CodeCart Theme only as an additional option. Never switch config_theme.
+        // Persist the installation origin so the admin UI can distinguish a native CodeCart
+        // install from an upgraded legacy store without guessing from the currently active theme.
+        $origin = $this->db->query("SELECT value FROM `" . DB_PREFIX . "setting` WHERE store_id='0' AND `key`='codecart_install_origin' LIMIT 1");
+        if (!$origin->num_rows) {
+            $legacyDefault = $this->db->query("SELECT extension_id FROM `" . DB_PREFIX . "extension` WHERE `type`='theme' AND `code`='default' LIMIT 1");
+            $activeTheme = $this->db->query("SELECT value FROM `" . DB_PREFIX . "setting` WHERE store_id='0' AND `code`='config' AND `key`='config_theme' LIMIT 1");
+            $activeThemeCode = $activeTheme->num_rows ? (string)$activeTheme->row['value'] : '';
+            $originValue = ($legacyDefault->num_rows || ($activeThemeCode !== '' && $activeThemeCode !== 'codecart')) ? 'upgrade' : 'fresh';
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET store_id='0', `code`='codecart_core', `key`='codecart_install_origin', `value`='" . $this->db->escape($originValue) . "', serialized='0'");
+        }
+
         $exists = $this->db->query("SELECT extension_id FROM `" . DB_PREFIX . "extension` WHERE `type`='theme' AND `code`='codecart' LIMIT 1");
         if (!$exists->num_rows) {
             $this->db->query("INSERT INTO `" . DB_PREFIX . "extension` SET `type`='theme', `code`='codecart'");
@@ -290,6 +310,24 @@ class Migration {
         $directory = $this->db->query("SELECT setting_id FROM `" . DB_PREFIX . "setting` WHERE store_id='0' AND `key`='theme_codecart_directory' LIMIT 1");
         if (!$directory->num_rows) {
             $this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET store_id='0', `code`='theme_codecart', `key`='theme_codecart_directory', `value`='codecart', serialized='0'");
+        }
+
+
+        // Never uninstall or hide a legacy theme record during UPDATE. The old Default Theme,
+        // UniShop2 and any other merchant theme remain intact even after CodeCart Theme is selected later.
+    }
+
+    private function ensureSeoModeConsistency() {
+        if (!$this->tableExists('setting')) { return; }
+        $seoPro = $this->db->query("SELECT value FROM `" . DB_PREFIX . "setting` WHERE store_id='0' AND `key`='config_seo_pro' LIMIT 1");
+        if (!$seoPro->num_rows || !(int)$seoPro->row['value']) { return; }
+        $seoUrl = $this->db->query("SELECT setting_id, value FROM `" . DB_PREFIX . "setting` WHERE store_id='0' AND `key`='config_seo_url' LIMIT 1");
+        if ($seoUrl->num_rows) {
+            if (!(int)$seoUrl->row['value']) {
+                $this->db->query("UPDATE `" . DB_PREFIX . "setting` SET value='1' WHERE setting_id='" . (int)$seoUrl->row['setting_id'] . "'");
+            }
+        } else {
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET store_id='0', `code`='config', `key`='config_seo_url', `value`='1', serialized='0'");
         }
     }
 
@@ -490,14 +528,135 @@ class Migration {
             }
         }
 
+        // Presentation schema: the native category page already renders child categories with images.
+        // Remove only the bundled demo Category Wall from Category layout to avoid duplicate subcategory blocks.
+        if ($this->tableExists('layout_module')) {
+            $this->db->query("DELETE FROM `" . DB_PREFIX . "layout_module` WHERE layout_id='3' AND code='category_wall.42' AND position='content_top'");
+        }
+        if ($this->tableExists('setting')) {
+            $this->db->query("UPDATE `" . DB_PREFIX . "setting` SET value='1' WHERE store_id='0' AND `key`='config_seo_url'");
+        }
+
         // Presentation-only article branding refresh. Merchant stores are excluded by the store-name guard above.
         if ($this->tableExists('article')) {
-            $this->db->query("UPDATE `" . DB_PREFIX . "article` SET image='catalog/codecart-pro-system.webp' WHERE article_id='120' AND image IN ('catalog/cart.webp','catalog/codecart-pro-system.webp')");
+            $this->db->query("UPDATE `" . DB_PREFIX . "article` SET image='catalog/codecart-pro-system.webp', date_added='2026-09-27 12:00:00', date_modified='2026-09-27 12:00:00' WHERE article_id='120' AND image IN ('catalog/cart.webp','catalog/codecart-pro-system.webp')");
         }
         if ($this->tableExists('article_description')) {
             foreach (array('name','description','meta_description','meta_title','meta_h1') as $column) {
                 $this->db->query("UPDATE `" . DB_PREFIX . "article_description` SET `" . $column . "`=REPLACE(`" . $column . "`,CONCAT('CodeCart PRO 3.0.6.0 ','Be','ta'),'CodeCart PRO 3.0.6.0') WHERE article_id='120'");
             }
+        }
+        if ($this->tableExists('article_description')) {
+            $this->db->query("UPDATE `" . DB_PREFIX . "article_description` SET name='CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', description='&lt;h2 id=&quot;about&quot;&gt;CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;#about&quot;&gt;Про систему&lt;/a&gt; · &lt;a href=&quot;#difference&quot;&gt;Відмінності&lt;/a&gt; · &lt;a href=&quot;#commerce&quot;&gt;Комерція&lt;/a&gt; · &lt;a href=&quot;#compatibility&quot;&gt;Сумісність&lt;/a&gt; · &lt;a href=&quot;#seo&quot;&gt;SEO&lt;/a&gt; · &lt;a href=&quot;#security&quot;&gt;Безпека&lt;/a&gt; · &lt;a href=&quot;#result&quot;&gt;Для кого&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;CodeCart PRO 3.0.6.0&lt;/strong&gt; — це модернізована e-commerce платформа на основі екосистеми OpenCart 3.x. Її мета — зберегти сумісність зі звичними модулями, OCMOD, Events і MVC-L, але додати сучасний шар для безпечних оновлень, черг, планувальника, API, Modern Extensions, Compatibility Framework, продуктивності та стабільної роботи магазину.&lt;/p&gt;
+&lt;p&gt;CodeCart не намагається замінити робочу екосистему радикально новим стеком. Замість цього використовується принцип &lt;strong&gt;Legacy Core + Modern Core&lt;/strong&gt;: старі розширення продовжують працювати у знайомому середовищі, а нові можуть використовувати namespace, PSR-4, сервіси, manifests і стабільні точки розширення.&lt;/p&gt;
+
+&lt;h3 id=&quot;difference&quot;&gt;Чим CodeCart відрізняється від OpenCart та ocStore&lt;/h3&gt;
+&lt;div class=&quot;table-responsive&quot;&gt;
+&lt;table class=&quot;table table-bordered table-striped&quot;&gt;
+&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Можливість&lt;/th&gt;&lt;th&gt;OpenCart 3.0.5.x&lt;/th&gt;&lt;th&gt;ocStore 3.0.5.x&lt;/th&gt;&lt;th&gt;CodeCart PRO 3.0.6.x&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;PHP&lt;/td&gt;&lt;td&gt;PHP 8.0–8.4&lt;/td&gt;&lt;td&gt;PHP 8.0–8.5&lt;/td&gt;&lt;td&gt;&lt;strong&gt;PHP 8.1–8.5&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Архітектура розширень&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Legacy + Modern Extensions, PSR-4, Services, manifests&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Оновлення системи&lt;/td&gt;&lt;td&gt;Класичний installer&lt;/td&gt;&lt;td&gt;Класичний installer&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Installer 2.0, preflight, контрольована міграція та повторний запуск&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Надійність checkout&lt;/td&gt;&lt;td&gt;Стандартна логіка&lt;/td&gt;&lt;td&gt;Стандартна логіка&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Транзакції, блокування, idempotency, захист повторних callback&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Черги та автоматизація&lt;/td&gt;&lt;td&gt;Переважно через модулі&lt;/td&gt;&lt;td&gt;Переважно через модулі&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Queue, Scheduler, CLI Worker та Cron layer&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Сумісність сторонніх тем&lt;/td&gt;&lt;td&gt;Нативна для своєї версії&lt;/td&gt;&lt;td&gt;Нативна для ocStore&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Compatibility Framework і встановлювані adapters&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;SEO URL&lt;/td&gt;&lt;td&gt;Стандартні SEO URL&lt;/td&gt;&lt;td&gt;SEO URL + SeoPro&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Стандартні SEO URL + SeoPro + динамічні мовні префікси&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Зображення&lt;/td&gt;&lt;td&gt;Базова обробка&lt;/td&gt;&lt;td&gt;Базова обробка&lt;/td&gt;&lt;td&gt;&lt;strong&gt;WebP/AVIF-ready pipeline, сучасні image hooks&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Адмінка та діагностика&lt;/td&gt;&lt;td&gt;Класична&lt;/td&gt;&lt;td&gt;Класична&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Core diagnostics, compatibility scanner, глобальний пошук, системні повідомлення&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Безпека&lt;/td&gt;&lt;td&gt;Базові механізми&lt;/td&gt;&lt;td&gt;Розширені локальні правки&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Security headers, upload guard, rate limits, secret handling, аудит критичних дій&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;commerce&quot;&gt;Commerce-first: надійність продажів&lt;/h3&gt;
+&lt;p&gt;Для магазину важливо не лише швидко показати сторінку, а й гарантовано створити одне замовлення, один раз списати залишок і не застосувати купон або платіжний callback повторно. У CodeCart посилено критичні ділянки checkout: транзакції, блокування конкурентних змін, idempotency, повернення залишків, ваучери, купони та журналювання помилок.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;захист від подвійного натискання Confirm;&lt;/li&gt;
+&lt;li&gt;захист від повторного webhook або callback;&lt;/li&gt;
+&lt;li&gt;контроль залишків при паралельних замовленнях;&lt;/li&gt;
+&lt;li&gt;безпечне скасування і повернення зарезервованих даних;&lt;/li&gt;
+&lt;li&gt;постійні черги для фонових задач.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;compatibility&quot;&gt;Сумісність без повернення старого ядра&lt;/h3&gt;
+&lt;p&gt;CodeCart підтримує звичайні OpenCart 3.x модулі та одночасно має &lt;strong&gt;Compatibility Framework&lt;/strong&gt;. Якщо популярна тема очікує старі внутрішні контракти, для неї можна підключити окремий adapter без переписування Core. Практичний приклад — UniShop2: адаптер відновлює необхідні контракти меню, категорій, опцій та банерів, але не повертає старі N+1 алгоритми.&lt;/p&gt;
+&lt;p&gt;При оновленні існуючого OpenCart або ocStore активна тема магазину зберігається. CodeCart Theme додається окремо і не повинна самовільно замінювати оформлення чинного магазину.&lt;/p&gt;
+
+&lt;h3 id=&quot;seo&quot;&gt;SEO, ЧПУ та мультимовність&lt;/h3&gt;
+&lt;p&gt;У CodeCart є два рівні URL. &lt;strong&gt;ЧПУ&lt;/strong&gt; — базовий механізм красивих SEO URL. &lt;strong&gt;SeoPro&lt;/strong&gt; — розширений маршрутизатор, який додає роботу зі шляхами категорій, canonical-логікою, суфіксами та додатковими правилами. Для мультимовного магазину мовні префікси визначаються динамічно: головна мова може працювати без префікса, а інші — з довільними папками.&lt;/p&gt;
+&lt;p&gt;Система також орієнтована на canonical URL, sitemap, структуровані дані, коректну індексацію, SEO URL для товарів, категорій, виробників, інформаційних сторінок і блогу.&lt;/p&gt;
+
+&lt;h3 id=&quot;performance&quot;&gt;Швидкість і сучасна вітрина&lt;/h3&gt;
+&lt;p&gt;CodeCart зберігає легку серверну модель OpenCart, але оптимізує типові вузькі місця: пакетне завантаження категорій, контрольоване кешування, lazy-loading, сучасні формати зображень і підключення CSS/JavaScript лише там, де вони потрібні. Вітрина залишається сумісною з Bootstrap 3-модулями, але отримує сучасні адаптивні компоненти.&lt;/p&gt;
+
+&lt;h3 id=&quot;security&quot;&gt;Безпека та контроль&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;валідація admin/AJAX/API дій і user_token;&lt;/li&gt;
+&lt;li&gt;безпечна робота з SQL та whitelist для динамічних полів;&lt;/li&gt;
+&lt;li&gt;UploadGuard і перевірка типів файлів;&lt;/li&gt;
+&lt;li&gt;rate limiting для публічних endpoint;&lt;/li&gt;
+&lt;li&gt;захищене зберігання секретів без повернення API-ключів у DOM;&lt;/li&gt;
+&lt;li&gt;діагностика без показу відвідувачу абсолютних шляхів і raw PHP errors.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;extensions&quot;&gt;Modern Extensions&lt;/h3&gt;
+&lt;p&gt;Нові розширення можуть використовувати Modern Extension Registry. Це дозволяє встановлювати окремі пакети з manifest, власним namespace, permissions і compatibility adapters без постійного патчування ядра. При цьому звичайні OpenCart-модулі залишаються підтримуваними.&lt;/p&gt;
+
+&lt;h3 id=&quot;result&quot;&gt;Для кого CodeCart&lt;/h3&gt;
+&lt;p&gt;CodeCart підходить магазинам, яким потрібна знайома екосистема OpenCart 3.x, але з більш сучасною основою для довготривалої роботи. Це не повний розрив із OpenCart, а контрольована еволюція: старі модулі можуть продовжувати працювати, а нові функції отримують сучасні контракти, діагностику, автоматизацію та безпечніше оновлення.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Головна ідея:&lt;/strong&gt; магазин має залишатися легким, сумісним і передбачуваним, але при цьому бути готовим до сучасних вимог SEO, безпеки, автоматизації, API та масштабування.&lt;/p&gt;', meta_description='CodeCart PRO 3.0.6.0 — сучасна основа OpenCart 3.x з безпечними оновленнями, Modern Extensions, SEO, Compatibility Framework та надійним checkout.', meta_keyword='codecart, opencart, ocstore, ecommerce, seo, modern extensions', meta_title='CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', meta_h1='CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', tag='codecart, opencart, ocstore, ecommerce, seo' WHERE article_id='120' AND language_id='1'");
+            $this->db->query("UPDATE `" . DB_PREFIX . "article_description` SET name='CodeCart PRO 3.0.6.0 — a modern foundation for online stores', description='&lt;h2 id=&quot;about&quot;&gt;CodeCart PRO 3.0.6.0 — a modern foundation for online stores&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;#about&quot;&gt;About&lt;/a&gt; · &lt;a href=&quot;#difference&quot;&gt;Differences&lt;/a&gt; · &lt;a href=&quot;#commerce&quot;&gt;Commerce&lt;/a&gt; · &lt;a href=&quot;#compatibility&quot;&gt;Compatibility&lt;/a&gt; · &lt;a href=&quot;#seo&quot;&gt;SEO&lt;/a&gt; · &lt;a href=&quot;#security&quot;&gt;Security&lt;/a&gt; · &lt;a href=&quot;#result&quot;&gt;Who it is for&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;CodeCart PRO 3.0.6.0&lt;/strong&gt; is a modernized e-commerce platform built on the OpenCart 3.x ecosystem. Its goal is to preserve compatibility with familiar modules, OCMOD, Events and MVC-L while adding a modern layer for safer upgrades, queues, scheduling, APIs, Modern Extensions, compatibility adapters, performance and commerce reliability.&lt;/p&gt;
+&lt;p&gt;The core principle is &lt;strong&gt;Legacy Core + Modern Core&lt;/strong&gt;: existing extensions keep the environment they expect, while new extensions can use namespaces, PSR-4, services, manifests and stable extension contracts.&lt;/p&gt;
+
+&lt;h3 id=&quot;difference&quot;&gt;How CodeCart differs from OpenCart and ocStore&lt;/h3&gt;
+&lt;div class=&quot;table-responsive&quot;&gt;
+&lt;table class=&quot;table table-bordered table-striped&quot;&gt;
+&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Capability&lt;/th&gt;&lt;th&gt;OpenCart 3.0.5.x&lt;/th&gt;&lt;th&gt;ocStore 3.0.5.x&lt;/th&gt;&lt;th&gt;CodeCart PRO 3.0.6.x&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;PHP&lt;/td&gt;&lt;td&gt;PHP 8.0–8.4&lt;/td&gt;&lt;td&gt;PHP 8.0–8.5&lt;/td&gt;&lt;td&gt;&lt;strong&gt;PHP 8.1–8.5&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Extension architecture&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Legacy + Modern Extensions, PSR-4, services, manifests&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;System upgrades&lt;/td&gt;&lt;td&gt;Classic installer&lt;/td&gt;&lt;td&gt;Classic installer&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Installer 2.0, preflight, controlled migration and idempotent reruns&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Checkout reliability&lt;/td&gt;&lt;td&gt;Standard flow&lt;/td&gt;&lt;td&gt;Standard flow&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Transactions, locking, idempotency and duplicate-callback protection&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Queues and automation&lt;/td&gt;&lt;td&gt;Mainly extensions&lt;/td&gt;&lt;td&gt;Mainly extensions&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Queue, Scheduler, CLI Worker and Cron layer&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Third-party theme compatibility&lt;/td&gt;&lt;td&gt;Native version compatibility&lt;/td&gt;&lt;td&gt;ocStore compatibility&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Compatibility Framework and installable adapters&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;SEO URLs&lt;/td&gt;&lt;td&gt;Standard SEO URLs&lt;/td&gt;&lt;td&gt;SEO URL + SeoPro&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Standard SEO URL + SeoPro + dynamic language prefixes&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Images&lt;/td&gt;&lt;td&gt;Basic image processing&lt;/td&gt;&lt;td&gt;Basic image processing&lt;/td&gt;&lt;td&gt;&lt;strong&gt;WebP/AVIF-ready pipeline and modern image hooks&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Admin diagnostics&lt;/td&gt;&lt;td&gt;Classic&lt;/td&gt;&lt;td&gt;Classic&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Core diagnostics, compatibility scanner, global search and system notices&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Security&lt;/td&gt;&lt;td&gt;Core mechanisms&lt;/td&gt;&lt;td&gt;Regional enhancements&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Security headers, upload guard, rate limits, secret handling and critical-action checks&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;commerce&quot;&gt;Commerce-first reliability&lt;/h3&gt;
+&lt;p&gt;A store must create exactly one order, decrement stock exactly once and avoid applying coupons or payment callbacks twice. CodeCart hardens checkout-critical operations with transactions, locking, idempotency, stock restoration, voucher/coupon safety and technical logging.&lt;/p&gt;
+
+&lt;h3 id=&quot;compatibility&quot;&gt;Compatibility without reverting the modernized core&lt;/h3&gt;
+&lt;p&gt;CodeCart keeps ordinary OpenCart 3.x extension compatibility and adds a &lt;strong&gt;Compatibility Framework&lt;/strong&gt;. A theme that depends on older internal contracts can use an adapter rather than forcing legacy algorithms back into Core. UniShop2 is the first practical example.&lt;/p&gt;
+
+&lt;h3 id=&quot;seo&quot;&gt;SEO URLs and multilingual routing&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;SEO URLs&lt;/strong&gt; provide the basic clean-address layer. &lt;strong&gt;SeoPro&lt;/strong&gt; is the advanced router for category paths, canonical rules, postfixes and additional URL policies. Language prefixes are dynamic: the primary language may use no prefix while additional languages can use arbitrary folders.&lt;/p&gt;
+
+&lt;h3 id=&quot;performance&quot;&gt;Performance and storefront&lt;/h3&gt;
+&lt;p&gt;CodeCart keeps OpenCart&#x27;s lightweight server model while improving common bottlenecks through batched category loading, controlled caching, lazy loading, modern image formats and scoped asset loading.&lt;/p&gt;
+
+&lt;h3 id=&quot;security&quot;&gt;Security and control&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;admin/AJAX/API permission and token validation;&lt;/li&gt;
+&lt;li&gt;safe SQL handling and whitelisted dynamic identifiers;&lt;/li&gt;
+&lt;li&gt;UploadGuard and file validation;&lt;/li&gt;
+&lt;li&gt;rate limits for public endpoints;&lt;/li&gt;
+&lt;li&gt;secret values are not rendered back into admin DOM;&lt;/li&gt;
+&lt;li&gt;technical errors stay in protected logs instead of exposing server paths.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;extensions&quot;&gt;Modern Extensions&lt;/h3&gt;
+&lt;p&gt;Modern Extension Registry allows installable packages with manifests, namespaces, permissions and compatibility adapters without repeatedly patching Core, while traditional OpenCart modules remain supported.&lt;/p&gt;
+
+&lt;h3 id=&quot;result&quot;&gt;Who CodeCart is for&lt;/h3&gt;
+&lt;p&gt;CodeCart is intended for stores that want to remain in the OpenCart 3.x ecosystem while gaining a more modern foundation for long-term operation. It is an evolutionary path rather than a disruptive rewrite.&lt;/p&gt;', meta_description='CodeCart PRO 3.0.6.0 is a modern OpenCart 3.x foundation with safer upgrades, Modern Extensions, SEO, compatibility adapters and reliable checkout.', meta_keyword='codecart, opencart, ocstore, ecommerce, seo, modern extensions', meta_title='CodeCart PRO 3.0.6.0 — a modern foundation for online stores', meta_h1='CodeCart PRO 3.0.6.0 — a modern foundation for online stores', tag='codecart, opencart, ocstore, ecommerce, seo' WHERE article_id='120' AND language_id='2'");
         }
         $this->db->query("UPDATE `" . DB_PREFIX . "setting` SET value=REPLACE(value,CONCAT('CodeCart PRO 3.0.6.0 ','Be','ta'),'CodeCart PRO 3.0.6.0') WHERE store_id='0' AND `key` IN ('config_meta_description','config_comment')");
 
@@ -842,6 +1001,10 @@ class Migration {
             `name` varchar(128) NOT NULL DEFAULT '',
             `kind` varchar(16) NOT NULL DEFAULT 'request',
             `recipient` varchar(255) NOT NULL DEFAULT '',
+            `button_icon` varchar(64) NOT NULL DEFAULT 'fa-envelope-o',
+            `button_bg` varchar(7) NOT NULL DEFAULT '#0b6fd3',
+            `button_text_color` varchar(7) NOT NULL DEFAULT '#ffffff',
+            `button_hover_bg` varchar(7) NOT NULL DEFAULT '#095eb4',
             `status` tinyint(1) NOT NULL DEFAULT '1',
             `date_added` datetime NOT NULL,
             `date_modified` datetime NOT NULL,
@@ -851,6 +1014,15 @@ class Migration {
         $kind = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "codecart_form` LIKE 'kind'");
         if (!$kind->num_rows) {
             $this->db->query("ALTER TABLE `" . DB_PREFIX . "codecart_form` ADD `kind` varchar(16) NOT NULL DEFAULT 'request' AFTER `name`");
+        }
+        foreach (array(
+            'button_icon' => "varchar(64) NOT NULL DEFAULT 'fa-envelope-o' AFTER `recipient`",
+            'button_bg' => "varchar(7) NOT NULL DEFAULT '#0b6fd3' AFTER `button_icon`",
+            'button_text_color' => "varchar(7) NOT NULL DEFAULT '#ffffff' AFTER `button_bg`",
+            'button_hover_bg' => "varchar(7) NOT NULL DEFAULT '#095eb4' AFTER `button_text_color`"
+        ) as $column => $definition) {
+            $check = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "codecart_form` LIKE '" . $this->db->escape($column) . "'");
+            if (!$check->num_rows) { $this->db->query("ALTER TABLE `" . DB_PREFIX . "codecart_form` ADD `" . $column . "` " . $definition); }
         }
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_form_description` (
             `form_id` int(11) NOT NULL,
@@ -2840,6 +3012,113 @@ class Migration {
      * Move its settings/permissions to domovyk and uninstall only the legacy
      * extension record; files are left untouched.
      */
+    /**
+     * Builds up to 1.9.9 imported the demo HTML module with unescaped quotes inside its
+     * JSON setting, so json_decode() returned null: the block was not rendered and the
+     * admin form opened empty. Repair only rows that are invalid JSON and become valid
+     * after escaping HTML attribute quotes; valid or unrecognised rows are left untouched.
+     */
+    private function repairInvalidModuleSettings() {
+        if (!$this->tableExists('module')) { return; }
+        $query = $this->db->query("SELECT module_id, code, setting FROM `" . DB_PREFIX . "module`");
+        foreach ($query->rows as $row) {
+            $setting = (string)$row['setting'];
+            $decoded = json_decode($setting, true);
+            $changed = false;
+            if ($setting !== '' && !is_array($decoded)) {
+                $fixed = preg_replace('/(\s[a-zA-Z_:-]+)="([^"<>]*)"/', '$1=\\\\"$2\\\\"', $setting);
+                $decoded = is_string($fixed) ? json_decode($fixed, true) : null;
+                if (!is_array($decoded)) { continue; }
+                $changed = true;
+            }
+            if (!is_array($decoded)) { continue; }
+            // The same demo row used {"description": {"<language_id>": "<html>"}} while the
+            // HTML module reads module_description[<language_id>][title|description].
+            if ($row['code'] === 'html' && !isset($decoded['module_description']) && isset($decoded['description']) && is_array($decoded['description'])) {
+                $descriptions = array();
+                foreach ($decoded['description'] as $languageId => $html) {
+                    if (is_string($html)) { $descriptions[(int)$languageId] = array('title' => '', 'description' => $html); }
+                }
+                unset($decoded['description']);
+                $decoded['module_description'] = $descriptions;
+                $changed = true;
+            }
+            if (!$changed) { continue; }
+            $this->db->query("UPDATE `" . DB_PREFIX . "module` SET setting = '" . $this->db->escape(json_encode($decoded, JSON_UNESCAPED_UNICODE)) . "' WHERE module_id = '" . (int)$row['module_id'] . "'");
+        }
+    }
+
+    /**
+     * Forms saved from the admin before 1.9.10 stored OpenCart's HTML-escaped POST values
+     * ("&amp;", "&quot;", "&lt;b&gt;"). The storefront prints titles escaped and the
+     * description as HTML, so shoppers saw entities and literal tags. Decode only rows
+     * that carry escaped markup and no real markup; clean rows are left untouched.
+     */
+    private function repairEntityEncodedFormTexts() {
+        if (!$this->tableExists('codecart_form_description')) { return; }
+        $pattern = '/&(?:amp|quot|#0?39|lt|gt);/';
+        $query = $this->db->query("SELECT form_id, language_id, title, description, submit_text, success_text FROM `" . DB_PREFIX . "codecart_form_description`");
+        foreach ($query->rows as $row) {
+            $set = array();
+            foreach (array('title', 'submit_text', 'success_text') as $field) {
+                $value = (string)$row[$field];
+                if (preg_match($pattern, $value)) { $set[] = "`" . $field . "` = '" . $this->db->escape(html_entity_decode($value, ENT_QUOTES, 'UTF-8')) . "'"; }
+            }
+            $description = (string)$row['description'];
+            if (strpos($description, '<') === false && preg_match('/&lt;[a-z\/]/i', $description)) {
+                $decoded = html_entity_decode($description, ENT_QUOTES, 'UTF-8');
+                if (class_exists('\\CodeCart\\Core\\SafeRichHtml')) { $decoded = \CodeCart\Core\SafeRichHtml::sanitize($decoded); }
+                $set[] = "`description` = '" . $this->db->escape($decoded) . "'";
+            }
+            if ($set) {
+                $this->db->query("UPDATE `" . DB_PREFIX . "codecart_form_description` SET " . implode(', ', $set) . " WHERE form_id = '" . (int)$row['form_id'] . "' AND language_id = '" . (int)$row['language_id'] . "'");
+            }
+        }
+        if ($this->tableExists('codecart_form')) {
+            $forms = $this->db->query("SELECT form_id, name FROM `" . DB_PREFIX . "codecart_form`");
+            foreach ($forms->rows as $row) {
+                if (preg_match($pattern, (string)$row['name'])) {
+                    $this->db->query("UPDATE `" . DB_PREFIX . "codecart_form` SET name = '" . $this->db->escape(html_entity_decode((string)$row['name'], ENT_QUOTES, 'UTF-8')) . "' WHERE form_id = '" . (int)$row['form_id'] . "'");
+                }
+            }
+        }
+    }
+
+    /**
+     * category_path must mirror the parent_id chain. The 1.9.x demo shipped one category
+     * whose path pointed to another branch (breadcrumbs/filters used the wrong parent until
+     * an admin re-saved it). Rebuild the path rows only for categories whose stored path
+     * differs from the parent chain; consistent trees are not touched.
+     */
+    private function repairInconsistentCategoryPaths() {
+        if (!$this->tableExists('category') || !$this->tableExists('category_path')) { return; }
+        $parents = array();
+        foreach ($this->db->query("SELECT category_id, parent_id FROM `" . DB_PREFIX . "category`")->rows as $row) {
+            $parents[(int)$row['category_id']] = (int)$row['parent_id'];
+        }
+        if (!$parents || count($parents) > 50000) { return; }
+        $paths = array();
+        foreach ($this->db->query("SELECT category_id, path_id, level FROM `" . DB_PREFIX . "category_path` ORDER BY category_id, level")->rows as $row) {
+            $paths[(int)$row['category_id']][] = (int)$row['path_id'];
+        }
+        foreach ($parents as $categoryId => $parentId) {
+            $chain = array($categoryId);
+            $seen = array($categoryId => true);
+            while ($parentId > 0 && isset($parents[$parentId]) && !isset($seen[$parentId])) {
+                array_unshift($chain, $parentId);
+                $seen[$parentId] = true;
+                $parentId = $parents[$parentId];
+            }
+            if ($parentId > 0) { continue; } // cycle or orphan parent: leave for manual repair
+            $current = isset($paths[$categoryId]) ? $paths[$categoryId] : array();
+            if ($current === $chain) { continue; }
+            $this->db->query("DELETE FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . (int)$categoryId . "'");
+            foreach ($chain as $level => $pathId) {
+                $this->db->query("INSERT INTO `" . DB_PREFIX . "category_path` SET category_id = '" . (int)$categoryId . "', path_id = '" . (int)$pathId . "', level = '" . (int)$level . "'");
+            }
+        }
+    }
+
     private function migrateLegacyDomovoyDashboard() {
         if (!$this->tableExists('extension') || !$this->tableExists('setting')) { return; }
         $legacy = $this->db->query("SELECT extension_id FROM `" . DB_PREFIX . "extension` WHERE type='dashboard' AND code='domovoy' LIMIT 1");

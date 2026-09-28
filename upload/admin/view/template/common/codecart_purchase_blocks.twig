@@ -11,6 +11,12 @@
      data-form-inline="{{ text_purchase_block_form_inline }}"
      data-form-button="{{ text_purchase_block_form_button }}"
      data-form-button-text="{{ entry_purchase_block_form_button_text }}"
+     data-form-icon="{{ entry_purchase_block_form_icon }}"
+     data-form-bg="{{ entry_purchase_block_form_bg }}"
+     data-form-text-color="{{ entry_purchase_block_form_text_color }}"
+     data-form-hover-bg="{{ entry_purchase_block_form_hover_bg }}"
+     data-enabled="{{ entry_purchase_block_enabled }}"
+     data-add-existing-form="{{ button_purchase_block_add_existing_form }}"
      data-title="{{ entry_purchase_block_title }}"
      data-content="{{ entry_purchase_block_content }}"
      data-columns="{{ entry_purchase_block_columns }}"
@@ -48,7 +54,7 @@
       <div class="tab-pane{% if loop.first %} active{% endif %}" id="purchase-block-{{ purchase_block_scope }}-{{ language.language_id }}" data-language-code="{{ language.code }}">
         <textarea class="ccp-purchase-block-json hidden" name="purchase_blocks_json[{{ language.language_id }}]">{{ (purchase_blocks_json[language.language_id] is defined ? purchase_blocks_json[language.language_id] : '[]')|e }}</textarea>
         <div class="ccp-purchase-block-toolbar">
-          <span class="ccp-purchase-block-toolbar-title">{{ text_purchase_block_builder }}</span>
+          <span class="ccp-purchase-block-toolbar-title">{{ text_purchase_block_builder }}</span>{% if purchase_blocks_forms_url %}<a href="{{ purchase_blocks_forms_url }}" target="_blank" class="btn btn-default btn-sm" title="{{ button_purchase_blocks_forms }}"><i class="fa fa-wpforms"></i> {{ button_purchase_blocks_forms }}</a>{% endif %}
           <div class="btn-group ccp-purchase-block-template-group">
             <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ text_purchase_block_templates }} <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-right">

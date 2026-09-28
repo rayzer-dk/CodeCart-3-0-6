@@ -2,7 +2,7 @@
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Ваша партнерская информация';
 $_['text_account'] = 'Личный кабинет';
-$_['text_affiliate'] = 'Партнерcкий раздел';
+$_['text_affiliate'] = 'Партнерский раздел';
 $_['text_my_affiliate'] = 'Мой партнерский аккаунт';
 $_['text_payment'] = 'Платежная информация';
 $_['text_cheque'] = 'Чек';

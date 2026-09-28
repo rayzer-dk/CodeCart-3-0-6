@@ -1,19 +1,18 @@
-<ul>
-  <li class="result-header">{{ text_orders }}</li>
-  {% if orders is not empty %}
-  {% for order in orders %}
-  <li>
-    <a href="{{ order.url }}" style="display: block; overflow: auto;">
-      <i class="fa fa-money"></i>
-      <span>{{ text_order_id }}{{ order.order_id }}</span>
-      {% if order.customer is defined and order.customer|trim != '' %}<span>{{ order.customer }}</span>{% endif %}
-      <span>{{ order.date_added }}</span>
-    </a>
-  </li>
-  {% endfor %}
-  {% else %}
-  <li>
-    <span class="oc-search-empty" style="display: block; overflow: auto;">{{ text_no_result }}</span>
-  </li>
-  {% endif %}
-</ul>
+<div class="oc-search-result-list">
+  <div class="oc-search-group">
+    <strong>{{ text_orders }}</strong>
+    {% if orders %}
+      {% for order in orders %}
+      <a href="{{ order.url }}" class="ccp-search-rich-row">
+        <i class="fa fa-money fa-fw"></i>
+        <span class="ccp-search-rich-copy">
+          <span class="ccp-search-rich-title">{{ text_order_id }}{{ order.order_id }}{% if order.customer is defined and order.customer|trim != '' %} · {{ order.customer }}{% endif %}</span>
+          <small>{{ order.email }}{% if order.telephone %} · {{ order.telephone }}{% endif %} · {{ order.date_added }}</small>
+        </span>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div class="oc-search-empty">{{ text_no_result }}</div>
+    {% endif %}
+  </div>
+</div>

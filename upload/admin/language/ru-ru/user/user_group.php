@@ -13,5 +13,5 @@ $_['entry_modify'] = 'Разрешено внесение изменений';
 $_['error_permission'] = 'У вас недостаточно прав для внесения изменений!';
 $_['error_name'] = 'Название должно содержать от 3 до 64 символов!';
 $_['error_user'] = 'Эту группу пользователей нельзя удалить, поскольку в нее входит %s пользователей!';
-$_['help_hide'] = 'Selected extensions will not be displayed on the pages of the module, payments, deliveries';
-$_['entry_hide'] = 'Hide extensions';
+$_['help_hide'] = 'Выбранные дополнения не будут показываться на страницах модулей, оплаты и доставки';
+$_['entry_hide'] = 'Скрыть дополнения';

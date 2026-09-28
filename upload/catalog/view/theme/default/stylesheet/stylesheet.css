@@ -2295,3 +2295,43 @@ html.ccp-theme-dark .ccp-blog-copy code{
   color:#c9e2ff!important;
   border-color:#303a47!important;
 }
+
+/* CodeCart category-page polish: image cards, non-duplicated demo layout and empty-state spacing. */
+#product-category .ccp-subcategory-image{display:flex;align-items:center;justify-content:center;width:100%;height:76px;margin:0 0 8px;overflow:hidden}
+#product-category .ccp-subcategory-image img{display:block;max-width:96px;max-height:72px;width:auto;height:auto;object-fit:contain;margin:auto}
+#product-category .ccp-empty-category{clear:both;margin:18px 0 8px}
+#product-category .ccp-empty-category>p{margin:0 0 16px}
+#product-category .ccp-empty-category-actions{display:flex;justify-content:flex-end;clear:both;margin:0 0 22px}
+#product-category .ccp-category-content-bottom--after-empty{clear:both;margin-top:20px;padding-top:2px}
+#product-category .ccp-category-content-bottom--after-empty .ccp-form-launch{margin-top:12px}
+@media(max-width:767px){#product-category .ccp-empty-category-actions{justify-content:stretch;margin-bottom:26px}#product-category .ccp-empty-category-actions .btn{width:100%;text-align:center}#product-category .ccp-category-content-bottom--after-empty{margin-top:24px}}
+
+
+/* CodeCart PRO: catalog/blog toolbar controls share one visual height. */
+.ccp-toolbar.ccp-toolbar--catalog .input-group-addon,
+.ccp-toolbar.ccp-toolbar--blog .input-group-addon,
+.ccp-toolbar.ccp-toolbar--catalog select.form-control,
+.ccp-toolbar.ccp-toolbar--blog select.form-control,
+.ccp-toolbar.ccp-toolbar--catalog .btn,
+.ccp-toolbar.ccp-toolbar--blog .btn{
+  height:34px!important;
+  min-height:34px!important;
+  box-sizing:border-box!important;
+}
+.ccp-toolbar.ccp-toolbar--catalog .input-group-addon,
+.ccp-toolbar.ccp-toolbar--blog .input-group-addon{
+  padding:6px 10px!important;
+  line-height:20px!important;
+}
+.ccp-toolbar.ccp-toolbar--catalog select.form-control,
+.ccp-toolbar.ccp-toolbar--blog select.form-control{
+  padding-top:5px!important;
+  padding-bottom:5px!important;
+  line-height:22px!important;
+}
+
+/* CodeCart PRO: hard-normalize catalog/blog toolbar geometry across light/dark themes. */
+.ccp-toolbar.ccp-toolbar--catalog .form-group,.ccp-toolbar.ccp-toolbar--blog .form-group{margin-bottom:0!important;height:34px!important;min-height:34px!important}
+.ccp-toolbar.ccp-toolbar--catalog .input-group,.ccp-toolbar.ccp-toolbar--blog .input-group{height:34px!important;min-height:34px!important;align-items:stretch!important}
+.ccp-toolbar.ccp-toolbar--catalog .input-group-addon,.ccp-toolbar.ccp-toolbar--blog .input-group-addon,.ccp-toolbar.ccp-toolbar--catalog select.form-control,.ccp-toolbar.ccp-toolbar--blog select.form-control,.ccp-toolbar.ccp-toolbar--catalog .btn,.ccp-toolbar.ccp-toolbar--blog .btn{height:34px!important;min-height:34px!important;max-height:34px!important;line-height:20px!important;box-sizing:border-box!important}
+.ccp-toolbar.ccp-toolbar--catalog select.form-control,.ccp-toolbar.ccp-toolbar--blog select.form-control{padding:6px 10px!important}

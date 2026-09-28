@@ -50,7 +50,7 @@
     }
 
     function minimumLength(option) {
-        return option === 'orders' ? 1 : 3;
+        return option === 'orders' ? 1 : 2;
     }
 
     function getExamples(option) {
@@ -124,6 +124,7 @@
         currentNode.text(label);
         input.attr('data-base-placeholder', placeholder).attr('placeholder', placeholder).val('');
         result.hide().empty();
+        try { window.localStorage.setItem('ccp_admin_search_option', option); } catch (ignore) {}
         restartTypewriter();
     });
 
@@ -201,6 +202,17 @@
         e.preventDefault();
     });
 
-    restartTypewriter();
+    var restored = false;
+    try {
+        var savedOption = window.localStorage.getItem('ccp_admin_search_option') || '';
+        if (savedOption) {
+            var savedChoice = $('#oc-search .ccp-search-choice[data-option="' + savedOption.replace(/"/g, '') + '"]');
+            if (savedChoice.length) {
+                savedChoice.first().trigger('click');
+                restored = true;
+            }
+        }
+    } catch (ignore) {}
+    if (!restored) { restartTypewriter(); }
 })(jQuery);
 </script>

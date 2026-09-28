@@ -620,11 +620,18 @@ class ModelCatalogProduct extends Model {
             foreach ($category_query->rows as $category_row) {
                 $mode = (int)$category_row['mode'];
                 if ($mode === 0) { continue; }
-                if ($mode === 2) { $category_blocks = array(); break; }
+                if ($mode === 2) {
+                    // Category "disabled" suppresses only inherited category content.
+                    // An explicit product-level custom selection has higher priority and
+                    // is still rendered. This keeps inheritance additive and predictable.
+                    $category_blocks = array();
+                    break;
+                }
                 $category_blocks = isset($category_row['data']) && $category_row['data'] !== null ? \CodeCart\Core\PurchaseBlocks::decode($category_row['data']) : array();
                 break;
             }
         }
+
 
         // Product mode: inherit category template; custom appends product blocks;
         // disabled suppresses all purchase-area blocks for this product.

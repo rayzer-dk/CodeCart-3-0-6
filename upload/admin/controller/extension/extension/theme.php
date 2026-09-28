@@ -86,21 +86,21 @@ class ControllerExtensionExtensionTheme extends Controller {
 		
 		// Compatibility code for old extension folders
 		$files = glob(DIR_APPLICATION . 'controller/extension/theme/*.php');
+		$install_origin = strtolower((string)$this->config->get('codecart_install_origin'));
+		$native_codecart_install = ($install_origin === 'fresh') || ($install_origin === '' && !in_array('default', $extensions, true));
 
 		if ($files) {
 			foreach ($files as $file) {
 				$extension = basename($file, '.php');
+				// Native CodeCart uses one visible system theme. The legacy default files stay on disk only as a fallback.
+				if ($native_codecart_install && $extension === 'default') { continue; }
 				
 				$this->load->language('extension/theme/' . $extension, 'extension');
 					
 				$store_data = array();
+				$primary_edit = $this->url->link('extension/theme/' . $extension, 'user_token=' . $this->session->data['user_token'] . '&store_id=0', true);
+				$primary_status = $this->config->get('theme_' . $extension . '_status') ? $this->language->get('text_enabled') : $this->language->get('text_disabled');
 				
-				$store_data[] = array(
-					'name'   => ($extension === 'default' ? 'CodeCart PRO' : $this->config->get('config_name')),
-					'edit'   => $this->url->link('extension/theme/' . $extension, 'user_token=' . $this->session->data['user_token'] . '&store_id=0', true),
-					'status' => $this->config->get('theme_' . $extension . '_status') ? $this->language->get('text_enabled') : $this->language->get('text_disabled')
-				);
-									
 				foreach ($stores as $store) {
 					$store_data[] = array(
 						'name'   => $store['name'],
@@ -111,6 +111,9 @@ class ControllerExtensionExtensionTheme extends Controller {
 				
 				$data['extensions'][] = array(
 					'name'      => $this->language->get('extension')->get('heading_title'),
+					'preview'   => ($extension === 'codecart' ? HTTP_CATALOG . 'catalog/view/theme/codecart/image/preview.webp' : ''),
+					'edit'      => $primary_edit,
+					'status'    => $primary_status,
 					'install'   => $this->url->link('extension/extension/theme/install', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension, true),
 					'uninstall' => $this->url->link('extension/extension/theme/uninstall', 'user_token=' . $this->session->data['user_token'] . '&extension=' . $extension, true),
 					'installed' => in_array($extension, $extensions),

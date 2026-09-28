@@ -1,0 +1,11 @@
+<section class="ccp-subcategories" aria-labelledby="ccp-subcategories-title">
+  <h3 id="ccp-subcategories-title">{{ heading_title }}</h3>
+  <div class="ccp-subcategory-grid">
+    {% for category in categories %}
+    <a class="ccp-subcategory-card" href="{{ category.href }}">
+      {% if show_image %}<span class="ccp-subcategory-image"><img src="{{ category.thumb }}" width="{{ image_width }}" height="{{ image_height }}" alt="{{ category.name }}" loading="lazy" decoding="async" /></span>{% endif %}
+      <span class="ccp-subcategory-name">{{ category.name }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>

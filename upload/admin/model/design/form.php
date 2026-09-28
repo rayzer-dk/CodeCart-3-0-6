@@ -1,23 +1,27 @@
 <?php
 class ModelDesignForm extends Model {
     public function addForm($data) {
-        $name = utf8_substr(trim(preg_replace('/\s+/u', ' ', strip_tags((string)(isset($data['name']) ? $data['name'] : '')))), 0, 128);
+        $this->ensureButtonStyleColumns();
+        $name = $this->plainText(isset($data['name']) ? $data['name'] : '', 128);
         $recipient = $this->normalizeEmail(isset($data['recipient']) ? $data['recipient'] : '');
         $status = !empty($data['status']) ? 1 : 0;
         $kind = isset($data['kind']) && (string)$data['kind'] === 'info' ? 'info' : 'request';
-        $this->db->query("INSERT INTO " . DB_PREFIX . "codecart_form SET name='" . $this->db->escape($name) . "', kind='" . $this->db->escape($kind) . "', recipient='" . $this->db->escape($recipient) . "', status='" . $status . "', date_added=NOW(), date_modified=NOW()");
+        $style = $this->normalizeButtonStyle($data);
+        $this->db->query("INSERT INTO " . DB_PREFIX . "codecart_form SET name='" . $this->db->escape($name) . "', kind='" . $this->db->escape($kind) . "', recipient='" . $this->db->escape($recipient) . "', button_icon='" . $this->db->escape($style['button_icon']) . "', button_bg='" . $this->db->escape($style['button_bg']) . "', button_text_color='" . $this->db->escape($style['button_text_color']) . "', button_hover_bg='" . $this->db->escape($style['button_hover_bg']) . "', status='" . $status . "', date_added=NOW(), date_modified=NOW()");
         $form_id = (int)$this->db->getLastId();
         $this->saveDescriptions($form_id, isset($data['form_description']) ? $data['form_description'] : array());
         return $form_id;
     }
 
     public function editForm($form_id, $data) {
+        $this->ensureButtonStyleColumns();
         $form_id = (int)$form_id;
-        $name = utf8_substr(trim(preg_replace('/\s+/u', ' ', strip_tags((string)(isset($data['name']) ? $data['name'] : '')))), 0, 128);
+        $name = $this->plainText(isset($data['name']) ? $data['name'] : '', 128);
         $recipient = $this->normalizeEmail(isset($data['recipient']) ? $data['recipient'] : '');
         $status = !empty($data['status']) ? 1 : 0;
         $kind = isset($data['kind']) && (string)$data['kind'] === 'info' ? 'info' : 'request';
-        $this->db->query("UPDATE " . DB_PREFIX . "codecart_form SET name='" . $this->db->escape($name) . "', kind='" . $this->db->escape($kind) . "', recipient='" . $this->db->escape($recipient) . "', status='" . $status . "', date_modified=NOW() WHERE form_id='" . $form_id . "'");
+        $style = $this->normalizeButtonStyle($data);
+        $this->db->query("UPDATE " . DB_PREFIX . "codecart_form SET name='" . $this->db->escape($name) . "', kind='" . $this->db->escape($kind) . "', recipient='" . $this->db->escape($recipient) . "', button_icon='" . $this->db->escape($style['button_icon']) . "', button_bg='" . $this->db->escape($style['button_bg']) . "', button_text_color='" . $this->db->escape($style['button_text_color']) . "', button_hover_bg='" . $this->db->escape($style['button_hover_bg']) . "', status='" . $status . "', date_modified=NOW() WHERE form_id='" . $form_id . "'");
         $this->db->query("DELETE FROM " . DB_PREFIX . "codecart_form_description WHERE form_id='" . $form_id . "'");
         $this->saveDescriptions($form_id, isset($data['form_description']) ? $data['form_description'] : array());
     }
@@ -80,13 +84,63 @@ class ModelDesignForm extends Model {
         foreach ((array)$descriptions as $language_id => $row) {
             $language_id = (int)$language_id;
             if ($language_id < 1 || !is_array($row)) { continue; }
-            $title = utf8_substr(trim(preg_replace('/\s+/u', ' ', strip_tags((string)(isset($row['title']) ? $row['title'] : '')))), 0, 160);
-            $description = \CodeCart\Core\SafeRichHtml::sanitize((string)(isset($row['description']) ? $row['description'] : ''));
-            $submit_text = utf8_substr(trim(preg_replace('/\s+/u', ' ', strip_tags((string)(isset($row['submit_text']) ? $row['submit_text'] : '')))), 0, 80);
-            $success_text = utf8_substr(trim(preg_replace('/\s+/u', ' ', strip_tags((string)(isset($row['success_text']) ? $row['success_text'] : '')))), 0, 255);
+            // OpenCart's Request escapes every POST value with htmlspecialchars(). Store plain
+            // text and real (sanitized) HTML, like the bundled forms do: otherwise titles show
+            // "&amp;"/"&quot;" and descriptions show literal "<b>" on the storefront.
+            $title = $this->plainText(isset($row['title']) ? $row['title'] : '', 160);
+            $description = \CodeCart\Core\SafeRichHtml::sanitize(html_entity_decode((string)(isset($row['description']) ? $row['description'] : ''), ENT_QUOTES, 'UTF-8'));
+            $submit_text = $this->plainText(isset($row['submit_text']) ? $row['submit_text'] : '', 80);
+            $success_text = $this->plainText(isset($row['success_text']) ? $row['success_text'] : '', 255);
             $fields = \CodeCart\Core\FormBuilder::encode(isset($row['fields_json']) ? $row['fields_json'] : array());
             $this->db->query("INSERT INTO " . DB_PREFIX . "codecart_form_description SET form_id='" . (int)$form_id . "', language_id='" . $language_id . "', title='" . $this->db->escape($title) . "', description='" . $this->db->escape($description) . "', submit_text='" . $this->db->escape($submit_text) . "', success_text='" . $this->db->escape($success_text) . "', fields='" . $this->db->escape($fields) . "'");
         }
+    }
+
+    private function plainText($value, $limit) {
+        $value = html_entity_decode((string)$value, ENT_QUOTES, 'UTF-8');
+        return utf8_substr(trim(preg_replace('/\s+/u', ' ', strip_tags($value))), 0, (int)$limit);
+    }
+
+    private function ensureButtonStyleColumns() {
+        static $ready = false;
+        if ($ready) { return; }
+
+        $table = DB_PREFIX . 'codecart_form';
+        $exists = $this->db->query("SHOW TABLES LIKE '" . $this->db->escape($table) . "'");
+        if (!$exists->num_rows) { return; }
+
+        $columns = array(
+            'button_icon' => "varchar(64) NOT NULL DEFAULT 'fa-envelope-o' AFTER `recipient`",
+            'button_bg' => "varchar(7) NOT NULL DEFAULT '#0b6fd3' AFTER `button_icon`",
+            'button_text_color' => "varchar(7) NOT NULL DEFAULT '#ffffff' AFTER `button_bg`",
+            'button_hover_bg' => "varchar(7) NOT NULL DEFAULT '#095eb4' AFTER `button_text_color`"
+        );
+
+        foreach ($columns as $column => $definition) {
+            $check = $this->db->query("SHOW COLUMNS FROM `" . $table . "` LIKE '" . $this->db->escape($column) . "'");
+            if (!$check->num_rows) {
+                $this->db->query("ALTER TABLE `" . $table . "` ADD `" . $column . "` " . $definition);
+            }
+        }
+
+        $ready = true;
+    }
+
+    private function normalizeButtonStyle($data) {
+        $icon = isset($data['button_icon']) ? trim((string)$data['button_icon']) : 'fa fa-envelope-o';
+        if ($icon === '') { $icon = 'fa fa-envelope-o'; }
+        if (!preg_match('/^(?:fa(?:-[a-z]+)?\s+)?fa-[a-z0-9-]+(?:\s+fa-[a-z0-9-]+)*$/i', $icon) || strlen($icon) > 64) { $icon = 'fa fa-envelope-o'; }
+        return array(
+            'button_icon' => $icon,
+            'button_bg' => $this->normalizeColor(isset($data['button_bg']) ? $data['button_bg'] : '', '#0b6fd3'),
+            'button_text_color' => $this->normalizeColor(isset($data['button_text_color']) ? $data['button_text_color'] : '', '#ffffff'),
+            'button_hover_bg' => $this->normalizeColor(isset($data['button_hover_bg']) ? $data['button_hover_bg'] : '', '#095eb4')
+        );
+    }
+
+    private function normalizeColor($value, $default) {
+        $value = strtolower(trim((string)$value));
+        return preg_match('/^#[0-9a-f]{6}$/', $value) ? $value : $default;
     }
 
     private function normalizeEmail($email) {

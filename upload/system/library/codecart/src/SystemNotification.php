@@ -84,9 +84,17 @@ final class SystemNotification {
                 $messageKey = $titleKey . '_message';
                 $localizedTitle = $language->get($titleKey);
                 $localizedMessage = $language->get($messageKey);
+                // Families with a variable component (PHP extensions, writable paths)
+                // share one phrase: "PHP extension: %s", "Directory: %s".
+                $group = strpos($healthKey, '.') !== false ? substr($healthKey, 0, strpos($healthKey, '.')) : '';
+                if ($localizedTitle === $titleKey && in_array($group, array('ext', 'path'), true) && $language->get('text_health_group_' . $group) !== 'text_health_group_' . $group) {
+                    $localizedTitle = sprintf($language->get('text_health_group_' . $group), substr($healthKey, strlen($group) + 1));
+                    $groupMessage = $language->get('text_health_group_' . $group . '_message');
+                    if ($groupMessage !== 'text_health_group_' . $group . '_message') { $localizedMessage = $groupMessage; $messageKey = ''; }
+                }
                 if ($localizedTitle !== $titleKey) { $row['title'] = $localizedTitle; }
                 elseif (strpos((string)$row['title'],'System check: ')===0) { $row['title']=sprintf($language->get('text_notice_system_check'),substr((string)$row['title'],14)); }
-                if ($localizedMessage !== $messageKey) {
+                if ($localizedMessage !== $messageKey && $localizedMessage !== '') {
                     $value=$this->healthValue((string)$healthKey,(string)$row['message'],$language);
                     $row['message']=$value!==''?$value.' — '.$localizedMessage:$localizedMessage;
                 }
@@ -141,7 +149,14 @@ final class SystemNotification {
             'off'=>'text_health_value_off',
             'not recorded'=>'text_health_value_not_recorded',
             'no history'=>'text_health_value_no_history',
-            'not detected'=>'text_health_value_not_detected'
+            'not detected'=>'text_health_value_not_detected',
+            'enabled'=>'text_health_value_enabled',
+            'disabled'=>'text_health_value_disabled',
+            'loaded'=>'text_health_value_loaded',
+            'missing'=>'text_health_value_missing',
+            'never'=>'text_health_value_never',
+            'not configured'=>'text_health_value_not_configured',
+            'check failed'=>'text_health_value_check_failed'
         );
         $normalized=strtolower(trim($value));
         if (isset($map[$normalized])) {

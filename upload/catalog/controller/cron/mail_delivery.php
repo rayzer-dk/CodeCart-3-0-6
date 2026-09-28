@@ -26,6 +26,12 @@ class ControllerCronMailDelivery extends Controller {
         $mail->setSubject(isset($message['subject']) ? (string)$message['subject'] : '');
         if (!empty($message['text'])) { $mail->setText((string)$message['text']); }
         if (!empty($message['html'])) { $mail->setHtml((string)$message['html']); }
+        if (!empty($message['inline_images']) && is_array($message['inline_images'])) {
+            foreach ($message['inline_images'] as $inline) {
+                if (!is_array($inline) || empty($inline['filename']) || empty($inline['cid'])) { continue; }
+                $mail->addInlineImage((string)$inline['filename'], (string)$inline['cid']);
+            }
+        }
 
         if (!\CodeCart\Core\MailDelivery::sendNow($this->registry, $mail, $context)) {
             throw new RuntimeException('Queued mail transport failed.');

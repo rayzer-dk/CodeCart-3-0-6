@@ -50,7 +50,7 @@ class ControllerApiCustomer extends Controller {
 				$json['error']['email'] = $this->language->get('error_email');
 			}
 
-			if ((utf8_strlen($this->request->post['telephone']) < 3) || (utf8_strlen($this->request->post['telephone']) > 32) || !preg_match('/^[0-9()\s-]+$/', (string)$this->request->post['telephone'])) {
+			if ((utf8_strlen($this->request->post['telephone']) < 3) || (utf8_strlen($this->request->post['telephone']) > 32) || !preg_match('/^\+?[0-9()\s.\-]+$/', (string)$this->request->post['telephone'])) {
 				$json['error']['telephone'] = $this->language->get('error_telephone');
 			}
 

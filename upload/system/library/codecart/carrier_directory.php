@@ -92,20 +92,31 @@ class CodeCartCarrierDirectory {
             throw new Exception('Selected city is not available in the carrier directory.');
         }
 
-        if ($provider === 'nova_poshta') {
-            return $this->getNovaPoshtaBranches($carrier, $cityExternalId);
-        }
-        if ($provider === 'delivery') {
-            return $this->getDeliveryBranches($cityExternalId);
-        }
-        if ($provider === 'meest') {
-            return $this->getMeestBranches($carrier, $cityExternalId);
-        }
-        if ($provider === 'ukrposhta') {
-            return $this->getUkrposhtaBranches($carrier, $city);
+        // Branch lists are requested when the buyer picks a city and again when the
+        // selection is validated on save/confirm. Cache them briefly so a checkout does
+        // not repeat several paged carrier API calls (Kyiv has thousands of NP points).
+        $cache = $this->registry->get('cache');
+        $cacheKey = 'codecart.carrier_branches.' . $this->carrierId($carrier) . '.' . substr(sha1($provider . '|' . $cityExternalId . '|' . (isset($carrier['api_key']) ? $carrier['api_key'] : '') . '|' . (isset($carrier['api_login']) ? $carrier['api_login'] : '') . '|' . (isset($carrier['api_token']) ? $carrier['api_token'] : '')), 0, 20);
+        if ($cache) {
+            $cached = $cache->get($cacheKey);
+            if (is_array($cached) && $cached) { return $cached; }
         }
 
-        return array();
+        if ($provider === 'nova_poshta') {
+            $branches = $this->getNovaPoshtaBranches($carrier, $cityExternalId);
+        } elseif ($provider === 'delivery') {
+            $branches = $this->getDeliveryBranches($cityExternalId);
+        } elseif ($provider === 'meest') {
+            $branches = $this->getMeestBranches($carrier, $cityExternalId);
+        } elseif ($provider === 'ukrposhta') {
+            $branches = $this->getUkrposhtaBranches($carrier, $city);
+        } else {
+            $branches = array();
+        }
+
+        if ($cache && $branches) { $cache->set($cacheKey, $branches); }
+
+        return $branches;
     }
 
     public function validateSelection(array $carrier, $cityExternalId, $branchExternalId) {
@@ -647,7 +658,7 @@ class CodeCartCarrierDirectory {
     private function searchCachedCities(array $carrier, $term, $limit) {
         if (!$this->tableExists('codecart_carrier_city')) { return array(); }
         $carrierId = $this->carrierId($carrier);
-        $escaped = $this->db->escape($term);
+        $escaped = $this->db->escape(addcslashes((string)$term, '\\%_'));
         $query = $this->db->query("SELECT external_id,name,region,district,extra_json FROM `" . DB_PREFIX . "codecart_carrier_city` WHERE carrier_id='" . $this->db->escape($carrierId) . "' AND search_name LIKE '%" . $escaped . "%' ORDER BY CASE WHEN name LIKE '" . $escaped . "%' THEN 0 ELSE 1 END, name ASC LIMIT " . (int)$limit);
         $out = array();
         foreach ($query->rows as $row) {

@@ -3,6 +3,8 @@
 // * @license GNU General Public License version 3; see LICENSE.txt
 
 class ControllerSearchSearch extends Controller {
+    private $searchLanguageCache = array();
+
     public function index() {
         if (empty($this->session->data['user_token']) || !$this->user->isLogged()) {
             return '';
@@ -18,9 +20,10 @@ class ControllerSearchSearch extends Controller {
         $can_articles = $this->user->hasPermission('access', 'blog/article');
         $can_extensions = $this->user->hasPermission('access', 'marketplace/extension');
         $can_content = $can_information || $can_articles || $can_extensions;
+
         $can_core_settings = $this->user->hasPermission('access', 'setting/setting');
         $can_theme_settings = $this->user->hasPermission('access', 'extension/theme/codecart');
-        $can_settings = $can_core_settings || $can_theme_settings;
+        $can_settings = $can_core_settings || $can_theme_settings || $this->hasSearchableAdminPagePermission();
 
         if (!$can_catalog && !$can_customers && !$can_orders && !$can_content && !$can_settings) {
             return '';
@@ -119,8 +122,6 @@ class ControllerSearchSearch extends Controller {
             return;
         }
 
-        // Keep global admin search deliberately bounded: it is an interactive helper,
-        // not a full catalog export endpoint.
         if (mb_strlen($query, 'UTF-8') > 128) {
             $query = mb_substr($query, 0, 128, 'UTF-8');
         }
@@ -128,6 +129,16 @@ class ControllerSearchSearch extends Controller {
         $search_option = isset($this->request->get['search-option']) ? (string)$this->request->get['search-option'] : 'catalog';
         if (!in_array($search_option, array('catalog', 'customers', 'orders', 'content', 'settings'), true)) {
             $search_option = 'catalog';
+        }
+
+        $parsed = $this->parseTypedQuery($query, $search_option);
+        $term = $parsed['term'];
+        $scope = $parsed['scope'];
+
+        if ($term === '') {
+            $json['error'] = $this->language->get('text_empty_query');
+            $this->outputJson($json);
+            return;
         }
 
         $data = array();
@@ -142,11 +153,15 @@ class ControllerSearchSearch extends Controller {
         $data['text_information'] = $this->language->get('text_information');
         $data['text_articles'] = $this->language->get('text_articles');
         $data['text_modules'] = $this->language->get('text_modules');
+        $data['text_module_instance'] = $this->language->get('text_module_instance');
         $data['text_settings'] = $this->language->get('text_settings');
+        $data['text_settings_fields'] = $this->language->get('text_settings_fields');
+        $data['text_system_pages'] = $this->language->get('text_system_pages');
         $data['text_setting_key'] = $this->language->get('text_setting_key');
+        $data['text_route'] = $this->language->get('text_route');
         $data['user_token'] = $session_token;
 
-        $filter = array('query' => $query);
+        $filter = array('query' => $term);
         $this->load->model('search/search');
 
         switch ($search_option) {
@@ -162,14 +177,14 @@ class ControllerSearchSearch extends Controller {
 
                 $this->load->model('tool/image');
                 $data['no_image'] = $this->model_tool_image->resize('no_image.webp', 30, 30);
-                $data['can_products'] = $can_products;
-                $data['can_categories'] = $can_categories;
-                $data['can_manufacturers'] = $can_manufacturers;
+                $data['can_products'] = $can_products && ($scope === '' || in_array($scope, array('product', 'sku', 'model'), true));
+                $data['can_categories'] = $can_categories && ($scope === '' || $scope === 'category');
+                $data['can_manufacturers'] = $can_manufacturers && ($scope === '' || $scope === 'manufacturer');
                 $data['products'] = array();
                 $data['categories'] = array();
                 $data['manufacturers'] = array();
 
-                if ($can_products) {
+                if ($data['can_products']) {
                     $data['products'] = $this->model_search_search->getProducts($filter);
                     foreach ($data['products'] as $key => $product) {
                         $data['products'][$key]['image'] = !empty($product['image']) ? $this->model_tool_image->resize($product['image'], 30, 30) : $data['no_image'];
@@ -177,7 +192,7 @@ class ControllerSearchSearch extends Controller {
                     }
                 }
 
-                if ($can_categories) {
+                if ($data['can_categories']) {
                     $data['categories'] = $this->model_search_search->getCategories($filter);
                     foreach ($data['categories'] as $key => $category) {
                         $data['categories'][$key]['image'] = !empty($category['image']) ? $this->model_tool_image->resize($category['image'], 30, 30) : $data['no_image'];
@@ -185,7 +200,7 @@ class ControllerSearchSearch extends Controller {
                     }
                 }
 
-                if ($can_manufacturers) {
+                if ($data['can_manufacturers']) {
                     $data['manufacturers'] = $this->model_search_search->getManufacturers($filter);
                     foreach ($data['manufacturers'] as $key => $manufacturer) {
                         $data['manufacturers'][$key]['image'] = !empty($manufacturer['image']) ? $this->model_tool_image->resize($manufacturer['image'], 30, 30) : $data['no_image'];
@@ -217,45 +232,48 @@ class ControllerSearchSearch extends Controller {
                     $this->denyJson();
                     return;
                 }
+
                 $data['information'] = array();
                 $data['articles'] = array();
                 $data['modules'] = array();
-                if ($can_information) {
+
+                if ($can_information && ($scope === '' || $scope === 'page')) {
                     $data['information'] = $this->model_search_search->getInformation($filter);
                     foreach ($data['information'] as $key => $item) {
                         $data['information'][$key]['url'] = $this->url->link('catalog/information/edit', 'user_token=' . $session_token . '&information_id=' . (int)$item['information_id'], true);
                     }
                 }
-                if ($can_articles) {
+
+                if ($can_articles && ($scope === '' || $scope === 'article')) {
                     $data['articles'] = $this->model_search_search->getArticles($filter);
                     foreach ($data['articles'] as $key => $item) {
                         $data['articles'][$key]['url'] = $this->url->link('blog/article/edit', 'user_token=' . $session_token . '&article_id=' . (int)$item['article_id'], true);
                     }
                 }
-                if ($can_extensions) {
-                    $data['modules'] = $this->model_search_search->getModules($filter);
-                    foreach ($data['modules'] as $key => $item) {
-                        $data['modules'][$key]['url'] = $this->url->link('marketplace/extension', 'user_token=' . $session_token . '&type=module', true);
-                    }
+
+                if ($can_extensions && ($scope === '' || $scope === 'module')) {
+                    $data['modules'] = $this->buildModuleResults($term, $session_token);
                 }
+
                 $json['result'] = $this->load->view('search/content_result', $data);
                 break;
 
             case 'settings':
                 $can_core_settings = $this->user->hasPermission('access', 'setting/setting');
                 $can_theme_settings = $this->user->hasPermission('access', 'extension/theme/codecart');
+                $can_pages = $this->hasSearchableAdminPagePermission();
 
-                if (!$can_core_settings && !$can_theme_settings) {
+                if (!$can_core_settings && !$can_theme_settings && !$can_pages) {
                     $this->denyJson();
                     return;
                 }
 
                 $this->load->model('search/settings');
                 $data['settings'] = array();
+                $data['pages'] = array();
 
-                if ($can_core_settings) {
+                if ($can_core_settings && ($scope === '' || in_array($scope, array('setting', 'key'), true))) {
                     $this->load->language('setting/setting');
-
                     $tab_labels = array(
                         'general' => $this->language->get('tab_general'),
                         'store' => $this->language->get('tab_store'),
@@ -267,10 +285,10 @@ class ControllerSearchSearch extends Controller {
                         'server' => $this->language->get('tab_server'),
                         'seopro' => $this->language->get('tab_seopro')
                     );
-
                     $heading = $this->language->get('heading_title');
 
                     foreach ($this->model_search_settings->getCoreEntries() as $entry) {
+                        $titles = $this->languageValues('setting/setting', $entry['label']);
                         $title = $this->language->get($entry['label']);
                         if ($title === $entry['label']) {
                             continue;
@@ -280,31 +298,25 @@ class ControllerSearchSearch extends Controller {
                         $candidate = $entry;
                         $candidate['title'] = $title;
                         $candidate['path'] = $heading . ($tab !== '' ? ' → ' . $tab : '');
-                        $candidate['keywords'] = $entry['key'] . ' ' . $entry['label'];
-                        $score = $this->model_search_settings->match($candidate, $query);
+                        $candidate['keywords'] = $entry['key'] . ' ' . $entry['label'] . ' ' . implode(' ', $titles);
+                        $score = $this->model_search_settings->match($candidate, $term);
 
                         if ($score > 0) {
                             $url = $this->url->link('setting/setting', 'user_token=' . $session_token . ($entry['tab'] !== '' ? '&tab=' . rawurlencode($entry['tab']) : ''), true);
                             if ($entry['focus'] !== '') {
                                 $url .= '#' . rawurlencode($entry['focus']);
                             }
-
-                            $data['settings'][] = array(
-                                'title' => $title,
-                                'path' => $candidate['path'],
-                                'key' => $entry['key'],
-                                'url' => $url,
-                                'score' => $score
-                            );
+                            $data['settings'][] = array('title'=>$title,'path'=>$candidate['path'],'key'=>$entry['key'],'url'=>$url,'score'=>$score,'icon'=>'fa-cog');
                         }
                     }
                 }
 
-                if ($can_theme_settings) {
+                if ($can_theme_settings && ($scope === '' || in_array($scope, array('setting', 'key'), true))) {
                     $this->load->language('extension/theme/codecart');
                     $heading = $this->language->get('heading_title');
 
                     foreach ($this->model_search_settings->getThemeEntries() as $entry) {
+                        $titles = $this->languageValues('extension/theme/codecart', $entry['label']);
                         $title = $this->language->get($entry['label']);
                         if ($title === $entry['label']) {
                             continue;
@@ -313,34 +325,72 @@ class ControllerSearchSearch extends Controller {
                         $candidate = $entry;
                         $candidate['title'] = $title;
                         $candidate['path'] = $heading;
-                        $candidate['keywords'] = $entry['key'] . ' ' . $entry['label'];
-                        $score = $this->model_search_settings->match($candidate, $query);
+                        $candidate['keywords'] = $entry['key'] . ' ' . $entry['label'] . ' ' . implode(' ', $titles);
+                        $score = $this->model_search_settings->match($candidate, $term);
 
                         if ($score > 0) {
                             $url = $this->url->link('extension/theme/codecart', 'user_token=' . $session_token, true);
                             if ($entry['focus'] !== '') {
                                 $url .= '#' . rawurlencode($entry['focus']);
                             }
-
-                            $data['settings'][] = array(
-                                'title' => $title,
-                                'path' => $heading,
-                                'key' => $entry['key'],
-                                'url' => $url,
-                                'score' => $score
-                            );
+                            $data['settings'][] = array('title'=>$title,'path'=>$heading,'key'=>$entry['key'],'url'=>$url,'score'=>$score,'icon'=>'fa-paint-brush');
                         }
                     }
                 }
 
-                usort($data['settings'], function($a, $b) {
+                if ($scope === '' || in_array($scope, array('setting', 'section'), true)) {
+                    foreach ($this->model_search_settings->getAdminPageEntries() as $entry) {
+                        if (!$this->user->hasPermission('access', $entry['permission'])) {
+                            continue;
+                        }
+
+                        $titles = $this->languageValues($entry['language'], $entry['label']);
+                        $title = $this->currentLanguageValue($entry['language'], $entry['label']);
+                        if ($title === $entry['label']) {
+                            continue;
+                        }
+
+                        $page_heading = $this->currentLanguageValue($entry['language'], 'heading_title');
+                        if ($page_heading === 'heading_title') {
+                            $page_heading = $title;
+                        }
+
+                        $candidate = array(
+                            'title' => $title,
+                            'path' => $page_heading,
+                            'key' => $entry['route'],
+                            'keywords' => $entry['route'] . ' ' . $entry['keywords'] . ' ' . implode(' ', $titles)
+                        );
+                        $score = $this->model_search_settings->match($candidate, $term);
+                        if ($score <= 0) {
+                            continue;
+                        }
+
+                        $args = 'user_token=' . $session_token;
+                        if ($entry['tab'] !== '') {
+                            $args .= '&tab=' . rawurlencode($entry['tab']);
+                        }
+                        $data['pages'][] = array(
+                            'title' => $title,
+                            'path' => $page_heading,
+                            'route' => $entry['route'],
+                            'url' => $this->url->link($entry['route'], $args, true),
+                            'score' => $score,
+                            'icon' => $entry['icon']
+                        );
+                    }
+                }
+
+                $sorter = function($a, $b) {
                     if ($a['score'] === $b['score']) {
                         return strcasecmp($a['title'], $b['title']);
                     }
                     return ($a['score'] > $b['score']) ? -1 : 1;
-                });
-
-                $data['settings'] = array_slice($data['settings'], 0, 12);
+                };
+                usort($data['settings'], $sorter);
+                usort($data['pages'], $sorter);
+                $data['settings'] = array_slice($data['settings'], 0, 10);
+                $data['pages'] = array_slice($data['pages'], 0, 10);
                 $json['result'] = $this->load->view('search/settings_result', $data);
                 break;
 
@@ -359,6 +409,153 @@ class ControllerSearchSearch extends Controller {
         }
 
         $this->outputJson($json);
+    }
+
+    private function buildModuleResults($query, $session_token) {
+        $results = array();
+        $needle = $this->normalizeSearchText($query);
+        $seen = array();
+
+        foreach ($this->model_search_search->getModuleCandidates() as $row) {
+            $code = trim((string)$row['code']);
+            if ($code === '') {
+                continue;
+            }
+
+            $permission = 'extension/module/' . $code;
+            $can_direct = $this->user->hasPermission('access', $permission);
+            $can_list = $this->user->hasPermission('access', 'marketplace/extension');
+            if (!$can_direct && !$can_list) {
+                continue;
+            }
+
+            $titles = $this->languageValues('extension/module/' . $code, 'heading_title');
+            $title = $this->currentLanguageValue('extension/module/' . $code, 'heading_title');
+            if ($title === 'heading_title') {
+                $title = $code;
+            }
+
+            $instance_name = isset($row['name']) ? trim((string)$row['name']) : '';
+            $haystack = $this->normalizeSearchText($code . ' ' . $title . ' ' . implode(' ', $titles) . ' ' . $instance_name);
+            if ($needle === '' || strpos($haystack, $needle) === false) {
+                continue;
+            }
+
+            $module_id = isset($row['module_id']) ? (int)$row['module_id'] : 0;
+            $unique = $code . ':' . $module_id . ':' . $instance_name;
+            if (isset($seen[$unique])) {
+                continue;
+            }
+            $seen[$unique] = true;
+
+            if ($can_direct) {
+                $args = 'user_token=' . $session_token;
+                if ($module_id > 0) {
+                    $args .= '&module_id=' . $module_id;
+                }
+                $url = $this->url->link('extension/module/' . $code, $args, true);
+            } else {
+                $url = $this->url->link('marketplace/extension', 'user_token=' . $session_token . '&type=module', true);
+            }
+
+            $results[] = array(
+                'code' => $code,
+                'title' => $title,
+                'name' => $instance_name,
+                'module_id' => $module_id,
+                'url' => $url
+            );
+
+            if (count($results) >= 10) {
+                break;
+            }
+        }
+
+        return $results;
+    }
+
+    private function hasSearchableAdminPagePermission() {
+        $this->load->model('search/settings');
+        foreach ($this->model_search_settings->getAdminPageEntries() as $entry) {
+            if ($this->user->hasPermission('access', $entry['permission'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function parseTypedQuery($query, $option) {
+        $query = trim((string)$query);
+        $scope = '';
+        $maps = array(
+            'catalog' => array(
+                'product'=>array('product','товар','товари','товары'),
+                'category'=>array('category','категорія','категории','категория','категорії'),
+                'manufacturer'=>array('manufacturer','brand','виробник','виробники','производитель','производители','бренд'),
+                'sku'=>array('sku','артикул'),
+                'model'=>array('model','модель')
+            ),
+            'customers' => array('customer'=>array('customer','client','клієнт','клиент','покупець','покупатель'),'email'=>array('email','e-mail'),'phone'=>array('phone','telephone','телефон')),
+            'orders' => array('order'=>array('order','замовлення','заказ'),'invoice'=>array('invoice','рахунок','счёт','счет'),'customer'=>array('customer','client','клієнт','клиент')),
+            'content' => array('page'=>array('page','сторінка','страница'),'article'=>array('article','стаття','статья'),'module'=>array('module','модуль','модули','модулі')),
+            'settings' => array('setting'=>array('setting','settings','налаштування','настройка','настройки'),'key'=>array('key','ключ'),'section'=>array('section','page','розділ','раздел','сторінка','страница'))
+        );
+
+        if (isset($maps[$option])) {
+            foreach ($maps[$option] as $candidate_scope => $prefixes) {
+                foreach ($prefixes as $prefix) {
+                    if (preg_match('/^' . preg_quote($prefix, '/') . '\s*:\s*(.+)$/ui', $query, $m)) {
+                        $scope = $candidate_scope;
+                        $query = trim($m[1]);
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        return array('term' => $query, 'scope' => $scope);
+    }
+
+    private function languageValues($file, $key) {
+        $values = array();
+        foreach (array('uk-ua', 'ru-ru', 'en-gb') as $code) {
+            $language = $this->searchLanguage($file, $code);
+            $value = trim((string)$language->get($key));
+            if ($value !== '' && $value !== $key) {
+                $values[$value] = $value;
+            }
+        }
+        return array_values($values);
+    }
+
+    private function currentLanguageValue($file, $key) {
+        $code = (string)$this->config->get('config_admin_language');
+        if ($code === '') {
+            $code = 'en-gb';
+        }
+        return (string)$this->searchLanguage($file, $code)->get($key);
+    }
+
+    private function searchLanguage($file, $code) {
+        $cache_key = $code . ':' . $file;
+        if (!isset($this->searchLanguageCache[$cache_key])) {
+            $language = new Language($code);
+            $language->load($file);
+            $this->searchLanguageCache[$cache_key] = $language;
+        }
+        return $this->searchLanguageCache[$cache_key];
+    }
+
+    private function normalizeSearchText($value) {
+        $value = trim((string)$value);
+        if ($value === '') {
+            return '';
+        }
+        $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+        $value = strtr($value, array('ё'=>'е','і'=>'и','ї'=>'и','є'=>'е','ґ'=>'г','’'=>' ','`'=>' ','\''=>' '));
+        $value = preg_replace('/[^\p{L}\p{N}]+/u', ' ', $value);
+        $value = preg_replace('/\s+/u', ' ', (string)$value);
+        return trim((string)$value);
     }
 
     private function denyJson() {

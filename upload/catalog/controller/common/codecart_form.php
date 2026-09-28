@@ -14,8 +14,8 @@ class ControllerCommonCodecartForm extends Controller {
         $kind = isset($form['kind']) && (string)$form['kind'] === 'info' ? 'info' : 'request';
 
         if (!self::$assetsAdded) {
-            $this->document->addStyle('catalog/view/javascript/codecart/forms/forms.css?v=3.0.6.0-b127');
-            $this->document->addScript('catalog/view/javascript/codecart/forms/forms.js?v=3.0.6.0');
+            $this->document->addStyle('catalog/view/javascript/codecart/forms/forms.css?v=3.0.6.0-b128', 'stylesheet', 'screen', 'footer');
+            $this->document->addScript('catalog/view/javascript/codecart/forms/forms.js?v=3.0.6.0', 'footer');
             self::$assetsAdded = true;
         }
 
@@ -46,6 +46,19 @@ class ControllerCommonCodecartForm extends Controller {
         $data['fields'] = $form['fields'];
         $data['mode'] = $mode;
         $data['button_text'] = utf8_substr($button_text, 0, 100);
+        $button_icon = isset($settings['button_icon']) && $settings['button_icon'] !== '' ? trim((string)$settings['button_icon']) : (isset($form['button_icon']) ? trim((string)$form['button_icon']) : 'fa fa-envelope-o');
+        if ($button_icon === '') { $button_icon = 'fa fa-envelope-o'; }
+        if (!preg_match('/^(?:fa(?:-[a-z]+)?\s+)?fa-[a-z0-9-]+(?:\s+fa-[a-z0-9-]+)*$/i', $button_icon) || strlen($button_icon) > 64) { $button_icon = 'fa fa-envelope-o'; }
+        if (strpos($button_icon, ' ') === false) { $button_icon = 'fa ' . $button_icon; }
+        $data['button_icon'] = $button_icon;
+        if (preg_match('/\bfa-(?:solid|regular|brands)\b/', $button_icon)) {
+            $this->document->addStyle('catalog/view/javascript/font-awesome/css/font-awesome.min.css?v=6.7.2', 'stylesheet', 'screen', 'footer');
+        }
+        foreach (array('button_bg'=>'#0b6fd3','button_text_color'=>'#ffffff','button_hover_bg'=>'#095eb4') as $style_key => $style_default) {
+            $value = isset($settings[$style_key]) && $settings[$style_key] !== '' ? strtolower((string)$settings[$style_key]) : (isset($form[$style_key]) ? strtolower((string)$form[$style_key]) : $style_default);
+            $data[$style_key] = preg_match('/^#[0-9a-f]{6}$/', $value) ? $value : $style_default;
+        }
+        $data['button_style'] = '--ccp-form-button-bg:' . $data['button_bg'] . ';--ccp-form-button-text:' . $data['button_text_color'] . ';--ccp-form-button-hover:' . $data['button_hover_bg'] . ';';
         $data['instance'] = $instance;
         $data['token'] = $token;
         $data['honeypot_name'] = $honeypot_name;
@@ -136,7 +149,9 @@ class ControllerCommonCodecartForm extends Controller {
             $key = (string)$field['key'];
             $raw = isset($posted[$key]) ? $posted[$key] : '';
             if (is_array($raw)) { $raw = ''; }
-            $value = trim((string)$raw);
+            // Request::clean() HTML-escapes POST values; the lead e-mail is plain text and
+            // select options are stored unescaped, so compare/send the real characters.
+            $value = trim(html_entity_decode((string)$raw, ENT_QUOTES, 'UTF-8'));
             if ($field['type'] === 'checkbox') { $value = $value !== '' ? '1' : ''; }
             if (!empty($field['required']) && $value === '') { $errors[$key] = $this->language->get('text_required'); continue; }
             if ($value === '') { $values[$key] = ''; continue; }
@@ -166,7 +181,7 @@ class ControllerCommonCodecartForm extends Controller {
         }
         $context_type = isset($this->request->post['context_type']) ? preg_replace('/[^a-z0-9_\-]/i', '', (string)$this->request->post['context_type']) : '';
         $context_id = isset($this->request->post['context_id']) ? (int)$this->request->post['context_id'] : 0;
-        $context_url = isset($this->request->post['context_url']) ? trim((string)$this->request->post['context_url']) : '';
+        $context_url = isset($this->request->post['context_url']) ? trim(html_entity_decode((string)$this->request->post['context_url'], ENT_QUOTES, 'UTF-8')) : '';
         if ($context_type !== '') { $lines[] = ''; $lines[] = 'Context: ' . $context_type . ($context_id ? ' #' . $context_id : ''); }
         if ($context_url !== '' && preg_match('#^https?://#i', $context_url)) { $lines[] = 'URL: ' . utf8_substr($context_url, 0, 2048); }
 

@@ -165,19 +165,25 @@ class ControllerProductCategory extends Controller {
 			$data['description'] = $this->load->controller('common/codecart_form/shortcodes', array('html'=>$data['description'],'context'=>$category_context));
 
 			$compatibility = $this->registry->get('codecart_compatibility_framework');
-			$subcategoryContract = $compatibility ? $compatibility->apply('catalog.category_page.subcategories', array('enabled' => true, 'images' => false, 'category_id' => (int)$category_id)) : array('enabled' => true, 'images' => false);
+			$subcategoryContract = $compatibility ? $compatibility->apply('catalog.category_page.subcategories', array('enabled' => true, 'images' => true, 'category_id' => (int)$category_id)) : array('enabled' => true, 'images' => true);
 			$data['categories'] = [];
 			if (!empty($subcategoryContract['enabled'])) {
 				$subcategories = $this->model_catalog_category->getCategories((int)$category_id);
 				$showSubcategoryImages = !empty($subcategoryContract['images']);
+				$subcategoryImageWidth = max(96, min(180, (int)$data['thumb_width']));
+				$subcategoryImageHeight = max(72, min(135, (int)$data['thumb_height']));
 				foreach ($subcategories as $subcategory) {
 					$subcategoryThumb = '';
-					if ($showSubcategoryImages && !empty($subcategory['image'])) {
-						$subcategoryThumb = $this->model_tool_image->resize($subcategory['image'], $data['thumb_width'], $data['thumb_height']);
+					if ($showSubcategoryImages) {
+						$subcategoryImage = !empty($subcategory['image']) ? (string)$subcategory['image'] : 'no_image.webp';
+						$subcategoryThumb = $this->model_tool_image->resize($subcategoryImage, $subcategoryImageWidth, $subcategoryImageHeight);
 					}
 					$subcategoryItem = array(
 						'name' => $subcategory['name'],
 						'thumb' => $subcategoryThumb,
+						'image_width' => $subcategoryImageWidth,
+						'image_height' => $subcategoryImageHeight,
+						'count' => null,
 						'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . (int)$subcategory['category_id'])
 					);
 					$data['categories'][] = $subcategoryItem;

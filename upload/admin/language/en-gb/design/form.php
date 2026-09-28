@@ -64,4 +64,29 @@ $_['text_template_rules_info'] = 'Rules / notes';
 $_['text_template_shoes_eu'] = 'EU shoe sizes';
 $_['text_template_clothing_women_eu'] = 'EU women sizes';
 $_['text_template_clothing_men_eu'] = 'EU men sizes';
+
+$_['text_form_usage_title'] = 'Where forms are shown';
+$_['text_form_usage_product'] = 'One product: Catalog → Products → Content blocks → Add Form.';
+$_['text_form_usage_category_products'] = 'Products of a category: Catalog → Categories → Content blocks. Child products inherit the nearest configured category template.';
+$_['text_form_usage_category_page'] = 'On a category page: create a CodeCart Form module and place it in Design → Layouts; assign that layout to the category.';
+$_['text_form_usage_global'] = 'All product/category pages: place the CodeCart Form module in the corresponding Product or Category layout.';
+$_['text_form_usage_shortcode'] = 'Inside an information/content block: use the shortcode shown in the table below.';
+
+$_['entry_button_icon'] = 'Button icon';
+$_['entry_button_colors'] = 'Button appearance';
+$_['entry_button_bg'] = 'Background color';
+$_['entry_button_text_color'] = 'Text color';
+$_['entry_button_hover_bg'] = 'Hover color';
+$_['help_button_style'] = 'Default form button style. A product or category block can override it.';
+$_['help_status_global'] = 'Disabling is global: this form or information block is hidden in products, categories, shortcodes and modules.';
+
+$_['column_kind'] = 'Type';
+$_['text_kind_request_short'] = 'Form';
+$_['text_kind_info_short'] = 'Information block';
+
+$_['button_choose_icon'] = 'Choose icon';
+$_['button_clear_icon'] = 'Clear icon';
+$_['text_icon_picker_title'] = 'Choose icon';
+$_['text_icon_search'] = 'Search icons...';
+$_['text_icon_loading'] = 'Loading icon catalogue...';
 $_['js_presets_json'] = '{}';

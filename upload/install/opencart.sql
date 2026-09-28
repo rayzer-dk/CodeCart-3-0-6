@@ -550,9 +550,8 @@ INSERT INTO `oc_category_path` (`category_id`, `path_id`, `level`) VALUES
 (51, 51, 1),
 (52, 34, 0),
 (52, 52, 1),
-(58, 34, 0),
-(58, 52, 1),
-(58, 58, 2),
+(58, 57, 0),
+(58, 58, 1),
 (53, 34, 0),
 (53, 53, 1),
 (54, 34, 0),
@@ -1556,7 +1555,6 @@ INSERT INTO `oc_extension` (`extension_id`, `type`, `code`) VALUES
 (17, 'payment', 'free_checkout'),
 (18, 'module', 'featured'),
 (19, 'module', 'slideshow'),
-(20, 'theme', 'default'),
 (69, 'theme', 'codecart'),
 (21, 'dashboard', 'activity'),
 (22, 'dashboard', 'sale'),
@@ -1928,7 +1926,6 @@ INSERT INTO `oc_layout_module` (`layout_module_id`, `layout_id`, `code`, `positi
 (92, 1, 'latest.39', 'content_top', 4),
 (93, 1, 'popular.40', 'content_top', 5),
 (95, 1, 'blog_latest.32', 'content_bottom', 0),
-(96, 3, 'category_wall.42', 'content_top', 0),
 (97, 2, 'recently_viewed.43', 'content_bottom', 2),
 (98, 3, 'codecart_form.46', 'content_bottom', 2),
 (100, 8, 'codecart_form.44', 'content_bottom', 0),
@@ -2243,7 +2240,7 @@ INSERT INTO `oc_module` (`module_id`, `name`, `code`, `setting`) VALUES
 (33, 'Рекомендовані статті', 'blog_featured', '{"name":"Рекомендовані статті","article_name":"","article":["120","123","125","124"],"limit":"4","width":"200","height":"200","status":"1"}'),
 (34, 'Рекомендовані статті у товарі, категорії та виробнику', 'featured_article', '{"name":"Рекомендовані статті у товарі, категорії та виробнику","limit":"4","width":"200","height":"200","display_mode":"carousel","columns_desktop":"4","columns_tablet":"3","columns_mobile":"2","autoplay":"0","autoplay_delay":"5000","show_arrows":"1","show_dots":"1","loop":"1","carousel_step":"item","status":"1"}'),
 (35, 'Рекомендовані товари у товарі, категорії та виробнику', 'featured_product', '{"name":"Рекомендовані товари у товарі, категорії та виробнику","limit":"4","width":"200","height":"200","display_mode":"carousel","columns_desktop":"4","columns_tablet":"3","columns_mobile":"2","autoplay":"0","autoplay_delay":"5000","show_arrows":"1","show_dots":"1","loop":"1","carousel_step":"item","status":"1"}'),
-(36, 'Головна — вступ', 'html', '{"name": "Головна — вступ", "description": {"1": "<div class=\"well\" style=\"margin-bottom:0;\"><h2>CodeCart PRO Demo Store</h2><p>Готовий демонстраційний магазин для України: категорії з ілюстраціями, товари з опціями, блог, інформаційні сторінки, сучасна мобільна вітрина та продумане наповнення. 🇺🇦</p><p><strong>Що можна перевірити одразу:</strong> каталог, картки товарів, SEO-структуру, опції, блог, сторінки доставки та оплати, адаптивність і базові сценарії покупки.</p><p><a href=\"index.php?route=product/category&path=20\">Перейти в каталог</a> · <a href=\"index.php?route=blog/latest\">Відкрити блог</a> · <a href=\"index.php?route=information/contact\">Контакти</a></p></div>", "2": "<div class=\"well\" style=\"margin-bottom:0;\"><h2>CodeCart PRO Demo Store</h2><p>A ready-made demo store for Ukraine with illustrated categories, option-rich products, a blog, information pages, a modern mobile storefront and presentation-ready content. 🇺🇦</p><p><strong>What you can test immediately:</strong> the catalog, product pages, SEO structure, options, blog, delivery and payment pages, responsiveness and core shopping flows.</p><p><a href=\"index.php?route=product/category&path=20\">Open catalog</a> · <a href=\"index.php?route=blog/latest\">Open blog</a> · <a href=\"index.php?route=information/contact\">Contact us</a></p></div>"}, "status": "1"}'),
+(36, 'Головна — вступ', 'html', '{"name": "Головна — вступ", "module_description": {"1": {"title": "", "description": "<div class=\\"well\\" style=\\"margin-bottom:0;\\"><h2>CodeCart PRO Demo Store</h2><p>Готовий демонстраційний магазин для України: категорії з ілюстраціями, товари з опціями, блог, інформаційні сторінки, сучасна мобільна вітрина та продумане наповнення. 🇺🇦</p><p><strong>Що можна перевірити одразу:</strong> каталог, картки товарів, SEO-структуру, опції, блог, сторінки доставки та оплати, адаптивність і базові сценарії покупки.</p><p><a href=\\"index.php?route=product/category&path=20\\">Перейти в каталог</a> · <a href=\\"index.php?route=blog/latest\\">Відкрити блог</a> · <a href=\\"index.php?route=information/contact\\">Контакти</a></p></div>"}, "2": {"title": "", "description": "<div class=\\"well\\" style=\\"margin-bottom:0;\\"><h2>CodeCart PRO Demo Store</h2><p>A ready-made demo store for Ukraine with illustrated categories, option-rich products, a blog, information pages, a modern mobile storefront and presentation-ready content. 🇺🇦</p><p><strong>What you can test immediately:</strong> the catalog, product pages, SEO structure, options, blog, delivery and payment pages, responsiveness and core shopping flows.</p><p><a href=\\"index.php?route=product/category&path=20\\">Open catalog</a> · <a href=\\"index.php?route=blog/latest\\">Open blog</a> · <a href=\\"index.php?route=information/contact\\">Contact us</a></p></div>"}}, "status": "1"}'),
 (37, 'Головна — категорії', 'category_wall', '{"name": "Головна — категорії", "heading": {"1": "Популярні категорії", "2": "Popular Categories"}, "source": "top", "limit": "8", "subcategory_limit": "4", "display_mode": "carousel", "columns_desktop": "4", "columns_tablet": "3", "columns_mobile": "2", "mobile_peek": "0", "autoplay": "1", "autoplay_delay": "4500", "show_arrows": "1", "show_dots": "1", "loop": "1", "carousel_step": "page", "width": "320", "height": "220", "width_mobile": "240", "height_mobile": "180", "image_fit": "cover", "image_mode": "image_text", "show_count": "1", "hide_empty": "0", "sort": "sort_order", "status": "1"}'),
 (38, 'Головна — виробники', 'manufacturer_wall', '{"name": "Головна — виробники", "heading": {"1": "Бренди та виробники", "2": "Brands & Manufacturers"}, "source": "all", "limit": "12", "display_mode": "carousel", "columns_desktop": "6", "columns_tablet": "4", "columns_mobile": "2", "autoplay": "1", "autoplay_delay": "2000", "show_arrows": "1", "show_dots": "1", "loop": "1", "carousel_step": "item", "width": "180", "height": "90", "image_fit": "contain", "show_name": "1", "show_image": "1", "show_count": "0", "hide_empty": "0", "hide_without_image": "0", "show_heading": "1", "sort": "sort_order", "status": "1"}'),
 (39, 'Головна — нові товари', 'latest', '{"name": "Головна — нові товари", "heading": {"1": "Нові товари", "2": "Latest Products"}, "limit": "6", "width": "220", "height": "220", "display_mode": "carousel", "columns_desktop": "3", "columns_tablet": "2", "columns_mobile": "2", "autoplay": "0", "show_arrows": "1", "show_dots": "1", "loop": "1", "carousel_step": "item", "status": "1"}'),
@@ -2778,6 +2775,10 @@ CREATE TABLE `oc_codecart_form` (
   `name` varchar(128) NOT NULL DEFAULT '',
   `kind` varchar(16) NOT NULL DEFAULT 'request',
   `recipient` varchar(255) NOT NULL DEFAULT '',
+  `button_icon` varchar(64) NOT NULL DEFAULT 'fa-envelope-o',
+  `button_bg` varchar(7) NOT NULL DEFAULT '#0b6fd3',
+  `button_text_color` varchar(7) NOT NULL DEFAULT '#ffffff',
+  `button_hover_bg` varchar(7) NOT NULL DEFAULT '#095eb4',
   `status` tinyint(1) NOT NULL DEFAULT '1',
   `date_added` datetime NOT NULL,
   `date_modified` datetime NOT NULL,
@@ -2800,10 +2801,10 @@ CREATE TABLE `oc_codecart_form_description` (
 --
 -- Demo reusable forms for the presentation store
 --
-INSERT INTO `oc_codecart_form` (`form_id`,`name`,`kind`,`recipient`,`status`,`date_added`,`date_modified`) VALUES
-(1,'Зворотний дзвінок','request','info@codecartpro.com',1,'2026-09-01 10:00:00','2026-09-01 10:00:00'),
-(2,'Поставити питання','request','info@codecartpro.com',1,'2026-09-01 10:00:00','2026-09-01 10:00:00'),
-(3,'Допомога з підбором','request','info@codecartpro.com',1,'2026-09-01 10:00:00','2026-09-01 10:00:00');
+INSERT INTO `oc_codecart_form` (`form_id`,`name`,`kind`,`recipient`,`button_icon`,`button_bg`,`button_text_color`,`button_hover_bg`,`status`,`date_added`,`date_modified`) VALUES
+(1,'Зворотний дзвінок','request','info@codecartpro.com','fa-phone','#0b6fd3','#ffffff','#095eb4',1,'2026-09-01 10:00:00','2026-09-01 10:00:00'),
+(2,'Поставити питання','request','info@codecartpro.com','fa-question-circle','#0b6fd3','#ffffff','#095eb4',1,'2026-09-01 10:00:00','2026-09-01 10:00:00'),
+(3,'Допомога з підбором','request','info@codecartpro.com','fa-sliders','#0b6fd3','#ffffff','#095eb4',1,'2026-09-01 10:00:00','2026-09-01 10:00:00');
 
 INSERT INTO `oc_codecart_form_description` (`form_id`,`language_id`,`title`,`description`,`submit_text`,`success_text`,`fields`) VALUES
 (1,1,'Замовити зворотний дзвінок','<p>Залиште контакт — менеджер зв’язується для консультації. Це демонстраційна форма CodeCart.</p>','Надіслати','Дякуємо! Запит прийнято. Менеджер зв’яжеться з вами.','[{"key":"name","type":"text","label":"Ваше ім’я","placeholder":"Ім’я","required":1},{"key":"phone","type":"tel","label":"Телефон","placeholder":"+380…","required":1},{"key":"time","type":"select","label":"Зручний час","placeholder":"","required":0,"options":["Якнайшвидше","09:00–12:00","12:00–15:00","15:00–18:00"]},{"key":"comment","type":"textarea","label":"Коментар","placeholder":"Що потрібно уточнити?","required":0}]'),
@@ -2870,7 +2871,7 @@ INSERT INTO `oc_product` (`product_id`, `model`, `sku`, `upc`, `ean`, `jan`, `is
 (42, 'CINEMA-30', 'DEMO-APPLE-CINEMA30', '', '', '', '', 'CINEMA-30-DEMO', '', 990, 5, 'catalog/demo/product/thunderboltdisplay.webp', 8, 1, '100.0000', 400, 9, '2009-02-04', '12.50000000', 1, '1.00000000', '2.00000000', '3.00000000', 1, 1, 2, 0, 1, 1, '2009-02-03 21:07:37', '2026-09-01 12:00:00', 1),
 (43, 'MACBOOK', 'DEMO-APPLE-MACBOOK', '', '', '', '', 'MACBOOK-DEMO', '', 929, 5, 'catalog/demo/product/macbook.webp', 8, 0, '500.0000', 0, 9, '2009-02-03', '0.00000000', 1, '0.00000000', '0.00000000', '0.00000000', 2, 1, 1, 0, 1, 0, '2009-02-03 21:07:49', '2026-09-01 12:00:00', 1),
 (44, 'MACBOOK-AIR', 'DEMO-APPLE-MBAIR', '', '', '', '', 'MACBOOK-AIR-DEMO', '', 1000, 5, 'catalog/demo/macbook_air_1.webp', 8, 1, '1000.0000', 0, 9, '2009-02-03', '0.00000000', 1, '0.00000000', '0.00000000', '0.00000000', 2, 1, 1, 0, 1, 0, '2009-02-03 21:08:00', '2026-09-01 12:00:00', 1),
-(45, 'MACBOOK-PRO', 'DEMO-APPLE-MBPRO', '', '', '', '', 'MACBOOK-PRO-DEMO', '', 998, 5, 'catalog/demo/macbook_pro_1.webp', 8, 1, '2000.0000', 0, 100, '2009-02-03', '0.00000000', 1, '0.00000000', '0.00000000', '0.00000000', 2, 1, 1, 0, 1, 0, '2009-02-03 21:08:17', '2026-09-01 12:00:00', 1),
+(45, 'MACBOOK-PRO', 'DEMO-APPLE-MBPRO', '', '', '', '', 'MACBOOK-PRO-DEMO', '', 998, 5, 'catalog/demo/macbook_pro_1.webp', 8, 1, '2000.0000', 0, 9, '2009-02-03', '0.00000000', 1, '0.00000000', '0.00000000', '0.00000000', 2, 1, 1, 0, 1, 0, '2009-02-03 21:08:17', '2026-09-01 12:00:00', 1),
 (46, 'VAIO', 'DEMO-SONY-VAIO', '', '', '', '', 'VAIO-DEMO', '', 1000, 5, 'catalog/demo/sony_vaio_1.webp', 10, 1, '1000.0000', 0, 9, '2009-02-03', '0.00000000', 1, '0.00000000', '0.00000000', '0.00000000', 2, 1, 1, 0, 1, 0, '2009-02-03 21:08:29', '2026-09-01 12:00:00', 1),
 (47, 'LP3065', 'DEMO-HP-LP3065', '', '', '', '', 'LP3065', '', 1000, 5, 'catalog/demo/hp_1.webp', 7, 1, '100.0000', 400, 9, '2009-02-03', '1.00000000', 1, '0.00000000', '0.00000000', '0.00000000', 1, 0, 1, 0, 1, 0, '2009-02-03 21:08:40', '2026-09-01 12:00:00', 1),
 (48, 'IPOD-CLASSIC', 'DEMO-APPLE-IPOD-CLASSIC', '', '', '', '', 'IPOD-CLASSIC-DEMO', 'DEMO-WAREHOUSE', 995, 5, 'catalog/demo/ipod_classic_1.webp', 8, 1, '100.0000', 0, 9, '2009-02-08', '1.00000000', 1, '0.00000000', '0.00000000', '0.00000000', 2, 1, 1, 0, 1, 0, '2009-02-08 17:21:51', '2026-09-01 12:00:00', 1),
@@ -4027,6 +4028,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 (0, 'config', 'config_meta_description', 'Готовий демонстраційний магазин на CodeCart PRO 3.0.6.0: категорії, товари з опціями, блог, інформаційні сторінки, адаптивна вітрина та SEO-ready структура для України.', 0),
 (0, 'config', 'config_meta_keyword', '', 0),
 (0, 'config', 'config_theme', 'codecart', 0),
+(0, 'codecart_core', 'codecart_install_origin', 'fresh', 0),
 (0, 'config', 'config_layout_id', '4', 0),
 (0, 'config', 'config_country_id', '220', 0),
 (0, 'config', 'config_zone_id', '3491', 0),
@@ -4084,7 +4086,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 (0, 'config', 'config_owner', 'CodeCart PRO', 0),
 (0, 'config', 'config_address', 'вул. Хрещатик, 10, Київ, 01001, Україна', 0),
 (0, 'config', 'config_name', 'CodeCart PRO Demo Store', 0),
-(0, 'config', 'config_seo_url', '0', 0),
+(0, 'config', 'config_seo_url', '1', 0),
 (0, 'config', 'config_file_max_size', '10485760', 0),
 (0, 'config', 'config_file_ext_allowed', 'zip\r\ntxt\r\npng\r\njpe\r\njpeg\r\njpg\r\ngif\r\nbmp\r\nico\r\ntiff\r\ntif\r\nsvg\r\nsvgz\r\nwebp\r\nzip\r\nrar\r\nmsi\r\ncab\r\nmp3\r\nqt\r\nmov\r\npdf\r\npsd\r\nai\r\neps\r\nps\r\ndoc', 0),
 (0, 'config', 'config_file_mime_allowed', 'text/plain\r\nimage/png\r\nimage/jpeg\r\nimage/gif\r\nimage/bmp\r\nimage/tiff\r\nimage/svg+xml\r\nimage/webp\r\napplication/zip\r\n&quot;application/zip&quot;\r\napplication/x-zip\r\n&quot;application/x-zip&quot;\r\napplication/x-zip-compressed\r\n&quot;application/x-zip-compressed&quot;\r\napplication/rar\r\n&quot;application/rar&quot;\r\napplication/x-rar\r\n&quot;application/x-rar&quot;\r\napplication/x-rar-compressed\r\n&quot;application/x-rar-compressed&quot;\r\napplication/octet-stream\r\n&quot;application/octet-stream&quot;\r\naudio/mpeg\r\nvideo/quicktime\r\napplication/pdf', 0),
@@ -4105,7 +4107,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 (0, 'config', 'config_mail_smtp_timeout', '5', 0),
 (0, 'config', 'config_mail_alert_email', '', 0),
 (0, 'config', 'config_mail_alert', '["order"]', 1),
-(0, 'config', 'config_captcha', 'basic', 0),
+(0, 'config', 'config_captcha', '', 0),
 (0, 'config', 'config_captcha_page', '["review","return","contact"]', 1),
 (0, 'config', 'config_login_attempts', '5', 0),
 (0, 'config', 'config_noindex_status', '1', 0),
@@ -9432,7 +9434,7 @@ PRIMARY KEY (`article_id`)
 --
 
 INSERT INTO `oc_article` (`article_id`, `image`, `date_available`, `sort_order`, `article_review`, `status`, `noindex`, `date_added`, `date_modified`, `viewed`, `gstatus`) VALUES
-(120, 'catalog/codecart-pro-system.webp', '2026-09-01', 1, 0, 1, 1, '2026-09-01 10:00:00', '2026-09-01 10:00:00', 0, 0),
+(120, 'catalog/codecart-pro-system.webp', '2026-09-01', 1, 0, 1, 1, '2026-09-27 12:00:00', '2026-09-27 12:00:00', 0, 0),
 (123, 'catalog/demo/canon_eos_5d_2.webp', '2026-09-01', 2, 0, 1, 1, '2026-09-01 10:00:00', '2026-09-01 10:00:00', 0, 0),
 (124, 'catalog/demo/product/thunderboltdisplay.webp', '2026-09-01', 3, 0, 1, 1, '2026-09-01 10:00:00', '2026-09-01 10:00:00', 0, 0),
 (125, 'catalog/demo/iphone_2.webp', '2026-09-01', 4, 0, 1, 1, '2026-09-01 10:00:00', '2026-09-01 10:00:00', 0, 0),
@@ -9466,8 +9468,116 @@ KEY `name` (`name`(191))
 --
 
 INSERT INTO `oc_article_description` (`article_id`, `language_id`, `name`, `description`, `meta_description`, `meta_keyword`, `meta_title`, `meta_h1`, `tag`) VALUES
-(120, 1, 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', '&lt;h2 id=&quot;idea&quot;&gt;CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;#idea&quot;&gt;Ідея&lt;/a&gt; · &lt;a href=&quot;#benefits&quot;&gt;Переваги&lt;/a&gt; · &lt;a href=&quot;#practical&quot;&gt;Практика&lt;/a&gt; · &lt;a href=&quot;#next&quot;&gt;Що далі&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Про сучасну основу CodeCart.&lt;/strong&gt; Ця стаття оформлена як готовий шаблон для блогу магазину. Вона показує, як можуть виглядати заголовки, внутрішні посилання, списки, акценти та емоційні маркери. ✨&lt;/p&gt;&lt;p&gt;Блог у презентаційній версії магазину має бути не порожнім: він повинен одразу демонструвати можливості контент-маркетингу, SEO та зручного читання на мобільних пристроях.&lt;/p&gt;&lt;h3 id=&quot;benefits&quot;&gt;Що тут добре працює&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;короткий вступ і зрозуміла структура;&lt;/li&gt;&lt;li&gt;якорі для швидкої навігації;&lt;/li&gt;&lt;li&gt;доречні emoji та акцентні списки;&lt;/li&gt;&lt;li&gt;можливість посилатися на товари, категорії, новини та інформаційні сторінки. 🔗&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;practical&quot;&gt;Практичне використання&lt;/h3&gt;&lt;blockquote&gt;&lt;p&gt;Такі статті можна швидко замінити на новини про акції, переваги системи, оновлення, кейси магазину або корисні поради для покупців.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Для України доцільно писати про доставку, оплату, гарантію, підбір товарів, сезонні пропозиції, огляди новинок і порівняння моделей.&lt;/p&gt;&lt;h3 id=&quot;next&quot;&gt;Що далі&lt;/h3&gt;&lt;p&gt;Після запуску демо-контент легко замінити на реальні матеріали, не змінюючи саму структуру блогу та макет сторінки.&lt;/p&gt;', 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину — демонстраційна стаття для блогу магазину з готовою структурою, якірною навігацією та презентаційним контентом.', 'codecart, блог, демо, seo, магазин', 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', 'codecart, блог, демо, магазин'),
-(120, 2, 'CodeCart PRO 3.0.6.0 — a modern foundation for an online store', '&lt;h2 id=&quot;idea&quot;&gt;CodeCart PRO 3.0.6.0 — a modern foundation for an online store&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;#idea&quot;&gt;Idea&lt;/a&gt; · &lt;a href=&quot;#benefits&quot;&gt;Benefits&lt;/a&gt; · &lt;a href=&quot;#practical&quot;&gt;Practical use&lt;/a&gt; · &lt;a href=&quot;#next&quot;&gt;What next&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;About the modern CodeCart PRO foundation.&lt;/strong&gt; This article is formatted as a ready-made store blog template and demonstrates headings, internal anchor links, lists, accents and light emoji usage. ✨&lt;/p&gt;&lt;p&gt;In a presentation storefront, the blog should not be empty. It should immediately demonstrate content-marketing, SEO and mobile reading capabilities.&lt;/p&gt;&lt;h3 id=&quot;benefits&quot;&gt;What works well here&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;a concise intro and clear structure;&lt;/li&gt;&lt;li&gt;anchor links for quick navigation;&lt;/li&gt;&lt;li&gt;relevant emoji and highlighted lists;&lt;/li&gt;&lt;li&gt;the ability to link to products, categories, news and information pages. 🔗&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;practical&quot;&gt;Practical use&lt;/h3&gt;&lt;blockquote&gt;&lt;p&gt;Articles like this can quickly be replaced with sale announcements, system advantages, updates, store case studies or useful buyer guides.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;For a Ukrainian-oriented store, strong themes include delivery, payment, warranty, buying guides, seasonal offers, new-product overviews and model comparisons.&lt;/p&gt;&lt;h3 id=&quot;next&quot;&gt;What next&lt;/h3&gt;&lt;p&gt;After launch, the demo content can be replaced with real materials while keeping the same blog structure and layout.&lt;/p&gt;', 'CodeCart PRO 3.0.6.0 — a modern foundation for an online store — a demo blog article with anchor navigation, presentation-ready copy and a clean structure.', 'codecart, blog, demo, seo, store', 'CodeCart PRO 3.0.6.0 — a modern foundation for an online store', 'CodeCart PRO 3.0.6.0 — a modern foundation for an online store', 'codecart, blog, demo, store'),
+(120, 1, 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', '&lt;h2 id=&quot;about&quot;&gt;CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;#about&quot;&gt;Про систему&lt;/a&gt; · &lt;a href=&quot;#difference&quot;&gt;Відмінності&lt;/a&gt; · &lt;a href=&quot;#commerce&quot;&gt;Комерція&lt;/a&gt; · &lt;a href=&quot;#compatibility&quot;&gt;Сумісність&lt;/a&gt; · &lt;a href=&quot;#seo&quot;&gt;SEO&lt;/a&gt; · &lt;a href=&quot;#security&quot;&gt;Безпека&lt;/a&gt; · &lt;a href=&quot;#result&quot;&gt;Для кого&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;CodeCart PRO 3.0.6.0&lt;/strong&gt; — це модернізована e-commerce платформа на основі екосистеми OpenCart 3.x. Її мета — зберегти сумісність зі звичними модулями, OCMOD, Events і MVC-L, але додати сучасний шар для безпечних оновлень, черг, планувальника, API, Modern Extensions, Compatibility Framework, продуктивності та стабільної роботи магазину.&lt;/p&gt;
+&lt;p&gt;CodeCart не намагається замінити робочу екосистему радикально новим стеком. Замість цього використовується принцип &lt;strong&gt;Legacy Core + Modern Core&lt;/strong&gt;: старі розширення продовжують працювати у знайомому середовищі, а нові можуть використовувати namespace, PSR-4, сервіси, manifests і стабільні точки розширення.&lt;/p&gt;
+
+&lt;h3 id=&quot;difference&quot;&gt;Чим CodeCart відрізняється від OpenCart та ocStore&lt;/h3&gt;
+&lt;div class=&quot;table-responsive&quot;&gt;
+&lt;table class=&quot;table table-bordered table-striped&quot;&gt;
+&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Можливість&lt;/th&gt;&lt;th&gt;OpenCart 3.0.5.x&lt;/th&gt;&lt;th&gt;ocStore 3.0.5.x&lt;/th&gt;&lt;th&gt;CodeCart PRO 3.0.6.x&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;PHP&lt;/td&gt;&lt;td&gt;PHP 8.0–8.4&lt;/td&gt;&lt;td&gt;PHP 8.0–8.5&lt;/td&gt;&lt;td&gt;&lt;strong&gt;PHP 8.1–8.5&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Архітектура розширень&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Legacy + Modern Extensions, PSR-4, Services, manifests&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Оновлення системи&lt;/td&gt;&lt;td&gt;Класичний installer&lt;/td&gt;&lt;td&gt;Класичний installer&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Installer 2.0, preflight, контрольована міграція та повторний запуск&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Надійність checkout&lt;/td&gt;&lt;td&gt;Стандартна логіка&lt;/td&gt;&lt;td&gt;Стандартна логіка&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Транзакції, блокування, idempotency, захист повторних callback&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Черги та автоматизація&lt;/td&gt;&lt;td&gt;Переважно через модулі&lt;/td&gt;&lt;td&gt;Переважно через модулі&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Queue, Scheduler, CLI Worker та Cron layer&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Сумісність сторонніх тем&lt;/td&gt;&lt;td&gt;Нативна для своєї версії&lt;/td&gt;&lt;td&gt;Нативна для ocStore&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Compatibility Framework і встановлювані adapters&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;SEO URL&lt;/td&gt;&lt;td&gt;Стандартні SEO URL&lt;/td&gt;&lt;td&gt;SEO URL + SeoPro&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Стандартні SEO URL + SeoPro + динамічні мовні префікси&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Зображення&lt;/td&gt;&lt;td&gt;Базова обробка&lt;/td&gt;&lt;td&gt;Базова обробка&lt;/td&gt;&lt;td&gt;&lt;strong&gt;WebP/AVIF-ready pipeline, сучасні image hooks&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Адмінка та діагностика&lt;/td&gt;&lt;td&gt;Класична&lt;/td&gt;&lt;td&gt;Класична&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Core diagnostics, compatibility scanner, глобальний пошук, системні повідомлення&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Безпека&lt;/td&gt;&lt;td&gt;Базові механізми&lt;/td&gt;&lt;td&gt;Розширені локальні правки&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Security headers, upload guard, rate limits, secret handling, аудит критичних дій&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;commerce&quot;&gt;Commerce-first: надійність продажів&lt;/h3&gt;
+&lt;p&gt;Для магазину важливо не лише швидко показати сторінку, а й гарантовано створити одне замовлення, один раз списати залишок і не застосувати купон або платіжний callback повторно. У CodeCart посилено критичні ділянки checkout: транзакції, блокування конкурентних змін, idempotency, повернення залишків, ваучери, купони та журналювання помилок.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;захист від подвійного натискання Confirm;&lt;/li&gt;
+&lt;li&gt;захист від повторного webhook або callback;&lt;/li&gt;
+&lt;li&gt;контроль залишків при паралельних замовленнях;&lt;/li&gt;
+&lt;li&gt;безпечне скасування і повернення зарезервованих даних;&lt;/li&gt;
+&lt;li&gt;постійні черги для фонових задач.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;compatibility&quot;&gt;Сумісність без повернення старого ядра&lt;/h3&gt;
+&lt;p&gt;CodeCart підтримує звичайні OpenCart 3.x модулі та одночасно має &lt;strong&gt;Compatibility Framework&lt;/strong&gt;. Якщо популярна тема очікує старі внутрішні контракти, для неї можна підключити окремий adapter без переписування Core. Практичний приклад — UniShop2: адаптер відновлює необхідні контракти меню, категорій, опцій та банерів, але не повертає старі N+1 алгоритми.&lt;/p&gt;
+&lt;p&gt;При оновленні існуючого OpenCart або ocStore активна тема магазину зберігається. CodeCart Theme додається окремо і не повинна самовільно замінювати оформлення чинного магазину.&lt;/p&gt;
+
+&lt;h3 id=&quot;seo&quot;&gt;SEO, ЧПУ та мультимовність&lt;/h3&gt;
+&lt;p&gt;У CodeCart є два рівні URL. &lt;strong&gt;ЧПУ&lt;/strong&gt; — базовий механізм красивих SEO URL. &lt;strong&gt;SeoPro&lt;/strong&gt; — розширений маршрутизатор, який додає роботу зі шляхами категорій, canonical-логікою, суфіксами та додатковими правилами. Для мультимовного магазину мовні префікси визначаються динамічно: головна мова може працювати без префікса, а інші — з довільними папками.&lt;/p&gt;
+&lt;p&gt;Система також орієнтована на canonical URL, sitemap, структуровані дані, коректну індексацію, SEO URL для товарів, категорій, виробників, інформаційних сторінок і блогу.&lt;/p&gt;
+
+&lt;h3 id=&quot;performance&quot;&gt;Швидкість і сучасна вітрина&lt;/h3&gt;
+&lt;p&gt;CodeCart зберігає легку серверну модель OpenCart, але оптимізує типові вузькі місця: пакетне завантаження категорій, контрольоване кешування, lazy-loading, сучасні формати зображень і підключення CSS/JavaScript лише там, де вони потрібні. Вітрина залишається сумісною з Bootstrap 3-модулями, але отримує сучасні адаптивні компоненти.&lt;/p&gt;
+
+&lt;h3 id=&quot;security&quot;&gt;Безпека та контроль&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;валідація admin/AJAX/API дій і user_token;&lt;/li&gt;
+&lt;li&gt;безпечна робота з SQL та whitelist для динамічних полів;&lt;/li&gt;
+&lt;li&gt;UploadGuard і перевірка типів файлів;&lt;/li&gt;
+&lt;li&gt;rate limiting для публічних endpoint;&lt;/li&gt;
+&lt;li&gt;захищене зберігання секретів без повернення API-ключів у DOM;&lt;/li&gt;
+&lt;li&gt;діагностика без показу відвідувачу абсолютних шляхів і raw PHP errors.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;extensions&quot;&gt;Modern Extensions&lt;/h3&gt;
+&lt;p&gt;Нові розширення можуть використовувати Modern Extension Registry. Це дозволяє встановлювати окремі пакети з manifest, власним namespace, permissions і compatibility adapters без постійного патчування ядра. При цьому звичайні OpenCart-модулі залишаються підтримуваними.&lt;/p&gt;
+
+&lt;h3 id=&quot;result&quot;&gt;Для кого CodeCart&lt;/h3&gt;
+&lt;p&gt;CodeCart підходить магазинам, яким потрібна знайома екосистема OpenCart 3.x, але з більш сучасною основою для довготривалої роботи. Це не повний розрив із OpenCart, а контрольована еволюція: старі модулі можуть продовжувати працювати, а нові функції отримують сучасні контракти, діагностику, автоматизацію та безпечніше оновлення.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Головна ідея:&lt;/strong&gt; магазин має залишатися легким, сумісним і передбачуваним, але при цьому бути готовим до сучасних вимог SEO, безпеки, автоматизації, API та масштабування.&lt;/p&gt;', 'CodeCart PRO 3.0.6.0 — сучасна основа OpenCart 3.x з безпечними оновленнями, Modern Extensions, SEO, Compatibility Framework та надійним checkout.', 'codecart, opencart, ocstore, ecommerce, seo, modern extensions', 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', 'codecart, opencart, ocstore, ecommerce, seo'),
+(120, 2, 'CodeCart PRO 3.0.6.0 — a modern foundation for online stores', '&lt;h2 id=&quot;about&quot;&gt;CodeCart PRO 3.0.6.0 — a modern foundation for online stores&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;#about&quot;&gt;About&lt;/a&gt; · &lt;a href=&quot;#difference&quot;&gt;Differences&lt;/a&gt; · &lt;a href=&quot;#commerce&quot;&gt;Commerce&lt;/a&gt; · &lt;a href=&quot;#compatibility&quot;&gt;Compatibility&lt;/a&gt; · &lt;a href=&quot;#seo&quot;&gt;SEO&lt;/a&gt; · &lt;a href=&quot;#security&quot;&gt;Security&lt;/a&gt; · &lt;a href=&quot;#result&quot;&gt;Who it is for&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;CodeCart PRO 3.0.6.0&lt;/strong&gt; is a modernized e-commerce platform built on the OpenCart 3.x ecosystem. Its goal is to preserve compatibility with familiar modules, OCMOD, Events and MVC-L while adding a modern layer for safer upgrades, queues, scheduling, APIs, Modern Extensions, compatibility adapters, performance and commerce reliability.&lt;/p&gt;
+&lt;p&gt;The core principle is &lt;strong&gt;Legacy Core + Modern Core&lt;/strong&gt;: existing extensions keep the environment they expect, while new extensions can use namespaces, PSR-4, services, manifests and stable extension contracts.&lt;/p&gt;
+
+&lt;h3 id=&quot;difference&quot;&gt;How CodeCart differs from OpenCart and ocStore&lt;/h3&gt;
+&lt;div class=&quot;table-responsive&quot;&gt;
+&lt;table class=&quot;table table-bordered table-striped&quot;&gt;
+&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Capability&lt;/th&gt;&lt;th&gt;OpenCart 3.0.5.x&lt;/th&gt;&lt;th&gt;ocStore 3.0.5.x&lt;/th&gt;&lt;th&gt;CodeCart PRO 3.0.6.x&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;PHP&lt;/td&gt;&lt;td&gt;PHP 8.0–8.4&lt;/td&gt;&lt;td&gt;PHP 8.0–8.5&lt;/td&gt;&lt;td&gt;&lt;strong&gt;PHP 8.1–8.5&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Extension architecture&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Legacy + Modern Extensions, PSR-4, services, manifests&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;System upgrades&lt;/td&gt;&lt;td&gt;Classic installer&lt;/td&gt;&lt;td&gt;Classic installer&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Installer 2.0, preflight, controlled migration and idempotent reruns&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Checkout reliability&lt;/td&gt;&lt;td&gt;Standard flow&lt;/td&gt;&lt;td&gt;Standard flow&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Transactions, locking, idempotency and duplicate-callback protection&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Queues and automation&lt;/td&gt;&lt;td&gt;Mainly extensions&lt;/td&gt;&lt;td&gt;Mainly extensions&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Queue, Scheduler, CLI Worker and Cron layer&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Third-party theme compatibility&lt;/td&gt;&lt;td&gt;Native version compatibility&lt;/td&gt;&lt;td&gt;ocStore compatibility&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Compatibility Framework and installable adapters&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;SEO URLs&lt;/td&gt;&lt;td&gt;Standard SEO URLs&lt;/td&gt;&lt;td&gt;SEO URL + SeoPro&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Standard SEO URL + SeoPro + dynamic language prefixes&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Images&lt;/td&gt;&lt;td&gt;Basic image processing&lt;/td&gt;&lt;td&gt;Basic image processing&lt;/td&gt;&lt;td&gt;&lt;strong&gt;WebP/AVIF-ready pipeline and modern image hooks&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Admin diagnostics&lt;/td&gt;&lt;td&gt;Classic&lt;/td&gt;&lt;td&gt;Classic&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Core diagnostics, compatibility scanner, global search and system notices&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Security&lt;/td&gt;&lt;td&gt;Core mechanisms&lt;/td&gt;&lt;td&gt;Regional enhancements&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Security headers, upload guard, rate limits, secret handling and critical-action checks&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;commerce&quot;&gt;Commerce-first reliability&lt;/h3&gt;
+&lt;p&gt;A store must create exactly one order, decrement stock exactly once and avoid applying coupons or payment callbacks twice. CodeCart hardens checkout-critical operations with transactions, locking, idempotency, stock restoration, voucher/coupon safety and technical logging.&lt;/p&gt;
+
+&lt;h3 id=&quot;compatibility&quot;&gt;Compatibility without reverting the modernized core&lt;/h3&gt;
+&lt;p&gt;CodeCart keeps ordinary OpenCart 3.x extension compatibility and adds a &lt;strong&gt;Compatibility Framework&lt;/strong&gt;. A theme that depends on older internal contracts can use an adapter rather than forcing legacy algorithms back into Core. UniShop2 is the first practical example.&lt;/p&gt;
+
+&lt;h3 id=&quot;seo&quot;&gt;SEO URLs and multilingual routing&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;SEO URLs&lt;/strong&gt; provide the basic clean-address layer. &lt;strong&gt;SeoPro&lt;/strong&gt; is the advanced router for category paths, canonical rules, postfixes and additional URL policies. Language prefixes are dynamic: the primary language may use no prefix while additional languages can use arbitrary folders.&lt;/p&gt;
+
+&lt;h3 id=&quot;performance&quot;&gt;Performance and storefront&lt;/h3&gt;
+&lt;p&gt;CodeCart keeps OpenCart&#x27;s lightweight server model while improving common bottlenecks through batched category loading, controlled caching, lazy loading, modern image formats and scoped asset loading.&lt;/p&gt;
+
+&lt;h3 id=&quot;security&quot;&gt;Security and control&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;admin/AJAX/API permission and token validation;&lt;/li&gt;
+&lt;li&gt;safe SQL handling and whitelisted dynamic identifiers;&lt;/li&gt;
+&lt;li&gt;UploadGuard and file validation;&lt;/li&gt;
+&lt;li&gt;rate limits for public endpoints;&lt;/li&gt;
+&lt;li&gt;secret values are not rendered back into admin DOM;&lt;/li&gt;
+&lt;li&gt;technical errors stay in protected logs instead of exposing server paths.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;extensions&quot;&gt;Modern Extensions&lt;/h3&gt;
+&lt;p&gt;Modern Extension Registry allows installable packages with manifests, namespaces, permissions and compatibility adapters without repeatedly patching Core, while traditional OpenCart modules remain supported.&lt;/p&gt;
+
+&lt;h3 id=&quot;result&quot;&gt;Who CodeCart is for&lt;/h3&gt;
+&lt;p&gt;CodeCart is intended for stores that want to remain in the OpenCart 3.x ecosystem while gaining a more modern foundation for long-term operation. It is an evolutionary path rather than a disruptive rewrite.&lt;/p&gt;', 'CodeCart PRO 3.0.6.0 is a modern OpenCart 3.x foundation with safer upgrades, Modern Extensions, SEO, compatibility adapters and reliable checkout.', 'codecart, opencart, ocstore, ecommerce, seo, modern extensions', 'CodeCart PRO 3.0.6.0 — a modern foundation for online stores', 'CodeCart PRO 3.0.6.0 — a modern foundation for online stores', 'codecart, opencart, ocstore, ecommerce, seo'),
 (123, 1, 'Швидка вітрина: менше зайвого, більше користі', '&lt;h2 id=&quot;idea&quot;&gt;Швидка вітрина: менше зайвого, більше користі&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;#idea&quot;&gt;Ідея&lt;/a&gt; · &lt;a href=&quot;#benefits&quot;&gt;Переваги&lt;/a&gt; · &lt;a href=&quot;#practical&quot;&gt;Практика&lt;/a&gt; · &lt;a href=&quot;#next&quot;&gt;Що далі&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Про швидку вітрину та легкий frontend.&lt;/strong&gt; Ця стаття оформлена як готовий шаблон для блогу магазину. Вона показує, як можуть виглядати заголовки, внутрішні посилання, списки, акценти та емоційні маркери. ✨&lt;/p&gt;&lt;p&gt;Блог у презентаційній версії магазину має бути не порожнім: він повинен одразу демонструвати можливості контент-маркетингу, SEO та зручного читання на мобільних пристроях.&lt;/p&gt;&lt;h3 id=&quot;benefits&quot;&gt;Що тут добре працює&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;короткий вступ і зрозуміла структура;&lt;/li&gt;&lt;li&gt;якорі для швидкої навігації;&lt;/li&gt;&lt;li&gt;доречні emoji та акцентні списки;&lt;/li&gt;&lt;li&gt;можливість посилатися на товари, категорії, новини та інформаційні сторінки. 🔗&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;practical&quot;&gt;Практичне використання&lt;/h3&gt;&lt;blockquote&gt;&lt;p&gt;Такі статті можна швидко замінити на новини про акції, переваги системи, оновлення, кейси магазину або корисні поради для покупців.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Для України доцільно писати про доставку, оплату, гарантію, підбір товарів, сезонні пропозиції, огляди новинок і порівняння моделей.&lt;/p&gt;&lt;h3 id=&quot;next&quot;&gt;Що далі&lt;/h3&gt;&lt;p&gt;Після запуску демо-контент легко замінити на реальні матеріали, не змінюючи саму структуру блогу та макет сторінки.&lt;/p&gt;', 'Швидка вітрина: менше зайвого, більше користі — демонстраційна стаття для блогу магазину з готовою структурою, якірною навігацією та презентаційним контентом.', 'codecart, блог, демо, seo, магазин', 'Швидка вітрина: менше зайвого, більше користі', 'Швидка вітрина: менше зайвого, більше користі', 'codecart, блог, демо, магазин'),
 (123, 2, 'A faster storefront: less overhead, more value', '&lt;h2 id=&quot;idea&quot;&gt;A faster storefront: less overhead, more value&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;#idea&quot;&gt;Idea&lt;/a&gt; · &lt;a href=&quot;#benefits&quot;&gt;Benefits&lt;/a&gt; · &lt;a href=&quot;#practical&quot;&gt;Practical use&lt;/a&gt; · &lt;a href=&quot;#next&quot;&gt;What next&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;About a faster storefront and lightweight frontend.&lt;/strong&gt; This article is formatted as a ready-made store blog template and demonstrates headings, internal anchor links, lists, accents and light emoji usage. ✨&lt;/p&gt;&lt;p&gt;In a presentation storefront, the blog should not be empty. It should immediately demonstrate content-marketing, SEO and mobile reading capabilities.&lt;/p&gt;&lt;h3 id=&quot;benefits&quot;&gt;What works well here&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;a concise intro and clear structure;&lt;/li&gt;&lt;li&gt;anchor links for quick navigation;&lt;/li&gt;&lt;li&gt;relevant emoji and highlighted lists;&lt;/li&gt;&lt;li&gt;the ability to link to products, categories, news and information pages. 🔗&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;practical&quot;&gt;Practical use&lt;/h3&gt;&lt;blockquote&gt;&lt;p&gt;Articles like this can quickly be replaced with sale announcements, system advantages, updates, store case studies or useful buyer guides.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;For a Ukrainian-oriented store, strong themes include delivery, payment, warranty, buying guides, seasonal offers, new-product overviews and model comparisons.&lt;/p&gt;&lt;h3 id=&quot;next&quot;&gt;What next&lt;/h3&gt;&lt;p&gt;After launch, the demo content can be replaced with real materials while keeping the same blog structure and layout.&lt;/p&gt;', 'A faster storefront: less overhead, more value — a demo blog article with anchor navigation, presentation-ready copy and a clean structure.', 'codecart, blog, demo, seo, store', 'A faster storefront: less overhead, more value', 'A faster storefront: less overhead, more value', 'codecart, blog, demo, store'),
 (124, 1, 'Товар з опціями: як показати складний вибір просто', '&lt;h2 id=&quot;idea&quot;&gt;Товар з опціями: як показати складний вибір просто&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;#idea&quot;&gt;Ідея&lt;/a&gt; · &lt;a href=&quot;#benefits&quot;&gt;Переваги&lt;/a&gt; · &lt;a href=&quot;#practical&quot;&gt;Практика&lt;/a&gt; · &lt;a href=&quot;#next&quot;&gt;Що далі&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Про опції товарів та зручний вибір.&lt;/strong&gt; Ця стаття оформлена як готовий шаблон для блогу магазину. Вона показує, як можуть виглядати заголовки, внутрішні посилання, списки, акценти та емоційні маркери. ✨&lt;/p&gt;&lt;p&gt;Блог у презентаційній версії магазину має бути не порожнім: він повинен одразу демонструвати можливості контент-маркетингу, SEO та зручного читання на мобільних пристроях.&lt;/p&gt;&lt;h3 id=&quot;benefits&quot;&gt;Що тут добре працює&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;короткий вступ і зрозуміла структура;&lt;/li&gt;&lt;li&gt;якорі для швидкої навігації;&lt;/li&gt;&lt;li&gt;доречні emoji та акцентні списки;&lt;/li&gt;&lt;li&gt;можливість посилатися на товари, категорії, новини та інформаційні сторінки. 🔗&lt;/li&gt;&lt;/ul&gt;&lt;h3 id=&quot;practical&quot;&gt;Практичне використання&lt;/h3&gt;&lt;blockquote&gt;&lt;p&gt;Такі статті можна швидко замінити на новини про акції, переваги системи, оновлення, кейси магазину або корисні поради для покупців.&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Для України доцільно писати про доставку, оплату, гарантію, підбір товарів, сезонні пропозиції, огляди новинок і порівняння моделей.&lt;/p&gt;&lt;h3 id=&quot;next&quot;&gt;Що далі&lt;/h3&gt;&lt;p&gt;Після запуску демо-контент легко замінити на реальні матеріали, не змінюючи саму структуру блогу та макет сторінки.&lt;/p&gt;', 'Товар з опціями: як показати складний вибір просто — демонстраційна стаття для блогу магазину з готовою структурою, якірною навігацією та презентаційним контентом.', 'codecart, блог, демо, seo, магазин', 'Товар з опціями: як показати складний вибір просто', 'Товар з опціями: як показати складний вибір просто', 'codecart, блог, демо, магазин'),
@@ -9523,24 +9633,44 @@ PRIMARY KEY (`article_id`,`related_id`),
 INSERT INTO `oc_article_related` (`article_id`, `related_id`) VALUES
 (120, 123),
 (120, 124),
+(120, 130),
+(120, 131),
+(123, 120),
 (123, 124),
 (123, 125),
+(123, 131),
+(124, 120),
+(124, 123),
 (124, 125),
 (124, 126),
+(125, 123),
+(125, 124),
 (125, 126),
 (125, 127),
+(126, 124),
+(126, 125),
 (126, 127),
 (126, 128),
+(127, 125),
+(127, 126),
 (127, 128),
 (127, 129),
+(128, 126),
+(128, 127),
 (128, 129),
 (128, 130),
+(129, 127),
+(129, 128),
 (129, 130),
 (129, 131),
-(130, 131),
 (130, 120),
+(130, 128),
+(130, 129),
+(130, 131),
 (131, 120),
-(131, 123);
+(131, 123),
+(131, 129),
+(131, 130);
 -- --------------------------------------------------------
 
 --
@@ -9837,7 +9967,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 
 -- CodeCart PRO core schema marker
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_core_schema_version', '3.0.6.0', 0);
-INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_presentation_schema_version', '28', 0);
+INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_presentation_schema_version', '32', 0);
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_setting_serialized_default', '1', 0);
 
 

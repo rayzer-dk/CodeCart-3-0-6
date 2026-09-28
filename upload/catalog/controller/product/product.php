@@ -188,45 +188,7 @@ class ControllerProductProduct extends Controller {
 				'context_id' => $product_id,
 				'context_url' => $this->url->link('product/product', 'product_id=' . $product_id, true)
 			);
-			$data['product_question_form'] = '';
-			// Resolve the product-question form by the stable module code and field schema,
-			// never by a translated module name.
-			if ($this->tableExistsForProductPage('module') && $this->tableExistsForProductPage('codecart_form_description')) {
-				$questionModules = $this->db->query("SELECT setting FROM `" . DB_PREFIX . "module` WHERE code='codecart_form' ORDER BY module_id ASC");
-				$formIds = array();
-				$moduleSettings = array();
-				foreach ($questionModules->rows as $moduleRow) {
-					$moduleSetting = json_decode((string)$moduleRow['setting'], true);
-					if (is_array($moduleSetting) && !empty($moduleSetting['status']) && !empty($moduleSetting['form_id'])) {
-						$formId = (int)$moduleSetting['form_id'];
-						$formIds[$formId] = $formId;
-						$moduleSettings[$formId] = $moduleSetting;
-					}
-				}
-				if ($formIds) {
-					$formDescriptions = $this->db->query("SELECT form_id, fields FROM `" . DB_PREFIX . "codecart_form_description` WHERE language_id='" . (int)$this->config->get('config_language_id') . "' AND form_id IN (" . implode(',', array_map('intval', $formIds)) . ")");
-					foreach ($formDescriptions->rows as $formDescription) {
-						$fields = json_decode((string)$formDescription['fields'], true);
-						$isProductQuestion = false;
-						if (is_array($fields)) {
-							foreach ($fields as $field) {
-								if (is_array($field) && isset($field['key']) && (string)$field['key'] === 'question') { $isProductQuestion = true; break; }
-							}
-						}
-						$formId = (int)$formDescription['form_id'];
-						if ($isProductQuestion && isset($moduleSettings[$formId])) {
-							$questionSetting = $moduleSettings[$formId];
-							$questionSettings = $product_context;
-							$questionSettings['form_id'] = $formId;
-							$questionSettings['mode'] = 'button';
-							$languageId = (int)$this->config->get('config_language_id');
-							$questionSettings['button_text'] = isset($questionSetting['button_text'][$languageId]) ? (string)$questionSetting['button_text'][$languageId] : '';
-							$data['product_question_form'] = $this->load->controller('common/codecart_form', $questionSettings);
-							break;
-						}
-					}
-				}
-			}
+			// Forms on product pages are rendered only from explicit purchase blocks or layout modules.
 			if ($this->config->get('theme_default_purchase_blocks_status')) {
 				$data['purchase_blocks'] = $this->model_catalog_product->getResolvedPurchaseBlocks($product_id, (int)$this->config->get('config_language_id'));
 				foreach ($data['purchase_blocks'] as &$purchase_block) {
@@ -353,9 +315,9 @@ class ControllerProductProduct extends Controller {
 			if ($gallery_engine === 'photoswipe') {
 				// Load PhotoSwipe in deterministic dependency order. The previous lazy
 				// first-click loader could race when a visitor opened image #2/#3 first.
-				$this->document->addStyle('catalog/view/javascript/photoswipe/photoswipe.css?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'));
-				$this->document->addScript('catalog/view/javascript/photoswipe/photoswipe.umd.min.js?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'));
-				$this->document->addScript('catalog/view/javascript/photoswipe/photoswipe-lightbox.umd.min.js?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'));
+				$this->document->addStyle('catalog/view/javascript/photoswipe/photoswipe.css?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'), 'stylesheet', 'screen', 'footer');
+				$this->document->addScript('catalog/view/javascript/photoswipe/photoswipe.umd.min.js?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'), 'footer');
+				$this->document->addScript('catalog/view/javascript/photoswipe/photoswipe-lightbox.umd.min.js?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'), 'footer');
 			} else {
 				$this->document->addScript('catalog/view/javascript/jquery/magnific/jquery.magnific-popup.min.js');
 				$this->document->addStyle('catalog/view/javascript/jquery/magnific/magnific-popup.css');
@@ -694,7 +656,7 @@ class ControllerProductProduct extends Controller {
 
 
 			if ($data['products']) {
-				$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-8');
+				$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-9', 'stylesheet', 'screen', 'footer');
 				$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-7', 'footer');
 			}
 			$data['text_previous_related'] = $this->language->get('text_previous_related');

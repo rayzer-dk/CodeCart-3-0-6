@@ -125,3 +125,5 @@ html.ccp-admin-dark .ccp-domovyk-folder .btn-danger:hover{background:#6a2d33!imp
 
 html.ccp-admin-dark #oc-search-result .ccp-setting-search-copy small,html.ccp-admin-dark #oc-search-result .ccp-setting-search-copy code{color:#8fa0b2!important}
 html.ccp-admin-dark .ccp-setting-search-focus{box-shadow:0 0 0 3px rgba(77,163,255,.24)!important}
+html.ccp-admin-dark #oc-search-result .ccp-search-rich-copy small,html.ccp-admin-dark #oc-search-result .ccp-search-rich-copy code{color:#8fa0b2!important}
+html.ccp-admin-dark #oc-search-result .oc-search-group + .oc-search-group{border-top-color:#344150!important}

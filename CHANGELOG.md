@@ -1,3 +1,192 @@
+# Build 1.9.10 — 2026-09-28
+
+Критичные
+- Чистая установка 1.9.9 падала с MySQL 1064 (и в web-, и в CLI-установщике): SQL делился по строкам, оканчивающимся на `;`, а многострочные описания статей содержат `&gt;` в конце строки. Добавлен `CodeCart\Core\SqlScript` — разбор с учётом кавычек/комментариев, используется обоими установщиками.
+- Сохранение в админке под строгим SQL-режимом теряло данные (опции товаров, описания производителей/статей, зоны геозон) — MySQL 1364 после DELETE. Сессия БД снова в OpenCart-совместимом режиме; строгий режим — только явным `codecart_db_strict_mode = 1`.
+
+Формы
+- Заголовок/тексты формы хранились HTML-экранированными: в списке блоков товара показывалось `&amp;`/`&quot;`, описание на витрине выводило буквальные `<b>`. Теперь хранится обычный текст и очищенный HTML; миграция исправляет уже сохранённые формы.
+- Иконка FA6 (`fa-solid fa-…`), выбранная для кнопки формы в блоке товара/категории, молча отбрасывалась при сохранении.
+- Блок «Форма» без выбранной формы больше не сохраняется пустым.
+- Спиннер отправки был виден постоянно (перебивался стилями Font Awesome из footer).
+- Поля заявки приходили в письмо HTML-экранированными; значения `select` с `&`/кавычками не проходили проверку.
+- После сохранения формы и настроек перевозчика не показывалось сообщение об успехе (оно «всплывало» позже на другой странице).
+- Поля ввода формы в админке экранируются (кавычки в заголовке ломали атрибут).
+
+Перевозчики (Нова Пошта и др.)
+- Проверено end-to-end: синхронизация 11–20 тыс. городов при memory_limit 128M, неверный ключ, поиск города и отделения в checkout, запись в заказ.
+- Списки отделений кэшируются (повторные запросы при выборе/проверке/подтверждении больше не идут в API).
+- Ошибки справочника на витрине пишутся в журнал (раньше покупатель видел «недоступно», а причина терялась).
+- Экранирование `%`/`_` в поиске города.
+
+Телефоны
+- Поля телефона запрещали `+`, хотя подсказки предлагают `+380…`; при апгрейде покупатель с `+380…` не мог сохранить профиль. Разрешён один ведущий `+` (JS и серверная проверка во всех формах).
+
+Данные и старые ошибки OpenCart/ocStore
+- Демо-модуль «Головна — вступ» (html.36) имел невалидный JSON и неверную структуру — блок никогда не выводился. Исправлено в SQL и миграцией.
+- Добавление языка не копировало описания производителей, блога, доп. вкладок товаров, форм и контентных блоков.
+- Сохранение валюты обрезало пробел в символе (` ₴` → `₴`, цены «120.00₴»).
+- Путь категории «Офісні планшети» указывал на чужую ветку; миграция выравнивает `category_path` по `parent_id` только для несогласованных категорий.
+- Связи демо-статей сделаны двусторонними (иначе первое сохранение статьи удаляло связи у других статей).
+- CLI-установщик ставил пустой аватар администратора (web — `catalog/profile-pic.webp`).
+- Письмо администратору о заказе выводило ключ `text_quantity`.
+
+Админка и языки
+- Меню ru-ru было на английском (73 пункта); переведены также Google Analytics и прочие строки.
+- uk-ua: «Статті» → «Інформаційні сторінки», «Настроювані поля» → «Додаткові поля», «Одиниці виміру» → «Одиниці довжини», «Валюти», «Статуси замовлень», «Теми сертифікатів»; исправлены смешанные латиница/кириллица (`cтатей`, `Партнерcкий`).
+- Системные уведомления (OPcache, диск, cron, расширения, каталоги) локализованы; убраны ложные предупреждения: «нет истории миграций» на чистой установке, «cron never» при первом запуске, «мало места» при десятках ГБ свободных.
+- Пресеты форм/блоков для en/ru больше не дают JS SyntaxError.
+- Гейт языков проверяет и `$language->load()`, не считает данные формы языковыми ключами.
+
+Сборка
+- Устаревшие `stylesheet.min.css` пересобраны (1.9.9 из-за этого отдавал несжатый CSS).
+- `codecart_presentation_schema_version` = 32; проверка схемы в модели форм — `>= 31` (без лишнего SHOW COLUMNS).
+
+# Build 1.9.9 — 2026-09-27
+
+- Fixed form saving on partially upgraded databases: admin write path now idempotently adds the four button-style columns before INSERT/UPDATE instead of throwing MySQL 1054.
+- Fixed carrier city-sync AJAX authentication: JavaScript endpoint now receives a raw query separator instead of HTML `&amp;`, so `user_token` is transmitted correctly and the endpoint returns JSON rather than an HTML response with HTTP 200.
+- Restored the bundled CodeCart admin profile image as the visual default when an administrator has no custom image; clean installs now store the same default image explicitly.
+- Corrected fresh-install `codecart_presentation_schema_version` to 31 so clean databases match the current schema immediately.
+
+# CodeCart PRO 3.0.6.0 Build 1.9.8
+
+## Build 1.9.8
+
+### Fixed
+- Исправлен выбор иконки кнопки формы: каталог теперь загружается лениво из статического локального файла с fallback на JSON endpoint и базовый набор, поэтому сбой маршрута больше не блокирует выбор.
+- Исправлен обработчик выбора: клик по плитке гарантированно записывает класс иконки, обновляет preview и закрывает окно.
+
+### UI
+- Настройки иконки, цвета фона, цвета текста и hover-фона объединены в одну компактную строку.
+- Поле с текстовым названием класса иконки скрыто; отображается только выбранная иконка.
+- Picker сделан компактнее: иконки отображаются плитками без подписей, поиск сохранён; полное название доступно только как tooltip.
+
+- Fixed form storefront fatal error after file-only update: presentation schema bumped to 31 and form reads tolerate the short migration window without querying missing style columns.
+- Removed the redundant quick-add created-form toolbar from product/category content blocks. Existing forms remain selectable inside the standard Form block.
+- Replaced the fixed button-icon dropdown with a lazy searchable modal picker backed by the full bundled Font Awesome Free catalogue; form icons now support safe FA6 classes as well as legacy FA4 aliases.
+
+## Fixed
+- Исправлен приоритет контентных блоков: category «Не показывать» отключает только наследование, но не явные блоки товара.
+- Исправлены Warning `Undefined array key store_id` в настройках темы: используется нормализованный `$store_id`.
+- В товаре и категории добавлен прямой выбор уже созданной формы/информационного блока без предварительного создания пустого блока.
+
+## Added
+- Глобальные настройки кнопки формы: иконка, фон, цвет текста и hover-цвет.
+- Локальное переопределение оформления кнопки в конкретном блоке товара/категории.
+- Индивидуальный переключатель показа для каждого локального контентного блока.
+- Глобальное отключение формы/информационного блока через его Status продолжает скрывать его во всех местах использования.
+
+
+Fixed:
+- Fixed category purchase-block inheritance semantics: category mode “Do not show” is now a hard stop for product purchase-area blocks in that category path, including product-specific blocks and embedded Form / CTA blocks.
+- “Inherit” continues to walk to the nearest configured parent category; product-level “Do not show” continues to suppress all blocks for that individual product.
+
+Performance:
+- Corrected reusable-form CSS placement: forms.css is now actually registered in the footer (the previous changelog claimed this, but the code still registered it in the header).
+- Product-page related-products native-modules.css now loads in the footer together with its JS because that block is below the primary product content.
+- Kept jQuery, Bootstrap JS and common.js in the compatibility-safe critical path for now; moving/defering them globally without extension-level regression tests could break OpenCart 3.x modules with inline scripts.
+
+# CodeCart PRO 3.0.6.0 Build 1.9.4
+
+Fixed:
+- Fixed CodeCart Theme editor warnings when store_id is absent; store 0 is now the explicit safe default.
+- Fixed theme count/selection on fresh CodeCart installs: legacy Default remains a filesystem fallback but is not counted or offered as a second user theme.
+- Fixed CodeCart Theme preview: uses the real compact preview.webp and is bounded in Settings instead of expanding a missing-image placeholder.
+- CodeCart Theme directory is fixed to codecart; the legacy default directory remains a compatibility fallback and is no longer exposed as a CodeCart Theme target.
+- Fixed admin dark-mode profile fallback contrast.
+- Removed hidden automatic product-question form injection. Forms now appear only when explicitly placed through catalog purchase blocks or a Form module/layout.
+- Fixed catalog purchase-block settings links to open CodeCart Theme rather than the legacy Default controller.
+- Clarified product/category inheritance and added a direct Manage Forms action.
+
+Performance:
+- Moved optional reusable-form CSS/JS to the footer.
+- Moved PhotoSwipe CSS/JS to the footer on product and blog article pages; the existing DOM-ready initializers still execute after the library is loaded and no longer block the initial head render.
+
+Fixed:
+- Fixed SeoPro routing for the primary language without a URL prefix when the requested SEO path has a trailing slash.
+- SeoPro now ignores empty route segments, preventing valid primary-language product/category/blog URLs from becoming false 404 pages.
+- Category Wall corner action now points diagonally into the bottom-right corner.
+- Category Wall corner and icon scale proportionally with card width, capped at the original 38 px corner size.
+
+
+Theme installation policy:
+- Clean CodeCart installation registers and activates only CodeCart Theme.
+- The physical `catalog/view/theme/default` tree remains only as a compatibility fallback for legacy modules/OCMOD and is not presented as a second system theme on a clean installation.
+- OpenCart/ocStore UPDATE preserves the currently active theme and every previously installed theme. CodeCart Theme is added as an additional selectable theme and is never activated automatically.
+- Switching an upgraded store to CodeCart Theme later no longer hides or unregisters the original OpenCart/ocStore Default Theme.
+- Added persistent `codecart_install_origin` metadata so theme presentation is based on installation origin instead of the currently active theme.
+
+# CodeCart PRO 3.0.6.0 Build 1.9.1
+
+Mail reliability and mobile layout
+- Local store images in HTML email are automatically embedded as CID inline images, so logos, product images and voucher images do not depend on Gmail/Outlook fetching files from the storefront.
+- Email inline assets are normalized to persistent DIR_STORAGE/codecart/email-assets/ files and remain compatible with the persistent mail queue.
+- Mail and SMTP transports now emit correct inline image MIME parts; queued delivery restores CID assets before sending.
+- Order customer email no longer uses a five-column product table. Each product is rendered as a mobile-safe card with model, quantity, price and total rows.
+- Admin order alert uses the same narrow-screen-safe product structure.
+- Address blocks stack on small screens and all order tables are constrained to the message width with long values allowed to wrap.
+- Reviewed all bundled HTML mail templates in CodeCart and Default fallback themes; no fixed table wider than the 600px mail container remains.
+
+# CodeCart 3.0.6.0 Build 1.9.0
+
+Fixed:
+- SeoPro resolution for the primary unprefixed language now falls back to the configured default language on cache/route misses instead of producing a false 404; language-aware cache access is hardened against legacy flat cache data.
+- CodeCart Theme is the only visible system theme on a native CodeCart installation; legacy Default Theme files remain only as a compatibility fallback. The theme list now shows the CodeCart Theme preview, status and edit action in one row.
+- The bundled CodeCart system article was expanded with a detailed OpenCart/ocStore/CodeCart comparison table and made the newest demo article so it appears in Latest Articles.
+- Category Wall corner keeps its original 38x38 geometry and the single fa-angle-down icon is positioned fully inside the triangular clip, preventing the glyph from being visually cut.
+- Admin header light-theme navigation color is darker for better contrast.
+- Catalog and blog sort/limit/view controls now use one fixed 34px geometry across light/dark themes.
+
+Changed:
+- Bundled demo presentation schema updated so existing CodeCart demo installs receive the article, theme-list and presentation fixes without affecting merchant stores.
+
+# CodeCart 3.0.6.0 Build 1.8.9
+
+Admin search:
+- Reworked all five global admin search scopes: Catalog, Customers, Orders, Content & modules, and Settings.
+- Settings search now indexes CodeCart Core / Compatibility tabs and important system/admin pages such as system notifications, scheduler/queue, backups, uploads, developer settings, layouts, SEO URL, users, localization and logs.
+- Settings fields are searchable by visible labels in Ukrainian, Russian and English, by internal key and by section.
+- Content & modules search now finds localized module titles and configured module instance names instead of searching only extension codes.
+- Search examples with prefixes such as `module:`, `setting:`, `key:`, `product:` and their Ukrainian/Russian equivalents now work as real filters.
+- Catalog/customer/order search accepts substring matches and additionally searches SKU/product identifiers, customer/order telephone and invoice data.
+- Search scope is remembered between admin pages and two-character queries such as `AI` are supported.
+- Unified result cards now show a clear title, context/path and useful secondary metadata without raw clutter.
+
+# CodeCart 3.0.6.0 Build 1.8.8
+
+Changed:
+- The compact direct-subcategory block is now a standalone `Subcategories` module that can be assigned through Design → Layouts. No instance is created or assigned by default, so Category Wall is not duplicated.
+- Category Wall corner remains 38×38 px and now uses one `fa-solid fa-angle-down` icon without rotation.
+
+# CodeCart 3.0.6.0 Build 1.8.7
+
+Fixed:
+- Restored Category Wall corner size to 38x38 and enlarged only the Font Awesome double-angle icon.
+- Removed the duplicate built-in subcategory grid from category.twig; Category Wall remains the single category-navigation block in the configured layout.
+- Removed development/QA-only files from the final production package while retaining installation documentation, legal/provenance metadata and the optional Monobank bonus.
+
+# CodeCart 3.0.6.0 Build 1.8.6
+
+Fixed:
+- Added FA4 compatibility aliases fa-file-text-o and fa-money to the lightweight Core icon package so AUTO does not fall back to Full for the checkout payment template.
+- Left-aligned the icon package mode form in Core / Compatibility.
+- Simplified the About-system comparison PHP row to PHP ranges only and renamed the CodeCart comparison column to CodeCart PRO 3.0.6.x.
+
+# CodeCart 3.0.6 Build 1.8.5
+
+Storefront / SEO:
+- Enabled standard SEO URLs by default for clean installations; SeoPro remains a separate optional advanced URL mode.
+- Added native SEO URL encode/decode support for blog articles and blog categories, so article_id/blog_category_id aliases work even when SeoPro is off.
+- Enabled native subcategory images on category pages and added safe image dimensions/fallbacks.
+- Removed the bundled demo Category Wall from Category layout because the native category page already renders subcategories; this removes duplicate child-category blocks.
+- Improved empty-category spacing between Continue and content-bottom/form modules.
+- Enlarged Category Wall corner navigation and switched it to Font Awesome 6 double-angle-right.
+- Rewrote the bundled CodeCart system article to explain architecture, commerce reliability, compatibility, SEO and key differences.
+
+UI:
+- Package build remains an internal release marker but is no longer displayed in Installer 2.0 or OCMOD compatibility UI.
+
 # CodeCart 3.0.6 Build 1.8.4
 
 Security:

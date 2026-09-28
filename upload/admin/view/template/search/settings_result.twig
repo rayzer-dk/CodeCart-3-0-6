@@ -1,19 +1,35 @@
 <div class="oc-search-results ccp-search-settings-results">
+  {% if pages %}
   <div class="oc-search-group">
-    <strong>{{ text_settings }}</strong>
-    {% if settings %}
-      {% for item in settings %}
-      <a href="{{ item.url }}" class="ccp-setting-search-result">
-        <i class="fa fa-cog fa-fw"></i>
-        <span class="ccp-setting-search-copy">
-          <span class="ccp-setting-search-title">{{ item.title }}</span>
-          <small>{{ item.path }}</small>
-          <code title="{{ text_setting_key }}">{{ item.key }}</code>
-        </span>
-      </a>
-      {% endfor %}
-    {% else %}
-      <div class="oc-search-empty">{{ text_no_result }}</div>
-    {% endif %}
+    <strong>{{ text_system_pages }}</strong>
+    {% for item in pages %}
+    <a href="{{ item.url }}" class="ccp-search-rich-row">
+      <i class="fa {{ item.icon }} fa-fw"></i>
+      <span class="ccp-search-rich-copy">
+        <span class="ccp-search-rich-title">{{ item.title }}</span>
+        {% if item.path and item.path != item.title %}<small>{{ item.path }}</small>{% endif %}
+        <code title="{{ text_route }}">{{ item.route }}</code>
+      </span>
+    </a>
+    {% endfor %}
   </div>
+  {% endif %}
+
+  {% if settings %}
+  <div class="oc-search-group">
+    <strong>{{ text_settings_fields }}</strong>
+    {% for item in settings %}
+    <a href="{{ item.url }}" class="ccp-search-rich-row">
+      <i class="fa {{ item.icon|default('fa-cog') }} fa-fw"></i>
+      <span class="ccp-search-rich-copy">
+        <span class="ccp-search-rich-title">{{ item.title }}</span>
+        <small>{{ item.path }}</small>
+        <code title="{{ text_setting_key }}">{{ item.key }}</code>
+      </span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not pages and not settings %}<div class="oc-search-empty">{{ text_no_result }}</div>{% endif %}
 </div>

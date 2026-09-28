@@ -24,20 +24,6 @@
         {% endif %}</div>
       <hr>
       {% endif %}
-      {% if categories %}
-      <section class="ccp-subcategories" aria-labelledby="ccp-subcategories-title">
-        <h3 id="ccp-subcategories-title">{{ text_refine }}</h3>
-        <div class="ccp-subcategory-grid">
-          {% for category in categories %}
-          <a class="ccp-subcategory-card" href="{{ category.href }}">
-            <span class="ccp-subcategory-image"><img src="{{ category.thumb }}" alt="{{ category.name }}" width="{{ category.image_width }}" height="{{ category.image_height }}" loading="lazy" decoding="async" /></span>
-            <span class="ccp-subcategory-name">{{ category.name }}</span>
-            {% if category.count is not null %}<span class="ccp-subcategory-count">{{ category.count }}</span>{% endif %}
-          </a>
-          {% endfor %}
-        </div>
-      </section>
-      {% endif %}
       {% if products %}
       <div class="row ccp-toolbar ccp-toolbar--catalog">
         <div class="col-md-3 col-sm-3 col-xs-12 ccp-toolbar__view">
@@ -113,9 +99,9 @@
       </div>
       {% endif %}
       {% if not categories and not products %}
-      <p>{{ text_empty }}</p>
-      <div class="buttons">
-        <div class="pull-right"><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>
+      <div class="ccp-empty-category">
+        <p>{{ text_empty }}</p>
+        <div class="ccp-empty-category-actions"><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>
       </div>
       {% endif %}
       {% if internal_links %}
@@ -126,7 +112,7 @@
   </ul>
 </div>
 {% endif %}
-      {{ content_bottom }}</div>
+      <div class="ccp-category-content-bottom{% if not categories and not products %} ccp-category-content-bottom--after-empty{% endif %}">{{ content_bottom }}</div></div>
     {{ column_right }}</div>
 </div>
 {{ footer }} 

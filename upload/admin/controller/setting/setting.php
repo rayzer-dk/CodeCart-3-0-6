@@ -81,6 +81,12 @@ class ControllerSettingSetting extends Controller {
 				$this->request->post[$key] = !empty($this->request->post[$key]) ? 1 : 0;
 			}
 
+			// SeoPro is an advanced SEO URL mode and requires the master SEO URL switch.
+			// Never persist the contradictory state SeoPro=ON + SEO URL=OFF.
+			if (!empty($this->request->post['config_seo_pro'])) {
+				$this->request->post['config_seo_url'] = 1;
+			}
+
 			$this->request->post['config_codecart_structured_data_status'] = !empty($this->request->post['config_codecart_structured_data_status']) ? 1 : 0;
 			$this->request->post['config_cookie_consent_status'] = !empty($this->request->post['config_cookie_consent_status']) ? 1 : 0;
 			$this->request->post['config_cookie_consent_days'] = max(30, min(365, (int)($this->request->post['config_cookie_consent_days'] ?? 180)));
@@ -325,7 +331,10 @@ class ControllerSettingSetting extends Controller {
 
 		$extensions = $this->model_setting_extension->getInstalled('theme');
 
+		$install_origin = strtolower((string)$this->config->get('codecart_install_origin'));
+		$native_codecart_install = ($install_origin === 'fresh') || ($install_origin === '' && !in_array('default', $extensions, true));
 		foreach ($extensions as $code) {
+			if ($native_codecart_install && $code === 'default') { continue; }
 			$this->load->language('extension/theme/' . $code, 'extension');
 			
 			$data['themes'][] = array(
@@ -1532,7 +1541,9 @@ class ControllerSettingSetting extends Controller {
 			$theme = basename($this->request->get['theme']);
 		}
 		
-		if (is_file(DIR_CATALOG . 'view/theme/' . $theme . '/image/' . $theme . '.webp')) {
+		if ($theme === 'codecart' && is_file(DIR_CATALOG . 'view/theme/codecart/image/preview.webp')) {
+			$this->response->setOutput($server . 'catalog/view/theme/codecart/image/preview.webp');
+		} elseif (is_file(DIR_CATALOG . 'view/theme/' . $theme . '/image/' . $theme . '.webp')) {
 			$this->response->setOutput($server . 'catalog/view/theme/' . $theme . '/image/' . $theme . '.webp');
 		} elseif (is_file(DIR_CATALOG . 'view/theme/' . $theme . '/image/' . $theme . '.png')) {
 			// Compatibility fallback for third-party OpenCart 3 themes.

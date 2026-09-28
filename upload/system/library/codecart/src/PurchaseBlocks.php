@@ -32,14 +32,25 @@ final class PurchaseBlocks {
             if (count($out) >= self::MAX_BLOCKS || !is_array($block)) { break; }
             $type = isset($block['type']) ? strtolower(trim((string)$block['type'])) : 'info';
             if (!in_array($type, array('info','size_table','sizes','colors','form'), true)) { $type = 'info'; }
-            $clean = array('type'=>$type, 'title'=>self::text(isset($block['title']) ? $block['title'] : '', 128));
+            $clean = array('type'=>$type, 'title'=>self::text(isset($block['title']) ? $block['title'] : '', 128), 'enabled'=>(!isset($block['enabled']) || (int)$block['enabled'] ? 1 : 0));
             if ($type === 'info') {
                 $clean['content'] = SafeRichHtml::sanitize(substr((string)(isset($block['content']) ? $block['content'] : ''), 0, 100000));
             } elseif ($type === 'form') {
                 $clean['form_id'] = max(0, (int)(isset($block['form_id']) ? $block['form_id'] : 0));
+                // A form block without a selected form renders nothing; do not persist it.
+                if ($clean['form_id'] < 1) { continue; }
                 $display = isset($block['display']) ? strtolower(trim((string)$block['display'])) : 'inline';
                 $clean['display'] = in_array($display, array('inline','button'), true) ? $display : 'inline';
                 $clean['button_text'] = self::text(isset($block['button_text']) ? $block['button_text'] : '', 100);
+                $icon = isset($block['button_icon']) ? trim((string)$block['button_icon']) : '';
+                // Same class grammar as the form-level icon (FA4 "fa-x" and FA6 "fa-solid fa-x"),
+                // otherwise an icon chosen in the picker was silently dropped on save.
+                $icon = strtolower(trim(preg_replace('/\s+/', ' ', $icon)));
+                $clean['button_icon'] = (strlen($icon) <= 64 && preg_match('/^(?:fa(?:-[a-z]+)?\s+)?fa-[a-z0-9-]+(?:\s+fa-[a-z0-9-]+)*$/', $icon)) ? $icon : '';
+                foreach (array('button_bg','button_text_color','button_hover_bg') as $color_key) {
+                    $color = isset($block[$color_key]) ? strtolower(trim((string)$block[$color_key])) : '';
+                    $clean[$color_key] = preg_match('/^#[0-9a-f]{6}$/', $color) ? $color : '';
+                }
             } elseif ($type === 'size_table') {
                 $columns = isset($block['columns']) && is_array($block['columns']) ? $block['columns'] : array();
                 $clean['columns'] = array();

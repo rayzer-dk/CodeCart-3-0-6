@@ -12,3 +12,8 @@ On a clean installation, CodeCart Theme is installed and selected as the storefr
 
 ## Optional environment overrides
 For container/CI deployments, runtime DB connection values may override config.php with CODECART_DB_DRIVER, CODECART_DB_HOSTNAME, CODECART_DB_USERNAME, CODECART_DB_PASSWORD, CODECART_DB_DATABASE and CODECART_DB_PORT. Empty variables are ignored. DB_PREFIX remains in config.php for OpenCart 3 compatibility.
+
+
+Theme policy (CodeCart 3.0.6.x):
+- Fresh installation: CodeCart Theme is the only registered/active system theme. The bundled `default` theme files are compatibility fallback only.
+- Upgrade from OpenCart/ocStore: the existing active theme is preserved unchanged. CodeCart Theme is added as an additional theme and is not enabled automatically. Existing Default/third-party themes are not removed or overwritten.

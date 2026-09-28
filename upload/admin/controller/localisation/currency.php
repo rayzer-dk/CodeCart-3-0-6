@@ -20,6 +20,7 @@ class ControllerLocalisationCurrency extends Controller {
 		$this->load->model('localisation/currency');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
+			$this->preserveSymbolSpacing();
 			$this->model_localisation_currency->addCurrency($this->request->post);
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -52,6 +53,7 @@ class ControllerLocalisationCurrency extends Controller {
 		$this->load->model('localisation/currency');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
+			$this->preserveSymbolSpacing();
 			$this->model_localisation_currency->editCurrency($this->request->get['currency_id'], $this->request->post);
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -471,5 +473,22 @@ class ControllerLocalisationCurrency extends Controller {
 		}
 
 		return !$this->error;
+	}
+
+	/**
+	 * Request::clean() trims every POST value, so a symbol such as " ₴" or " грн"
+	 * lost its separating space on the first save and prices turned into "120.00₴".
+	 * Keep one leading/trailing regular space exactly as the merchant typed it.
+	 */
+	private function preserveSymbolSpacing() {
+		foreach (array('symbol_left', 'symbol_right') as $key) {
+			if (!isset($_POST[$key]) || !is_string($_POST[$key]) || !isset($this->request->post[$key])) { continue; }
+			$raw = str_replace(array("\r", "\n", "\t"), ' ', $_POST[$key]);
+			$value = (string)$this->request->post[$key];
+			if ($value === '') { continue; }
+			if (preg_match('/^ +/', $raw)) { $value = ' ' . $value; }
+			if (preg_match('/ +$/', $raw)) { $value .= ' '; }
+			$this->request->post[$key] = $value;
+		}
 	}
 }

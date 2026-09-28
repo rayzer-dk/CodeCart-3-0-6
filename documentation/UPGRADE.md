@@ -1,9 +1,9 @@
-CodeCart PRO 3.0.6.0 Build 1.8.4 UPDATE
+CodeCart PRO 3.0.6.0 Build 1.9.10 UPDATE
 
 Create and verify a full files/database backup. Preserve config.php, admin/config.php, image/ and the real DIR_STORAGE. Upload the contents of upload/ over the store, open /install/, choose UPDATE and finish all steps. The previous shared vendor is retained at DIR_STORAGE/codecart/vendor-previous/ for legacy compatibility.
 
 Same-build repair
-If Build 1.8.4 is already installed and files were damaged, upload the same package again and choose UPDATE with “Repair current build”. Repair force-resynchronizes the packaged Composer/vendor to the active DIR_STORAGE, clears template cache and invalidates the previous OCMOD build marker. Completed database migrations are not reset or reapplied destructively.
+If Build 1.9.10 is already installed and files were damaged, upload the same package again and choose UPDATE with “Repair current build”. Repair force-resynchronizes the packaged Composer/vendor to the active DIR_STORAGE, clears template cache and invalidates the previous OCMOD build marker. Completed database migrations are not reset or reapplied destructively.
 
 Build 1.8.4 notes
 - UPDATE on an installed store asks for a store administrator login (user with modify permission for users, extensions or Core). Anonymous visitors can no longer see the preflight or run UPDATE/Repair.
@@ -30,3 +30,15 @@ Wider legacy text columns are treated as compatible when they can safely store t
 
 ### Theme preservation during upgrade
 An upgrade installs/updates CodeCart Theme as an additional selectable theme. It does **not** change `config_theme` for the main store or any additional store, so UniShop2 and other active third-party themes remain active. Switch to CodeCart Theme manually only after reviewing it on a staging store.
+
+
+Theme policy (CodeCart 3.0.6.x):
+- Fresh installation: CodeCart Theme is the only registered/active system theme. The bundled `default` theme files are compatibility fallback only.
+- Upgrade from OpenCart/ocStore: the existing active theme is preserved unchanged. CodeCart Theme is added as an additional theme and is not enabled automatically. Existing Default/third-party themes are not removed or overwritten.
+
+## Build 1.9.10 notes
+
+- 1.9.9 could not be installed from scratch (installer SQL splitter). Existing 1.9.x stores upgrade normally: upload `upload/`, open `/install/`, sign in as administrator, run UPDATE (presentation schema 31 → 32), refresh Extensions → Modifications, delete `/install/`.
+- UPDATE repairs data written by earlier builds: the demo HTML module, HTML-escaped form texts, and `category_path` rows that disagree with `parent_id`. Consistent rows are not touched.
+- The database session uses the OpenCart-compatible SQL mode by default. Set `codecart_db_strict_mode = 1` only when every installed extension has been verified under strict mode.
+

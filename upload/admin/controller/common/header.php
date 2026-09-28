@@ -20,7 +20,7 @@ class ControllerCommonHeader extends Controller {
             $this->document->addLink($icon_url, 'icon');
             $data['has_store_favicon'] = true;
         }
-        $data['package_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '1.8.4';
+        $data['package_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '1.9.10';
         $data['current_route'] = isset($this->request->get['route']) ? (string)$this->request->get['route'] : '';
 
         $data['description'] = $this->document->getDescription();
@@ -137,6 +137,8 @@ class ControllerCommonHeader extends Controller {
 
                     if ($image !== '' && is_file(DIR_IMAGE . $image)) {
                         $data['image'] = $this->model_tool_image->resize($image, 45, 45);
+                    } elseif (is_file(DIR_IMAGE . 'catalog/profile-pic.webp')) {
+                        $data['image'] = $this->model_tool_image->resize('catalog/profile-pic.webp', 45, 45);
                     }
                 }
             } catch (\Throwable $e) {

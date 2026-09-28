@@ -1,18 +1,18 @@
 <?php
 
 // Heading
-$_['heading_title']          = 'Статті';
+$_['heading_title']          = 'Інформаційні сторінки';
 
 // Text
 $_['text_success']           = 'Налаштування змінені';
-$_['text_list']              = 'Список cтатей';
+$_['text_list']              = 'Список сторінок';
 $_['text_add']               = 'Додати';
 $_['text_edit']              = 'Редагування';
 $_['text_default']           = 'За замовчуванням';
 $_['text_keyword']      	 = 'Має бути унікальним на всю систему, без пробілів та спецсимволів.';
 
 // Column
-$_['column_title']           = 'Назва статті';
+$_['column_title']           = 'Назва сторінки';
 $_['column_sort_order']	     = 'Порядок сортування';
 $_['column_noindex']         = 'Індексація';
 $_['column_action']          = 'Дія';

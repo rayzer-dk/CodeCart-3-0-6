@@ -174,11 +174,11 @@ $_['text_tax_display_net_gross'] = "Price excl. VAT + incl. VAT";
 // CodeCart PRO RC86: inherited purchase-area information blocks.
 $_['tab_purchase_blocks'] = 'Content blocks';
 $_['entry_purchase_block_mode'] = 'Content blocks';
-$_['text_purchase_block_inherit'] = 'Inherit';
+$_['text_purchase_block_inherit'] = 'Inherit from main / parent category';
 $_['text_purchase_block_custom'] = 'Add product blocks';
 $_['text_purchase_block_disabled'] = 'Do not show';
-$_['help_purchase_block_mode'] = 'Inherit category blocks, add product-specific blocks after them, or disable all blocks for this product.';
-$_['help_purchase_block_inheritance'] = 'The product receives blocks from the nearest configured main/parent category. Product-specific blocks are appended after inherited blocks.';
+$_['help_purchase_block_mode'] = 'Inherit category blocks, append product-specific blocks, or disable everything only for this product. Explicit product blocks override a category Do not show setting.';
+$_['help_purchase_block_inheritance'] = 'The product inherits blocks from the nearest configured main category and then its parents. If no ancestor defines blocks, nothing is shown. Product-specific blocks are appended after inherited blocks.';
 $_['text_purchase_block_builder'] = 'Block builder';
 $_['text_purchase_block_info'] = 'Information / HTML block';
 $_['text_purchase_block_size_table'] = 'Size table';
@@ -207,8 +207,9 @@ $_['entry_purchase_block_form_button_text'] = 'Button text';
 $_['button_purchase_block_add_form'] = 'Form';
 $_['text_purchase_block_form_inline'] = 'Show form inline';
 $_['text_purchase_block_form_button'] = 'Button + modal';
-$_['warning_purchase_blocks_master'] = 'Blocks are saved, but storefront output is disabled globally in the default theme settings.';
+$_['warning_purchase_blocks_master'] = 'Blocks are saved, but storefront output is disabled globally in CodeCart Theme settings.';
 $_['button_purchase_blocks_settings'] = 'Open theme settings';
+$_['button_purchase_blocks_forms'] = 'Manage forms';
 
 $_['button_generate_seo_url'] = 'Generate SEO URL';
 
@@ -238,9 +239,14 @@ $_['text_none_category'] = ' --- No category --- ';
 $_['text_none_manufacturer'] = ' --- No manufacturer --- ';
 
 $_['text_stock_notify_waiting'] = 'Waiting for stock';
-$_['text_enabled_short'] = 'On';
-$_['text_disabled_short'] = 'Off';
-$_['js_purchase_presets_json'] = '{}';
-$_['error_meta_h1'] = 'HTML Tag H1 must be greater than 0 and less than 255 characters!';
-$_['text_all'] = 'All';
+
+$_['entry_purchase_block_form_icon'] = 'Button icon';
+$_['entry_purchase_block_form_bg'] = 'Button background';
+$_['entry_purchase_block_form_text_color'] = 'Text color';
+$_['entry_purchase_block_form_hover_bg'] = 'Hover background';
+$_['entry_purchase_block_enabled'] = 'Show block';
+$_['button_purchase_block_add_existing_form'] = 'Add selected';
+$_['text_purchase_block_choose_form'] = '— Choose an existing form / block —';
+$_['error_meta_h1'] = 'HTML H1 tag must be between 0 and 255 characters!';
 $_['text_action'] = 'Action';
+$_['js_purchase_presets_json'] = '{}';

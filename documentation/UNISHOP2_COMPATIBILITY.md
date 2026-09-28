@@ -13,7 +13,7 @@ Installation order
 CodeCart compatibility behavior
 - Installer path expansion from `unishop2_fix` is already provided by CodeCart.
 - Twig auto_reload + ArrayLoader/FilesystemLoader/ChainLoader behavior is already provided by CodeCart.
-- CodeCart does not globally downgrade SQL mode to `NO_ENGINE_SUBSTITUTION`; global strict-mode removal from the UniShop fix is intentionally not applied by the compatibility layer.
+- Since 1.9.10 CodeCart uses the OpenCart-compatible session SQL mode (`NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION`) by default, the same mode OpenCart/ocStore set for every request, so UniShop2 and other OCMOD modules that omit column values keep working and admin saves cannot lose data under server-level strict mode. Strict mode remains available as an explicit opt-in (`codecart_db_strict_mode = 1`) for stores whose extensions are verified against it.
 - The 13 UniShop2 v3.6.6.0 catalog operations whose old OpenCart/ocStore anchors no longer exist are implemented by `CodeCart\Core\Unishop2Compatibility` and reported by OCMOD diagnostics as compatibility-satisfied.
 - `webp_img.ocmod.zip` should not be installed on CodeCart because CodeCart has its own WebP/AVIF/image pipeline.
 - `fix_og.ocmod.zip` is not required on CodeCart because CodeCart already implements OG image handling.

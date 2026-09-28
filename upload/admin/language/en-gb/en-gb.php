@@ -323,3 +323,6 @@ $_['datepicker']                    = 'en-gb';
 //$_['datepicker']                    = 'zh-cn';
 //$_['datepicker']                    = 'zh-hk';
 //$_['datepicker']                    = 'zh-tw';
+$_['text_enabled_short'] = 'On';
+$_['text_disabled_short'] = 'Off';
+$_['text_all'] = ' --- All --- ';

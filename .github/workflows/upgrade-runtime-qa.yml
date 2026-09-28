@@ -1,5 +1,5 @@
 name: Upgrade Runtime QA
-# Build 1.8.4 verification trigger
+# Build 1.9.10 verification trigger
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   ocstore-upgrade:
-    name: ocStore 3.0.4.1 to CodeCart 1.8.4
+    name: ocStore 3.0.4.1 to CodeCart 1.9.10
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -90,7 +90,7 @@ jobs:
       - name: Install locked CodeCart dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Overlay current Build 1.8.4 source
+      - name: Overlay current Build 1.9.10 source
         shell: bash
         run: |
           set -euo pipefail
@@ -101,7 +101,7 @@ jobs:
           cp /tmp/admin-config.php store/upload/admin/config.php
           test -f store/upload/system/library/codecart/migration.php
           test -f store/upload/system/storage/vendor/autoload.php
-          grep -q "CODECART_PACKAGE_BUILD', '1.8.4'" store/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '1.9.10'" store/upload/index.php
 
       - name: Start upgraded codebase
         shell: bash
@@ -164,7 +164,7 @@ jobs:
           test "$marker" = "PRESERVE-ME"
           test "$seo" = "qa-upgrade-marker"
           test "$theme" = "$(cat /tmp/base-theme)"
-          test "$schema" = "28"
+          test "$schema" = "32"
           test "$core" = "3.0.6.0"
           test "$codecart_theme" = "1"
           test "$product_count" = "$(cat /tmp/base-product-count)"

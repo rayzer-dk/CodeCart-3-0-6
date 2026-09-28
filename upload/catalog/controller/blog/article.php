@@ -143,9 +143,9 @@ class ControllerBlogArticle extends Controller {
 			if ($gallery_engine === 'photoswipe') {
 				// Load PhotoSwipe in deterministic dependency order. The previous lazy
 				// first-click loader could race when a visitor opened image #2/#3 first.
-				$this->document->addStyle('catalog/view/javascript/photoswipe/photoswipe.css?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'));
-				$this->document->addScript('catalog/view/javascript/photoswipe/photoswipe.umd.min.js?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'));
-				$this->document->addScript('catalog/view/javascript/photoswipe/photoswipe-lightbox.umd.min.js?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'));
+				$this->document->addStyle('catalog/view/javascript/photoswipe/photoswipe.css?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'), 'stylesheet', 'screen', 'footer');
+				$this->document->addScript('catalog/view/javascript/photoswipe/photoswipe.umd.min.js?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'), 'footer');
+				$this->document->addScript('catalog/view/javascript/photoswipe/photoswipe-lightbox.umd.min.js?v=' . (defined('CODECART_BUILD') ? CODECART_BUILD : '3.0.6.0'), 'footer');
 			} else {
 				$this->document->addScript('catalog/view/javascript/jquery/magnific/jquery.magnific-popup.min.js');
 				$this->document->addStyle('catalog/view/javascript/jquery/magnific/magnific-popup.css');
@@ -355,7 +355,7 @@ class ControllerBlogArticle extends Controller {
 			
 
 			if ($data['products'] || $data['articles']) {
-				$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-8');
+				$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-9');
 				$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-7', 'footer');
 			}
 			$data['text_previous_related'] = $this->language->get('text_previous_related');

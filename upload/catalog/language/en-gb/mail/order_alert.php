@@ -9,3 +9,4 @@ $_['text_product']      = 'Products';
 $_['text_total']        = 'Totals';
 $_['text_comment']      = 'The comments for your order are:';
 $_['text_model'] = 'Model';
+$_['text_quantity'] = 'Quantity';

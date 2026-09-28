@@ -8,7 +8,7 @@ $_['text_list']          = 'Extension List';
 $_['text_filter']        = 'Filter';
 $_['text_search']        = 'Search for extensions and themes';
 $_['text_category']      = 'Categories';
-$_['text_changelog']      = 'Сhangelog';
+$_['text_changelog']      = 'Changelog';
 $_['text_all']           = 'All';
 $_['text_theme']         = 'Themes';
 $_['text_marketplace']   = 'Marketplaces';
@@ -54,7 +54,7 @@ $_['entry_pin']          = 'PIN';
 // Tab
 $_['tab_description']    = 'Description';
 $_['tab_documentation']  = 'Documentation';
-$_['tab_changelog']      = 'Сhangelog';
+$_['tab_changelog']      = 'Changelog';
 $_['tab_download']       = 'Download';
 $_['tab_comment']        = 'Comment';
 

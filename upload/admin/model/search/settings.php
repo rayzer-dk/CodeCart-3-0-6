@@ -178,6 +178,53 @@ class ModelSearchSettings extends Model {
         );
     }
 
+    public function getAdminPageEntries() {
+        return array(
+            array('language'=>'tool/codecart_core','label'=>'text_runtime','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'runtime','icon'=>'fa-heartbeat','keywords'=>'environment runtime php server diagnostics preflight середовище среда сервер діагностика диагностика'),
+            array('language'=>'tool/codecart_core','label'=>'text_performance','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'performance','icon'=>'fa-tachometer','keywords'=>'performance minify css javascript продуктивність производительность оптимізація оптимизация'),
+            array('language'=>'tool/codecart_core','label'=>'text_architecture','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'architecture','icon'=>'fa-sitemap','keywords'=>'architecture api service extensions adapter архітектура архитектура modern extension'),
+            array('language'=>'tool/codecart_core','label'=>'text_security','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'security','icon'=>'fa-shield','keywords'=>'security totp login headers csp hsts безпека безопасность захист защита'),
+            array('language'=>'tool/codecart_core','label'=>'text_privacy','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'privacy','icon'=>'fa-user-secret','keywords'=>'privacy gdpr cookies конфіденційність конфиденциальность cookie'),
+            array('language'=>'tool/codecart_core','label'=>'text_schema','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'schema','icon'=>'fa-database','keywords'=>'database schema mysql mariadb indexes база данных схема бд індекси индексы'),
+            array('language'=>'tool/codecart_core','label'=>'text_extensions','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'extensions','icon'=>'fa-puzzle-piece','keywords'=>'modern extensions registry adapters сучасні розширення современные расширения'),
+            array('language'=>'tool/codecart_core','label'=>'text_icons','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'icons','icon'=>'fa-font','keywords'=>'icons font awesome fa іконки иконки значки icon scanner'),
+            array('language'=>'tool/codecart_core','label'=>'text_about','route'=>'tool/codecart_core','permission'=>'tool/codecart_core','tab'=>'about','icon'=>'fa-info-circle','keywords'=>'about system version compatibility про систему о системе codecart'),
+            array('language'=>'tool/notification','label'=>'heading_title','route'=>'tool/notification','permission'=>'tool/notification','tab'=>'','icon'=>'fa-bell','keywords'=>'system notifications alerts notices системні сповіщення системные уведомления повідомлення сообщения'),
+            array('language'=>'tool/scheduler','label'=>'heading_title','route'=>'tool/scheduler','permission'=>'tool/scheduler','tab'=>'','icon'=>'fa-clock-o','keywords'=>'scheduler cron queue jobs планувальник планировщик очередь черга cron'),
+            array('language'=>'tool/backup','label'=>'heading_title','route'=>'tool/backup','permission'=>'tool/backup','tab'=>'','icon'=>'fa-database','keywords'=>'backup restore database резервна копія відновлення резервная копия восстановление'),
+            array('language'=>'tool/upload','label'=>'heading_title','route'=>'tool/upload','permission'=>'tool/upload','tab'=>'','icon'=>'fa-upload','keywords'=>'uploads upload files завантаження загрузки файлы файли'),
+            array('language'=>'common/developer','label'=>'heading_title','route'=>'common/developer','permission'=>'common/developer','tab'=>'','icon'=>'fa-code','keywords'=>'developer cache theme sass modification розробник разработчик кеш cache ocmod'),
+            array('language'=>'setting/setting','label'=>'heading_title','route'=>'setting/setting','permission'=>'setting/setting','tab'=>'','icon'=>'fa-cogs','keywords'=>'store settings system settings налаштування настройки магазин система'),
+            array('language'=>'setting/store','label'=>'heading_title','route'=>'setting/store','permission'=>'setting/store','tab'=>'','icon'=>'fa-shopping-bag','keywords'=>'stores multistore магазини магазины multistore'),
+            array('language'=>'blog/setting','label'=>'heading_title','route'=>'blog/setting','permission'=>'blog/setting','tab'=>'','icon'=>'fa-newspaper-o','keywords'=>'blog settings блог налаштування настройки'),
+            array('language'=>'extension/theme/codecart','label'=>'heading_title','route'=>'extension/theme/codecart','permission'=>'extension/theme/codecart','tab'=>'','icon'=>'fa-paint-brush','keywords'=>'theme storefront appearance design codecart шаблон тема оформлення оформление витрина'),
+            array('language'=>'marketplace/extension','label'=>'heading_title','route'=>'marketplace/extension','permission'=>'marketplace/extension','tab'=>'','icon'=>'fa-puzzle-piece','keywords'=>'extensions modules payments shipping доповнення расширения модули модулі'),
+            array('language'=>'marketplace/modification','label'=>'heading_title','route'=>'marketplace/modification','permission'=>'marketplace/modification','tab'=>'','icon'=>'fa-code','keywords'=>'modifications ocmod модифікатори модификаторы ocmod'),
+            array('language'=>'design/layout','label'=>'heading_title','route'=>'design/layout','permission'=>'design/layout','tab'=>'','icon'=>'fa-th-large','keywords'=>'layouts positions макети макеты layout позиції позиции'),
+            array('language'=>'design/seo_url','label'=>'heading_title','route'=>'design/seo_url','permission'=>'design/seo_url','tab'=>'','icon'=>'fa-link','keywords'=>'seo url seo urls чпу keyword urls посилання ссылки'),
+            array('language'=>'design/theme','label'=>'heading_title','route'=>'design/theme','permission'=>'design/theme','tab'=>'','icon'=>'fa-paint-brush','keywords'=>'theme editor шаблон редактор тема'),
+            array('language'=>'design/translation','label'=>'heading_title','route'=>'design/translation','permission'=>'design/translation','tab'=>'','icon'=>'fa-language','keywords'=>'translation language переклад перевод мова язык'),
+            array('language'=>'design/banner','label'=>'heading_title','route'=>'design/banner','permission'=>'design/banner','tab'=>'','icon'=>'fa-picture-o','keywords'=>'banners банери баннеры реклама'),
+            array('language'=>'user/user','label'=>'heading_title','route'=>'user/user','permission'=>'user/user','tab'=>'','icon'=>'fa-user','keywords'=>'users administrators користувачі пользователи администраторы'),
+            array('language'=>'user/user_group','label'=>'heading_title','route'=>'user/user_permission','permission'=>'user/user_permission','tab'=>'','icon'=>'fa-users','keywords'=>'user groups permissions права групи группы доступ access'),
+            array('language'=>'user/api','label'=>'heading_title','route'=>'user/api','permission'=>'user/api','tab'=>'','icon'=>'fa-key','keywords'=>'api users api keys api користувачі ключі пользователи ключи'),
+            array('language'=>'localisation/language','label'=>'heading_title','route'=>'localisation/language','permission'=>'localisation/language','tab'=>'','icon'=>'fa-language','keywords'=>'languages мови языки locale localization локалізація локализация'),
+            array('language'=>'localisation/currency','label'=>'heading_title','route'=>'localisation/currency','permission'=>'localisation/currency','tab'=>'','icon'=>'fa-money','keywords'=>'currencies currency валюти валюты курс'),
+            array('language'=>'localisation/country','label'=>'heading_title','route'=>'localisation/country','permission'=>'localisation/country','tab'=>'','icon'=>'fa-globe','keywords'=>'countries країни страны'),
+            array('language'=>'localisation/zone','label'=>'heading_title','route'=>'localisation/zone','permission'=>'localisation/zone','tab'=>'','icon'=>'fa-map-marker','keywords'=>'zones regions області регионы зоны'),
+            array('language'=>'localisation/geo_zone','label'=>'heading_title','route'=>'localisation/geo_zone','permission'=>'localisation/geo_zone','tab'=>'','icon'=>'fa-map','keywords'=>'geo zones geozone геозони геозоны доставка shipping'),
+            array('language'=>'localisation/order_status','label'=>'heading_title','route'=>'localisation/order_status','permission'=>'localisation/order_status','tab'=>'','icon'=>'fa-list-alt','keywords'=>'order statuses статус замовлення статусы заказа'),
+            array('language'=>'localisation/stock_status','label'=>'heading_title','route'=>'localisation/stock_status','permission'=>'localisation/stock_status','tab'=>'','icon'=>'fa-cubes','keywords'=>'stock status склад статус наявності наличия'),
+            array('language'=>'localisation/tax_class','label'=>'heading_title','route'=>'localisation/tax_class','permission'=>'localisation/tax_class','tab'=>'','icon'=>'fa-percent','keywords'=>'tax classes taxes податки налоги налоговые классы'),
+            array('language'=>'localisation/tax_rate','label'=>'heading_title','route'=>'localisation/tax_rate','permission'=>'localisation/tax_rate','tab'=>'','icon'=>'fa-percent','keywords'=>'tax rates taxes ставки податку налога'),
+            array('language'=>'localisation/length_class','label'=>'heading_title','route'=>'localisation/length_class','permission'=>'localisation/length_class','tab'=>'','icon'=>'fa-arrows-h','keywords'=>'length units довжина длина одиниці единицы'),
+            array('language'=>'localisation/weight_class','label'=>'heading_title','route'=>'localisation/weight_class','permission'=>'localisation/weight_class','tab'=>'','icon'=>'fa-balance-scale','keywords'=>'weight units вага вес одиниці единицы'),
+            array('language'=>'localisation/location','label'=>'heading_title','route'=>'localisation/location','permission'=>'localisation/location','tab'=>'','icon'=>'fa-map-marker','keywords'=>'locations місцезнаходження местонахождение адрес stores'),
+            array('language'=>'tool/log','label'=>'heading_title','route'=>'tool/log','permission'=>'tool/log','tab'=>'','icon'=>'fa-file-text-o','keywords'=>'error log logs журнал помилок ошибок лог логи'),
+            array('language'=>'report/statistics','label'=>'heading_title','route'=>'report/statistics','permission'=>'report/statistics','tab'=>'','icon'=>'fa-bar-chart','keywords'=>'statistics reports статистика звіти отчеты')
+        );
+    }
+
     public function match(array $entry, $query) {
         $needle = $this->normalize($query);
         if ($needle === '') return 0;

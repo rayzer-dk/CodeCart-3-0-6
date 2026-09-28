@@ -134,6 +134,14 @@ class ControllerStartupStartup extends Controller {
 					unset($this->request->get['_route_']);
 				}
 			} else {
+				// Normalize an unprefixed route too. Prefixed routes are rebuilt above
+				// from a trimmed route, but the primary language used to keep a trailing
+				// empty segment (for example /laptop-notebook/). SeoPro interpreted
+				// that empty segment as another keyword and returned a false 404.
+				if ($route !== '') {
+					$this->request->get['_route_'] = $route;
+				}
+
 				// In prefix mode an unprefixed URL belongs to the language whose prefix is empty.
 				// Prefer the configured default language. If every language has a prefix, the
 				// configured default is selected and SeoPro can canonicalize to its prefixed URL.

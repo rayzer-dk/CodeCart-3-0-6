@@ -7,7 +7,10 @@ $allowedFiles = array(
     'admin/controller/common/filemanager.php',
     'admin/view/javascript/codecart-admin-ui.js',
     'system/helper/general.php',
-    'system/library/codecart/src/RelationLayer.php'
+    'system/library/codecart/src/RelationLayer.php',
+    // Multilingual search synonym dictionaries (matching data, not rendered UI text).
+    'admin/model/search/settings.php',
+    'admin/controller/search/search.php'
 );
 $thirdPartyParts = array('summernote/lang','jquery/datetimepicker/moment','font-awesome','bootstrap','codemirror','select2');
 $needles = array(

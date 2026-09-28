@@ -1,3 +1,4 @@
+<style>.ccp-theme-list-preview{width:140px;height:78px;object-fit:cover;object-position:top;border:1px solid #d9e0e8;border-radius:4px;margin-right:12px;vertical-align:middle;background:#fff}</style>
 {{ promotion }}
 <fieldset>
   <legend>{{ heading_title }}</legend>
@@ -24,10 +25,12 @@
         {% if extensions %}
         {% for extension in extensions %}
         <tr>
-          <td class="text-left" colspan="2"><b>{{ extension.name }}</b></td>
+          <td class="text-left">{% if extension.preview %}<img src="{{ extension.preview }}" alt="{{ extension.name }}" class="ccp-theme-list-preview" />{% endif %}<b>{{ extension.name }}</b></td>
+          <td class="text-left">{% if extension.installed %}{{ extension.status }}{% endif %}</td>
           <td class="text-right">{% if not extension.installed %}
             <a href="{{ extension.install }}" data-toggle="tooltip" title="{{ button_install }}" class="btn btn-success"><i class="fa fa-plus-circle"></i></a>
             {% else %}
+            <a href="{{ extension.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
             <a href="{{ extension.uninstall }}" data-toggle="tooltip" title="{{ button_uninstall }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></a>
             {% endif %}</td>
         </tr>

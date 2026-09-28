@@ -101,7 +101,10 @@ final class Preflight {
             if ($this->tableExists('codecart_migration')) {
                 $migration = $this->db->query("SELECT migration,version,date_applied FROM `" . DB_PREFIX . "codecart_migration` WHERE scope='core' ORDER BY migration_id DESC LIMIT 1");
                 $value = $migration->num_rows ? (string)$migration->row['version'] . ' / ' . (string)$migration->row['date_applied'] : 'no history';
-                $this->row($rows, 'db.migration_history', 'Migration history', $value, $migration->num_rows ? 'ok' : 'warning', $migration->num_rows ? 'Latest recorded Core migration.' : 'No CodeCart PRO Core migration records are available yet.');
+                // A clean install creates the current schema directly and has no migration
+                // rows; that is only a problem when the recorded schema does not match.
+                $historyOk = $migration->num_rows || $schemaOk;
+                $this->row($rows, 'db.migration_history', 'Migration history', $value, $historyOk ? 'ok' : 'warning', $migration->num_rows ? 'Latest recorded Core migration.' : ($schemaOk ? 'Clean installation: schema created by the installer.' : 'No CodeCart PRO Core migration records are available yet.'));
             }
         } catch (\Throwable $e) {
             $this->row($rows, 'db.connection', 'Database', 'check failed', 'error', $e->getMessage());
@@ -140,7 +143,9 @@ final class Preflight {
         $total = @disk_total_space(DIR_STORAGE);
         if ($free !== false && $total > 0) {
             $percent = 100 * $free / $total;
-            $state = ($free < 1073741824 || $percent < 8) ? 'error' : ($percent < 15 ? 'warning' : 'ok');
+            // Absolute free space matters more than a percentage: 27 GB free on a large
+            // volume is healthy even when it is only 10% of the disk.
+            $state = ($free < 1073741824) ? 'error' : (($free < 5368709120 || $percent < 5) ? 'warning' : 'ok');
             $this->row($rows, 'disk.free', 'Disk free', sprintf('%.2f GB / %.1f%%', $free / 1073741824, $percent), $state, $state === 'ok' ? '' : 'Low disk space can break cache, image generation, logs and updates.');
         }
 

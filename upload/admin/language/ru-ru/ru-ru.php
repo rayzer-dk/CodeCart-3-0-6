@@ -156,3 +156,6 @@ $_['button_login'] = '';
 $_['button_unlock'] = '';
 $_['tab_log_errors'] = 'Лог только ошибок';
 $_['summernote'] = 'ru-RU';
+$_['text_enabled_short'] = 'Вкл';
+$_['text_disabled_short'] = 'Выкл';
+$_['text_all'] = ' --- Все --- ';

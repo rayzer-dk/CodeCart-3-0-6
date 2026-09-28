@@ -135,7 +135,7 @@
             <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-search"></i> {{ text_icon_scanner }}</h3></div>
             <div class="panel-body">
               <p class="help-block">{{ text_icon_scanner_help }}</p>
-              <form action="{{ action }}" method="post" class="form-horizontal ccp-icon-mode-form"><input type="hidden" name="requested_action" value="icons_save_mode"><input type="hidden" name="return_tab" value="icons"><div class="form-group"><label class="col-sm-3 control-label">{{ text_icon_mode_setting }}</label><div class="col-sm-9">{% for mode,label in icon_mode_options %}<label class="radio-inline"><input type="radio" name="theme_default_icon_mode" value="{{ mode }}" {% if icon_mode_requested == mode %}checked{% endif %}> {{ label }}</label>{% endfor %}<p class="help-block">{{ text_icon_mode_setting_help }}</p><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div></div></form>
+              <form action="{{ action }}" method="post" class="ccp-icon-mode-form"><input type="hidden" name="requested_action" value="icons_save_mode"><input type="hidden" name="return_tab" value="icons"><div class="ccp-icon-mode-row"><label class="control-label ccp-icon-mode-label">{{ text_icon_mode_setting }}</label><div class="ccp-icon-mode-controls">{% for mode,label in icon_mode_options %}<label class="radio-inline"><input type="radio" name="theme_default_icon_mode" value="{{ mode }}" {% if icon_mode_requested == mode %}checked{% endif %}> {{ label }}</label>{% endfor %}<p class="help-block">{{ text_icon_mode_setting_help }}</p><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div></div></form>
               <div class="ccp-icon-scan-summary">
                 <div><span>{{ text_icon_mode_requested }}</span><strong>{{ icon_mode_requested|upper }}</strong></div>
                 <div><span>{{ text_icon_mode_effective }}</span><strong class="{% if icon_mode_effective == 'full' %}text-warning{% else %}text-success{% endif %}">{{ icon_mode_effective|upper }}</strong></div>
@@ -256,7 +256,7 @@
               <div id="about-comparison" class="panel-collapse collapse"><div class="panel-body">
                 <div class="table-responsive">
                   <table class="table table-bordered table-hover">
-                    <thead><tr><td>{{ text_component }}</td><td>OpenCart 3.0.5.x</td><td>ocStore 3.0.5.x</td><td>CodeCart PRO 3.0.6.0</td><td style="width:155px;">{{ column_state }}</td></tr></thead>
+                    <thead><tr><td>{{ text_component }}</td><td>OpenCart 3.0.5.x</td><td>ocStore 3.0.5.x</td><td>CodeCart PRO 3.0.6.x</td><td style="width:155px;">{{ column_state }}</td></tr></thead>
                     <tbody>
                     {% for row in comparison_rows %}
                       <tr><td><strong>{{ row.component }}</strong></td><td>{{ row.opencart }}</td><td>{{ row.ocstore }}</td><td>{{ row.codecart }}</td><td class="ccp-status">

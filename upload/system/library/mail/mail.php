@@ -37,6 +37,8 @@ class Mail extends \stdClass {
 			$message .= chunk_split(base64_encode($this->text)) . $eol;
 		} else {
 			$message  = '--' . $boundary . $eol;
+			$message .= 'Content-Type: multipart/related; boundary="' . $boundary . '_rel"' . $eol . $eol;
+			$message .= '--' . $boundary . '_rel' . $eol;
 			$message .= 'Content-Type: multipart/alternative; boundary="' . $boundary . '_alt"' . $eol . $eol;
 			$message .= '--' . $boundary . '_alt' . $eol;
 			$message .= 'Content-Type: text/plain; charset="utf-8"' . $eol;
@@ -53,6 +55,30 @@ class Mail extends \stdClass {
 			$message .= 'Content-Transfer-Encoding: base64' . $eol . $eol;
 			$message .= chunk_split(base64_encode($this->html)) . $eol;
 			$message .= '--' . $boundary . '_alt--' . $eol;
+		}
+
+		if (!empty($this->inline_images) && is_array($this->inline_images)) {
+			foreach ($this->inline_images as $inline) {
+				if (!is_array($inline)) { continue; }
+				$filename = isset($inline['filename']) ? (string)$inline['filename'] : '';
+				$cid = isset($inline['cid']) ? preg_replace('/[^A-Za-z0-9._-]/', '', (string)$inline['cid']) : '';
+				$mime = isset($inline['mime']) ? (string)$inline['mime'] : 'image/png';
+				if ($filename === '' || $cid === '' || !is_file($filename) || !is_readable($filename)) { continue; }
+				if (strpos($mime, 'image/') !== 0) { $mime = 'image/png'; }
+				$content = file_get_contents($filename);
+				if ($content === false) { continue; }
+				$message .= '--' . $boundary . '_rel' . $eol;
+				$message .= 'Content-Type: ' . $mime . '; name="' . $cid . '"' . $eol;
+				$message .= 'Content-Transfer-Encoding: base64' . $eol;
+				$message .= 'Content-Disposition: inline; filename="' . $cid . '"' . $eol;
+				$message .= 'Content-ID: <' . $cid . '>' . $eol;
+				$message .= 'X-Attachment-Id: ' . $cid . $eol . $eol;
+				$message .= chunk_split(base64_encode($content));
+			}
+		}
+
+		if ($this->html) {
+			$message .= '--' . $boundary . '_rel--' . $eol;
 		}
 
 		foreach ($this->attachments as $attachment) {

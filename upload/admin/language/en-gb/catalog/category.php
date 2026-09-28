@@ -61,11 +61,11 @@ $_['help_google_product_category_id'] = 'Numeric Google Product Taxonomy ID used
 // CodeCart PRO RC86: inherited purchase-area information blocks.
 $_['tab_purchase_blocks'] = 'Content blocks';
 $_['entry_purchase_block_mode'] = 'Content blocks';
-$_['text_purchase_block_inherit'] = 'Inherit';
+$_['text_purchase_block_inherit'] = 'Inherit from parent category';
 $_['text_purchase_block_custom'] = 'Custom blocks';
 $_['text_purchase_block_disabled'] = 'Do not show';
-$_['help_purchase_block_mode'] = 'These blocks are not shown on the category page. They define the template used by products in this category and its child categories.';
-$_['help_purchase_block_inheritance'] = 'A category inherits the template from its nearest configured parent. A custom set applies to products in this category.';
+$_['help_purchase_block_mode'] = 'These blocks define inherited product content. Do not show disables inheritance from this category only; explicit product blocks still render.';
+$_['help_purchase_block_inheritance'] = 'The category inherits the nearest configured parent template. A root category has nothing to inherit, so no blocks are shown in this mode. A custom set becomes the template for products in this category.';
 $_['text_purchase_block_builder'] = 'Block builder';
 $_['text_purchase_block_info'] = 'Information / HTML block';
 $_['text_purchase_block_size_table'] = 'Size table';
@@ -94,8 +94,9 @@ $_['entry_purchase_block_form_button_text'] = 'Button text';
 $_['button_purchase_block_add_form'] = 'Form';
 $_['text_purchase_block_form_inline'] = 'Show form inline';
 $_['text_purchase_block_form_button'] = 'Button + modal';
-$_['warning_purchase_blocks_master'] = 'Blocks are saved, but storefront output is disabled globally in the default theme settings.';
+$_['warning_purchase_blocks_master'] = 'Blocks are saved, but storefront output is disabled globally in CodeCart Theme settings.';
 $_['button_purchase_blocks_settings'] = 'Open theme settings';
+$_['button_purchase_blocks_forms'] = 'Manage forms';
 
 $_['button_generate_seo_url'] = 'Generate SEO URL';
 
@@ -111,6 +112,14 @@ $_['button_relation_suggest'] = 'Auto pick';
 $_['text_relation_button_help'] = 'Automatically picks suggestions into the standard manual fields. This is a form-filling helper, not an Auto Relation Layer write. Changes are applied only after the normal form save.';
 $_['text_relation_autofill_result'] = 'Auto pick added to the manual field: %a. Selected now: %t. Limit: %m. Click Save. Auto Relation Layer is generated separately through the background queue.';
 $_['text_relation_selected_count'] = 'Selected in this field: %t. Auto-selection limit: %m.';
-$_['js_purchase_presets_json'] = '{}';
-$_['error_meta_h1'] = 'HTML Tag H1 must be greater than 0 and less than 255 characters!';
+
+$_['entry_purchase_block_form_icon'] = 'Button icon';
+$_['entry_purchase_block_form_bg'] = 'Button background';
+$_['entry_purchase_block_form_text_color'] = 'Text color';
+$_['entry_purchase_block_form_hover_bg'] = 'Hover background';
+$_['entry_purchase_block_enabled'] = 'Show block';
+$_['button_purchase_block_add_existing_form'] = 'Add selected';
+$_['text_purchase_block_choose_form'] = '— Choose an existing form / block —';
 $_['text_separator'] = ' &gt; ';
+$_['error_meta_h1'] = 'HTML H1 tag must be between 0 and 255 characters!';
+$_['js_purchase_presets_json'] = '{}';

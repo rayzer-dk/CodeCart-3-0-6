@@ -1,53 +1,40 @@
-<ul>
+<div class="oc-search-result-list">
   {% if can_products %}
-  <li class="result-header">{{ text_products }}</li>
-  {% if products is not empty %}
-  {% for product in products %}
-  <li>
-    <a href="{{ product.url }}" style="display: block; overflow: auto;">
-      <img src="{{ product.image }}"/>
-      <span>{{ product.name }}</span>
-    </a>
-  </li>
-  {% endfor %}
-  {% else %}
-  <li>
-    <span class="oc-search-empty" style="display: block; overflow: auto;">{{ text_no_result }}</span>
-  </li>
+  <div class="oc-search-group">
+    <strong>{{ text_products }}</strong>
+    {% if products %}
+      {% for product in products %}
+      <a href="{{ product.url }}" class="ccp-search-rich-row">
+        <img src="{{ product.image }}" alt="" />
+        <span class="ccp-search-rich-copy">
+          <span class="ccp-search-rich-title">{{ product.name }}</span>
+          <small>{% if product.model %}{{ product.model }}{% endif %}{% if product.sku %}{% if product.model %} · {% endif %}{{ product.sku }}{% endif %}</small>
+        </span>
+      </a>
+      {% endfor %}
+    {% else %}<div class="oc-search-empty">{{ text_no_result }}</div>{% endif %}
+  </div>
   {% endif %}
-  {% endif %}
+
   {% if can_categories %}
-  <li class="result-header">{{ text_categories }}</li>
-  {% if categories is not empty %}
-  {% for category in categories %}
-  <li>
-    <a href="{{ category.url }}" style="display: block; overflow: auto;">
-      <img src="{{ category.image }}"/>
-      <span>{{ category.name }}</span>
-    </a>
-  </li>
-  {% endfor %}
-  {% else %}
-  <li>
-    <span class="oc-search-empty" style="display: block; overflow: auto;">{{ text_no_result }}</span>
-  </li>
+  <div class="oc-search-group">
+    <strong>{{ text_categories }}</strong>
+    {% if categories %}
+      {% for category in categories %}
+      <a href="{{ category.url }}" class="ccp-search-rich-row"><img src="{{ category.image }}" alt="" /><span class="ccp-search-rich-copy"><span class="ccp-search-rich-title">{{ category.name }}</span></span></a>
+      {% endfor %}
+    {% else %}<div class="oc-search-empty">{{ text_no_result }}</div>{% endif %}
+  </div>
   {% endif %}
-  {% endif %}
+
   {% if can_manufacturers %}
-  <li class="result-header">{{ text_manufacturers }}</li>
-  {% if manufacturers is not empty %}
-  {% for manufacturer in manufacturers %}
-  <li>
-    <a href="{{ manufacturer.url }}" style="display: block; overflow: auto;">
-      <img src="{{ manufacturer.image }}"/>
-      <span>{{ manufacturer.name }}</span>
-    </a>
-  </li>
-  {% endfor %}
-  {% else %}
-  <li>
-    <span class="oc-search-empty" style="display: block; overflow: auto;">{{ text_no_result }}</span>
-  </li>
+  <div class="oc-search-group">
+    <strong>{{ text_manufacturers }}</strong>
+    {% if manufacturers %}
+      {% for manufacturer in manufacturers %}
+      <a href="{{ manufacturer.url }}" class="ccp-search-rich-row"><img src="{{ manufacturer.image }}" alt="" /><span class="ccp-search-rich-copy"><span class="ccp-search-rich-title">{{ manufacturer.name }}</span></span></a>
+      {% endfor %}
+    {% else %}<div class="oc-search-empty">{{ text_no_result }}</div>{% endif %}
+  </div>
   {% endif %}
-  {% endif %}
-</ul>
+</div>

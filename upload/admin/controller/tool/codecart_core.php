@@ -632,7 +632,7 @@ class ControllerToolCodeCartCore extends Controller {
 
     private function comparisonRows() {
         return array(
-            array('component'=>'PHP','opencart'=>'3.0.5.0: PHP 8.0–8.4','ocstore'=>'3.0.5.1 branch: PHP 8.0–8.5','codecart'=>'CodeCart PRO 3.0.6.0: PHP 8.1–8.5','status'=>'updated'),
+            array('component'=>'PHP','opencart'=>'PHP 8.0–8.4','ocstore'=>'PHP 8.0–8.5','codecart'=>'PHP 8.1–8.5','status'=>'updated'),
             array('component'=>'Guzzle','opencart'=>'7.10.0','ocstore'=>'7.9.3','codecart'=>'7.15.5','status'=>'updated'),
             array('component'=>'Twig','opencart'=>'3.24.0','ocstore'=>'3.21.1','codecart'=>'3.28.0','status'=>'updated'),
             array('component'=>'Guzzle Promises','opencart'=>'2.3.0','ocstore'=>'2.2.0','codecart'=>'2.5.3','status'=>'updated'),

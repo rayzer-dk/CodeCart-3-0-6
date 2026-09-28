@@ -27,3 +27,8 @@ Validated upgrade paths include ocStore 3.0.4.1, OpenCart 3.0.5.1 and ocStore 3.
 
 
 Optional bonus: `bonuses/Monobank_Payment_Modern_v1.1.0.ocmod.zip` demonstrates a Modern Extension payment integration and is not installed by default.
+
+
+Theme policy (CodeCart 3.0.6.x):
+- Fresh installation: CodeCart Theme is the only registered/active system theme. The bundled `default` theme files are compatibility fallback only.
+- Upgrade from OpenCart/ocStore: the existing active theme is preserved unchanged. CodeCart Theme is added as an additional theme and is not enabled automatically. Existing Default/third-party themes are not removed or overwritten.

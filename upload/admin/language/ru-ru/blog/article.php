@@ -2,7 +2,7 @@
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Статьи блога';
 $_['text_success'] = 'Настройки успешно изменены!';
-$_['text_list'] = 'Список cтатей';
+$_['text_list'] = 'Список статей';
 $_['text_add'] = 'Добавить';
 $_['text_edit'] = 'Редактирование статьи';
 $_['text_default'] = 'По умолчанию';
@@ -52,5 +52,5 @@ $_['text_relation_autofill_result'] = 'Автоподбор в ручное по
 $_['text_relation_selected_count'] = 'В поле сейчас выбрано: %t. Лимит автоподбора: %m.';
 $_['error_unique'] = 'SEO URL должен быть уникальным!';
 $_['text_filter'] = 'Фильтр';
-$_['help_main_category'] = 'Select main category';
+$_['help_main_category'] = 'Выберите главную категорию';
 $_['text_keyword'] = 'Должен быть уникальным на всю систему, без пробелов и спецсимволов.';

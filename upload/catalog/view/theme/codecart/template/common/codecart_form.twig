@@ -19,7 +19,7 @@
 {% if kind == 'info' %}
   {% set info_body %}{% if form.description %}<div class="ccp-form-description ccp-form-information-content">{{ form.description|raw }}</div>{% endif %}{% endset %}
   {% if mode == 'button' %}
-  <div class="ccp-form-launch"><button type="button" class="btn btn-primary ccp-form-open" data-toggle="modal" data-target="#{{ instance }}-modal" aria-controls="{{ instance }}-modal"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ button_text }}</button></div>
+  <div class="ccp-form-launch"><button type="button" class="btn btn-primary ccp-form-open" style="{{ button_style }}" data-toggle="modal" data-target="#{{ instance }}-modal" aria-controls="{{ instance }}-modal"><i class="{{ button_icon }}" aria-hidden="true"></i> {{ button_text }}</button></div>
   <div class="modal fade ccp-form-modal ccp-form-modal--info" id="{{ instance }}-modal" tabindex="-1" role="dialog" aria-labelledby="{{ instance }}-title">
     <div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="{{ text_close }}"><span aria-hidden="true">&times;</span></button>{% if form.title %}<h4 class="modal-title" id="{{ instance }}-title">{{ form.title }}</h4>{% endif %}</div><div class="modal-body">{{ info_body }}</div></div></div>
   </div>
@@ -38,11 +38,11 @@
     {% if form.description %}<div class="ccp-form-description">{{ form.description|raw }}</div>{% endif %}
     <div class="ccp-form-grid">{{ form_ui.fields(fields, text_required, text_select, instance) }}</div>
     <div class="ccp-form-message" role="status" aria-live="polite"></div>
-    <div class="ccp-form-actions"><button type="submit" class="btn btn-primary ccp-form-submit"><span>{{ submit_text }}</span><i class="fa fa-spinner fa-spin ccp-form-spinner" aria-hidden="true"></i></button></div>
+    <div class="ccp-form-actions"><button type="submit" class="btn btn-primary ccp-form-submit" style="{{ button_style }}"><span>{{ submit_text }}</span><i class="fa fa-spinner fa-spin ccp-form-spinner" aria-hidden="true"></i></button></div>
   </form>
   {% endset %}
   {% if mode == 'button' %}
-  <div class="ccp-form-launch"><button type="button" class="btn btn-primary ccp-form-open" data-toggle="modal" data-target="#{{ instance }}-modal" aria-controls="{{ instance }}-modal"><i class="fa fa-envelope-o" aria-hidden="true"></i> {{ button_text }}</button></div>
+  <div class="ccp-form-launch"><button type="button" class="btn btn-primary ccp-form-open" style="{{ button_style }}" data-toggle="modal" data-target="#{{ instance }}-modal" aria-controls="{{ instance }}-modal"><i class="{{ button_icon }}" aria-hidden="true"></i> {{ button_text }}</button></div>
   <div class="modal fade ccp-form-modal" id="{{ instance }}-modal" tabindex="-1" role="dialog" aria-labelledby="{{ instance }}-title">
     <div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="{{ text_close }}"><span aria-hidden="true">&times;</span></button>{% if form.title %}<h4 class="modal-title" id="{{ instance }}-title">{{ form.title }}</h4>{% endif %}</div><div class="modal-body">{{ form_body }}</div></div></div>
   </div>

@@ -133,7 +133,19 @@ class ControllerStartupSeoUrl extends Controller {
 						$this->request->get['information_id'] = $url[1];
 					}
 
-					if ($seo_rows[$part]['query'] && $url[0] != 'information_id' && $url[0] != 'manufacturer_id' && $url[0] != 'category_id' && $url[0] != 'product_id') {
+					if ($url[0] == 'article_id') {
+						$this->request->get['article_id'] = $url[1];
+					}
+
+					if ($url[0] == 'blog_category_id') {
+						if (!isset($this->request->get['blog_category_id'])) {
+							$this->request->get['blog_category_id'] = $url[1];
+						} else {
+							$this->request->get['blog_category_id'] .= '_' . $url[1];
+						}
+					}
+
+					if ($seo_rows[$part]['query'] && $url[0] != 'information_id' && $url[0] != 'manufacturer_id' && $url[0] != 'category_id' && $url[0] != 'product_id' && $url[0] != 'article_id' && $url[0] != 'blog_category_id') {
 						$this->request->get['route'] = $seo_rows[$part]['query'];
 					}
 				} else {
@@ -154,6 +166,10 @@ class ControllerStartupSeoUrl extends Controller {
 					$this->request->get['route'] = 'product/manufacturer/info';
 				} elseif (isset($this->request->get['information_id'])) {
 					$this->request->get['route'] = 'information/information';
+				} elseif (isset($this->request->get['article_id'])) {
+					$this->request->get['route'] = 'blog/article';
+				} elseif (isset($this->request->get['blog_category_id'])) {
+					$this->request->get['route'] = 'blog/category';
 				}
 			}
 		} elseif (!$seo_url_enabled && $this->config->get('codecart_language_prefix_enabled') && isset($this->request->get['_route_'])) {
@@ -272,7 +288,7 @@ class ControllerStartupSeoUrl extends Controller {
 
 		foreach ($data as $key => $value) {
 			if (isset($data['route'])) {
-				if (($data['route'] == 'product/product' && $key == 'product_id') || (($data['route'] == 'product/manufacturer/info' || $data['route'] == 'product/product') && $key == 'manufacturer_id') || ($data['route'] == 'information/information' && $key == 'information_id')) {
+				if (($data['route'] == 'product/product' && $key == 'product_id') || (($data['route'] == 'product/manufacturer/info' || $data['route'] == 'product/product') && $key == 'manufacturer_id') || ($data['route'] == 'information/information' && $key == 'information_id') || ($data['route'] == 'blog/article' && $key == 'article_id') || ($data['route'] == 'blog/category' && $key == 'blog_category_id')) {
 					$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE `query` = '" . $this->db->escape($key . '=' . (int)$value) . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "' AND language_id = '" . (int)$this->config->get('config_language_id') . "'");
 
 					if ($query->num_rows && $query->row['keyword']) {
