@@ -46,8 +46,8 @@
 ### Task 3: Publish and clean branches
 
 - [x] Commit verified source and integration records on main with all incorporated branch tips preserved as parents.
-- [ ] Publish main after authentication is available, verify remote SHA and CI.
-- [ ] Remove only fully incorporated remote branches and re-list remote refs.
+- [x] Publish main, verify remote SHA and successful CI.
+- [x] Remove only fully incorporated remote branches and re-list remote refs.
 - [x] Deliver the verified artifact and report; clearly state any remaining blocker.
 
 ## Execution record
@@ -57,4 +57,4 @@
 - Session storage failure reproducer failed before the fix and passes after clearing identity on both false and Throwable. Independent re-review found no important remaining defect in the fix.
 - Initial ocStore CLI snapshot mismatch was not evidence of lost data; direct mysqli comparison against the restored verified preupgrade dump matched all nine groups. Migration source was not changed.
 - Legacy schema advisory differences remain37/38; no blocking differences, conversion errors or engine/charset differences after explicit modernization.
-- Remote publication, remote CI and deletion remain pending Git authentication.
+- Main published at 39be12a; automatic integrity formatting commit bf7573d changes no file hashes. All eight integration workflows passed. All six secondary remote branches removed; remote heads listing contains only main.
