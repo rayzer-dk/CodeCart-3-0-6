@@ -169,17 +169,43 @@ function codecart_password_verify($password, $hash, $salt = '') {
         return false;
     }
 
+    // OpenCart Request::clean() historically HTML-escapes every POST scalar.
+    // Passwords are opaque secrets and must not depend on HTML escaping.  During
+    // upgrades we must nevertheless accept hashes created from the old cleaned
+    // representation, so verify both forms and migrate on the next password write.
+    $candidates = array($password);
+    $decoded = html_entity_decode($password, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    if ($decoded !== $password) {
+        $candidates[] = $decoded;
+    }
+
     $info = password_get_info($hash);
     if (!empty($info['algo'])) {
-        return password_verify($password, $hash);
+        foreach ($candidates as $candidate) {
+            if (password_verify($candidate, $hash)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    $legacy_sha1 = sha1($salt . sha1($salt . sha1($password)));
-    if (hash_equals($hash, $legacy_sha1)) {
-        return true;
+    foreach ($candidates as $candidate) {
+        $legacy_sha1 = sha1($salt . sha1($salt . sha1($candidate)));
+        if (hash_equals($hash, $legacy_sha1) || hash_equals($hash, md5($candidate))) {
+            return true;
+        }
     }
 
-    return hash_equals($hash, md5($password));
+    return false;
+}
+
+/**
+ * Recover the original password text from the legacy Request::clean() value.
+ * Passwords are never rendered as HTML; entity decoding here restores the value
+ * the browser submitted while remaining backward compatible in verification.
+ */
+function codecart_password_input($password) {
+    return html_entity_decode((string)$password, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
 /**

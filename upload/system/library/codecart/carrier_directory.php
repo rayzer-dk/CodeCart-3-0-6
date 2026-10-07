@@ -308,7 +308,7 @@ class CodeCartCarrierDirectory {
     }
 
     private function getDeliveryBranches($cityId) {
-        $response = $this->deliveryRequest('GetWarehousesListByCity', array('CityId' => $cityId, 'DirectionType' => '1', 'culture' => 'uk-UA'));
+        $response = $this->deliveryRequest('GetWarehousesList', array('CityId' => $cityId, 'includeRegionalCenters' => 'true', 'culture' => 'uk-UA', 'country' => '1'));
         $rows = $this->deliveryRows($response);
         $out = array();
 
@@ -366,7 +366,9 @@ class CodeCartCarrierDirectory {
         $out = array();
         foreach ($rows as $row) {
             if (!is_array($row)) { continue; }
-            $id = isset($row['ID']) ? (string)$row['ID'] : (isset($row['POSTINDEX']) ? (string)$row['POSTINDEX'] : '');
+            if (isset($row['LOCK_CODE']) && (string)$row['LOCK_CODE'] !== '0') { continue; }
+            if (isset($row['IS_SECURITY']) && (string)$row['IS_SECURITY'] === '1') { continue; }
+            $id = isset($row['POSTOFFICE_ID']) ? (string)$row['POSTOFFICE_ID'] : (isset($row['ID']) ? (string)$row['ID'] : (isset($row['POSTINDEX']) ? (string)$row['POSTINDEX'] : ''));
             if ($id === '') { continue; }
             $branchFallback = 'Branch';
             if ($this->registry->has('language')) {
@@ -460,16 +462,35 @@ class CodeCartCarrierDirectory {
     }
 
     private function deliveryRequest($method, array $params) {
-        $allowed = array('GetAreasList', 'GetWarehousesListByCity');
+        $allowed = array('GetAreasList', 'GetWarehousesList');
         if (!in_array($method, $allowed, true)) { throw new Exception('Unsupported Delivery API method.'); }
-        $url = 'https://www.delivery-auto.com/api/v4/Public/' . $method . '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
-        $response = $this->httpJson('GET', $url, array('Accept-Language: uk-UA,uk;q=0.9,en;q=0.5'), null);
+        $query = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+        $bases = array(
+            'https://www.delivery-auto.com/api/v4/Public/',
+            'https://delivery-auto.com/api/v4/Public/'
+        );
+        $lastError = null;
 
-        if (!$this->deliveryStatusOk($response)) {
-            $message = $this->arrayPickInsensitive($response, array('message', 'Message', 'error', 'Error'));
-            throw new Exception($message !== '' ? $message : 'Delivery API returned an unsuccessful response.');
+        foreach ($bases as $base) {
+            try {
+                $response = $this->httpJson('GET', $base . $method . '?' . $query, array(
+                    'Accept: application/json, text/json',
+                    'Accept-Language: uk-UA,uk;q=0.9,en;q=0.5'
+                ), null);
+
+                if (!$this->deliveryStatusOk($response)) {
+                    $message = $this->arrayPickInsensitive($response, array('message', 'Message', 'error', 'Error'));
+                    throw new Exception($message !== '' ? $message : 'Delivery API returned an unsuccessful response.');
+                }
+
+                return $response;
+            } catch (Throwable $e) {
+                $lastError = $e;
+                $this->safeLog('Delivery API endpoint failed', array('method' => $method, 'host' => parse_url($base, PHP_URL_HOST), 'message' => $e->getMessage()));
+            }
         }
-        return $response;
+
+        throw $lastError ?: new Exception('Delivery API request failed.');
     }
 
     private function deliveryStatusOk(array $response) {

@@ -118,3 +118,5 @@ $_['error_cheque']              = 'Вкажіть одержувача плат�
 $_['error_paypal']              = 'Невірно вказано адресу електронної пошти PayPal';
 $_['error_bank_account_name']   = 'Вкажіть ім’я клієнта';
 $_['error_bank_account_number'] = 'Вкажіть номер клієнта';
+
+$_['text_show_password'] = 'Показати або приховати пароль';

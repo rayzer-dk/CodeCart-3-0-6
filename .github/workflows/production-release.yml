@@ -2,7 +2,7 @@ name: Production Release Check
 
 on:
   push:
-    branches: [ main, 'qa/**' ]
+    branches: [ main ]
   pull_request:
   workflow_dispatch:
 
@@ -64,7 +64,7 @@ jobs:
   package:
     name: Build one-upload package
     needs: [source-ready, php-matrix]
-    if: github.event_name != 'pull_request' && needs.source-ready.outputs.ready == 'true'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.source-ready.outputs.ready == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read

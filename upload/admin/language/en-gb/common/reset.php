@@ -13,3 +13,4 @@ $_['entry_confirm']  = 'Confirm';
 // Error
 $_['error_password'] = 'Password must be between 10 and 40 characters!';
 $_['error_confirm']  = 'Password and password confirmation do not match!';
+$_['text_show_password'] = 'Show / hide password';

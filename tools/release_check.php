@@ -193,4 +193,10 @@ if ($errors) {
     exit(1);
 }
 
+passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tools/qa_session_rotation.php'), $sessionCode);
+if ($sessionCode !== 0) {
+    fail($errors, 'Session rotation must fail closed and retain the successful login state');
+    exit(1);
+}
+
 fwrite(STDOUT, PHP_EOL . 'RELEASE CHECK PASSED.' . PHP_EOL);

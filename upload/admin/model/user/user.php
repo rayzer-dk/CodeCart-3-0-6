@@ -2,7 +2,7 @@
 class ModelUserUser extends Model {
 	public function addUser($data) {
 		codecart_ensure_password_column($this->db, 'user');
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "user` SET username = '" . $this->db->escape($data['username']) . "', user_group_id = '" . (int)$data['user_group_id'] . "', salt = '', password = '" . $this->db->escape(codecart_password_hash($data['password'])) . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', image = '" . $this->db->escape($data['image']) . "', status = '" . (int)$data['status'] . "', date_added = NOW()");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "user` SET username = '" . $this->db->escape($data['username']) . "', user_group_id = '" . (int)$data['user_group_id'] . "', salt = '', password = '" . $this->db->escape(codecart_password_hash(codecart_password_input($data['password']))) . "', firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', image = '" . $this->db->escape($data['image']) . "', status = '" . (int)$data['status'] . "', date_added = NOW()");
 	
 		return $this->db->getLastId();
 	}
@@ -12,13 +12,13 @@ class ModelUserUser extends Model {
 
 		if ($data['password']) {
 			codecart_ensure_password_column($this->db, 'user');
-			$this->db->query("UPDATE `" . DB_PREFIX . "user` SET salt = '', password = '" . $this->db->escape(codecart_password_hash($data['password'])) . "' WHERE user_id = '" . (int)$user_id . "'");
+			$this->db->query("UPDATE `" . DB_PREFIX . "user` SET salt = '', password = '" . $this->db->escape(codecart_password_hash(codecart_password_input($data['password']))) . "' WHERE user_id = '" . (int)$user_id . "'");
 		}
 	}
 
 	public function editPassword($user_id, $password) {
 		codecart_ensure_password_column($this->db, 'user');
-		$this->db->query("UPDATE `" . DB_PREFIX . "user` SET salt = '', password = '" . $this->db->escape(codecart_password_hash($password)) . "', code = '' WHERE user_id = '" . (int)$user_id . "'");
+		$this->db->query("UPDATE `" . DB_PREFIX . "user` SET salt = '', password = '" . $this->db->escape(codecart_password_hash(codecart_password_input($password))) . "', code = '' WHERE user_id = '" . (int)$user_id . "'");
 	}
 
 	public function editCode($email, $code) {

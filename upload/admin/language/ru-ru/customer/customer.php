@@ -103,3 +103,5 @@ $_['error_paypal'] = 'Неверно указан адрес электронн�
 $_['error_bank_account_name'] = 'Укажите имя владельца счёта';
 $_['error_bank_account_number'] = 'Укажите номер счёта';
 $_['text_filter'] = 'Фильтр';
+
+$_['text_show_password'] = 'Показать или скрыть пароль';

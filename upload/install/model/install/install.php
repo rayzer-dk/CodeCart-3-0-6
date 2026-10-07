@@ -26,7 +26,7 @@ class ModelInstallInstall extends Model {
 			$db->query("SET collation_connection = 'utf8mb4_unicode_ci'");
 
 			$db->query("DELETE FROM `" . $data['db_prefix'] . "user` WHERE user_id = '1'");
-			$db->query("INSERT INTO `" . $data['db_prefix'] . "user` SET user_id = '1', user_group_id = '1', username = '" . $db->escape($data['username']) . "', salt = '', password = '" . $db->escape(codecart_password_hash($data['password'])) . "', firstname = 'CodeCart', lastname = 'Pro', email = '" . $db->escape($data['email']) . "', status = '1', image = 'catalog/profile-pic.webp', code = '', ip = '', date_added = NOW()");
+			$db->query("INSERT INTO `" . $data['db_prefix'] . "user` SET user_id = '1', user_group_id = '1', username = '" . $db->escape($data['username']) . "', salt = '', password = '" . $db->escape(codecart_password_hash(codecart_password_input($data['password']))) . "', firstname = 'CodeCart', lastname = 'Pro', email = '" . $db->escape($data['email']) . "', status = '1', image = 'catalog/profile-pic.webp', code = '', ip = '', date_added = NOW()");
 
 			$db->query("DELETE FROM `" . $data['db_prefix'] . "setting` WHERE `key` = 'config_email'");
 			$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` SET `code` = 'config', `key` = 'config_email', value = '" . $db->escape($data['email']) . "', serialized = '0'");

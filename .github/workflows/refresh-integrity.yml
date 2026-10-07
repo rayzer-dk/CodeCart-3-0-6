@@ -1,5 +1,5 @@
 name: Refresh Integrity Manifest
-# Build 1.9.10 integrity refresh
+# Build 2.0.0 integrity refresh
 
 on:
   workflow_dispatch:
@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   refresh:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

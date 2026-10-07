@@ -71,10 +71,27 @@ class Session {
 
 	public function regenerate($destroy = true) {
 		$old_session_id = $this->session_id;
+		$new_session_id = $this->createId();
 
-		$this->session_id = $this->createId();
+		// Persist the authenticated/session state under the new ID before the old
+		// record is removed.  Relying only on the shutdown writer after a redirect
+		// can otherwise leave the next request without user_id/user_token.
+		try {
+			$written = $this->adaptor->write($new_session_id, $this->data);
+		} catch (\Throwable $error) {
+			$this->data = array();
+			throw new \RuntimeException('Session initialization failed. Please try again.', 0, $error);
+		}
+		if ($written === false) {
+			// Login callers have already added identity to data. Clear it before
+			// aborting so the shutdown writer cannot authenticate the old ID.
+			$this->data = array();
+			throw new \RuntimeException('Session initialization failed. Please try again.');
+		}
 
-		if ($destroy && $old_session_id) {
+		$this->session_id = $new_session_id;
+
+		if ($destroy && $old_session_id && $old_session_id !== $new_session_id) {
 			$this->adaptor->destroy($old_session_id);
 		}
 

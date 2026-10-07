@@ -242,7 +242,7 @@
                         <div class="form-group required">
                           <label class="col-sm-2 control-label" for="input-password">{{ entry_password }}</label>
                           <div class="col-sm-10">
-                            <input type="password" name="password" value="{{ password }}" placeholder="{{ entry_password }}" id="input-password" class="form-control" autocomplete="off" minlength="10" />
+                            <div class="input-group"><input type="password" name="password" value="{{ password }}" placeholder="{{ entry_password }}" id="input-password" class="form-control" autocomplete="off" minlength="10" /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-password-toggle" data-target="#input-password" title="{{ text_show_password|default('Show / hide password') }}"><i class="fa fa-eye"></i></button></span></div>
                             {% if error_password %}
                             <div class="text-danger">{{ error_password }}</div>
                             {% endif %}</div>
@@ -250,7 +250,7 @@
                         <div class="form-group required">
                           <label class="col-sm-2 control-label" for="input-confirm">{{ entry_confirm }}</label>
                           <div class="col-sm-10">
-                            <input type="password" name="confirm" value="{{ confirm }}" placeholder="{{ entry_confirm }}" autocomplete="off" id="input-confirm" class="form-control" minlength="10" />
+                            <div class="input-group"><input type="password" name="confirm" value="{{ confirm }}" placeholder="{{ entry_confirm }}" autocomplete="off" id="input-confirm" class="form-control" minlength="10" /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-password-toggle" data-target="#input-confirm" title="{{ text_show_password|default('Show / hide password') }}"><i class="fa fa-eye"></i></button></span></div>
                             {% if error_confirm %}
                             <div class="text-danger">{{ error_confirm }}</div>
                             {% endif %}</div>
@@ -1463,4 +1463,7 @@
   $('input[name=\'payment\']:checked').trigger('change');
   //--></script> 
 </div>
+<script type="text/javascript"><!--
+(function($){$(document).on('click','.ccp-password-toggle',function(){var $i=$($(this).data('target')),show=$i.attr('type')==='password';$i.attr('type',show?'text':'password');$(this).find('i').toggleClass('fa-eye',!show).toggleClass('fa-eye-slash',show);});})(jQuery);
+//--></script>
 {{ footer }} 

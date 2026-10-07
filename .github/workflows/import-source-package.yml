@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   import:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -29,13 +30,20 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -t files < <(find source-package -maxdepth 1 -type f -name '*.zip' | sort)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No pending source package; source tree is already imported."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "${#files[@]}" -ne 1 ]; then
             echo "Expected exactly one ZIP in source-package/, found ${#files[@]}." >&2
             exit 1
           fi
           echo "path=${files[0]}" >> "$GITHUB_OUTPUT"
+          echo "found=true" >> "$GITHUB_OUTPUT"
 
       - name: Verify Build 1.7.5 checksum
+        if: steps.pkg.outputs.found == 'true'
         shell: bash
         env:
           ZIP_PATH: ${{ steps.pkg.outputs.path }}
@@ -48,6 +56,7 @@ jobs:
           test "$actual" = "$expected"
 
       - name: Extract source tree
+        if: steps.pkg.outputs.found == 'true'
         shell: bash
         env:
           ZIP_PATH: ${{ steps.pkg.outputs.path }}
@@ -59,6 +68,7 @@ jobs:
           rm -f SOURCE_IMPORT.md
 
       - name: Sanity check imported source
+        if: steps.pkg.outputs.found == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -69,6 +79,7 @@ jobs:
           test -f tools/check_uk_locale.php
 
       - name: Commit imported source
+        if: steps.pkg.outputs.found == 'true'
         shell: bash
         run: |
           set -euo pipefail

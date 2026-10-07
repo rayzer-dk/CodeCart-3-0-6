@@ -121,8 +121,13 @@ final class LoginProtection {
     }
 
     private function clientIp(): string {
-        if ($this->request && isset($this->request->server['REMOTE_ADDR'])) {
-            $ip = trim((string)$this->request->server['REMOTE_ADDR']);
+        $server = ($this->request && is_array($this->request->server)) ? $this->request->server : array();
+        if (function_exists('codecart_client_ip')) {
+            $ip = codecart_client_ip($server);
+            return $ip !== '' ? substr($ip, 0, 45) : '';
+        }
+        if (isset($server['REMOTE_ADDR'])) {
+            $ip = trim((string)$server['REMOTE_ADDR']);
             if (filter_var($ip, FILTER_VALIDATE_IP)) {
                 return substr($ip, 0, 45);
             }

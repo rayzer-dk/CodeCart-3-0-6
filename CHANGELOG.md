@@ -1,3 +1,39 @@
+# Build 2.0.0 — 2026-10-07
+
+- Consolidate audit branch history and supplied Build 1.9.12 source in main.
+- Update Twig to 3.30.0 and Symfony mbstring/php80 polyfills to 1.43.0; retain PHP 8.1 support.
+- Abort authentication and clear session state when writing a rotated session fails.
+- Restrict production packages and source-writing workflows to main; disable scheduled Dependabot version pull requests.
+- Compatibility verification and limitations are recorded in documentation/VERIFICATION_2026-10-07.md.
+
+# Build 1.9.12 — 2026-09-28
+
+Исправлено
+- Админка: исправлена цепочка входа после обновления/сброса пароля. Новая session ID теперь физически сохраняется до удаления старой сессии, поэтому redirect после успешного login не может вернуть пользователя на форму входа из-за ещё не записанной сессии.
+- Пароли: OpenCart Request::clean() исторически HTML-экранирует все POST-строки. Проверка пароля теперь совместима и с прежним экранированным представлением, и с исходным значением; новые/изменённые пароли хешируются из восстановленного исходного текста. Это устраняет проблемы с паролями, содержащими &, <, > и кавычки, без блокировки старых хешей.
+- Legacy SHA1/MD5 и современные password_hash() продолжают поддерживаться; после успешного legacy-входа выполняется безопасный rehash.
+- Защита входа за reverse proxy/Cloudflare использует общий trusted-proxy resolver вместо REMOTE_ADDR, чтобы разные proxy-hop не создавали ложные блокировки после сброса пароля.
+- UI: добавлена кнопка-глаз для показа/скрытия пароля на форме входа, сбросе пароля, профиле администратора, форме пользователя и форме покупателя в админке. Значение поля не изменяется.
+- ru-ru: текст требования к новому паролю приведён к фактической серверной проверке 10–40 символов.
+
+Проверено
+- PHP 8.4 lint всех PHP-файлов release-пакета.
+- Совместимость password_hash(), OpenCart legacy SHA1 и MD5.
+- Пароли со спецсимволами &, <, >, двойными и одинарными кавычками.
+- Session regenerate: новая сессия записывается до уничтожения старой.
+- Twig syntax изменённых admin-шаблонов.
+
+# Build 1.9.11 — 2026-09-28
+
+Исправлено
+- Delivery Auto: исправлен неверный endpoint отделений `GetWarehousesListByCity` → официальный `GetWarehousesList`.
+- Delivery Auto: добавлен безопасный fallback между `www.delivery-auto.com` и `delivery-auto.com`; HTML/не-JSON ответ одного хоста больше не ломает синхронизацию, используется второй официальный хост.
+- Delivery Auto: запросы справочника теперь явно требуют `application/json, text/json`; ошибки endpoint логируются без секретов и возвращаются как корректный JSON в админку.
+- Укрпошта: справочник отделений приведён к актуальной документации 2026; идентификатором отделения используется `POSTOFFICE_ID`, закрытые (`LOCK_CODE != 0`) и закрытого типа (`IS_SECURITY = 1`) отделения не предлагаются покупателю.
+- Meest: сверены функции `City` и `Branch`, фильтрация `CityUUID` поддерживается официальным API; текущая реализация сохранена.
+- Нова пошта: транспорт `Address/getCities` и `AddressGeneral/getWarehouses` сверены с рабочим Nova Poshta PRO; просроченный ключ корректно возвращается как ошибка API без падения JSON-ответа.
+- Проведён regression-check PHP syntax для изменённого carrier layer и повторная проверка структуры release-пакета.
+
 # Build 1.9.10 — 2026-09-28
 
 Критичные

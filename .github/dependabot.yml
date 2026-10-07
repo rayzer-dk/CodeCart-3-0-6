@@ -7,7 +7,7 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Europe/Copenhagen"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     labels:
       - "dependencies"
       - "php"
@@ -19,7 +19,7 @@ updates:
       day: "monday"
       time: "06:30"
       timezone: "Europe/Copenhagen"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     labels:
       - "dependencies"
       - "github-actions"

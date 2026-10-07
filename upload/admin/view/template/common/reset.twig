@@ -13,14 +13,14 @@
               <p>{{ text_password }}</p>
               <div class="form-group">
                 <label class="control-label" for="input-password">{{ entry_password }}</label>
-                <input type="password" name="password" value="{{ password }}" id="input-password" class="form-control" minlength="10" />
+                <div class="input-group"><input type="password" name="password" value="{{ password }}" id="input-password" class="form-control" minlength="10" autocomplete="new-password" /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-password-toggle" data-target="#input-password" title="{{ text_show_password }}" aria-label="{{ text_show_password }}"><i class="fa fa-eye"></i></button></span></div>
                 {% if error_password %}
                 <div class="text-danger">{{ error_password }}</div>
                 {% endif %}
               </div>
               <div class="form-group">
                 <label class="control-label" for="input-confirm">{{ entry_confirm }}</label>
-                <input type="password" name="confirm" value="{{ confirm }}" id="input-confirm" class="form-control" minlength="10" />
+                <div class="input-group"><input type="password" name="confirm" value="{{ confirm }}" id="input-confirm" class="form-control" minlength="10" autocomplete="new-password" /><span class="input-group-btn"><button type="button" class="btn btn-default ccp-password-toggle" data-target="#input-confirm" title="{{ text_show_password }}" aria-label="{{ text_show_password }}"><i class="fa fa-eye"></i></button></span></div>
                 {% if error_confirm %}
                 <div class="text-danger">{{ error_confirm }}</div>
                 {% endif %}
@@ -36,4 +36,7 @@
     </div>
   </div>
 </div>
+<script type="text/javascript"><!--
+(function($){$(document).on('click','.ccp-password-toggle',function(){var $i=$($(this).data('target')),show=$i.attr('type')==='password';$i.attr('type',show?'text':'password');$(this).find('i').toggleClass('fa-eye',!show).toggleClass('fa-eye-slash',show);});})(jQuery);
+//--></script>
 {{ footer }}
