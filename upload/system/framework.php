@@ -56,7 +56,7 @@ set_error_handler(function($code, $message, $file, $line) use($log, $config) {
 	return true;
 });
 
-set_exception_handler(function($exception) use($log, $config) {
+set_exception_handler(function($exception) use($log, $config, $registry) {
 	$message = get_class($exception) . ': ' . $exception->getMessage() . ' in ' . $exception->getFile() . ' on line ' . $exception->getLine();
 	$previous = $exception->getPrevious();
 
@@ -75,11 +75,31 @@ set_exception_handler(function($exception) use($log, $config) {
 		header('Content-Type: text/html; charset=utf-8');
 	}
 
-	if ($config->get('error_display')) {
-		echo '<b>Uncaught Exception</b>: ' . htmlspecialchars($exception->getMessage(), ENT_QUOTES, 'UTF-8') . ' in <b>' . htmlspecialchars($exception->getFile(), ENT_QUOTES, 'UTF-8') . '</b> on line <b>' . (int)$exception->getLine() . '</b>';
-	} else {
+	if (PHP_SAPI === 'cli') {
 		echo 'Internal Server Error';
+		return;
 	}
+	// Keep API/AJAX failures machine-readable; never expose exception details.
+	$accept = (string)($_SERVER['HTTP_ACCEPT'] ?? '');
+	$route = isset($_GET['route']) && is_string($_GET['route']) ? $_GET['route'] : '';
+	if (stripos($accept, 'application/json') !== false || strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest' || strpos($route, 'api/') === 0) {
+		if (!headers_sent()) { header('Content-Type: application/json; charset=utf-8'); }
+		echo '{"error":"Internal Server Error"}';
+		return;
+	}
+	// This renderer needs neither a working database nor the template engine.
+	require_once(DIR_SYSTEM . 'helper/error_page.php');
+	$language = (string)$config->get('config_language');
+	if ($registry->has('session') && isset($registry->get('session')->data['language'])) {
+		$language = (string)$registry->get('session')->data['language'];
+	}
+	if (!in_array($language, array('en-gb', 'ru-ru', 'uk-ua'), true)) {
+		$preferred = strtolower(substr((string)($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? ''), 0, 2));
+		$language = array('ru' => 'ru-ru', 'uk' => 'uk-ua')[$preferred] ?? 'en-gb';
+	}
+	$home = defined('HTTP_SERVER') ? HTTP_SERVER : '/';
+	if (defined('DIR_CATALOG') && defined('HTTP_CATALOG')) { $home = HTTP_CATALOG; }
+	echo codecart_error_page($language, $home);
 });
 
 // Event

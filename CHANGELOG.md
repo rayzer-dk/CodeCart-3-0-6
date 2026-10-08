@@ -1,3 +1,10 @@
+# Build 2.0.1 — 2026-10-08
+
+- Added responsive 404 and maintenance pages to both bundled themes, including dark mode and translated navigation.
+- Added a standalone, database/Twig-independent 500 fallback; public failures hide exception details and API/AJAX retain JSON responses.
+- Missing products, categories, manufacturers and information pages use the same error layout with correct HTTP status and noindex.
+- Error-page stylesheet loads only on error/maintenance pages; maintenance retains Retry-After.
+
 # Build 2.0.0 — 2026-10-07
 
 - Consolidate audit branch history and supplied Build 1.9.12 source in main.

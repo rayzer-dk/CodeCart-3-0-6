@@ -1,5 +1,5 @@
 name: Commerce Release Gate
-# Build 2.0.0 deep commerce validation v3
+# Build 2.0.1 deep commerce validation v3
 
 on:
   workflow_dispatch:
@@ -67,13 +67,13 @@ jobs:
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Stage current Build 2.0.0 source
+      - name: Stage current Build 2.0.1 source
         shell: bash
         run: |
           set -euo pipefail
           mkdir runtime
           cp -a upload runtime/upload
-          grep -q "CODECART_PACKAGE_BUILD', '2.0.0'" runtime/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '2.0.1'" runtime/upload/index.php
           test -f runtime/upload/system/storage/vendor/autoload.php
 
       - name: Clean install

@@ -1,7 +1,13 @@
 {{ header }}
 <div id="common-maintenance" class="container">
-  <div class="row">
-    <div class="col-12">{{ message }}</div>
-  </div>
+  <section class="ccp-error" aria-labelledby="ccp-error-title">
+    <div class="ccp-error__visual" aria-hidden="true"><span class="ccp-error__code">503</span><span class="ccp-error__orbit"></span></div>
+    <div class="ccp-error__body">
+      <span class="ccp-error__label">{{ text_error_label|e }}</span>
+      <h1 id="ccp-error-title">{{ heading_title|e }}</h1>
+      <p>{{ text_error_description|e }}</p>
+      <div class="ccp-error__actions"><a href="{{ continue|e }}" class="ccp-error__button">{{ button_retry|e }}</a></div>
+    </div>
+  </section>
 </div>
 {{ footer }}

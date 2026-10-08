@@ -4,6 +4,9 @@ class ControllerCommonMaintenance extends Controller {
 		$this->load->language('common/maintenance');
 
 		$this->document->setTitle($this->language->get('heading_title'));
+		$this->document->setRobots('noindex,nofollow');
+		$this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css');
+		$data['continue'] = $this->url->link('common/home');
 
 		$this->response->setStatusCode(503);
 

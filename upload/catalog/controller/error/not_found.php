@@ -4,6 +4,10 @@ class ControllerErrorNotFound extends Controller {
 		$this->load->language('error/not_found');
 
 		$this->document->setTitle($this->language->get('heading_title'));
+		$this->document->setRobots('noindex,follow');
+		$this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css');
+		$data['search'] = $this->url->link('product/search');
+		$data['error_code'] = '404';
 
 		$data['breadcrumbs'] = array();
 

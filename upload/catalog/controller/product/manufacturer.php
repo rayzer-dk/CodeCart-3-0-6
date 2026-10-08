@@ -515,6 +515,12 @@ class ControllerProductManufacturer extends Controller {
 
 			$data['continue'] = $this->url->link('common/home');
 
+			$this->load->language('error/not_found');
+			$this->document->setRobots('noindex,follow');
+			$this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css');
+			$data['search'] = $this->url->link('product/search');
+			$data['heading_title'] = $this->language->get('heading_title');
+			$data['text_error'] = $this->language->get('text_error');
 			$this->response->setStatusCode(404);
 
 			$data['header'] = $this->load->controller('common/header');

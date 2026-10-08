@@ -14,11 +14,18 @@
     {% set class = 'col-sm-12' %}
     {% endif %}
     <div id="content" class="{{ class }}">{{ content_top }}
-      <h1>{{ heading_title }}</h1>
-      <p>{{ text_error }}</p>
-      <div class="buttons clearfix">
-        <div class="pull-right"><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>
-      </div>
+      <section class="ccp-error" aria-labelledby="ccp-error-title">
+        <div class="ccp-error__visual" aria-hidden="true"><span class="ccp-error__code">404</span><span class="ccp-error__orbit"></span></div>
+        <div class="ccp-error__body">
+          <span class="ccp-error__label">{{ text_error_label|e }}</span>
+          <h1 id="ccp-error-title">{{ heading_title|e }}</h1>
+          <p>{{ text_error|e }}</p>
+          <div class="ccp-error__actions">
+            <a href="{{ continue|e }}" class="ccp-error__button">{{ button_home|e }}</a>
+            <a href="{{ search|e }}" class="ccp-error__button ccp-error__button--secondary">{{ button_search|e }}</a>
+          </div>
+        </div>
+      </section>
       {{ content_bottom }}</div>
     {{ column_right }}</div>
 </div>
