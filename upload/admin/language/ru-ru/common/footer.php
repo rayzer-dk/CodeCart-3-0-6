@@ -43,3 +43,6 @@ $_['text_report_subject'] = 'CodeCart PRO — сообщение';
 $_['text_report_body'] = 'Тип: ошибка / предложение / доработка
 Страница: 
 Описание: ';
+
+$_['text_community'] = 'Сообщество Telegram';
+$_['text_repository'] = 'Репозиторий GitHub';

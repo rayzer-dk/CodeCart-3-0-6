@@ -2,6 +2,8 @@
   <span class="ccp-footer-brand">{{ text_footer }}</span>
   {% if text_codecart_release %}<span class="ccp-footer-sep">·</span> <span class="ccp-footer-release">{{ text_codecart_release }}</span>{% endif %}
   {% if project_support_enabled %}
+    <span class="ccp-footer-sep">·</span> <a class="btn btn-info btn-xs" href="{{ community_url|e }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-comments" aria-hidden="true"></i> {{ text_community|e }}</a>
+    <span class="ccp-footer-sep">·</span> <a href="{{ repository_url|e }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-github" aria-hidden="true"></i> {{ text_repository|e }}</a>
     <span class="ccp-footer-sep">·</span> <a href="#ccp-project-support-modal" data-toggle="modal" class="ccp-project-support-link"><i class="fa fa-heart"></i> {{ text_project_support }}</a>
     <span class="ccp-footer-sep">·</span> <a href="#ccp-report-modal" data-toggle="modal" title="{{ text_report_title }}"><i class="fa fa-commenting-o"></i> {{ text_report }}</a>
   {% endif %}

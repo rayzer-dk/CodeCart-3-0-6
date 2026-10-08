@@ -1,0 +1,9 @@
+.ccp-community-banner{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:18px 20px;margin:0 0 20px;border:1px solid #b5d8f4;border-left:4px solid #1683cf;border-radius:8px;background:#eef7ff;color:#173b5a}
+.ccp-community-banner h2{font-size:18px;font-weight:600;margin:0 0 6px;color:inherit}
+.ccp-community-banner p{margin:0;max-width:620px}
+.ccp-community-banner .ccp-community-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ccp-community-banner .ccp-community-actions .btn{white-space:normal}
+.ccp-community-banner .ccp-community-actions .btn-primary{background:#126ba6;border-color:#126ba6;color:#fff}
+.ccp-community-banner .ccp-community-email{display:block;margin-top:8px;color:inherit;overflow-wrap:anywhere}
+[data-theme="dark"] .ccp-community-banner,body.ccp-admin-dark .ccp-community-banner,html.ccp-admin-dark .ccp-community-banner{background:#182f43;border-color:#365c78;border-left-color:#49a5ec;color:#e9f4ff}
+@media(max-width:767px){.ccp-community-banner{padding:15px}.ccp-community-banner .ccp-community-actions{width:100%}.ccp-community-banner .ccp-community-actions .btn{flex:1 1 140px}}

@@ -1,10 +1,10 @@
 # nginx + PHP-FPM — Build 2.0.3
 
-[Українська](NGINX.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](NGINX.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 
-Apache uses the supplied `.htaccess`; nginx requires equivalent server rules. The configuration below was verified with nginx 1.24 and PHP-FPM 8.3 for SEO/language prefixes, sitemap rewriting and protected storage/template/SQL paths. Other server/PHP combinations require their own hosting checks.
+Apache використовує комплектний `.htaccess`; nginx потребує відповідних серверних правил. Конфігурація нижче перевірена з nginx 1.24 та PHP-FPM 8.3 для SEO/мовних префіксів, sitemap rewriting і захисту сховища/шаблонів/SQL. Інші комбінації сервера/PHP потребують окремої перевірки хостингу.
 
-Replace the example hostname, root and PHP-FPM socket with real values. Configure HTTPS certificates and test the server configuration before reloading. Keep persistent storage outside the web root where possible. Back up the site/database and server configuration before deployment.
+Замініть приклад домену, кореня сайту й PHP-FPM socket власними значеннями. Налаштуйте HTTPS-сертифікати й перевірте конфігурацію сервера перед перезавантаженням. За можливості розмістіть постійне сховище поза коренем сайту. Перед змінами створіть резервну копію сайту/БД та конфігурації сервера. Коментарі в конфігурації залишені англійською, самі правила ідентичні оригіналу.
 
 ```nginx
 server {
@@ -58,6 +58,6 @@ server {
 }
 ```
 
-See [Scheduler](SCHEDULER.md) for cron setup. PHP-FPM can finish the visitor response before heartbeat work using fastcgi_finish_request.
+Cron: [Планувальник](SCHEDULER.uk.md). PHP-FPM дозволяє завершити відповідь відвідувачу перед heartbeat через fastcgi_finish_request.
 
-Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
+Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)

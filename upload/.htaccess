@@ -68,6 +68,10 @@ Options -Indexes
 RewriteEngine On
 RewriteBase /
 
+# Block hidden files and directories, except public ACME challenge tokens.
+RewriteRule ^\.well-known/acme-challenge/[A-Za-z0-9_-]+$ - [L]
+RewriteRule (^|/)\. - [F,L]
+
 # Стандартні feeds. Мовні та модульні правила sitemap повинні реєструватися самими модулями;
 # не задавайте мовні префікси жорстко в Core.
 RewriteRule ^sitemap\.xml$ index.php?route=extension/feed/google_sitemap&_codecart_sitemap_clean=1 [L,QSA]

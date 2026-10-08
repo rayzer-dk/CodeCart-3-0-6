@@ -44,3 +44,6 @@ $_['text_report_subject'] = 'CodeCart PRO — report';
 $_['text_report_body'] = 'Type: bug / suggestion / improvement
 Page: 
 Description: ';
+
+$_['text_community'] = 'Telegram community';
+$_['text_repository'] = 'GitHub repository';

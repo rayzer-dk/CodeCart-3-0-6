@@ -1,5 +1,5 @@
 name: Runtime Production QA
-# Build 2.0.2 current-source runtime validation
+# Build 2.0.3 current-source runtime validation
 
 on:
   workflow_dispatch:
@@ -70,14 +70,14 @@ jobs:
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Stage current Build 2.0.2 source
+      - name: Stage current Build 2.0.3 source
         shell: bash
         run: |
           set -euo pipefail
           mkdir runtime
           cp -a upload runtime/upload
           test -f runtime/upload/system/storage/vendor/autoload.php
-          grep -q "CODECART_PACKAGE_BUILD', '2.0.2'" runtime/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '2.0.3'" runtime/upload/index.php
 
       - name: Clean install on MariaDB
         shell: bash
@@ -268,13 +268,13 @@ jobs:
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Stage current Build 2.0.2 source and clean install
+      - name: Stage current Build 2.0.3 source and clean install
         shell: bash
         run: |
           set -euo pipefail
           mkdir runtime
           cp -a upload runtime/upload
-          grep -q "CODECART_PACKAGE_BUILD', '2.0.2'" runtime/upload/index.php
+          grep -q "CODECART_PACKAGE_BUILD', '2.0.3'" runtime/upload/index.php
           cd runtime/upload/install
           php cli_install.php install             --db_hostname 127.0.0.1             --db_username root             --db_password root             --db_database codecart             --db_driver mysqli             --db_port 3306             --username admin             --password 'Admin123!QA'             --email admin@example.test             --http_server http://127.0.0.1:8080/
 

@@ -1,3 +1,10 @@
+# Build 2.0.3 — 2026-10-08
+
+- Highlight the Telegram community, repository and support contacts in the administrator dashboard and footer.
+- Provide current English and Ukrainian user documentation; keep dated audit reports outside the distribution.
+- Protect hidden files while preserving ACME certificate validation.
+- Package only tracked runtime files, locked dependencies and user documentation; exclude developer QA tools.
+
 # Build 2.0.2 — 2026-10-08
 
 - Add opt-in lost-content 404 report with browser/session deduplication, separate bot counts, meaningful-request filters, store/language scope and persistent storage.
@@ -21,7 +28,7 @@
 - Update Twig to 3.30.0 and Symfony mbstring/php80 polyfills to 1.43.0; retain PHP 8.1 support.
 - Abort authentication and clear session state when writing a rotated session fails.
 - Restrict production packages and source-writing workflows to main; disable scheduled Dependabot version pull requests.
-- Compatibility verification and limitations are recorded in documentation/VERIFICATION_2026-10-07.md.
+- Compatibility guidance is recorded in documentation/COMPATIBILITY.md.
 
 # Build 1.9.12 — 2026-09-28
 

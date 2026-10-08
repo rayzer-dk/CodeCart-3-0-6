@@ -43,3 +43,6 @@ $_['project_crypto_note'] = 'Кнопка «Перейти» відкриває 
 
 $_['text_report_subject'] = 'CodeCart PRO — повідомлення';
 $_['text_report_body'] = "Тип: помилка / пропозиція / доопрацювання\nСторінка: \nОпис: ";
+
+$_['text_community'] = 'Спільнота Telegram';
+$_['text_repository'] = 'Репозиторій GitHub';

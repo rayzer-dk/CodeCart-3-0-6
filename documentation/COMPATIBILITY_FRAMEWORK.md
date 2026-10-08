@@ -1,4 +1,6 @@
-# CodeCart Compatibility Framework
+# CodeCart Compatibility Framework — Build 2.0.3
+
+[Українська](COMPATIBILITY_FRAMEWORK.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 ## Purpose
 
@@ -8,7 +10,7 @@ CodeCart keeps the modern Core independent from third-party theme and extension 
 
 Core controller -> CompatibilityFramework contract -> active adapters -> resulting payload -> view/controller continuation.
 
-Built-in release-tested adapters live in `system/library/codecart/src/`. UniShop2 is the first built-in adapter and is identified as `theme.unishop2`.
+Built-in adapters live in `system/library/codecart/src/`. UniShop2 is the first built-in adapter and is identified as `theme.unishop2`.
 
 Installable adapters are delivered as CodeCart modern extensions under `system/extension/<code>/`. They do not patch Core files. Their `manifest.json` declares the adapter classes in the `compatibility.adapters` capability.
 
@@ -106,8 +108,11 @@ When a missing capability cannot be represented by an existing contract, add one
 
 ## UniShop2
 
-UniShop2 remains built in because it is release-tested with CodeCart. Its adapter is activated only when the active theme is `unishop2`, its settings exist and it is not explicitly disabled.
+UniShop2 has a built-in adapter with framework contract checks. These checks do not certify the complete commercial theme storefront. Its adapter is activated only when the active theme is `unishop2`, its settings exist and it is not explicitly disabled.
 
 The adapter covers the CodeCart equivalents of UniShop2's legacy OpenCart/ocStore OCMOD assumptions for menu, category module, category page, product option values/image sizes and banner item dimensions.
 
 The optional UniShop WebP and OG compatibility modifications are not part of this adapter because CodeCart already provides its own image/WebP/AVIF and OpenGraph implementations.
+
+
+Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)

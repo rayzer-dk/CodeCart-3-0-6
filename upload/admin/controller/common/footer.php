@@ -7,7 +7,7 @@ class ControllerCommonFooter extends Controller {
 			'text_footer','text_project_support','text_support','text_report','text_report_title','text_report_intro','text_report_mail','text_report_gmail','text_report_outlook','text_report_copy','project_title','project_subtitle','project_intro','project_free_title','project_free_text',
 			'project_compat_title','project_compat_text','project_quality_title','project_quality_text','project_help_title','project_help_text',
 			'project_payment_title','project_payment_note','project_amount_any','project_temp','project_copy','project_qr','project_open','project_copied','project_crypto_title','project_crypto_note','project_resources_title',
-			'project_support_title','project_support_text','project_close'
+			'project_support_title','project_support_text','project_close','text_community','text_repository'
 		) as $key) {
 			$data[$key] = $this->language->get($key);
 		}
@@ -21,7 +21,9 @@ class ControllerCommonFooter extends Controller {
 		}
 
 		$data['project_support_enabled'] = $logged;
-		$data['report_email'] = 'support@codecartpro.com';
+		$data['report_email'] = \CodeCart\Core\Community::EMAIL;
+		$data['community_url'] = \CodeCart\Core\Community::TELEGRAM;
+		$data['repository_url'] = \CodeCart\Core\Community::REPOSITORY;
 		$report_subject = $this->language->get('text_report_subject');
 		$report_body = $this->language->get('text_report_body');
 		$data['report_mailto_url'] = 'mailto:' . $data['report_email'] . '?subject=' . rawurlencode($report_subject) . '&body=' . rawurlencode($report_body);
@@ -96,6 +98,8 @@ class ControllerCommonFooter extends Controller {
 		);
 
 		$data['project_links'] = array(
+			array('icon' => 'fa-comments', 'name' => $this->language->get('text_community'), 'value' => \CodeCart\Core\Community::TELEGRAM, 'url' => \CodeCart\Core\Community::TELEGRAM),
+			array('icon' => 'fa-github', 'name' => $this->language->get('text_repository'), 'value' => \CodeCart\Core\Community::REPOSITORY, 'url' => \CodeCart\Core\Community::REPOSITORY),
 			array('icon' => 'fa-heart', 'name' => $this->language->get('text_project_support'), 'value' => 'https://codecartpro.com/project-support', 'url' => 'https://codecartpro.com/project-support'),
 			array('icon' => 'fa-globe', 'name' => $this->language->get('project_link_modules'), 'value' => 'https://codecartpro.com/', 'url' => 'https://codecartpro.com/'),
 			array('icon' => 'fa-download', 'name' => $this->language->get('project_link_download'), 'value' => 'https://codecartpro.com/download/', 'url' => 'https://codecartpro.com/download/'),

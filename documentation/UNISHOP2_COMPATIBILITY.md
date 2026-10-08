@@ -1,23 +1,15 @@
-CodeCart PRO 3.0.6.0 Build 1.8.4 — UniShop2 v3.6.6.0 compatibility
+# UniShop2 compatibility — Build 2.0.3
 
-Supported target
-- UniShop2 v3.6.6.0 on PHP 8.1–8.3 with a compatible ionCube Loader. UniShop2 itself does not declare PHP 8.4/8.5 support, even though CodeCart core supports PHP 8.1–8.5.
+[Українська](UNISHOP2_COMPATIBILITY.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
-Installation order
-1. Install `unishop2_fix.ocmod.zip`.
-2. Refresh Modifications.
-3. Install `unishop2_v3.6.6.0.ocmod.zip`.
-4. Install/enable and configure UniShop2.
-5. Refresh Modifications again.
+**Back up the website/database before installing or updating a theme.** UniShop2 3.6.6.0 requires PHP 8.1–8.3 and a compatible ionCube Loader according to its own requirements. CodeCart core's PHP 8.4/8.5 support does not extend those theme requirements.
 
-CodeCart compatibility behavior
-- Installer path expansion from `unishop2_fix` is already provided by CodeCart.
-- Twig auto_reload + ArrayLoader/FilesystemLoader/ChainLoader behavior is already provided by CodeCart.
-- Since 1.9.10 CodeCart uses the OpenCart-compatible session SQL mode (`NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION`) by default, the same mode OpenCart/ocStore set for every request, so UniShop2 and other OCMOD modules that omit column values keep working and admin saves cannot lose data under server-level strict mode. Strict mode remains available as an explicit opt-in (`codecart_db_strict_mode = 1`) for stores whose extensions are verified against it.
-- The 13 UniShop2 v3.6.6.0 catalog operations whose old OpenCart/ocStore anchors no longer exist are implemented by `CodeCart\Core\Unishop2Compatibility` and reported by OCMOD diagnostics as compatibility-satisfied.
-- `webp_img.ocmod.zip` should not be installed on CodeCart because CodeCart has its own WebP/AVIF/image pipeline.
-- `fix_og.ocmod.zip` is not required on CodeCart because CodeCart already implements OG image handling.
-- `unishop2_tool.ocmod.zip` is optional demo/import tooling and is not required for production compatibility.
+On a staging copy, follow the original theme instructions: install `unishop2_fix.ocmod.zip`, refresh Modifications, install `unishop2_v3.6.6.0.ocmod.zip`, install/enable/configure the theme, then refresh Modifications again. Review diagnostics and test product options, gallery, categories, menu, cart and checkout before production activation.
 
-OFF means OFF
-The UniShop2 adapter runs only when `config_theme=unishop2` and the theme is enabled. Merely having UniShop2 files installed does not change the catalog behavior.
+CodeCart provides installer path expansion, Twig loader behavior and a built-in adapter for legacy menu/category/product option/banner contracts. The adapter runs only when `config_theme=unishop2`, its settings exist and the theme is not disabled. Installation of unused theme files does not activate it. See the [developer guide](COMPATIBILITY_FRAMEWORK.md).
+
+Do not install the optional `webp_img.ocmod.zip`: CodeCart has its own image pipeline. `fix_og.ocmod.zip` is unnecessary because CodeCart provides OpenGraph handling. `unishop2_tool.ocmod.zip` is optional demo/import tooling, not a production requirement. Default SQL connection mode follows OpenCart compatibility; strict mode is opt-in after extension testing.
+
+Framework/OCMOD contracts and a focused missing-news HTTP scenario were checked. The latter used original controller/model files, a minimal empty news schema and CodeCart Theme. These checks do not certify the complete commercial UniShop2 UI or every module combination. Third-party theme source is not bundled with CodeCart.
+
+Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)

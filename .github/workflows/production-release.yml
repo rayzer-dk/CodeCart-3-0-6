@@ -102,13 +102,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          items=(upload documentation tools composer.json composer.lock)
-          [ -d bonuses ] && items+=(bonuses)
-          [ -f README_FIRST.txt ] && items+=(README_FIRST.txt)
-          [ -f README.md ] && items+=(README.md)
-          [ -f CHANGELOG.md ] && items+=(CHANGELOG.md)
-          [ -f THIRD_PARTY_DEPENDENCIES.json ] && items+=(THIRD_PARTY_DEPENDENCIES.json)
-          zip -qr artifacts/CodeCart_PRO_3.0.6.0_PRODUCTION.zip "${items[@]}"
+          python3 tools/package_production.py --output artifacts
 
       - name: Checksums
         run: sha256sum artifacts/*.zip | tee artifacts/SHA256SUMS.txt
