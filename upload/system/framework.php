@@ -314,6 +314,11 @@ if ($config->has('action_pre_action')) {
 $route->dispatch(new Action($config->get('action_router')), new Action($config->get('action_error')));
 
 // Output
+// Optional aggregate content-404 report. OFF does not instantiate the service or query DB.
+if (!defined('DIR_CATALOG') && !defined('DIR_OPENCART') && PHP_SAPI !== 'cli' && !defined('CODECART_CLI') && $config->get('codecart_lost_url_status') && $response->getStatusCode() === 404 && stripos((string)$response->getOutput(), '<html') !== false) {
+    try { (new \CodeCart\Core\LostUrlMonitor($registry))->record((array)$_SERVER, (array)$registry->get('request')->get); }
+    catch (\Throwable $e) { if ($log) { $log->write('CodeCart lost URL report: ' . get_class($e)); } }
+}
 $response->output();
 
 // Lightweight traffic heartbeat. Register it for shutdown so normal page output

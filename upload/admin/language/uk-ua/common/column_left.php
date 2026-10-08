@@ -152,3 +152,5 @@ $_['text_abandoned_cart'] = 'Покинуті кошики';
 $_['text_auto_relation'] = 'Автозв’язки';
 
 $_['text_stock_notify'] = 'Очікують надходження';
+
+$_['text_lost_urls'] = 'Втрачені адреси (404)';

@@ -88,3 +88,5 @@ $_['text_blog_category'] = 'Категории блога';
 $_['text_blog_review'] = 'Отзывы блога';
 $_['text_blog_setting'] = 'Настройки блога';
 $_['text_blog'] = 'Блог';
+
+$_['text_lost_urls'] = 'Потерянные адреса (404)';

@@ -1,0 +1,12 @@
+.ccp-lost-url-report .page-header h1{font-size:24px}
+.ccp-lost-url-report .ccp-toolbar{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.ccp-lost-url-report .ccp-toolbar label{margin:0}
+.ccp-lost-url-report .ccp-filters{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.ccp-lost-url-report .ccp-filters>div{flex:1 1 180px}
+.ccp-lost-url-report .ccp-url{min-width:230px;max-width:420px;overflow-wrap:anywhere}
+.ccp-lost-url-report .ccp-url code{white-space:normal;overflow-wrap:anywhere}
+.ccp-lost-url-report .ccp-referrer{max-width:260px;overflow-wrap:anywhere}
+.ccp-lost-url-report .ccp-row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.ccp-lost-url-report summary{cursor:pointer;color:#17629b;padding:5px 0}
+.ccp-lost-url-report details form{max-width:360px;padding:8px;background:#f4f8fb}
+.ccp-lost-url-report .panel-footer .pagination{margin:0;vertical-align:middle}

@@ -28,6 +28,15 @@ class Response {
 		$this->headers[] = $header;
 	}
 
+	/** Effective status, including OpenCart 3 legacy HTTP status headers. */
+	public function getStatusCode() {
+		$status = $this->status_code ?: (int)http_response_code();
+		foreach ($this->headers as $header) {
+			if (preg_match('~^HTTP/[0-9.]+\s+([1-5][0-9]{2})(?:\s|$)~i', $header, $match)) { $status = (int)$match[1]; }
+		}
+		return $status ?: 200;
+	}
+
 	/**
 	 * Set an HTTP status without hard-coding an HTTP/1.x status line.
 	 * This is protocol-neutral and works correctly behind HTTP/2/HTTP/3 proxies.

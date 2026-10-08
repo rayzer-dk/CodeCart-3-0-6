@@ -45,15 +45,15 @@ class ControllerCronCodeCart extends Controller {
                 try { $result = array('scheduler_one' => $scheduler->runOne($schedulerId)); }
                 catch (\Throwable $e) { $result = array('scheduler_one' => array('success' => false, 'status' => 'error', 'message' => $e->getMessage(), 'duration_ms' => 0)); }
             }
-        } elseif ($mode === 'key' && (PHP_SAPI === 'cli' || defined('CODECART_CLI'))) {
+        } elseif ($mode === 'key' && (PHP_SAPI === 'cli' || (defined('CODECART_CLI') && CODECART_CLI))) {
             $result = array('codecart_scheduler_key' => (string)$this->config->get('codecart_scheduler_key'));
-        } elseif ($mode === 'db_preflight' && (PHP_SAPI === 'cli' || defined('CODECART_CLI'))) {
+        } elseif ($mode === 'db_preflight' && (PHP_SAPI === 'cli' || (defined('CODECART_CLI') && CODECART_CLI))) {
             $modernizer = new \CodeCart\Core\DatabaseModernizer($this->registry);
             $result = array('database' => $modernizer->preflight());
-        } elseif ($mode === 'styles_rebuild' && (PHP_SAPI === 'cli' || defined('CODECART_CLI'))) {
+        } elseif ($mode === 'styles_rebuild' && (PHP_SAPI === 'cli' || (defined('CODECART_CLI') && CODECART_CLI))) {
             $compiler = new \CodeCart\Core\StyleCompiler();
             $result = array('styles' => $compiler->rebuild());
-        } elseif ($mode === 'db_migrate' && (PHP_SAPI === 'cli' || defined('CODECART_CLI'))) {
+        } elseif ($mode === 'db_migrate' && (PHP_SAPI === 'cli' || (defined('CODECART_CLI') && CODECART_CLI))) {
             if (empty($this->request->get['backup_confirmed'])) {
                 $result = array('database' => array('changed' => array(), 'skipped' => array(), 'errors' => array(array('table' => '', 'error' => 'Verified database backup confirmation is required.'))));
             } else {
@@ -74,9 +74,9 @@ class ControllerCronCodeCart extends Controller {
     }
 
     private function isAuthorized() {
-        if (PHP_SAPI === 'cli' || defined('CODECART_CLI')) { return true; }
+        if (PHP_SAPI === 'cli' || (defined('CODECART_CLI') && CODECART_CLI)) { return true; }
         $expected = (string)$this->config->get('codecart_scheduler_key');
-        $provided = isset($this->request->get['key']) ? (string)$this->request->get['key'] : '';
+        $provided = isset($this->request->get['key']) && is_string($this->request->get['key']) ? $this->request->get['key'] : '';
         return $expected !== '' && $provided !== '' && hash_equals($expected, $provided);
     }
 }

@@ -13,6 +13,12 @@ class ControllerStartupSeoUrl extends Controller {
 	//seopro end
 	
 	public function index() {
+		if ($this->config->get('codecart_lost_url_status')) {
+			try {
+				$target = (new \CodeCart\Core\LostUrlMonitor($this->registry))->redirect((array)$_SERVER);
+				if ($target !== null) { $this->response->redirect($target, 301); return; }
+			} catch (\Throwable $e) { $this->log->write('CodeCart lost URL redirect: ' . get_class($e)); }
+		}
 
 		// SEO aliases and language prefixes are independent features. The master
 		// SEO URL switch must disable alias decoding/rewriting even when language

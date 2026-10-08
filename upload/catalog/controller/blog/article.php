@@ -482,6 +482,12 @@ class ControllerBlogArticle extends Controller {
 			$data['continue'] = $this->url->link('common/home');
 
 			$this->response->setStatusCode(404);
+            $this->load->language('error/not_found');
+            $this->document->setRobots('noindex,follow');
+            $this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css');
+            $data['heading_title'] = $this->language->get('heading_title');
+            $data['text_error'] = $this->language->get('text_error');
+            $data['search'] = $this->url->link('product/search');
 
 			$data['column_left'] = $this->load->controller('common/column_left');
 			$data['column_right'] = $this->load->controller('common/column_right');

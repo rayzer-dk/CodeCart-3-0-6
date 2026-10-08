@@ -39,6 +39,7 @@ class ControllerStartupPermission extends Controller {
 			// Catalog transfer is a dedicated endpoint of the Backup / Restore page.
 			// Reuse the existing tool/backup access permission so upgrades do not
 			// require administrators to edit every user group manually.
+			if ($route === 'report/lost_url') { $route = 'report/online'; }
 			if ($route === 'tool/catalog_transfer') {
 				$route = 'tool/backup';
 			}

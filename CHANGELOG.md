@@ -1,3 +1,13 @@
+# Build 2.0.2 — 2026-10-08
+
+- Add opt-in lost-content 404 report with browser/session deduplication, separate bot counts, meaningful-request filters, store/language scope and persistent storage.
+- Add manual slug-only 301 redirects, with live-source priority, target SEO checks and redirect pagination.
+- Add selectable 30/60/90-day retention with safe/all cleanup modes; preserve all manual redirects.
+- Recognize the verified UniShop2 article route information/uni_news_story.
+- Register daily bounded cleanup in the shared scheduler when enabled; OFF stops all working paths and retains data.
+- Correct web cron authentication: a false CODECART_CLI constant no longer grants CLI privileges.
+- Apply the styled error page to missing native blog articles.
+
 # Build 2.0.1 — 2026-10-08
 
 - Added responsive 404 and maintenance pages to both bundled themes, including dark mode and translated navigation.

@@ -94,3 +94,5 @@ $_['text_blog_category'] = 'Blog categories';
 $_['text_blog_review'] = 'Blog reviews';
 $_['text_blog_setting'] = 'Blog settings';
 $_['text_blog'] = 'Blog';
+
+$_['text_lost_urls'] = 'Lost URLs (404)';

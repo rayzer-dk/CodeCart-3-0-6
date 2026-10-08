@@ -728,6 +728,7 @@ class ControllerCommonColumnLeft extends Controller {
 			}
 
 			if ($this->user->hasPermission('access', 'report/online')) {
+                $report[] = array('name'=>$this->language->get('text_lost_urls'), 'href'=>$this->url->link('report/lost_url', 'user_token='.$this->session->data['user_token'], true), 'children'=>array());
 				$report[] = array(
 					'name'	   => $this->language->get('text_online'),
 					'href'     => $this->url->link('report/online', 'user_token=' . $this->session->data['user_token'], true),

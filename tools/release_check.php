@@ -193,6 +193,9 @@ if ($errors) {
     exit(1);
 }
 
+passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tools/qa_lost_urls.php'), $lostUrlCode);
+if ($lostUrlCode !== 0) { fail($errors, 'Lost URL filters, privacy and OFF contract'); exit(1); }
+
 passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tools/qa_error_pages.php'), $errorPageCode);
 if ($errorPageCode !== 0) {
     fail($errors, 'Standalone error pages must render safely without database or Twig');
