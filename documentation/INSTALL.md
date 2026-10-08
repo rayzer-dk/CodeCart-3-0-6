@@ -1,4 +1,4 @@
-# Installation — Build 2.0.3
+# Installation — Build 2.0.4
 
 [Українська](INSTALL.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 

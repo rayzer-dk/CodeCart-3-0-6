@@ -22,8 +22,3 @@ $_['text_view']                    = 'Детальніше...';
 
 // Error
 $_['error_install']                = 'Папка інсталяції досі існує! Зайдіть по FTP та видаліть папку install';
-$_['community_title'] = 'Спільнота CodeCart PRO';
-$_['community_intro'] = 'Питання, ідеї та обмін досвідом — долучайтеся до спільноти в Telegram.';
-$_['community_join'] = 'Відкрити форум Telegram';
-$_['community_repository'] = 'Репозиторій GitHub';
-$_['community_contact'] = 'Підтримка та пропозиції';

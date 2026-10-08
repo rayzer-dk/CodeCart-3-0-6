@@ -1,4 +1,4 @@
-# Планувальник — Build 2.0.3
+# Планувальник — Build 2.0.4
 
 [English](SCHEDULER.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 

@@ -1,4 +1,4 @@
-# nginx + PHP-FPM — Build 2.0.3
+# nginx + PHP-FPM — Build 2.0.4
 
 [Українська](NGINX.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 

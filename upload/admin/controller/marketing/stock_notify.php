@@ -19,7 +19,7 @@ class ControllerMarketingStockNotify extends Controller {
         $data['rows'] = $this->model_marketing_stock_notify->getRows($filter);
         $data['total'] = $this->model_marketing_stock_notify->getTotal($filter);
         $data['heading_title'] = $this->language->get('heading_title');
-        foreach (array('column_product','column_email','column_status','column_store','column_date','column_sent','text_no_results','text_all','text_waiting','text_processing','text_sent','text_failed','button_filter','button_delete','button_retry','entry_product','entry_email','entry_status','entry_store','entry_limit','text_confirm','text_main_store') as $k) { $data[$k]=$this->language->get($k); }
+        foreach (array('column_product','column_email','column_status','column_store','column_date','column_sent','text_no_results','text_all','text_waiting','text_processing','text_sent','text_failed','button_filter','button_delete','button_retry','entry_product','entry_email','entry_status','entry_store','entry_limit','text_confirm','text_main_store','help_subscriptions') as $k) { $data[$k]=$this->language->get($k); }
         $data['user_token'] = $this->session->data['user_token'];
         $data['filter_product']=$filter_product; $data['filter_email']=$filter_email; $data['filter_status']=$filter_status; $data['filter_store_id']=$filter_store_id; $data['limit']=$limit; $data['sort']=$sort; $data['order']=$order;
         $data['stores'] = $this->model_setting_store->getStores();

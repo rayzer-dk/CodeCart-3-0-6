@@ -1422,7 +1422,7 @@ html.ccp-theme-dark .ccq-heading p,html.ccp-theme-dark .ccq-placeholder,html.ccp
 .ccq-payment-option.radio{margin:0}
 .ccq-payment-option.radio label{display:flex;align-items:center;gap:10px;width:100%;min-height:66px;margin:0;padding:10px 12px;border:1px solid var(--ccp-store-border);border-radius:10px;background:var(--ccp-store-background);cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,background .15s ease,transform .15s ease}
 .ccq-payment-option.radio label:hover{border-color:color-mix(in srgb,var(--ccp-store-accent) 55%,var(--ccp-store-border));transform:translateY(-1px)}
-.ccq-payment-option.radio input{margin:0;flex:0 0 auto}
+.ccq-payment-option.radio input[type="radio"]{position:static;margin:0;flex:0 0 auto}
 .ccq-payment-option.is-selected label{border-color:var(--ccp-store-accent);background:color-mix(in srgb,var(--ccp-store-accent) 7%,var(--ccp-store-background));box-shadow:0 0 0 2px color-mix(in srgb,var(--ccp-store-accent) 13%,transparent)}
 .ccq-payment-icon{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:9px;background:color-mix(in srgb,var(--ccp-store-accent) 11%,var(--ccp-store-background));color:var(--ccp-store-accent);font-size:17px;flex:0 0 38px}
 .ccq-payment-copy{display:flex;min-width:0;flex-direction:column;line-height:1.25}.ccq-payment-copy strong{font-size:13px}.ccq-payment-copy small{margin-top:3px;color:var(--ccp-store-text);font-weight:400}
@@ -1471,7 +1471,7 @@ html.ccp-theme-dark .product-thumb .price-tax{color:#aab6c4!important}
 .ccp-blog-page .ccp-blog-main-gallery .image-additional{float:left;width:72px;max-width:72px;margin:0 8px 8px 0}
 .ccp-blog-page .ccp-blog-main-gallery .image-additional .thumbnail{display:flex;align-items:center;justify-content:center;width:72px;height:72px;margin:0;padding:4px;background:var(--ccp-store-surface,#fff);border-color:var(--ccp-store-border,#ddd);overflow:hidden}
 .ccp-blog-page .ccp-blog-main-gallery .image-additional img{max-width:100%;max-height:100%;object-fit:contain}
-.ccp-blog-page .ccp-blog-article-content{min-width:0}
+.ccp-blog-page .ccp-blog-article-content{min-width:0;background:transparent}.ccp-blog-page .ccp-blog-article-content .ccp-blog-copy{background:transparent}
 .ccp-blog-page .ccp-blog-article-content:after{content:"";display:block;clear:both}
 .ccp-blog-page .ccp-blog-article-content h1{margin-top:0}
 .ccp-blog-page .ccp-blog-copy{font-size:14px;line-height:1.68}
@@ -2256,7 +2256,7 @@ html.ccp-theme-dark #checkout-checkout .ccp-commerce-modern #accordion .btn-defa
 /* CodeCart PRO: dark-mode normalization for blog article HTML with inline light styles. */
 html.ccp-theme-dark .ccp-blog-article-content,
 html.ccp-theme-dark .ccp-blog-article-content .ccp-blog-copy{
-  background:var(--ccp-store-surface,#1a212b)!important;
+  background:transparent!important;
   color:var(--ccp-store-text,#d8dee9)!important;
   border-color:var(--ccp-store-border,#303a47)!important;
 }

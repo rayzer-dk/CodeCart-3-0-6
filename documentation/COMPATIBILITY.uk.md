@@ -1,4 +1,4 @@
-# Сумісність — Build 2.0.3
+# Сумісність — Build 2.0.4
 
 [English](COMPATIBILITY.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 

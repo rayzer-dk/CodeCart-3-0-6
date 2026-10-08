@@ -20,7 +20,7 @@ class ControllerCommonHeader extends Controller {
             $this->document->addLink($icon_url, 'icon');
             $data['has_store_favicon'] = true;
         }
-        $data['package_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '2.0.3';
+        $data['package_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '2.0.4';
         $data['current_route'] = isset($this->request->get['route']) ? (string)$this->request->get['route'] : '';
 
         $data['description'] = $this->document->getDescription();
@@ -40,7 +40,7 @@ class ControllerCommonHeader extends Controller {
         $data['lang'] = $this->language->get('code');
         $data['direction'] = $this->language->get('direction');
         $data['codecart_homepage'] = 'https://codecartpro.com/';
-        $data['codecart_forum'] = 'https://opencartforum.com/forum/codecart-pro-3.0.6';
+        $data['codecart_forum'] = \CodeCart\Core\Community::TELEGRAM;
         $data['codecart_documentation'] = rtrim($data['base'], '/') . '/view/documentation/CodeCart_PRO_Documentation.zip';
 
         $admin_colors = array(

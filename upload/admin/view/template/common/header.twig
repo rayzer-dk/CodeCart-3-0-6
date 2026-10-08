@@ -84,7 +84,8 @@
           <li class="dropdown-header">{{ text_help }}</li>
           <li><a href="{{ codecart_homepage }}" target="_blank" rel="noopener"><i class="fa fa-globe fa-fw"></i> {{ text_homepage }}</a></li>
           <li><a href="{{ codecart_documentation }}" download><i class="fa fa-file-archive-o fa-fw"></i> {{ text_documentation }}</a></li>
-          <li><a href="{{ codecart_forum }}" target="_blank" rel="noopener"><i class="fa fa-comments-o fa-fw"></i> {{ text_support }}</a></li>
+          <li><a href="#ccp-project-support-modal" data-toggle="modal"><i class="fa fa-heart fa-fw"></i> {{ text_project_support_header }}</a></li>
+          <li><a href="{{ codecart_forum|e }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-comments fa-fw"></i> {{ text_telegram_forum }}</a></li>
         </ul>
       </li>
       <li><a href="{{ logout }}"><i class="fa fa-sign-out"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_logout }}</span></a></li>

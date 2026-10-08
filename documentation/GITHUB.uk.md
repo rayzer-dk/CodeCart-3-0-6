@@ -1,4 +1,4 @@
-# Публікація вихідного коду GitHub — Build 2.0.3
+# Публікація вихідного коду GitHub — Build 2.0.4
 
 [English](GITHUB.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 

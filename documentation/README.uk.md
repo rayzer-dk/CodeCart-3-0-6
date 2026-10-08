@@ -1,4 +1,4 @@
-# Документація CodeCart PRO — Build 2.0.3
+# Документація CodeCart PRO — Build 2.0.4
 
 [English](README.md) · [Проєкт](../README.uk.md) · [Приєднатися до спільноти CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)
 
@@ -18,3 +18,5 @@
 | Публікація коду | [GitHub](GITHUB.uk.md) | [GitHub](GITHUB.md) |
 
 Основний код: [CodeCartPro/CodeCartPro-3.0.6.0](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0). Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com). Встановлення та покращення обговорюємо у [спільноті CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy).
+
+[Демонстрація вітрини та доступ до адмінпанелі](DEMO.uk.md)

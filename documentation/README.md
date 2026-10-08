@@ -1,4 +1,4 @@
-# CodeCart PRO documentation — Build 2.0.3
+# CodeCart PRO documentation — Build 2.0.4
 
 [Українська](README.uk.md) · [Project](../README.md) · [Join the CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
 
@@ -18,3 +18,5 @@
 | Source publishing | [GitHub](GITHUB.md) | [GitHub](GITHUB.uk.md) |
 
 Canonical source: [CodeCartPro/CodeCartPro-3.0.6.0](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0). Support: [support@codecartpro.com](mailto:support@codecartpro.com). Discuss installation and improvements in the [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy).
+
+[Demo storefront and administrator access](DEMO.md)

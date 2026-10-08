@@ -1,3 +1,13 @@
+# Build 2.0.4 — 2026-10-08
+
+- Fix newsletter template buttons, HTML round trips and safe transient HTML import from a computer.
+- Keep sidebar hover spacing stable; separate checkout radio controls from method icons.
+- Align the installer login hint and update Ukrainian wording.
+- Move community navigation to the administrator profile menu and footer.
+- Match article backgrounds to the storefront; refresh the Ukrainian presentation article and coupon names.
+- Use the supplied storefront screenshot as the CodeCart theme preview.
+- Add English and Ukrainian demo access guides.
+
 # Build 2.0.3 — 2026-10-08
 
 - Highlight the Telegram community, repository and support contacts in the administrator dashboard and footer.

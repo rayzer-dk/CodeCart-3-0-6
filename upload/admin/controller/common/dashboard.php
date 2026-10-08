@@ -2,11 +2,6 @@
 class ControllerCommonDashboard extends Controller {
 	public function index() {
 		$this->load->language('common/dashboard');
-		$this->document->addStyle('view/stylesheet/codecart-community.css');
-		foreach (array('community_title','community_intro','community_join','community_repository','community_contact') as $key) { $data[$key] = $this->language->get($key); }
-		$data['community_url'] = \CodeCart\Core\Community::TELEGRAM;
-		$data['community_repository_url'] = \CodeCart\Core\Community::REPOSITORY;
-		$data['community_email'] = \CodeCart\Core\Community::EMAIL;
 
 		$this->document->setTitle($this->language->get('heading_title'));
 

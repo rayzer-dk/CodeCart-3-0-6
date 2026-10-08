@@ -951,9 +951,9 @@ CREATE TABLE `oc_coupon` (
 --
 
 INSERT INTO `oc_coupon` (`coupon_id`, `name`, `code`, `type`, `discount`, `logged`, `shipping`, `total`, `date_start`, `date_end`, `uses_total`, `uses_customer`, `status`, `date_added`) VALUES
-(4, '-10% Discount', '2222', 'P', '10.0000', 0, 0, '0.0000', '2014-01-01', '2020-01-01', 10, '10', 0, '2009-01-27 13:55:03'),
-(5, 'Free Shipping', '3333', 'P', '0.0000', 0, 1, '100.0000', '2014-01-01', '2014-02-01', 10, '10', 0, '2009-03-14 21:13:53'),
-(6, '-10.00 Discount', '1111', 'F', '10.0000', 0, 0, '10.0000', '2014-01-01', '2020-01-01', 100000, '10000', 0, '2009-03-14 21:15:18');
+(4, 'Знижка 10%', '2222', 'P', '10.0000', 0, 0, '0.0000', '2014-01-01', '2020-01-01', 10, '10', 0, '2009-01-27 13:55:03'),
+(5, 'Безкоштовна доставка', '3333', 'P', '0.0000', 0, 1, '100.0000', '2014-01-01', '2014-02-01', 10, '10', 0, '2009-03-14 21:13:53'),
+(6, 'Знижка 10 ₴', '1111', 'F', '10.0000', 0, 0, '10.0000', '2014-01-01', '2020-01-01', 100000, '10000', 0, '2009-03-14 21:15:18');
 
 -- --------------------------------------------------------
 --
@@ -9468,66 +9468,43 @@ KEY `name` (`name`(191))
 --
 
 INSERT INTO `oc_article_description` (`article_id`, `language_id`, `name`, `description`, `meta_description`, `meta_keyword`, `meta_title`, `meta_h1`, `tag`) VALUES
-(120, 1, 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', '&lt;h2 id=&quot;about&quot;&gt;CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;#about&quot;&gt;Про систему&lt;/a&gt; · &lt;a href=&quot;#difference&quot;&gt;Відмінності&lt;/a&gt; · &lt;a href=&quot;#commerce&quot;&gt;Комерція&lt;/a&gt; · &lt;a href=&quot;#compatibility&quot;&gt;Сумісність&lt;/a&gt; · &lt;a href=&quot;#seo&quot;&gt;SEO&lt;/a&gt; · &lt;a href=&quot;#security&quot;&gt;Безпека&lt;/a&gt; · &lt;a href=&quot;#result&quot;&gt;Для кого&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;CodeCart PRO 3.0.6.0&lt;/strong&gt; — це модернізована e-commerce платформа на основі екосистеми OpenCart 3.x. Її мета — зберегти сумісність зі звичними модулями, OCMOD, Events і MVC-L, але додати сучасний шар для безпечних оновлень, черг, планувальника, API, Modern Extensions, Compatibility Framework, продуктивності та стабільної роботи магазину.&lt;/p&gt;
-&lt;p&gt;CodeCart не намагається замінити робочу екосистему радикально новим стеком. Замість цього використовується принцип &lt;strong&gt;Legacy Core + Modern Core&lt;/strong&gt;: старі розширення продовжують працювати у знайомому середовищі, а нові можуть використовувати namespace, PSR-4, сервіси, manifests і стабільні точки розширення.&lt;/p&gt;
-
-&lt;h3 id=&quot;difference&quot;&gt;Чим CodeCart відрізняється від OpenCart та ocStore&lt;/h3&gt;
-&lt;div class=&quot;table-responsive&quot;&gt;
-&lt;table class=&quot;table table-bordered table-striped&quot;&gt;
-&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Можливість&lt;/th&gt;&lt;th&gt;OpenCart 3.0.5.x&lt;/th&gt;&lt;th&gt;ocStore 3.0.5.x&lt;/th&gt;&lt;th&gt;CodeCart PRO 3.0.6.x&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;&lt;td&gt;PHP&lt;/td&gt;&lt;td&gt;PHP 8.0–8.4&lt;/td&gt;&lt;td&gt;PHP 8.0–8.5&lt;/td&gt;&lt;td&gt;&lt;strong&gt;PHP 8.1–8.5&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Архітектура розширень&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;MVC-L, OCMOD, Events&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Legacy + Modern Extensions, PSR-4, Services, manifests&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Оновлення системи&lt;/td&gt;&lt;td&gt;Класичний installer&lt;/td&gt;&lt;td&gt;Класичний installer&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Installer 2.0, preflight, контрольована міграція та повторний запуск&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Надійність checkout&lt;/td&gt;&lt;td&gt;Стандартна логіка&lt;/td&gt;&lt;td&gt;Стандартна логіка&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Транзакції, блокування, idempotency, захист повторних callback&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Черги та автоматизація&lt;/td&gt;&lt;td&gt;Переважно через модулі&lt;/td&gt;&lt;td&gt;Переважно через модулі&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Queue, Scheduler, CLI Worker та Cron layer&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Сумісність сторонніх тем&lt;/td&gt;&lt;td&gt;Нативна для своєї версії&lt;/td&gt;&lt;td&gt;Нативна для ocStore&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Compatibility Framework і встановлювані adapters&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;SEO URL&lt;/td&gt;&lt;td&gt;Стандартні SEO URL&lt;/td&gt;&lt;td&gt;SEO URL + SeoPro&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Стандартні SEO URL + SeoPro + динамічні мовні префікси&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Зображення&lt;/td&gt;&lt;td&gt;Базова обробка&lt;/td&gt;&lt;td&gt;Базова обробка&lt;/td&gt;&lt;td&gt;&lt;strong&gt;WebP/AVIF-ready pipeline, сучасні image hooks&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Адмінка та діагностика&lt;/td&gt;&lt;td&gt;Класична&lt;/td&gt;&lt;td&gt;Класична&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Core diagnostics, compatibility scanner, глобальний пошук, системні повідомлення&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;Безпека&lt;/td&gt;&lt;td&gt;Базові механізми&lt;/td&gt;&lt;td&gt;Розширені локальні правки&lt;/td&gt;&lt;td&gt;&lt;strong&gt;Security headers, upload guard, rate limits, secret handling, аудит критичних дій&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;h3 id=&quot;commerce&quot;&gt;Commerce-first: надійність продажів&lt;/h3&gt;
-&lt;p&gt;Для магазину важливо не лише швидко показати сторінку, а й гарантовано створити одне замовлення, один раз списати залишок і не застосувати купон або платіжний callback повторно. У CodeCart посилено критичні ділянки checkout: транзакції, блокування конкурентних змін, idempotency, повернення залишків, ваучери, купони та журналювання помилок.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;захист від подвійного натискання Confirm;&lt;/li&gt;
-&lt;li&gt;захист від повторного webhook або callback;&lt;/li&gt;
-&lt;li&gt;контроль залишків при паралельних замовленнях;&lt;/li&gt;
-&lt;li&gt;безпечне скасування і повернення зарезервованих даних;&lt;/li&gt;
-&lt;li&gt;постійні черги для фонових задач.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;compatibility&quot;&gt;Сумісність без повернення старого ядра&lt;/h3&gt;
-&lt;p&gt;CodeCart підтримує звичайні OpenCart 3.x модулі та одночасно має &lt;strong&gt;Compatibility Framework&lt;/strong&gt;. Якщо популярна тема очікує старі внутрішні контракти, для неї можна підключити окремий adapter без переписування Core. Практичний приклад — UniShop2: адаптер відновлює необхідні контракти меню, категорій, опцій та банерів, але не повертає старі N+1 алгоритми.&lt;/p&gt;
-&lt;p&gt;При оновленні існуючого OpenCart або ocStore активна тема магазину зберігається. CodeCart Theme додається окремо і не повинна самовільно замінювати оформлення чинного магазину.&lt;/p&gt;
-
-&lt;h3 id=&quot;seo&quot;&gt;SEO, ЧПУ та мультимовність&lt;/h3&gt;
-&lt;p&gt;У CodeCart є два рівні URL. &lt;strong&gt;ЧПУ&lt;/strong&gt; — базовий механізм красивих SEO URL. &lt;strong&gt;SeoPro&lt;/strong&gt; — розширений маршрутизатор, який додає роботу зі шляхами категорій, canonical-логікою, суфіксами та додатковими правилами. Для мультимовного магазину мовні префікси визначаються динамічно: головна мова може працювати без префікса, а інші — з довільними папками.&lt;/p&gt;
-&lt;p&gt;Система також орієнтована на canonical URL, sitemap, структуровані дані, коректну індексацію, SEO URL для товарів, категорій, виробників, інформаційних сторінок і блогу.&lt;/p&gt;
-
-&lt;h3 id=&quot;performance&quot;&gt;Швидкість і сучасна вітрина&lt;/h3&gt;
-&lt;p&gt;CodeCart зберігає легку серверну модель OpenCart, але оптимізує типові вузькі місця: пакетне завантаження категорій, контрольоване кешування, lazy-loading, сучасні формати зображень і підключення CSS/JavaScript лише там, де вони потрібні. Вітрина залишається сумісною з Bootstrap 3-модулями, але отримує сучасні адаптивні компоненти.&lt;/p&gt;
-
-&lt;h3 id=&quot;security&quot;&gt;Безпека та контроль&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;валідація admin/AJAX/API дій і user_token;&lt;/li&gt;
-&lt;li&gt;безпечна робота з SQL та whitelist для динамічних полів;&lt;/li&gt;
-&lt;li&gt;UploadGuard і перевірка типів файлів;&lt;/li&gt;
-&lt;li&gt;rate limiting для публічних endpoint;&lt;/li&gt;
-&lt;li&gt;захищене зберігання секретів без повернення API-ключів у DOM;&lt;/li&gt;
-&lt;li&gt;діагностика без показу відвідувачу абсолютних шляхів і raw PHP errors.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;extensions&quot;&gt;Modern Extensions&lt;/h3&gt;
-&lt;p&gt;Нові розширення можуть використовувати Modern Extension Registry. Це дозволяє встановлювати окремі пакети з manifest, власним namespace, permissions і compatibility adapters без постійного патчування ядра. При цьому звичайні OpenCart-модулі залишаються підтримуваними.&lt;/p&gt;
-
-&lt;h3 id=&quot;result&quot;&gt;Для кого CodeCart&lt;/h3&gt;
-&lt;p&gt;CodeCart підходить магазинам, яким потрібна знайома екосистема OpenCart 3.x, але з більш сучасною основою для довготривалої роботи. Це не повний розрив із OpenCart, а контрольована еволюція: старі модулі можуть продовжувати працювати, а нові функції отримують сучасні контракти, діагностику, автоматизацію та безпечніше оновлення.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Головна ідея:&lt;/strong&gt; магазин має залишатися легким, сумісним і передбачуваним, але при цьому бути готовим до сучасних вимог SEO, безпеки, автоматизації, API та масштабування.&lt;/p&gt;', 'CodeCart PRO 3.0.6.0 — сучасна основа OpenCart 3.x з безпечними оновленнями, Modern Extensions, SEO, Compatibility Framework та надійним checkout.', 'codecart, opencart, ocstore, ecommerce, seo, modern extensions', 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', 'codecart, opencart, ocstore, ecommerce, seo'),
+(120, 1, 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', '&lt;h2&gt;CodeCart PRO: знайома екосистема OpenCart із сучасними можливостями&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;CodeCart PRO 3.0.6.0&lt;/strong&gt; — платформа для інтернет-магазинів, яка розвиває основу OpenCart 3.x та ocStore. Вона поєднує каталог, продажі, роботу з покупцями й контентом із власною адаптивною темою, оновленою адмінпанеллю, планувальником, постійними чергами та інструментами діагностики. Магазин отримує узгоджений набір можливостей без необхідності одразу змінювати звичну архітектуру модулів.&lt;/p&gt;
+&lt;p&gt;Система підходить для нового магазину та контрольованого оновлення наявного проєкту. Для чинного магазину важливо зберегти товари, замовлення, налаштування й оформлення. Тому оновлення має перевірку передумов, керовані міграції та режим відновлення файлів поточної збірки. Перед установленням або оновленням потрібна повна резервна копія сайту й бази даних.&lt;/p&gt;
+&lt;h2&gt;Що покращено порівняно з класичним робочим процесом OpenCart 3&lt;/h2&gt;
+&lt;p&gt;Головна перевага CodeCart — інтеграція інструментів, які в типовому магазині часто налаштовуються окремо. Адміністратор може перевіряти стан ядра, керувати фоновими завданнями, бачити проблемні модифікатори, аналізувати покинуті кошики й переглядати втрачені адреси в одній системі. Це скорочує кількість ручних дій і допомагає знайти причину проблеми до внесення наступної правки.&lt;/p&gt;
+&lt;div class=&quot;table-responsive&quot;&gt;&lt;table class=&quot;table table-bordered&quot;&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Завдання&lt;/th&gt;&lt;th&gt;Можливості CodeCart PRO&lt;/th&gt;&lt;th&gt;Практична користь&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;Оновлення магазину&lt;/td&gt;&lt;td&gt;Перевірка передумов, міграції, повторний запуск і відновлення поточної збірки&lt;/td&gt;&lt;td&gt;Зрозуміліший процес оновлення та контроль сумісності&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Фонові операції&lt;/td&gt;&lt;td&gt;Спільний планувальник, черги, CLI та журнал станів&lt;/td&gt;&lt;td&gt;Обробка завдань без одного довгого запиту в браузері&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Пошук проблем&lt;/td&gt;&lt;td&gt;Діагностика ядра, системні сповіщення, контроль модифікаторів&lt;/td&gt;&lt;td&gt;Простіше перевірити середовище, налаштування та причини збоїв&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Втрачені сторінки&lt;/td&gt;&lt;td&gt;Журнал фактичних 404, фільтрація шуму та ручні 301-редиректи&lt;/td&gt;&lt;td&gt;Можна відновити корисний контент або перенаправити старі посилання&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Сучасні розширення&lt;/td&gt;&lt;td&gt;Окремі пакети з manifest, namespace, сервісами та адаптерами&lt;/td&gt;&lt;td&gt;Розвиток нових функцій зі збереженням знайомих MVC-L, OCMOD та Events&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;
+&lt;h2&gt;Вітрина, якою зручно користуватися&lt;/h2&gt;
+&lt;p&gt;Штатна CodeCart Theme має адаптивне оформлення, світлий і темний режими, каталог із фільтрами та сортуванням, пошук, галереї товарів, опції, характеристики, відгуки, порівняння й закладки. Пов’язані товари та блоки рекомендацій допомагають покупцеві продовжити вибір, а блог дає змогу пояснити переваги товарів і відповісти на питання до покупки.&lt;/p&gt;
+&lt;p&gt;Оформлення замовлення показує товари, спосіб доставки, оплату й підсумки. Система зберігає знайомі точки інтеграції OpenCart для платіжних і логістичних модулів. Для критичних операцій посилено роботу з транзакціями, повторними запитами та залишками. Фактична поведінка конкретного способу оплати залежить також від його модуля й налаштувань, тому перед запуском потрібен тест повного замовлення.&lt;/p&gt;
+&lt;h2&gt;Адмінпанель і щоденна робота з продажами&lt;/h2&gt;
+&lt;p&gt;Оновлена адмінпанель поєднує каталог, замовлення, покупців, маркетинг, магазини та системні налаштування. Глобальний пошук і швидкі дії допомагають переходити до потрібних даних, а панель стану показує продажі, останню активність та питання, що потребують уваги. Темна тема доступна і для адмінпанелі.&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Товари, категорії, виробники, опції, атрибути та додаткові зображення.&lt;/li&gt;&lt;li&gt;Замовлення, статуси, історія, покупці та групи покупців.&lt;/li&gt;&lt;li&gt;Покинуті кошики для аналізу незавершених покупок.&lt;/li&gt;&lt;li&gt;Купони, акції, поштові шаблони й розсилки з фоновою обробкою.&lt;/li&gt;&lt;li&gt;Підписки на надходження відсутніх товарів: покупець залишає запит у картці товару, адміністратор бачить його стан.&lt;/li&gt;&lt;li&gt;Статті, категорії блогу, відгуки й інформаційні сторінки.&lt;/li&gt;&lt;/ul&gt;
+&lt;h2&gt;SEO, мови та робота зі старими посиланнями&lt;/h2&gt;
+&lt;p&gt;CodeCart підтримує SEO URL для основних сутностей магазину, розширену маршрутизацію SeoPro, canonical, мовні префікси та карти сайту. Префікси задаються відповідно до мов магазину, а не обмежуються одним жорстко заданим набором. Метадані, заголовки, описи й контент допомагають будувати зрозумілу структуру каталогу та блогу.&lt;/p&gt;
+&lt;p&gt;Окрема корисна можливість — &lt;strong&gt;журнал втрачених URL&lt;/strong&gt;. Після ручного ввімкнення він враховує фактичні HTML-відповіді 404, показує адресу, кількість звернень, дати та джерело переходу. Повторні звернення й корисні переходи виділяються для перевірки. Заявлені боти, сканери, технічні URL та запити до файлів фільтруються; браузерний запит при цьому не вважається гарантованим доказом реального відвідувача.&lt;/p&gt;
+&lt;p&gt;За результатами аналізу можна відновити сторінку, позначити запис як непотрібний або вручну створити 301-редирект на чинний SEO slug того самого магазину й мови. Автоматичного перенаправлення на випадкові сторінки немає. Передбачено зберігання записів 30, 60 або 90 днів, обмеження до 5000 адрес на магазин і пакетне очищення; правила редиректів зберігаються окремо.&lt;/p&gt;
+&lt;h2&gt;Зображення та швидкодія&lt;/h2&gt;
+&lt;p&gt;Система використовує кешовані розміри зображень, підтримує сучасний процес обробки WebP/AVIF за наявності потрібних можливостей сервера, відкладене завантаження та контрольоване підключення ресурсів. Це допомагає зменшити зайву роботу браузера й сервера. Підсумкова швидкість залежить від хостингу, каталогу, фотографій, сторонніх модулів і налаштувань кешу; однакові показники для всіх магазинів не обіцяються.&lt;/p&gt;
+&lt;h2&gt;Планувальник, черги та розширення&lt;/h2&gt;
+&lt;p&gt;Один серверний cron може запускати зареєстровані завдання спільного планувальника, а їхні інтервали налаштовуються всередині системи. Незалежні cron-команди сторонніх модулів залишаються окремими інтеграціями. Постійне зберігання стану черг допомагає продовжувати обробку після перерви, а журнали показують стан і помилки виконання.&lt;/p&gt;
+&lt;p&gt;Для розробників збережено MVC-L, Twig, OCMOD та Events. Додатково доступні Modern Extensions із власними namespace, manifests і сервісами, а Compatibility Framework дозволяє підключати ізольовані адаптери до старих контрактів тем. Наявність такого адаптера не означає автоматичну перевірку кожного стороннього модуля.&lt;/p&gt;
+&lt;h2&gt;Безпека та зрозумілі сторінки помилок&lt;/h2&gt;
+&lt;p&gt;Адміністративні дії перевіряють сесію, токен і права доступу. У системі передбачено контроль завантажень, діагностику середовища та захист службового сховища. Відвідувач отримує оформлені сторінки 404, технічного обслуговування й безпечний резервний екран 500 замість необроблених подробиць PHP-помилки. Адміністратор може дослідити технічну причину через журнали й діагностику.&lt;/p&gt;
+&lt;h2&gt;Технічні характеристики й межі сумісності&lt;/h2&gt;
+&lt;ul&gt;&lt;li&gt;Основа: екосистема OpenCart 3.x / ocStore, PHP, MySQL або MariaDB, Twig і Bootstrap 3.&lt;/li&gt;&lt;li&gt;Для сумісності з наявними модулями рекомендований діапазон PHP 8.1–8.3; ядро також перевіряється у CI на PHP 8.4 та 8.5.&lt;/li&gt;&lt;li&gt;Нові штатні таблиці використовують InnoDB та utf8mb4.&lt;/li&gt;&lt;li&gt;Інтерфейс підтримує українську, англійську та російську локалізації; мовний набір магазину налаштовується окремо.&lt;/li&gt;&lt;li&gt;Перевірки оновлення охоплюють ocStore 3.0.4.1, OpenCart 3.0.5.1 та ocStore 3.0.5.0-Beta.&lt;/li&gt;&lt;li&gt;Активні теми й налаштування чинних магазинів зберігаються під час оновлення; на чистому встановленні активується CodeCart Theme.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Комерційні теми, ionCube-пакети та інтеграції мають власні вимоги. Для UniShop2 перевірені контракти адаптера й окремий сценарій відсутньої статті; це не є сертифікацією повного оформлення та всіх поєднань модулів. Перед перенесенням робочого магазину варто перевірити його точну конфігурацію на тестовій копії.&lt;/p&gt;
+&lt;h2&gt;Що нового в актуальній серії збірок&lt;/h2&gt;
+&lt;p&gt;До останніх змін належать оформлені сторінки помилок, керований журнал втрачених адрес із ручними редиректами, захищений виклик cron, актуальні англійська й українська інструкції, посилання спільноти в адмінпанелі та перевірена упаковка залежностей. Виправлення інтерфейсу й функцій перевіряються разом із пов’язаними сценаріями, а готова збірка містить необхідні залежності для встановлення.&lt;/p&gt;
+&lt;h2&gt;Перегляньте демо та долучайтеся до спільноти&lt;/h2&gt;
+&lt;p&gt;Відкрийте &lt;a href=&quot;https://test.codecartpro.com/&quot;&gt;демонстраційну вітрину CodeCart PRO&lt;/a&gt; та &lt;a href=&quot;https://test.codecartpro.com/admin/&quot;&gt;демоадмінпанель&lt;/a&gt;. Публічний логін для демонстрації: &lt;strong&gt;Demo&lt;/strong&gt;, пароль: &lt;strong&gt;1234567890&lt;/strong&gt;. Приклади даних показують роботу інтерфейсу та не є справжніми комерційними операціями.&lt;/p&gt;
+&lt;p&gt;Основне місце для спілкування, обговорення функцій і пропозицій — &lt;a href=&quot;https://t.me/+tUZNEgY3aUk4MGIy&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;&lt;strong&gt;форум CodeCart PRO у Telegram&lt;/strong&gt;&lt;/a&gt;. Код і розвиток системи: &lt;a href=&quot;https://github.com/CodeCartPro/CodeCartPro-3.0.6.0&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;репозиторій GitHub&lt;/a&gt;. Підтримка та пропозиції: &lt;a href=&quot;mailto:support@codecartpro.com&quot;&gt;support@codecartpro.com&lt;/a&gt;.&lt;/p&gt;', 'CodeCart PRO 3.0.6.0: сучасне ядро OpenCart/ocStore, CodeCart Theme, SEO, безпека, черги та діагностика. Огляньте вітрину й адмінпанель демо.', 'CodeCart PRO, OpenCart, ocStore, інтернет-магазин, CodeCart Theme, SEO, PHP, демо', 'CodeCart PRO 3.0.6.0: ядро, тема, SEO та демо', 'CodeCart PRO 3.0.6.0 — сучасна основа для інтернет-магазину', 'CodeCart PRO, OpenCart, ocStore, SEO'),
 (120, 2, 'CodeCart PRO 3.0.6.0 — a modern foundation for online stores', '&lt;h2 id=&quot;about&quot;&gt;CodeCart PRO 3.0.6.0 — a modern foundation for online stores&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&quot;#about&quot;&gt;About&lt;/a&gt; · &lt;a href=&quot;#difference&quot;&gt;Differences&lt;/a&gt; · &lt;a href=&quot;#commerce&quot;&gt;Commerce&lt;/a&gt; · &lt;a href=&quot;#compatibility&quot;&gt;Compatibility&lt;/a&gt; · &lt;a href=&quot;#seo&quot;&gt;SEO&lt;/a&gt; · &lt;a href=&quot;#security&quot;&gt;Security&lt;/a&gt; · &lt;a href=&quot;#result&quot;&gt;Who it is for&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;CodeCart PRO 3.0.6.0&lt;/strong&gt; is a modernized e-commerce platform built on the OpenCart 3.x ecosystem. Its goal is to preserve compatibility with familiar modules, OCMOD, Events and MVC-L while adding a modern layer for safer upgrades, queues, scheduling, APIs, Modern Extensions, compatibility adapters, performance and commerce reliability.&lt;/p&gt;

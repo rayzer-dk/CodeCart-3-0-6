@@ -1,4 +1,4 @@
-CodeCart PRO 3.0.6.0 — Build 2.0.3
+CodeCart PRO 3.0.6.0 — Build 2.0.4
 
 ENGLISH
 Create and verify a complete website/database backup first.

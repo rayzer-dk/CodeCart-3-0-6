@@ -1,4 +1,4 @@
-# Встановлення — Build 2.0.3
+# Встановлення — Build 2.0.4
 
 [English](INSTALL.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 

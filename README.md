@@ -1,4 +1,4 @@
-# CodeCart PRO 3.0.6.0 — Build 2.0.3
+# CodeCart PRO 3.0.6.0 — Build 2.0.4
 
 CodeCart PRO is an e-commerce platform built on OpenCart/ocStore 3.x, with CodeCart Theme, compatibility adapters and optional lost URL monitoring.
 
@@ -19,3 +19,5 @@ Canonical repository: [CodeCartPro/CodeCartPro-3.0.6.0](https://github.com/CodeC
 Never publish real configuration files, credentials, API/license keys, runtime storage, sessions or customer data.
 
 Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [codecartpro.com](https://codecartpro.com) · [Join the community](https://t.me/+tUZNEgY3aUk4MGIy)
+
+[Storefront and administrator demo](documentation/DEMO.md)

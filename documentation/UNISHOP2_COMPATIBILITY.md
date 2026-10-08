@@ -1,4 +1,4 @@
-# UniShop2 compatibility — Build 2.0.3
+# UniShop2 compatibility — Build 2.0.4
 
 [Українська](UNISHOP2_COMPATIBILITY.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 

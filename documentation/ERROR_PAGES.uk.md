@@ -1,4 +1,4 @@
-# Сторінки помилок — Build 2.0.3
+# Сторінки помилок — Build 2.0.4
 
 [English](ERROR_PAGES.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 

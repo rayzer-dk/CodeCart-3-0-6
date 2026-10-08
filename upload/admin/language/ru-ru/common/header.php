@@ -29,3 +29,6 @@ $_['text_refresh_modifications_clean'] = 'Кеш модификаторов ак
 $_['text_refresh_modifications_pending'] = 'Модификаторы изменены: требуется обновить кеш OCMOD.';
 $_['text_refresh_modifications_issues'] = 'Кеш OCMOD обновлён, но обнаружены проблемы совместимости.';
 $_['text_logged'] = 'Вы вошли как %s';
+
+$_['text_project_support_header'] = 'Поддержка проекта';
+$_['text_telegram_forum'] = 'Форум Telegram';

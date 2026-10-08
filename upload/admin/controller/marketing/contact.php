@@ -33,6 +33,7 @@ class ControllerMarketingContact extends Controller {
 		$data['template_load_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/loadTemplate', 'user_token=' . $this->session->data['user_token'], true));
 		$data['template_save_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/saveTemplate', 'user_token=' . $this->session->data['user_token'], true));
 		$data['template_delete_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/deleteTemplate', 'user_token=' . $this->session->data['user_token'], true));
+		$data['template_import_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/importTemplate', 'user_token=' . $this->session->data['user_token'], true));
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -103,9 +104,9 @@ class ControllerMarketingContact extends Controller {
 		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->user->hasPermission('modify', 'marketing/contact')) {
 			$json['error'] = $this->language->get('error_permission');
 		} else {
-			$name = trim(isset($this->request->post['template_name']) ? (string)$this->request->post['template_name'] : '');
-			$subject = isset($this->request->post['subject']) ? (string)$this->request->post['subject'] : '';
-			$message = isset($this->request->post['message']) ? (string)$this->request->post['message'] : '';
+			$name = trim(html_entity_decode(isset($this->request->post['template_name']) ? (string)$this->request->post['template_name'] : '', ENT_QUOTES, 'UTF-8'));
+			$subject = html_entity_decode(isset($this->request->post['subject']) ? (string)$this->request->post['subject'] : '', ENT_QUOTES, 'UTF-8');
+			$message = html_entity_decode(isset($this->request->post['message']) ? (string)$this->request->post['message'] : '', ENT_QUOTES, 'UTF-8');
 			$id = isset($this->request->post['template_id']) ? preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$this->request->post['template_id']) : '';
 
 			if ($name === '' || mb_strlen($name, 'UTF-8') > 100) {
@@ -115,14 +116,23 @@ class ControllerMarketingContact extends Controller {
 			} elseif ($message === '' || strlen($message) > 1000000) {
 				$json['error'] = $this->language->get('error_message');
 			} else {
-				$templates = $this->getMailTemplates();
-				if ($id === '' || !isset($templates[$id])) {
-					$id = 'tpl_' . substr(hash('sha256', microtime(true) . '|' . $name . '|' . mt_rand()), 0, 16);
+				try {
+					$message = $this->sanitizeMailHtml($message);
+					if (trim($message) === '') { $json['error'] = $this->language->get('error_message'); }
+				} catch (Throwable $e) {
+					$this->log->write('Mail template sanitization failed: ' . $e->getMessage());
+					$json['error'] = $this->language->get('error_template_html');
 				}
-				$templates[$id] = array('id' => $id, 'name' => $name, 'subject' => $subject, 'message' => $message);
-				$this->saveMailTemplates($templates);
-				$json['success'] = $this->language->get('text_template_saved');
-				$json['template'] = $templates[$id];
+				if (!isset($json['error'])) {
+					$templates = $this->getMailTemplates();
+					if ($id === '' || !isset($templates[$id])) {
+						$id = 'tpl_' . substr(hash('sha256', microtime(true) . '|' . $name . '|' . mt_rand()), 0, 16);
+					}
+					$templates[$id] = array('id' => $id, 'name' => $name, 'subject' => $subject, 'message' => $message, 'html_encoding' => 'raw');
+					$this->saveMailTemplates($templates);
+					$json['success'] = $this->language->get('text_template_saved');
+					$json['template'] = $templates[$id];
+				}
 			}
 		}
 
@@ -152,9 +162,59 @@ class ControllerMarketingContact extends Controller {
 		$this->response->setOutput(json_encode($json));
 	}
 
+	public function importTemplate() {
+		$this->load->language('marketing/contact');
+		$json = array();
+		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->user->hasPermission('modify', 'marketing/contact')) {
+			$json['error'] = $this->language->get('error_permission');
+		} else {
+			$file = isset($this->request->files['template_file']) ? $this->request->files['template_file'] : array();
+			if (!isset($file['name'], $file['tmp_name'], $file['error'], $file['size']) || !is_string($file['name']) || !is_string($file['tmp_name']) || (int)$file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name']) || !in_array(strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)), array('html', 'htm'), true)) {
+				$json['error'] = $this->language->get('error_template_file');
+			} elseif ((int)$file['size'] < 1 || (int)$file['size'] > 1000000 || filesize($file['tmp_name']) > 1000000) {
+				$json['error'] = $this->language->get('error_template_size');
+			} else {
+				$html = file_get_contents($file['tmp_name']);
+				$mime = class_exists('finfo') ? (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']) : '';
+				if (!in_array($mime, array('text/html', 'text/plain', 'application/xhtml+xml'), true)) {
+					$json['error'] = $this->language->get('error_template_file');
+				} elseif ($html === false || !mb_check_encoding($html, 'UTF-8')) {
+					$json['error'] = $this->language->get('error_template_encoding');
+				} else {
+					try {
+						$message = $this->sanitizeMailHtml($html);
+						if (trim($message) === '') {
+							$json['error'] = $this->language->get('error_message');
+						} else {
+							$json['template'] = array('name' => pathinfo($file['name'], PATHINFO_FILENAME), 'message' => $message);
+							$json['success'] = $this->language->get('text_template_imported');
+						}
+					} catch (Throwable $e) {
+						$this->log->write('Mail template import failed: ' . $e->getMessage());
+						$json['error'] = $this->language->get('error_template_import');
+					}
+				}
+			}
+		}
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
 	private function customerRecipient($customer) {
 		$name = trim((isset($customer['firstname']) ? $customer['firstname'] : '') . ' ' . (isset($customer['lastname']) ? $customer['lastname'] : ''));
 		return array('email' => isset($customer['email']) ? $customer['email'] : '', 'name' => $name);
+	}
+
+	private function sanitizeMailHtml($html) {
+		// Entity text cannot create elements when assigned to the editor's HTML.
+		// Preserve its exact representation instead of re-encoding plain messages.
+		if (strpos($html, '<') === false) { return $html; }
+		require_once DIR_SYSTEM . 'helper/HTMLPurifierauto.php';
+		$config = HTMLPurifier_Config::createDefault();
+		$config->set('Cache.DefinitionImpl', null);
+		$config->set('URI.DisableExternalResources', false);
+		$purifier = new HTMLPurifier($config);
+		return $purifier->purify($html);
 	}
 
 	private function getMailTemplates() {
@@ -170,11 +230,28 @@ class ControllerMarketingContact extends Controller {
 			if ($id === '') {
 				continue;
 			}
+			// Older saves stored Request::clean() output instead of HTML. Decode
+			// once only for those records; valid raw entities must remain intact.
+			if (!isset($template['html_encoding'])) {
+				foreach (array('name', 'subject') as $field) {
+					if (isset($template[$field])) { $template[$field] = html_entity_decode((string)$template[$field], ENT_QUOTES, 'UTF-8'); }
+				}
+				if (isset($template['message']) && !preg_match('/<[a-z][^>]*>/i', (string)$template['message'])) {
+					$template['message'] = html_entity_decode((string)$template['message'], ENT_QUOTES, 'UTF-8');
+				}
+			}
+			try {
+				$template['message'] = $this->sanitizeMailHtml(isset($template['message']) ? (string)$template['message'] : '');
+			} catch (Throwable $e) {
+				$this->log->write('Mail template sanitization failed: ' . $e->getMessage());
+				continue;
+			}
 			$clean[$id] = array(
 				'id' => $id,
 				'name' => isset($template['name']) ? (string)$template['name'] : $id,
 				'subject' => isset($template['subject']) ? (string)$template['subject'] : '',
-				'message' => isset($template['message']) ? (string)$template['message'] : ''
+				'message' => isset($template['message']) ? (string)$template['message'] : '',
+				'html_encoding' => 'raw'
 			);
 		}
 		return $clean;

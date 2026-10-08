@@ -90,6 +90,7 @@ textarea.form-control { height: auto; }
 .cc-summary { max-width: 640px; margin: 24px auto; text-align: left; border: 1px solid var(--cc-border); border-radius: 8px; overflow: hidden; }
 .cc-summary-row { display: flex; justify-content: space-between; gap: 18px; padding: 11px 14px; border-bottom: 1px solid #edf0f4; }
 .cc-summary-row:last-child { border-bottom: 0; }
+.cc-summary-help { margin: 0; padding: 11px 14px; }
 .cc-summary-row span { color: var(--cc-muted); }
 .cc-summary-row strong { color: #1d2939; text-align: right; }
 .cc-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 20px 0 14px; }

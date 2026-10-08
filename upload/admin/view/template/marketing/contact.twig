@@ -98,6 +98,8 @@
                   <button type="button" id="button-template-delete" class="btn btn-danger" data-toggle="tooltip" title="{{ button_template_delete }}"><i class="fa fa-trash"></i></button>
                 </div>
               </div>
+              <input type="file" id="input-template-file" accept=".html,.htm,text/html" class="hidden" />
+              <p class="help-block">{{ help_template_open }}</p>
               <p class="help-block">{{ help_template_variables }}</p>
             </div>
           </div>
@@ -161,15 +163,47 @@ function currentMailHtml() {
 	return $('#input-message').val();
 }
 
+function setMailHtml(html) {
+	$('#input-message').val(html);
+	if ($('#input-message').data('summernote') && typeof $('#input-message').summernote === 'function') {
+		$('#input-message').summernote('code', html);
+	}
+}
+
 $('#button-template-load').on('click', function() {
 	var templateId = $('#input-mail-template').val();
-	if (!templateId) { return; }
+	if (!templateId) { $('#input-template-file').val('').trigger('click'); return; }
 	$.getJSON('{{ template_load_url }}&template_id=' + encodeURIComponent(templateId), function(json) {
 		if (json.error) { mailTemplateAlert('danger', json.error); return; }
 		$('#input-template-name').val(json.template.name || '');
 		$('#input-subject').val(json.template.subject || '');
-		$('#input-message').val(json.template.message || '');
-		if (typeof $('#input-message').summernote === 'function') { $('#input-message').summernote('code', json.template.message || ''); }
+		setMailHtml(json.template.message || '');
+	});
+});
+
+$('#input-template-file').on('change', function() {
+	var file = this.files && this.files[0];
+	if (!file) { return; }
+	if (!/\.html?$/i.test(file.name)) { mailTemplateAlert('danger', '{{ error_template_file|escape('js') }}'); return; }
+	if (!file.size || file.size > 1000000) { mailTemplateAlert('danger', '{{ error_template_size|escape('js') }}'); return; }
+	var data = new FormData();
+	data.append('template_file', file);
+	$.ajax({
+		url: '{{ template_import_url|escape('js') }}',
+		type: 'post',
+		dataType: 'json',
+		data: data,
+		processData: false,
+		contentType: false,
+		beforeSend: function() { $('#button-template-load').prop('disabled', true); },
+		complete: function() { $('#button-template-load').prop('disabled', false); $('#input-template-file').val(''); },
+		success: function(json) {
+			if (json.error) { mailTemplateAlert('danger', json.error); return; }
+			$('#input-template-name').val(json.template.name || '');
+			setMailHtml(json.template.message || '');
+			mailTemplateAlert('success', json.success);
+		},
+		error: function() { mailTemplateAlert('danger', '{{ error_template_import|escape('js') }}'); }
 	});
 });
 
@@ -215,12 +249,11 @@ $('#button-template-delete').on('click', function() {
 
 $('#button-template-preview').on('click', function() {
 	var html = currentMailHtml();
-	var replacements = {
-		'{' + '{ customer_name }' + '}': '{{ text_preview_customer }}',
-		'{' + '{ store_name }' + '}': '{{ text_preview_store }}',
-		'{' + '{ store_url }' + '}': 'https://example.com/',
-		'{' + '{ unsubscribe_url }' + '}': 'https://example.com/index.php?route=account/newsletter'
-	};
+	var replacements = {};
+	replacements['{' + '{ customer_name }' + '}'] = '{{ text_preview_customer|escape('js') }}';
+	replacements['{' + '{ store_name }' + '}'] = '{{ text_preview_store|escape('js') }}';
+	replacements['{' + '{ store_url }' + '}'] = 'https://example.com/';
+	replacements['{' + '{ unsubscribe_url }' + '}'] = 'https://example.com/index.php?route=account/newsletter';
 	Object.keys(replacements).forEach(function(key) { html = html.split(key).join(replacements[key]); });
 	var doc = '<!doctype html><html><head><meta charset="utf-8"><title>' + $('<div>').text($('#input-subject').val()).html() + '</title></head><body>' + html + '</body></html>';
 	var frame = document.getElementById('mail-preview-frame');

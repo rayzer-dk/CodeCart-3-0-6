@@ -14,10 +14,6 @@
     </div>
   </div>
   <div class="container-fluid">
-    <section class="ccp-community-banner" aria-labelledby="ccp-community-title">
-      <div><h2 id="ccp-community-title"><i class="fa fa-comments" aria-hidden="true"></i> {{ community_title|e }}</h2><p>{{ community_intro|e }}</p><a class="ccp-community-email" href="mailto:{{ community_email|e }}">{{ community_contact|e }}: {{ community_email|e }}</a></div>
-      <div class="ccp-community-actions"><a class="btn btn-primary" href="{{ community_url|e }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-comments" aria-hidden="true"></i> {{ community_join|e }}</a><a class="btn btn-default" href="{{ community_repository_url|e }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-github" aria-hidden="true"></i> {{ community_repository|e }}</a></div>
-    </section>
     {% if error_install %}
     <div class="alert alert-danger alert-dismissible">
       <button type="button" class="close pull-right" data-dismiss="alert">&times;</button>

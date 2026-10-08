@@ -1541,7 +1541,9 @@ class ControllerSettingSetting extends Controller {
 			$theme = basename($this->request->get['theme']);
 		}
 		
-		if ($theme === 'codecart' && is_file(DIR_CATALOG . 'view/theme/codecart/image/preview.webp')) {
+		if ($theme === 'codecart' && is_file(DIR_CATALOG . 'view/theme/codecart/image/preview.png')) {
+			$this->response->setOutput($server . 'catalog/view/theme/codecart/image/preview.png');
+		} elseif ($theme === 'codecart' && is_file(DIR_CATALOG . 'view/theme/codecart/image/preview.webp')) {
 			$this->response->setOutput($server . 'catalog/view/theme/codecart/image/preview.webp');
 		} elseif (is_file(DIR_CATALOG . 'view/theme/' . $theme . '/image/' . $theme . '.webp')) {
 			$this->response->setOutput($server . 'catalog/view/theme/' . $theme . '/image/' . $theme . '.webp');

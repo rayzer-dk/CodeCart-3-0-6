@@ -308,11 +308,11 @@ a:hover, a:focus {
     font-family: FontAwesome;
     margin-left: 10px;
     margin-right: 10px;
-    transition: margin ease 0.5s;
+    transition: color ease 0.2s;
 }
 
 #menu li li a:hover:before {
-    margin-right: 20px;
+    margin-right: 10px;
 }
 
 #menu li li a:hover {

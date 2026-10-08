@@ -1,4 +1,4 @@
-# Error pages — Build 2.0.3
+# Error pages — Build 2.0.4
 
 [Українська](ERROR_PAGES.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 

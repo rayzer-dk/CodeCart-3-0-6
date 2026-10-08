@@ -1,4 +1,4 @@
-# Compatibility Framework — Build 2.0.3
+# Compatibility Framework — Build 2.0.4
 
 [English](COMPATIBILITY_FRAMEWORK.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 

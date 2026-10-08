@@ -72,3 +72,6 @@ $_['ui_anchor_choose'] = '— виберіть якір —';
 $_['ui_anchor_help'] = 'Після вибору URL буде заповнено автоматично. Кирилиця, латиниця та цифри підтримуються.';
 $_['ui_video_help'] = 'Підтримуються: YouTube (watch, youtu.be, Shorts, Live), Vimeo, Facebook Video (/videos/ID), Instagram post/reel, Dailymotion, Google Drive /file/d/.../view та прямі MP4/M4V/WebM/Ogg URL.';
 $_['text_logged'] = 'Ви увійшли як %s';
+
+$_['text_project_support_header'] = 'Підтримка проєкту';
+$_['text_telegram_forum'] = 'Форум Telegram';
