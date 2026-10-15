@@ -90,7 +90,7 @@ textarea.form-control { height: auto; }
 .cc-summary { max-width: 640px; margin: 24px auto; text-align: left; border: 1px solid var(--cc-border); border-radius: 8px; overflow: hidden; }
 .cc-summary-row { display: flex; justify-content: space-between; gap: 18px; padding: 11px 14px; border-bottom: 1px solid #edf0f4; }
 .cc-summary-row:last-child { border-bottom: 0; }
-.cc-summary-help { margin: 0; padding: 11px 14px; }
+.cc-summary-help { box-sizing: border-box; margin: 0; padding: 11px 14px; color: var(--cc-muted); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
 .cc-summary-row span { color: var(--cc-muted); }
 .cc-summary-row strong { color: #1d2939; text-align: right; }
 .cc-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 20px 0 14px; }
@@ -144,3 +144,4 @@ textarea.form-control { height: auto; }
 
 /* CodeCart PRO Installer 2.0 language selector */
 .cc-language__label{margin-bottom:8px;color:var(--cc-muted);font-size:12px;font-weight:650}.cc-language__options{display:grid;gap:6px}.cc-language__option{display:flex;align-items:center;gap:8px;width:100%;min-height:36px;padding:7px 9px;border:1px solid #dce3eb;border-radius:8px;background:#fff;color:#344054;text-align:left;text-decoration:none;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,background .15s ease}.cc-language__option:hover,.cc-language__option:focus{border-color:#9fc5ed;background:#f7fbff;color:#1d2939;text-decoration:none}.cc-language__option.active{border-color:#0b6fd3;background:#eef6ff;box-shadow:0 0 0 2px rgba(11,111,211,.10)}.cc-language__option img{display:block;flex:0 0 auto;object-fit:cover;border-radius:2px}.cc-language__option span{font-weight:600}
+

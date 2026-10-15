@@ -16,7 +16,7 @@
     {% endif %}
   {% endfor %}
 </div>
-{% if section == 'security' and integrity_items %}<div class="ccp-integrity-list">{% for item in integrity_items %}<code>{{ item.file }}</code> <span class="label label-warning">{{ item.state }}</span>{% endfor %}</div>{% endif %}
+{% if section == 'security' and integrity_items %}<div class="ccp-integrity-list">{% for item in integrity_items %}<code>{{ item.file }}</code> <span class="label label-warning">{{ item.state_label }}</span>{% endfor %}</div>{% endif %}
 {% elseif section == 'performance' %}
   {% if performance %}
   <div class="ccp-performance-head"><div><strong>{{ performance.checked_at }}</strong><small>{{ performance.url }}</small></div><button type="button" class="btn btn-default btn-sm ccp-performance-check" data-url="{{ check_url }}" data-loading-text="..."><i class="fa fa-refresh"></i> {{ button_check }}</button></div>

@@ -26,3 +26,6 @@ $_['text_affiliate_edit'] = 'Edit your affiliate information';
 $_['text_tracking']       = 'Custom Affiliate Tracking Code';
 $_['text_gdpr_data'] = 'Personal Data & GDPR';
 
+
+// CodeCart PRO: aligned locale keys
+$_['text_account_wishlist'] = 'Manage wish list';

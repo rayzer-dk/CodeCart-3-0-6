@@ -64,3 +64,9 @@ $_['error_purchase'] = 'Расширение невозможно купить!'
 $_['error_download'] = 'Расширение не удалось загрузить!';
 $_['text_remote_disabled'] = 'Удалённый маркетплейс отключён в этой сборке. Используйте локальные Расширения/Установку/Модификаторы.';
 $_['text_featured'] = 'Рекомендуемые';
+
+$_['text_comment_placeholder'] = 'Напишите свой комментарий...';
+
+// CodeCart PRO: aligned locale keys
+$_['button_forgot_pin'] = 'Забыли PIN?';
+$_['text_recommended'] = 'Рекомендуется';

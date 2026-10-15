@@ -51,3 +51,6 @@ $_['error_sync_disabled'] = 'Enable and save the module first. External API requ
 $_['error_carrier_not_found'] = 'Carrier not found. Save the settings and try again.';
 $_['error_sync_failed'] = 'Could not update the city directory.';
 $_['error_invalid_json'] = 'The server returned an invalid JSON response. Check PHP warnings in the error log.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_branch'] = 'Branch / pickup point';

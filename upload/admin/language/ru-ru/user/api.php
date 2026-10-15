@@ -1,6 +1,6 @@
 <?php
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
-$_['heading_title'] = 'APIs';
+$_['heading_title'] = 'API';
 $_['text_success'] = 'Настройки успешно изменены!';
 $_['text_list'] = 'Список API';
 $_['text_add'] = 'Добавить';
@@ -21,3 +21,8 @@ $_['error_permission'] = 'У вас недостаточно прав для в�
 $_['error_username'] = 'Имя API-пользователя должно содержать от 3 до 64 символов!';
 $_['error_key'] = 'Ключ API должен содержать от 3 до 256 символов!';
 $_['error_ip'] = 'Требуется IP-адрес!';
+
+// CodeCart PRO: aligned locale keys
+$_['column_name'] = 'Название макета';
+$_['entry_name'] = 'Название макета';
+$_['error_name'] = 'Название должно содержать от 3 до 64 символов!';

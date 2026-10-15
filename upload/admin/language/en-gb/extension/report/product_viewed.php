@@ -19,3 +19,6 @@ $_['entry_sort_order'] = 'Sort Order';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify products viewed report!';
+// CodeCart PRO: aligned locale keys
+$_['text_list'] = 'Feed List';
+$_['text_filter'] = 'Filter';

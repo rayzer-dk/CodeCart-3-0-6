@@ -24,6 +24,7 @@
         {% endif %}</div>
       <hr>
       {% endif %}
+      {% if public_documents %}<section class="cc-public-documents" style="margin:14px 0 20px;"><h3>{{ text_public_documents }}</h3><ul class="list-unstyled">{% for doc in public_documents %}<li style="margin-bottom:8px;"><a href="{{ doc.href }}" rel="nofollow"><i class="fa fa-download"></i> {{ doc.title }}</a></li>{% endfor %}</ul></section>{% endif %}
       {% if products %}
       <div class="row ccp-toolbar ccp-toolbar--catalog">
         <div class="col-md-3 col-sm-3 col-xs-12 ccp-toolbar__view">

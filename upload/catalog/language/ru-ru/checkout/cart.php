@@ -32,3 +32,8 @@ $_['error_minimum'] = 'Минимальное количество для зак
 $_['error_required'] = '%s необходим!';
 $_['error_product'] = 'Ваша корзина пуста!';
 $_['error_recurring_required'] = 'Необходимо выбрать периодичность платежа!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_length'] = ' в течение %s платежей';
+$_['text_payment_until_canceled_description'] = 'Стоимость: %s; Периодичность: %d %s; Число платежей: до отмены';
+$_['text_until_cancelled'] = 'до отмены';

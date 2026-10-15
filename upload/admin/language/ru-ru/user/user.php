@@ -31,3 +31,6 @@ $_['error_exists_email'] = 'Пользователь с таким E-Mail уже
 $_['error_single_user'] = 'Нельзя удалить или отключить единственного активного администратора!';
 
 $_['text_show_password'] = 'Показать или скрыть пароль';
+
+// CodeCart PRO: aligned locale keys
+$_['error_exists'] = 'SEO URL уже используется!';

@@ -4,6 +4,14 @@
 .cc-modification-page .cc-summary-grid{display:grid;grid-template-columns:repeat(6,minmax(105px,1fr));gap:8px;margin:0 0 12px}.cc-modification-page .cc-summary-card{display:block;padding:8px 10px;border:1px solid #d9e2ec;border-radius:6px;background:#fff;min-height:58px;color:inherit;text-decoration:none!important;cursor:pointer;transition:box-shadow .15s,border-color .15s}.cc-modification-page .cc-summary-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}.cc-modification-page .cc-summary-card.active{box-shadow:0 0 0 2px rgba(0,87,217,.18);border-color:#0057d9}.cc-modification-page .cc-summary-card span{display:block;color:#68778a;font-size:12px}.cc-modification-page .cc-summary-card strong{display:block;margin-top:4px;font-size:19px;line-height:1}.cc-modification-page .cc-summary-card.ok{border-left:4px solid #3c9a57}.cc-modification-page .cc-summary-card.warn{border-left:4px solid #e29a21}.cc-modification-page .cc-summary-card.bad{border-left:4px solid #d9534f}.cc-modification-page .cc-summary-card.info{border-left:4px solid #0b6fd3}.cc-modification-page .cc-summary-meta{margin:-5px 0 15px;color:#6d7885;font-size:12px}.cc-modification-page .cc-mod-table{border-top:3px solid #0057d9}.cc-modification-page .cc-mod-table>thead>tr>td{vertical-align:middle;border-right:1px solid #dce3eb}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-ok>td:first-child{border-left:4px solid #3c9a57}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-warning>td:first-child{border-left:4px solid #e29a21}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-error>td:first-child{border-left:4px solid #d9534f}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-disabled>td:first-child{border-left:4px solid #9aa4af}.cc-modification-page .cc-mod-table>tbody>tr.cc-state-unchecked>td:first-child{border-left:4px solid #5bc0de}.cc-modification-page .cc-result-cell{min-width:180px}.cc-modification-page .cc-result-cell .label{display:inline-block;margin-bottom:4px}.cc-modification-page .cc-problem-button{margin-left:5px;margin-bottom:4px;padding:1px 6px;font-size:11px}.cc-modification-page .cc-issue{border-left:3px solid #d9534f;padding:8px 10px;margin:0 0 8px;background:#fff7f7}.cc-modification-page .cc-issue.warning{border-left-color:#e29a21;background:#fffaf0}.cc-modification-page .cc-issue.info{border-left-color:#5bc0de;background:#f2fbff}.cc-modification-page .cc-issue code{display:block;white-space:pre-wrap;word-break:break-word;margin-top:4px}.cc-modification-page .cc-detail-files{max-height:160px;overflow:auto;white-space:pre-wrap;word-break:break-word}.cc-modification-page .cc-result-cell small{display:block;color:#738092;line-height:1.35}.cc-modification-page .cc-log-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}.cc-modification-page .cc-log-legend .label{font-size:11px;padding:5px 7px}.cc-modification-page .cc-ocmod-log{max-height:560px;overflow:auto;white-space:pre-wrap;word-break:break-word;padding:12px;border:1px solid #dce3eb;border-radius:4px;background:#111820;color:#dce6f0;font-family:Consolas,Monaco,monospace;font-size:12px;line-height:1.45}.cc-modification-page .cc-log-line-ok{color:#89d99b}.cc-modification-page .cc-log-line-warn{color:#f4c66b}.cc-modification-page .cc-log-line-bad{color:#ff8f8f;font-weight:600}.cc-modification-page .cc-log-line-head{color:#7fc0ff;font-weight:600}.cc-modification-page .cc-log-actions{text-align:right;margin-top:10px}.cc-modification-page #cc-ocmod-log{user-select:text;-webkit-user-select:text}.cc-modification-page #cc-copy-ocmod-log,.cc-modification-page #cc-copy-modification-error{min-width:36px}@media(max-width:991px){.cc-modification-page .cc-summary-grid{grid-template-columns:repeat(2,minmax(120px,1fr))}}
 html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!important;border-color:#364554!important;color:#dbe5ef!important}html.ccp-admin-dark .cc-modification-page .cc-summary-card span,html.ccp-admin-dark .cc-modification-page .cc-summary-meta,html.ccp-admin-dark .cc-modification-page .cc-result-cell small{color:#9fb0c1!important}html.ccp-admin-dark .cc-modification-page .cc-issue{background:#251b1d!important;border-color:#d9534f!important;color:#dbe5ef!important}html.ccp-admin-dark .cc-modification-page .cc-issue.warning{background:#272219!important;border-color:#e29a21!important}html.ccp-admin-dark .cc-modification-page .cc-mod-table>thead>tr>td{border-color:#364554!important}
  .cc-modification-page .cc-main-tabs{margin:0 0 12px}.cc-modification-page .cc-main-tabs>li>a{font-weight:600}.cc-modification-page .cc-main-tabs>li.active>a{border-top:3px solid #0057d9;padding-top:7px}
+
+/* Compact actions with stable width. The parent .table-responsive scrolls on small screens. */
+.cc-modification-page .cc-mod-table{min-width:980px}
+.cc-modification-page .cc-mod-table .cc-actions-column{min-width:184px;width:184px;text-align:right;white-space:nowrap}
+.cc-modification-page .cc-mod-actions{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;white-space:nowrap}
+.cc-modification-page .cc-mod-actions>.btn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;min-width:32px;height:32px;margin:0;padding:5px 6px;line-height:20px}
+.cc-modification-page .cc-mod-actions>.btn>i{margin:0}
+
 </style>
 
   <div class="page-header">
@@ -38,7 +46,7 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
       <a href="{{ filter_warning }}" class="cc-summary-card warn{% if compatibility_filter == 'warning' %} active{% endif %}" title="{{ text_filter_warning }}"><span>{{ text_summary_partial }}</span><strong>{{ compatibility_summary.warning|default(0) }}</strong></a>
       <a href="{{ filter_error }}" class="cc-summary-card bad{% if compatibility_filter == 'error' %} active{% endif %}" title="{{ text_filter_error }}"><span>{{ text_summary_failed }}</span><strong>{{ compatibility_summary.error|default(0) }}</strong></a>
       <a href="{{ filter_warning }}" class="cc-summary-card info{% if compatibility_filter == 'warning' %} active{% endif %}" title="{{ text_filter_warning }}"><span>{{ text_summary_skipped }}</span><strong>{{ compatibility_summary.skipped_operations|default(0) }}</strong></a>
-      <a href="{{ filter_issues }}" class="cc-summary-card bad{% if compatibility_filter == 'issues' %} active{% endif %}" title="{{ text_filter_issues }}"><span>{{ text_summary_issues }}</span><strong>{{ compatibility_summary.issues|default(0) }}</strong></a>
+      <a href="{{ filter_issues }}" class="cc-summary-card info{% if compatibility_filter == 'issues' %} active{% endif %}" title="{{ text_filter_issues }}"><span>{{ text_summary_issues }}</span><strong>{{ compatibility_summary.issues|default(0) }}</strong></a>
     </div>
     <div class="cc-summary-meta"><i class="fa fa-clock-o"></i> {{ text_last_refresh }}: {{ compatibility_generated_at ?: text_not_available }}{% if compatibility_core_build %} · Core {{ compatibility_core_build }}{% endif %}{% if compatibility_filter %} · <a href="{{ filter_all }}"><i class="fa fa-times"></i> {{ text_show_all }}</a>{% endif %}</div>
     {% endif %}
@@ -48,7 +56,7 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
       </div>
       <div class="panel-body">
         {% if modifications %}
-        <div class="form-group">
+        <div class="form-group clearfix">
           <label class="col-sm-2 control-label">{{ entry_progress }}</label>
           <div class="col-sm-10">
             <div class="progress">
@@ -96,7 +104,7 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
                         {% else %}
                         <a href="{{ sort_date_added }}">{{ column_date_added }}</a>
                         {% endif %}</td>
-                      <td class="text-right">{{ column_action }}</td>
+                      <td class="cc-actions-column">{{ column_action }}</td>
                     </tr>
                   </thead>
                   <tbody>
@@ -114,20 +122,22 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
                       <td class="text-left">{{ modification.status }}</td>
                       <td class="text-left cc-result-cell"><span class="label {{ modification.compatibility_class }}" data-toggle="tooltip" title="{{ modification.compatibility_title }}">{{ modification.compatibility_label }}</span>{% if modification.compatibility_state == 'warning' or modification.compatibility_state == 'error' %}<button type="button" class="btn btn-default btn-xs cc-problem-button" data-modification-id="{{ modification.modification_id }}" data-toggle="tooltip" title="{{ button_problems }}"><i class="fa fa-search"></i> {{ button_problems }}</button>{% endif %}{% if modification.compatibility_metrics %}<small>{{ modification.compatibility_metrics }}</small>{% endif %}</td>
                       <td class="text-left">{{ modification.date_added }}</td>
-                      <td class="text-right">
+                      <td class="cc-actions-column">
+                        <div class="cc-mod-actions">
                         <a href="{{modification.edit}}" data-toggle="tooltip" title="{{button_edit}}" class="btn btn-success"><i class="fa fa-pencil"></i></a>
                         <a href="{{modification.download}}" data-toggle="tooltip" title="{{button_download}}" class="btn btn-primary" download="{{modification.filename}}"><i class="fa fa-download"></i></a>
                         <button type="button" data-loading-text="{{text_loading}}" data-modification-id="{{modification.modification_id}}" data-toggle="tooltip" title="{{button_upload}}"  class="btn btn-primary button-upload"><i class="fa fa-upload"></i></button>
                         {% if modification.link %}
                         <a href="{{ modification.link }}" data-toggle="tooltip" title="{{ button_link }}" class="btn btn-info" target="_blank"><i class="fa fa-link"></i></a>
                         {% else %}
-                        <button type="button" class="btn btn-info" disabled="disabled"><i class="fa fa-link"></i></button>
+                        <button type="button" class="btn btn-info" disabled="disabled" data-toggle="tooltip" title="{{ button_link }}"><i class="fa fa-link"></i></button>
                         {% endif %}
                         {% if not modification.enabled %}
                         <a href="{{ modification.enable }}" data-toggle="tooltip" title="{{ button_enable }}" class="btn btn-success"><i class="fa fa-plus-circle"></i></a>
                         {% else %}
                         <a href="{{ modification.disable }}" data-toggle="tooltip" title="{{ button_disable }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></a>
-                        {% endif %}</td>
+                        {% endif %}
+                        </div></td>
                     </tr>
                     {% endfor %}
                     {% else %}

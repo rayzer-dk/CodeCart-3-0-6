@@ -659,6 +659,8 @@ class ControllerProductProduct extends Controller {
 				$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-9', 'stylesheet', 'screen', 'footer');
 				$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-7', 'footer');
 			}
+			$data['text_previous_images'] = $this->language->get('text_previous_images');
+			$data['text_next_images'] = $this->language->get('text_next_images');
 			$data['text_previous_related'] = $this->language->get('text_previous_related');
 			$data['text_next_related'] = $this->language->get('text_next_related');
 
@@ -786,7 +788,16 @@ class ControllerProductProduct extends Controller {
 			$data['footer'] = $this->load->controller('common/footer');
 			$data['header'] = $this->load->controller('common/header');
 
-			$this->response->setOutput($this->load->view('product/product', $data));
+			$data['public_documents'] = array();
+            if ($this->config->get('codecart_public_documents_status')) {
+                $this->load->model('catalog/public_document');
+                $data['public_documents'] = $this->model_catalog_public_document->forTarget('product', (int)$product_id);
+                if ($data['public_documents']) {
+                    $this->load->language('common/public_document');
+                    $data['text_public_documents'] = $this->language->get('text_public_documents');
+                }
+            }
+            $this->response->setOutput($this->load->view('product/product', $data));
 		} else {
 			$url = '';
 
@@ -873,7 +884,7 @@ class ControllerProductProduct extends Controller {
 
 		if ($this->request->server['REQUEST_METHOD'] !== 'POST') {
 			$this->response->setStatusCode(405);
-			$json['error'] = 'Method not allowed';
+			$json['error'] = $this->language->get('error_method_not_allowed');
 		} else {
 			$product_id = isset($this->request->post['product_id']) ? (int)$this->request->post['product_id'] : 0;
 			$quantity = isset($this->request->post['quantity']) ? max(1, (int)$this->request->post['quantity']) : 1;

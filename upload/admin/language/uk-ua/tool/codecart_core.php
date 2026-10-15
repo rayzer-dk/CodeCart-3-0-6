@@ -137,15 +137,15 @@ $_['text_platform'] = 'Компонент / можливість';
 $_['text_component'] = 'Компонент';
 $_['text_benefit'] = 'Користь';
 $_['text_codecart_website'] = 'Сайт CodeCart PRO';
-$_['text_about_legacy_title'] = 'Legacy + Modern Core';
+$_['text_about_legacy_title'] = 'Класичне та сучасне ядро';
 $_['text_about_legacy_value'] = 'MVC-L + PSR-4';
 $_['text_about_legacy_help'] = 'Старі модулі залишаються сумісними, нові можуть використовувати сучасний шар.';
 $_['text_about_security_value'] = 'TOTP · Audit · Anti-Spam';
 $_['text_about_security_help'] = 'Захист входу, форм, сесій, installer та системних операцій.';
 $_['text_about_server_value'] = 'WEB/FPM + CLI';
 $_['text_about_server_help'] = 'Preflight перевіряє реальний серверний профіль без постійного phpinfo.php.';
-$_['text_about_modern_title'] = 'Modern Extensions';
-$_['text_about_modern_value'] = 'Services · Queue · API';
+$_['text_about_modern_title'] = 'Сучасні розширення';
+$_['text_about_modern_value'] = 'Сервіси · Черги · API';
 $_['text_about_modern_help'] = 'Фундамент для нових модулів без руйнування OpenCart 3 compatibility layer.';
 $_['about_fixed_items'] = array('PHP 8.1–8.5: усунено критичні несумісності ядра та deprecated-виклики.','Посилено MySQLi/PDO, сесії, File Manager, OCMOD, SMTP/cron і мовні SEO URL.','Виправлено дублікати URL, page=1, canonical, sitemap/blog та проблеми з GD/FPM.','Оновлення не видаляє сторонні платежі, CRM/1С, таблиці або модулі.');
 $_['about_improved_items'] = array('InnoDB + utf8mb4 для нової установки; Schema Registry для безпечного контролю оновлень.','WebP/AVIF, пакетне завантаження зображень і нормалізація імен файлів.','Redis/APCu/Memcached/File cache, Scheduler, Queue, Preflight і System Notification Center.','Сучасніша адмінка та default theme без заміни Bootstrap 3/FA4 для Legacy-модулів.');
@@ -449,3 +449,16 @@ $_['cmp_file'] = 'Файли';
 $_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + сумісність із FA4';
 $_['cmp_summernote'] = 'Summernote 0.9.1 локально';
 $_['diag_msg_sql_compat'] = 'Сумісний з OpenCart режим SQL (стандарт для модулів OpenCart/ocStore). Строгий режим вмикається налаштуванням codecart_db_strict_mode = 1.';
+
+$_['text_icon_packages'] = 'Пакети Font Awesome';
+
+$_['error_invalid_request_method'] = 'Неприпустимий метод запиту.';
+$_['error_invalid_security_token'] = 'Недійсний токен безпеки.';
+
+$_['text_extension_code'] = 'Код';
+$_['text_extension_name'] = 'Назва';
+$_['text_extension_version'] = 'Версія';
+$_['text_extension_namespace'] = 'Простір імен';
+$_['text_icon_style_solid'] = 'Суцільні';
+$_['text_icon_style_regular'] = 'Контурні';
+$_['text_icon_style_brands'] = 'Бренди';

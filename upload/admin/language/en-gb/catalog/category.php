@@ -123,3 +123,8 @@ $_['text_purchase_block_choose_form'] = '— Choose an existing form / block —
 $_['text_separator'] = ' &gt; ';
 $_['error_meta_h1'] = 'HTML H1 tag must be between 0 and 255 characters!';
 $_['js_purchase_presets_json'] = '{}';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_description_bottom'] = 'Description below products:';
+$_['help_keyword'] = 'Do not use spaces, instead replace spaces with - and make sure the keyword is globally unique.';
+$_['help_noindex'] = 'Indexing in the search engines Google,  Bing and others';

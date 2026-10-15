@@ -8,3 +8,6 @@ $_['entry_estimator'] = 'Оценка стоимости доставки';
 $_['entry_status'] = 'Статус';
 $_['entry_sort_order'] = 'Порядок сортировки';
 $_['error_permission'] = 'У вас недостаточно прав для внесения изменений!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_total'] = 'Учитывать в заказе';

@@ -17,3 +17,5 @@ $_['entry_status']     = 'Status';
 $_['error_permission'] = 'Warning: You do not have permission to modify Google reCAPTCHA!';
 $_['error_key']        = 'Key required!';
 $_['error_secret']     = 'Secret required!';
+// CodeCart PRO: aligned locale keys
+$_['text_captcha'] = 'Captcha';

@@ -40,3 +40,16 @@ $_['entry_sort_order']             = 'Sort Order';
 
 // Error
 $_['error_permission']             = 'Warning: You do not have permission to modify customer activity report!';
+// CodeCart PRO: aligned locale keys
+$_['text_list'] = 'Feed List';
+$_['text_address_add'] = '<a href="customer_id=%d">%s</a> - added a new address.';
+$_['text_address_edit'] = '<a href="customer_id=%d">%s</a> - updated an address.';
+$_['text_address_delete'] = '<a href="customer_id=%d">%s</a> - deleted an address.';
+$_['text_return_account'] = '<a href="customer_id=%d">%s</a> - requested a return.';
+$_['text_return_guest'] = '%s - requested a return.';
+$_['text_order_account'] = '<a href="customer_id=%d">%s</a> <a href="order_id=%d"> - placed a new order</a>.';
+$_['text_order_guest'] = '%s <a href="order_id=%d"> - placed a new order</a>.';
+$_['text_forgotten'] = '<a href="customer_id=%d">%s</a> - requested a new password.';
+$_['text_login'] = '<a href="customer_id=%d">%s</a> - logged in.';
+$_['text_password'] = '<a href="customer_id=%d">%s</a> - updated the password.';
+$_['text_register'] = '<a href="customer_id=%d">%s</a> - registered as a new customer.';

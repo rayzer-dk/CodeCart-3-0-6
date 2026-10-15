@@ -1,5 +1,4 @@
-# nginx + PHP-FPM — Build 2.0.4
-
+# nginx + PHP-FPM
 [English](NGINX.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 
 Apache використовує комплектний `.htaccess`; nginx потребує відповідних серверних правил. Конфігурація нижче перевірена з nginx 1.24 та PHP-FPM 8.3 для SEO/мовних префіксів, sitemap rewriting і захисту сховища/шаблонів/SQL. Інші комбінації сервера/PHP потребують окремої перевірки хостингу.

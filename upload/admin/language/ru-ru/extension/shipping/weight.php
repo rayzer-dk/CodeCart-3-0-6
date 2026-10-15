@@ -11,3 +11,6 @@ $_['entry_status'] = 'Статус';
 $_['entry_sort_order'] = 'Порядок сортировки';
 $_['help_rate'] = 'Например: 5:10.00,7:12.00 Вес:Цена,Вес:Цена, и т.д.';
 $_['error_permission'] = 'У вас недостаточно прав для внесения изменений!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_shipping'] = 'Адрес доставки';

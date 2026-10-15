@@ -235,6 +235,7 @@
       <div class="ccp-product-tabs">
           <ul class="nav nav-tabs">
             <li class="active"><a href="#tab-description" data-toggle="tab">{{ tab_description }}</a></li>
+            {% if public_documents %}<li><a href="#tab-documents" data-toggle="tab"><i class="fa fa-file-pdf-o"></i> {{ text_public_documents }}</a></li>{% endif %}
             {% if attribute_groups %}
             <li><a href="#tab-specification" data-toggle="tab">{{ tab_attribute }}</a></li>
             {% endif %}
@@ -247,6 +248,9 @@
           </ul>
           <div class="tab-content">
             <div class="tab-pane active" id="tab-description">{{ description }}</div>
+            {% if public_documents %}<div class="tab-pane" id="tab-documents"><ul class="list-unstyled cc-public-documents">
+             {% for doc in public_documents %}<li style="margin-bottom:9px;"><a href="{{ doc.href }}" rel="nofollow"><i class="fa fa-download"></i> {{ doc.title }}</a> <small class="text-muted">({{ (doc.filesize / 1024)|round(1) }} KB)</small></li>{% endfor %}
+             </ul></div>{% endif %}
             {% if attribute_groups %}
             <div class="tab-pane" id="tab-specification">
               <div class="ccp-specifications">

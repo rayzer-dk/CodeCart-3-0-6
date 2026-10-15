@@ -80,3 +80,13 @@ $_['entry_cancel_payment']                 = 'Cancel Payment';
 // Error
 $_['error_not_cancelled']                  = 'Error: %s';
 $_['error_not_found']                      = 'Could not cancel recurring profile';
+// CodeCart PRO: aligned locale keys
+$_['text_add'] = 'Add Order';
+$_['text_edit'] = 'Edit Order';
+$_['text_payment_profiles'] = 'Recurring payment profiles';
+$_['text_status_active'] = 'Active';
+$_['text_status_inactive'] = 'Inactive';
+$_['text_status_cancelled'] = 'Cancelled';
+$_['text_status_suspended'] = 'Suspended';
+$_['text_status_expired'] = 'Expired';
+$_['text_status_pending'] = 'Pending';

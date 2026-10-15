@@ -25,3 +25,6 @@ $_['entry_sandbox'] = 'Тестовый режим';
 $_['button_show_secret'] = 'Показать / скрыть приватный ключ';
 $_['error_public_key'] = 'Укажите Public key LiqPay.';
 $_['error_private_key'] = 'Укажите Private key LiqPay.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_payment'] = 'Платёжные данные';

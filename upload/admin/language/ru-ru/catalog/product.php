@@ -3,6 +3,7 @@
 $_['heading_title'] = 'Товары';
 $_['text_success'] = 'Настройки успешно изменены!';
 $_['text_list'] = 'Список товаров';
+$_['text_products_per_page'] = 'На странице';
 $_['text_add'] = 'Добавить';
 $_['text_edit'] = 'Редактирование';
 $_['text_filter'] = 'Фильтр';
@@ -115,7 +116,7 @@ $_['help_shipping'] = 'Для цифрового товара выберите �
 $_['text_shipping_required'] = 'Физический / гибридный — нужна доставка';
 $_['text_shipping_not_required'] = 'Цифровой / услуга — без доставки';
 $_['help_download_updates'] = 'Завершённая покупка даёт право на файлы, которые сейчас привязаны к этому товару. Для новой версии можно заменить файл в существующей загрузке или привязать новую загрузку — прежние покупатели увидят текущие файлы. Снимок на момент покупки остаётся резервом, если все текущие файлы будут удалены.';
-$_['entry_google_product_category_id'] = 'Google Product Category ID';
+$_['entry_google_product_category_id'] = 'ID категории в классификаторе Google Product Category';
 $_['help_google_product_category_id'] = 'Числовой ID таксономии Google для Merchant-фидов. Оставьте пустым, чтобы унаследовать значение из главной или ближайшей родительской категории товара.';
 $_['tab_extra'] = 'Дополнительная вкладка';
 $_['entry_extra_tab_mode'] = 'Дополнительная вкладка товара';
@@ -216,3 +217,23 @@ $_['text_purchase_block_choose_form'] = '— Выберите созданную
 $_['error_meta_h1'] = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
 $_['text_action'] = 'Действие';
 $_['js_purchase_presets_json'] = '{}';
+
+$_['tab_public_documents'] = 'Документы';
+$_['entry_public_document'] = 'Публичные документы';
+$_['help_public_document'] = 'Выберите ранее загруженные документы по названию. Это бесплатные файлы, не цифровые товары.';
+$_['text_manage_public_documents'] = 'Управление документами';
+$_['text_unlink_public_document'] = 'Убрать связь с документом';
+
+// CodeCart PRO: aligned locale keys
+$_['column_category'] = 'Категория';
+$_['column_manufacturer'] = 'Производитель';
+$_['entry_description_mini'] = 'Краткое описание:';
+$_['entry_heading'] = 'Заголовок на витрине';
+$_['entry_sticker'] = 'Промостикеры';
+$_['error_tab'] = 'Укажите название вкладки';
+$_['help_keyword'] = 'Должен быть уникальным во всей системе, без пробелов и спецсимволов';
+$_['text_benefits'] = 'Преимущества:';
+$_['text_corner0'] = 'Вверху слева';
+$_['text_corner1'] = 'Вверху справа';
+$_['text_corner2'] = 'Внизу слева';
+$_['text_corner3'] = 'Внизу справа';

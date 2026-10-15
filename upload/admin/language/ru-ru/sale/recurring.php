@@ -71,3 +71,14 @@ $_['entry_payment_method'] = 'Способ оплаты';
 $_['entry_cancel_payment'] = 'Отмена оплаты';
 $_['error_not_cancelled'] = 'Ошибка: %s';
 $_['error_not_found'] = 'Нельзя закрыть регулярный профиль!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_add'] = 'Добавить';
+$_['text_edit'] = 'Редактирование';
+$_['text_payment_profiles'] = 'Профили регулярных платежей';
+$_['text_status_active'] = 'Активен';
+$_['text_status_cancelled'] = 'Отменен';
+$_['text_status_expired'] = 'Истек';
+$_['text_status_inactive'] = 'Неактивен';
+$_['text_status_pending'] = 'Ожидает';
+$_['text_status_suspended'] = 'Приостановлен';

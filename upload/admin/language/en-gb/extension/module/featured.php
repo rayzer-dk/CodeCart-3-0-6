@@ -64,3 +64,6 @@ $_['entry_include_subcategories'] = 'Include subcategories';
 $_['entry_mobile_peek'] = 'Mobile carousel peek';
 $_['text_peek_off'] = 'Off — use mobile columns';
 $_['help_mobile_peek'] = '1.2–1.4 leaves part of the next card visible on phones.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_module'] = 'Modules';

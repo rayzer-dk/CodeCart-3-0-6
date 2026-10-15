@@ -449,3 +449,16 @@ $_['cmp_file'] = 'File';
 $_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + FA4 compatibility';
 $_['cmp_summernote'] = 'Summernote 0.9.1 local';
 $_['diag_msg_sql_compat'] = 'OpenCart-compatible SQL mode (standard for OpenCart/ocStore modules). Strict mode is enabled with codecart_db_strict_mode = 1.';
+
+$_['text_icon_packages'] = 'Font Awesome packages';
+
+$_['error_invalid_request_method'] = 'Invalid request method.';
+$_['error_invalid_security_token'] = 'Invalid security token.';
+
+$_['text_extension_code'] = 'Code';
+$_['text_extension_name'] = 'Name';
+$_['text_extension_version'] = 'Version';
+$_['text_extension_namespace'] = 'Namespace';
+$_['text_icon_style_solid'] = 'Solid';
+$_['text_icon_style_regular'] = 'Regular';
+$_['text_icon_style_brands'] = 'Brands';

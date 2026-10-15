@@ -17,3 +17,17 @@ $_['text_all'] = 'Показать все';
 $_['button_in_cart'] = 'В корзине';
 $_['text_theme_toggle'] = 'Сменить тему';
 $_['text_logged'] = 'Вы вошли как <a href="%s">%s</a> (<a href="%s">Выйти</a>)';
+
+// CodeCart PRO: aligned locale keys
+$_['ui_action'] = 'Действие';
+$_['ui_close'] = 'Закрыть';
+$_['ui_compare'] = 'Сравнить';
+$_['ui_decrease'] = 'Уменьшить';
+$_['ui_increase'] = 'Увеличить';
+$_['ui_next'] = 'Далее';
+$_['ui_previous'] = 'Назад';
+$_['ui_search'] = 'Поиск';
+$_['ui_select_date'] = 'Выбрать дату';
+$_['ui_share'] = 'Поделиться';
+$_['ui_upload'] = 'Загрузить';
+$_['ui_wishlist'] = 'В закладки';

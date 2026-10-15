@@ -22,3 +22,6 @@ $_['column_products_sitemap'] = 'Product sitemap example';
 $_['button_copy'] = 'Copy';
 $_['button_open'] = 'Open';
 $_['text_no_prefix'] = 'no prefix';
+
+// CodeCart PRO: aligned locale keys
+$_['text_feed'] = 'Feeds';

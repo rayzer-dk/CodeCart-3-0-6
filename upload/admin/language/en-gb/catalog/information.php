@@ -52,3 +52,7 @@ $_['error_return']           = 'Warning: This information page cannot be deleted
 $_['error_store']            = 'Warning: This information page cannot be deleted as it is currently used by %s stores!';
 $_['button_generate_seo_url'] = 'Generate SEO URL';
 $_['error_meta_h1'] = 'HTML Tag H1 must be greater than 0 and less than 255 characters!';
+
+// CodeCart PRO: aligned locale keys
+$_['help_keyword'] = 'Do not use spaces, instead replace spaces with - and make sure the keyword is globally unique.';
+$_['help_noindex'] = 'Indexing in the search engines Google,  Bing and others';

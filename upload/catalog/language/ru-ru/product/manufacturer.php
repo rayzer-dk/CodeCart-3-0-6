@@ -26,3 +26,6 @@ $_['text_model_desc'] = 'Код Товара (Я - А)';
 $_['text_limit'] = 'Показать:';
 $_['text_tax_amount'] = 'НДС:';
 $_['text_tax_included'] = 'С НДС:';
+
+// CodeCart PRO: aligned locale keys
+$_['text_benefits'] = 'Преимущества:';

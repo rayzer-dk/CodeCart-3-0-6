@@ -480,7 +480,16 @@ class ControllerProductCategory extends Controller {
 			$data['footer'] = $this->load->controller('common/footer');
 			$data['header'] = $this->load->controller('common/header');
 
-			$this->response->setOutput($this->load->view('product/category', $data));
+			$data['public_documents'] = array();
+            if ($this->config->get('codecart_public_documents_status')) {
+                $this->load->model('catalog/public_document');
+                $data['public_documents'] = $this->model_catalog_public_document->forTarget('category', (int)$category_id);
+                if ($data['public_documents']) {
+                    $this->load->language('common/public_document');
+                    $data['text_public_documents'] = $this->language->get('text_public_documents');
+                }
+            }
+            $this->response->setOutput($this->load->view('product/category', $data));
 		} else {
 			$url = '';
 

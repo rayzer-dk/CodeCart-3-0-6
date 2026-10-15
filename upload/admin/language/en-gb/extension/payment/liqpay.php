@@ -33,3 +33,6 @@ $_['entry_sandbox'] = 'Sandbox mode';
 $_['button_show_secret'] = 'Show / hide private key';
 $_['error_public_key'] = 'Public key is required';
 $_['error_private_key'] = 'Private key is required';
+
+// CodeCart PRO: aligned locale keys
+$_['text_payment'] = 'Payment';

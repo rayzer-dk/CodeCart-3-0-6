@@ -51,3 +51,9 @@ $_['error_product']     = 'Warning: This manufacturer cannot be deleted as it is
 $_['button_generate_seo_url'] = 'Generate SEO URL';
 $_['error_meta_title'] = 'Meta Title must be greater than 1 and less than 255 characters!';
 $_['error_meta_h1'] = 'HTML Tag H1 must be greater than 0 and less than 255 characters!';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_description_bottom'] = 'Description below products:';
+$_['help_keyword'] = 'Do not use spaces, instead replace spaces with - and make sure the keyword is globally unique.';
+$_['help_noindex'] = 'Indexing in the search engines Google,  Bing and others';
+$_['error_warning'] = 'Warning: Please check the form carefully for errors!';

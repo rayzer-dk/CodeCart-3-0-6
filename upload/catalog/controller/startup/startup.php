@@ -105,6 +105,8 @@ class ControllerStartupStartup extends Controller {
 		$this->config->set('codecart_language_prefix_explicit', 0);
 		$this->config->set('codecart_language_prefix_missing_required', 0);
 		$this->config->set('codecart_language_prefix_current', '');
+		$this->config->set('codecart_language_prefix_route_matched', 0);
+		$this->config->set('codecart_language_legacy_query', 0);
 
 		if ($prefix_enabled) {
 			$prefix_to_code = array();
@@ -120,6 +122,7 @@ class ControllerStartupStartup extends Controller {
 
 			if ($first !== '' && isset($prefix_to_code[$first])) {
 				$url_language_code = $prefix_to_code[$first];
+				$this->config->set('codecart_language_prefix_route_matched', 1);
 				$url_language_explicit = true;
 				array_shift($parts);
 
@@ -211,9 +214,28 @@ class ControllerStartupStartup extends Controller {
 			$code = $detect ? $detect : '';
 		}
 
+		// A legacy ?language=xx-xx link is an input selector, not part of the
+		// canonical URL. Folder language wins if a valid prefix is present.
+		// Do not interpret the query parameter when native folders are disabled
+		// (LangDir and legacy ocStore installations have their own rules).
+		$legacy_language = '';
+		if ($prefix_enabled && isset($this->request->get['language']) && is_string($this->request->get['language'])) {
+			$candidate = trim($this->request->get['language']);
+			if (isset($languages[$candidate]) && !empty($languages[$candidate]['status'])) {
+				$legacy_language = $candidate;
+				$this->config->set('codecart_language_legacy_query', 1);
+			}
+		}
+
 		if ($url_language_explicit && isset($languages[$url_language_code])) {
 			$code = $url_language_code;
 			$this->config->set('codecart_language_prefix_explicit', 1);
+			// An unprefixed native route normally belongs to the no-prefix
+			// language, except when the visitor explicitly selected a language
+			// via an old GET link. A real folder always overrides this selector.
+			if ($legacy_language !== '' && !$this->config->get('codecart_language_prefix_route_matched')) {
+				$code = $legacy_language;
+			}
 		}
 		
 		if (!array_key_exists($code, $languages)) {

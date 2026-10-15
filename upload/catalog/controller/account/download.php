@@ -148,9 +148,18 @@ class ControllerAccountDownload extends Controller {
 						ob_end_clean();
 					}
 
-					readfile($file);
+                    $sent = readfile($file);
+                    if ($sent !== false && $sent > 0 && $this->config->get('codecart_file_stats_status')) {
+                        try {
+                            $id = (int)$download_id;
+                            $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_download_stats` SET download_id=".$id.",download_count=1,last_download=NOW() ON DUPLICATE KEY UPDATE download_count=download_count+1,last_download=NOW()");
+                            $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_download_daily` SET download_id=".$id.",day=CURDATE(),download_count=1 ON DUPLICATE KEY UPDATE download_count=download_count+1");
+                        } catch (\Throwable $e) {
+                            $this->log->write('Paid download stats: '.$e->getMessage());
+                        }
+                    }
 
-					exit();
+                    exit();
 				} else {
 					http_response_code(404);
 					exit('Error: Download file not found.');

@@ -8,6 +8,7 @@ $_['heading_title']          = 'Products';
 // Text
 $_['text_success']           = 'Success: You have modified products!';
 $_['text_list']              = 'Product List';
+$_['text_products_per_page'] = 'Per page';
 $_['text_add']               = 'Add Product';
 $_['text_edit']              = 'Edit Product';
 $_['text_filter']            = 'Filter';
@@ -81,7 +82,6 @@ $_['entry_status']           = 'Status';
 $_['entry_sort_order']       = 'Sort Order';
 $_['entry_category']         = 'Categories';
 $_['entry_sub_category']     = 'include subcategories';
-$_['entry_main_category']    = 'Main Category';
 $_['entry_min']              = 'From';
 $_['entry_max']              = 'To';
 $_['entry_filter']           = 'Filters';
@@ -250,3 +250,23 @@ $_['text_purchase_block_choose_form'] = '— Choose an existing form / block —
 $_['error_meta_h1'] = 'HTML H1 tag must be between 0 and 255 characters!';
 $_['text_action'] = 'Action';
 $_['js_purchase_presets_json'] = '{}';
+
+$_['tab_public_documents'] = 'Documents';
+$_['entry_public_document'] = 'Public documents';
+$_['help_public_document'] = 'Select previously uploaded documents by name. These are free files, separate from paid digital downloads.';
+$_['text_manage_public_documents'] = 'Manage documents';
+$_['text_unlink_public_document'] = 'Remove document link';
+
+// CodeCart PRO: aligned locale keys
+$_['column_category'] = 'Category';
+$_['column_manufacturer'] = 'Manufacturer';
+$_['entry_description_mini'] = 'Short description:';
+$_['entry_heading'] = 'Heading';
+$_['help_keyword'] = 'Do not use spaces, instead replace spaces with - and make sure the keyword is globally unique.';
+$_['text_corner0'] = 'Top left';
+$_['text_corner1'] = 'Top right';
+$_['text_corner2'] = 'Bottom left';
+$_['text_corner3'] = 'Bottom right';
+$_['entry_sticker'] = 'Promo stickers';
+$_['text_benefits'] = 'Benefits:';
+$_['error_tab'] = 'Enter a tab name';

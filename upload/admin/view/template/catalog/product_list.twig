@@ -1,5 +1,6 @@
 {{ header }}{{ column_left }}
 <div id="content">
+  <link rel="stylesheet" href="view/stylesheet/codecart_product_list.css?v=3.0.6.5" />
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
@@ -9,8 +10,6 @@
         {% if codecart_relation_status %}<button type="submit" form="form-product" formaction="{{ relation_queue_selected }}" data-toggle="tooltip" title="{{ button_relation_selected }}" class="btn btn-default"><i class="fa fa-random"></i></button>{% endif %}
         <button type="submit" form="form-product" formaction="{{ enabled }}" data-toggle="tooltip" title="{{ button_enable }}" class="btn btn-default"><i class="fa fa-play"></i></button>
 		<button type="submit" form="form-product" formaction="{{ disabled }}" data-toggle="tooltip" title="{{ button_disable }}" class="btn btn-default"><i class="fa fa-pause"></i></button>
-		<button type="submit" form="form-product" formaction="{{ extra_tab_global }}" data-toggle="tooltip" title="{{ button_extra_tab_global }}" class="btn btn-default"><i class="fa fa-folder-open"></i></button>
-		<button type="submit" form="form-product" formaction="{{ extra_tab_hidden }}" data-toggle="tooltip" title="{{ button_extra_tab_hidden }}" class="btn btn-default"><i class="fa fa-eye-slash"></i></button>
 		<button type="button" form="form-product" formaction="{{ delete }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-product').submit() : false;"><i class="fa fa-trash-o"></i></button>
       </div>
       <h1>{{ heading_title }}</h1>
@@ -266,14 +265,22 @@
         </div>
       </div>
       <div class="col-md-9 col-md-pull-3 col-sm-12">
-        <div class="panel panel-default">
+        <div class="panel panel-default" id="ccp-product-list">
           <div class="panel-heading">
             <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
           </div>
           <div class="panel-body">
-            <div class="row product-pagination-top">
-              <div class="col-sm-6 text-left">{{ pagination }}</div>
-              <div class="col-sm-6 text-right">{{ results }}</div>
+            <div class="product-pagination-top">
+              <div class="product-pagination-pages text-left">{{ pagination }}</div>
+              <div class="product-pagination-summary text-right">{{ results }}
+                <label for="input-product-limit" class="ccp-products-limit-label">{{ text_products_per_page }}
+                  <select id="input-product-limit" name="limit" class="form-control input-sm" aria-label="{{ text_products_per_page }}">
+                    {% for page_limit in product_limit_options %}
+                    <option value="{{ page_limit }}"{% if page_limit == product_limit %} selected="selected"{% endif %}>{{ page_limit }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+              </div>
             </div>
             <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-product">
               <div class="table-responsive">
@@ -338,6 +345,61 @@
     </div>
   </div>
   <script type="text/javascript"><!--
+// Preserve original Twig cell markup for third-party OCMOD insertions (photo/price plugins).
+$(function() {
+  var $table = $('#ccp-product-list table.table').first();
+  var $head = $table.find('thead tr:first > td');
+  if (!$head.length) { return; }
+
+  // Locate sorted fields by links instead of fixed numeric positions.
+  // Other installed modules can insert additional columns (for example Фото).
+  function markSort(sortValue, columnClass, cellClass, textClass) {
+    var $header = $head.filter(function() {
+      return $(this).find('a[href]').filter(function() {
+        var href = $(this).attr('href') || '';
+        return href.indexOf('sort=' + sortValue) !== -1;
+      }).length > 0;
+    }).first();
+    if (!$header.length) { return; }
+    $header.addClass(columnClass);
+    var index = $header.index();
+    $table.find('tbody tr').each(function() {
+      var $cell = $(this).children('td').eq(index);
+      if (!$cell.length) { return; }
+      if (cellClass) { $cell.addClass(cellClass); }
+      if (textClass && !$cell.children().length && $.trim($cell.text())) {
+        var fullText = $.trim($cell.text());
+        $cell.wrapInner('<span class="' + textClass + '"></span>');
+        $cell.children('span.' + textClass).attr('title', fullText);
+      }
+    });
+  }
+
+  $head.first().addClass('ccp-col-select');
+  $head.eq(1).addClass('ccp-col-image');
+  $head.last().addClass('ccp-col-action');
+  $table.find('tbody tr').each(function() {
+    $(this).children('td').last().addClass('ccp-col-action');
+  });
+  $head.filter(function() {
+    return $(this).find('.ccimp-photo-quality-refresh').length > 0;
+  }).addClass('ccp-col-photo');
+
+  markSort('pd.name', 'ccp-col-name', 'ccp-product-name-cell', 'ccp-product-name');
+  markSort('p.model', 'ccp-col-model', 'ccp-product-model-cell', 'ccp-product-model');
+  markSort('p.price', 'ccp-col-price');
+  markSort('p.quantity', 'ccp-col-quantity');
+  markSort('p.status', 'ccp-col-status');
+  markSort('p.noindex', 'ccp-col-index');
+});
+$('#input-product-limit').on('change', function() {
+	var allowed = ['20', '30', '50', '100'];
+	if (allowed.indexOf(this.value) === -1) { return; }
+	var url = new URL(window.location.href);
+	url.searchParams.set('limit', this.value);
+	url.searchParams.delete('page');
+	window.location.assign(url.toString());
+});
 $('#button-filter').on('click', function() {
 	var url = '';
 
@@ -411,10 +473,22 @@ $('#button-filter').on('click', function() {
 	var filter_seo_url = $('input[name=\'filter_seo_url\']').val();
 	if (filter_seo_url) { url += '&filter_seo_url=' + encodeURIComponent(filter_seo_url); }
 
+	var currentParams = new URLSearchParams(window.location.search);
+	var currentSort = currentParams.get('sort');
+	var currentOrder = currentParams.get('order');
+	if (currentSort) { url += '&sort=' + encodeURIComponent(currentSort); }
+	if (currentOrder) { url += '&order=' + encodeURIComponent(currentOrder); }
+	url += '&limit=' + encodeURIComponent($('#input-product-limit').val());
 	location = 'index.php?route=catalog/product&user_token={{ user_token }}' + url;
 });
 $('#button-clear-filter').on('click', function() {
-	location = 'index.php?route=catalog/product&user_token={{ user_token }}';
+	var params = new URLSearchParams(window.location.search);
+	var sort = params.get('sort');
+	var order = params.get('order');
+	var url = 'index.php?route=catalog/product&user_token={{ user_token }}&limit=' + encodeURIComponent($('#input-product-limit').val());
+	if (sort) { url += '&sort=' + encodeURIComponent(sort); }
+	if (order) { url += '&order=' + encodeURIComponent(order); }
+	location = url;
 });
 //--></script> 
   <script type="text/javascript"><!--

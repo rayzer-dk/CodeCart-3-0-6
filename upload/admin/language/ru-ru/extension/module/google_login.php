@@ -8,9 +8,9 @@ $_['text_enabled'] = 'Включено';
 $_['text_disabled'] = 'Отключено';
 $_['text_help'] = 'Упрощённый безопасный вход через Google OAuth 2.0. Токены Google не сохраняются. Добавьте Redirect URI ниже в Google Cloud Console.';
 $_['entry_status'] = 'Статус';
-$_['entry_client_id'] = 'Google Client ID';
-$_['entry_client_secret'] = 'Google Client Secret';
-$_['entry_redirect_uri'] = 'Redirect URI';
+$_['entry_client_id'] = 'Идентификатор клиента Google';
+$_['entry_client_secret'] = 'Секретный ключ клиента Google';
+$_['entry_redirect_uri'] = 'URI перенаправления';
 $_['entry_auto_register'] = 'Автоматически создавать покупателя';
 $_['entry_show_login'] = 'Показывать на странице входа';
 $_['entry_show_checkout'] = 'Показывать в быстром оформлении';
@@ -19,3 +19,6 @@ $_['help_checkout'] = 'По умолчанию выключено, чтобы н
 $_['error_permission'] = 'У вас нет прав на изменение Google Login.';
 $_['error_credentials'] = 'Для включения нужны Google Client ID и Client Secret.';
 $_['button_show_secret'] = 'Показать / скрыть приватный ключ';
+
+// CodeCart PRO: aligned locale keys
+$_['button_copy'] = 'Копировать';

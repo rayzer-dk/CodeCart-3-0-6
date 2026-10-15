@@ -15,3 +15,6 @@ $_['column_products_sitemap'] = 'Пример sitemap товаров';
 $_['button_copy'] = 'Копировать';
 $_['button_open'] = 'Открыть';
 $_['text_no_prefix'] = 'без префикса';
+
+// CodeCart PRO: aligned locale keys
+$_['text_feed'] = 'Каналы';

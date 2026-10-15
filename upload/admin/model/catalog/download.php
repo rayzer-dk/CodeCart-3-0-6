@@ -34,7 +34,20 @@ class ModelCatalogDownload extends Model {
 	}
 
 	public function getDownloads($data = array()) {
-		$sql = "SELECT * FROM " . DB_PREFIX . "download d LEFT JOIN " . DB_PREFIX . "download_description dd ON (d.download_id = dd.download_id) WHERE dd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+        // Stats are independent of entitlement and available only after schema initialization.
+        $stats = (bool)$this->config->get('codecart_file_stats_status');
+        $sql = "SELECT d.*,dd.name";
+        if ($stats) {
+            $sql .= ",COALESCE(s.download_count,0) AS stats_download_count,s.last_download AS stats_last_download,COALESCE(sd.hits,0) AS stats_30d";
+        } else {
+            $sql .= ",0 AS stats_download_count,NULL AS stats_last_download,0 AS stats_30d";
+        }
+        $sql .= " FROM `" . DB_PREFIX . "download` d LEFT JOIN `" . DB_PREFIX . "download_description` dd ON (d.download_id = dd.download_id)";
+        if ($stats) {
+            $sql .= " LEFT JOIN `" . DB_PREFIX . "codecart_download_stats` s ON s.download_id=d.download_id";
+            $sql .= " LEFT JOIN (SELECT download_id,SUM(download_count) AS hits FROM `" . DB_PREFIX . "codecart_download_daily` WHERE day >= DATE_SUB(CURDATE(), INTERVAL 29 DAY) GROUP BY download_id) sd ON sd.download_id=d.download_id";
+        }
+        $sql .= " WHERE dd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
 		if (!empty($data['filter_name'])) {
 			$sql .= " AND dd.name LIKE '" . $this->db->escape($data['filter_name']) . "%'";

@@ -75,3 +75,12 @@ $_['error_stock_notify_available'] = 'This product is already available.';
 $_['error_stock_notify'] = 'Could not save your notification request.';
 
 $_['text_option_out_of_stock'] = 'Out of stock';
+
+// CodeCart PRO: aligned locale keys
+$_['text_benefits'] = 'Benefits:';
+
+// Product photo carousel
+$_['text_previous_images'] = 'Previous images';
+$_['text_next_images'] = 'Next images';
+
+$_['error_method_not_allowed'] = 'Method not allowed.';

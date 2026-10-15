@@ -24,3 +24,6 @@ $_['text_model_desc']   = 'Model (Z - A)';
 $_['text_limit']        = 'Show:';
 $_['text_tax_amount'] = 'Tax amount:';
 $_['text_tax_included'] = 'Incl. VAT:';
+
+// CodeCart PRO: aligned locale keys
+$_['text_benefits'] = 'Benefits:';

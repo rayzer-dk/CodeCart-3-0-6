@@ -50,3 +50,21 @@ $_['error_not_found']                      = 'Could not cancel recurring';
 
 // Button
 $_['button_return']                        = 'Return';
+// CodeCart PRO: aligned locale keys
+$_['text_recurring_id'] = 'Recurring profile ID: ';
+$_['text_recurring_description'] = 'Description: ';
+$_['text_ref'] = 'Reference: ';
+$_['text_status_active'] = 'Active';
+$_['text_status_inactive'] = 'Inactive';
+$_['text_status_cancelled'] = 'Cancelled';
+$_['text_status_suspended'] = 'Suspended';
+$_['text_status_expired'] = 'Expired';
+$_['text_status_pending'] = 'Pending';
+$_['text_order'] = 'Order Information';
+$_['text_action'] = 'Action';
+$_['text_transactions'] = 'Transactions';
+$_['text_empty_transactions'] = 'There are no transactions for this recurring profile.';
+$_['column_action'] = 'Action';
+$_['column_recurring_id'] = 'Recurring profile ID';
+$_['button_continue'] = 'Continue';
+$_['button_view'] = 'View';

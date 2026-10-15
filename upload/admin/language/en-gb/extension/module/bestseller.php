@@ -47,3 +47,6 @@ $_['help_heading'] = 'Optional. Leave blank to use the standard translated modul
 
 $_['entry_show_heading'] = 'Show heading';
 $_['help_show_heading'] = 'Hide the storefront module heading without removing the multilingual heading text.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_module'] = 'Modules';

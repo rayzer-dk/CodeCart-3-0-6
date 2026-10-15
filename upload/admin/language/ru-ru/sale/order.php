@@ -132,3 +132,6 @@ $_['text_shipping_total'] = 'Стоимость доставки';
 $_['text_tax_total'] = 'Налоги';
 $_['text_discount_total'] = 'Скидки / кредиты';
 $_['text_ip_add'] = 'Добавить ваш IP (%s) в список разрешённых API';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_fax'] = 'Факс';

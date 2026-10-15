@@ -1,5 +1,4 @@
-# UniShop2 compatibility — Build 2.0.4
-
+# UniShop2 compatibility
 [Українська](UNISHOP2_COMPATIBILITY.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 **Back up the website/database before installing or updating a theme.** UniShop2 3.6.6.0 requires PHP 8.1–8.3 and a compatible ionCube Loader according to its own requirements. CodeCart core's PHP 8.4/8.5 support does not extend those theme requirements.

@@ -30,3 +30,8 @@ $_['error_permission']     = 'Warning: You do not have permission to modified AP
 $_['error_username']       = 'API USername must be between 3 and 20 characters!';
 $_['error_key']            = 'API Key must be between 64 and 256 characters!';
 $_['error_ip']             = 'You must have at least one IP added to the allowed list!';
+
+// CodeCart PRO: aligned locale keys
+$_['column_name'] = 'User Group Name';
+$_['entry_name'] = 'User Group Name';
+$_['error_name'] = 'User Group Name must be between 3 and 64 characters!';

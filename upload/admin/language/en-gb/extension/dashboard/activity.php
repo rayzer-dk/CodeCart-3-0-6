@@ -30,3 +30,23 @@ $_['entry_width']                  = 'Width';
 
 // Error
 $_['error_permission']             = 'Warning: You do not have permission to modify dashboard activity!';
+// CodeCart PRO: aligned locale keys
+$_['text_affiliate_edit'] = '<a href="affiliate_id=%d">%s</a> - account details were updated.';
+$_['text_customer_address_add'] = '<a href="customer_id=%d">%s</a> - added a new address.';
+$_['text_customer_address_edit'] = '<a href="customer_id=%d">%s</a> - updated an address.';
+$_['text_customer_address_delete'] = '<a href="customer_id=%d">%s</a> - deleted an address.';
+$_['text_customer_edit'] = '<a href="customer_id=%d">%s</a> - updated account details.';
+$_['text_customer_forgotten'] = '<a href="customer_id=%d">%s</a> - requested a new password.';
+$_['text_customer_reset'] = '<a href="customer_id=%d">%s</a> - reset the account password.';
+$_['text_customer_login'] = '<a href="customer_id=%d">%s</a> - logged in.';
+$_['text_customer_password'] = '<a href="customer_id=%d">%s</a> - updated the password.';
+$_['text_customer_register'] = '<a href="customer_id=%d">%s</a> - registered.';
+$_['text_customer_return_account'] = '<a href="customer_id=%d">%s</a> - requested a return.';
+$_['text_customer_return_guest'] = '%s - requested a return.';
+$_['text_customer_order_account'] = '<a href="customer_id=%d">%s</a> <a href="order_id=%d"> - placed a new order</a>.';
+$_['text_customer_order_guest'] = '%s <a href="order_id=%d"> - placed a new order</a>.';
+$_['text_affiliate_forgotten'] = '<a href="affiliate_id=%d">%s</a> - requested a new password.';
+$_['text_affiliate_login'] = '<a href="affiliate_id=%d">%s</a> - logged in.';
+$_['text_affiliate_password'] = '<a href="affiliate_id=%d">%s</a> - updated the password.';
+$_['text_affiliate_payment'] = '<a href="affiliate_id=%d">%s</a> - updated payment details.';
+$_['text_affiliate_register'] = '<a href="affiliate_id=%d">%s</a> - registered.';

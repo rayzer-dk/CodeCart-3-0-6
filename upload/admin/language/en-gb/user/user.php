@@ -38,3 +38,6 @@ $_['error_email']           = 'E-Mail Address does not appear to be valid!';
 $_['error_exists_email']    = 'Warning: E-Mail Address is already registered!';
 $_['error_single_user']     = 'Warning: You can not disable your own account!';
 $_['text_show_password'] = 'Show / hide password';
+
+// CodeCart PRO: aligned locale keys
+$_['error_exists'] = 'File does not exist!';

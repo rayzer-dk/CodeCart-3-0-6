@@ -29,7 +29,6 @@ $_['text_images_text_1']            = 'eBay images will be uploaded to eBay. Sup
 $_['text_images_text_2']            = 'Template images will be added to your listing description and hosted from your web site, these are free. (Your listing template must have the {gallery} tag)';
 $_['text_image_ebay']               = 'eBay image';
 $_['text_images_none']              = 'You have no images for this product, you must add images before you can list';
-$_['text_width']      				= 'Width';
 $_['text_height']      				= 'Height';
 $_['text_px']      					= 'px';
 $_['text_item_postcode_help']       = 'A postcode will help eBay choose a correct location for your listing';
@@ -178,7 +177,6 @@ $_['help_shipping_promotion_discount'] = 'Offer national buyers a discount on sh
 $_['help_shipping_promotion_discount_international'] = 'Offer international buyers a discount on shipping if they buy multiple items. Discounts must have been setup in eBay to take effect.';
 
 // Error
-$_['error_choose_category']    		= 'You must choose a category';
 $_['error_search_text']         	= 'Enter search text';
 $_['error_no_stock']           		= 'You cannot list an item with zero stock';
 $_['error_catalog_data']    		= 'No eBay catalog data was found for your product in eBay';

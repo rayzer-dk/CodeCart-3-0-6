@@ -1,7 +1,7 @@
 <?php
 
 // Heading
-$_['heading_title']                    = 'CodeCart Theme';
+$_['heading_title']                    = 'Тема CodeCart';
 
 // Text
 $_['text_extension']                   = 'Доповнення';

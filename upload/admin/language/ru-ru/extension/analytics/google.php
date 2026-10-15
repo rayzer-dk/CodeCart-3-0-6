@@ -10,3 +10,6 @@ $_['entry_code'] = 'Код Google Analytics';
 $_['entry_status'] = 'Статус';
 $_['error_permission'] = 'У вас нет прав для изменения Google Analytics!';
 $_['error_code'] = 'Укажите код!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_analytics'] = 'Аналитика';

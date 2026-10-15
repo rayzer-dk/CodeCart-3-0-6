@@ -19,15 +19,14 @@ class ControllerCronStockNotify extends Controller {
             $sc=array(); foreach($sq->rows as $sr){$sc[$sr['key']]=$sr['value'];}
             $base=!empty($sc['config_ssl'])?rtrim((string)$sc['config_ssl'],'/'):(!empty($sc['config_url'])?rtrim((string)$sc['config_url'],'/'):(defined('HTTP_SERVER')?rtrim(HTTP_SERVER,'/'):rtrim(HTTP_CATALOG,'/')));
             $url=$base.'/index.php?route=product/product&product_id='.(int)$row['product_id'];
-            $lc=strtolower((string)$row['language_code']);
-            if(strpos($lc,'uk')===0){
-                $notifyLanguage = new Language((string)$row['language_code']);
-                $notifyLanguage->load('cron/stock_notify');
-                $subjectPrefix = $notifyLanguage->get('text_subject_prefix');
-                $lead = $notifyLanguage->get('text_lead');
-                $button = $notifyLanguage->get('text_button');
-            } elseif(strpos($lc,'en')===0){$subjectPrefix='Back in stock: ';$lead='The product is available to order again.';$button='View product';}
-            else{$subjectPrefix='Товар снова в наличии: ';$lead='Товар снова доступен для заказа.';$button='Перейти к товару';}
+            // Use a dedicated language resource for every subscriber, not hardcoded templates.
+            $lc = strtolower(str_replace('_', '-', (string)$row['language_code']));
+            $notifyLocale = strpos($lc, 'uk') === 0 ? 'uk-ua' : (strpos($lc, 'ru') === 0 ? 'ru-ru' : 'en-gb');
+            $notifyLanguage = new Language($notifyLocale);
+            $notifyLanguage->load('cron/stock_notify');
+            $subjectPrefix = $notifyLanguage->get('text_subject_prefix');
+            $lead = $notifyLanguage->get('text_lead');
+            $button = $notifyLanguage->get('text_button');
             $subject=$subjectPrefix.html_entity_decode((string)$row['name'],ENT_QUOTES,'UTF-8');
             $image=''; if(!empty($row['image'])){$image=$base.'/image/'.ltrim((string)$row['image'],'/');}
             $html='<p>'.htmlspecialchars($lead,ENT_QUOTES,'UTF-8').'</p><h2>'.htmlspecialchars((string)$row['name'],ENT_QUOTES,'UTF-8').'</h2>'.(!empty($row['option_label'])?'<p><strong>'.htmlspecialchars((string)$row['option_label'],ENT_QUOTES,'UTF-8').'</strong></p>':'').($image?'<p><img src="'.htmlspecialchars($image,ENT_QUOTES,'UTF-8').'" alt="" style="max-width:240px;height:auto"></p>':'').'<p><a href="'.htmlspecialchars($url,ENT_QUOTES,'UTF-8').'">'.htmlspecialchars($button,ENT_QUOTES,'UTF-8').'</a></p>';

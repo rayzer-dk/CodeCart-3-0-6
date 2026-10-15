@@ -75,3 +75,9 @@ $_['error_download']     = 'Extension could not be downloaded!';
 
 $_['text_remote_disabled'] = 'Remote marketplace access is disabled in this build. Use local Extensions/Installer/Modifications instead.';
 $_['text_featured'] = 'Featured';
+
+// CodeCart PRO: aligned locale keys
+$_['text_recommended'] = 'Recommended';
+$_['button_forgot_pin'] = 'Forgot PIN?';
+
+$_['text_comment_placeholder'] = 'Write your comment here...';

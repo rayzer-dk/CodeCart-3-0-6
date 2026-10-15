@@ -62,3 +62,12 @@ $_['error_stock_notify_email'] = 'Укажите корректный email.';
 $_['error_stock_notify_available'] = 'Этот товар уже есть в наличии.';
 $_['error_stock_notify'] = 'Не удалось сохранить запрос на уведомление.';
 $_['text_option_out_of_stock'] = 'Нет в наличии';
+
+// Product photo carousel
+$_['text_previous_images'] = 'Предыдущие фотографии';
+$_['text_next_images'] = 'Следующие фотографии';
+
+// CodeCart PRO: aligned locale keys
+$_['text_benefits'] = 'Преимущества:';
+
+$_['error_method_not_allowed'] = 'Этот метод запроса не разрешен.';

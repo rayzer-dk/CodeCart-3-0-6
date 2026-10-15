@@ -1,5 +1,4 @@
-# CodeCart Compatibility Framework — Build 2.0.4
-
+# CodeCart Compatibility Framework
 [Українська](COMPATIBILITY_FRAMEWORK.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 ## Purpose

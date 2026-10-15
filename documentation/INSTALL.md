@@ -1,5 +1,4 @@
-# Installation — Build 2.0.4
-
+# Installation
 [Українська](INSTALL.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 **Create and verify a complete website and database backup before installing.** An existing store requires [UPDATE](UPGRADE.md); clean installation requires an empty database and web root.

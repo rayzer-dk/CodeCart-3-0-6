@@ -40,3 +40,12 @@ $_['error_order']       = 'Warning: This language cannot be deleted as it is cur
 $_['error_url_prefix'] = 'URL prefix must contain only lowercase Latin letters, digits and hyphens (1-32 characters) and must not use a reserved system path!';
 $_['error_url_prefix_exists'] = 'This URL prefix is already assigned to another language!';
 $_['error_url_prefix_seo'] = 'This URL prefix conflicts with an existing top-level SEO keyword. Choose another prefix or rename the SEO URL first!';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_image'] = 'Image';
+$_['entry_directory'] = 'Directory';
+$_['help_code'] = 'Do not change if this is your default currency.';
+$_['help_image'] = 'Example: en-gb.png';
+$_['help_directory'] = 'This field is only to enable older themes to be compatible with the new theme system. You can set the theme directory to use on the image size settings defined here.';
+$_['error_image'] = 'Image required!';
+$_['error_directory'] = 'Warning: Invalid directory!';

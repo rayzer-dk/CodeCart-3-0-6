@@ -105,3 +105,6 @@ $_['error_bank_account_number'] = 'Укажите номер счёта';
 $_['text_filter'] = 'Фильтр';
 
 $_['text_show_password'] = 'Показать или скрыть пароль';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_fax'] = 'Факс';

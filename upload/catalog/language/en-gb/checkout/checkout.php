@@ -112,3 +112,6 @@ $_['entry_quick_address_2'] = 'Address details';
 
 // CodeCart PRO RC65: one-click quick checkout
 $_['button_quick_order'] = 'Place order';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_fax'] = 'Fax';

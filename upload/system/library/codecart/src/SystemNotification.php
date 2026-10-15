@@ -36,7 +36,10 @@ final class SystemNotification {
 
     public function resolve(string $code): void {
         if (!$this->tableExists()) { return; }
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status='resolved', date_modified=NOW() WHERE code='" . $this->db->escape(strtolower(trim($code))) . "' AND status!='resolved'");
+        $code = $this->db->escape(strtolower(trim($code)));
+        // Keep the full history. A dismissed warning that is fixed becomes resolved;
+        // if it recurs, notify() reopens it because its status was resolved.
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status='resolved', date_modified=NOW() WHERE code='" . $code . "' AND status!='resolved'");
     }
 
     public function unreadCount(): int {
@@ -48,13 +51,46 @@ final class SystemNotification {
     public function latest(int $limit=5): array {
         if (!$this->tableExists()) { return array(); }
         $limit=max(1,min(50,$limit));
-        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_notification` WHERE status!='resolved' ORDER BY FIELD(severity,'critical','error','warning','info'), notification_id DESC LIMIT " . (int)$limit)->rows;
+        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_notification` WHERE status NOT IN ('resolved','dismissed') ORDER BY FIELD(severity,'critical','error','warning','info'), notification_id DESC LIMIT " . (int)$limit)->rows;
     }
 
-    public function all(int $limit=100): array {
+    // A dismissed notice is retained as a tombstone so the next cron/preflight
+    // pass cannot recreate the exact same warning. It becomes unread if its
+    // message/severity changes or if it is resolved and later recurs.
+    private function visibleCondition(string $status = 'all'): string {
+        if (in_array($status, array('unread', 'read', 'resolved', 'dismissed'), true)) {
+            return "status='" . $status . "'";
+        }
+        return "status IN ('unread','read','resolved')";
+    }
+
+    public function counts(): array {
+        $counts = array('all' => 0, 'unread' => 0, 'read' => 0, 'resolved' => 0, 'dismissed' => 0);
+        if (!$this->tableExists()) { return $counts; }
+        $rows = $this->db->query("SELECT status, COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('unread','read','resolved','dismissed') GROUP BY status")->rows;
+        foreach ($rows as $row) {
+            $status = (string)$row['status'];
+            if (isset($counts[$status])) {
+                $counts[$status] = (int)$row['total'];
+                if ($status !== 'dismissed') { $counts['all'] += $counts[$status]; }
+            }
+        }
+        return $counts;
+    }
+
+    public function page(int $page = 1, int $perPage = 50, string $status = 'all'): array {
         if (!$this->tableExists()) { return array(); }
-        $limit=max(1,min(500,$limit));
-        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_notification` ORDER BY (status='unread') DESC, FIELD(severity,'critical','error','warning','info'), notification_id DESC LIMIT " . (int)$limit)->rows;
+        $page = max(1, $page);
+        $perPage = max(1, min(500, $perPage));
+        // OFFSET and LIMIT are always integers. Status is selected exclusively
+        // from the internal whitelist in visibleCondition().
+        $offset = ($page - 1) * $perPage;
+        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_notification` WHERE " . $this->visibleCondition($status) . " ORDER BY (status='unread') DESC, FIELD(severity,'critical','error','warning','info'), notification_id DESC LIMIT " . (int)$offset . "," . (int)$perPage)->rows;
+    }
+
+    // Historical API retained for compatibility with extensions using it.
+    public function all(int $limit = 100): array {
+        return $this->page(1, max(1, min(500, $limit)), 'all');
     }
 
 
@@ -174,15 +210,18 @@ final class SystemNotification {
     }
 
 
-    public function delete(int $id): void {
-        if ($id>0 && $this->tableExists()) {
-            $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_notification` WHERE notification_id='" . (int)$id . "'");
-        }
+    public function delete(int $id): bool {
+        if ($id <= 0 || !$this->tableExists()) { return false; }
+        // A hard DELETE allows the next health/queue poll to reinsert the row
+        // immediately. Preserve a dismissed tombstone until the condition changes.
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status='dismissed', date_modified=NOW() WHERE notification_id='" . (int)$id . "' AND status!='dismissed'");
+        return method_exists($this->db, 'countAffected') ? ((int)$this->db->countAffected() > 0) : true;
     }
 
     public function deleteReadAndResolved(): void {
         if ($this->tableExists()) {
-            $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('read','resolved')");
+            // Bulk clear must also survive recurring notices from background jobs.
+            $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status='dismissed', date_modified=NOW() WHERE status IN ('read','resolved')");
         }
     }
 

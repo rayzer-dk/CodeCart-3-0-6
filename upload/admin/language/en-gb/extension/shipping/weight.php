@@ -19,3 +19,5 @@ $_['help_rate']        = 'Example: 5:10.00,7:12.00 Weight:Cost,Weight:Cost, etc.
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify weight based shipping!';
+// CodeCart PRO: aligned locale keys
+$_['text_shipping'] = 'Shipping';

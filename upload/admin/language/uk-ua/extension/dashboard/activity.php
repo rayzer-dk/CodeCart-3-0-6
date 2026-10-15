@@ -21,7 +21,6 @@ $_['text_activity_return_guest']   = '%s надіслав запит на <a hre
 $_['text_activity_order_account']  = '<a href="customer_id=%d">%s</a> <a href="order_id=%d"> - нове замовлення</a>.';
 $_['text_activity_order_guest']    = '%s <a href="order_id=%d"> - нове замовлення</a>.';
 $_['text_activity_affiliate_edit'] = '<a href="customer_id=%d">%s</a> - реєстрація облікового запису.';
-$_['text_affiliate_edit']          = '<a href="customer_id=%d">%s</a> - оновлена інформація облікового запису.';
 $_['text_activity_transaction']    = '<a href="customer_id=%d">%s</a> - отримано комісію за <a href="order_id=%d">замовлення</a>.';
 
 $_['text_customer_address_add']    = '<a href="customer_id=%d">%s</a> - додана нова адреса.';

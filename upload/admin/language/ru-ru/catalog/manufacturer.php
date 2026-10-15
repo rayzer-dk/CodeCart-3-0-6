@@ -38,3 +38,9 @@ $_['error_product'] = 'Этого производителя нельзя уда
 $_['button_generate_seo_url'] = 'Сгенерировать SEO URL';
 $_['error_meta_title'] = 'Мета-тег Title должен содержать от 0 до 255 символов!';
 $_['error_meta_h1'] = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_description_bottom'] = 'Описание внизу:';
+$_['error_warning'] = 'Внимательно проверьте форму на ошибки!';
+$_['help_keyword'] = 'Должен быть уникальным во всей системе, без пробелов и спецсимволов';
+$_['help_noindex'] = 'Индексация поисковыми системами Google, Yandex, Bing и др.';

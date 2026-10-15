@@ -9,3 +9,6 @@ $_['error_password'] = 'Пароль должен содержать от 10 д�
 $_['error_confirm'] = 'Пароли не совпадают!';
 
 $_['text_show_password'] = 'Показать или скрыть пароль';
+
+// CodeCart PRO: aligned locale keys
+$_['text_reset'] = 'Сброс пароля';

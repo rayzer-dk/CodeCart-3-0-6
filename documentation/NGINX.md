@@ -1,5 +1,4 @@
-# nginx + PHP-FPM — Build 2.0.4
-
+# nginx + PHP-FPM
 [Українська](NGINX.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 Apache uses the supplied `.htaccess`; nginx requires equivalent server rules. The configuration below was verified with nginx 1.24 and PHP-FPM 8.3 for SEO/language prefixes, sitemap rewriting and protected storage/template/SQL paths. Other server/PHP combinations require their own hosting checks.

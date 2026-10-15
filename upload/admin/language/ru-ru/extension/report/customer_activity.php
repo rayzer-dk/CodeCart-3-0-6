@@ -32,3 +32,17 @@ $_['entry_date_end'] = 'Дата окончания';
 $_['entry_status'] = 'Статус';
 $_['entry_sort_order'] = 'Порядок сортировки';
 $_['error_permission'] = 'Внимание: у вас нет прав для изменения отчёта активности покупателей!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_address_add'] = '<a href="customer_id=%d">%s</a> — добавил новый адрес.';
+$_['text_address_delete'] = '<a href="customer_id=%d">%s</a> — удалил адрес.';
+$_['text_address_edit'] = '<a href="customer_id=%d">%s</a> — изменил адрес.';
+$_['text_forgotten'] = '<a href="customer_id=%d">%s</a> — запросил новый пароль.';
+$_['text_list'] = 'Список переводов';
+$_['text_login'] = '<a href="customer_id=%d">%s</a> — выполнил вход.';
+$_['text_order_account'] = '<a href="customer_id=%d">%s</a> <a href="order_id=%d"> - оформил новый заказ</a>.';
+$_['text_order_guest'] = '%s <a href="order_id=%d"> - оформил новый заказ</a>.';
+$_['text_password'] = '<a href="customer_id=%d">%s</a> — обновил пароль.';
+$_['text_register'] = '<a href="customer_id=%d">%s</a> — зарегистрирован.';
+$_['text_return_account'] = '<a href="customer_id=%d">%s</a> — запросил возврат.';
+$_['text_return_guest'] = '%s — запросил возврат.';

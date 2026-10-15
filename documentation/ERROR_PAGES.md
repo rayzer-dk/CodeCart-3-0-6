@@ -1,5 +1,4 @@
-# Error pages — Build 2.0.4
-
+# Error pages
 [Українська](ERROR_PAGES.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 Bundled CodeCart/default storefront templates provide responsive 404 and maintenance pages with English, Ukrainian and Russian text. A missing page offers home/search; maintenance offers a retry action. Missing products/categories/manufacturers/information pages retain HTTP 404. Maintenance returns HTTP 503 with `Retry-After: 3600`; error pages are not indexed.

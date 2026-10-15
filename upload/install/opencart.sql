@@ -4063,7 +4063,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 (0, 'config', 'config_checkout_id', '5', 0),
 (0, 'config', 'config_order_status_id', '1', 0),
 (0, 'config', 'config_processing_status', '["5","1","2","12","3"]', 1),
-(0, 'config', 'config_complete_status', '["5","3"]', 1),
+(0, 'config', 'config_complete_status', '["5"]', 1),
 (0, 'config', 'config_stock_display', '0', 0),
 (0, 'config', 'config_stock_warning', '0', 0),
 (0, 'config', 'config_stock_checkout', '0', 0),
@@ -10020,3 +10020,55 @@ CREATE TABLE `oc_stock_notify` (
   KEY `status_product` (`status`,`product_id`),
   KEY `customer_id` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- CodeCart built-in public documents and download statistics (Build 2.0.7)
+CREATE TABLE `oc_codecart_public_document` (
+              document_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              kind VARCHAR(24) NOT NULL DEFAULT 'manual',
+              target_type VARCHAR(16) NOT NULL DEFAULT 'none',
+              target_id INT UNSIGNED NOT NULL DEFAULT 0,
+              filename VARCHAR(128) NOT NULL,
+              original_name VARCHAR(255) NOT NULL,
+              filesize BIGINT UNSIGNED NOT NULL DEFAULT 0,
+              mime VARCHAR(120) NOT NULL DEFAULT 'application/octet-stream',
+              status TINYINT(1) NOT NULL DEFAULT 0,
+              sort_order INT NOT NULL DEFAULT 0,
+              download_count BIGINT UNSIGNED NOT NULL DEFAULT 0,
+              last_download DATETIME NULL,
+              date_added DATETIME NOT NULL,
+              date_modified DATETIME NOT NULL,
+              PRIMARY KEY (document_id), KEY target_lookup (status, target_type, target_id, sort_order)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `oc_codecart_public_document_description` (
+              document_id INT UNSIGNED NOT NULL,
+              language_id INT NOT NULL,
+              title VARCHAR(255) NOT NULL,
+              PRIMARY KEY (document_id,language_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `oc_codecart_document_to_product` (
+  document_id INT UNSIGNED NOT NULL,
+  product_id INT UNSIGNED NOT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (document_id,product_id),
+  KEY product_lookup (product_id,sort_order,document_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `oc_codecart_public_document_daily` (
+              document_id INT UNSIGNED NOT NULL, day DATE NOT NULL,
+              download_count INT UNSIGNED NOT NULL DEFAULT 0,
+              PRIMARY KEY (document_id,day), KEY day_lookup (day)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `oc_codecart_download_stats` (
+              download_id INT UNSIGNED NOT NULL,
+              download_count BIGINT UNSIGNED NOT NULL DEFAULT 0,
+              last_download DATETIME NULL,
+              PRIMARY KEY (download_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `oc_codecart_download_daily` (
+              download_id INT UNSIGNED NOT NULL, day DATE NOT NULL,
+              download_count INT UNSIGNED NOT NULL DEFAULT 0,
+              PRIMARY KEY (download_id,day), KEY day_lookup (day)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `oc_setting` (`store_id`,`code`,`key`,`value`,`serialized`) VALUES (0,'codecart_core','codecart_file_stats_status','1',0);
+INSERT INTO `oc_setting` (`store_id`,`code`,`key`,`value`,`serialized`) VALUES (0,'codecart_core','codecart_public_documents_status','0',0);
+INSERT INTO `oc_setting` (`store_id`,`code`,`key`,`value`,`serialized`) VALUES (0,'codecart_core','codecart_public_documents_schema_version','2.0.8',0);

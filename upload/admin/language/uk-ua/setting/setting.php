@@ -9,7 +9,6 @@ $_['text_success']                     = 'Налаштування змінен�
 $_['text_edit']                        = 'Налаштування';
 $_['text_product']                     = 'Товари';
 $_['text_required']                  = 'Обов’язково';
-$_['text_review']                      = 'Відгуки';
 $_['text_voucher']                     = 'Подарункові сертифікати';
 $_['text_legal']                   = 'Політики Cookie та GDPR';
 $_['text_tax']                         = 'Податки';

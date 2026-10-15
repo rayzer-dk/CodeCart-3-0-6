@@ -1,5 +1,4 @@
-# Scheduler — Build 2.0.4
-
+# Scheduler
 [Українська](SCHEDULER.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 Open **System → Scheduler** and use its actual command with the correct PHP binary and absolute store path. One server cron launches registered CodeCart tasks; task intervals are configured internally. Daily lost URL cleanup uses this same scheduler. Independent third-party cron commands still need their own configuration. Visitor heartbeat cannot guarantee execution without traffic.

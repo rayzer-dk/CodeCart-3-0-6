@@ -18,3 +18,7 @@ $_['text_order']        = 'Order History';
 $_['text_wishlist']     = 'Wish List';
 $_['text_newsletter']   = 'Newsletter';
 $_['text_powered'] = 'Powered by <a href="https://codecartpro.com/download/" target="_blank" rel="noopener">CodeCart PRO</a><br /> %s &copy; %s';
+// CodeCart PRO: aligned locale keys
+$_['text_latest'] = 'Latest products';
+$_['text_bestseller'] = 'Bestsellers';
+$_['text_mostviewed'] = 'Most viewed products';

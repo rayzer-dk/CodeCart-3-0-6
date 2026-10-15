@@ -29,3 +29,6 @@ $_['column_date_added'] = 'Дата добавления';
 $_['column_status'] = 'Статус';
 $_['column_comment'] = 'Комментарий';
 $_['error_reorder'] = '%s в настоящее время не доступны для заказана.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_account_order_id'] = 'Номер заказа:';

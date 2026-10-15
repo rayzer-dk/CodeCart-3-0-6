@@ -30,3 +30,7 @@ $_['error_city'] = 'Название города должно содержат�
 $_['error_country'] = 'Пожалуйста, укажите страну!';
 $_['error_zone'] = 'Пожалуйста, укажите регион / область!';
 $_['error_custom_field'] = '%s необходим!';
+
+// CodeCart PRO: aligned locale keys
+$_['error_vat'] = 'Неверный номер НДС (VAT).';
+$_['text_edit_address'] = 'Редактировать адрес';

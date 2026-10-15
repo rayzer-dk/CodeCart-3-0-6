@@ -455,6 +455,9 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 				$current_id = isset($source['modification_id']) ? (int)$source['modification_id'] : 0;
 				$current_code = isset($source['code']) ? (string)$source['code'] : '';
 				$current_name = isset($source['name']) ? (string)$source['name'] : $current_code;
+				$source_type = isset($source['source']) ? (string)$source['source'] : 'database';
+				$source_key = $current_id > 0 ? (string)$current_id : $source_type . ':' . $current_code;
+				$source_file = $source_type === 'core' ? 'system/modification.xml' : ($source_type === 'system' ? 'system/' . basename($current_code) : '');
 				$mod_failed = false;
 				$mod_issue = '';
 				$mod_issue_file = '';
@@ -467,7 +470,18 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 				$issues = array();
 				$operation_index = 0;
 
-				if ($xml === '') { continue; }
+				if ($xml === '') {
+					$build_errors++;
+					$failed_modifications++;
+					$mod_issue = 'Empty or unreadable modification XML';
+					$issues[] = array('severity'=>'error','operation'=>0,'file'=>$source_file,'reason'=>$mod_issue,'search'=>'');
+					$compatibility[$source_key] = array('state'=>'error','name'=>$current_name,'code'=>$current_code,'source'=>$source_type,'source_file'=>$source_file,'message'=>$mod_issue,'file'=>$source_file,'declared_operations'=>0,'applied_matches'=>0,'ignored_operations'=>0,'skipped_operations'=>0,'target_files'=>0,'changed_files'=>array(),'changed_files_count'=>0,'rolled_back'=>true,'issues'=>$issues,'issues_count'=>1,'warning_issues_count'=>0,'info_issues_count'=>0,'checked_at'=>date('c'));
+					$log[] = 'MOD: ' . $current_name . ($current_id > 0 ? ' [ID ' . $current_id . ']' : '');
+					$log[] = 'ERROR: ' . $mod_issue;
+					$log[] = 'RESULT: NOT APPLIED - empty XML source';
+					$log[] = '----------------------------------------------------------------';
+					continue;
+				}
 
 				$dom = new DOMDocument('1.0', 'UTF-8');
 				$dom->preserveWhiteSpace = false;
@@ -479,11 +493,9 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 				if (!$loaded) {
 					$build_errors++; $mod_issue = 'Invalid modification XML';
 					$log[] = 'MOD: ' . $current_name; $log[] = 'ERROR: ' . $mod_issue;
-					if ($current_id > 0) {
-						$failed_modifications++;
-						$issues[] = array('severity'=>'error','operation'=>0,'file'=>'','reason'=>$mod_issue,'search'=>'');
-						$compatibility[(string)$current_id] = array('state'=>'error','name'=>$current_name,'code'=>$current_code,'message'=>$mod_issue,'file'=>'','declared_operations'=>0,'applied_matches'=>0,'ignored_operations'=>0,'skipped_operations'=>0,'target_files'=>0,'changed_files'=>array(),'changed_files_count'=>0,'rolled_back'=>true,'issues'=>$issues,'issues_count'=>count($issues),'warning_issues_count'=>$this->countCompatibilityIssues($issues, 'warning'),'info_issues_count'=>$this->countCompatibilityIssues($issues, 'info'),'checked_at'=>date('c'));
-					}
+					$failed_modifications++;
+					$issues[] = array('severity'=>'error','operation'=>0,'file'=>$source_file,'reason'=>$mod_issue,'search'=>'');
+					$compatibility[$source_key] = array('state'=>'error','name'=>$current_name,'code'=>$current_code,'source'=>$source_type,'source_file'=>$source_file,'message'=>$mod_issue,'file'=>$source_file,'declared_operations'=>0,'applied_matches'=>0,'ignored_operations'=>0,'skipped_operations'=>0,'target_files'=>0,'changed_files'=>array(),'changed_files_count'=>0,'rolled_back'=>true,'issues'=>$issues,'issues_count'=>count($issues),'warning_issues_count'=>0,'info_issues_count'=>0,'checked_at'=>date('c'));
 					$log[] = 'RESULT: INCOMPATIBLE - modification was not applied'; $log[] = '----------------------------------------------------------------';
 					continue;
 				}
@@ -638,7 +650,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 
 				if ($mod_failed) {
 					$modification = $recovery;
-					if ($current_id > 0) { $failed_modifications++; }
+					$failed_modifications++;
 					$log[] = 'RESULT: NOT APPLIED - entire modification rolled back';
 				} else {
 					foreach ($modification as $changed_key => $changed_value) {
@@ -655,8 +667,10 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 					$log[] = 'CHANGED: ' . implode(', ', $visible_changed) . (count($changed_file_list) > count($visible_changed) ? ' +' . (count($changed_file_list) - count($visible_changed)) : '');
 				}
 
-				if ($current_id > 0) {
-					$compatibility[(string)$current_id] = array(
+				{
+					$compatibility[$source_key] = array(
+						'source' => $source_type,
+						'source_file' => $source_file,
 						'state' => $mod_failed ? 'error' : ($this->hasCompatibilityWarnings($issues) ? 'warning' : 'ok'),
 						'name' => $current_name,
 						'code' => $current_code,
@@ -1280,6 +1294,34 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 			$results = $this->model_setting_modification->getModifications($filter_data);
 		}
 
+		// File-based OCMOD sources are not rows in the modification DB, but
+		// they participate in the same refresh and must appear in diagnostics.
+		$data['filesystem_modifications'] = array();
+		foreach ($compatibility_map as $source_item) {
+			if (!is_array($source_item)) { continue; }
+			$source_type = isset($source_item['source']) ? (string)$source_item['source'] : 'database';
+			if ($source_type !== 'system' && $source_type !== 'core') { continue; }
+			$source_state = isset($source_item['state']) ? (string)$source_item['state'] : 'unchecked';
+			$source_matches = $compatibility_filter === '' || $compatibility_filter === 'active' || $compatibility_filter === $source_state || ($compatibility_filter === 'issues' && ($source_state === 'error' || $source_state === 'warning'));
+			if (!$source_matches) { continue; }
+			$data['filesystem_modifications'][] = array(
+				'name' => (string)($source_item['name'] ?? ''),
+				'path' => (string)($source_item['source_file'] ?? ''),
+				'source_type' => $source_type,
+				'state' => $source_state,
+				'message' => (string)($source_item['message'] ?? ''),
+				'file' => (string)($source_item['file'] ?? ''),
+				'issues_count' => (int)($source_item['issues_count'] ?? 0),
+				'skipped_operations' => (int)($source_item['skipped_operations'] ?? 0)
+			);
+		}
+		usort($data['filesystem_modifications'], function ($a, $b) {
+			if ($a['state'] !== $b['state']) {
+				$ranking = array('error'=>0, 'warning'=>1, 'ok'=>2);
+				return ($ranking[$a['state']] ?? 3) <=> ($ranking[$b['state']] ?? 3);
+			}
+			return strcasecmp($a['name'], $b['name']);
+		});
 		$data['compatibility_summary'] = isset($compatibility_state['summary']) && is_array($compatibility_state['summary']) ? $compatibility_state['summary'] : array();
 		$data['compatibility_generated_at'] = '';
 		if (!empty($compatibility_state['generated_at'])) {

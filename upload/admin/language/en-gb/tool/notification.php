@@ -24,9 +24,8 @@ $_['text_notice_invalid_catalog_url'] = 'The full storefront URL could not be de
 
 $_['text_delete'] = 'Delete';
 $_['text_clear_read'] = 'Clear read';
-$_['text_confirm_delete'] = 'Delete this system notification?';
-$_['text_confirm_clear'] = 'Delete all read and resolved notifications?';
-
+$_['text_confirm_delete'] = 'Hide this notification until its condition changes?';
+$_['text_confirm_clear'] = 'Hide all read and resolved notifications?';
 $_['text_health_db_migration_history'] = 'Core migration history';
 $_['text_health_db_migration_history_message'] = 'This warning clears after a successful migration for the current build. No action is needed when the schema version is current.';
 $_['text_health_db_schema_version'] = 'Core schema version';
@@ -77,3 +76,16 @@ $_['text_health_value_missing'] = 'missing';
 $_['text_health_value_never'] = 'never';
 $_['text_health_value_not_configured'] = 'not configured';
 $_['text_health_value_check_failed'] = 'check failed';
+
+$_['text_status_all'] = 'All';
+$_['text_status_unread'] = 'New';
+$_['text_status_read'] = 'Read';
+$_['text_status_resolved'] = 'Resolved';
+$_['text_page'] = 'Page';
+$_['text_previous'] = 'Previous page';
+$_['text_next'] = 'Next page';
+$_['error_action'] = 'Action failed. Reload the page or check your permissions.';
+$_['error_network'] = 'Server request failed. Check your connection and the error log.';
+$_['text_status_dismissed'] = 'Archived';
+$_['text_archive_help'] = 'Archived notifications are hidden from the active list, but remain here for review. They can reappear as new when a resolved issue occurs again.';
+$_['error_session'] = 'Your session has expired or the login token is invalid. Sign in again, then retry.';

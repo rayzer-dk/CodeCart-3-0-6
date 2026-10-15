@@ -1,0 +1,76 @@
+{{ header }}{{ column_left }}
+<div id="content" class="cc-documents-admin">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ paid }}" class="btn btn-default" data-toggle="tooltip" title="{{ text_paid }}"><i class="fa fa-lock"></i> {{ text_paid }}</a>
+        {% if can_modify %}
+          <a href="{{ add }}" class="btn btn-primary" data-toggle="tooltip" title="{{ button_add }}"><i class="fa fa-plus"></i></a>
+          <button type="submit" form="form-documents" class="btn btn-danger" data-toggle="tooltip" title="{{ button_delete }}" onclick="return $('#form-documents input[name=\'selected[]\']:checked').length > 0 && confirm('{{ text_confirm|e('js') }}')"><i class="fa fa-trash-o"></i></button>
+        {% endif %}
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        <li><a href="{{ dashboard_url }}">{{ text_home }}</a></li>
+        <li><a href="{{ current_url }}">{{ heading_title }}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if success %}<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}</div>{% endif %}
+    {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>{% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3></div>
+      <div class="panel-body">
+        <p class="help-block">{{ text_help }}</p>
+        <form action="index.php" method="get" class="form-inline" style="margin-bottom:15px;">
+          <input type="hidden" name="route" value="catalog/public_document" />
+          <input type="hidden" name="user_token" value="{{ user_token }}" />
+          <div class="form-group"><input type="text" name="filter_name" class="form-control" value="{{ filter_name }}" placeholder="{{ entry_search }}" /></div>
+          <button type="submit" class="btn btn-primary" title="{{ button_search }}"><i class="fa fa-search"></i> {{ button_search }}</button>
+        </form>
+        <form id="form-documents" action="{{ delete }}" method="post">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover cc-documents-table">
+              <thead style="border-top:3px solid #0057d9;">
+                <tr>
+                  <th class="text-center" style="width:32px;"><input type="checkbox" onclick="$('#form-documents input[name*=\'selected\']').prop('checked',this.checked)" /></th>
+                  <th><a href="{{ sort_name }}">{{ column_name }}</a></th>
+                  <th class="text-right"><a href="{{ sort_downloads }}">{{ column_downloads }}</a></th>
+                  <th class="text-right">{{ column_30d }}</th>
+                  <th>{{ column_last }}</th>
+                  <th class="text-right"><a href="{{ sort_date }}">{{ column_date }}</a></th>
+                  <th class="text-right" style="min-width:116px;">{{ column_action }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in rows %}
+                  <tr>
+                    <td class="text-center"><input type="checkbox" name="selected[]" value="{{ item.document_id }}" /></td>
+                    <td><strong>{{ item.title }}</strong><div class="text-muted small">{{ item.original_name }}</div></td>
+                    <td class="text-right">{{ item.download_count }}</td>
+                    <td class="text-right">{{ item.downloads_30d }}</td>
+                    <td>{{ item.last_download ? item.last_download : '—' }}</td>
+                    <td class="text-right">{{ item.date_added }}</td>
+                    <td class="text-right">
+                      <div style="display:inline-flex;gap:4px;white-space:nowrap;">
+                        {% if item.status %}
+                          <button type="button" class="btn btn-default btn-sm" title="{{ button_copy }}" data-url="{{ item.href }}" onclick="if(navigator.clipboard){navigator.clipboard.writeText(this.getAttribute('data-url'));}else{window.prompt(this.getAttribute('title'),this.getAttribute('data-url'));}"><i class="fa fa-copy"></i></button>
+                        {% endif %}
+                        <a class="btn btn-primary btn-sm" title="{{ button_edit }}" href="{{ item.edit }}"><i class="fa fa-pencil"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                {% else %}
+                  <tr><td colspan="7" class="text-center">{{ text_empty }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        <div class="row"><div class="col-sm-6 text-left">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

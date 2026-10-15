@@ -6,6 +6,7 @@ $_['heading_title']          = 'Товари';
 // Text
 $_['text_success']           = 'Налаштування змінені';
 $_['text_list']              = 'Список товарів';
+$_['text_products_per_page'] = 'На сторінці';
 $_['text_add']               = 'Додати';
 $_['text_edit']              = 'Редагування';
 $_['text_filter']            = 'Фільтр';
@@ -149,7 +150,7 @@ $_['text_shipping_not_required'] = 'Цифровий / послуга — без
 
 $_['help_download_updates'] = 'Завершена покупка надає доступ до завантажень, які зараз прив’язані до цього товару. Для нової версії можна замінити файл у наявному завантаженні або прив’язати нове — попередні покупці бачитимуть актуальні файли. Знімок файлів на момент покупки залишається резервом, якщо всі поточні завантаження буде видалено.';
 
-$_['entry_google_product_category_id'] = 'Google Product Category ID';
+$_['entry_google_product_category_id'] = 'ID категорії в класифікаторі Google Product Category';
 $_['help_google_product_category_id'] = 'Числовий ID таксономії Google для Merchant-фідів. Залиште порожнім, щоб успадкувати значення з головної або найближчої батьківської категорії товару.';
 
 // CodeCart PRO product extra tab
@@ -264,3 +265,9 @@ $_['entry_purchase_block_form_hover_bg'] = 'Фон при наведенні';
 $_['entry_purchase_block_enabled'] = 'Показувати блок';
 $_['button_purchase_block_add_existing_form'] = 'Додати вибрану';
 $_['text_purchase_block_choose_form'] = '— Виберіть створену форму / блок —';
+
+$_['tab_public_documents'] = 'Документи';
+$_['entry_public_document'] = 'Публічні документи';
+$_['help_public_document'] = 'Оберіть уже завантажені документи за назвою. Це безкоштовні файли, не цифрові товари.';
+$_['text_manage_public_documents'] = 'Керувати документами';
+$_['text_unlink_public_document'] = 'Прибрати зв’язок із документом';

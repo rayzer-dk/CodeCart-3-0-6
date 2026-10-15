@@ -37,3 +37,6 @@ $_['entry_carousel_step'] = 'Carousel scroll step';
 $_['text_step_item'] = 'One item';
 $_['text_step_page'] = 'One page';
 $_['help_carousel_step'] = 'Choose whether arrows, swipe and autoplay move one item or one visible page.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_module'] = 'Modules';

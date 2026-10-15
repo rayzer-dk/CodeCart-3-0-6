@@ -39,3 +39,8 @@ $_['error_product']       = 'Warning: This layout cannot be deleted as it is cur
 $_['error_category']      = 'Warning: This layout cannot be deleted as it is currently assigned to %s categories!';
 $_['error_manufacturer']  = 'Warning: This layout cannot be deleted as it is currently assigned to %s manufacturers!';
 $_['error_information']   = 'Warning: This layout cannot be deleted as it is currently assigned to %s information pages!';
+// CodeCart PRO: aligned locale keys
+$_['entry_position'] = 'Position';
+$_['entry_sort_order'] = 'Sort Order';
+$_['error_blog_article'] = 'This layout is assigned to %s blog articles and cannot be deleted.';
+$_['error_blog_category'] = 'This layout is assigned to %s blog categories and cannot be deleted.';

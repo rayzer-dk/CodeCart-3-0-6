@@ -1,5 +1,4 @@
-# Upgrade and repair — Build 2.0.4
-
+# Upgrade and repair
 [Українська](UPGRADE.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 **Create and verify a complete website/database backup before updating.** Rehearse on a staging copy with the store's themes, OCMOD, Events, payments and shipping. Runtime upgrade coverage exists for ocStore 3.0.4.1, OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta; it does not certify every extension combination.

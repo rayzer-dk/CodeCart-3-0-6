@@ -40,3 +40,6 @@ $_['text_tax_included'] = 'Incl. VAT:';
 $_['text_search_min_length'] = 'Enter at least 2 characters to search.';
 
 $_['text_search_suggestion'] = 'Did you mean: %s';
+
+// CodeCart PRO: aligned locale keys
+$_['text_benefits'] = 'Benefits:';

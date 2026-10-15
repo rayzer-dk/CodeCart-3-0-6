@@ -98,3 +98,6 @@ $_['error_company'] = 'Название компании не должно пр�
 $_['entry_quick_address_1'] = 'Адрес / отделение';
 $_['entry_quick_address_2'] = 'Уточнение адреса';
 $_['button_quick_order'] = 'Оформить заказ';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_fax'] = 'Факс';

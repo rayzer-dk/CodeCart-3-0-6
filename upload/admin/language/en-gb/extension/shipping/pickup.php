@@ -14,3 +14,5 @@ $_['entry_sort_order'] = 'Sort Order';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify pickup from store!';
+// CodeCart PRO: aligned locale keys
+$_['text_shipping'] = 'Shipping';

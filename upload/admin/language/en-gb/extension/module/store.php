@@ -17,3 +17,6 @@ $_['help_admin']       = 'If yes, then multi store list will be visible only whe
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify store module!';
 $_['entry_collapsed_mobile'] = 'Collapse on mobile';
+
+// CodeCart PRO: aligned locale keys
+$_['text_module'] = 'Modules';

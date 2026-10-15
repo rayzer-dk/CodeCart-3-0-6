@@ -40,7 +40,6 @@ $_['text_month']       						= 'Month';
 $_['text_year']        						= 'Year';
 $_['text_on']								= 'On';
 $_['text_off']								= 'Off';
-$_['text_checkout']							= 'Checkout';
 $_['text_cart']								= 'Cart';
 $_['text_product']							= 'Product';
 $_['text_home']								= 'Home';

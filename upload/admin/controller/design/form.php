@@ -138,6 +138,7 @@ class ControllerDesignForm extends Controller {
         $this->document->addStyle('view/stylesheet/codecart-form-builder.css?v=3.0.6.0');
         $this->document->addScript('view/javascript/codecart-form-builder.js?v=3.0.6.0');
         $data['text_form'] = !$this->error ? $this->language->get('text_form') : $this->language->get('heading_title');
+        $data['button_close'] = $this->language->get('button_close');
         $data['error_warning'] = isset($this->error['warning']) ? $this->error['warning'] : '';
         $data['error_name'] = isset($this->error['name']) ? $this->error['name'] : '';
         $data['success'] = isset($this->session->data['success']) ? $this->session->data['success'] : '';

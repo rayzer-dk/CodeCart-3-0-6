@@ -42,7 +42,7 @@ $_['error_meta_title'] = 'Мета-тег Title должен содержать 
 $_['error_keyword'] = 'SEO URL уже используется!';
 $_['error_unique'] = 'SEO URL должен быть уникальным!';
 $_['error_parent'] = 'Выбранная родительская категория не может быть текущей категорией или её потомком!';
-$_['entry_google_product_category_id'] = 'Google Product Category ID';
+$_['entry_google_product_category_id'] = 'ID категории в классификаторе Google Product Category';
 $_['help_google_product_category_id'] = 'Числовой ID таксономии Google для Merchant-фидов. Оставьте пустым, чтобы унаследовать значение от ближайшей родительской категории.';
 $_['tab_purchase_blocks'] = 'Контентные блоки';
 $_['entry_purchase_block_mode'] = 'Контентные блоки';
@@ -104,3 +104,8 @@ $_['text_purchase_block_choose_form'] = '— Выберите созданную
 $_['text_separator'] = ' &gt; ';
 $_['error_meta_h1'] = 'HTML-тег H1 должен содержать от 0 до 255 символов!';
 $_['js_purchase_presets_json'] = '{}';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_description_bottom'] = 'Описание внизу:';
+$_['help_keyword'] = 'Должен быть уникальным во всей системе, без пробелов и спецсимволов';
+$_['help_noindex'] = 'Индексация поисковыми системами Google, Yandex, Bing и др.';

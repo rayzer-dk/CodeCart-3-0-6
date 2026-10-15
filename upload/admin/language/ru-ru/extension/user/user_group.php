@@ -1,17 +1,17 @@
 <?php
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
-$_['heading_title'] = 'User Groups';
-$_['text_success'] = 'Success: You have modified user groups!';
-$_['text_list'] = 'User Group';
-$_['text_add'] = 'Add User Group';
-$_['text_edit'] = 'Edit User Group';
-$_['column_name'] = 'User Group Name';
-$_['column_action'] = 'Action';
-$_['entry_name'] = 'User Group Name';
-$_['entry_access'] = 'Access Permission';
-$_['entry_modify'] = 'Modify Permission';
-$_['entry_hide'] = 'Hide extensions';
-$_['help_hide'] = 'Selected extensions will not be displayed on the pages of the module, payments, deliveries';
-$_['error_permission'] = 'Warning: You do not have permission to modify user groups!';
-$_['error_name'] = 'User Group Name must be between 3 and 64 characters!';
-$_['error_user'] = 'Warning: This user group cannot be deleted as it is currently assigned to %s users!';
+$_['heading_title'] = 'Группы пользователей';
+$_['text_success'] = 'Изменения групп пользователей сохранены.';
+$_['text_list'] = 'Группы пользователей';
+$_['text_add'] = 'Добавить группу пользователей';
+$_['text_edit'] = 'Редактировать группу пользователей';
+$_['column_name'] = 'Название группы';
+$_['column_action'] = 'Действие';
+$_['entry_name'] = 'Название группы';
+$_['entry_access'] = 'Разрешён просмотр';
+$_['entry_modify'] = 'Разрешено изменение';
+$_['entry_hide'] = 'Скрыть дополнения';
+$_['help_hide'] = 'Выбранные дополнения не будут отображаться на страницах модулей, оплаты и доставки.';
+$_['error_permission'] = 'У вас нет прав для изменения групп пользователей.';
+$_['error_name'] = 'Название группы должно содержать от 3 до 64 символов.';
+$_['error_user'] = 'Эту группу нельзя удалить: к ней привязано %s пользователей.';

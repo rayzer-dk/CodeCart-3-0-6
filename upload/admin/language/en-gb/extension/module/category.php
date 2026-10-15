@@ -14,3 +14,6 @@ $_['entry_status']     = 'Status';
 $_['error_permission'] = 'Warning: You do not have permission to modify category module!';
 $_['entry_show_count'] = 'Show product counts';
 $_['entry_collapsed_mobile'] = 'Collapse on mobile';
+
+// CodeCart PRO: aligned locale keys
+$_['text_module'] = 'Modules';

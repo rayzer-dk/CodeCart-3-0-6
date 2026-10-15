@@ -35,3 +35,8 @@ $_['error_product']     = 'Warning: This download cannot be deleted as it is cur
 $_['error_filesize'] = 'The file exceeds the allowed size limit!';
 
 $_['help_existing_buyer_update'] = "Replacing this file keeps the same Download ID. For previously granted digital entitlements, existing buyers also receive any new Download record that you later attach to the purchased product. Access is allowed only for the buyer's account after the order reaches a Complete status.";
+
+$_['column_download_count'] = 'Downloads';
+$_['column_download_30d'] = 'Last 30 days';
+$_['column_last_download'] = 'Last downloaded';
+$_['text_public_documents'] = 'Public Documents';

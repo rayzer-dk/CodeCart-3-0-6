@@ -6,4 +6,4 @@ $_['text_list'] = 'Список курсов валют';
 $_['column_name'] = 'Название источника курсов валют';
 $_['column_status'] = 'Статус';
 $_['column_action'] = 'Action';
-$_['error_permission'] = 'Warning: You do not have permission to modify currencies rates!';
+$_['error_permission'] = 'Недостаточно прав для изменения настроек курсов валют.';

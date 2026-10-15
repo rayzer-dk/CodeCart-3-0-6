@@ -16,3 +16,6 @@ $_['column_name'] = 'Название отчета';
 $_['column_value'] = 'Значение';
 $_['column_action'] = 'Действие';
 $_['error_permission'] = 'У вас недостаточно прав для внесения изменений!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_return'] = 'Возвраты товаров';

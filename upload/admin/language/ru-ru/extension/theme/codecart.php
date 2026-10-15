@@ -1,6 +1,6 @@
 <?php
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
-$_['heading_title'] = 'CodeCart Theme';
+$_['heading_title'] = 'Тема CodeCart';
 $_['text_extension'] = 'Расширения';
 $_['text_theme'] = 'Шаблоны';
 $_['text_success'] = 'Настройки изменены';

@@ -58,7 +58,7 @@ $_['error_keyword']          = 'SEO URL вже використовується'
 $_['error_parent'] = 'Вибрана батьківська категорія не може бути поточною категорією або її нащадком!';
 $_['error_unique'] = 'SEO URL має бути унікальним!';
 
-$_['entry_google_product_category_id'] = 'Google Product Category ID';
+$_['entry_google_product_category_id'] = 'ID категорії в класифікаторі Google Product Category';
 $_['help_google_product_category_id'] = 'Числовий ID таксономії Google для Merchant-фідів. Залиште порожнім, щоб успадкувати значення від найближчої батьківської категорії.';
 
 // CodeCart PRO RC86: inherited purchase-area information blocks.

@@ -77,3 +77,9 @@ $_['error_stock_notify_available'] = 'Цей товар уже є в наявн�
 $_['error_stock_notify'] = 'Не вдалося зберегти запит на повідомлення.';
 
 $_['text_option_out_of_stock'] = 'Немає в наявності';
+
+// Product photo carousel
+$_['text_previous_images'] = 'Попередні фотографії';
+$_['text_next_images'] = 'Наступні фотографії';
+
+$_['error_method_not_allowed'] = 'Цей метод запиту не дозволено.';

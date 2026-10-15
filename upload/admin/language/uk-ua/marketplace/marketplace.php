@@ -79,3 +79,5 @@ $_['text_remote_disabled'] = 'Віддалений маркетплейс вим
 $_['text_see_more'] = 'показати більше відповідей...';
 $_['button_refresh'] = 'Оновити';
 $_['text_featured'] = 'Рекомендовані';
+
+$_['text_comment_placeholder'] = 'Напишіть свій коментар...';

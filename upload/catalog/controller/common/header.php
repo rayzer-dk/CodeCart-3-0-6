@@ -385,9 +385,9 @@ class ControllerCommonHeader extends Controller {
 			$this->config->set('config_language_id', (int)$language['language_id']);
 			$this->config->set('codecart_language_prefix_current', isset($language['url_prefix']) ? strtolower(trim((string)$language['url_prefix'])) : '');
 			$href = html_entity_decode((string)$this->url->link($route, $query, $secure), ENT_QUOTES, 'UTF-8');
-			if ($route === 'common/home' && $this->config->get('config_seo_pro') && !$this->config->get('config_seopro_addslash')) {
-				$href = rtrim($href, '/');
-			}
+			// A language homepage is a directory root (/en/, /uk/). Its final
+			// slash is significant for canonical and hreflang even when SeoPro's
+			// optional slash setting is disabled for content URLs.
 
 			$alternates[$code] = array(
 				'hreflang' => str_replace('_', '-', strtolower((string)$code)),

@@ -115,3 +115,6 @@ $_['error_bank_account_number'] = 'Account Number required!';
 $_['text_filter'] = 'Filter';
 
 $_['text_show_password'] = 'Show / hide password';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_fax'] = 'Fax';

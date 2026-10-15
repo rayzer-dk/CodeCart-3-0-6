@@ -74,3 +74,36 @@ $_['error_purchase']     = 'Extension could not be purchased!';
 $_['error_download']     = 'Extension could not be downloaded!';
 
 $_['text_remote_disabled'] = 'Remote marketplace access is disabled in this build. Use local Extensions/Installer/Modifications instead.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_besplatnye_shablony'] = 'Free themes';
+$_['text_platnye_shablony'] = 'Paid themes';
+$_['text_filtry'] = 'Filters';
+$_['text_ceny_skidki_akcii_podarki'] = 'Prices, discounts, promotions and gifts';
+$_['text_bonusy_kupony_programmy_loyalnosti'] = 'Bonuses, coupons and loyalty programmes';
+$_['text_blogi_novosti_stati'] = 'Blogs, news and articles';
+$_['text_pokupki_oformlenie_zakaza_korzina'] = 'Shopping, checkout and cart';
+$_['text_opcii'] = 'Options';
+$_['text_atributy'] = 'Attributes';
+$_['text_serii_komplekty'] = 'Bundles and product sets';
+$_['text_poisk'] = 'Search';
+$_['text_seo_karta_sayta_optimizaciya'] = 'SEO, sitemaps and optimisation';
+$_['text_keshirovanie_szhatie_uskorenie'] = 'Caching, compression and performance';
+$_['text_platezhnye_sistemy'] = 'Payment systems';
+$_['text_dostavki'] = 'Shipping';
+$_['text_redaktory'] = 'Editors';
+$_['text_menyu_dizayn_vneshniy_vid'] = 'Menus, design and appearance';
+$_['text_slaydshou_bannery_galerei'] = 'Slideshows, banners and galleries';
+$_['text_pisma_pochta_rassylki_sms'] = 'Email, newsletters and SMS';
+$_['text_obratnaya_svyaz_zvonki'] = 'Contact forms and calls';
+$_['text_obmen_dannymi'] = 'Data exchange';
+$_['text_uchet_v_zakaze'] = 'Order accounting';
+$_['text_sravneniya_zakladki'] = 'Compare and wish list';
+$_['text_socialnye_seti'] = 'Social networks';
+$_['text_parsery'] = 'Parsers';
+$_['text_moduli'] = 'Modules';
+$_['text_instrumenty_utility'] = 'Tools and utilities';
+$_['text_licenzii'] = 'Licences';
+$_['text_yazykovye_pakety'] = 'Language packs';
+$_['text_prochee'] = 'Other';
+$_['text_otchety'] = 'Reports';

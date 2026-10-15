@@ -19,3 +19,6 @@ $_['error_directory'] = 'Неверный каталог!';
 $_['error_exists'] = 'Каталог уже существует!';
 $_['error_writable'] = 'config.php and admin/config.php Должны быть доступны для записи!';
 $_['text_instruction'] = 'Введите шестизначный код из приложения-аутентификатора или один из резервных кодов.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_by'] = 'на';

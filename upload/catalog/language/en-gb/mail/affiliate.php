@@ -15,3 +15,10 @@ $_['text_lastname']       = 'Last Name:';
 $_['text_company']        = 'Company:';
 $_['text_email']          = 'E-Mail:';
 $_['text_telephone']      = 'Telephone:';
+// CodeCart PRO: aligned locale keys
+$_['text_order_id'] = 'Order ID:';
+$_['text_transaction_subject'] = '%s - affiliate commission';
+$_['text_transaction_received'] = 'You have received %s in commission.';
+$_['text_transaction_total'] = 'Your commission balance is %s.';
+$_['text_services'] = 'In your affiliate account you can get referral codes and links, track commissions and edit your account details.';
+$_['text_store'] = 'Our Stores';

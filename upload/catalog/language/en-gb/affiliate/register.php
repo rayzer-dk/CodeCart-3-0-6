@@ -51,3 +51,18 @@ $_['error_password']            = 'Password must be between 10 and 40 characters
 $_['error_confirm']             = 'Password confirmation does not match password!';
 $_['error_agree']               = 'Warning: You must agree to the %s!';
 $_['error_rate'] = 'Too many registration attempts. Please try again a little later.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_payment'] = 'Payment Information';
+$_['entry_fax'] = 'Fax';
+$_['entry_address_1'] = 'Address 1';
+$_['entry_address_2'] = 'Address 2';
+$_['entry_postcode'] = 'Post Code';
+$_['entry_city'] = 'City';
+$_['entry_country'] = 'Country';
+$_['entry_zone'] = 'Region / State';
+$_['error_address_1'] = 'Address must be between 1 and 128 characters!';
+$_['error_city'] = 'City must be between 3 and 128 characters!';
+$_['error_country'] = 'Please select a country!';
+$_['error_zone'] = 'Please select a region / state!';
+$_['error_postcode'] = 'Postcode must be between 3 and 10 characters!';

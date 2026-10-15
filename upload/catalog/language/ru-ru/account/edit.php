@@ -15,3 +15,6 @@ $_['error_lastname'] = 'Фамилия должна содержать от 1 д
 $_['error_email'] = 'E-Mail адрес введен неверно!';
 $_['error_telephone'] = 'Номер телефона должен содержать от 3 до 32 символов!';
 $_['error_custom_field'] = '%s необходим!';
+
+// CodeCart PRO: aligned locale keys
+$_['entry_fax'] = 'Факс';

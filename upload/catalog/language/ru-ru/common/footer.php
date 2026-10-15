@@ -15,3 +15,8 @@ $_['text_order'] = 'История заказов';
 $_['text_wishlist'] = 'Закладки';
 $_['text_newsletter'] = 'Рассылка';
 $_['text_powered'] = 'Работает на <a target="_blank" href="https://ocstore.com/?utm_source=ocstore3_install">ocStore</a><br /> %s &copy; %s';
+
+// CodeCart PRO: aligned locale keys
+$_['text_bestseller'] = 'Хиты продаж';
+$_['text_latest'] = 'Новинки';
+$_['text_mostviewed'] = 'Популярные товары';

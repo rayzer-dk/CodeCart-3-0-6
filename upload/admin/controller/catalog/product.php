@@ -30,6 +30,7 @@ class ControllerCatalogProduct extends Controller {
 			$this->normalizePurchaseBlocksPost();
 
 			$product_id = (int)$this->model_catalog_product->addProduct($this->request->post);
+            $this->savePublicDocumentLinks($product_id);
 			$this->queueRelationRefresh($product_id);
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -136,6 +137,7 @@ class ControllerCatalogProduct extends Controller {
 			$this->normalizePurchaseBlocksPost();
 
 			$this->model_catalog_product->editProduct($this->request->get['product_id'], $this->request->post);
+            $this->savePublicDocumentLinks((int)$this->request->get['product_id']);
 			$this->queueRelationRefresh((int)$this->request->get['product_id']);
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -609,6 +611,23 @@ class ControllerCatalogProduct extends Controller {
 			$page = 1;
 		}
 
+		// Catalog product page size is independent from the global admin page limit.
+		// Keep a bounded per-administrator session preference across edit/save navigation.
+		$allowed_product_limits = array(20, 30, 50, 100);
+		$product_limit = 20;
+		if (isset($this->session->data['catalog_product_limit']) && in_array((int)$this->session->data['catalog_product_limit'], $allowed_product_limits, true)) {
+			$product_limit = (int)$this->session->data['catalog_product_limit'];
+		}
+		if (isset($this->request->get['limit']) && is_scalar($this->request->get['limit'])) {
+			$requested_limit = (string)$this->request->get['limit'];
+			if (in_array($requested_limit, array('20', '30', '50', '100'), true)) {
+				$product_limit = (int)$requested_limit;
+				$this->session->data['catalog_product_limit'] = $product_limit;
+			}
+		}
+		$data['product_limit'] = $product_limit;
+		$data['product_limit_options'] = $allowed_product_limits;
+
 		$url = '';
 
 		if (isset($this->request->get['filter_name'])) {
@@ -680,6 +699,8 @@ class ControllerCatalogProduct extends Controller {
 			$url .= '&page=' . $this->request->get['page'];
 		}
 
+		$url .= '&limit=' . $product_limit;
+
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
@@ -725,14 +746,17 @@ class ControllerCatalogProduct extends Controller {
 			'filter_seo_url'       => $filter_seo_url,
 			'sort'            		=> $sort,
 			'order'           		=> $order,
-			'start'           		=> ($page - 1) * $this->config->get('config_limit_admin'),
-			'limit'           		=> $this->config->get('config_limit_admin')
+			'start'           		=> (max(1, $page) - 1) * $product_limit,
+			'limit'           		=> $product_limit
 		);
 
 
 		$this->load->model('tool/image');
 
 		$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
+		// An old page number may be out of range after filtering or deleting products.
+		$page = max(1, min($page, max(1, (int)ceil($product_total / $product_limit))));
+		$filter_data['start'] = ($page - 1) * $product_limit;
 
 		$results = $this->model_catalog_product->getProducts($filter_data);
 		$product_ids = array();
@@ -869,6 +893,8 @@ class ControllerCatalogProduct extends Controller {
 			$url .= '&page=' . $this->request->get['page'];
 		}
 
+		$url .= '&limit=' . $product_limit;
+
 		$data['sort_name'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&sort=pd.name' . $url, true);
 		$data['sort_model'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&sort=p.model' . $url, true);
 		$data['sort_price'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&sort=p.price' . $url, true);
@@ -943,16 +969,19 @@ class ControllerCatalogProduct extends Controller {
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
+		$url .= '&limit=' . $product_limit;
+
 		$pagination = new Pagination();
 		$pagination->total = $product_total;
 		$pagination->page = $page;
-		$pagination->limit = $this->config->get('config_limit_admin');
+		$pagination->limit = $product_limit;
 		$pagination->url = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
 
 		$data['pagination'] = $pagination->render();
 
-		$data['results'] = sprintf($this->language->get('text_pagination'), ($product_total) ? (($page - 1) * $this->config->get('config_limit_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_limit_admin')) > ($product_total - $this->config->get('config_limit_admin'))) ? $product_total : ((($page - 1) * $this->config->get('config_limit_admin')) + $this->config->get('config_limit_admin')), $product_total, ceil($product_total / $this->config->get('config_limit_admin')));
+		$data['results'] = sprintf($this->language->get('text_pagination'), ($product_total) ? (($page - 1) * $product_limit) + 1 : 0, min($page * $product_limit, $product_total), $product_total, (int)ceil($product_total / $product_limit));
 
+		$data['text_products_per_page'] = $this->language->get('text_products_per_page');
 		$data['filter_name'] = $filter_name;
 		$data['filter_model'] = $filter_model;
 		$data['filter_price'] = $filter_price;
@@ -1009,6 +1038,17 @@ class ControllerCatalogProduct extends Controller {
 		}
 		$this->request->post['purchase_blocks_json'] = $clean;
 	}
+
+    private function savePublicDocumentLinks($product_id) {
+        // Never activate document tables or change links during unrelated product saves.
+        if (!$this->config->get('codecart_file_stats_status') || !isset($this->request->post['public_document_links_present'])) return;
+        if ((string)$this->config->get('codecart_public_documents_schema_version') !== '2.0.8') {
+            $this->load->model('catalog/public_document');
+            $this->model_catalog_public_document->install();
+        }
+        $this->load->model('catalog/public_document');
+        $this->model_catalog_public_document->syncProduct((int)$product_id, (array)($this->request->post['product_public_document']??array()));
+    }
 
 	protected function getForm() {
 		$data['button_generate_seo_url'] = $this->language->get('button_generate_seo_url');
@@ -1151,6 +1191,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['languages'] = $this->model_localisation_language->getLanguages();
 
 		$this->document->addStyle('view/stylesheet/codecart-purchase-blocks.css?v=3.0.6.0');
+		$this->document->addStyle('view/stylesheet/codecart-product-files.css?v=2.0.9');
 		$this->document->addScript('view/javascript/codecart-purchase-blocks.js?v=3.0.6.0');
 		$this->load->model('design/form');
 		$data['available_forms'] = $this->model_design_form->getFormOptions();
@@ -1743,6 +1784,29 @@ class ControllerCatalogProduct extends Controller {
 			$product_downloads = array();
 		}
 
+        if ($this->config->get('codecart_file_stats_status') && (string)$this->config->get('codecart_public_documents_schema_version') !== '2.0.8' && $this->user->hasPermission('modify','catalog/product')) {
+            $this->load->model('catalog/public_document');
+            $this->model_catalog_public_document->install();
+        }
+        $data['tab_public_documents'] = $this->language->get('tab_public_documents');
+        $data['entry_public_document'] = $this->language->get('entry_public_document');
+        $data['help_public_document'] = $this->language->get('help_public_document');
+        $data['text_manage_public_documents'] = $this->language->get('text_manage_public_documents');
+        $data['public_document_manager_url'] = $this->url->link('catalog/public_document','user_token='.$this->session->data['user_token'],true);
+        $data['public_document_add_url'] = $this->url->link('catalog/public_document/form', 'user_token=' . $this->session->data['user_token'], true);
+        $data['download_add_url'] = $this->url->link('catalog/download/add', 'user_token=' . $this->session->data['user_token'], true);
+        $data['button_add'] = $this->language->get('button_add');
+        $data['button_remove'] = $this->language->get('button_remove');
+        $data['text_unlink_public_document'] = $this->language->get('text_unlink_public_document');
+        $data['product_public_documents'] = array();
+        if ($this->config->get('codecart_file_stats_status')) {
+            $this->load->model('catalog/public_document');
+            if (isset($this->request->post['public_document_links_present'])) {
+                $data['product_public_documents'] = $this->model_catalog_public_document->selectedByIds($this->request->post['product_public_document']??array());
+            } elseif (!empty($this->request->get['product_id'])) {
+                $data['product_public_documents'] = $this->model_catalog_public_document->selectedForProduct((int)$this->request->get['product_id']);
+            }
+        }
 		$data['product_downloads'] = array();
 
 		foreach ($product_downloads as $download_id) {

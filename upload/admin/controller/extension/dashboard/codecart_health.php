@@ -165,7 +165,18 @@ class ControllerExtensionDashboardCodeCartHealth extends Controller {
                 $securityItem['href']=$securityUrl;
             }
             unset($securityItem);
-            $data['integrity_items']=isset($rows['integrity']['detail']['items'])?$rows['integrity']['detail']['items']:array();
+            // Keep machine-readable integrity states unchanged. Only the view label is localized.
+            $integrityStateLabels = array(
+                'changed' => $this->language->get('integrity_state_changed'),
+                'missing' => $this->language->get('integrity_state_missing')
+            );
+            $data['integrity_items'] = isset($rows['integrity']['detail']['items']) && is_array($rows['integrity']['detail']['items'])
+                ? $rows['integrity']['detail']['items'] : array();
+            foreach ($data['integrity_items'] as &$integrityItem) {
+                $state = isset($integrityItem['state']) ? (string)$integrityItem['state'] : '';
+                $integrityItem['state_label'] = isset($integrityStateLabels[$state]) ? $integrityStateLabels[$state] : $state;
+            }
+            unset($integrityItem);
         } elseif($section==='quick'){
             $data['actions']=$this->quickActions($data['links']);
             $data['text_cache_done']=$this->language->get('text_cache_done');

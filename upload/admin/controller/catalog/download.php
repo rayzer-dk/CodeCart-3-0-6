@@ -159,6 +159,11 @@ class ControllerCatalogDownload extends Controller {
 		$data['delete'] = $this->url->link('catalog/download/delete', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
 		$data['downloads'] = array();
+        $data['public_documents'] = $this->url->link('catalog/public_document','user_token='.$this->session->data['user_token'],true);
+        $data['column_download_count']=$this->language->get('column_download_count');
+        $data['column_download_30d']=$this->language->get('column_download_30d');
+        $data['column_last_download']=$this->language->get('column_last_download');
+        $data['text_public_documents']=$this->language->get('text_public_documents');
 
 		$filter_data = array(
 			'sort'  => $sort,
@@ -175,6 +180,9 @@ class ControllerCatalogDownload extends Controller {
 			$data['downloads'][] = array(
 				'download_id' => $result['download_id'],
 				'name'        => $result['name'],
+                'stats_count' => (int)$result['stats_download_count'],
+                'stats_30d' => (int)$result['stats_30d'],
+                'stats_last' => !empty($result['stats_last_download']) ? $result['stats_last_download'] : '—',
 				'date_added'  => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
 				'edit'        => $this->url->link('catalog/download/edit', 'user_token=' . $this->session->data['user_token'] . '&download_id=' . $result['download_id'] . $url, true)
 			);

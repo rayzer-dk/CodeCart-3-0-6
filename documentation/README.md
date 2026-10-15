@@ -1,6 +1,7 @@
-# CodeCart PRO documentation — Build 2.0.4
-
+# CodeCart 3.0.6 documentation
 [Українська](README.uk.md) · [Project](../README.md) · [Join the CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
+
+CodeCart is a free, open-source online store CMS with an adaptive theme, native multilingual SEO URLs, order and catalog management, public product documents and an OpenCart-compatible extension framework. See the [full platform description](../README.md).
 
 **Create and verify a complete website and database backup before installation or update.** Use the production package with bundled dependencies; deploy only `upload/` contents.
 
@@ -20,3 +21,5 @@
 Canonical source: [CodeCartPro/CodeCartPro-3.0.6.0](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0). Support: [support@codecartpro.com](mailto:support@codecartpro.com). Discuss installation and improvements in the [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy).
 
 [Demo storefront and administrator access](DEMO.md)
+
+Multilingual QA: [Language consistency and translation rules](I18N_QA.md).

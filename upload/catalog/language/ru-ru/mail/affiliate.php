@@ -15,3 +15,11 @@ $_['text_lastname'] = 'Фамилия:';
 $_['text_company'] = 'Компания:';
 $_['text_email'] = 'E-Mail:';
 $_['text_telephone'] = 'Телефон:';
+
+// CodeCart PRO: aligned locale keys
+$_['text_order_id'] = '№ заказа:';
+$_['text_services'] = 'В партнерском разделе можно получить реферальный код и ссылки, отслеживать комиссионные и редактировать настройки аккаунта.';
+$_['text_store'] = 'Наши магазины';
+$_['text_transaction_received'] = 'Вы получили %s комиссионных.';
+$_['text_transaction_subject'] = '%s — партнерские комиссионные';
+$_['text_transaction_total'] = 'Ваш баланс комиссионных: %s.';

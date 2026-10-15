@@ -1,0 +1,152 @@
+/* CodeCart product list only. Do not style #content or the global admin sidebar. */
+#ccp-product-list .panel-body { padding: 10px; min-width: 0; }
+#ccp-product-list #form-product { min-width: 0; max-width: 100%; }
+#ccp-product-list .table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+#ccp-product-list .table {
+  width: 100%;
+  min-width: 850px;
+  table-layout: fixed;
+  border-top: 3px solid #0057d9;
+  margin-bottom: 14px;
+}
+#ccp-product-list .table > thead > tr > td {
+  padding: 7px 5px;
+  white-space: nowrap;
+  border-right: 1px solid var(--ccp-admin-border, #dce2eb);
+  vertical-align: middle;
+}
+#ccp-product-list .table > tbody > tr > td { padding: 6px 5px; vertical-align: middle; }
+
+/* Classes are assigned by header links at runtime. This stays correct when OCMOD
+   adds photo-count or other columns before the product name. */
+/* The stock product-list header has inline width:1px. Override it explicitly,
+   otherwise fixed table layout places checkboxes on top of the image column. */
+#ccp-product-list .table > thead > tr > td.ccp-col-select,
+#ccp-product-list .table > thead > tr > td:first-child {
+  width: 38px !important;
+  min-width: 38px;
+  max-width: 38px;
+  box-sizing: border-box;
+}
+#ccp-product-list .table > thead > tr > td:first-child,
+#ccp-product-list .table > tbody > tr > td:first-child {
+  text-align: center;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+#ccp-product-list .table > thead > tr > td:first-child > input[type="checkbox"],
+#ccp-product-list .table > tbody > tr > td:first-child > input[type="checkbox"] {
+  display: block;
+  float: none;
+  width: 13px;
+  height: 13px;
+  margin: 2px auto 0;
+  box-sizing: border-box;
+}
+#ccp-product-list .table > thead > tr > td.ccp-col-image { width: 88px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-photo { width: 68px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-model { width: 90px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-price { width: 116px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-quantity { width: 74px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-status { width: 70px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-index { width: 93px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-action { width: 91px; }
+#ccp-product-list .table > tbody > tr > td.ccp-product-name-cell,
+#ccp-product-list .table > tbody > tr > td.ccp-product-model-cell { overflow: hidden; }
+#ccp-product-list .ccp-product-name,
+#ccp-product-list .ccp-product-model {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#ccp-product-list .table > tbody > tr > td.ccp-col-action {
+  white-space: nowrap;
+  overflow: visible;
+}
+#ccp-product-list .table > tbody > tr > td.ccp-col-action > a.btn {
+  display: inline-block;
+  padding: 6px 7px;
+  margin: 0 1px;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+/* Standalone toolbar, without Bootstrap .row or .col-sm-* clearfix and float rules.
+   This prevents phantom flex children and unwanted padding at both edges. */
+#ccp-product-list .product-pagination-top {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 0 0 10px;
+  padding: 0;
+}
+#ccp-product-list .product-pagination-pages {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-right: auto;
+  padding: 0;
+}
+#ccp-product-list .product-pagination-summary {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 6px;
+  white-space: normal;
+  font-size: 13px;
+}
+#ccp-product-list .pagination { margin: 0; }
+#ccp-product-list .pagination > li > a,
+#ccp-product-list .pagination > li > span { padding: 6px 9px; }
+#ccp-product-list .ccp-products-limit-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+#ccp-product-list .ccp-products-limit-label select.form-control {
+  width: 66px;
+  height: 32px;
+  min-height: 32px;
+  padding: 4px 6px;
+  font-size: 13px;
+}
+@media (max-width: 1450px) {
+  #ccp-product-list .panel-body { padding: 8px; }
+  #ccp-product-list .table > thead > tr > td,
+  #ccp-product-list .table > tbody > tr > td { padding-left: 4px; padding-right: 4px; }
+  #ccp-product-list .table > thead > tr > td.ccp-col-image { width: 80px; }
+  #ccp-product-list .table > thead > tr > td.ccp-col-price { width: 108px; }
+  #ccp-product-list .table > thead > tr > td.ccp-col-model { width: 85px; }
+}
+@media (max-width: 767px) {
+  #ccp-product-list .product-pagination-pages,
+  #ccp-product-list .product-pagination-summary { flex-basis: 100%; }
+  #ccp-product-list .product-pagination-summary {
+    margin-left: 0;
+    justify-content: flex-start;
+    text-align: left;
+  }
+}

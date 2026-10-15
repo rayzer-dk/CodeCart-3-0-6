@@ -1,5 +1,4 @@
-# Demo presentation — Build 2.0.4
-
+# Demo presentation
 [Українська](DEMO.uk.md) · [All guides](README.md)
 
 Explore the [storefront](https://test.codecartpro.com/) and [administration](https://test.codecartpro.com/admin/).

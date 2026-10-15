@@ -23,3 +23,6 @@ $_['text_affiliate_add'] = 'Зарегистрировать партнерск�
 $_['text_affiliate_edit'] = 'Изменить партнерскую информацию';
 $_['text_tracking'] = 'Код отслеживания партнеров';
 $_['text_gdpr_data'] = 'Персональные данные и GDPR';
+
+// CodeCart PRO: aligned locale keys
+$_['text_account_wishlist'] = 'Управление закладками';

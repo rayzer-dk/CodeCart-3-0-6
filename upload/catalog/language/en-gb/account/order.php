@@ -35,3 +35,5 @@ $_['column_comment']        = 'Comment';
 
 // Error
 $_['error_reorder']         = '%s is not currently available to be reordered.';
+// CodeCart PRO: aligned locale keys
+$_['text_account_order_id'] = 'Order number:';

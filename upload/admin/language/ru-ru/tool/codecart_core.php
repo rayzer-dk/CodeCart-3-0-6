@@ -134,15 +134,15 @@ $_['text_platform'] = 'Компонент / возможность';
 $_['text_component'] = 'Компонент';
 $_['text_benefit'] = 'Польза';
 $_['text_codecart_website'] = 'Сайт CodeCart PRO';
-$_['text_about_legacy_title'] = 'Legacy + Modern Core';
+$_['text_about_legacy_title'] = 'Классическое и современное ядро';
 $_['text_about_legacy_value'] = 'MVC-L + PSR-4';
 $_['text_about_legacy_help'] = 'Старые модули остаются совместимыми, новые могут использовать современный слой.';
 $_['text_about_security_value'] = 'TOTP · Audit · Anti-Spam';
 $_['text_about_security_help'] = 'Защита входа, форм, сессий, installer и системных операций.';
 $_['text_about_server_value'] = 'WEB/FPM + CLI';
 $_['text_about_server_help'] = 'Preflight проверяет реальный серверный профиль без постоянного phpinfo.php.';
-$_['text_about_modern_title'] = 'Modern Extensions';
-$_['text_about_modern_value'] = 'Services · Queue · API';
+$_['text_about_modern_title'] = 'Современные расширения';
+$_['text_about_modern_value'] = 'Сервисы · Очереди · API';
 $_['text_about_modern_help'] = 'Фундамент для новых модулей без разрушения OpenCart 3 compatibility layer.';
 $_['about_fixed_items'] = array (
   0 => 'PHP 8.1–8.5: устранены критические несовместимости ядра и deprecated-вызовы.',
@@ -442,3 +442,16 @@ $_['cmp_file'] = 'Файлы';
 $_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + совместимость с FA4';
 $_['cmp_summernote'] = 'Summernote 0.9.1 локально';
 $_['diag_msg_sql_compat'] = 'Совместимый с OpenCart режим SQL (стандарт для модулей OpenCart/ocStore). Строгий режим включается настройкой codecart_db_strict_mode = 1.';
+
+$_['text_icon_packages'] = 'Пакеты Font Awesome';
+
+$_['error_invalid_request_method'] = 'Недопустимый метод запроса.';
+$_['error_invalid_security_token'] = 'Недействительный токен безопасности.';
+
+$_['text_extension_code'] = 'Код';
+$_['text_extension_name'] = 'Название';
+$_['text_extension_version'] = 'Версия';
+$_['text_extension_namespace'] = 'Пространство имен';
+$_['text_icon_style_solid'] = 'Сплошные';
+$_['text_icon_style_regular'] = 'Контурные';
+$_['text_icon_style_brands'] = 'Бренды';

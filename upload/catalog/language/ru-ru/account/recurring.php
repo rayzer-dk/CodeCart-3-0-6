@@ -42,3 +42,22 @@ $_['column_order_recurring_id'] = 'ID периодического платеж�
 $_['error_not_cancelled'] = 'Ошибка: %s';
 $_['error_not_found'] = 'Нельзя отключить профиль';
 $_['button_return'] = 'Возврат';
+
+// CodeCart PRO: aligned locale keys
+$_['button_continue'] = 'Продолжить';
+$_['button_view'] = 'Просмотр';
+$_['column_action'] = 'Действие';
+$_['column_recurring_id'] = 'ID регулярного платежа';
+$_['text_action'] = 'Действие';
+$_['text_empty_transactions'] = 'Нет транзакций для этого профиля.';
+$_['text_order'] = 'История заказов';
+$_['text_recurring_description'] = 'Описание: ';
+$_['text_recurring_id'] = 'ID профиля: ';
+$_['text_ref'] = 'Примечание: ';
+$_['text_status_active'] = 'Активен';
+$_['text_status_cancelled'] = 'Отменен';
+$_['text_status_expired'] = 'Истек';
+$_['text_status_inactive'] = 'Неактивен';
+$_['text_status_pending'] = 'Ожидает';
+$_['text_status_suspended'] = 'Приостановлен';
+$_['text_transactions'] = 'Операции';

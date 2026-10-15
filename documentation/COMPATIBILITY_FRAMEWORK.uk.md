@@ -1,5 +1,4 @@
-# Compatibility Framework — Build 2.0.4
-
+# Compatibility Framework
 [English](COMPATIBILITY_FRAMEWORK.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
 
 ## Призначення та архітектура

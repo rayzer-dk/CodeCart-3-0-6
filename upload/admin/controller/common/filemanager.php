@@ -111,6 +111,8 @@ class ControllerCommonFileManager extends Controller {
 			}
 		}
 
+		// Explicit language data for the modal, including multi-image selection.
+		$data['button_select'] = $this->language->get('button_select');
 		$data['user_token'] = $this->session->data['user_token'];
 
 		if (isset($this->request->get['directory'])) {

@@ -22,3 +22,5 @@ $_['column_action']         = 'Action';
 
 // Error
 $_['error_permission']      = 'Warning: You do not have permission to modify statistics!';
+// CodeCart PRO: aligned locale keys
+$_['text_return'] = 'Returns';

@@ -468,16 +468,44 @@
                     {% endfor %}</div>
                 </div>
               </div>
-              <div class="form-group">
+              {# Paid purchase downloads and free public documents use identical selection controls. #}
+              <div class="form-group cc-product-file-picker">
                 <label class="col-sm-2 control-label" for="input-download"><span data-toggle="tooltip" title="{{ help_download }}">{{ entry_download }}</span></label>
                 <div class="col-sm-10">
-                  <input type="text" name="download" value="" placeholder="{{ entry_download }}" id="input-download" class="form-control"/>
-                  <div id="product-download" class="well well-sm" style="height: 150px; overflow: auto;"> {% for product_download in product_downloads %}
-                      <div id="product-download{{ product_download.download_id }}"><i class="fa fa-minus-circle"></i> {{ product_download.name }}
-                        <input type="hidden" name="product_download[]" value="{{ product_download.download_id }}"/>
+                  <div class="input-group">
+                    <input type="text" name="download" value="" placeholder="{{ entry_download }}" id="input-download" class="form-control" autocomplete="off" />
+                    <span class="input-group-btn"><a href="{{ download_add_url }}" target="_blank" rel="noopener" class="btn btn-primary" title="{{ button_add }}" data-toggle="tooltip"><i class="fa fa-plus"></i> {{ button_add }}</a></span>
+                  </div>
+                  <div id="product-download" class="well well-sm cc-product-file-list" data-name="product_download[]" data-prefix="product-download" data-remove-title="{{ button_remove|e('html_attr') }}">
+                    {% for product_download in product_downloads %}
+                      <div id="product-download{{ product_download.download_id }}" class="cc-product-file-row">
+                        <span class="cc-product-file-name">{{ product_download.name }}</span>
+                        <button type="button" class="btn btn-danger btn-xs cc-product-file-remove" title="{{ button_remove }}" aria-label="{{ button_remove }}"><i class="fa fa-trash-o"></i></button>
+                        <input type="hidden" name="product_download[]" value="{{ product_download.download_id }}" />
                       </div>
-                    {% endfor %}</div>
+                    {% endfor %}
+                  </div>
                   {% if help_download_updates %}<div class="help-block"><i class="fa fa-refresh" aria-hidden="true"></i> {{ help_download_updates }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="form-group cc-product-file-picker">
+                <label class="col-sm-2 control-label" for="input-public-document">{{ entry_public_document }}</label>
+                <div class="col-sm-10">
+                  <input type="hidden" name="public_document_links_present" value="1" />
+                  <div class="input-group">
+                    <input type="text" name="public_document_search" value="" placeholder="{{ entry_public_document }}" id="input-public-document" class="form-control" autocomplete="off" />
+                    <span class="input-group-btn"><a href="{{ public_document_add_url }}" target="_blank" rel="noopener" class="btn btn-primary" title="{{ button_add }}" data-toggle="tooltip"><i class="fa fa-plus"></i> {{ button_add }}</a></span>
+                  </div>
+                  <div id="product-public-documents" class="well well-sm cc-product-file-list" data-name="product_public_document[]" data-prefix="product-public-document" data-remove-title="{{ text_unlink_public_document|e('html_attr') }}">
+                    {% for doc in product_public_documents %}
+                      <div id="product-public-document{{ doc.document_id }}" class="cc-product-file-row">
+                        <span class="cc-product-file-name">{{ doc.name }}</span>
+                        <button type="button" class="btn btn-danger btn-xs cc-product-file-remove" title="{{ text_unlink_public_document }}" aria-label="{{ text_unlink_public_document }}"><i class="fa fa-trash-o"></i></button>
+                        <input type="hidden" name="product_public_document[]" value="{{ doc.document_id }}" />
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <p class="help-block">{{ help_public_document }} <a href="{{ public_document_manager_url }}" target="_blank" rel="noopener">{{ text_manage_public_documents }}</a></p>
                 </div>
               </div>
               <div class="form-group">
@@ -1309,33 +1337,48 @@
 	  $(this).parent().remove();
   });
 
-  // Downloads
-  $('input[name=\'download\']').autocomplete({
-	  'source': function(request, response) {
-		  $.ajax({
-			  url: 'index.php?route=catalog/download/autocomplete&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
-			  dataType: 'json',
-			  success: function(json) {
-				  response($.map(json, function(item) {
-					  return {
-						  label: item['name'],
-						  value: item['download_id']
-					  }
-				  }));
-			  }
-		  });
-	  },
-	  'select': function(item) {
-		  $('input[name=\'download\']').val('');
-
-		  $('#product-download' + item['value']).remove();
-
-		  $('#product-download').append('<div id="product-download' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' + item['label'] + '<input type="hidden" name="product_download[]" value="' + item['value'] + '" /></div>');
-	  }
+  // Both selectors only modify the current product form; persistence happens
+  // with OpenCart's standard Save button, never on autocomplete selection.
+  function codecartAddProductFile($list, id, label) {
+    id = parseInt(id, 10);
+    if (!id || !$list.length) return;
+    var prefix = $list.attr('data-prefix');
+    if ($('#' + prefix + id).length) return;
+    var title = $list.attr('data-remove-title');
+    var $row = $('<div/>', {'id': prefix + id, 'class': 'cc-product-file-row'});
+    $('<span/>', {'class': 'cc-product-file-name'}).text(label).appendTo($row);
+    var $button = $('<button/>', {'type': 'button', 'class': 'btn btn-danger btn-xs cc-product-file-remove', 'title': title, 'aria-label': title});
+    $('<i/>', {'class': 'fa fa-trash-o'}).appendTo($button);
+    $row.append($button);
+    $('<input/>', {'type': 'hidden', 'name': $list.attr('data-name'), 'value': id}).appendTo($row);
+    $list.append($row);
+  }
+  $('#input-download, #input-public-document').each(function() {
+    var $input = $(this);
+    var isPublic = $input.attr('id') === 'input-public-document';
+    var $list = $(isPublic ? '#product-public-documents' : '#product-download');
+    var route = isPublic ? 'catalog/public_document/autocomplete' : 'catalog/download/autocomplete';
+    $input.autocomplete({
+      source: function(request, response) {
+        $.ajax({
+          url: 'index.php?route=' + route + '&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
+          dataType: 'json',
+          success: function(items) {
+            response($.map(items, function(item) {
+              return {label: item.name, value: isPublic ? item.document_id : item.download_id};
+            }));
+          },
+          error: function() { response([]); }
+        });
+      },
+      select: function(item) {
+        $input.val('');
+        codecartAddProductFile($list, item.value, item.label);
+      }
+    });
   });
-
-  $('#product-download').delegate('.fa-minus-circle', 'click', function() {
-	  $(this).parent().remove();
+  $('#product-download, #product-public-documents').on('click', '.cc-product-file-remove', function() {
+    $(this).closest('.cc-product-file-row').remove();
   });
 
   // Related

@@ -9,7 +9,6 @@ $_['text_edit']        = 'Редагувати переклад';
 $_['text_default']     = 'За замовчуванням';
 $_['text_store']       = 'Магазин';
 $_['text_language']    = 'Мова';
-$_['text_translation'] = 'Обрати переклад';
 $_['text_translation'] = 'Переклади';
 
 // Entry

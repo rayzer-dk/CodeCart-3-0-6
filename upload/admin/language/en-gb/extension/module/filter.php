@@ -19,3 +19,6 @@ $_['entry_collapsed_mobile'] = 'Collapse on mobile';
 
 $_['entry_hide_zero'] = 'Hide empty filter values';
 $_['help_hide_zero'] = 'Hides filter values that have no products in the current category. Selected values remain visible.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_module'] = 'Modules';

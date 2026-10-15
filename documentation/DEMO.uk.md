@@ -1,5 +1,4 @@
-# Демонстрація системи — Build 2.0.4
-
+# Демонстрація системи
 [English](DEMO.md) · [Усі інструкції](README.uk.md)
 
 Перегляньте [вітрину](https://test.codecartpro.com/) та [адмінпанель](https://test.codecartpro.com/admin/).

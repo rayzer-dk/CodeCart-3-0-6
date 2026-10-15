@@ -1,5 +1,4 @@
-# Lost URLs (404) — Build 2.0.4
-
+# Lost URLs (404)
 [Українська](LOST_URLS.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
 
 **Back up website files and database before enabling.** Open **Reports → Lost URLs (404)**, enable monitoring and save. The feature is disabled by default. Viewing requires `report/online` access; changes require `design/seo_url` modify permission.

@@ -8,8 +8,8 @@
     </div>
   </div>
   <div class="container-fluid">
-    {% if warning %}<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="Close" title="Close">&times;</button><i class="fa fa-exclamation-circle"></i> {{ warning }}</div>{% endif %}
-    {% if success %}<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="Close" title="Close">&times;</button><i class="fa fa-check-circle"></i> {{ success }}</div>{% endif %}
+    {% if warning %}<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="{{ button_close }}" title="{{ button_close }}">&times;</button><i class="fa fa-exclamation-circle"></i> {{ warning }}</div>{% endif %}
+    {% if success %}<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="{{ button_close }}" title="{{ button_close }}">&times;</button><i class="fa fa-check-circle"></i> {{ success }}</div>{% endif %}
 
     <div class="panel panel-default">
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-clock-o"></i> {{ heading_title }}</h3></div>

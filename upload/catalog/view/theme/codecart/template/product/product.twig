@@ -20,16 +20,22 @@
         {% set class = 'col-md-6' %}
         {% endif %}
         <div class="{{ class }} ccp-product-media{% if image_is_fallback %} ccp-product-media--fallback{% endif %}"> {% if thumb or images %}
-          <ul class="thumbnails">
+          <div class="ccp-product-gallery">
             {% if thumb %}
-            <li><a class="thumbnail ccp-main-product-image" id="ccp-main-product-image" href="{{ popup }}" title="{{ heading_title }}" data-pswp-width="{{ image_popup_width }}" data-pswp-height="{{ image_popup_height }}" data-default-href="{{ popup }}" data-default-width="{{ image_popup_width }}" data-default-height="{{ image_popup_height }}"><img id="ccp-main-product-image-img" src="{{ thumb }}" data-default-src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_display_width }}" height="{{ image_display_height }}" fetchpriority="high" /></a></li>
+            <div class="ccp-product-gallery-main"><a class="thumbnail ccp-main-product-image" id="ccp-main-product-image" href="{{ popup }}" title="{{ heading_title }}" data-pswp-width="{{ image_popup_width }}" data-pswp-height="{{ image_popup_height }}" data-default-href="{{ popup }}" data-default-width="{{ image_popup_width }}" data-default-height="{{ image_popup_height }}"><img id="ccp-main-product-image-img" src="{{ thumb }}" data-default-src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_display_width }}" height="{{ image_display_height }}" fetchpriority="high" /></a></div>
             {% endif %}
             {% if images %}
-            {% for image in images %}
-            <li class="image-additional"><a class="thumbnail ccp-product-gallery-thumb" href="{{ image.popup }}" title="{{ heading_title }}" data-main-src="{{ image.main }}" data-popup-src="{{ image.popup }}" data-pswp-width="{{ image.width }}" data-pswp-height="{{ image.height }}"> <img src="{{ image.thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_additional_width }}" height="{{ image_additional_height }}" loading="lazy" decoding="async" /></a></li>
-            {% endfor %}
+            <div class="ccp-product-gallery-strip" id="ccp-product-gallery-strip">
+              <button type="button" class="ccp-product-gallery-nav ccp-product-gallery-nav--prev" aria-label="{{ text_previous_images }}" title="{{ text_previous_images }}"><i class="fa fa-angle-left"></i></button>
+              <div class="ccp-product-gallery-track" id="ccp-product-gallery-track">
+                {% for image in images %}
+                <div class="image-additional"><a class="thumbnail ccp-product-gallery-thumb" href="{{ image.popup }}" title="{{ heading_title }}" data-main-src="{{ image.main }}" data-popup-src="{{ image.popup }}" data-pswp-width="{{ image.width }}" data-pswp-height="{{ image.height }}"> <img src="{{ image.thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_additional_width }}" height="{{ image_additional_height }}" loading="lazy" decoding="async" /></a></div>
+                {% endfor %}
+              </div>
+              <button type="button" class="ccp-product-gallery-nav ccp-product-gallery-nav--next" aria-label="{{ text_next_images }}" title="{{ text_next_images }}"><i class="fa fa-angle-right"></i></button>
+            </div>
             {% endif %}
-          </ul>
+          </div>
           {% endif %}
         </div>
         {% if column_left or column_right %}
@@ -235,6 +241,7 @@
       <div class="ccp-product-tabs">
           <ul class="nav nav-tabs">
             <li class="active"><a href="#tab-description" data-toggle="tab">{{ tab_description }}</a></li>
+            {% if public_documents %}<li><a href="#tab-documents" data-toggle="tab"><i class="fa fa-file-pdf-o"></i> {{ text_public_documents }}</a></li>{% endif %}
             {% if attribute_groups %}
             <li><a href="#tab-specification" data-toggle="tab">{{ tab_attribute }}</a></li>
             {% endif %}
@@ -247,6 +254,7 @@
           </ul>
           <div class="tab-content">
             <div class="tab-pane active" id="tab-description">{{ description }}</div>
+            {% if public_documents %}<div class="tab-pane" id="tab-documents"><ul class="list-unstyled">{% for doc in public_documents %}<li style="margin-bottom:9px;"><a href="{{ doc.href }}" rel="nofollow"><i class="fa fa-download"></i> {{ doc.title }}</a></li>{% endfor %}</ul></div>{% endif %}
             {% if attribute_groups %}
             <div class="tab-pane" id="tab-specification">
               <div class="ccp-specifications">
@@ -674,23 +682,33 @@ $('#button-review').on('click', function() {
 // Product gallery: thumbnail click swaps the main photo; swipe/drag on the main
 // photo steps through the gallery without changing product or option data.
 (function($){
-  var $main=$('#ccp-main-product-image'),$mainImg=$('#ccp-main-product-image-img'),$thumbs=$('#product-product .ccp-product-gallery-thumb');
+  var $main=$('#ccp-main-product-image'),$mainImg=$('#ccp-main-product-image-img'),$thumbs=$('#product-product .ccp-product-gallery-thumb'),$track=$('#ccp-product-gallery-track'),$strip=$('#ccp-product-gallery-strip'),$prev=$('.ccp-product-gallery-nav--prev'),$next=$('.ccp-product-gallery-nav--next');
   if(!$main.length||!$mainImg.length){return;}
   var items=[{main:$mainImg.attr('data-default-src')||$mainImg.attr('src'),popup:$main.attr('data-default-href')||$main.attr('href'),width:$main.attr('data-default-width')||$main.attr('data-pswp-width'),height:$main.attr('data-default-height')||$main.attr('data-pswp-height'),node:null}],index=0,startX=null,dragClick=false;
   $thumbs.each(function(){var $a=$(this);items.push({main:$a.attr('data-main-src')||$a.find('img').attr('src'),popup:$a.attr('data-popup-src')||$a.attr('href'),width:$a.attr('data-pswp-width')||'1',height:$a.attr('data-pswp-height')||'1',node:this});});
-  function show(i){if(!items.length)return;index=(i+items.length)%items.length;var it=items[index];$mainImg.attr('src',it.main);$main.attr('href',it.popup).attr('data-pswp-width',it.width).attr('data-pswp-height',it.height);$thumbs.removeClass('is-active').parent().removeClass('is-active');if(it.node){$(it.node).addClass('is-active').parent().addClass('is-active');}}
+  function updateNav(){if(!$track.length||!$prev.length||!$next.length){return;}var el=$track.get(0),maxScroll=Math.max(0,el.scrollWidth-el.clientWidth),left=$track.scrollLeft(),overflow=maxScroll>4;$strip.toggleClass('has-overflow',overflow);$prev.prop('disabled',!overflow||left<=4);$next.prop('disabled',!overflow||left>=maxScroll-4);}
+  function scrollActiveThumb(node){if(!node||!node.closest||!$track.length){return;}var target=node.closest('.image-additional');if(target&&target.scrollIntoView){try{target.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}catch(e){target.scrollIntoView();}}}
+  function show(i){if(!items.length)return;index=(i+items.length)%items.length;var it=items[index];$mainImg.attr('src',it.main);$main.attr('href',it.popup).attr('data-pswp-width',it.width).attr('data-pswp-height',it.height);$thumbs.removeClass('is-active').parent().removeClass('is-active');if(it.node){$(it.node).addClass('is-active').parent().addClass('is-active');scrollActiveThumb(it.node);}updateNav();}
   $thumbs.on('click',function(e){e.preventDefault();for(var i=1;i<items.length;i++){if(items[i].node===this){show(i);break;}}});
   $mainImg.attr('draggable','false');
   $main.on('pointerdown',function(e){if(e.pointerType==='mouse'&&e.button!==0)return;startX=e.clientX;dragClick=false;if(this.setPointerCapture&&e.pointerId!==undefined){try{this.setPointerCapture(e.pointerId);}catch(ignore){}}});
   $main.on('pointermove',function(e){if(startX!==null&&Math.abs(e.clientX-startX)>12){dragClick=true;}});
   $main.on('pointerup pointercancel',function(e){if(startX===null)return;var delta=e.clientX-startX;startX=null;if(Math.abs(delta)>=45&&items.length>1){e.preventDefault();e.stopImmediatePropagation();show(index+(delta<0?1:-1));dragClick=true;}});
   $main.on('click',function(e){if(dragClick){e.preventDefault();e.stopImmediatePropagation();dragClick=false;}});
+  if($track.length){
+    var step=function(direction){var amount=Math.max(Math.floor($track.outerWidth()*0.82),180);$track.stop().animate({scrollLeft:$track.scrollLeft()+(direction*amount)},220,updateNav);};
+    $prev.on('click',function(){step(-1);});
+    $next.on('click',function(){step(1);});
+    $track.on('scroll',updateNav);
+    $(window).on('load resize orientationchange',updateNav);
+    setTimeout(updateNav,0);
+  }
 })(jQuery);
 
 $(document).ready(function() {
 {% if gallery_engine == 'photoswipe' %}
 	var ccpProductLightbox = null;
-	var ccpGallerySelector = '#product-product .ccp-product-media .thumbnails';
+	var ccpGallerySelector = '#product-product .ccp-product-media .ccp-product-gallery';
 	if (typeof PhotoSwipeLightbox === 'function' && typeof PhotoSwipe !== 'undefined') {
 		ccpProductLightbox = new PhotoSwipeLightbox({
 			gallery: ccpGallerySelector,
@@ -717,7 +735,7 @@ $(document).ready(function() {
 		ccpProductLightbox.init();
 	}
 {% else %}
-	$('.thumbnails').magnificPopup({
+	$('.ccp-product-gallery').magnificPopup({
 		type:'image',
 		delegate: 'a',
 		gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] },

@@ -32,3 +32,6 @@ $_['entry_show_arrows'] = 'Navigation arrows';
 $_['entry_show_dots'] = 'Pagination dots';
 $_['entry_loop'] = 'Loop';
 $_['help_autoplay_delay'] = 'Allowed range: 1500–20000 ms. Autoplay pauses for keyboard focus, reduced-motion preference and while the browser tab is hidden. Ordinary mouse hover does not stop playback.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_module'] = 'Modules';

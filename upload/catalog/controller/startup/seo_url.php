@@ -6,6 +6,7 @@ class ControllerStartupSeoUrl extends Controller {
 	
 	//seopro start
 		private $seo_pro;
+		private $language_codes;
 		public function __construct($registry) {
 			parent::__construct($registry);	
 			$this->seo_pro = new SeoPro($registry);
@@ -34,13 +35,16 @@ class ControllerStartupSeoUrl extends Controller {
 
 		// If every active language has a folder, an unprefixed GET/HEAD is a
 		// duplicate URL. Canonicalize it even when database SEO aliases are off.
-		if ($this->config->get('codecart_language_prefix_missing_required') && $this->redirectMissingLanguagePrefix()) {
+		if ($this->config->get('codecart_language_prefix_missing_required')
+			&& !$this->config->get('codecart_language_legacy_query')
+			&& $this->redirectMissingLanguagePrefix()) {
 			return;
 		}
 
 		// Standard SEO URL mode uses one canonical policy too: content paths have no trailing slash.
 		// Store root and language-prefix roots keep their slash. SeoPro retains its own configured policy.
-		if ($seo_url_enabled && !$seo_pro_enabled && $this->redirectStandardTrailingSlash()) {
+		if ($seo_url_enabled && !$seo_pro_enabled && !$this->config->get('codecart_language_legacy_query')
+			&& $this->redirectStandardTrailingSlash()) {
 			return;
 		}
 
@@ -96,7 +100,7 @@ class ControllerStartupSeoUrl extends Controller {
 		//seopro prepare route end
 
 			// remove any empty arrays from trailing
-			if (utf8_strlen(end($parts)) == 0) {
+			if ($parts && utf8_strlen((string)end($parts)) === 0) {
 				array_pop($parts);
 			}
 
@@ -182,6 +186,13 @@ class ControllerStartupSeoUrl extends Controller {
 			$this->request->get['route'] = 'error/not_found';
 		}
 		
+		// Migrate a valid legacy ?language=xx-xx catalog URL in a single 301.
+		// Run only after SEO aliases are decoded to a known route. Never redirect
+		// an unresolved URL, POST, AJAX, API, checkout, payment or XML endpoint.
+		if ($this->redirectLegacyLanguageQuery()) {
+			return;
+		}
+
 		// SeoPro canonical validation is correct for catalog aliases, but clean
 		// sitemap endpoints are system routes. Validating them as SEO aliases
 		// turns valid child sitemap URLs into redirects/404s.
@@ -191,6 +202,49 @@ class ControllerStartupSeoUrl extends Controller {
 		
 	}
 
+
+	private function redirectLegacyLanguageQuery() {
+		if (!$this->config->get('codecart_language_prefix_enabled')
+			|| !$this->config->get('codecart_language_legacy_query')) return false;
+		$method = isset($this->request->server['REQUEST_METHOD']) ? strtoupper((string)$this->request->server['REQUEST_METHOD']) : 'GET';
+		if (!in_array($method, array('GET', 'HEAD'), true) || !empty($this->request->post)
+			|| strtolower((string)(isset($this->request->server['HTTP_X_REQUESTED_WITH']) ? $this->request->server['HTTP_X_REQUESTED_WITH'] : '')) === 'xmlhttprequest') return false;
+		$route = isset($this->request->get['route']) ? (string)$this->request->get['route'] : 'common/home';
+		if (!preg_match('#^[a-z0-9_/-]+$#i', $route) || !$this->isCatalogLanguageRoute($route)
+			|| $route === 'error/not_found') return false;
+		$uri = isset($this->request->server['REQUEST_URI']) ? (string)$this->request->server['REQUEST_URI'] : '';
+		$uri_parts = parse_url($uri);
+		if (!is_array($uri_parts) || !isset($uri_parts['query'])) return false;
+		parse_str($uri_parts['query'], $query_data);
+		if (!isset($query_data['language']) || !is_string($query_data['language'])
+			|| !$this->isActiveLanguageCode($query_data['language'])) return false;
+		$args = $this->request->get;
+		unset($args['route'], $args['_route_'], $args['language'], $args['_codecart_sitemap_clean']);
+		// Ensure query arguments do not reintroduce internal routing fields.
+		foreach (array_keys($args) as $key) {
+			if (strpos((string)$key, '_codecart_') === 0) unset($args[$key]);
+		}
+		$is_https = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+		$target = html_entity_decode($this->url->link($route, http_build_query($args, '', '&'), $is_https), ENT_QUOTES, 'UTF-8');
+		$target_parts = parse_url($target);
+		$base = (string)($is_https ? $this->config->get('config_ssl') : $this->config->get('config_url'));
+		$base_parts = parse_url($base);
+		if (!is_array($target_parts) || !is_array($base_parts) || empty($base_parts['host'])
+			|| !isset($target_parts['host']) || strcasecmp($target_parts['host'], $base_parts['host']) !== 0) return false;
+		// No redirect to the home page when a product/category SEO mapping is missing.
+		if ($route !== 'common/home' && $this->config->get('config_seo_url')) {
+			$path = trim((string)(isset($target_parts['path']) ? $target_parts['path'] : ''), '/');
+			$prefix = trim((string)$this->config->get('codecart_language_prefix_current'), '/');
+			if ($path === '' || ($prefix !== '' && $path === $prefix)
+				|| (isset($target_parts['query']) && preg_match('/(?:^|&)route=/', $target_parts['query']))) return false;
+		}
+		// Suppress a spurious redirect if a third-party rewrite returned this URL.
+		$current_path = isset($uri_parts['path']) ? (string)$uri_parts['path'] : '/';
+		$current_query = isset($uri_parts['query']) ? $uri_parts['query'] : '';
+		if ($target === $current_path . ($current_query !== '' ? '?' . $current_query : '')) return false;
+		$this->response->redirect($target, 301);
+		return true;
+	}
 
 	private function redirectStandardTrailingSlash() {
 		$method = isset($this->request->server['REQUEST_METHOD']) ? strtoupper((string)$this->request->server['REQUEST_METHOD']) : 'GET';
@@ -262,6 +316,17 @@ class ControllerStartupSeoUrl extends Controller {
 
 		parse_str(isset($url_info['query']) ? $url_info['query'] : '', $data);
 		$route_for_prefix = isset($data['route']) ? (string)$data['route'] : '';
+
+		// Native language directories are the only canonical language signal.
+		// Remove legacy OpenCart selectors from generated catalog links, but
+		// leave API, payment and feed routes untouched for compatibility.
+		if ($this->config->get('codecart_language_prefix_enabled')
+			&& $this->isCatalogLanguageRoute($route_for_prefix)
+			&& isset($data['language']) && is_string($data['language'])
+			&& $this->isActiveLanguageCode($data['language'])) {
+			unset($data['language']);
+			$link = $this->replaceLinkQuery($link, $url_info, $data);
+		}
 
 		// The storefront home page is a real root URL, not index.php?route=common/home.
 		// Keep query parameters, but let the language-prefix layer select / or /<prefix>/.
@@ -366,7 +431,7 @@ class ControllerStartupSeoUrl extends Controller {
 
 		$route = (string)$route;
 		$route_normalized = strtolower($route);
-		if ($route_normalized === 'common/language/language' || strpos($route_normalized, 'extension/feed/') === 0 || strpos($route_normalized, 'api/') === 0) {
+		if ($route_normalized === 'common/language/language' || strpos($route_normalized, 'extension/feed/') === 0 || strpos($route_normalized, 'extension/payment/') === 0 || strpos($route_normalized, 'api/') === 0) {
 			return $url;
 		}
 
@@ -393,5 +458,39 @@ class ControllerStartupSeoUrl extends Controller {
 		}
 
 		return $url;
+	}
+
+	private function isCatalogLanguageRoute($route) {
+		$route = strtolower(trim((string)$route));
+		return $route === '' || !preg_match('#^(?:api/|checkout/|extension/|common/(?:language|currency)/|account/(?:login|logout|register|password|forgotten|reset))#', $route);
+	}
+
+	private function isActiveLanguageCode($code) {
+		if (!is_string($code) || !preg_match('/^[a-z]{2,8}(?:-[a-z0-9]{2,8})*$/i', $code)) {
+			return false;
+		}
+		// Native routing is enabled only after startup loaded active languages.
+		// Checking against the table avoids silently removing arbitrary language
+		// filters belonging to third-party extensions.
+		if (!isset($this->language_codes)) {
+			$this->language_codes = array();
+			$query = $this->db->query("SELECT code FROM " . DB_PREFIX . "language WHERE status = '1'");
+			foreach ($query->rows as $row) {
+				$this->language_codes[(string)$row['code']] = true;
+			}
+		}
+		return isset($this->language_codes[$code]);
+	}
+
+	private function replaceLinkQuery($link, $parts, $data) {
+		$base = '';
+		if (isset($parts['scheme']) && isset($parts['host'])) {
+			$base = $parts['scheme'] . '://' . $parts['host'];
+			if (isset($parts['port'])) $base .= ':' . (int)$parts['port'];
+		}
+		$base .= isset($parts['path']) ? $parts['path'] : '';
+		if ($data) $base .= '?' . str_replace('&', '&amp;', http_build_query($data, '', '&'));
+		if (isset($parts['fragment'])) $base .= '#' . $parts['fragment'];
+		return $base;
 	}
 }

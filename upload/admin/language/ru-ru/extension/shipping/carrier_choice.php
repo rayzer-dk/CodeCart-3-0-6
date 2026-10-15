@@ -20,7 +20,7 @@ $_['entry_geo_zone'] = 'Географическая зона';
 $_['entry_status'] = 'Статус';
 $_['entry_sort_order'] = 'Порядок способа доставки';
 $_['entry_compact_checkout'] = 'Упрощённое Modern-оформление';
-$_['entry_api_key'] = 'API Key';
+$_['entry_api_key'] = 'API-ключ';
 $_['entry_api_login'] = 'Логин API';
 $_['entry_api_password'] = 'Пароль API';
 $_['entry_api_token'] = 'Bearer-токен';
@@ -52,3 +52,6 @@ $_['error_sync_disabled'] = 'Сначала включите и сохранит
 $_['error_carrier_not_found'] = 'Перевозчик не найден. Сохраните настройки и повторите.';
 $_['error_sync_failed'] = 'Не удалось обновить справочник городов.';
 $_['error_invalid_json'] = 'Сервер вернул некорректный JSON-ответ. Проверьте PHP Warning в журнале ошибок.';
+
+// CodeCart PRO: aligned locale keys
+$_['text_branch'] = 'Отделение';

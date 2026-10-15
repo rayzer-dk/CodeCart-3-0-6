@@ -8,3 +8,6 @@ $_['entry_geo_zone'] = 'Географическая зона';
 $_['entry_status'] = 'Статус';
 $_['entry_sort_order'] = 'Порядок сортировки';
 $_['error_permission'] = 'У вас недостаточно прав для внесения изменений!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_shipping'] = 'Адрес доставки';

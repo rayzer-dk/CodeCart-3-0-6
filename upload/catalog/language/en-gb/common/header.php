@@ -17,3 +17,17 @@ $_['text_all']           = 'Show All';
 $_['button_in_cart'] = 'In Cart';
 $_['text_theme_toggle'] = 'Switch theme';
 $_['text_logged'] = 'You are logged in as <a href="%s">%s</a> (<a href="%s">Logout</a>)';
+
+// CodeCart PRO: aligned locale keys
+$_['ui_select_date'] = 'Choose date';
+$_['ui_wishlist'] = 'Add to wish list';
+$_['ui_compare'] = 'Compare';
+$_['ui_share'] = 'Share';
+$_['ui_search'] = 'Search';
+$_['ui_previous'] = 'Previous';
+$_['ui_next'] = 'Next';
+$_['ui_close'] = 'Close';
+$_['ui_increase'] = 'Increase';
+$_['ui_decrease'] = 'Decrease';
+$_['ui_upload'] = 'Upload';
+$_['ui_action'] = 'Action';

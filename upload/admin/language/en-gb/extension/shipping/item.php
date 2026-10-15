@@ -16,3 +16,5 @@ $_['entry_sort_order'] = 'Sort Order';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify shipping per item rates!';
+// CodeCart PRO: aligned locale keys
+$_['text_shipping'] = 'Shipping';

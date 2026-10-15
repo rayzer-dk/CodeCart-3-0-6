@@ -29,6 +29,9 @@ class ControllerCommonLanguage extends Controller {
         } else {
             $url_data = $this->request->get;
             unset($url_data['_route_']);
+            if ($this->config->get('codecart_language_prefix_enabled')) {
+                unset($url_data['language']);
+            }
             $route = isset($url_data['route']) ? (string)$url_data['route'] : 'common/home';
             unset($url_data['route']);
             $url = $url_data ? '&' . urldecode(http_build_query($url_data, '', '&')) : '';

@@ -15,3 +15,6 @@ $_['entry_status']     = 'Status';
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify Google Analytics!';
 $_['error_code']	   = 'Code required!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_analytics'] = 'Analytics';

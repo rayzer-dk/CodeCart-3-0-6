@@ -13,3 +13,6 @@ $_['entry_status']     = 'Status';
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify information module!';
 $_['entry_collapsed_mobile'] = 'Collapse on mobile';
+
+// CodeCart PRO: aligned locale keys
+$_['text_module'] = 'Modules';

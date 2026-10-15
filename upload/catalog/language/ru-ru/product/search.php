@@ -33,3 +33,6 @@ $_['text_tax_amount'] = 'НДС:';
 $_['text_tax_included'] = 'С НДС:';
 $_['text_search_min_length'] = 'Введите не менее 2 символов для поиска.';
 $_['text_search_suggestion'] = 'Возможно, вы имели в виду: %s';
+
+// CodeCart PRO: aligned locale keys
+$_['text_benefits'] = 'Преимущества:';

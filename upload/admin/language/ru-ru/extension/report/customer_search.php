@@ -21,3 +21,6 @@ $_['entry_ip'] = 'IP';
 $_['entry_status'] = 'Статус';
 $_['entry_sort_order'] = 'Порядок сортировки';
 $_['error_permission'] = 'Внимание: у вас нет прав для изменения этого отчёта!';
+
+// CodeCart PRO: aligned locale keys
+$_['text_list'] = 'Список переводов';
