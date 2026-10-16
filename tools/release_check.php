@@ -191,6 +191,7 @@ $gates = [
     'qa_lost_urls.php',
     'qa_error_pages.php',
     'qa_session_rotation.php',
+    'check_paypal_financial_guards.php',
 ];
 foreach ($gates as $gate) {
     $path = $root . '/tools/' . $gate;

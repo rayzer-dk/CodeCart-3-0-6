@@ -211,20 +211,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          F='runtime/upload/admin/controller/extension/payment/paypal.php'
-          grep -q "hasPermission('modify', 'extension/payment/paypal')" "$F"
-          grep -q "REQUEST_METHOD" "$F"
-          grep -q "hash_equals" "$F"
-          for ACTION in refundPayment capturePayment voidPayment reauthorizePayment createTracker cancelTracker; do
-            php -r '
-              $c=file_get_contents($argv[1]);
-              $n=$argv[2];
-              $p=strpos($c,"function ".$n."()");
-              if($p===false)exit(1);
-              $chunk=substr($c,$p,320);
-              if(strpos($chunk,"validateFinancialActionRequest()")===false)exit(2);
-            ' "$F" "$ACTION"
-          done
+          php tools/check_paypal_financial_guards.php runtime/upload/admin/controller/extension/payment/paypal.php
 
       - name: Stock=1 parallel checkout race
         if: matrix.db_name == 'MariaDB 10.11'
