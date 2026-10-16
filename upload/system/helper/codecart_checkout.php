@@ -16,7 +16,7 @@ if (!function_exists('codecart_checkout_field_mode')) {
             }
         }
 
-        // Preserve the behaviour of stores upgraded from RC62 and older.
+        // Preserve stores using the legacy per-field checkout settings.
         $legacyKey = 'config_checkout_field_' . $field;
         if ($config->has($legacyKey) && !$config->get($legacyKey)) {
             return 'hidden';

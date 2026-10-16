@@ -111,7 +111,7 @@ html.ccp-admin-dark .payment-paypal .panel-dashboard .tab *{border-color:#465363
 html.ccp-admin-dark .bootstrap-switch .bootstrap-switch-label{background:#283542!important;color:#e8eef5!important}
 html.ccp-admin-dark .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-default,
 html.ccp-admin-dark .bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-default{background:#334252!important;color:#e8eef5!important}
-/* RC86: legacy dashboard widgets rendered after the global dark stylesheet. */
+/* Legacy dashboard widgets rendered after the global dark stylesheet. */
 html.ccp-admin-dark .ccp-world-map{background:#17212b!important;border-color:#3d4a59!important}
 html.ccp-admin-dark .ccp-health-card>span,
 html.ccp-admin-dark .ccp-health-card>small,

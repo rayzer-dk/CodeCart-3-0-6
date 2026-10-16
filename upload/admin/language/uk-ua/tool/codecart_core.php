@@ -230,7 +230,7 @@ $_['schema_msg_external_table'] = 'Додаткова таблиця сторо�
 $_['schema_msg_external_column'] = 'Додаткове поле стороннього модуля або користувача; лише інформація';
 $_['schema_msg_external_index'] = 'Додатковий індекс стороннього модуля або користувача; лише інформація';
 
-// RC47 Schema Registry guidance and explicit safe repair
+// Schema Registry guidance and explicit safe repair
 $_['button_schema_safe_fix'] = 'Виправити безпечні проблеми';
 $_['text_schema_safe_fix_help'] = 'Автоматично виправляються лише безпечні зміни: engine, кодування, відсутні неунікальні індекси та розширення типів без втрати даних (наприклад VARCHAR(40) → VARCHAR(60)). Звуження типів і неоднозначні структурні зміни залишаються для ручної перевірки.';
 $_['text_schema_backup_warning'] = 'Перед будь-яким виправленням схеми зробіть повний backup бази даних і файлів сайту. ALTER TABLE на великих таблицях може тимчасово блокувати запис, тому виконуйте його при низькому навантаженні.';
@@ -270,7 +270,7 @@ $_['text_icon_development'] = 'Розробка';
 $_['text_icon_other'] = 'Інші';
 $_['text_icon_copied'] = 'Скопійовано';
 $_['text_icon_usage'] = 'Скопійований клас можна використовувати у Twig/HTML, наприклад <i class="fa-solid fa-cart-shopping"></i>. Для брендів використовується стандартний синтаксис Font Awesome 6, наприклад <i class="fa-brands fa-x-twitter"></i>.';
-// CodeCart PRO RC61 retention controls
+// CodeCart PRO retention controls
 $_['entry_gdpr_retention'] = 'Зберігання історії GDPR, днів';
 $_['text_gdpr_retention_help'] = 'Автоматично видаляються лише старі оброблені або скасовані запити. Активні pending/confirmed не видаляються.';
 $_['text_retention_auto'] = 'Автоматичне очищення, днів';
@@ -280,7 +280,7 @@ $_['text_cleanup_confirm'] = 'Очистити записи, старші за �
 
 $_['text_totp_account'] = 'Обліковий запис';
 
-// CodeCart PRO RC67 contextual field guidance
+// CodeCart PRO contextual field guidance
 $_['help_login_max_attempts'] = 'Скільки невдалих спроб дозволити до тимчасового блокування. Рекомендовано 5–7; менше може заважати адміністратору, більше послаблює захист.';
 $_['help_login_window'] = 'Період, у якому рахуються невдалі спроби. Рекомендовано 15 хвилин.';
 $_['help_totp'] = 'Додатковий одноразовий код з Authenticator. Рекомендовано для всіх адміністраторів із доступом до налаштувань, замовлень або модулів.';

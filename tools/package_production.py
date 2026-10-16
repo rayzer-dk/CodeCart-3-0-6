@@ -12,7 +12,7 @@ def build(root, output):
     tracked = subprocess.check_output(
         ['git', 'ls-files', '-z'], cwd=root).decode('utf-8').split('\0')
     selected = set()
-    root_docs = {'README.md', 'README.uk.md', 'README_FIRST.txt',
+    root_docs = {'LICENSE', 'README.md', 'README.uk.md', 'README_FIRST.txt',
                  'composer.json', 'composer.lock', 'THIRD_PARTY_DEPENDENCIES.json'}
     for name in tracked:
         if name and (name.startswith(('upload/', 'documentation/')) or name in root_docs):

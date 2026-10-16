@@ -168,7 +168,7 @@ $_['button_extra_tab_hidden'] = 'Приховати додаткову вкла�
 $_['text_extra_tab_bulk_global_success'] = 'Для %s вибраних товарів увімкнено використання загальної додаткової вкладки.';
 $_['text_extra_tab_bulk_hidden_success'] = 'Для %s вибраних товарів додаткову вкладку приховано.';
 
-// CodeCart PRO RC86: compatibility-safe product taxonomy shortcuts.
+// CodeCart PRO compatibility-safe product taxonomy shortcuts.
 $_['text_attribute_quick_tools'] = 'Швидка робота з характеристиками';
 $_['help_attribute_quick_tools'] = 'Створіть або відкрийте штатний довідник у новій вкладці, потім додайте характеристику до товару через стандартне автодоповнення. Збереження товару залишається штатним.';
 $_['button_attribute_create'] = 'Створити характеристику';
@@ -187,7 +187,7 @@ $_['text_tax_display_gross_net'] = "Ціна з ПДВ + без ПДВ";
 $_['text_tax_display_gross_tax'] = "Ціна з ПДВ + сума ПДВ";
 $_['text_tax_display_net_gross'] = "Ціна без ПДВ + з ПДВ";
 
-// CodeCart PRO RC86: inherited purchase-area information blocks.
+// CodeCart PRO inherited purchase-area information blocks.
 $_['tab_purchase_blocks'] = 'Контентні блоки';
 $_['entry_purchase_block_mode'] = 'Контентні блоки';
 $_['text_purchase_block_inherit'] = 'Успадковувати від головної/батьківської категорії';

@@ -53,6 +53,10 @@ final class CompatibilityFramework {
         return $payload;
     }
 
+    public function normalizeOcmodAdd(string $code, string $version, string $file, string $search, string $add): string {
+        return Unishop2Compatibility::normalizeOcmodAdd($code, $version, $file, $search, $add);
+    }
+
     public function ocmodSatisfied(string $code, string $file, string $search): bool {
         $this->load();
         $file = str_replace('\\', '/', $file);

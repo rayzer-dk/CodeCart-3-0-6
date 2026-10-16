@@ -28,7 +28,7 @@ $_['error_height']     = 'Необхідно вказати висоту';
 // CodeCart PRO: completed Ukrainian language keys.
 $_['text_extension'] = 'Доповнення';
 
-// CodeCart PRO RC78: responsive grid / carousel settings.
+// CodeCart PRO responsive grid / carousel settings.
 $_['text_display_settings'] = 'Відображення та карусель';
 $_['text_grid'] = 'Сітка';
 $_['text_carousel'] = 'Карусель';

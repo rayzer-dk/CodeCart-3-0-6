@@ -51,7 +51,11 @@ foreach ($iterator as $file) {
 
     if (str_starts_with($relative, '.git/') ||
         str_starts_with($relative, 'upload/system/storage/vendor/') ||
-        str_starts_with($relative, 'artifacts/')) {
+        str_starts_with($relative, 'artifacts/') ||
+        str_starts_with($relative, '.autopilot/') ||
+        str_starts_with($relative, 'source-package/') ||
+        str_starts_with($relative, 'bonus-source/') ||
+        str_starts_with($relative, 'vendor/')) {
         continue;
     }
 
@@ -98,6 +102,7 @@ foreach ($iterator as $file) {
     }
 }
 
+$beforePhp = count($errors);
 foreach ($phpFiles as $path) {
     $cmd = escapeshellarg(PHP_BINARY) . ' -l ' . escapeshellarg($path) . ' 2>&1';
     exec($cmd, $out, $code);
@@ -106,18 +111,22 @@ foreach ($phpFiles as $path) {
     }
     unset($out);
 }
-if (!$errors) {
+if (count($errors) === $beforePhp) {
     pass('PHP lint: ' . count($phpFiles) . ' first-party files');
 }
 
+$beforeJson = count($errors);
 foreach ($jsonFiles as $path) {
     json_decode((string)file_get_contents($path), true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         fail($errors, 'Invalid JSON: ' . str_replace($root . '/', '', $path) . ' :: ' . json_last_error_msg());
     }
 }
-pass('JSON validation: ' . count($jsonFiles) . ' files');
+if (count($errors) === $beforeJson) {
+    pass('JSON validation: ' . count($jsonFiles) . ' files');
+}
 
+$beforeXml = count($errors);
 if (class_exists('DOMDocument')) {
     libxml_use_internal_errors(true);
     foreach ($xmlFiles as $path) {
@@ -127,7 +136,11 @@ if (class_exists('DOMDocument')) {
         }
         libxml_clear_errors();
     }
-    pass('XML validation: ' . count($xmlFiles) . ' files');
+    if (count($errors) === $beforeXml) {
+        pass('XML validation: ' . count($xmlFiles) . ' files');
+    }
+} else {
+    fail($errors, 'XML validation requires the PHP DOM extension');
 }
 
 if ($bomFiles) {
@@ -144,6 +157,7 @@ if ($debugHits) {
 
 // First-party minified theme stylesheets must be built from the current source.
 // The build writes the source SHA-256 into the first comment of stylesheet.min.css.
+$beforeStyles = count($errors);
 foreach (array('codecart', 'default') as $themeName) {
     $cssDir = $root . '/upload/catalog/view/theme/' . $themeName . '/stylesheet/';
     if (!is_file($cssDir . 'stylesheet.css')) {
@@ -156,55 +170,44 @@ foreach (array('codecart', 'default') as $themeName) {
         fail($errors, 'Minified stylesheet is stale for theme ' . $themeName . ': rebuild stylesheet.min.css from stylesheet.css');
     }
 }
-pass('Minified theme stylesheets are in sync with source');
-
-$languageCheck = $root . '/tools/check_language_packs.php';
-if (is_file($languageCheck)) {
-    passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($languageCheck), $languageCode);
-    if ($languageCode !== 0) {
-        fail($errors, 'Language pack gate failed');
-    } else {
-        pass('Language pack gate');
-    }
+if (count($errors) === $beforeStyles) {
+    pass('Minified theme stylesheets are in sync with source');
 }
 
-$localeCheck = $root . '/tools/check_uk_locale.php';
-if (is_file($localeCheck)) {
-    passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($localeCheck), $localeCode);
-    if ($localeCode !== 0) {
-        fail($errors, 'Ukrainian hardcode gate failed');
-    } else {
-        pass('Ukrainian hardcode gate');
+$gates = [
+    'check_language_packs.php',
+    'check_uk_locale.php',
+    'check_unishop2_compat.php',
+    'qa_unishop2_ocmod.php',
+    'i18n-check.php',
+    'i18n-coverage-check.php',
+    'integrity-manifest-check.php',
+    'extension-sort-check.php',
+    'checker-regression-check.php',
+    'notification-check.php',
+    'notification-url-check.php',
+    'seo-language-url-check.php',
+    'seo-language-startup-check.php',
+    'qa_lost_urls.php',
+    'qa_error_pages.php',
+    'qa_session_rotation.php',
+];
+foreach ($gates as $gate) {
+    $path = $root . '/tools/' . $gate;
+    if (!is_file($path)) {
+        fail($errors, 'Missing release gate: ' . $gate);
+        continue;
     }
-}
-
-$unishopCheck = $root . '/tools/check_unishop2_compat.php';
-if (is_file($unishopCheck)) {
-    passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($unishopCheck), $unishopCode);
-    if ($unishopCode !== 0) {
-        fail($errors, 'UniShop2 compatibility gate failed');
+    passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($path), $code);
+    if ($code !== 0) {
+        fail($errors, 'Release gate failed: ' . $gate . ' (exit ' . $code . ')');
     } else {
-        pass('UniShop2 compatibility gate');
+        pass('Release gate: ' . $gate);
     }
 }
 
 if ($errors) {
     fwrite(STDERR, PHP_EOL . 'RELEASE CHECK FAILED: ' . count($errors) . ' issue(s).' . PHP_EOL);
-    exit(1);
-}
-
-passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tools/qa_lost_urls.php'), $lostUrlCode);
-if ($lostUrlCode !== 0) { fail($errors, 'Lost URL filters, privacy and OFF contract'); exit(1); }
-
-passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tools/qa_error_pages.php'), $errorPageCode);
-if ($errorPageCode !== 0) {
-    fail($errors, 'Standalone error pages must render safely without database or Twig');
-    exit(1);
-}
-
-passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tools/qa_session_rotation.php'), $sessionCode);
-if ($sessionCode !== 0) {
-    fail($errors, 'Session rotation must fail closed and retain the successful login state');
     exit(1);
 }
 

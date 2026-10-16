@@ -20,7 +20,7 @@ $_['error_permission'] = 'Warning: You do not have permission to modify banner m
 $_['error_name']       = 'Module Name must be between 3 and 64 characters!';
 $_['error_width']      = 'Width required!';
 $_['error_height']     = 'Height required!';
-// CodeCart PRO RC79: slider behaviour.
+// CodeCart PRO slider behaviour.
 $_['text_display_settings'] = 'Slider settings';
 $_['text_effect_fade'] = 'Fade';
 $_['text_effect_slide'] = 'Slide';

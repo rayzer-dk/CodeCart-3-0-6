@@ -6,7 +6,7 @@ class ModelAccountDownload extends Model {
 			return;
 		}
 
-		// RC47 digital entitlement: a completed purchase grants the customer the
+		// Digital entitlement: a completed purchase grants the customer the
 		// current downloads attached to that purchased product. This means a new
 		// version may use a new Download ID and existing buyers still see it.
 		if ($this->orderDownloadTableExists()) {
@@ -28,7 +28,7 @@ class ModelAccountDownload extends Model {
 			}
 		}
 
-		// Compatibility for orders created before RC47 snapshots existed.
+		// Compatibility for orders created before snapshots existed.
 		$query = $this->db->query("SELECT d.filename, d.mask FROM `" . DB_PREFIX . "order` o LEFT JOIN `" . DB_PREFIX . "order_product` op ON (o.order_id = op.order_id) LEFT JOIN `" . DB_PREFIX . "product_to_download` p2d ON (op.product_id = p2d.product_id) LEFT JOIN `" . DB_PREFIX . "download` d ON (p2d.download_id = d.download_id) WHERE o.customer_id = '" . (int)$this->customer->getId() . "' AND (" . $where . ") AND d.download_id = '" . (int)$download_id . "'" . $this->legacyOrderPredicate('o') . " LIMIT 1");
 
 		return $query->row;

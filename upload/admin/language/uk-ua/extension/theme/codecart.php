@@ -49,7 +49,7 @@ $_['error_image_compare']              = 'Необхідно встановит�
 $_['error_image_wishlist']             = 'Необхідно встановити розмір зображень в закладках';
 $_['error_image_cart']                 = 'Необхідно встановити розмір зображень товарів в кошику';
 $_['error_image_location']             = 'Необхідно встановити розмір зображення магазину';
-// CodeCart PRO RC25 appearance
+// CodeCart PRO appearance
 $_['text_appearance'] = 'Вигляд';
 $_['text_storefront_modes'] = 'Режими вітрини та сумісність';
 $_['entry_accent_color'] = 'Акцентний колір';
@@ -167,7 +167,7 @@ $_['help_product_extra_tab_status'] = 'Показує одну спільну д
 $_['entry_product_extra_tab_title'] = 'Назва вкладки';
 $_['entry_product_extra_tab_content'] = 'Вміст вкладки';
 
-// CodeCart PRO RC86: header navigation modes and selected information pages.
+// CodeCart PRO header navigation modes and selected information pages.
 $_['entry_header_menu_mode'] = 'Меню категорій у шапці';
 $_['help_header_menu_mode'] = 'Горизонтальне показує категорії в один ряд. Вертикальне залишає одну кнопку «Каталог» і відкриває компактне багаторівневе меню, що не розтягує шапку на кілька рядків.';
 $_['text_header_menu_horizontal'] = 'Горизонтальне меню';
@@ -186,7 +186,7 @@ $_['help_option_image_switch_status'] = 'Якщо увімкнено, вибір
 $_['entry_purchase_blocks_status'] = 'Контентні блоки каталогу';
 $_['help_purchase_blocks_status'] = 'Головний перемикач контентних блоків для товарів і категорій: інформація, таблиці, розміри, кольори та форми. На новому встановленні увімкнений; без створених блоків нічого не виводить. Існуючі товари, опції та характеристики не змінюються.';
 
-// CodeCart PRO RC87: flexible header menu.
+// CodeCart PRO flexible header menu.
 $_['text_menu_products'] = "Товари";
 $_['entry_header_products'] = "Додаткові товари в меню";
 $_['help_header_products'] = "Знайдіть і додайте окремі товари до навігації. Товар залишається штатним товаром OpenCart.";

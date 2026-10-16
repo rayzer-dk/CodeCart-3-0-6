@@ -95,7 +95,7 @@ $_['error_no_shipping']              = 'Warning: No Shipping options are availab
 $_['error_payment']                  = 'Warning: Payment method required!';
 $_['error_no_payment']               = 'Warning: No Payment options are available. Please <a href="%s">contact us</a> for assistance!';
 $_['error_custom_field']             = '%s required!';
-// CodeCart PRO RC63: quick checkout
+// CodeCart PRO quick checkout
 $_['text_quick_subtitle'] = 'Cart, contact details, delivery and payment on one page';
 $_['text_quick_contact'] = 'Contact details';
 $_['text_quick_shipping'] = 'Delivery';
@@ -110,7 +110,7 @@ $_['error_company'] = 'Company name must not exceed 40 characters!';
 $_['entry_quick_address_1'] = 'Address / delivery point';
 $_['entry_quick_address_2'] = 'Address details';
 
-// CodeCart PRO RC65: one-click quick checkout
+// CodeCart PRO one-click quick checkout
 $_['button_quick_order'] = 'Place order';
 
 // CodeCart PRO: aligned locale keys

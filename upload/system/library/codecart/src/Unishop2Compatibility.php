@@ -261,6 +261,55 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
         return isset($contracts[$file]) && in_array($search, $contracts[$file], true);
     }
 
+    /** Normalize only the known UniShop2 stock-sort injection before OCMOD applies it. */
+    public static function normalizeOcmodAdd(string $code, string $version, string $file, string $search, string $add): string {
+        if ($code !== 'UniShop2 template' || $version !== '3.6.6.0'
+            || str_replace('\\', '/', $file) !== 'catalog/model/catalog/product.php') {
+            return $add;
+        }
+
+        if (trim($search) === '$sql .= " ORDER BY'
+            && preg_match('~^\s*\$sql\s*\.\s*=\s*" ORDER BY "\s*\.\s*\$sort_qty\s*\.\s*"\s*$~D', $add)) {
+            // The vendor operation also matches helpers that do not initialize stock sorting.
+            return str_replace('$sort_qty', "(\$sort_qty ?? '')", $add);
+        }
+
+        $compact = static function (string $source): string {
+            $result = '';
+            foreach (token_get_all('<?php ' . $source) as $token) {
+                if (is_array($token)) {
+                    if (in_array($token[0], array(T_OPEN_TAG, T_WHITESPACE, T_COMMENT, T_DOC_COMMENT), true)) {
+                        continue;
+                    }
+                    $result .= $token[1];
+                } else {
+                    $result .= $token;
+                }
+            }
+            return $result;
+        };
+        if ($compact($search) !== "if(isset(\$data['sort'])&&in_array(\$data['sort'],\$sort_data)){") {
+            return $add;
+        }
+
+        $mode = '(?:\(int\))?' . preg_quote("\$uniset['sort_qty']", '~');
+        $stock = preg_quote("\$sort_qty='(p.quantity > 0) DESC,';", '~');
+        $expected = '~^' . preg_quote("\$uniset=\$this->config->get('config_unishop2');\$sort_qty='';", '~')
+            . 'if\(' . $mode . '==1\)\{'
+            . preg_quote("if(isset(\$data['sort'])&&\$data['sort']=='p.sort_order'){", '~') . $stock . '\}\}'
+            . 'elseif\(' . $mode . '==2\)\{' . $stock . '\}$~D';
+        if (!preg_match($expected, $compact($add))) {
+            return $add;
+        }
+
+        $condition = '~\b(if|elseif)\s*\(\s*(?:\(\s*int\s*\)\s*)?\$uniset\s*\[\s*\'sort_qty\'\s*\]\s*==\s*([12])\s*\)~';
+        $count = 0;
+        $normalized = preg_replace_callback($condition, static function (array $match): string {
+            return $match[1] . " ((int)(\$uniset['sort_qty'] ?? 0) === " . $match[2] . ')';
+        }, $add, -1, $count);
+        return $count === 2 && is_string($normalized) ? $normalized : $add;
+    }
+
     private function sortByOrder(array &$items): void {
         if (count($items) < 2) {
             return;

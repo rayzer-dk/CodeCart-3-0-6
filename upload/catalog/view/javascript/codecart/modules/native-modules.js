@@ -1,5 +1,5 @@
 /* CodeCart PRO native storefront modules. Loaded only when a compatible module renders. */
-/* CodeCart PRO RC91: responsive, conflict-resistant and seamless carousel engine. */
+/* CodeCart PRO responsive, conflict-resistant and seamless carousel engine. */
 (function($){
 'use strict';
 var uid=0,instances=[];
@@ -99,7 +99,7 @@ $(document).on('codecart:content-updated',function(e,scope){pruneCodeCartNativeM
 window.CodeCartNativeModules={init:initCodeCartNativeModules};window.CodeCartNativeProductModules=window.CodeCartNativeModules;
 })(window.jQuery);
 
-/* CodeCart PRO RC79: responsive sidebar modules and filter UX. */
+/* CodeCart PRO responsive sidebar modules and filter UX. */
 (function($){
 'use strict';
 function navigate(url){

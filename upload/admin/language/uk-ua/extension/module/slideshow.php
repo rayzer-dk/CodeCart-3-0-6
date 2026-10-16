@@ -24,7 +24,7 @@ $_['error_height']     = 'Необхідно вказати висоту';
 // CodeCart PRO: completed Ukrainian language keys.
 $_['text_extension'] = 'Доповнення';
 
-// CodeCart PRO RC79: налаштування слайдера.
+// CodeCart PRO налаштування слайдера.
 $_['text_display_settings'] = 'Налаштування слайдера';
 $_['text_effect_fade'] = 'Плавна зміна';
 $_['text_effect_slide'] = 'Перегортання';

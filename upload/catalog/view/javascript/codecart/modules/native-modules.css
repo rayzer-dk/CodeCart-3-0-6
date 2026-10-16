@@ -1,8 +1,8 @@
 /* CodeCart PRO native storefront modules. Loaded only when a compatible module renders. */
-/* CodeCart PRO RC78 Category Wall */
+/* CodeCart PRO Category Wall */
 .ccp-category-wall{margin:18px 0 24px}.ccp-category-wall__title{margin:0}.ccp-category-wall__card{position:relative;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden;padding-bottom:46px;border:1px solid var(--ccp-store-border,#e2e8f0);border-radius:10px;background:var(--ccp-store-surface,#fff);color:var(--ccp-store-heading,#1f2937);box-shadow:0 3px 12px rgba(15,23,42,.06);text-decoration:none;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}.ccp-category-wall__card:hover,.ccp-category-wall__card:focus{transform:translateY(-2px);border-color:var(--ccp-store-accent,#0b6fd3);box-shadow:0 8px 20px rgba(15,23,42,.12);color:var(--ccp-store-accent,#0b6fd3);text-decoration:none}.ccp-category-wall__image{position:relative;display:flex;align-items:center;justify-content:center;height:auto;aspect-ratio:var(--ccp-category-image-ratio,4 / 3);padding:10px;background:#fff;overflow:hidden}.ccp-category-wall__image img{display:block;width:100%;height:100%;object-fit:contain}.ccp-category-wall__card--contain .ccp-category-wall__image img{object-fit:contain}.ccp-category-wall__card--cover .ccp-category-wall__image img{object-fit:cover}.ccp-category-wall__name{display:block;padding:11px 10px 12px;text-align:center;font-weight:700;line-height:1.25}.ccp-category-wall__name small{color:#64748b;font-weight:500}html.ccp-theme-dark .ccp-category-wall__card{background:var(--ccp-store-surface,#1b232d);border-color:var(--ccp-store-border,#374250);color:var(--ccp-store-heading,#f4f7fb)}html.ccp-theme-dark .ccp-category-wall__image{background:#fff}@media(max-width:600px){.ccp-category-wall__name{padding:9px 7px;font-size:13px}}
 
-/* CodeCart PRO RC79 native content modules: shared responsive grid/carousel engine. */
+/* CodeCart PRO native content modules: shared responsive grid/carousel engine. */
 .ccp-native-module,.ccp-native-product-module{width:100%;max-width:100%;min-width:0;position:relative;margin-bottom:22px;overflow:hidden}
 .ccp-native-module-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .ccp-native-module-heading h3{margin:0;min-width:0}
@@ -40,7 +40,7 @@ html.ccp-theme-dark .ccp-native-module-dot.is-active:before{background:var(--ccp
 @media(max-width:767px){.ccp-native-module,.ccp-native-product-module{margin-bottom:16px;--ccp-module-cols-current:var(--ccp-module-cols-mobile,2)}.ccp-native-module--grid .ccp-native-module-track,.ccp-native-product-module--grid .ccp-native-module-track{grid-template-columns:repeat(var(--ccp-module-cols-mobile,2),minmax(0,1fr));gap:10px}.ccp-native-module--carousel .ccp-native-module-item,.ccp-native-product-module--carousel .ccp-native-module-item{padding-left:5px!important;padding-right:5px!important}.ccp-native-module--carousel .ccp-native-module-track,.ccp-native-product-module--carousel .ccp-native-module-track{margin-left:0;margin-right:0}.ccp-native-module-arrows button{width:28px;height:28px;min-width:28px;min-height:28px;font-size:12px}.ccp-native-module-arrows button i{font-size:12px;line-height:1}.ccp-native-module-heading{align-items:flex-start}.ccp-native-module-arrows{gap:4px}.ccp-native-module-pagination{margin-top:8px}}
 @media(prefers-reduced-motion:reduce){.ccp-native-module--carousel .ccp-native-module-track,.ccp-native-product-module--carousel .ccp-native-module-track{transition:none!important}}
 
-/* CodeCart PRO RC79: compact responsive navigation/filter modules. */
+/* CodeCart PRO compact responsive navigation/filter modules. */
 .ccp-sidebar-module{margin-bottom:20px;border:1px solid var(--ccp-store-border,#e2e8f0);border-radius:var(--ccp-store-radius,8px);background:var(--ccp-store-surface,#fff);overflow:hidden}
 .ccp-sidebar-module__heading{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:10px 13px;border-bottom:1px solid var(--ccp-store-border,#e2e8f0);background:rgba(11,111,211,.04)}
 .ccp-sidebar-module__heading h3{margin:0;font-size:16px;line-height:1.35;color:var(--ccp-store-heading,#263238)}
@@ -80,7 +80,7 @@ html.ccp-theme-dark .ccp-filter-option:hover,html.ccp-theme-dark .ccp-filter-opt
 .ccp-html-module__content table{max-width:100%}
 @media(max-width:767px){.ccp-html-module__content table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}}
 
-/* CodeCart PRO RC79: native Brands wall / carousel. */
+/* CodeCart PRO native Brands wall / carousel. */
 .ccp-manufacturer-wall{margin:18px 0 24px}.ccp-manufacturer-wall__title{margin:0}.ccp-manufacturer-wall__card{display:flex;flex-direction:column;align-items:stretch;justify-content:center;height:100%;min-width:0;overflow:hidden;border:1px solid var(--ccp-store-border,#e2e8f0);border-radius:10px;background:var(--ccp-store-surface,#fff);color:var(--ccp-store-heading,#1f2937);text-decoration:none;box-shadow:0 3px 12px rgba(15,23,42,.05);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}.ccp-manufacturer-wall__card:hover,.ccp-manufacturer-wall__card:focus{transform:translateY(-2px);border-color:var(--ccp-store-accent,#0b6fd3);box-shadow:0 8px 20px rgba(15,23,42,.11);color:var(--ccp-store-accent,#0b6fd3);text-decoration:none}.ccp-manufacturer-wall__image{display:flex;align-items:center;justify-content:center;width:min(100%,var(--ccp-manufacturer-image-width,180px));height:auto;aspect-ratio:var(--ccp-manufacturer-image-ratio,9 / 5);margin:0 auto;padding:14px;background:#fff;overflow:hidden;box-sizing:border-box}.ccp-manufacturer-wall__image img{width:100%;height:100%}.ccp-manufacturer-wall__card--contain .ccp-manufacturer-wall__image img{object-fit:contain}.ccp-manufacturer-wall__card--cover .ccp-manufacturer-wall__image img{object-fit:cover}.ccp-manufacturer-wall__name{display:block;padding:9px 10px 11px;text-align:center;font-weight:650;line-height:1.25}html.ccp-theme-dark .ccp-manufacturer-wall__card{background:var(--ccp-store-surface,#1b232d);border-color:var(--ccp-store-border,#374250);color:var(--ccp-store-heading,#f4f7fb)}html.ccp-theme-dark .ccp-manufacturer-wall__image{background:#fff}@media(max-width:600px){.ccp-manufacturer-wall__image{width:min(100%,var(--ccp-manufacturer-image-width,180px));height:auto;padding:10px}.ccp-manufacturer-wall__name{padding:8px 7px;font-size:13px}}
 
 
@@ -107,7 +107,7 @@ html.ccp-theme-dark .ccp-filter-option:hover,html.ccp-theme-dark .ccp-filter-opt
 .ccp-native-module-arrows .ccp-native-module-autoplay-toggle:focus-visible{outline:2px solid rgba(11,111,211,.35);outline-offset:2px}
 html.ccp-theme-dark .ccp-native-module-arrows .ccp-native-module-autoplay-toggle,html.ccp-theme-dark .ccp-native-module-arrows .ccp-native-module-autoplay-toggle:hover,html.ccp-theme-dark .ccp-native-module-arrows .ccp-native-module-autoplay-toggle:focus{background:transparent!important;border:0!important;color:var(--ccp-store-accent,#5aa9e6)!important;box-shadow:none!important}
 
-/* CodeCart PRO RC83: clearer carousel navigation, stable sidebar geometry and category affordance. */
+/* CodeCart PRO clearer carousel navigation, stable sidebar geometry and category affordance. */
 .ccp-native-module--carousel,.ccp-native-product-module--carousel{position:relative}
 .ccp-native-module--carousel .ccp-native-module-arrows,.ccp-native-product-module--carousel .ccp-native-module-arrows{position:static!important}
 .ccp-native-module--carousel .ccp-native-module-prev,.ccp-native-module--carousel .ccp-native-module-next,.ccp-native-product-module--carousel .ccp-native-module-prev,.ccp-native-product-module--carousel .ccp-native-module-next{position:absolute!important;top:50%;z-index:7;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;margin-top:-17px;background:#fff!important;border:1px solid rgba(11,111,211,.24)!important;color:var(--ccp-store-accent,#0b6fd3)!important;box-shadow:0 5px 14px rgba(15,23,42,.16)!important}
@@ -129,15 +129,15 @@ html.ccp-theme-dark .ccp-native-module-arrows .ccp-native-module-autoplay-toggle
 .ccp-category-wall__corner-link:hover,.ccp-category-wall__corner-link:focus-visible{background:#095eb4;color:#fff!important}
 @media(max-width:767px){.ccp-native-module--carousel .ccp-native-module-prev,.ccp-native-module--carousel .ccp-native-module-next,.ccp-native-product-module--carousel .ccp-native-module-prev,.ccp-native-product-module--carousel .ccp-native-module-next{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;margin-top:-14px;font-size:12px}.ccp-native-module-arrows button:after{inset:-8px}.ccp-category-wall__subcategories{font-size:11px;padding-right:32px}}
 
-/* CodeCart PRO RC83: side columns always render a single readable card. */
+/* CodeCart PRO side columns always render a single readable card. */
 #column-left .ccp-native-module-track,#column-left .ccp-native-product-module .ccp-native-module-track,#column-right .ccp-native-module-track,#column-right .ccp-native-product-module .ccp-native-module-track{grid-template-columns:minmax(0,1fr)!important;--ccp-module-cols-current:1!important}
 #column-left .ccp-native-module-item,#column-left .ccp-native-product-module .ccp-native-module-item,#column-right .ccp-native-module-item,#column-right .ccp-native-product-module .ccp-native-module-item{flex:0 0 100%!important;max-width:100%!important;width:100%!important}
 
-/* RC83: pointer focus must not flatten carousel controls; keyboard focus keeps its ring. */
+/* Pointer focus must not flatten carousel controls; keyboard focus keeps its ring. */
 .ccp-native-module--carousel .ccp-native-module-prev:focus:not(:focus-visible),.ccp-native-module--carousel .ccp-native-module-next:focus:not(:focus-visible),.ccp-native-product-module--carousel .ccp-native-module-prev:focus:not(:focus-visible),.ccp-native-product-module--carousel .ccp-native-module-next:focus:not(:focus-visible){outline:0!important;background:#fff!important;border-color:rgba(11,111,211,.24)!important;color:var(--ccp-store-accent,#0b6fd3)!important;box-shadow:0 5px 14px rgba(15,23,42,.16)!important}
 
 
-/* CodeCart PRO RC86 compact equal-height cards: no blank content reservation. */
+/* CodeCart PRO compact equal-height cards: no blank content reservation. */
 .ccp-native-module-track{align-items:stretch}
 .ccp-native-module--products .ccp-native-module-item,.ccp-native-module--articles .ccp-native-module-item,.ccp-native-product-module .ccp-native-module-item{align-self:stretch;display:flex}
 .ccp-native-module--products .ccp-native-module-item>.product-thumb,.ccp-native-module--articles .ccp-native-module-item>.product-thumb,.ccp-native-product-module .ccp-native-module-item>.product-thumb{width:100%;height:100%}
@@ -145,21 +145,21 @@ html.ccp-theme-dark .ccp-native-module-arrows .ccp-native-module-autoplay-toggle
 .ccp-native-module .ccp-card-attributes{min-width:0;min-height:0!important;max-height:none!important;height:auto!important;overflow:visible!important;overflow-wrap:anywhere}
 .ccp-native-module .ccp-card-attributes li span,.ccp-native-module .ccp-card-attributes li strong{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ccp-native-module .ccp-card-attributes.is-empty{display:none!important}
-/* RC90: grid column count comes only from the module configuration variables. */
+/* Grid column count comes only from the module configuration variables. */
 
-/* RC86: card bodies stretch so action rows share one bottom edge without reserving blank description space. */
+/* Card bodies stretch so action rows share one bottom edge without reserving blank description space. */
 .ccp-native-module--products .product-thumb>.ccp-product-list-body,.ccp-native-product-module .product-thumb>.ccp-product-list-body{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;min-height:0;width:100%;overflow:visible}
 .ccp-native-module--products .product-thumb>.ccp-product-list-body>.caption,.ccp-native-product-module .product-thumb>.ccp-product-list-body>.caption{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
 .ccp-native-module--products .product-thumb>.ccp-product-list-body>.button-group,.ccp-native-product-module .product-thumb>.ccp-product-list-body>.button-group{margin-top:auto;flex:0 0 auto}
 
-/* CodeCart PRO RC90: visual separation for recommended-reading/article modules. */
+/* CodeCart PRO visual separation for recommended-reading/article modules. */
 .ccp-native-module--articles{margin-top:18px}
 .ccp-native-module--articles:first-child{margin-top:0}
 
-/* CodeCart PRO RC90: instant reset used by seamless DOM rotation. */
+/* CodeCart PRO instant reset used by seamless DOM rotation. */
 .ccp-native-module--carousel .ccp-native-module-track--instant,.ccp-native-product-module--carousel .ccp-native-module-track--instant{transition:none!important}
 
-/* CodeCart PRO RC91: lock carousel navigation only during the active transition. */
+/* CodeCart PRO lock carousel navigation only during the active transition. */
 .ccp-native-module.is-animating .ccp-native-module-prev,.ccp-native-module.is-animating .ccp-native-module-next,.ccp-native-product-module.is-animating .ccp-native-module-prev,.ccp-native-product-module.is-animating .ccp-native-module-next{pointer-events:none;opacity:.55}
 
 /* CodeCart PRO 3.0.6.0: presentation/mobile defaults — two cards per row; category wall becomes a static grid. */

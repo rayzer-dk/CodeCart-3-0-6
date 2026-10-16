@@ -5,6 +5,7 @@
  * The checker loads trusted project language PHP files; do not run it on unreviewed third-party code.
  */
 error_reporting(E_ALL);
+require_once __DIR__ . '/lib/php-source.php';
 $projectRoot = dirname(__DIR__);
 $uploadRoot = $projectRoot . '/upload';
 $languages = array('uk-ua', 'en-gb', 'ru-ru');
@@ -39,15 +40,10 @@ foreach ($domains as $domain) {
             if (!$file->isFile() || substr($file->getFilename(), -4) !== '.php') { continue; }
             $contents = file_get_contents($file->getPathname());
             $allFilesChecked++;
-            // Support multiple assignments on the same line without treating comment examples as active keys.
             $definedKeys = array();
-            foreach (preg_split('/\r\n|\n|\r/', $contents) as $line) {
-                if (strpos(ltrim($line), '//') === 0) { continue; }
-                preg_match_all('~\$_\s*\[\s*[\'"]([^\'"]+)[\'"]\s*\]\s*=~', $line, $matches);
-                foreach ($matches[1] as $key) {
-                    if (isset($definedKeys[$key])) { $issues[] = 'Duplicate key: ' . $file->getPathname() . ': ' . $key; }
-                    $definedKeys[$key] = true;
-                }
+            foreach (ccpLanguageAssignmentKeys($contents) as $key) {
+                if (isset($definedKeys[$key])) { $issues[] = 'Duplicate key: ' . $file->getPathname() . ': ' . $key; }
+                $definedKeys[$key] = true;
             }
             if (substr($contents, 0, 3) === "\xEF\xBB\xBF") { $issues[] = 'UTF-8 BOM: ' . $file->getPathname(); }
             if (function_exists('mb_check_encoding') && !mb_check_encoding($contents, 'UTF-8')) { $issues[] = 'Invalid UTF-8: ' . $file->getPathname(); }

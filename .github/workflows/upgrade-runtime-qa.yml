@@ -1,5 +1,4 @@
 name: Upgrade Runtime QA
-# Build 2.0.4 verification trigger
 
 on:
   workflow_dispatch:
@@ -23,7 +22,7 @@ permissions:
 
 jobs:
   ocstore-upgrade:
-    name: ocStore 3.0.4.1 to CodeCart 2.0.4
+    name: ocStore 3.0.4.1 to current CodeCart build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -90,7 +89,7 @@ jobs:
       - name: Install locked CodeCart dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Overlay current Build 2.0.4 source
+      - name: Overlay current source
         shell: bash
         run: |
           set -euo pipefail
@@ -101,7 +100,7 @@ jobs:
           cp /tmp/admin-config.php store/upload/admin/config.php
           test -f store/upload/system/library/codecart/migration.php
           test -f store/upload/system/storage/vendor/autoload.php
-          grep -q "CODECART_PACKAGE_BUILD', '2.0.4'" store/upload/index.php
+          cmp upload/index.php store/upload/index.php
 
       - name: Start upgraded codebase
         shell: bash

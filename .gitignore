@@ -35,3 +35,11 @@ Thumbs.db
 *.tmp
 *.bak
 *.old
+.autopilot/serve.*
+.autopilot/runner.json
+.autopilot/runner.lock
+.autopilot/runner.json.tmp-*
+.autopilot/**/private-fixtures/
+.autopilot/**/evidence/
+__pycache__/
+*.pyc

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/lib/php-source.php';
 
 // Language pack gate: every first-party en-gb language file must exist in uk-ua and
 // ru-ru with the same keys and the same printf placeholders. A partial pack would
@@ -65,12 +66,11 @@ foreach (array('catalog', 'admin') as $area) {
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($controllerDir, FilesystemIterator::SKIP_DOTS));
     foreach ($iterator as $file) {
         if (substr((string)$file, -4) !== '.php') { continue; }
-        $source = (string)file_get_contents((string)$file);
-        preg_match_all('/(?:this->load->language|\$language->load)\(\s*[\'"]([a-z0-9_\/]+)[\'"]\s*\)/', $source, $match);
-        $routes = array_values(array_unique($match[1]));
-        if (!$routes) { continue; }
-        preg_match_all('/(?:this->language|\$language)->get\(\s*[\'"]([a-z0-9_]+)[\'"]\s*\)(?!\s*->)/', $source, $match);
-        $needed = array_fill_keys($match[1], true);
+        $references = ccpLanguageReferences((string)file_get_contents((string)$file));
+        $source = $references['code'];
+        $routes = $references['routes'];
+        if (!$routes && !$references['aliases']) { continue; }
+        $needed = $references['needed'];
         preg_match_all('/\$data\[\s*[\'"]([a-z0-9_]+)[\'"]\s*\]\s*=/', $source, $match);
         $assigned = array_fill_keys($match[1], true);
         preg_match_all('/load->view\(\s*[\'"]([a-z0-9_\/]+)[\'"]/', $source, $match);
@@ -83,6 +83,13 @@ foreach (array('catalog', 'admin') as $area) {
         $availableBy = array();
         $union = array();
         foreach (array('en-gb', 'uk-ua', 'ru-ru') as $language) {
+            $localeRoot = $root . '/upload/' . $area . '/language/' . $language . '/';
+            foreach (ccpLanguageAliasErrors($references, static function ($route) use ($localeRoot, $load) {
+                $path = $localeRoot . $route . '.php';
+                return is_file($path) ? $load($path) : null;
+            }) as $error) {
+                $errors[] = $area . '/' . $language . ': ' . substr((string)$file, strlen($controllerDir) + 1) . ' ' . $error;
+            }
             $available = $load($root . '/upload/' . $area . '/language/' . $language . '/' . $language . '.php');
             foreach ($routes as $route) { $available += $load($root . '/upload/' . $area . '/language/' . $language . '/' . $route . '.php'); }
             $availableBy[$language] = $available;
@@ -105,4 +112,4 @@ if ($errors) {
     exit(1);
 }
 
-fwrite(STDOUT, "PASS: en-gb/uk-ua/ru-ru language packs are complete, placeholder-compatible and cover every key used per route.\n");
+fwrite(STDOUT, "PASS: en-gb/uk-ua/ru-ru pack files, placeholders and statically recognized controller/Twig keys and language aliases checked. Dynamic routes/keys are not covered.\n");

@@ -19,7 +19,7 @@ $_['error_permission'] = 'Warning: You do not have permission to modify carousel
 $_['error_name']       = 'Module Name must be between 3 and 64 characters!';
 $_['error_width']      = 'Width required!';
 $_['error_height']     = 'Height required!';
-// CodeCart PRO RC79: responsive carousel settings.
+// CodeCart PRO responsive carousel settings.
 $_['text_display_settings'] = 'Carousel settings';
 $_['text_desktop'] = 'Desktop';
 $_['text_tablet'] = 'Tablet';

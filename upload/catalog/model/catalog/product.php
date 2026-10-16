@@ -125,7 +125,7 @@ class ModelCatalogProduct extends Model {
 		if ($this->config->get('config_noindex_status')) {
 			$sql .= " AND p.noindex > '0'";
 		}
-		$sql .= " ORDER BY p.product_id ASC LIMIT " . $start . "," . $limit;
+		$sql .= ' ORDER BY p.product_id ASC LIMIT ' . $start . ',' . $limit;
 		$query = $this->db->query($sql);
 
 		return $query->rows;

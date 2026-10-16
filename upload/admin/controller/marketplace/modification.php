@@ -502,6 +502,8 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 
 				$name_node = $dom->getElementsByTagName('name')->item(0);
 				$code_node = $dom->getElementsByTagName('code')->item(0);
+				$version_node = $dom->getElementsByTagName('version')->item(0);
+				$current_version = $version_node ? trim((string)$version_node->textContent) : '';
 				if ($name_node && trim((string)$name_node->textContent) !== '') { $current_name = trim((string)$name_node->textContent); }
 				if ($code_node && trim((string)$code_node->textContent) !== '') { $current_code = trim((string)$code_node->textContent); }
 				$log[] = 'MOD: ' . $current_name . ($current_id > 0 ? ' [ID ' . $current_id . ']' : '');
@@ -580,6 +582,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 										if (!$trim || $trim=='true') { $search=trim($search); }
 										$add=$add_element->textContent; $trim=$add_element->getAttribute('trim'); $position=$add_element->getAttribute('position'); $offset=$add_element->getAttribute('offset');
 										$offset=$offset===''?0:(int)$offset; if ($trim=='true') { $add=trim($add); }
+										$add = $this->normalizeCompatibilityAdd($current_code, $current_version, $key, $search, $add);
 										$log[]='CODE: '.$search; $indexes=$index!==''?explode(',',$index):array(); $i=0; $lines=explode("\n",$modification[$key]);
 										for ($line_id=0;$line_id<count($lines);$line_id++) {
 											$line=$lines[$line_id]; $match=false;
@@ -596,6 +599,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 										$modification[$key]=implode("\n",$lines);
 									} else {
 										$search=trim($search_element->textContent); $limit=$search_element->getAttribute('limit'); $replace=trim($add_element->textContent); $limit=$limit?(int)$limit:-1; $match=array();
+										$replace = $this->normalizeCompatibilityAdd($current_code, $current_version, $key, $search, $replace);
 										$match_count=@preg_match_all($search,$modification[$key],$match,PREG_OFFSET_CAPTURE);
 										if ($match_count===false) { $build_errors++; $mod_failed=true; $mod_issue='Invalid regular expression'; $mod_issue_file=$key; $issues[] = array('severity'=>'error','operation'=>$operation_index,'file'=>$key,'reason'=>$mod_issue,'search'=>$this->shortCompatibilityMessage($search)); $log[]='ERROR: '.$mod_issue.' in '.$key; break 4; }
 										if ($limit>0) { $match[0]=array_slice($match[0],0,$limit); }
@@ -890,6 +894,14 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 	private function shortCompatibilityMessage($message) {
 		$message = trim(preg_replace('/\s+/u', ' ', (string)$message));
 		return function_exists('mb_substr') ? mb_substr($message, 0, 240, 'UTF-8') : substr($message, 0, 240);
+	}
+
+	private function normalizeCompatibilityAdd($code, $version, $file, $search, $add) {
+		$framework = $this->registry->get('codecart_compatibility_framework');
+		if ($framework && method_exists($framework, 'normalizeOcmodAdd')) {
+			return $framework->normalizeOcmodAdd((string)$code, (string)$version, (string)$file, (string)$search, (string)$add);
+		}
+		return $add;
 	}
 
 	private function isCodeCartCompatibilitySatisfied($code, $file, $search) {

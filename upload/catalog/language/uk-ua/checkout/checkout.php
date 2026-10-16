@@ -94,7 +94,7 @@ $_['error_no_shipping']              = 'Доставка за вашою адр�
 $_['error_payment']                  = 'Необхідно обрати спосіб оплати';
 $_['error_no_payment']               = 'Оплата за вашою адресою неможлива. Будь ласка, <a href="%s">зв’яжіться з нами</a>, ми обов’язково знайдемо рішення.';
 $_['error_custom_field']             = 'Обов’язково вкажіть %s';
-// CodeCart PRO RC63: швидке оформлення
+// CodeCart PRO швидке оформлення
 $_['text_quick_subtitle'] = 'Кошик, контакти, доставка та оплата на одній сторінці';
 $_['text_quick_contact'] = 'Контактні дані';
 $_['text_quick_shipping'] = 'Доставка';
@@ -109,5 +109,5 @@ $_['error_company'] = 'Назва компанії не повинна пере�
 $_['entry_quick_address_1'] = 'Адреса / відділення';
 $_['entry_quick_address_2'] = 'Уточнення адреси';
 
-// CodeCart PRO RC65: one-click quick checkout
+// CodeCart PRO one-click quick checkout
 $_['button_quick_order'] = 'Оформити замовлення';

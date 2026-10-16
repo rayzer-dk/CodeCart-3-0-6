@@ -429,7 +429,7 @@ $(document).ready(function() {
 })(window.jQuery);
 
 
-/* CodeCart PRO RC79 module display settings UX. */
+/* CodeCart PRO module display settings UX. */
 (function($){
 'use strict';
 function syncCodeCartModuleDisplaySettings(scope){

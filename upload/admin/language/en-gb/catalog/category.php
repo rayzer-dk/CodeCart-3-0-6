@@ -58,7 +58,7 @@ $_['error_parent']           = 'The parent category you have chosen is a child o
 $_['entry_google_product_category_id'] = 'Google Product Category ID';
 $_['help_google_product_category_id'] = 'Numeric Google Product Taxonomy ID used by Merchant feeds. Leave empty to inherit the value from the nearest parent category.';
 
-// CodeCart PRO RC86: inherited purchase-area information blocks.
+// CodeCart PRO inherited purchase-area information blocks.
 $_['tab_purchase_blocks'] = 'Content blocks';
 $_['entry_purchase_block_mode'] = 'Content blocks';
 $_['text_purchase_block_inherit'] = 'Inherit from parent category';

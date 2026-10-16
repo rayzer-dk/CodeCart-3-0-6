@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+  <name>CodeCart 3.0.6.0 / UniShop2 3.6.6.0 Compatibility PRO</name>
+  <code>unishop2_compatibility_pro_100</code>
+  <version>1.0.1</version>
+  <author>CodeCart PRO</author>
+  <link>https://codecartpro.com</link>
+  <file path="catalog/controller/extension/module/uni_new_data.php">
+    <operation error="skip">
+      <search regex="true"><![CDATA[~('qty_switch_type'\s*=>\s*)\$uniset\s*\[\s*'qty_switch'\s*\]\s*\[\s*'type'\s*\]~]]></search>
+      <add position="replace"><![CDATA[${1}($uniset['qty_switch']['type'] ?? '')]]></add>
+    </operation>
+    <operation error="skip">
+      <search regex="true"><![CDATA[~(\$data\s*\[\s*'qty_switch_type'\s*\]\s*=\s*)\$uniset\s*\[\s*'qty_switch'\s*\]\s*\[\s*'type'\s*\](\s*;)~]]></search>
+      <add position="replace"><![CDATA[${1}($uniset['qty_switch']['type'] ?? '')${2}]]></add>
+    </operation>
+  </file>
+</modification>

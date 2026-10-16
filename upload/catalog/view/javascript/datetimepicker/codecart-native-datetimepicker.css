@@ -45,7 +45,7 @@
     padding-right: 12px;
 }
 
-/* CodeCart PRO RC66: native controls follow the active dark storefront/admin surface. */
+/* CodeCart PRO native controls follow the active dark storefront/admin surface. */
 html.ccp-theme-dark .codecart-native-datetimepicker,
 html[data-ccp-picker-theme="dark"] .codecart-native-datetimepicker {
     color-scheme: dark;
@@ -57,7 +57,7 @@ html.ccp-theme-dark .codecart-datetime-hint,
 html[data-ccp-picker-theme="dark"] .codecart-datetime-hint { color: #aeb9c8; }
 
 
-/* CodeCart PRO RC92: labels for legacy hours/minutes controls. */
+/* CodeCart PRO labels for legacy hours/minutes controls. */
 .bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell{vertical-align:middle!important;text-align:center!important}
 .bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell>.ccp-time-label{display:block;margin:0 0 4px;font-size:10px;line-height:1.2;font-weight:600;color:#64748b;white-space:nowrap}
 html.ccp-theme-dark .bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell>.ccp-time-label,html.ccp-admin-dark .bootstrap-datetimepicker-widget .timepicker-picker td.ccp-time-value-cell>.ccp-time-label{color:#aeb9c8}

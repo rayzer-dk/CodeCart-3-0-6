@@ -1,5 +1,4 @@
 name: Refresh Integrity Manifest
-# Build 2.0.4 integrity refresh
 
 on:
   workflow_dispatch:

@@ -136,7 +136,7 @@ textarea.form-control { height: auto; }
 @media (min-width: 1200px) {
   .cc-page { padding-top: 36px; }
 }
-/* CodeCart PRO Installer 2.0 RC78: preflight and validation details */
+/* CodeCart PRO Installer 2.0 preflight and validation details */
 .cc-error-list { margin: 8px 0 0 22px; padding: 0; }
 .cc-error-list li { margin: 3px 0; }
 .cc-backup-confirm { display: block; margin: 18px 0 22px; padding: 12px 14px; border: 1px solid #f2d18a; border-radius: 8px; background: #fff8e8; color: #76510a; font-weight: 600; }

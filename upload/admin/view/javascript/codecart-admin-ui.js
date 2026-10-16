@@ -12,7 +12,7 @@ function attachPrice(el){if(adminRoute!=='catalog/product'&&adminRoute!=='catalo
 function scan(node){$(node||document).find('input[type="text"][name],textarea[name]').addBack('input[type="text"][name],textarea[name]').each(function(){attachCounter(this);attachPrice(this);});}
 $(function(){initAdminTheme();var dynamic=/^(?:catalog\/(?:product|category|manufacturer|information)|blog\/(?:article|category))(?:\/(?:add|edit))?$/.test(adminRoute);if(dynamic){scan(document);new MutationObserver(function(ms){ms.forEach(function(m){Array.from(m.addedNodes||[]).forEach(function(n){if(n.nodeType===1)scan(n);});});}).observe(document.body,{childList:true,subtree:true});}});
 })(jQuery);
-/* CodeCart PRO RC91 product image tools: delegated swap + sortable fallback. */
+/* CodeCart PRO product image tools: delegated swap + sortable fallback. */
 (function($){'use strict';
 function isProductEditor(){var r='';try{r=String(new URL(window.location.href).searchParams.get('route')||'');}catch(e){}return r==='catalog/product'||r==='catalog/product/add'||r==='catalog/product/edit';}
 function renumber(){ $('#images tbody input[name$="[sort_order]"]').each(function(i){this.value=i;}); }
@@ -26,7 +26,7 @@ $(function(){if(!isProductEditor())return;
 })(jQuery);
 
 
-/* CodeCart PRO RC91: lightweight SEO URL helper for product/article forms. */
+/* CodeCart PRO lightweight SEO URL helper for product/article forms. */
 (function($){
   'use strict';
   if(!$){return;}

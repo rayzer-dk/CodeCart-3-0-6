@@ -1,3 +1,12 @@
+# CodeCart 3.0.6.0 — Build 2.1.0 (2026-10-16)
+
+- Replace formatting-sensitive extension table and translation-key checks with rendered structure checks and PHP token analysis; add mutation regressions.
+- Wire imported notification, language, integrity and SEO checks into the release gate. Missing gates and XML support now fail explicitly; failed checks no longer print contradictory PASS lines.
+- Update runtime workflows to compare staged source with the current checkout instead of requiring an obsolete build number.
+- Keep schema version separate from package build in integrity generation, write manifests atomically, and retain the GPL license in production archives.
+- Review development comments and compatibility behavior. Native theme behavior still requires deployment-specific verification.
+- This source revision is not a declaration of production acceptance; see documentation/RELEASE_2.1.0.md.
+
 ## CodeCart 3.0.6.0 — product list UI patch 3.0.6.4 (2026-10-14)
 
 - Corrected left/right pagination alignment by removing Bootstrap grid classes from the toolbar.

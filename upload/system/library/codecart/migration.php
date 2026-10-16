@@ -3421,14 +3421,14 @@ class Migration {
         $singleReplacement = $root . 'catalog' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'javascript' . DIRECTORY_SEPARATOR . 'codecart' . DIRECTORY_SEPARATOR . 'consent' . DIRECTORY_SEPARATOR . 'cookie-shield.webp';
         if (is_file($singleLegacy) && is_file($singleReplacement)) { @unlink($singleLegacy); }
 
-        // RC91 removed two old CodeCart-only placeholders that have no runtime references.
+        // Remove unused CodeCart placeholders after upgrading.
         // They live outside image/catalog, so merchant catalog media is never touched.
         foreach (array('add_photo.png', 'no_photo.png') as $name) {
             $legacyPlaceholder = $root . 'image' . DIRECTORY_SEPARATOR . 'codecart_placeholders' . DIRECTORY_SEPARATOR . $name;
             if (is_file($legacyPlaceholder)) { @unlink($legacyPlaceholder); }
         }
 
-        // RC91 replaced two tiny admin raster UI assets with CSS/Font Awesome.
+        // Remove admin raster assets replaced by CSS/Font Awesome.
         foreach (array(
             $root . 'admin' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'image' . DIRECTORY_SEPARATOR . 'checkmark.png',
             $root . 'admin' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'image' . DIRECTORY_SEPARATOR . 'loader-search.gif'

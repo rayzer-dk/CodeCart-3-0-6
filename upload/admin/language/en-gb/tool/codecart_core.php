@@ -230,7 +230,7 @@ $_['schema_msg_external_table'] = 'Additional table (third-party/custom); inform
 $_['schema_msg_external_column'] = 'Additional column (third-party/custom); informational only';
 $_['schema_msg_external_index'] = 'Additional index (third-party/custom); informational only';
 
-// RC47 Schema Registry guidance and explicit safe repair
+// Schema Registry guidance and explicit safe repair
 $_['button_schema_safe_fix'] = 'Fix safe schema issues';
 $_['text_schema_safe_fix_help'] = 'The table below now explains what each finding means and what to do. The repair button only handles engine/charset mismatches and missing non-unique indexes. Missing tables, columns, type changes and unique indexes remain manual to protect data and module compatibility.';
 $_['text_schema_backup_warning'] = 'Before any database repair, make a full backup of the database and site files. ALTER TABLE can lock large tables and should be run during low traffic.';
@@ -270,7 +270,7 @@ $_['text_icon_development'] = 'Development';
 $_['text_icon_other'] = 'Other';
 $_['text_icon_copied'] = 'Copied';
 $_['text_icon_usage'] = 'The copied class can be used in Twig/HTML, for example <i class="fa-solid fa-cart-shopping"></i>. Brand icons use the standard Font Awesome 6 syntax, for example <i class="fa-brands fa-x-twitter"></i>.';
-// CodeCart PRO RC61 retention controls
+// CodeCart PRO retention controls
 $_['entry_gdpr_retention'] = 'GDPR history retention, days';
 $_['text_gdpr_retention_help'] = 'Only old processed or superseded requests are removed automatically. Active pending/confirmed requests are never removed by retention cleanup.';
 $_['text_retention_auto'] = 'Automatic cleanup, days';
@@ -280,7 +280,7 @@ $_['text_cleanup_confirm'] = 'Clean records older than the configured retention 
 
 $_['text_totp_account'] = 'Account';
 
-// CodeCart PRO RC67 contextual field guidance
+// CodeCart PRO contextual field guidance
 $_['help_login_max_attempts'] = 'Failed attempts allowed before a temporary lock. 5–7 is recommended; lower can inconvenience admins, higher weakens protection.';
 $_['help_login_window'] = 'Time window in which failed attempts are counted. 15 minutes is recommended.';
 $_['help_totp'] = 'A second one-time code from an authenticator app. Recommended for administrators who can manage settings, orders or extensions.';

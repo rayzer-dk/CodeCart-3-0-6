@@ -61,7 +61,7 @@ $_['error_unique'] = 'SEO URL має бути унікальним!';
 $_['entry_google_product_category_id'] = 'ID категорії в класифікаторі Google Product Category';
 $_['help_google_product_category_id'] = 'Числовий ID таксономії Google для Merchant-фідів. Залиште порожнім, щоб успадкувати значення від найближчої батьківської категорії.';
 
-// CodeCart PRO RC86: inherited purchase-area information blocks.
+// CodeCart PRO inherited purchase-area information blocks.
 $_['tab_purchase_blocks'] = 'Контентні блоки';
 $_['entry_purchase_block_mode'] = 'Контентні блоки';
 $_['text_purchase_block_inherit'] = 'Успадковувати від батьківської категорії';

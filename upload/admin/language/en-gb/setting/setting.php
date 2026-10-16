@@ -366,7 +366,7 @@ $_['help_digital_checkout_email'] = 'E-Mail is always required for digital order
 $_['entry_checkout_field_address_1'] = 'Address line 1';
 $_['entry_checkout_field_city'] = 'City';
 
-// CodeCart PRO RC63: quick checkout and flexible fields
+// CodeCart PRO quick checkout and flexible fields
 $_['entry_quick_checkout_status'] = 'Quick checkout';
 $_['help_quick_checkout_status'] = 'Combines cart and guest checkout on one compact page. Legacy checkout remains available as a compatibility fallback.';
 $_['entry_checkout_email_fallback'] = 'Fallback E-Mail';
@@ -406,7 +406,7 @@ $_['text_tax_display_net_gross'] = 'Price excl. VAT + secondary price incl. VAT'
 $_['entry_currency_trim_zeros'] = 'Hide .00 in storefront prices';
 $_['help_currency_trim_zeros'] = 'When enabled, prices with a zero fractional part are shown without trailing zeros (100 instead of 100.00). Values such as 100.50 keep their decimals. Calculations and stored precision are unchanged.';
 
-// CodeCart PRO RC86: separate admin submenu appearance.
+// CodeCart PRO separate admin submenu appearance.
 $_['entry_admin_submenu_color'] = 'Submenu Color';
 $_['help_admin_submenu_color'] = 'Background of nested sidebar menu items, configurable independently from the main sidebar.';
 

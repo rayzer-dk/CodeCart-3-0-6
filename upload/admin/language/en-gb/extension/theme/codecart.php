@@ -51,7 +51,7 @@ $_['error_image_compare']              = 'Compare Image Size dimensions required
 $_['error_image_wishlist']             = 'Wish List Image Size dimensions required!';
 $_['error_image_cart']                 = 'Cart Image Size dimensions required!';
 $_['error_image_location']             = 'Store Image Size dimensions required!';
-// CodeCart PRO RC25 appearance
+// CodeCart PRO appearance
 $_['text_appearance'] = 'Appearance';
 $_['text_storefront_modes'] = 'Storefront modes and compatibility';
 $_['entry_accent_color'] = 'Accent Color';
@@ -169,7 +169,7 @@ $_['help_product_extra_tab_status'] = 'Shows one common additional tab on produc
 $_['entry_product_extra_tab_title'] = 'Tab title';
 $_['entry_product_extra_tab_content'] = 'Tab content';
 
-// CodeCart PRO RC86: header navigation modes and selected information pages.
+// CodeCart PRO header navigation modes and selected information pages.
 $_['entry_header_menu_mode'] = 'Header category menu';
 $_['help_header_menu_mode'] = 'Horizontal mode shows categories across the bar. Vertical mode keeps one Catalog button and opens a compact multilevel menu so a long catalog does not wrap onto several header rows.';
 $_['text_header_menu_horizontal'] = 'Horizontal menu';
@@ -188,7 +188,7 @@ $_['help_option_image_switch_status'] = 'When enabled, selecting an option value
 $_['entry_purchase_blocks_status'] = 'Catalog content blocks';
 $_['help_purchase_blocks_status'] = 'Master switch for product and category content blocks: information, tables, sizes, colours and forms. Enabled on a fresh install; with no configured blocks it renders nothing. Existing products, options and attributes are not changed.';
 
-// CodeCart PRO RC87: flexible header menu.
+// CodeCart PRO flexible header menu.
 $_['text_menu_products'] = "Products";
 $_['entry_header_products'] = "Additional menu products";
 $_['help_header_products'] = "Find and add individual products to navigation. Products remain standard OpenCart products.";

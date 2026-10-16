@@ -19,7 +19,7 @@ final class TaxDisplay {
         $override = strtolower(trim((string)$override));
         $mode = ($override !== '' && $override !== 'inherit') ? $override : (string)$config->get('config_tax_display');
 
-        // Backward compatibility with RC84 values.
+        // Backward compatibility with legacy tax display values.
         if ($mode === 'ex_tax') {
             $mode = self::MODE_GROSS_NET;
         } elseif ($mode === 'tax_amount') {

@@ -447,7 +447,7 @@ $_['help_digital_checkout_email'] = 'E-Mail завжди обов’язкови
 $_['entry_checkout_field_address_1'] = 'Адреса 1';
 $_['entry_checkout_field_city'] = 'Місто';
 
-// CodeCart PRO RC63: швидке оформлення та гнучкі поля
+// CodeCart PRO швидке оформлення та гнучкі поля
 $_['entry_quick_checkout_status'] = 'Швидке оформлення';
 $_['help_quick_checkout_status'] = 'Об’єднує кошик і гостьове оформлення на одній компактній сторінці. Legacy checkout залишається fallback для несумісних сценаріїв.';
 $_['entry_checkout_email_fallback'] = 'Службовий E-Mail';
@@ -487,7 +487,7 @@ $_['text_tax_display_net_gross'] = 'Ціна без ПДВ + нижче ціна
 $_['entry_currency_trim_zeros'] = 'Приховувати ,00 у цінах';
 $_['help_currency_trim_zeros'] = 'Якщо увімкнено, ціни з нульовою дробовою частиною показуються без нулів (100 замість 100,00). Значення на кшталт 100,50 зберігають копійки. Розрахунки та точність у БД не змінюються.';
 
-// CodeCart PRO RC86: separate admin submenu appearance.
+// CodeCart PRO separate admin submenu appearance.
 $_['entry_admin_submenu_color'] = 'Колір підменю';
 $_['help_admin_submenu_color'] = 'Фон вкладених пунктів бічного меню. Дозволяє окремо налаштувати контраст підменю.';
 

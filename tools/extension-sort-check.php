@@ -6,6 +6,10 @@
 $root = dirname(__DIR__);
 $types = array('advertise', 'analytics', 'captcha', 'currency', 'dashboard', 'feed', 'fraud', 'menu', 'module', 'payment', 'report', 'shipping', 'theme', 'total');
 $errors = array();
+require_once $root . '/upload/system/storage/vendor/autoload.php';
+require_once __DIR__ . '/lib/extension-layout.php';
+require_once __DIR__ . '/lib/php-source.php';
+$renderer = new \Twig\Environment(new \Twig\Loader\ArrayLoader(), array('autoescape'=>false, 'cache'=>false));
 
 foreach ($types as $type) {
     $controller = $root . '/upload/admin/controller/extension/extension/' . $type . '.php';
@@ -13,37 +17,22 @@ foreach ($types as $type) {
     $php = file_get_contents($controller);
     $twig = file_get_contents($view);
 
-    if (strpos($php, "getInstallDates('" . $type . "')") === false || strpos($php, "getUploadDates('" . $type . "')") === false || strpos($php, "'code'      => \$extension") === false) {
+    if (!ccpExtensionControllerHasMetadata($php, $type)) {
         $errors[] = $type . ': no installation date metadata in controller';
     }
-    if (strpos($twig, 'ccp-extension-main') === false || strpos($twig, 'ccp-extension-sort') === false) {
-        $errors[] = $type . ': no sortable rows or headers';
-    }
-    if (substr_count($twig, 'data-ccp-sort=') < 5 || strpos($twig, 'data-sort-upload') === false) {
-        $errors[] = $type . ': fewer than three sort choices';
-    }
-    if (preg_match('/<thead>(.*?)<\/thead>/s', $twig, $header)) {
-        $columns = substr_count($header[1], '<th ');
-        if (preg_match('/colspan="(\d+)"\s*>\{\{ text_no_results/', $twig, $match) && (int)$match[1] !== $columns) {
-            $errors[] = $type . ': empty-state columns differ from table header';
-        }
-        if ($columns < 6 || $columns > 8 || strpos($twig, 'ccp-extension-cols-' . $columns) === false) {
-            $errors[] = $type . ': expected 6-8 explicit semantic headers and matching width class';
-        }
-        if (preg_match('/<tr class="ccp-extension-main"[^>]*>(.*?)<\/tr>/s', $twig, $first_row)) {
-            $cells = substr_count($first_row[1], '<td');
-            if ($cells !== $columns || strpos($first_row[1], 'colspan="2"') !== false) {
-                $errors[] = $type . ': main row does not align with header columns';
-            }
-        }
+    try {
+        foreach (ccpCheckExtensionTable($renderer, $twig) as $error) { $errors[] = $type . ': ' . $error; }
+    } catch (\Throwable $e) {
+        $errors[] = $type . ': template check failed: ' . $e->getMessage();
     }
 }
 
 foreach (array('uk-ua', 'ru-ru', 'en-gb') as $locale) {
     $path = $root . '/upload/admin/language/' . $locale . '/marketplace/extension.php';
     $content = file_get_contents($path);
+    $keys = ccpLanguageAssignmentKeys($content);
     foreach (array('column_installed','column_install_date','column_upload_date','text_installed','text_not_installed','text_date_unknown','text_upload_date_unknown') as $key) {
-        if (strpos($content, chr(36) . "_['" . $key . "']") === false) {
+        if (!in_array($key, $keys, true)) {
             $errors[] = $locale . ': missing ' . $key;
         }
     }
@@ -51,27 +40,13 @@ foreach (array('uk-ua', 'ru-ru', 'en-gb') as $locale) {
 
 $sortScript = file_get_contents($root . '/upload/admin/view/javascript/codecart-extension-sort.js');
 if (strpos($sortScript, "$(document).on('click.ccpExtensionSort'") === false || strpos($sortScript, 'appendChild(fragment)') === false) {
-    $errors[] = 'sorting handler is not delegated to support AJAX-loaded extension tables';
+    $errors[] = 'sorting JavaScript source markers changed; run the browser sorting regression';
 }
 $parentView = file_get_contents($root . '/upload/admin/view/template/marketplace/extension.twig');
-if (!preg_match('/\{\{\s*header\s*\}\}\s*\{\{\s*column_left\s*\}\}\s*<div id="content">/', $parentView)) {
-    $errors[] = 'sidebar and content are not adjacent: intervening script/style breaks native admin layout';
-}
-foreach (array('#extension .table-responsive', 'overflow-x:auto', 'table-layout:fixed', 'thead th:last-child', 'text-align:center', 'ccp-extension-cols-6', 'ccp-extension-cols-7', 'ccp-extension-cols-8') as $needle) {
-    if (strpos($parentView, $needle) === false) {
-        $errors[] = 'missing extension layout rule: ' . $needle;
-    }
-}
-foreach ($types as $type) {
-    $twig = file_get_contents($root . '/upload/admin/view/template/extension/extension/' . $type . '.twig');
-    if (!preg_match('/<th scope="col" class="text-center">\{\{ column_action \}\}<\/th>/', $twig)) {
-        $errors[] = $type . ': action label is not centered over its buttons';
-    }
-    foreach (array('status','upload','date') as $key) {
-        if (!preg_match('/<th scope="col" class="text-center"><button[^>]*data-ccp-sort="' . $key . '"/', $twig)) {
-            $errors[] = $type . ': heading ' . $key . ' not centered';
-        }
-    }
+try {
+    foreach (ccpCheckExtensionParent($renderer, $parentView) as $error) { $errors[] = $error; }
+} catch (\Throwable $e) {
+    $errors[] = 'parent layout check failed: ' . $e->getMessage();
 }
 
 $model = file_get_contents($root . '/upload/admin/model/setting/extension.php');
@@ -123,4 +98,5 @@ if ($dates_model->getUploadDates('unexpected_type') !== array()) {
     exit(1);
 }
 
-print 'Extension sorting checks passed: ' . count($types) . " types, three languages, upload and installation timestamps.\n";
+print 'Extension sorting checks passed: ' . count($types) . " types, three languages, rendered DOM/CSS contracts and date mapping.\n";
+print "Browser layout and JavaScript sorting behavior are not exercised by this offline check.\n";

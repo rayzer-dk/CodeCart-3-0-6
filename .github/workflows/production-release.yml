@@ -96,6 +96,12 @@ jobs:
               zip -qr "$GITHUB_WORKSPACE/bonuses/Monobank_Payment_Modern_v1.1.0.ocmod.zip" README.md upload
             )
           fi
+          test -f bonus-source/unishop2_compatibility/install.xml
+          test -f bonus-source/unishop2_compatibility/upload/index.html
+          (
+            cd bonus-source/unishop2_compatibility
+            zip -qr "$GITHUB_WORKSPACE/bonuses/UniShop2_Compatibility_Pro_v1.0.1.ocmod.zip" install.xml README.md upload
+          )
 
       - name: Build one-upload ZIP
         shell: bash

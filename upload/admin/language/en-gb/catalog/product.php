@@ -152,7 +152,7 @@ $_['button_extra_tab_hidden'] = 'Hide the extra tab for selected products';
 $_['text_extra_tab_bulk_global_success'] = 'Extra tab mode changed to global for %s selected product(s).';
 $_['text_extra_tab_bulk_hidden_success'] = 'Extra tab hidden for %s selected product(s).';
 
-// CodeCart PRO RC86: compatibility-safe product taxonomy shortcuts.
+// CodeCart PRO compatibility-safe product taxonomy shortcuts.
 $_['text_attribute_quick_tools'] = 'Quick attribute workflow';
 $_['help_attribute_quick_tools'] = 'Create or open the native attribute manager in a new tab, then add the attribute through the normal product autocomplete. Product saving remains native.';
 $_['button_attribute_create'] = 'Create attribute';
@@ -171,7 +171,7 @@ $_['text_tax_display_gross_net'] = "Price incl. VAT + excl. VAT";
 $_['text_tax_display_gross_tax'] = "Price incl. VAT + VAT amount";
 $_['text_tax_display_net_gross'] = "Price excl. VAT + incl. VAT";
 
-// CodeCart PRO RC86: inherited purchase-area information blocks.
+// CodeCart PRO inherited purchase-area information blocks.
 $_['tab_purchase_blocks'] = 'Content blocks';
 $_['entry_purchase_block_mode'] = 'Content blocks';
 $_['text_purchase_block_inherit'] = 'Inherit from main / parent category';
