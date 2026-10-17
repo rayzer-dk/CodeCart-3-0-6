@@ -3,12 +3,13 @@
 Development-only tools are installed in `tools/quality/`; the production
 Composer manifest, vendor directory and release package remain unchanged.
 
-Narrow automated Rector rewrites execute on pushes to trusted `autofix/**`
-branches. Only PHP files changed in that commit under MVC and engine code
-are eligible, excluding bundled vendor code. At most eight changes are
-applied. The workflow checks PHP syntax, Unicode/source integrity, and
-the normal release static check **before** committing validated edits.
-Nothing is automatically merged or deployed.
+Rector on main runs in **read-only** review mode after changed PHP files are pushed.
+For an explicitly selected first-party PHP file, the manual GitHub Actions
+workflow `CodeCart Rector review and controlled main fix` supports
+`workflow_dispatch` with `php_file` and `apply=true`. Only then it can
+modify that file directly on main, after validating source integrity,
+syntax, PHPStan, PHP_CodeSniffer, the release gate and integrity manifest.
+It never modifies customer deployments or bundled vendor code.
 
 Allowed refactoring rules must preserve PHP 8.1-8.5 compatibility.
 No blanket modernization, removal of supposedly unused OpenCart hooks,

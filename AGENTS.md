@@ -8,4 +8,4 @@
 - Keep PHP identifiers and syntax ASCII. Preserve Unicode in translations, strings and meaningful comments. Reject invisible/bidi controls, AI omitted-code placeholders and HTML entities in executable PHP.
 - Never invent framework methods: inspect actual APIs, installed dependencies, controllers, models, OCMOD and Events before changing integrations.
 - Reject redundant guards, catch-and-silence errors, repeated wrappers, fake tests, unused dependencies and obvious AI-generated commentary.
-- Rector may auto-apply small tested changes only to trusted autofix/* branches, never main or deployed modules. Check compatibility with PHP 8.1-8.5 and test dependent functions.
+- Rector runs a read-only review on main pushes. Explicit one-file corrections may be applied to main only using the manual workflow with apply=true, PHPStan, source integrity and release regression checks. Never auto-rewrite production deployments; preserve PHP 8.1–8.5.
