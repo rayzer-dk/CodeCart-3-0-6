@@ -1,5 +1,5 @@
 # Документація CodeCart 3.0.6
-[English](README.md) · [Проєкт](../README.uk.md) · [Приєднатися до спільноти CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](README.md) · [Проєкт](../README.uk.md) · [Приєднатися до спільноти CodeCart PRO](https://t.me/codecartpro)
 
 CodeCart — безкоштовна система інтернет-магазину з відкритим кодом, адаптивною темою, багатомовними SEO-адресами, керуванням каталогом, замовленнями та файлами товарів. [Повний опис системи](../README.uk.md).
 
@@ -17,7 +17,7 @@ CodeCart — безкоштовна система інтернет-магази
 | Розробникам | [Compatibility Framework](COMPATIBILITY_FRAMEWORK.uk.md) | [Compatibility Framework](COMPATIBILITY_FRAMEWORK.md) |
 | Публікація коду | [GitHub](GITHUB.uk.md) | [GitHub](GITHUB.md) |
 
-Основний код: [CodeCartPro/CodeCartPro-3.0.6.0](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0). Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com). Встановлення та покращення обговорюємо у [спільноті CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy).
+Основний код: [CodeCartPro/CodeCartPro-3.0.6.0](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0). Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com). Встановлення та покращення обговорюємо у [спільноті CodeCart PRO](https://t.me/codecartpro).
 
 [Демонстрація вітрини та доступ до адмінпанелі](DEMO.uk.md)
 

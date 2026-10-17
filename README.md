@@ -6,7 +6,7 @@ Current package build: **2.1.0**. Core schema version remains **3.0.6.0**. See [
 
 The platform is intended for store owners, merchants, agencies and developers who need control of their shop and source code without being tied to a hosted service. The project is developed by **CodeCart PRO** and distributed under GPL-3.0; third-party components retain their respective licenses.
 
-[Українська](README.uk.md) · [Documentation](documentation/README.md) · [Demo](documentation/DEMO.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
+[Українська](README.uk.md) · [Documentation](documentation/README.md) · [Demo](documentation/DEMO.md) · [Community](https://t.me/codecartpro)
 
 ## Storefront and shopping experience
 
@@ -52,12 +52,12 @@ For new installations, download the **full production release ZIP with Composer 
 
 For existing shops, follow the [upgrade and recovery guide](documentation/UPGRADE.md). Preserve the site's `config.php`, `admin/config.php`, custom images, persistent storage, database and installed modifications. Never import a fresh-install database into an existing store.
 
-Developers working in browser-based GitHub Codespaces can follow the [source update guide](documentation/GITHUB.md). Full production packages are published as release attachments, while this repository tracks the source.
+Developers working in browser-based GitHub Codespaces can follow the [source update guide](documentation/GITHUB.md). Official production archives and documentation are published separately by the project owner at [CodeCart PRO on GitHub](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0).
 
 ## Documentation and support
 
 [Documentation index](documentation/README.md) · [Installation](documentation/INSTALL.md) · [Upgrade](documentation/UPGRADE.md) · [Hosting](documentation/NGINX.md) · [Compatibility](documentation/COMPATIBILITY.md) · [Demo](documentation/DEMO.md)
 
-Website: [codecartpro.com](https://codecartpro.com) · Support: [support@codecartpro.com](mailto:support@codecartpro.com) · Community: [CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy) · [GPL-3.0 License](LICENSE)
+Website: [codecartpro.com](https://codecartpro.com) · Support: [support@codecartpro.com](mailto:support@codecartpro.com) · Community: [CodeCart PRO](https://t.me/codecartpro) · [Official GitHub](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0) · [GPL-3.0 License](LICENSE)
 
 **Security:** Do not commit live credentials, API/license keys, production configuration, sessions, logs, runtime storage or customer data. Use a reviewed production release with pinned dependencies for real deployments.

@@ -6,7 +6,7 @@
 
 Платформа призначена для власників магазинів, компаній, вебстудій і розробників, які хочуть контролювати функціональність, дизайн та вихідний код без прив'язки до хмарного сервісу. Розробник і автор — **CodeCart PRO**. Ліцензія системи — GPL-3.0; компоненти третіх сторін зберігають свої ліцензії.
 
-[English](README.md) · [Документація](documentation/README.uk.md) · [Демонстрація](documentation/DEMO.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](README.md) · [Документація](documentation/README.uk.md) · [Демонстрація](documentation/DEMO.uk.md) · [Спільнота](https://t.me/codecartpro)
 
 ## Вітрина та покупки
 
@@ -52,12 +52,12 @@
 
 Для чинного магазину використовуйте [інструкцію оновлення](documentation/UPGRADE.uk.md), зберігаючи `config.php`, `admin/config.php`, власні зображення, постійне сховище, базу даних і встановлені модифікатори. Не імпортуйте базу даних чистого встановлення в чинний магазин.
 
-Оновлення коду через браузерний термінал GitHub Codespaces описано в [інструкції GitHub](documentation/GITHUB.uk.md). У репозиторії зберігається вихідний код; готові інсталяційні архіви публікуються в релізах.
+Оновлення коду через браузерний термінал GitHub Codespaces описано в [інструкції GitHub](documentation/GITHUB.uk.md). У репозиторії зберігається вихідний код; готові інсталяційні архіви та документацію власник проєкту публікує вручну в [офіційному GitHub](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0).
 
 ## Документація та підтримка
 
 [Документація](documentation/README.uk.md) · [Встановлення](documentation/INSTALL.uk.md) · [Оновлення](documentation/UPGRADE.uk.md) · [Хостинг](documentation/NGINX.uk.md) · [Сумісність](documentation/COMPATIBILITY.uk.md) · [Демонстрація](documentation/DEMO.uk.md)
 
-Сайт: [codecartpro.com](https://codecartpro.com) · Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · Спільнота: [CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy) · [Ліцензія GPL-3.0](LICENSE)
+Сайт: [codecartpro.com](https://codecartpro.com) · Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · Спільнота: [CodeCart PRO](https://t.me/codecartpro) · [Офіційний GitHub](https://github.com/CodeCartPro/CodeCartPro-3.0.6.0) · [Ліцензія GPL-3.0](LICENSE)
 
 **Безпека:** не публікуйте робочі паролі, API/ліцензійні ключі, конфігурацію магазину, сесії, логи, постійне сховище та дані покупців. Для запуску на сервері використовуйте перевірений production-пакет із зафіксованими залежностями.

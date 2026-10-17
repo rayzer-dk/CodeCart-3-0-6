@@ -382,7 +382,7 @@
         "system/library/codecart/src/AssetManager.php": "749d5d1d82f7222b9e3b7a6e90603f3320fbb85257e7d451c59b7b1b300b7be9",
         "system/library/codecart/src/CardText.php": "393ada0a851eb768d01fe07303289521ce32639417630949d9b57a7034ce472a",
         "system/library/codecart/src/CatalogTransfer.php": "7b4a7c37215e8b37d9950557176834ea94e4e7d1a76cb391683c3c443d77da46",
-        "system/library/codecart/src/Community.php": "bb26565ef2354f367bc2a00e78cf43a105500f9da9459ceff58106f2405d0895",
+        "system/library/codecart/src/Community.php": "6487a1604cba0bf59052a21dc8cfcc3466a83b6c9987a82a21cf9eedbf937841",
         "system/library/codecart/src/CompatibilityLayer.php": "dde54f0a0217747106d786043d0d404d9874a3f0c30d68709b877388e24246f7",
         "system/library/codecart/src/CookieConsent.php": "81db1e1118ac48ae31af3f15d46c90a3da8dbc3bc66c5d1996a922bcea7b524e",
         "system/library/codecart/src/CoreContracts.php": "c3ff271ec05080bb273570b12c9e598ee267099d0102f97112d052bfe4154f20",
