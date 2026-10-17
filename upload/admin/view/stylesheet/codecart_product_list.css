@@ -150,3 +150,25 @@
     text-align: left;
   }
 }
+
+
+/* Category suggestions: reveal complete category paths without widening the filter panel. */
+#ccp-product-list #input-category-name ~ .dropdown-menu,
+#ccp-product-list input[name="filter_category_name"] ~ .dropdown-menu {
+  left: auto !important;
+  right: 0;
+  width: min(560px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: min(420px, 55vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: normal;
+  z-index: 1050;
+}
+#ccp-product-list #input-category-name ~ .dropdown-menu > li > a,
+#ccp-product-list input[name="filter_category_name"] ~ .dropdown-menu > li > a {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+  padding: 8px 12px;
+}
