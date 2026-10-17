@@ -1,22 +1,78 @@
-name: Rector auto-correct trusted branch
+name: CodeCart Rector review and controlled main fix
 
 on:
   push:
-    branches:
-      - 'autofix/**'
+    branches: [main]
+    paths:
+      - 'upload/admin/controller/**/*.php'
+      - 'upload/admin/model/**/*.php'
+      - 'upload/catalog/controller/**/*.php'
+      - 'upload/catalog/model/**/*.php'
+      - 'upload/system/engine/**/*.php'
+      - 'upload/system/library/**/*.php'
+      - 'rector.php'
+      - '.github/workflows/rector-autofix.yml'
+  workflow_dispatch:
+    inputs:
+      php_file:
+        description: 'Existing first-party PHP path to refactor (required when applying)'
+        required: false
+        type: string
+      apply:
+        description: 'Explicitly apply vetted Rector corrections to main after tests'
+        required: true
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
-
-concurrency:
-  group: rector-codecart-autofix
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  autofix:
-    if: github.actor != 'github-actions[bot]'
+  review:
+    if: github.event_name == 'push' || inputs.apply != true
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring,dom,xml,tokenizer,zip
+          coverage: none
+          tools: composer:v2
+      - name: Install development-only Rector
+        run: composer install --working-dir=tools/quality --no-interaction --prefer-dist --no-progress
+      - name: Report proposed changes without touching main
+        shell: bash
+        env:
+          TARGET_FILE: ${{ inputs.php_file }}
+        run: |
+          set -euo pipefail
+          if [ -n "$TARGET_FILE" ]; then
+            php_files=("$TARGET_FILE")
+          else
+            mapfile -d '' -t php_files < <(git diff --name-only -z --diff-filter=ACM HEAD^ HEAD -- upload)
+          fi
+          for file in "${php_files[@]}"; do
+            [[ "$file" == *.php ]] || continue
+            [[ "$file" =~ ^upload/(admin|catalog)/(controller|model)/|^upload/system/(engine|library)/ ]] || continue
+            [[ -f "$file" && "$file" != *..* && "$file" != *'/vendor/'* ]] || continue
+            php tools/quality/source_guard.php --check "$file"
+            set +e
+            tools/quality/vendor/bin/rector process "$file" --config=rector.php --dry-run --max-changes=8 --no-progress-bar
+            status=$?
+            set -e
+            if [ "$status" -ne 0 ]; then echo "Rector reported suggestions or diagnostics for $file (exit $status)."; fi
+          done
+
+  apply:
+    if: github.event_name == 'workflow_dispatch' && inputs.apply == true && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
         with:
@@ -25,36 +81,47 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring,curl,openssl,zip,xml,simplexml,xmlreader,mysqli,pdo_mysql,gd
+          extensions: mbstring,dom,xml,tokenizer,zip,mysqli,pdo_mysql,curl,gd
           coverage: none
           tools: composer:v2
-      - name: Install isolated analysis and locked runtime dependencies
+      - name: Install isolated tools and Core dependencies
         run: |
           composer install --working-dir=tools/quality --no-interaction --prefer-dist --no-progress
           composer install --no-dev --no-interaction --prefer-dist --no-progress
-      - name: Auto-correct only changed owned PHP source
+          php tools/quality/generate_phpstan_models.php catalog
+          php tools/quality/generate_phpstan_models.php admin
+      - name: Apply and fully verify a single selected source file
         shell: bash
+        env:
+          TARGET_FILE: ${{ inputs.php_file }}
         run: |
           set -euo pipefail
-          mapfile -t php_files < <(git diff-tree --no-commit-id -r --name-only --diff-filter=ACM HEAD -- upload | grep -E '^upload/(admin|catalog)/(controller|model)/.*\.php$|^upload/system/(engine|library)/.*\.php$' | grep -v '/vendor/' || true)
-          if [ "${#php_files[@]}" -eq 0 ]; then
-            echo "No owned PHP sources changed"
+          if [[ ! "$TARGET_FILE" =~ ^upload/(admin|catalog)/(controller|model)/[A-Za-z0-9_./-]+\.php$ && ! "$TARGET_FILE" =~ ^upload/system/(engine|library)/[A-Za-z0-9_./-]+\.php$ ]]; then
+            echo "Target must be one first-party PHP controller, model, engine or library file"
+            exit 2
+          fi
+          if [[ "$TARGET_FILE" == *..* || "$TARGET_FILE" == *'/vendor/'* || ! -f "$TARGET_FILE" || -L "$TARGET_FILE" ]]; then
+            echo "Unsafe or nonexistent PHP target"
+            exit 2
+          fi
+          php tools/quality/source_guard.php --fix-safe "$TARGET_FILE"
+          tools/quality/vendor/bin/rector process "$TARGET_FILE" --config=rector.php --max-changes=8 --no-progress-bar
+          php tools/quality/source_guard.php --check "$TARGET_FILE"
+          php -l "$TARGET_FILE"
+          tools/quality/vendor/bin/phpcs --standard=phpcs.xml.dist "$TARGET_FILE"
+          case "$TARGET_FILE" in
+            upload/admin/*) tools/quality/vendor/bin/phpstan analyse -c phpstan.codecart.admin.neon.dist "$TARGET_FILE" --no-progress --memory-limit=2G ;;
+            upload/catalog/*) tools/quality/vendor/bin/phpstan analyse -c phpstan.codecart.catalog.neon.dist "$TARGET_FILE" --no-progress --memory-limit=2G ;;
+          esac
+          if git diff --quiet -- "$TARGET_FILE"; then
+            echo "No source rewrite was necessary"
             exit 0
           fi
-          php tools/quality/source_guard.php --fix-safe "${php_files[@]}"
-          tools/quality/vendor/bin/rector process "${php_files[@]}" --config=rector.php --max-changes=8 --no-progress-bar
-          php tools/quality/source_guard.php --check "${php_files[@]}"
-          for file in "${php_files[@]}"; do php -l "$file"; done
+          php tools/refresh_integrity.php
+          php tools/release_check.php
           git diff --check
-          if git diff --quiet -- upload; then
-            echo "No Rector changes"
-            exit 0
-          fi
-          # Existing full release CI is enforced in the target PR; this workflow
-          # validates a small batch without modifying unrelated legacy code.
-          php tools/checker-regression-check.php
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- upload/admin/controller upload/admin/model upload/catalog/controller upload/catalog/model upload/system/engine upload/system/library
-          git commit -m "style(qa): verified Rector source corrections"
-          git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"
+          git add -- "$TARGET_FILE" upload/system/config/codecart_integrity.json
+          git commit -m "refactor(qa): validated Rector correction on main"
+          git push origin HEAD:main
