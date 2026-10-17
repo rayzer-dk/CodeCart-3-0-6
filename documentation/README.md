@@ -14,7 +14,6 @@ CodeCart is a free, open-source online store CMS with an adaptive theme, native 
 | Automation | [Scheduler](SCHEDULER.md) | [Планувальник](SCHEDULER.uk.md) |
 | Missing content | [Lost URLs and manual redirects](LOST_URLS.md) | [Втрачені URL та ручні редиректи](LOST_URLS.uk.md) |
 | Storefront errors | [Error pages](ERROR_PAGES.md) | [Сторінки помилок](ERROR_PAGES.uk.md) |
-| Third-party theme | [UniShop2 compatibility](UNISHOP2_COMPATIBILITY.md) | [Сумісність UniShop2](UNISHOP2_COMPATIBILITY.uk.md) |
 | Developers | [Compatibility Framework](COMPATIBILITY_FRAMEWORK.md) | [Compatibility Framework](COMPATIBILITY_FRAMEWORK.uk.md) |
 | Source publishing | [GitHub](GITHUB.md) | [GitHub](GITHUB.uk.md) |
 

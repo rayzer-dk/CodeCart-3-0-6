@@ -14,7 +14,6 @@ CodeCart — безкоштовна система інтернет-магази
 | Автоматизація | [Планувальник](SCHEDULER.uk.md) | [Scheduler](SCHEDULER.md) |
 | Відсутній контент | [Втрачені URL та ручні редиректи](LOST_URLS.uk.md) | [Lost URLs and manual redirects](LOST_URLS.md) |
 | Помилки вітрини | [Сторінки помилок](ERROR_PAGES.uk.md) | [Error pages](ERROR_PAGES.md) |
-| Стороння тема | [Сумісність UniShop2](UNISHOP2_COMPATIBILITY.uk.md) | [UniShop2 compatibility](UNISHOP2_COMPATIBILITY.md) |
 | Розробникам | [Compatibility Framework](COMPATIBILITY_FRAMEWORK.uk.md) | [Compatibility Framework](COMPATIBILITY_FRAMEWORK.md) |
 | Публікація коду | [GitHub](GITHUB.uk.md) | [GitHub](GITHUB.md) |
 

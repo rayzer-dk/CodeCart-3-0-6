@@ -19,7 +19,7 @@ The platform is intended for store owners, merchants, agencies and developers wh
 ## Multilingual SEO and content
 
 - Manage multiple store languages, including Ukrainian, English and Russian in the included language catalogs; available languages are configurable in administration.
-- Built-in language URL folders with configurable prefixes, multilingual SEO keywords, canonical URLs and hreflang output. An extra LangDir extension is not required when using native CodeCart language folders.
+- Built-in language URL folders with configurable prefixes, multilingual SEO keywords, canonical URLs and hreflang output. Language prefixes are configured through the built-in settings.
 - SeoPro-compatible URL routing, category paths, configurable trailing slashes and normal not-found handling.
 - SEO URLs and metadata for products, categories, manufacturers, articles and information pages; XML sitemap and other feed modules are provided through the standard extension mechanism.
 - Optional missing-URL monitoring, manual redirects and cleanup through the built-in scheduler. Monitoring is off until activated.
@@ -40,7 +40,7 @@ The platform is intended for store owners, merchants, agencies and developers wh
 
 ## System requirements and compatibility
 
-CodeCart uses PHP and MySQL/MariaDB, with a modern web server such as Apache or nginx. **PHP 8.1–8.3 is recommended for broad third-party OpenCart/ocStore extension compatibility.** Core CI and compatibility checks cover PHP 8.4/8.5, but not every commercial module or encoded third-party theme. See [platform requirements](documentation/INSTALL.md), [compatibility](documentation/COMPATIBILITY.md) and [UniShop2 notes](documentation/UNISHOP2_COMPATIBILITY.md).
+CodeCart uses PHP and MySQL/MariaDB, with a modern web server such as Apache or nginx. **PHP 8.1–8.3 is recommended for broad third-party OpenCart/ocStore extension compatibility.** Core CI and compatibility checks cover PHP 8.4/8.5. See [platform requirements](documentation/INSTALL.md) and [compatibility](documentation/COMPATIBILITY.md).
 
 A clean installation enables CodeCart Theme. Updating an existing store preserves the installed stores' selected theme and settings; test custom themes, modifications and integrations on staging before a production upgrade.
 

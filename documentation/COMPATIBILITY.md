@@ -7,7 +7,6 @@ Upgrade runtime coverage exists for ocStore 3.0.4.1, OpenCart 3.0.5.1 and ocStor
 
 Clean installation activates CodeCart Theme only. Upgrade preserves every existing store's active theme, configuration, merchant images and persistent storage. Review Modifications diagnostics after any update.
 
-- [UniShop2 requirements and coverage](UNISHOP2_COMPATIBILITY.md)
 - [Compatibility Framework for developers](COMPATIBILITY_FRAMEWORK.md)
 - [Upgrade and repair](UPGRADE.md)
 - [nginx hosting configuration](NGINX.md)
