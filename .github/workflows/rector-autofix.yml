@@ -1,0 +1,60 @@
+name: Rector auto-correct trusted branch
+
+on:
+  push:
+    branches:
+      - 'autofix/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rector-codecart-autofix
+  cancel-in-progress: false
+
+jobs:
+  autofix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+          persist-credentials: true
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring,curl,openssl,zip,xml,simplexml,xmlreader,mysqli,pdo_mysql,gd
+          coverage: none
+          tools: composer:v2
+      - name: Install isolated analysis and locked runtime dependencies
+        run: |
+          composer install --working-dir=tools/quality --no-interaction --prefer-dist --no-progress
+          composer install --no-dev --no-interaction --prefer-dist --no-progress
+      - name: Auto-correct only changed owned PHP source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t php_files < <(git diff-tree --no-commit-id -r --name-only --diff-filter=ACM HEAD -- upload | grep -E '^upload/(admin|catalog)/(controller|model)/.*\.php$|^upload/system/(engine|library)/.*\.php$' | grep -v '/vendor/' || true)
+          if [ "${#php_files[@]}" -eq 0 ]; then
+            echo "No owned PHP sources changed"
+            exit 0
+          fi
+          php tools/quality/source_guard.php --fix-safe "${php_files[@]}"
+          tools/quality/vendor/bin/rector process "${php_files[@]}" --config=rector.php --max-changes=8 --no-progress-bar
+          php tools/quality/source_guard.php --check "${php_files[@]}"
+          for file in "${php_files[@]}"; do php -l "$file"; done
+          git diff --check
+          if git diff --quiet -- upload; then
+            echo "No Rector changes"
+            exit 0
+          fi
+          # Existing full release CI is enforced in the target PR; this workflow
+          # validates a small batch without modifying unrelated legacy code.
+          php tools/checker-regression-check.php
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- upload/admin/controller upload/admin/model upload/catalog/controller upload/catalog/model upload/system/engine upload/system/library
+          git commit -m "style(qa): verified Rector source corrections"
+          git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"

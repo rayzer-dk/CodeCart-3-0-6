@@ -43,3 +43,6 @@ Thumbs.db
 .autopilot/**/evidence/
 __pycache__/
 *.pyc
+
+# Development-only quality tools
+/tools/quality/vendor/

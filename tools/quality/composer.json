@@ -1,0 +1,21 @@
+{
+    "name": "codecart/quality-tools",
+    "description": "Isolated code-quality tools for CodeCart/OpenCart",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4"
+    },
+    "require-dev": {
+        "deptrac/deptrac": "4.7.2",
+        "phpstan/phpstan": "^2.3",
+        "rector/rector": "2.7.0",
+        "squizlabs/php_codesniffer": "4.0.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "8.4.23"
+        }
+    }
+}

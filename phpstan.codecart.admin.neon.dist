@@ -1,0 +1,14 @@
+parameters:
+    level: 5
+    phpVersion: 80100
+    paths:
+        - upload/admin/controller
+        - upload/admin/model
+    scanDirectories:
+        - upload/system/engine
+        - upload/system/library
+        - upload/admin/model
+    stubFiles:
+        - build/phpstan-stubs/admin.stub
+    tmpDir: build/phpstan-cache/admin
+    reportUnmatchedIgnoredErrors: true
