@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
-use Rector\CodeQuality\Rector\If_\ExplicitBoolCompareRector;
+use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
 use Rector\Config\RectorConfig;
 
-// No PHP-version upgrade rules: CodeCart must support PHP 8.1-8.5.
-// Only project-owned MVC sources, not language packs or bundled vendors.
+// Preserve PHP 8.1–8.5 compatibility; never rewrite vendor, translations or OCMOD.
 return RectorConfig::configure()
     ->withPaths([
         __DIR__ . '/upload/admin/controller',
@@ -15,5 +15,5 @@ return RectorConfig::configure()
         __DIR__ . '/upload/system/engine',
         __DIR__ . '/upload/system/library',
     ])
-    ->withRules([ExplicitBoolCompareRector::class])
+    ->withRules([SimplifyIfReturnBoolRector::class])
     ->withCache(__DIR__ . '/build/rector');
