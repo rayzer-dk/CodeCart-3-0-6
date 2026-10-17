@@ -66,4 +66,6 @@ jobs:
           echo "Full legacy source audit exit status: $status"
           echo "Reported findings: $(grep -c '^SOURCE GUARD:' /tmp/quality-full-audit.log || true)"
           sed -n '1,45p' /tmp/quality-full-audit.log
+          echo "Findings grouped by file:"
+          grep '^SOURCE GUARD:' /tmp/quality-full-audit.log | sed -E 's/:[0-9]+:.*$//' | sort | uniq -c | sort -nr | head -n 60 || true
           echo "Full source audit is advisory until existing findings are triaged."
