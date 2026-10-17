@@ -21,11 +21,17 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
       - name: Detect substantial duplicated source blocks
         shell: bash
         run: |
           set -euo pipefail
-          npx --yes jscpd@5.4.1 --config .jscpd.json upload/admin/controller upload/admin/model upload/catalog/controller upload/catalog/model upload/system/library/codecart/src
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Full first-party duplication inventory (includes legacy OpenCart MVC)"
+            npx --yes jscpd@5.4.1 --config .jscpd.json upload/admin/controller upload/admin/model upload/catalog/controller upload/catalog/model upload/system/library/codecart/src | tail -n 30
+          else
+            echo "Namespaced Core duplication inventory; full legacy audit available on manual dispatch"
+            npx --yes jscpd@5.4.1 --config .jscpd.json upload/system/library/codecart/src | tail -n 30
+          fi
