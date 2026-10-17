@@ -8,11 +8,11 @@ The release gate now runs the language, notification, SEO, integrity and regress
 
 Integrity generation preserves the schema version, records the package build separately and replaces the manifest atomically after hashing all existing monitored files. The production package includes the GPL license and excludes development tools and private audit evidence.
 
-The native UniShop adapter also normalizes supported theme values. Build 2.1.0 normalizes two known stock-sort OCMOD operations from original UniShop2 3.6.6.0 during modification refresh. The optional `UniShop2_Compatibility_Pro_v1.0.1.ocmod.zip` patch guards missing `qty_switch.type` in the original controller and requires Build 2.1.0 or newer. It does not contain the commercial theme and cannot replace a legally obtained original. Use one main UniShop modifier and remove the old compatibility patch before installing its update.
+The optional compatibility framework normalizes supported legacy data structures through isolated adapters. Compatibility behavior is exercised by focused regression checks and does not certify every external extension combination.
 
 ## Verification scope
 
-The local source audit covered PHP syntax on PHP 8.1, 8.2 and 8.3, first-party JavaScript syntax, Twig parsing, UTF-8/BOM, JSON and XML validation. Offline regression checks use mock services or render templates without a live shop database. They do not establish browser layout, checkout, payment-provider behavior or complete compatibility with a commercial UniShop installation. File counts and machine-readable logs belong to the audit evidence; checks must be repeated against the final release commit after all changes and manifest regeneration.
+The local source audit covered PHP syntax on PHP 8.1, 8.2 and 8.3, first-party JavaScript syntax, Twig parsing, UTF-8/BOM, JSON and XML validation. Offline regression checks use mock services or render templates without a live shop database. They do not establish browser layout, checkout, payment-provider behavior or complete compatibility with external installation-specific extensions. File counts and machine-readable logs belong to the audit evidence; checks must be repeated against the final release commit after all changes and manifest regeneration.
 
 Production acceptance requires a clean installation, upgrade and restore rehearsal, browser checks for administration and storefront, order completion, payment/shipping integration and deployment-specific theme/module checks. Those scenarios must be recorded as NOT RUN until actually exercised. Passing static or offline checks alone does not make this build production-ready.
 

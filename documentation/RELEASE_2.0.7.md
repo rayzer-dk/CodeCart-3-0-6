@@ -20,6 +20,6 @@ Installer text padding, single chevron category navigation, clean demo banners, 
 
 **Back up the database and website files before installing or upgrading.** Existing-store update packages intentionally omit `install/`, demo data, credentials, config.php, vendor libraries and mutable storefront assets. When uploading public documents, storage must be outside the public web root. The administrator must have access/modify rights to either `catalog/public_document` or the existing `catalog/download` route.
 
-No ionCube dependency is added. Protected commercial themes such as UniShop2 require the appropriate ionCube Loader enabled for their own PHP-FPM runtime. Do not edit CodeCart core to mask third-party missing controller classes.
+No encrypted-code runtime dependency is added to the CodeCart core. Installed external extensions retain their own runtime requirements; do not change core classes to conceal incompatible extensions.
 
 **Tests performed:** PHP 8.4 token parser (all supplied PHP), modified PHP `php -l`, Twig parser for affected templates, SQL statement parser, table schema mock and SHA-256 checks. Functional installation, SQL execution against live MySQL/MariaDB, payment provider integration and end-to-end browser checks on user sites were not run and must be validated on staging.
