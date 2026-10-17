@@ -1,0 +1,48 @@
+name: Source integrity
+
+on:
+  pull_request:
+    paths:
+      - 'upload/**'
+      - 'tools/quality/**'
+      - 'rector.php'
+      - '.github/workflows/source-integrity.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'upload/**'
+      - 'tools/quality/**'
+      - 'rector.php'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - name: Test guard with malicious and legitimate fixtures
+        run: php tools/quality/source_guard_test.php
+      - name: Guard changed source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$GITHUB_BASE_REF" ]]; then
+            base="origin/$GITHUB_BASE_REF"
+            mapfile -t files < <(git diff --name-only --diff-filter=ACM "$base"...HEAD -- upload | grep -E '\.(php|js|jsx|ts|tsx|twig|css|scss|xml|json|yml|yaml|html)$' || true)
+          else
+            mapfile -t files < <(git diff-tree --no-commit-id -r --name-only --diff-filter=ACM HEAD -- upload | grep -E '\.(php|js|jsx|ts|tsx|twig|css|scss|xml|json|yml|yaml|html)$' || true)
+          fi
+          if [ "${#files[@]}" -eq 0 ]; then exit 0; fi
+          php tools/quality/source_guard.php --check "${files[@]}"
+          for file in "${files[@]}"; do
+            if [[ "$file" == *.php ]]; then php -l "$file"; fi
+          done
