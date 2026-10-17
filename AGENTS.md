@@ -9,3 +9,7 @@
 - Never invent framework methods: inspect actual APIs, installed dependencies, controllers, models, OCMOD and Events before changing integrations.
 - Reject redundant guards, catch-and-silence errors, repeated wrappers, fake tests, unused dependencies and obvious AI-generated commentary.
 - Rector runs a read-only review on main pushes. Explicit one-file corrections may be applied to main only using the manual workflow with apply=true, PHPStan, source integrity and release regression checks. Never auto-rewrite production deployments; preserve PHP 8.1–8.5.
+
+## Shared Quality Fixer workflow
+
+Codex and Claude Code use the repository's quality-fixer agent to reproduce, isolate, fix and verify real bugs and CI failures. Check full dependency impact, PHPStan, PHPCS, Deptrac, source integrity, duplication, security and meaningful tests; never invent API methods or use broad error suppression. Detect BOM, zero-width/bidi, homoglyph identifiers, escaped executable operators, Markdown fences, omitted-code placeholders and pointless AI-slop changes. Legitimate Ukrainian and other Unicode in literals, translations and comments must be preserved; do not blanket replace typographic characters. Only leading BOM may be mechanically removed after verification. Use main only, preserve concurrent changes, report PASS/FAIL/NOT RUN and do not claim runtime verification without executing it.
