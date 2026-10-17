@@ -1,5 +1,5 @@
 # Планувальник
-[English](SCHEDULER.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](SCHEDULER.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/codecartpro)
 
 Відкрийте **Система → Планувальник** та використовуйте його фактичну команду з правильним PHP і абсолютним шляхом магазину. Один серверний cron запускає зареєстровані завдання CodeCart; інтервали задаються всередині системи. Щоденне очищення втрачених URL використовує цей самий планувальник. Незалежні сторонні cron-команди потребують власного налаштування. Heartbeat відвідувачів не гарантує виконання без трафіку.
 
@@ -22,4 +22,4 @@ php /absolute/store/path/cli.php cron:run
 
 На Mirohost не запускайте частіше ніж раз на п'ять хвилин. Перевірте версію/розширення CLI PHP та статус/логи Планувальника після запуску. Уникайте дублювання cron.
 
-Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)
+Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/codecartpro)

@@ -1,5 +1,5 @@
 # Lost URLs (404)
-[Українська](LOST_URLS.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
+[Українська](LOST_URLS.uk.md) · [All guides](README.md) · [Community](https://t.me/codecartpro)
 
 **Back up website files and database before enabling.** Open **Reports → Lost URLs (404)**, enable monitoring and save. The feature is disabled by default. Viewing requires `report/online` access; changes require `design/seo_url` modify permission.
 
@@ -31,4 +31,4 @@ OFF stops recording, redirects and cleanup before working database/service acces
 
 Native CodeCart articles with missing content return HTTP 404. Soft 404 pages returning HTTP 200 and errors handled directly by a web server/CDN are not recorded.
 
-Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
+Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/codecartpro)

@@ -1,5 +1,5 @@
 # Оновлення та відновлення
-[English](UPGRADE.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](UPGRADE.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/codecartpro)
 
 **Перед оновленням створіть і перевірте повну резервну копію сайту/БД.** Спочатку перевірте тестову копію з темами, OCMOD, Events, оплатою та доставкою. Є runtime-покриття оновлень ocStore 3.0.4.1, OpenCart 3.0.5.1 та ocStore 3.0.5.0-Beta; воно не підтверджує всі комбінації розширень.
 
@@ -20,4 +20,4 @@
 
 Для залишкових MyISAM/старих кодувань використовуйте **Core / Compatibility → Database Schema → Modernize tables** після перевіреної резервної копії. Для великих таблиць потрібен CLI-варіант, описаний на цій сторінці. Перед strict SQL mode перевірте розширення; типовий режим з'єднання відповідає сумісності OpenCart.
 
-Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)
+Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/codecartpro)

@@ -1,5 +1,5 @@
 # Upgrade and repair
-[Українська](UPGRADE.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
+[Українська](UPGRADE.uk.md) · [All guides](README.md) · [Community](https://t.me/codecartpro)
 
 **Create and verify a complete website/database backup before updating.** Rehearse on a staging copy with the store's themes, OCMOD, Events, payments and shipping. Runtime upgrade coverage exists for ocStore 3.0.4.1, OpenCart 3.0.5.1 and ocStore 3.0.5.0-Beta; it does not certify every extension combination.
 
@@ -20,4 +20,4 @@ To repair damaged files/dependencies, upload the same production package and cho
 
 For remaining MyISAM/older character sets, use **Core / Compatibility → Database Schema → Modernize tables** after a verified backup. Large tables require the CLI path described by that screen. Verify extensions before enabling strict SQL mode; the default connection mode follows OpenCart compatibility.
 
-Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
+Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/codecartpro)

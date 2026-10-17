@@ -1,5 +1,5 @@
 # Втрачені URL (404)
-[English](LOST_URLS.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](LOST_URLS.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/codecartpro)
 
 **Перед увімкненням створіть резервну копію файлів сайту та БД.** Відкрийте **Звіти → Втрачені URL (404)**, увімкніть моніторинг і збережіть. Типово функція вимкнена. Перегляд потребує права доступу `report/online`, зміни — права modify для `design/seo_url`.
 
@@ -31,4 +31,4 @@ OFF зупиняє запис, редиректи й очищення до до�
 
 Відсутні статті штатного блогу CodeCart отримують HTTP 404. Soft 404 із HTTP 200 та помилки вебсервера/CDN, що не доходять до CodeCart, не записуються.
 
-Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)
+Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/codecartpro)
