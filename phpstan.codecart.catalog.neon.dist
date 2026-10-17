@@ -1,0 +1,13 @@
+parameters:
+    level: 5
+    phpVersion: 80100
+    paths:
+        - upload/catalog/controller
+        - upload/catalog/model
+    scanDirectories:
+        - upload/system/engine
+        - upload/system/library
+    stubFiles:
+        - build/phpstan-stubs/catalog.stub
+    tmpDir: build/phpstan-cache/catalog
+    reportUnmatchedIgnoredErrors: true
