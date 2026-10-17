@@ -1,0 +1,59 @@
+name: Legacy PHPStan model resolution
+
+on:
+  pull_request:
+    paths:
+      - 'phpstan.codecart.*.neon.dist'
+      - 'tools/quality/**'
+      - '.github/workflows/phpstan-legacy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-types:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring,dom,xml,tokenizer,zip
+          coverage: none
+          tools: composer:v2
+      - name: Install isolated analysis tools
+        run: composer install --working-dir=tools/quality --no-interaction --prefer-dist --no-progress
+      - name: Generate separate admin and storefront model type maps
+        run: |
+          php -l tools/quality/generate_phpstan_models.php
+          php tools/quality/generate_phpstan_models.php catalog
+          php tools/quality/generate_phpstan_models.php admin
+          php -l build/phpstan-stubs/catalog.stub
+          php -l build/phpstan-stubs/admin.stub
+          grep -q 'model_catalog_product' build/phpstan-stubs/catalog.stub
+      - name: Verify actual methods, without permissive undefined-property ignore
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools/quality/vendor/bin/phpstan analyse \
+            -c phpstan.codecart.catalog.neon.dist \
+            tools/quality/fixtures/catalog_valid.php --no-progress --memory-limit=2G
+          set +e
+          output=$(tools/quality/vendor/bin/phpstan analyse \
+            -c phpstan.codecart.catalog.neon.dist \
+            tools/quality/fixtures/catalog_invalid.php \
+            --no-progress --memory-limit=2G --error-format=raw 2>&1)
+          status=$?
+          set -e
+          echo "$output"
+          test "$status" -ne 0
+          grep -q 'getProductsCustomFilterNonExistent' <<< "$output"
+          grep -q 'setOuput' <<< "$output"
+      - name: Full legacy PHPStan scan (advisory)
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: |
+          tools/quality/vendor/bin/phpstan analyse -c phpstan.codecart.catalog.neon.dist --no-progress --memory-limit=2G
+          tools/quality/vendor/bin/phpstan analyse -c phpstan.codecart.admin.neon.dist --no-progress --memory-limit=2G
