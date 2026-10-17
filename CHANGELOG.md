@@ -33,7 +33,7 @@
 # CodeCart PRO 3.0.6.0 — Production Build 2.0.9 (2026-10-10)
 
 - Fixed homepage hreflang: native language folder roots always end with /, regardless of SeoPro's trailing slash setting for content pages.
-- SeoPro delegates language detection to native URL-prefix routing and to enabled LangDir, preventing locale changes from unrelated SEO keywords.
+- SEO routing delegates language detection to configured language-prefix providers, preventing locale changes from unrelated SEO keywords.
 - SeoPro no longer canonicalizes unresolved paths or missing entity SEO URLs to the homepage.
 - Product edit: removed the separate Documents tab; free public documents now appear directly beneath paid Downloads in Links, with matching add/remove controls and safe autocomplete rendering.
 - Harmonized the public document creation form and manager actions with Downloads. No changes to stored documents, paid downloads or access restrictions.
@@ -48,7 +48,7 @@
 - Document type, placement, numeric product/category ID, sorting and publication controls are removed from the public document **form**. Newly saved documents are published automatically; editing an existing document retains its file, descriptions, counters, prior category affiliation and sorting.
 - Product form has a new **Documents** admin tab with an autocomplete search of previously uploaded public documents. Multiple documents can be associated with one product; the same document can be associated with multiple products. Removing an association never deletes the physical document.
 - The old single-product association format from Build 2.0.7 is migrated safely into the new mapping table on first authorized admin use. Previously linked category documents remain linked, and all public download statistics remain unchanged. The operation is idempotent; it does not rewrite product content or touch paid product downloads.
-- Public documents list displays filename, totals, 30-day downloads and download date, without redundant type/placement/status columns. Product and category storefront output is preserved for CodeCart Theme and the default theme. Auto-rendering in third-party commercial themes such as UniShop2 has not been verified.
+- Public documents list displays filename, totals, 30-day downloads and download date, without redundant type/placement/status columns. Product and category storefront output remains compatible with bundled views; custom overrides require separate verification.
 - Adds `codecart_document_to_product` (InnoDB, DB_PREFIX) to the clean-install SQL, the core schema helper, and installer upgrade script 3054. Existing-store overlay upgrades never require running the installer; migration activates after the first authorized admin visit.
 - Paid digital files, order-status entitlements, checkout, paid download counts and storage directories are unchanged. The store is not opened to unauthenticated paid downloads.
 
@@ -80,7 +80,7 @@ Installer text padding, single chevron category navigation, clean demo banners, 
 
 **Back up the database and website files before installing or upgrading.** Existing-store update packages intentionally omit `install/`, demo data, credentials, config.php, vendor libraries and mutable storefront assets. When uploading public documents, storage must be outside the public web root. The administrator must have access/modify rights to either `catalog/public_document` or the existing `catalog/download` route.
 
-No ionCube dependency is added. Protected commercial themes such as UniShop2 require the appropriate ionCube Loader enabled for their own PHP-FPM runtime. Do not edit CodeCart core to mask third-party missing controller classes.
+The core adds no encrypted-code runtime dependency. External extensions may require separately configured loaders; do not change core classes to mask incompatible extensions.
 
 **Tests performed:** PHP 8.4 token parser (all supplied PHP), modified PHP `php -l`, Twig parser for affected templates, SQL statement parser, table schema mock and SHA-256 checks. Functional installation, SQL execution against live MySQL/MariaDB, payment provider integration and end-to-end browser checks on user sites were not run and must be validated on staging.
 
@@ -89,7 +89,7 @@ No ionCube dependency is added. Protected commercial themes such as UniShop2 req
 - Installer: add reliable, responsive horizontal padding to the administration login notice at the end of installation.
 - CodeCart Theme: use symmetrical single-chevron previous/next buttons on the Popular Categories carousel.
 - OpenCart demonstration slideshow: replace the last two banners (Samsung and Hewlett-Packard) with clean product-only photos on a plain white background. No branded background graphics or promotional overlays.
-- Retain all OCMOD fixes from Build 2.0.5 and verified runtime dependencies. No UniShop2 source code or ionCube loader is included.
+- Retain all OCMOD fixes from Build 2.0.5 and verified runtime dependencies. No proprietary theme code or encrypted-code runtime loader is bundled.
 - Update the build constants and SHA-256 file-integrity manifest to match this production package.
 
 Validation: PHP syntax/static checks, Twig parser, manifest validation and ZIP CRC. Live install and storefront regressions must be verified on a staging deployment before production rollout.
@@ -106,7 +106,7 @@ Maintenance release integrating confirmed OpenCart Modification (OCMOD) fixes:
 - Update the file integrity manifest to the exact verified contents of Build 2.0.5.
 - Include the root GPLv3 LICENSE and align Composer license metadata, while preserving third-party license notices.
 
-Site-specific notes: the legacy `mms.multiselectimage.ocmod.xml` targeting `.tpl` belongs to the installed store and is not part of the CodeCart core release; disable it only after testing the newer multiple-image workflow. UniShop2 ionCube Loader is a PHP-FPM server setting and is NOT bundled in CodeCart.
+Site-specific notes: the legacy `mms.multiselectimage.ocmod.xml` targeting `.tpl` belongs to the installed store and is not part of the CodeCart core release; disable it only after testing the newer multiple-image workflow. External encrypted extensions retain their own hosting requirements, not bundled in CodeCart.
 
 Validation: archive structure, all manifest file digests, PHP 8.4 syntax, Twig parsing, archive checksums. Live installation/checkout/payment regression tests have not been executed for this release.
 
