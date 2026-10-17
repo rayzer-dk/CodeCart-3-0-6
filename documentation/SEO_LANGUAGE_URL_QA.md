@@ -1,6 +1,6 @@
 # Native language URL and SeoPro regression checks
 
-CodeCart PRO 3.0.6.0 supports language folder prefixes configured in the active `language.url_prefix` records. Prefixes are not hard-coded. When LangDir is active, its routing remains authoritative.
+CodeCart PRO 3.0.6.0 supports language folder prefixes configured in the active `language.url_prefix` records. Prefixes are not hard-coded. If a supported external URL router is explicitly enabled, its configured prefixes take precedence.
 
 The native router now recognizes legacy language query selectors only when the requested language code is active and built-in folder routing is enabled. A matching language folder has priority over a conflicting query selector. For a recognized catalog page, the legacy URL is redirected to a localized canonical path without the `language` parameter, retaining other permitted query arguments. Unresolved URLs do not redirect to the home page. POST, AJAX, API, payment, feeds and disabled-prefix installations are not changed by this compatibility logic.
 
@@ -26,6 +26,6 @@ On a staging installation with backup and configured active language prefixes, c
 - Language switching must generate links without `?language=`; canonical and hreflang should agree with the selected folder.
 - Pagination and catalog filters should retain their permitted query parameters.
 - POST/AJAX and payment/API/feed requests must continue to function without extra redirects.
-- The SEO URL master switch and LangDir integration should behave as before when native prefixes are not in use.
+- The SEO URL master switch and external language-router integration should behave as before when native prefixes are not in use.
 
-Inspect any remaining third-party OCMOD/Events rewrites and refresh modification/template caches after deployment. The public `barzus.com.ua` site may run a separate ocStore/UniShop2 stack: deploying this CodeCart core update does not automatically update that site's modules or database settings.
+Inspect any remaining third-party OCMOD/Events rewrites and refresh modification/template caches after deployment. Deployments on other OpenCart/ocStore installations are independent and must be updated and tested separately.
