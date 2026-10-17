@@ -314,6 +314,14 @@ class ControllerMarketplaceInstall extends Controller {
 		}
 
 		if (!$json) {
+			$this->load->model('setting/extension');
+			try {
+				$this->model_setting_extension->refreshInstalledDatesFromPackage($extension_install_id);
+			} catch (\Throwable $e) {
+				if ($this->config->get('error_log')) {
+					$this->log->write('Extension date tracking failed: ' . $e->getMessage());
+				}
+			}
 			$directory = DIR_UPLOAD . 'tmp-' . $this->session->data['install'] . '/';
 			
 			if (is_dir($directory)) {
