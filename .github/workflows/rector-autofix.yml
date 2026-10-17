@@ -50,7 +50,9 @@ jobs:
             echo "No Rector changes"
             exit 0
           fi
-          php tools/release_check.php
+          # Existing full release CI is enforced in the target PR; this workflow
+          # validates a small batch without modifying unrelated legacy code.
+          php tools/checker-regression-check.php
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- upload/admin/controller upload/admin/model upload/catalog/controller upload/catalog/model upload/system/engine upload/system/library
