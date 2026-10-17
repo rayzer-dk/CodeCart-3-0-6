@@ -83,8 +83,8 @@ $annotations = [
 foreach ($models as $property => $className) {
     $annotations[] = " * @property-read \\" . $className . ' $' . $property;
 }
-$header = "<?php\n\n/**\n" . implode("\n", $annotations) . "\n */\n";
-$stub = $header . "abstract class Controller {}\n\n" . $header . "abstract class Model {}\n\n";
+$header = "/**\n" . implode("\n", $annotations) . "\n */\n";
+$stub = "<?php\n\n" . $header . "abstract class Controller {}\n\n" . $header . "abstract class Model {}\n\n";
 $stub .= "class Registry {}\nclass Loader {}\nclass Config {}\nclass DB {}\nclass Request {}\nclass Response {}\nclass Session {}\nclass Language {}\nclass Document {}\nclass Url {}\n\n";
 foreach (array_unique(array_values($models)) as $className) {
     $stub .= "class $className {}\n";
