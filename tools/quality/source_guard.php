@@ -44,7 +44,16 @@ foreach (array_keys($files) as $file) {
     }
     if (preg_match('//u', $source) !== 1) { $errors[] = "$file: invalid UTF-8"; continue; }
     if (preg_match_all('/[\x{00AD}\x{061C}\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2069}\x{FEFF}]/u', $source, $matches, PREG_OFFSET_CAPTURE)) {
-        foreach ($matches[0] as $m) { $record($file, $source, $m[1], 'invisible/bidirectional Unicode control'); }
+        foreach ($matches[0] as $m) {
+            // Moment.js Kurdish/RTL locale names legitimately contain ZWNJ and ZWJ.
+            // Only this exact bundled locale path and these two characters are exempt.
+            $relativePath = str_replace('\\', '/', $file);
+            $momentLocale = preg_match('~(?:^|/)upload/(?:admin|catalog)/view/javascript/jquery/datetimepicker/moment/(?:locales|moment-with-locales)\\.js$~', $relativePath) === 1;
+            if ($momentLocale && ($m[0] === "\\u{200C}" || $m[0] === "\\u{200D}")) {
+                continue;
+            }
+            $record($file, $source, $m[1], 'invisible/bidirectional Unicode control');
+        }
     }
     if ($ext !== 'php') { continue; }
     $probe = '';
