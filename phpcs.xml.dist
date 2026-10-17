@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="CodeCart PHP source safety">
+    <description>Focused PHP integrity and unsafe-command checks without legacy formatting churn.</description>
+    <arg name="extensions" value="php"/>
+    <file>upload/admin/controller</file>
+    <file>upload/admin/model</file>
+    <file>upload/catalog/controller</file>
+    <file>upload/catalog/model</file>
+    <file>upload/system/engine</file>
+    <file>upload/system/library</file>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <rule ref="Generic.Files.ByteOrderMark"/>
+    <rule ref="Generic.PHP.DisallowShortOpenTag"/>
+    <rule ref="Generic.PHP.ForbiddenFunctions">
+        <properties>
+            <property name="forbiddenFunctions" type="array">
+                <element key="exec" value="null"/>
+                <element key="shell_exec" value="null"/>
+                <element key="system" value="null"/>
+                <element key="passthru" value="null"/>
+                <element key="proc_open" value="null"/>
+                <element key="popen" value="null"/>
+                <element key="create_function" value="null"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>
