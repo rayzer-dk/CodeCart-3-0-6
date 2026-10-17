@@ -7,7 +7,6 @@ CodeCart зберігає MVC-L route, Events та OCMOD інтеграцію Op
 
 Чисте встановлення активує лише CodeCart Theme. Оновлення зберігає активну тему кожного магазину, конфігурацію, власні зображення та постійне сховище. Після оновлення перевірте діагностику модифікаторів.
 
-- [Вимоги та покриття UniShop2](UNISHOP2_COMPATIBILITY.uk.md)
 - [Compatibility Framework для розробників](COMPATIBILITY_FRAMEWORK.uk.md)
 - [Оновлення та відновлення](UPGRADE.uk.md)
 - [Конфігурація nginx](NGINX.uk.md)

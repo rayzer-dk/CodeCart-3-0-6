@@ -7,7 +7,7 @@ CodeCart відокремлює сучасне ядро від внутрішн�
 
 Потік: controller ядра → контракт CompatibilityFramework → активні адаптери → результуючі дані → продовження controller/view.
 
-Вбудовані адаптери містяться в `system/library/codecart/src/`; UniShop2 має ID `theme.unishop2`. Встановлювані адаптери постачаються як modern extensions у `system/extension/<code>/` без зміни файлів ядра. Їхній `manifest.json` декларує класи через `compatibility.adapters`.
+Вбудовані адаптери ізольовано в `system/library/codecart/src/`. Додаткові адаптери постачаються як розширення в `system/extension/<code>/` без зміни файлів ядра. Їхній `manifest.json` декларує класи через `compatibility.adapters`.
 
 Приклад manifest:
 
@@ -84,10 +84,5 @@ final class ThemeAdapter implements CompatibilityAdapterInterface {
 
 Якщо наявний контракт не покриває потрібну можливість, додайте до ядра один невеликий загальний контракт. Специфічна логіка теми залишається в адаптері.
 
-## UniShop2
-
-UniShop2 має вбудований адаптер із перевірками framework-контрактів; вони не підтверджують повний UI комерційної теми. Адаптер активний лише для `unishop2` із наявними налаштуваннями, якщо тему явно не вимкнено. Він покриває старі припущення OCMOD для меню, модуля/сторінки категорії, опцій товару та розмірів банерів.
-
-Необов'язкові WebP та OG модифікатори UniShop2 не входять до адаптера: CodeCart має власну обробку зображень і OpenGraph. Дивіться [інструкцію UniShop2](UNISHOP2_COMPATIBILITY.uk.md).
 
 Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)

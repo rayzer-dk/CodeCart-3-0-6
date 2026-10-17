@@ -29,6 +29,6 @@ OFF stops recording, redirects and cleanup before working database/service acces
 
 ## Coverage
 
-Native CodeCart articles with missing content receive an actual 404. The original UniShop2 3.6.6.0 missing-news controller/model was checked with a minimal empty news schema and CodeCart Theme; this focused check does not certify the complete commercial theme installation or UI. Soft 404 pages returning HTTP 200 and errors served directly by a web server/CDN are not recorded.
+Native CodeCart articles with missing content return HTTP 404. Soft 404 pages returning HTTP 200 and errors handled directly by a web server/CDN are not recorded.
 
 Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)

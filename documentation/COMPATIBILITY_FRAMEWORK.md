@@ -9,7 +9,7 @@ CodeCart keeps the modern Core independent from third-party theme and extension 
 
 Core controller -> CompatibilityFramework contract -> active adapters -> resulting payload -> view/controller continuation.
 
-Built-in adapters live in `system/library/codecart/src/`. UniShop2 is the first built-in adapter and is identified as `theme.unishop2`.
+Built-in compatibility adapters are isolated in `system/library/codecart/src/`; each activates only when its declared runtime conditions are satisfied.
 
 Installable adapters are delivered as CodeCart modern extensions under `system/extension/<code>/`. They do not patch Core files. Their `manifest.json` declares the adapter classes in the `compatibility.adapters` capability.
 
@@ -104,14 +104,6 @@ Compatibility packages must not weaken SQL mode, overwrite Core controllers, res
 Adapters that replace obsolete OCMOD search points may optionally expose `satisfiesOcmod(string $code, string $file, string $search): bool`. The Modification diagnostics screen queries this through CompatibilityFramework, so a missing legacy search can be reported as satisfied by an adapter instead of as a false incompatibility warning.
 
 When a missing capability cannot be represented by an existing contract, add one small generic contract to Core rather than a theme-specific `if` statement. Theme-specific behavior stays in the adapter.
-
-## UniShop2
-
-UniShop2 has a built-in adapter with framework contract checks. These checks do not certify the complete commercial theme storefront. Its adapter is activated only when the active theme is `unishop2`, its settings exist and it is not explicitly disabled.
-
-The adapter covers the CodeCart equivalents of UniShop2's legacy OpenCart/ocStore OCMOD assumptions for menu, category module, category page, product option values/image sizes and banner item dimensions.
-
-The optional UniShop WebP and OG compatibility modifications are not part of this adapter because CodeCart already provides its own image/WebP/AVIF and OpenGraph implementations.
 
 
 Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
