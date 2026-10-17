@@ -7,6 +7,7 @@ parameters:
     scanDirectories:
         - upload/system/engine
         - upload/system/library
+        - upload/catalog/model
     stubFiles:
         - build/phpstan-stubs/catalog.stub
     tmpDir: build/phpstan-cache/catalog
