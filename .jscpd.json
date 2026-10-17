@@ -1,0 +1,26 @@
+{
+  "minTokens": 120,
+  "minLines": 15,
+  "mode": "weak",
+  "format": [
+    "php",
+    "javascript",
+    "typescript",
+    "twig"
+  ],
+  "ignore": [
+    "**/vendor/**",
+    "**/language/**",
+    "**/view/javascript/jquery/**",
+    "**/cache/**",
+    "**/storage/**",
+    "**/*.min.js",
+    "**/tests/**",
+    "**/build/**",
+    "**/install/**"
+  ],
+  "reporters": [
+    "console"
+  ],
+  "threshold": 100
+}
