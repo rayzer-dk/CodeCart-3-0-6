@@ -49,7 +49,7 @@ foreach (array_keys($files) as $file) {
             // Only this exact bundled locale path and these two characters are exempt.
             $relativePath = str_replace('\\', '/', $file);
             $momentLocale = preg_match('~(?:^|/)upload/(?:admin|catalog)/view/javascript/jquery/datetimepicker/moment/(?:locales|moment-with-locales)\\.js$~', $relativePath) === 1;
-            if ($momentLocale && ($m[0] === "\\u{200C}" || $m[0] === "\\u{200D}")) {
+            if ($momentLocale && ($m[0] === "\u{200C}" || $m[0] === "\u{200D}")) {
                 continue;
             }
             $record($file, $source, $m[1], 'invisible/bidirectional Unicode control');
