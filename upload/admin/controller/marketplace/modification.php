@@ -1622,7 +1622,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
         if (isset($this->request->post['xml'])) {
             $data['xml'] = htmlentities(ltrim($this->request->post['xml'], "\u{FEFF}"));
         } elseif (isset($modification)) {
-            $data['xml'] = htmlentities(ltrim($modification['xml'], "﻿"));
+            $data['xml'] = htmlentities(ltrim($modification['xml'], "\u{FEFF}"));
         }
 
         $data['header'] = $this->load->controller('common/header');
