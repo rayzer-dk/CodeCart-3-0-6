@@ -10,3 +10,6 @@ Do not recommend blindly removing comments, adding pointless tests, redundant de
 Never let a Rector refactor break functional behavior; check full build, tests and relevant integration contracts.
 Never treat PHPStan / Rector / source guard success as a substitute for runtime tests or security review.
 Honor OpenCart Registry, dynamic models/Proxy, OCMOD, Events, theme overrides and admin/catalog separation. Check upgrade/install/off-mode and legacy PHP 8.1 compatibility.
+
+Keep public-facing CodeCart documentation generic: describe compatibility with OpenCart/ocStore and standard extension/theme APIs, but do not name or promote specific external themes, vendors or modules. Do not delete adapters or change compatibility logic to achieve neutral documentation.
+Enforce full source integrity (no BOM), reject actual duplicate class methods and copy-pasted code only after semantic review. Do not manufacture tests or remove meaningful PHPDoc.
