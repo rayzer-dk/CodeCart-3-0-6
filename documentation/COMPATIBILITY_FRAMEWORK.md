@@ -1,5 +1,5 @@
 # CodeCart Compatibility Framework
-[Українська](COMPATIBILITY_FRAMEWORK.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
+[Українська](COMPATIBILITY_FRAMEWORK.uk.md) · [All guides](README.md) · [Community](https://t.me/codecartpro)
 
 ## Purpose
 
@@ -106,4 +106,4 @@ Adapters that replace obsolete OCMOD search points may optionally expose `satisf
 When a missing capability cannot be represented by an existing contract, add one small generic contract to Core rather than a theme-specific `if` statement. Theme-specific behavior stays in the adapter.
 
 
-Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
+Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/codecartpro)

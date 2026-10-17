@@ -1,5 +1,5 @@
 # Compatibility Framework
-[English](COMPATIBILITY_FRAMEWORK.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](COMPATIBILITY_FRAMEWORK.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/codecartpro)
 
 ## Призначення та архітектура
 
@@ -85,4 +85,4 @@ final class ThemeAdapter implements CompatibilityAdapterInterface {
 Якщо наявний контракт не покриває потрібну можливість, додайте до ядра один невеликий загальний контракт. Специфічна логіка теми залишається в адаптері.
 
 
-Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)
+Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/codecartpro)

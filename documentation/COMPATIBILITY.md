@@ -1,5 +1,5 @@
 # Compatibility
-[Українська](COMPATIBILITY.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
+[Українська](COMPATIBILITY.uk.md) · [All guides](README.md) · [Community](https://t.me/codecartpro)
 
 CodeCart preserves OpenCart/ocStore 3.x MVC-L routes, Events and OCMOD integration. Use PHP 8.1–8.3 as the compatibility target for existing extensions. Core also supports PHP 8.4/8.5 and has CI checks on these versions; individual modules, commercial themes and ionCube packages have their own requirements.
 
@@ -11,4 +11,4 @@ Clean installation activates CodeCart Theme only. Upgrade preserves every existi
 - [Upgrade and repair](UPGRADE.md)
 - [nginx hosting configuration](NGINX.md)
 
-Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
+Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/codecartpro)

@@ -1,5 +1,5 @@
 # Сумісність
-[English](COMPATIBILITY.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](COMPATIBILITY.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/codecartpro)
 
 CodeCart зберігає MVC-L route, Events та OCMOD інтеграцію OpenCart/ocStore 3.x. Для наявних розширень використовуйте PHP 8.1–8.3 як ціль сумісності. Ядро також підтримує PHP 8.4/8.5 і має CI-перевірки на цих версіях; окремі модулі, комерційні теми та ionCube-пакети мають власні вимоги.
 
@@ -11,4 +11,4 @@ CodeCart зберігає MVC-L route, Events та OCMOD інтеграцію Op
 - [Оновлення та відновлення](UPGRADE.uk.md)
 - [Конфігурація nginx](NGINX.uk.md)
 
-Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)
+Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/codecartpro)

@@ -1,5 +1,5 @@
 # Встановлення
-[English](INSTALL.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/+tUZNEgY3aUk4MGIy)
+[English](INSTALL.md) · [Усі інструкції](README.uk.md) · [Спільнота](https://t.me/codecartpro)
 
 **Перед встановленням створіть і перевірте повну резервну копію сайту та БД.** Для наявного магазину використовуйте [UPDATE](UPGRADE.uk.md); чисте встановлення потребує порожніх БД і кореня сайту.
 
@@ -22,6 +22,6 @@
 
 Налаштуйте [Планувальник](SCHEDULER.uk.md) для фонових завдань. Журнал втрачених URL залишається вимкненим до явного ввімкнення.
 
-Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/+tUZNEgY3aUk4MGIy)
+Підтримка: [support@codecartpro.com](mailto:support@codecartpro.com) · [Спільнота CodeCart PRO](https://t.me/codecartpro)
 
 Штатні `.htaccess` і `robots.txt` не прив’язані до домену. Додавайте лише URL карт сайту, які існують у вашому магазині. Збережіть захист WAF; уникайте загальної заборони обходу `route=`, річного immutable-кешування CSS/JS без версії, жорстко заданих маршрутів карт сторонніх модулів та несумісних із PHP-FPM директив `php_value`. Власні HTTP-сторінки помилок мають існувати; застосунок уже містить сторінки 404/500.

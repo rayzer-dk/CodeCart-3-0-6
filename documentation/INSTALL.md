@@ -1,5 +1,5 @@
 # Installation
-[Українська](INSTALL.uk.md) · [All guides](README.md) · [Community](https://t.me/+tUZNEgY3aUk4MGIy)
+[Українська](INSTALL.uk.md) · [All guides](README.md) · [Community](https://t.me/codecartpro)
 
 **Create and verify a complete website and database backup before installing.** An existing store requires [UPDATE](UPGRADE.md); clean installation requires an empty database and web root.
 
@@ -24,4 +24,4 @@ CodeCart Theme is the only theme registered and active on a clean installation. 
 
 Set up [Scheduler](SCHEDULER.md) for background tasks. Optional lost URL monitoring remains disabled until explicitly enabled.
 
-Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/+tUZNEgY3aUk4MGIy)
+Support: [support@codecartpro.com](mailto:support@codecartpro.com) · [CodeCart PRO community](https://t.me/codecartpro)
