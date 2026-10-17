@@ -27,4 +27,12 @@ jobs:
             echo "External theme/module or site-specific references must not appear in public documentation."
             exit 1
           fi
+          if git grep -nF 't.me/+tUZNEgY3aUk4MGIy' -- README* documentation docs upload/admin upload/catalog upload/system/library/codecart; then
+            echo "Deprecated Telegram invite link found"
+            exit 1
+          fi
+          grep -q 'https://t.me/codecartpro' upload/system/library/codecart/src/Community.php
+          grep -q 'https://github.com/CodeCartPro/CodeCartPro-3.0.6.0' upload/system/library/codecart/src/Community.php
+          grep -q 'Password: \*\*Demo\*\*' documentation/DEMO.md
+          grep -q 'Пароль: \*\*Demo\*\*' documentation/DEMO.uk.md
           echo "Public documentation is platform-neutral (CodeCart, OpenCart, ocStore)."
