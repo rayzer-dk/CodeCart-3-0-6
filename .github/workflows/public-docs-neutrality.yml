@@ -35,4 +35,20 @@ jobs:
           grep -q 'https://github.com/CodeCartPro/CodeCartPro-3.0.6.0' upload/system/library/codecart/src/Community.php
           grep -q 'Password: \*\*Demo\*\*' documentation/DEMO.md
           grep -q 'Пароль: \*\*Demo\*\*' documentation/DEMO.uk.md
+          # Preserve the official public release destination, public demo and community.
+          grep -Fq 'https://github.com/CodeCartPro/CodeCartPro-3.0.6.0' README.md
+          grep -Fq 'https://github.com/CodeCartPro/CodeCartPro-3.0.6.0' README.uk.md
+          grep -Fq 'https://test.codecartpro.com/' documentation/DEMO.md
+          grep -Fq 'https://test.codecartpro.com/admin/' documentation/DEMO.md
+          grep -Fq 'https://test.codecartpro.com/' documentation/DEMO.uk.md
+          grep -Fq 'https://test.codecartpro.com/admin/' documentation/DEMO.uk.md
+          grep -Fq 'support@codecartpro.com' README.md
+          grep -Fq 'https://t.me/codecartpro' README.md
+          grep -Fq 'https://t.me/codecartpro' README.uk.md
+          grep -Fq "public const REPOSITORY = 'https://github.com/CodeCartPro/CodeCartPro-3.0.6.0'" upload/system/library/codecart/src/Community.php
+          grep -Fq "public const TELEGRAM = 'https://t.me/codecartpro'" upload/system/library/codecart/src/Community.php
+          if git grep -n -F 't.me/+tUZNEgY3aUk4MGIy' -- README* documentation docs upload/admin upload/catalog upload/system/library/codecart/src; then
+            echo 'Outdated Telegram invite remains in source or documentation'
+            exit 1
+          fi
           echo "Public documentation is platform-neutral (CodeCart, OpenCart, ocStore)."
