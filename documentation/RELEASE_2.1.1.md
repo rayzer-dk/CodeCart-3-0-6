@@ -28,6 +28,8 @@ The current documentation archive passes CRC, exact source-content and retained-
 
 TOTP fixtures pass 31 checks on each of PHP 8.1, 8.2 and 8.3. A separate MariaDB concurrency probe on PHP 8.3 passes eight checks, including a shared-source race starting with 14 attempts and ending at the limit of 15. Native concurrency on PHP 8.1 and 8.2 remains untested.
 
+Database and legacy-framework analysis contracts are corrected, with development-only cache stubs excluded from the production package. Targeted PHPStan checks pass for five administration and seven catalog files affected by this release, plus the administration entry point. These scoped results do not establish repository-wide static-analysis cleanliness. Related syntax and device, stock, product-category and image regressions pass on PHP 8.1, 8.2 and 8.3; twelve search-condition edge cases produce the same SQL as the previously checked source on all three versions.
+
 The schema regression suite passes 41 standalone public-API assertions on each of PHP 8.1, 8.2 and 8.3. Separate MariaDB checks cover ocStore 3.0.4.1 and OpenCart 3.0.5.1 fixtures, both from their original schema and from an already upgraded 3.0.6.0 state. All four scenarios persist the nine boundary-length values on PHP 8.1, 8.2 and 8.3 under strict SQL mode, with no remaining type-parity issues, removed columns or changes on repeated migration. On both baselines, an injected late journal failure retains revision 32 in the database and configuration; retry reaches revision 33, preserves merchant data and returns to zero queries on the following run. These isolated fixtures do not establish compatibility with every merchant schema or extension.
 
 ## Installation and update

@@ -625,7 +625,7 @@ class ModelCatalogProduct extends Model {
                     $category_blocks = array();
                     break;
                 }
-                $category_blocks = isset($category_row['data']) && $category_row['data'] !== null ? \CodeCart\Core\PurchaseBlocks::decode($category_row['data']) : array();
+                $category_blocks = isset($category_row['data']) ? \CodeCart\Core\PurchaseBlocks::decode($category_row['data']) : array();
                 break;
             }
         }
@@ -893,7 +893,7 @@ class ModelCatalogProduct extends Model {
 		}
 
 		// A non-empty query with no meaningful searchable clause must never broaden to all products.
-		if (!$clauses && ($name !== '' || $tag !== '')) {
+		if (!$clauses && $tag !== '') {
 			return '1 = 0';
 		}
 

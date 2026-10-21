@@ -1,6 +1,16 @@
 parameters:
     level: 5
     phpVersion: 80100
+    scanFiles:
+        - tools/quality/phpstan_runtime.php
+        - upload/system/startup.php
+        - upload/system/helper/general.php
+        - upload/system/helper/utf8.php
+    dynamicConstantNames:
+        - DB_PREFIX
+        - DIR_SYSTEM
+        - DIR_IMAGE
+        - HTTP_SERVER
     paths:
         - upload/catalog/controller
         - upload/catalog/model
@@ -9,6 +19,7 @@ parameters:
         - upload/system/library
         - upload/catalog/model
     stubFiles:
+        - tools/quality/phpstan_cache.stub
         - build/phpstan-stubs/catalog.stub
     tmpDir: build/phpstan-cache/catalog
     reportUnmatchedIgnoredErrors: true

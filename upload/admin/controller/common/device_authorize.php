@@ -47,7 +47,7 @@ class ControllerCommonDeviceAuthorize extends Controller {
         if (!empty($this->session->data['codecart_admin_device_redirect']) && is_array($this->session->data['codecart_admin_device_redirect'])) {
             $r=$this->session->data['codecart_admin_device_redirect']; unset($this->session->data['codecart_admin_device_redirect']);
             $route=isset($r['route'])?(string)$r['route']:'common/dashboard'; $query=isset($r['query'])&&is_array($r['query'])?$r['query']:array(); $query['user_token']=$this->session->data['user_token'];
-            $this->response->redirect($this->url->link($route,http_build_query($query),'SSL')); return;
+            $this->response->redirect($this->url->link($route,http_build_query($query),true)); return;
         }
         $this->response->redirect($this->url->link('common/dashboard','user_token='.$this->session->data['user_token'],true));
     }

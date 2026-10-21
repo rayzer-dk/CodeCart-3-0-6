@@ -39,7 +39,7 @@ class DB {
      *
      * @param	string	$sql
 	 * 
-	 * @return	array
+	 * @return	\stdClass|true
      */
 	public function query($sql) {
 		return $this->adaptor->query($sql);

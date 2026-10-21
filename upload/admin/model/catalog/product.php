@@ -881,19 +881,19 @@ class ModelCatalogProduct extends Model {
 		if (isset($data['filter_price']) && $data['filter_price'] !== '') {
 			$where .= " AND p.price LIKE '" . $this->db->escape((string)$data['filter_price']) . "%'";
 		}
-		if (isset($data['filter_price_min']) && $data['filter_price_min'] !== null && $data['filter_price_min'] !== '') {
+		if (isset($data['filter_price_min']) && $data['filter_price_min'] !== '') {
 			$where .= " AND p.price >= '" . (float)$data['filter_price_min'] . "'";
 		}
-		if (isset($data['filter_price_max']) && $data['filter_price_max'] !== null && $data['filter_price_max'] !== '') {
+		if (isset($data['filter_price_max']) && $data['filter_price_max'] !== '') {
 			$where .= " AND p.price <= '" . (float)$data['filter_price_max'] . "'";
 		}
 		if (isset($data['filter_quantity']) && $data['filter_quantity'] !== '') {
 			$where .= " AND p.quantity = '" . (int)$data['filter_quantity'] . "'";
 		}
-		if (isset($data['filter_quantity_min']) && $data['filter_quantity_min'] !== null && $data['filter_quantity_min'] !== '') {
+		if (isset($data['filter_quantity_min']) && $data['filter_quantity_min'] !== '') {
 			$where .= " AND p.quantity >= '" . (int)$data['filter_quantity_min'] . "'";
 		}
-		if (isset($data['filter_quantity_max']) && $data['filter_quantity_max'] !== null && $data['filter_quantity_max'] !== '') {
+		if (isset($data['filter_quantity_max']) && $data['filter_quantity_max'] !== '') {
 			$where .= " AND p.quantity <= '" . (int)$data['filter_quantity_max'] . "'";
 		}
 		if (isset($data['filter_status']) && $data['filter_status'] !== '') {

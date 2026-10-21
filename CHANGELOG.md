@@ -8,6 +8,7 @@
 - Serialize administrator TOTP attempts from a shared source across accounts, retaining account limits and replay protection.
 - Apply additive presentation revision 33 to undersized IPv6 and order shipping-company columns, including stores already using core schema 3.0.6.0; synchronize fresh-install and CI markers.
 - Publish the presentation revision after a successful upgrade journal and core-version save, allowing failed upgrades to retry safely.
+- Correct database and legacy-framework analysis contracts, with scoped development-only stubs and regression checks for the affected administration and catalog behavior.
 - Validation of the final source and archive is pending. This entry does not declare production acceptance; see documentation/RELEASE_2.1.1.md.
 
 # CodeCart 3.0.6.0 — Build 2.1.0 (2026-10-16)

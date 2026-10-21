@@ -206,7 +206,7 @@ class ModelToolImage extends Model {
                     }
                     @chmod($target, 0644);
                 } catch (\Throwable $e) {
-                    if (isset($tmp) && is_file($tmp)) {
+                    if (is_file($tmp)) {
                         @unlink($tmp);
                     }
                     return $this->fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig);
@@ -280,7 +280,7 @@ class ModelToolImage extends Model {
 
     private function sanitizedSvgUrl($image_old, $source) {
         $hash = @hash_file('sha256', $source);
-        if (!is_string($hash) || $hash === '') {
+        if (!is_string($hash)) {
             return;
         }
 
