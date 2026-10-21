@@ -1,0 +1,298 @@
+[
+  {
+    "baseline": "ocstore3041",
+    "kind": "current",
+    "web_upgrade_steps": null,
+    "prior_markers": "codecart_presentation_schema_version\t32\ncodecart_core_schema_version\t3.0.6.0",
+    "markers": {
+      "core": "3.0.6.0",
+      "revision": "33"
+    },
+    "merchant_tables": 57,
+    "observed_migration_changes": 0,
+    "unexpected": [],
+    "missing_expected": [],
+    "repeat_changes": [],
+    "removed_columns": [],
+    "native_sql": [
+      {
+        "php": "8.1",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "php": "8.2",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "php": "8.3",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      }
+    ],
+    "parity": [],
+    "status": "PASS"
+  },
+  {
+    "baseline": "ocstore3041",
+    "kind": "fresh",
+    "web_upgrade_steps": 4,
+    "prior_markers": "",
+    "markers": {
+      "core": "3.0.6.0",
+      "revision": "33"
+    },
+    "merchant_tables": 56,
+    "observed_migration_changes": 19,
+    "unexpected": [],
+    "missing_expected": [],
+    "repeat_changes": [],
+    "removed_columns": [],
+    "native_sql": [
+      {
+        "php": "8.1",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "php": "8.2",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "php": "8.3",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      }
+    ],
+    "parity": [],
+    "status": "PASS"
+  },
+  {
+    "baseline": "opencart3051",
+    "kind": "current",
+    "web_upgrade_steps": null,
+    "prior_markers": "codecart_presentation_schema_version\t32\ncodecart_core_schema_version\t3.0.6.0",
+    "markers": {
+      "core": "3.0.6.0",
+      "revision": "33"
+    },
+    "merchant_tables": 57,
+    "observed_migration_changes": 0,
+    "unexpected": [],
+    "missing_expected": [],
+    "repeat_changes": [],
+    "removed_columns": [],
+    "native_sql": [
+      {
+        "php": "8.1",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "php": "8.2",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "php": "8.3",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      }
+    ],
+    "parity": [],
+    "status": "PASS"
+  },
+  {
+    "baseline": "opencart3051",
+    "kind": "fresh",
+    "web_upgrade_steps": 4,
+    "prior_markers": "",
+    "markers": {
+      "core": "3.0.6.0",
+      "revision": "33"
+    },
+    "merchant_tables": 51,
+    "observed_migration_changes": 5,
+    "unexpected": [],
+    "missing_expected": [],
+    "repeat_changes": [],
+    "removed_columns": [],
+    "native_sql": [
+      {
+        "php": "8.1",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "php": "8.2",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "php": "8.3",
+        "exit": 0,
+        "fields": {
+          "persisted": [
+            "customer.ip",
+            "customer_activity.ip",
+            "customer_ip.ip",
+            "customer_login.ip",
+            "customer_online.ip",
+            "customer_search.ip",
+            "order.ip",
+            "order.forwarded_ip",
+            "order.shipping_company"
+          ],
+          "failures": []
+        }
+      }
+    ],
+    "parity": [],
+    "status": "PASS"
+  }
+]

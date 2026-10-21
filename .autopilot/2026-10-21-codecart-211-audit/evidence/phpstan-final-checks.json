@@ -1,0 +1,257 @@
+[
+  {
+    "name": "final-phpstan-admin",
+    "exit": 0,
+    "seconds": 7.03
+  },
+  {
+    "name": "final-phpstan-catalog",
+    "exit": 0,
+    "seconds": 5.33
+  },
+  {
+    "name": "final-valid-fixture",
+    "exit": 0,
+    "seconds": 3.1
+  },
+  {
+    "name": "final-invalid-fixture",
+    "exit": 1,
+    "seconds": 3.59
+  },
+  {
+    "name": "source-guard",
+    "exit": 0,
+    "seconds": 0.13
+  },
+  {
+    "name": "phpcs",
+    "exit": 0,
+    "seconds": 0.51
+  },
+  {
+    "name": "syntax-8.1-device_authorize",
+    "exit": 0,
+    "seconds": 0.22
+  },
+  {
+    "name": "syntax-8.1-index",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.1-product",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "syntax-8.1-stock_notify",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "syntax-8.1-product",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.1-image",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.1-db",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "syntax-8.1-phpstan_runtime",
+    "exit": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "syntax-8.1-phpstan_cache",
+    "exit": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "commerce-image-8.1",
+    "exit": 0,
+    "seconds": 0.91
+  },
+  {
+    "name": "commerce-stock-8.1",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "commerce-category-admin-8.1",
+    "exit": 0,
+    "seconds": 0.13
+  },
+  {
+    "name": "commerce-category-catalog-8.1",
+    "exit": 0,
+    "seconds": 0.13
+  },
+  {
+    "name": "auth-device-admin-8.1",
+    "exit": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "auth-device-catalog-8.1",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.2-device_authorize",
+    "exit": 0,
+    "seconds": 0.23
+  },
+  {
+    "name": "syntax-8.2-index",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.2-product",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "syntax-8.2-stock_notify",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "syntax-8.2-product",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.2-image",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.2-db",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.2-phpstan_runtime",
+    "exit": 0,
+    "seconds": 0.13
+  },
+  {
+    "name": "syntax-8.2-phpstan_cache",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "commerce-image-8.2",
+    "exit": 0,
+    "seconds": 0.27
+  },
+  {
+    "name": "commerce-stock-8.2",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "commerce-category-admin-8.2",
+    "exit": 0,
+    "seconds": 0.13
+  },
+  {
+    "name": "commerce-category-catalog-8.2",
+    "exit": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "auth-device-admin-8.2",
+    "exit": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "auth-device-catalog-8.2",
+    "exit": 0,
+    "seconds": 0.15
+  },
+  {
+    "name": "syntax-8.3-device_authorize",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "syntax-8.3-index",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "syntax-8.3-product",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.3-stock_notify",
+    "exit": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "syntax-8.3-product",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "syntax-8.3-image",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.3-db",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "syntax-8.3-phpstan_runtime",
+    "exit": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "syntax-8.3-phpstan_cache",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "commerce-image-8.3",
+    "exit": 0,
+    "seconds": 0.19
+  },
+  {
+    "name": "commerce-stock-8.3",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "commerce-category-admin-8.3",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "commerce-category-catalog-8.3",
+    "exit": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "auth-device-admin-8.3",
+    "exit": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "auth-device-catalog-8.3",
+    "exit": 0,
+    "seconds": 0.11
+  }
+]

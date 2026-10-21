@@ -1,0 +1,21 @@
+{
+  "staged_paths": [
+    "CHANGELOG.md",
+    "documentation/RELEASE_2.1.1.md",
+    "phpstan.codecart.admin.neon.dist",
+    "phpstan.codecart.catalog.neon.dist",
+    "tools/quality/phpstan_cache.stub",
+    "tools/quality/phpstan_runtime.php",
+    "upload/admin/controller/common/device_authorize.php",
+    "upload/admin/index.php",
+    "upload/admin/model/catalog/product.php",
+    "upload/admin/view/documentation/CodeCart_PRO_Documentation.zip",
+    "upload/catalog/controller/cron/stock_notify.php",
+    "upload/catalog/model/catalog/product.php",
+    "upload/catalog/model/tool/image.php",
+    "upload/system/config/codecart_integrity.json",
+    "upload/system/library/db.php"
+  ],
+  "protected_index_bytes_verified": 521,
+  "status": "PASS"
+}

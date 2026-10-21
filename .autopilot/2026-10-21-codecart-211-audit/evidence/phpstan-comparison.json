@@ -1,0 +1,290 @@
+{
+  "baseline": "86588bf29370e6424f7323efcd7f0a2d244080a0",
+  "normalization": "Absolute prefix and line numbers ignored; path+message counted with multiplicity",
+  "areas": {
+    "admin": {
+      "status": "FAIL",
+      "baseline_count": 267,
+      "current_count": 264,
+      "added": [
+        {
+          "path": "upload/admin/index.php",
+          "message": "No error to ignore is reported on line 16. [identifier=ignore.unmatchedLine]",
+          "count": 1,
+          "lines": [
+            16
+          ]
+        },
+        {
+          "path": "upload/admin/index.php",
+          "message": "Constant DIR_SYSTEM not found. [identifier=constant.notFound]",
+          "count": 1,
+          "lines": [
+            26
+          ]
+        },
+        {
+          "path": "upload/admin/index.php",
+          "message": "Function start not found. [identifier=function.notFound]",
+          "count": 1,
+          "lines": [
+            28
+          ]
+        }
+      ],
+      "removed": [
+        {
+          "path": "upload/admin/model/catalog/product.php",
+          "message": "Constant DB_PREFIX not found. [identifier=constant.notFound]",
+          "count": 4
+        },
+        {
+          "path": "upload/admin/model/catalog/product.php",
+          "message": "Cannot access property $num_rows on array. [identifier=property.nonObject]",
+          "count": 1
+        },
+        {
+          "path": "upload/admin/model/catalog/product.php",
+          "message": "Cannot access property $row on array. [identifier=property.nonObject]",
+          "count": 1
+        }
+      ],
+      "current_log_sha256": "b09a55d1176cc3db713f0da086e8300c371e5368375aec4844b8bd5ffa75bd80",
+      "baseline_targets": [
+        "upload/admin/controller/common/device_authorize.php",
+        "upload/admin/controller/common/totp.php",
+        "upload/admin/controller/startup/device_authorization.php",
+        "upload/admin/language/en-gb/common/device_authorize.php",
+        "upload/admin/language/en-gb/common/totp.php",
+        "upload/admin/language/ru-ru/common/device_authorize.php",
+        "upload/admin/language/ru-ru/common/totp.php",
+        "upload/admin/language/uk-ua/common/device_authorize.php",
+        "upload/admin/language/uk-ua/common/totp.php",
+        "upload/admin/model/catalog/product.php",
+        "upload/admin/model/design/form.php"
+      ],
+      "current_diagnostics_on_new_targets": [
+        {
+          "path": "upload/admin/index.php",
+          "message": "No error to ignore is reported on line 16. [identifier=ignore.unmatchedLine]",
+          "count": 1,
+          "lines": [
+            16
+          ]
+        },
+        {
+          "path": "upload/admin/index.php",
+          "message": "Constant DIR_SYSTEM not found. [identifier=constant.notFound]",
+          "count": 1,
+          "lines": [
+            26
+          ]
+        },
+        {
+          "path": "upload/admin/index.php",
+          "message": "Function start not found. [identifier=function.notFound]",
+          "count": 1,
+          "lines": [
+            28
+          ]
+        }
+      ],
+      "added_on_comparable_targets": [],
+      "comparison_limit": "Current log includes additional targets; added messages on previously unanalyzed targets are not established regressions.",
+      "current_log_unchanged": true
+    },
+    "catalog": {
+      "status": "FAIL",
+      "baseline_count": 348,
+      "current_count": 366,
+      "added": [
+        {
+          "path": "upload/catalog/controller/cron/stock_notify.php",
+          "message": "Constant DB_PREFIX not found. [identifier=constant.notFound]",
+          "count": 1,
+          "lines": [
+            6,
+            7,
+            10,
+            10,
+            10,
+            10,
+            11,
+            17,
+            21,
+            24,
+            26,
+            42,
+            42
+          ]
+        },
+        {
+          "path": "upload/catalog/model/extension/feed/google_base.php",
+          "message": "Constant DB_PREFIX not found. [identifier=constant.notFound]",
+          "count": 16,
+          "lines": [
+            8,
+            8,
+            8,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            45,
+            60,
+            60,
+            64,
+            74,
+            85,
+            85
+          ]
+        },
+        {
+          "path": "upload/catalog/model/extension/feed/google_base.php",
+          "message": "Cannot access property $rows on array. [identifier=property.nonObject]",
+          "count": 4,
+          "lines": [
+            9,
+            28,
+            46,
+            87
+          ]
+        },
+        {
+          "path": "upload/catalog/model/extension/feed/google_base.php",
+          "message": "Cannot access property $num_rows on array. [identifier=property.nonObject]",
+          "count": 3,
+          "lines": [
+            61,
+            65,
+            76
+          ]
+        },
+        {
+          "path": "upload/catalog/model/extension/feed/google_base.php",
+          "message": "Cannot access property $row on array. [identifier=property.nonObject]",
+          "count": 2,
+          "lines": [
+            61,
+            65
+          ]
+        }
+      ],
+      "removed": [
+        {
+          "path": "upload/catalog/model/catalog/product.php",
+          "message": "Constant DB_PREFIX not found. [identifier=constant.notFound]",
+          "count": 2
+        },
+        {
+          "path": "upload/catalog/model/catalog/product.php",
+          "message": "Cannot access property $num_rows on array. [identifier=property.nonObject]",
+          "count": 2
+        },
+        {
+          "path": "upload/catalog/model/catalog/product.php",
+          "message": "Cannot access property $row on array. [identifier=property.nonObject]",
+          "count": 2
+        },
+        {
+          "path": "upload/catalog/model/tool/image.php",
+          "message": "Offset 2 on array{0: int<0, max>, 1: int<0, max>, 2: int, 3: string, mime: string, channels?: int, bits?: int} in isset() always exists and is not nullable. [identifier=isset.offset]",
+          "count": 2
+        }
+      ],
+      "current_log_sha256": "4e9b7f51a1de5caa416ddbff062c2af77a6b4ff5286ae8b11d1b85016d3ab6da",
+      "baseline_targets": [
+        "upload/catalog/controller/account/device_authorize.php",
+        "upload/catalog/controller/cron/stock_notify.php",
+        "upload/catalog/controller/startup/device_authorization.php",
+        "upload/catalog/controller/startup/router.php",
+        "upload/catalog/language/en-gb/account/device_authorize.php",
+        "upload/catalog/language/ru-ru/account/device_authorize.php",
+        "upload/catalog/language/uk-ua/account/device_authorize.php",
+        "upload/catalog/model/catalog/product.php",
+        "upload/catalog/model/tool/image.php"
+      ],
+      "current_diagnostics_on_new_targets": [
+        {
+          "path": "upload/catalog/model/extension/feed/google_base.php",
+          "message": "Constant DB_PREFIX not found. [identifier=constant.notFound]",
+          "count": 16,
+          "lines": [
+            8,
+            8,
+            8,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            45,
+            60,
+            60,
+            64,
+            74,
+            85,
+            85
+          ]
+        },
+        {
+          "path": "upload/catalog/model/extension/feed/google_base.php",
+          "message": "Cannot access property $rows on array. [identifier=property.nonObject]",
+          "count": 4,
+          "lines": [
+            9,
+            28,
+            46,
+            87
+          ]
+        },
+        {
+          "path": "upload/catalog/model/extension/feed/google_base.php",
+          "message": "Cannot access property $num_rows on array. [identifier=property.nonObject]",
+          "count": 3,
+          "lines": [
+            61,
+            65,
+            76
+          ]
+        },
+        {
+          "path": "upload/catalog/model/extension/feed/google_base.php",
+          "message": "Cannot access property $row on array. [identifier=property.nonObject]",
+          "count": 2,
+          "lines": [
+            61,
+            65
+          ]
+        }
+      ],
+      "added_on_comparable_targets": [
+        {
+          "path": "upload/catalog/controller/cron/stock_notify.php",
+          "message": "Constant DB_PREFIX not found. [identifier=constant.notFound]",
+          "count": 1,
+          "lines": [
+            6,
+            7,
+            10,
+            10,
+            10,
+            10,
+            11,
+            17,
+            21,
+            24,
+            26,
+            42,
+            42
+          ]
+        }
+      ],
+      "comparison_limit": "Current log includes additional targets; added messages on previously unanalyzed targets are not established regressions.",
+      "current_log_unchanged": true
+    }
+  }
+}

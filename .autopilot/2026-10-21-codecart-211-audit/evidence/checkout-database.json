@@ -1,0 +1,7 @@
+{
+  "order": "order_id\tcustomer_id\tpayment_code\tshipping_code\ttotal\torder_status_id\n2\t2\tcod\tflat.flat\t207.0000\t1",
+  "product": "order_id\tproduct_id\tquantity\ttotal\n2\t40\t2\t202.0000",
+  "history": "order_id\torder_status_id\tnotify\n2\t1\t0",
+  "stock": "product_id\tquantity\n40\t98",
+  "scope": "Synthetic cc211_clean only; browser-created order2; SMTP loopback25211 only"
+}

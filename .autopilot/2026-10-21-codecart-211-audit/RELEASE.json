@@ -1,0 +1,11 @@
+{
+  "source_commit": "e85a5975ac729136302b88d03dff00ac4197f971",
+  "archive": "CodeCart-3.0.6-production-Build-2.1.1.zip",
+  "sha256": "3764143dd534208867e221346cf44418fa870873e8091f11fdedf03eca66de38",
+  "bytes": 15646540,
+  "entries": 4480,
+  "reproducible_builds": 2,
+  "exact_source_and_nested_validation": "PASS",
+  "github_workflows_passed": 11,
+  "qualification": "Verified release candidate; target-store licensed integrations and production environment not certified"
+}

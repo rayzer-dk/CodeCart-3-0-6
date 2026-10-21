@@ -1,0 +1,50 @@
+[
+  {
+    "source": "schema-fix/green-results.json",
+    "source_sha256": "d46efff3b54278d0d7e44477a7395dd65c608c71464edd3aa8850dd16d1442b8",
+    "published": "schema-upgrade.json",
+    "published_sha256": "d46efff3b54278d0d7e44477a7395dd65c608c71464edd3aa8850dd16d1442b8"
+  },
+  {
+    "source": "schema-fix/marker-publication/native-results.json",
+    "source_sha256": "e3834d8f5596b567dad0f4b1ec33728fc15e32f659d61afa80bc4f3116f01957",
+    "published": "schema-retry.json",
+    "published_sha256": "e3834d8f5596b567dad0f4b1ec33728fc15e32f659d61afa80bc4f3116f01957"
+  },
+  {
+    "source": "current-runtime/ui/checkout-database.json",
+    "source_sha256": "c1902b02c969cd1b56c8a58da3ae0526c26434b82b8638af8fd4d6ebef4941dd",
+    "published": "checkout-database.json",
+    "published_sha256": "c8939375eaae45d69f98fe8be3b0e04ac33c2f5ebf7895ad24c6104429259e0e"
+  },
+  {
+    "source": "current-quality/final-comparison.json",
+    "source_sha256": "312a48047775324fa8cfb2d73e0f31fa031729012a547938b9f80a2a1c0096e6",
+    "published": "phpstan-comparison.json",
+    "published_sha256": "312a48047775324fa8cfb2d73e0f31fa031729012a547938b9f80a2a1c0096e6"
+  },
+  {
+    "source": "release/staged-byte-contract-20261021.json",
+    "source_sha256": "8839a2441ac1dba6519dd3532e178da62469aba27ada617b81781e0a86ac67db",
+    "published": "index-byte-contract.json",
+    "published_sha256": "8839a2441ac1dba6519dd3532e178da62469aba27ada617b81781e0a86ac67db"
+  },
+  {
+    "source": "phpstan-finish/final-checks.json",
+    "source_sha256": "b13239d0b1de41e36f98628d02ee330bf31269b03945d4114880dabb98544012",
+    "published": "phpstan-final-checks.json",
+    "published_sha256": "b13239d0b1de41e36f98628d02ee330bf31269b03945d4114880dabb98544012"
+  },
+  {
+    "source": "phpstan-finish/source-freeze.json",
+    "source_sha256": "2caed680f9cc8a67e3745b7c595729ebdd715b1455e8d92dfdbec1091d9eb5bf",
+    "published": "phpstan-final-source.json",
+    "published_sha256": "2caed680f9cc8a67e3745b7c595729ebdd715b1455e8d92dfdbec1091d9eb5bf"
+  },
+  {
+    "source": "phpstan-finish/search-checks.json",
+    "source_sha256": "0a36cc946dabf5fa4c4d0f3215df624f36340eb4e3b6a6f89a4ef6b061fe473b",
+    "published": "search-equivalence.json",
+    "published_sha256": "0a36cc946dabf5fa4c4d0f3215df624f36340eb4e3b6a6f89a4ef6b061fe473b"
+  }
+]

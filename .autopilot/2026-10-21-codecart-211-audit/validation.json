@@ -1,0 +1,132 @@
+{
+  "profile": "DEEP",
+  "scope": "Local synthetic acceptance; ledger does not independently execute tests",
+  "scenarios": [
+    {
+      "id": "R06-R07:schema",
+      "category": "change",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Upgrade preserves merchant data and widens required fields",
+      "observed": "4/4 scenarios;108 readbacks PHP8.1–8.3;0 parity issues or removed columns",
+      "evidence": "evidence/schema-upgrade.json"
+    },
+    {
+      "id": "G02:retry",
+      "category": "regression",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "A late migration failure remains retryable",
+      "observed": "Both baselines remain32 on failure;retry33;steady0SQL;merchant_changes=[]",
+      "evidence": "evidence/schema-retry.json"
+    },
+    {
+      "id": "R04:security",
+      "category": "security",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Review risky trust boundaries and repair concrete blockers",
+      "observed": "Independent security review BLOCKING none; concurrent MFA runtime8/8 and stored source hashes verified",
+      "evidence": "REVIEW.md"
+    },
+    {
+      "id": "R02:mail-queue",
+      "category": "integration",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Completed browser order sends one queued message without duplicate",
+      "observed": "Order2 persistent queue done attempts1;publicCLI processed1 then0;one synthetic SMTP capture;external RCPT rejected550",
+      "evidence": "REPORT.md"
+    },
+    {
+      "id": "R09:checkout",
+      "category": "e2e",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Actual browser order persists totals and decrements stock",
+      "observed": "Order2 customer2/product40qty2,total207,status1,COD/flat;stock98;cart retained after customer/admin login",
+      "evidence": "evidence/checkout-database.json"
+    },
+    {
+      "id": "R08:restore",
+      "category": "rollback",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Full backup restores files/storage/config/DB to a separate fixture",
+      "observed": "Full restore plus product HTTP and real admin login PASS in local separate path and database",
+      "evidence": "REPORT.md"
+    },
+    {
+      "id": "R08:performance",
+      "category": "performance",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Local product smoke remains responsive under modest concurrency",
+      "observed": "10 warm sequential+8 requests with4 concurrent;HTTP200/no PHP errors;sequential median0.54895s;local only",
+      "evidence": "REPORT.md"
+    },
+    {
+      "id": "R03-R05:responsive",
+      "category": "regression",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Product remains usable across target widths and themes",
+      "observed": "Product360/390/768/1440 no document overflow;6 gallery images loaded viaimage/cache;light/dark;mobile success390 nooverflow",
+      "evidence": "REPORT.md"
+    },
+    {
+      "id": "R08:integrity",
+      "category": "integration",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Packaged protected source equals staged raw bytes",
+      "observed": "521 protected staged index bytes match physical SHA256 manifest",
+      "evidence": "evidence/index-byte-contract.json"
+    },
+    {
+      "id": "R09:code-quality",
+      "category": "regression",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Review harmful duplication/dead code/overengineering without cosmetic rewrites",
+      "observed": "NO CHANGE;BLOCKER/ACTIONABLE none in finaldiff and actualconsumers",
+      "evidence": "REVIEW.md"
+    },
+    {
+      "id": "R09:phpstan",
+      "category": "regression",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Affected source analysis exits0 and negative fixture remains effective",
+      "observed": "PASS admin5/catalog7 plusadminindex;validfixturePASS;invalidfixturestilldetectsbothundefinedmethods;accurateDB/Cache/runtimecontracts, no suppressions",
+      "evidence": "evidence/phpstan-final-checks.json"
+    },
+    {
+      "id": "R09:final-release",
+      "category": "integration",
+      "mandatory": true,
+      "status": "PASS",
+      "expected": "Frozen-source full release gate passes",
+      "observed": "c81 full40/40 PASS342.36s source_changed=[]; final narrowdelta separately51checks plusindex/search81–83PASS; exactfinalGitHubCI recorded separately",
+      "evidence": "REPORT.md"
+    },
+    {
+      "id": "external-integrations",
+      "category": "integration",
+      "mandatory": false,
+      "status": "NOT RUN",
+      "expected": "Target licensed theme/payment/SMTP tested on staging",
+      "observed": "Commercial UniShop2/payment APIs/externalSMTP not executed",
+      "evidence": "REPORT.md"
+    },
+    {
+      "id": "production-mysql-ddl",
+      "category": "performance",
+      "mandatory": false,
+      "status": "NOT RUN",
+      "expected": "Measure DDL locking with large real MySQL tables",
+      "observed": "Only synthetic MariaDB10.11 fixtures executed",
+      "evidence": "REPORT.md"
+    }
+  ]
+}

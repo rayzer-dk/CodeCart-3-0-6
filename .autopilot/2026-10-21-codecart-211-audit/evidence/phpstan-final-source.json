@@ -1,0 +1,13 @@
+{
+  "phpstan.codecart.admin.neon.dist": "82e269cfefbdb135ec4b94ffcce9fd83104a5edbda9ed24a1878f975a5ee1041",
+  "phpstan.codecart.catalog.neon.dist": "c73314812424ed9899a2ac985cb93ef5b72540639e6967a8009b4fc6803ce5be",
+  "upload/admin/controller/common/device_authorize.php": "455bb660456c5c871638628e85566631177ec72260b47ca5a4e0ae12a5333500",
+  "upload/admin/index.php": "8a5903ba9d38415dcb8b476ed1da1113d442295137751b34a0cb2416c1c9644e",
+  "upload/admin/model/catalog/product.php": "7a79626e8d7e98bbc0eb6eb0674d3d906bcc2f1711d7571f94e82db7f047bfe3",
+  "upload/catalog/controller/cron/stock_notify.php": "94c0fea2aba099610d7a80962af72e8f633cc73ef01de43cee0ee15b064e1ff2",
+  "upload/catalog/model/catalog/product.php": "8e2432fa48f765cfd58d5c7a662c2dc03d067087c814033392ab98abb3c6c729",
+  "upload/catalog/model/tool/image.php": "55283a66c87c744d0def629392aff120bb45cf5d6f765ec13c51baf9b9ea4d57",
+  "upload/system/library/db.php": "673a469f3e18325ace7750a8d9b791a7099c85d3f6206e247c8a09303a3c1925",
+  "tools/quality/phpstan_cache.stub": "9f989705f133169004ddc80652f15c8c9c974c8f8c0b75ba3a028c6916ce091b",
+  "tools/quality/phpstan_runtime.php": "94812defab41e5f61572525e52e0e8bccdc57c60c1d0eb760fc073dd09444ec8"
+}
