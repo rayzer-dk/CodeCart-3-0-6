@@ -175,31 +175,56 @@ if (count($errors) === $beforeStyles) {
 }
 
 $gates = [
-    'check_language_packs.php',
-    'check_uk_locale.php',
-    'check_unishop2_compat.php',
-    'qa_unishop2_ocmod.php',
-    'i18n-check.php',
-    'i18n-coverage-check.php',
-    'integrity-manifest-check.php',
-    'extension-sort-check.php',
-    'checker-regression-check.php',
-    'notification-check.php',
-    'notification-url-check.php',
-    'seo-language-url-check.php',
-    'seo-language-startup-check.php',
-    'qa_lost_urls.php',
-    'qa_error_pages.php',
-    'qa_session_rotation.php',
-    'check_paypal_financial_guards.php',
+    ['check_language_packs.php'],
+    ['check_uk_locale.php'],
+    ['check_unishop2_compat.php'],
+    ['qa_unishop2_ocmod.php'],
+    ['i18n-check.php'],
+    ['i18n-coverage-check.php'],
+    ['integrity-manifest-check.php'],
+    ['qa_schema_upgrade.php'],
+    ['extension-sort-check.php'],
+    ['checker-regression-check.php'],
+    ['notification-check.php'],
+    ['notification-url-check.php'],
+    ['seo-language-url-check.php'],
+    ['seo-language-startup-check.php'],
+    ['qa_lost_urls.php'],
+    ['qa_error_pages.php'],
+    ['qa_session_rotation.php'],
+    ['check_paypal_financial_guards.php'],
+    ['qa_auth_defensive.php', 'html'],
+    ['qa_auth_defensive.php', 'totp'],
+    ['qa_auth_defensive.php', 'cart'],
+    ['qa_auth_defensive.php', 'device-admin'],
+    ['qa_auth_defensive.php', 'device-catalog'],
+    ['qa_commerce_defensive.php', 'stock'],
+    ['qa_commerce_defensive.php', 'background'],
+    ['qa_commerce_defensive.php', 'image'],
+    ['qa_commerce_defensive.php', 'category-admin'],
+    ['qa_commerce_defensive.php', 'category-catalog'],
+    ['qa_commerce_defensive.php', 'category-seo'],
+    ['qa_commerce_defensive.php', 'category-internal'],
+    ['qa_commerce_defensive.php', 'category-feed'],
+    ['qa_commerce_defensive.php', 'bonus'],
+    ['qa_cron_boundary.php'],
+    ['qa_rich_html_persistence.php', 'product'],
+    ['qa_rich_html_persistence.php', 'category'],
+    ['qa_rich_html_persistence.php', 'information'],
+    ['qa_rich_html_persistence.php', 'article'],
+    ['qa_rich_html_persistence.php', 'form'],
+    ['qa_rich_html_persistence.php', 'theme-default'],
+    ['qa_rich_html_persistence.php', 'theme-codecart'],
 ];
-foreach ($gates as $gate) {
-    $path = $root . '/tools/' . $gate;
+foreach ($gates as $arguments) {
+    $gate = implode(' ', $arguments);
+    $path = $root . '/tools/' . $arguments[0];
     if (!is_file($path)) {
         fail($errors, 'Missing release gate: ' . $gate);
         continue;
     }
-    passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($path), $code);
+    $command = array_merge([PHP_BINARY, $path], array_slice($arguments, 1));
+    passthru(implode(' ', array_map('escapeshellarg', $command)), $code);
     if ($code !== 0) {
         fail($errors, 'Release gate failed: ' . $gate . ' (exit ' . $code . ')');
     } else {

@@ -207,11 +207,21 @@ if (typeof jQuery === 'undefined') {
 
     state += 'Text'
 
-    if (data.resetText == null) $el.data('resetText', $el[val]())
+    if (data.resetText == null && this.options.resetText == null) {
+      this.resetText = $el[val]()
+      $el.data('resetText', this.resetText)
+    }
 
     // push to event loop to allow forms to submit
     setTimeout($.proxy(function () {
-      $el[val](data[state] == null ? this.options[state] : data[state])
+      // Data attributes are text; the original DOM snapshot and explicit JS
+      // options retain Bootstrap's trusted HTML contract.
+      var value = data[state] == null ? this.options[state] : data[state]
+      var method = val
+      if (val === 'html' && data[state] != null && !(state === 'resetText' && data[state] === this.resetText)) {
+        method = 'text'
+      }
+      $el[method](value)
 
       if (state == 'loadingText') {
         this.isLoading = true
@@ -1392,13 +1402,28 @@ if (typeof jQuery === 'undefined') {
       return sanitizeFn(unsafeHtml)
     }
 
-    // IE 8 and below don't support createHTMLDocument
-    if (!document.implementation || !document.implementation.createHTMLDocument) {
-      return unsafeHtml
+    var createdDocument = null
+    try {
+      if (typeof window.DOMParser === 'function') {
+        createdDocument = new window.DOMParser().parseFromString(unsafeHtml, 'text/html')
+      }
+    } catch (error) {
+      createdDocument = null
     }
 
-    var createdDocument = document.implementation.createHTMLDocument('sanitization')
-    createdDocument.body.innerHTML = unsafeHtml
+    if (!createdDocument || !createdDocument.body) {
+      // A named element can clobber document.implementation. Only the native
+      // DOM implementation can provide an inert fallback document.
+      if (typeof window.DOMImplementation !== 'function' || !(document.implementation instanceof window.DOMImplementation)) {
+        return ''
+      }
+      try {
+        createdDocument = window.DOMImplementation.prototype.createHTMLDocument.call(document.implementation, 'sanitization')
+        createdDocument.body.innerHTML = unsafeHtml
+      } catch (error) {
+        return ''
+      }
+    }
 
     var whitelistKeys = $.map(whiteList, function (el, i) { return i })
     var elements = $(createdDocument.body).find('*')

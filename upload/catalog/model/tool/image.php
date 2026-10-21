@@ -11,7 +11,7 @@ class ModelToolImage extends Model {
             return $this->resize($filename, $width, $height);
         }
 
-        $info = @getimagesize($source);
+        $info = Image::getInfo($source);
         if (!$info) {
             return $this->resize($filename, $width, $height);
         }
@@ -21,15 +21,10 @@ class ModelToolImage extends Model {
         $source_width = (int)$info[0];
         $source_height = (int)$info[1];
 
-        // Never enlarge a small original for the storefront. When automatic WebP
-        // is enabled, still create a same-size WebP derivative instead of bypassing
-        // the conversion by returning the original JPEG/PNG URL.
+        // Keep small originals at their native size while preserving the cache
+        // integration point used by storefront format adapters.
         if ($source_width <= $width && $source_height <= $height) {
-            if ($this->preferredOutputFormat(isset($info[2]) ? (int)$info[2] : 0) !== '') {
-                return $this->resize($filename, max(1, $source_width), max(1, $source_height));
-            }
-
-            return $this->sourceUrl(str_replace('\\', '/', $filename));
+            return $this->resize($filename, max(1, $source_width), max(1, $source_height));
         }
 
         return $this->resize($filename, $width, $height);
@@ -39,7 +34,7 @@ class ModelToolImage extends Model {
     public function getDisplaySize($filename, $width, $height) {
         $filename = $this->resolveWithFallback((string)$filename);
         $source = DIR_IMAGE . $filename;
-        $info = is_file($source) ? @getimagesize($source) : false;
+        $info = is_file($source) ? Image::getInfo($source) : false;
         $width = max(1, (int)$width);
         $height = max(1, (int)$height);
 
@@ -143,7 +138,7 @@ class ModelToolImage extends Model {
             return $this->sourceUrl($image_old);
         }
 
-        $info = @getimagesize($source);
+        $info = Image::getInfo($source);
         if (!$info) {
             return $this->sourceUrl($image_old);
         }

@@ -7,3 +7,5 @@ $_['button_verify'] = 'Verify';
 $_['button_logout'] = 'Log out';
 $_['error_code_required'] = 'Enter a verification code.';
 $_['error_code'] = 'The code is invalid or has already been used.';
+
+$_['error_attempts'] = 'Too many verification attempts. Try again in %s seconds.';

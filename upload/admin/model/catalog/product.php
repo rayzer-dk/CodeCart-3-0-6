@@ -100,12 +100,7 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 		
-		if (isset($data['main_category_id']) && $data['main_category_id'] > 0) {
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['main_category_id'] . "'");
-			$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$data['main_category_id'] . "', main_category = 1");
-				} elseif (isset($data['product_category'][0])) {
-			$this->db->query("UPDATE " . DB_PREFIX . "product_to_category SET main_category = 1 WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['product_category'][0] . "'");
-		}
+		$this->saveProductMainCategory($product_id, $data);
 
 		if (isset($data['product_filter'])) {
 			foreach ($data['product_filter'] as $filter_id) {
@@ -298,12 +293,7 @@ class ModelCatalogProduct extends Model {
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
 
-		if (isset($data['main_category_id']) && $data['main_category_id'] > 0) {
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['main_category_id'] . "'");
-			$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$data['main_category_id'] . "', main_category = 1");
-		} elseif (isset($data['product_category'][0])) {
-			$this->db->query("UPDATE " . DB_PREFIX . "product_to_category SET main_category = 1 WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . (int)$data['product_category'][0] . "'");
-		}
+		$this->saveProductMainCategory($product_id, $data);
 		
 		if (isset($data['product_filter'])) {
 			foreach ($data['product_filter'] as $filter_id) {
@@ -573,10 +563,29 @@ class ModelCatalogProduct extends Model {
 		return $product_category_data;
 	}
 	
+	private function saveProductMainCategory($product_id, $data) {
+		$compat = $this->registry->get('codecart_compat');
+		if (!$compat instanceof \CodeCart\Core\CompatibilityLayer) {
+			$compat = new \CodeCart\Core\CompatibilityLayer($this->registry);
+		}
+		$category_id = (int)($data['main_category_id'] ?? 0);
+		if ($category_id < 1) { $category_id = (int)($data['product_category'][0] ?? 0); }
+		$relation_flag = $compat->columnExists('product_to_category', 'main_category');
+		if ($category_id > 0) {
+			$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id = '" . $category_id . "'");
+			$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . $category_id . "'" . ($relation_flag ? ', main_category = 1' : ''));
+		}
+		if ($compat->columnExists('product', 'main_category_id')) {
+			$this->db->query("UPDATE " . DB_PREFIX . "product SET main_category_id = '" . max(0, $category_id) . "' WHERE product_id = '" . (int)$product_id . "'");
+		}
+	}
+
 	public function getProductMainCategoryId($product_id) {
-		$query = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' ORDER BY main_category DESC, category_id ASC LIMIT 1");
-		
-		return ($query->num_rows ? (int)$query->row['category_id'] : 0);
+		$compat = $this->registry->get('codecart_compat');
+		if (!$compat instanceof \CodeCart\Core\CompatibilityLayer) {
+			$compat = new \CodeCart\Core\CompatibilityLayer($this->registry);
+		}
+		return $compat->getMainCategoryId((int)$product_id);
 	}
 
 	public function getProductFilters($product_id) {

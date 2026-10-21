@@ -2,7 +2,7 @@
 <modification>
   <name>CodeCart 3.0.6.0 / UniShop2 3.6.6.0 Compatibility PRO</name>
   <code>unishop2_compatibility_pro_100</code>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <author>CodeCart PRO</author>
   <link>https://codecartpro.com</link>
   <file path="catalog/controller/extension/module/uni_new_data.php">

@@ -16,8 +16,10 @@ final class PurchaseBlocks {
         // OpenCart Request::clean() HTML-escapes POST scalar values, therefore JSON
         // arrives as [{&quot;type&quot;:...}]. Decode entities before json_decode or
         // every builder payload is silently reduced to an empty array on save.
-        $raw = html_entity_decode((string)$json, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $data = json_decode($raw, true);
+        $data = json_decode((string)$json, true);
+        if (!is_array($data)) {
+            $data = json_decode(html_entity_decode((string)$json, ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
+        }
         return is_array($data) ? self::sanitize($data) : array();
     }
 
@@ -34,7 +36,7 @@ final class PurchaseBlocks {
             if (!in_array($type, array('info','size_table','sizes','colors','form'), true)) { $type = 'info'; }
             $clean = array('type'=>$type, 'title'=>self::text(isset($block['title']) ? $block['title'] : '', 128), 'enabled'=>(!isset($block['enabled']) || (int)$block['enabled'] ? 1 : 0));
             if ($type === 'info') {
-                $clean['content'] = SafeRichHtml::sanitize(substr((string)(isset($block['content']) ? $block['content'] : ''), 0, 100000));
+                $clean['content'] = SafeRichHtml::sanitize(substr((string)(isset($block['content']) ? $block['content'] : ''), 0, 100000), false);
             } elseif ($type === 'form') {
                 $clean['form_id'] = max(0, (int)(isset($block['form_id']) ? $block['form_id'] : 0));
                 // A form block without a selected form renders nothing; do not persist it.

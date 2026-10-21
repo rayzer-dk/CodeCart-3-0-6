@@ -27,10 +27,11 @@ final class Loader {
 	 *
 	 * @param	string	$route
 	 * @param	array	$data
+	 * @param	bool	$throw_on_failure Preserve handler errors for background callers.
 	 *
 	 * @return	mixed
  	*/	
-	public function controller($route, $data = array()) {
+	public function controller($route, $data = array(), $throw_on_failure = false) {
 		// Sanitize the call
 		$route = preg_replace('/[^a-zA-Z0-9_\/]/', '', (string)$route);
 		
@@ -53,6 +54,10 @@ final class Loader {
 		
 		if ($result && !$result instanceof Exception) {
 			$output = $result;
+		}
+
+		if ($throw_on_failure && $output instanceof Exception) {
+			throw $output;
 		}
 
 		if (!$output instanceof Exception) {

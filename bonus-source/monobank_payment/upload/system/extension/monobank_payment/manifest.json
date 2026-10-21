@@ -2,7 +2,7 @@
   "manifest_version": 1,
   "code": "monobank_payment",
   "name": "Monobank Payment Modern",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "namespace": "CodeCart\\Extension\\MonobankPayment",
   "permissions": [
     "extension/payment/monobank_modern"

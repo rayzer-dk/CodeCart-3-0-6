@@ -33,7 +33,7 @@ class Image {
 		if (is_file($file)) {
 			$this->file = $file;
 
-			$info = getimagesize($file);
+			$info = self::getInfo($file);
 
 			if (!$info) {
 				error_log('Error: Unsupported or invalid image ' . $file . '!');
@@ -63,6 +63,21 @@ class Image {
 		} else {
 			error_log('Error: Could not load image ' . $file . '!');
 		}
+	}
+
+	public static function getInfo($file) {
+		$info = @getimagesize($file);
+		// PHP 8.1 recognizes AVIF but reports 0x0. GD can provide the actual
+		// dimensions needed by both the cache model and the resizer.
+		if (is_array($info) && defined('IMAGETYPE_AVIF') && $info[2] === IMAGETYPE_AVIF
+			&& (!$info[0] || !$info[1]) && function_exists('imagecreatefromavif')) {
+			$image = @imagecreatefromavif($file);
+			if ($image !== false) {
+				$info[0] = imagesx($image);
+				$info[1] = imagesy($image);
+			}
+		}
+		return $info;
 	}
 	
 	/**

@@ -18,15 +18,22 @@ class ModelExtensionFeedGoogleBase extends Model {
 
         $sql = "SELECT p.product_id, p.model, p.sku, p.upc, p.ean, p.jan, p.isbn, p.mpn, p.google_product_category_id, p.quantity, p.image, p.manufacturer_id, p.tax_class_id, p.price, p.weight, p.weight_class_id, p.date_modified, pd.name, pd.description, m.name AS manufacturer, " .
             "(SELECT price FROM " . DB_PREFIX . "product_discount pd2 WHERE pd2.product_id = p.product_id AND pd2.customer_group_id = '" . $customer_group_id . "' AND pd2.quantity = '1' AND ((pd2.date_start < NOW()) AND (pd2.date_end < '1000-01-01' OR pd2.date_end > NOW())) ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS discount, " .
-            "(SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . $customer_group_id . "' AND ((ps.date_start < NOW()) AND (ps.date_end < '1000-01-01' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special, " .
-            "(SELECT p2c.category_id FROM " . DB_PREFIX . "product_to_category p2c WHERE p2c.product_id = p.product_id ORDER BY p2c.main_category DESC, p2c.category_id ASC LIMIT 1) AS category_id " .
+            "(SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . $customer_group_id . "' AND ((ps.date_start < NOW()) AND (ps.date_end < '1000-01-01' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special " .
             "FROM " . DB_PREFIX . "product p " .
             "INNER JOIN " . DB_PREFIX . "product_description pd ON (pd.product_id = p.product_id AND pd.language_id = '" . $language_id . "') " .
             "INNER JOIN " . DB_PREFIX . "product_to_store p2s ON (p2s.product_id = p.product_id AND p2s.store_id = '" . $store_id . "') " .
             "LEFT JOIN " . DB_PREFIX . "manufacturer m ON (m.manufacturer_id = p.manufacturer_id) " .
             "WHERE p.status = '1' AND p.date_available <= NOW() ORDER BY p.product_id ASC LIMIT " . $start . "," . $limit;
 
-        return $this->db->query($sql)->rows;
+        $rows = $this->db->query($sql)->rows;
+        $compat = $this->registry->get('codecart_compat');
+        if (!$compat instanceof \CodeCart\Core\CompatibilityLayer) {
+            $compat = new \CodeCart\Core\CompatibilityLayer($this->registry);
+        }
+        $categories = $compat->getMainCategoryIds(array_column($rows, 'product_id'));
+        foreach ($rows as &$row) { $row['category_id'] = $categories[(int)$row['product_id']] ?? 0; }
+        unset($row);
+        return $rows;
     }
 
 

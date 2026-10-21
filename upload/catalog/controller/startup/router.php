@@ -11,6 +11,18 @@ class ControllerStartupRouter extends Controller {
 		// Sanitize the call
 		$route = preg_replace('/[^a-zA-Z0-9_\/]/', '', (string)$route);
 
+		// HTTP callers use the key-protected gateway. Loader and CLI dispatch
+		// remain available to the scheduler, queue and traffic heartbeat.
+		$external_route = strtolower(trim($route, '/'));
+		if (PHP_SAPI !== 'cli' && !(defined('CODECART_CLI') && CODECART_CLI)
+			&& ($external_route === 'cron' || strpos($external_route, 'cron/') === 0)
+			&& !in_array($external_route, array('cron/codecart', 'cron/codecart/index'), true)) {
+			$this->response->setStatusCode(403);
+			$this->response->addHeader('Content-Type: text/plain; charset=utf-8');
+			$this->response->setOutput('Forbidden');
+			return;
+		}
+
 		$data = array();
 
 		// Trigger the pre events

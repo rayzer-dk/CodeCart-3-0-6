@@ -608,13 +608,11 @@ class ModelCatalogProduct extends Model {
         // "disabled" stops category inheritance completely.
         $category_blocks = array();
         $category_id = 0;
-        try {
-            $cat = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "product_to_category WHERE product_id='" . $product_id . "' ORDER BY main_category DESC, category_id ASC LIMIT 1");
-            if ($cat->num_rows) { $category_id = (int)$cat->row['category_id']; }
-        } catch (\Throwable $e) {
-            $cat = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "product_to_category WHERE product_id='" . $product_id . "' ORDER BY category_id ASC LIMIT 1");
-            if ($cat->num_rows) { $category_id = (int)$cat->row['category_id']; }
+        $compat = $this->registry->get('codecart_compat');
+        if (!$compat instanceof \CodeCart\Core\CompatibilityLayer) {
+            $compat = new \CodeCart\Core\CompatibilityLayer($this->registry);
         }
+        $category_id = $compat->getMainCategoryId($product_id);
         if ($category_id) {
             $category_query = $this->db->query("SELECT cp.path_id, marker.mode, lang.data FROM " . DB_PREFIX . "category_path cp INNER JOIN " . DB_PREFIX . "codecart_purchase_block marker ON (marker.owner_type='category' AND marker.owner_id=cp.path_id AND marker.language_id='0') LEFT JOIN " . DB_PREFIX . "codecart_purchase_block lang ON (lang.owner_type='category' AND lang.owner_id=cp.path_id AND lang.language_id='" . $language_id . "') WHERE cp.category_id='" . $category_id . "' ORDER BY cp.level DESC");
             foreach ($category_query->rows as $category_row) {

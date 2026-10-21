@@ -31,7 +31,14 @@ class ControllerCommonTotp extends Controller {
                         return;
                     }
                     (new \CodeCart\Core\SecurityAudit($this->registry))->add('admin.totp.verify', 'failed', 'warning', 'admin', $userId, $this->username());
-                    $this->error['warning'] = $this->language->get('error_code');
+                    $retry = $totp->retryAfter($userId);
+                    if ($retry > 0) {
+                        $this->response->setStatusCode(429);
+                        $this->response->addHeader('Retry-After: ' . $retry);
+                        $this->error['warning'] = sprintf($this->language->get('error_attempts'), $retry);
+                    } else {
+                        $this->error['warning'] = $this->language->get('error_code');
+                    }
                 } catch (\Throwable $e) {
                     (new \CodeCart\Core\SecurityAudit($this->registry))->add('admin.totp.verify', 'error', 'error', 'admin', $userId, $this->username(), array('reason' => get_class($e)));
                     $this->error['warning'] = $this->language->get('error_code');

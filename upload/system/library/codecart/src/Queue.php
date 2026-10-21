@@ -110,8 +110,11 @@ final class Queue {
         try {
             $args = json_decode((string)$job['args'], true);
             if (!is_array($args)) { $args = array(); }
-            $result = $this->registry->get('load')->controller((string)$job['route'], $args);
+            $result = $this->registry->get('load')->controller((string)$job['route'], $args, true);
             if ($result === false) { throw new \RuntimeException('Handler returned false'); }
+            if (is_array($result) && array_key_exists('success', $result) && empty($result['success'])) {
+                throw new \RuntimeException(isset($result['message']) && trim((string)$result['message']) !== '' ? trim((string)$result['message']) : 'Task failed without details');
+            }
         } catch (\Throwable $e) {
             $ok = false;
             $message = get_class($e) . ': ' . $e->getMessage();

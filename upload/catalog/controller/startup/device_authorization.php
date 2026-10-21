@@ -2,7 +2,6 @@
 class ControllerStartupDeviceAuthorization extends Controller {
     public function index() {
         if (!$this->registry->has('customer') || !$this->customer->isLogged()) { return; }
-        if (!empty($this->session->data['codecart_customer_device_bypass'])) { return; }
         $service=new \CodeCart\Core\DeviceAuthorization($this->registry);
         if (!$service->enabled('customer') || $service->isTrusted('customer',(int)$this->customer->getId())) { return; }
         $route=isset($this->request->get['route'])?(string)$this->request->get['route']:'';

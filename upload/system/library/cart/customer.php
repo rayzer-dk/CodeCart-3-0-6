@@ -61,6 +61,17 @@ class Customer {
 
 			$this->session->data['customer_id'] = $customer_query->row['customer_id'];
 
+			if ($regenerate) {
+				$guest_session_id = $this->session->getId();
+				$this->session->regenerate();
+				// Cart rows live outside session data. Carry only this browser's
+				// guest rows to the fresh ID; Cart merges them with saved items.
+				if ($guest_session_id !== '' && empty($this->session->data['api_id'])) {
+					$this->db->query("UPDATE " . DB_PREFIX . "cart SET session_id = '" . $this->db->escape($this->session->getId()) . "' WHERE api_id = '0' AND customer_id = '0' AND session_id = '" . $this->db->escape($guest_session_id) . "'");
+				}
+				codecart_set_session_cookie($this->config->get('session_name'), $this->session->getId());
+			}
+
 			$this->customer_id = $customer_query->row['customer_id'];
 			$this->firstname = $customer_query->row['firstname'];
 			$this->lastname = $customer_query->row['lastname'];
@@ -70,11 +81,6 @@ class Customer {
 			$this->newsletter = $customer_query->row['newsletter'];
 			$this->address_id = $customer_query->row['address_id'];
 
-			if ($regenerate) {
-				$this->session->regenerate();
-				codecart_set_session_cookie($this->config->get('session_name'), $this->session->getId());
-			}
-		
 			$this->db->query("UPDATE " . DB_PREFIX . "customer SET language_id = '" . (int)$this->config->get('config_language_id') . "', ip = '" . $this->db->escape($this->request->server['REMOTE_ADDR']) . "' WHERE customer_id = '" . (int)$this->customer_id . "'");
 
 			return true;

@@ -118,7 +118,7 @@ final class Scheduler {
             $route = $this->normalizeRoute((string)$job['route']);
             $args = json_decode((string)$job['args'], true);
             if (!is_array($args)) { $args = array(); }
-            $result = $this->registry->get('load')->controller($route, $args);
+            $result = $this->registry->get('load')->controller($route, $args, true);
             if (is_array($result) && array_key_exists('success', $result)) {
                 $ok = !empty($result['success']);
                 $message = isset($result['message']) && trim((string)$result['message']) !== '' ? trim((string)$result['message']) : ($ok ? 'OK' : 'Task failed without details');

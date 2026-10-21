@@ -61,9 +61,33 @@ jobs:
       - name: Release checks
         run: php tools/release_check.php
 
+  bootstrap-security:
+    name: Bootstrap security regressions
+    needs: source-ready
+    if: needs.source-ready.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install isolated QA dependency
+        run: npm install --prefix "$RUNNER_TEMP/codecart-bootstrap-qa" --ignore-scripts --no-audit --no-fund --package-lock=false jsdom@26.1.0
+
+      - name: Verify all Bootstrap source and minified copies
+        shell: bash
+        run: |
+          set -euo pipefail
+          export NODE_PATH="$RUNNER_TEMP/codecart-bootstrap-qa/node_modules"
+          node tools/qa_bootstrap_security.cjs \
+            upload/admin/view/javascript/bootstrap/js/bootstrap.js \
+            upload/admin/view/javascript/bootstrap/js/bootstrap.min.js \
+            upload/catalog/view/javascript/bootstrap/js/bootstrap.js \
+            upload/catalog/view/javascript/bootstrap/js/bootstrap.min.js \
+            upload/install/view/javascript/bootstrap/js/bootstrap.js \
+            upload/install/view/javascript/bootstrap/js/bootstrap.min.js
+
   package:
     name: Build one-upload package
-    needs: [source-ready, php-matrix]
+    needs: [source-ready, php-matrix, bootstrap-security]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.source-ready.outputs.ready == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -91,17 +115,19 @@ jobs:
           set -euo pipefail
           mkdir -p bonuses
           if [ -d bonus-source/monobank_payment ]; then
-            (
-              cd bonus-source/monobank_payment
-              zip -qr "$GITHUB_WORKSPACE/bonuses/Monobank_Payment_Modern_v1.1.0.ocmod.zip" README.md upload
-            )
+            python3 tools/package_unishop2_bonus.py --module monobank_payment --output bonuses
+            test -f bonuses/Monobank_Payment_Modern_Pro_v1.1.1.ocmod.zip
           fi
           test -f bonus-source/unishop2_compatibility/install.xml
-          test -f bonus-source/unishop2_compatibility/upload/index.html
-          (
-            cd bonus-source/unishop2_compatibility
-            zip -qr "$GITHUB_WORKSPACE/bonuses/UniShop2_Compatibility_Pro_v1.0.1.ocmod.zip" install.xml README.md upload
-          )
+          python3 tools/package_unishop2_bonus.py --output bonuses
+          test -f bonuses/UniShop2_Compatibility_Pro_v1.0.2.ocmod.zip
+
+      - name: Verify current bundled documentation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/package_documentation.py --output "$RUNNER_TEMP/CodeCart_PRO_Documentation.zip"
+          cmp upload/admin/view/documentation/CodeCart_PRO_Documentation.zip "$RUNNER_TEMP/CodeCart_PRO_Documentation.zip"
 
       - name: Build one-upload ZIP
         shell: bash

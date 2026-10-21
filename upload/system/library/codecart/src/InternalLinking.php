@@ -65,10 +65,11 @@ final class InternalLinking {
     }
 
     private function productCategoryId(int $productId): int {
-        if ($productId < 1 || !$this->tableExists('product_to_category')) { return 0; }
-        $q = $this->safeQuery("SELECT category_id FROM `" . DB_PREFIX . "product_to_category` WHERE product_id='" . (int)$productId . "' ORDER BY main_category DESC, category_id ASC LIMIT 1");
-        if ($q && $q->num_rows) { return (int)$q->row['category_id']; }
-        return 0;
+        $compat = $this->registry->get('codecart_compat');
+        if (!$compat instanceof CompatibilityLayer) {
+            $compat = new CompatibilityLayer($this->registry);
+        }
+        return $compat->getMainCategoryId($productId);
     }
 
     private function push(array &$items,string $key,string $title,string $href,string $type): void { $title=trim(strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'))); if($title===''||$href===''){return;} $items[$key]=array('title'=>$title,'href'=>$href,'type'=>$type); }

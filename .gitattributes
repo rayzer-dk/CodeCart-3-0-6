@@ -1,1 +1,6 @@
 .autopilot/** text eol=lf
+/bonus-source/**/*.php text eol=lf
+/bonus-source/**/*.twig text eol=lf
+/bonus-source/**/*.json text eol=lf
+/bonus-source/**/*.xml text eol=lf
+/bonus-source/**/*.md text eol=lf

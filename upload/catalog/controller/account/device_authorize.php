@@ -5,13 +5,17 @@ class ControllerAccountDeviceAuthorize extends Controller {
         if (!$this->customer->isLogged()) { $this->response->redirect($this->url->link('account/login','',true)); return; }
         $this->load->language('account/device_authorize'); $this->document->setTitle($this->language->get('heading_title')); $this->document->setRobots('noindex,nofollow');
         $service=new \CodeCart\Core\DeviceAuthorization($this->registry);
-        if (!$service->enabled('customer') || $service->isTrusted('customer',(int)$this->customer->getId()) || !empty($this->session->data['codecart_customer_device_bypass'])) { $this->finishRedirect(); return; }
+        if (!$service->enabled('customer') || $service->isTrusted('customer',(int)$this->customer->getId())) { $this->finishRedirect(); return; }
         if (($this->request->server['REQUEST_METHOD']??'GET')==='POST') {
             $result=$service->verify('customer',(int)$this->customer->getId(),trim((string)($this->request->post['code']??'')));
             if (!empty($result['success'])) { $this->finishRedirect(); return; }
             $this->error=$result['message']==='Too many invalid codes.'?$this->language->get('error_attempts'):$this->language->get('error_code');
         }
-        if (!$service->hasPendingChallenge('customer',(int)$this->customer->getId())) {
+        $retry = $this->session->data['codecart_customer_device_retry'] ?? array();
+        if ((int)($retry['entity_id'] ?? 0) === (int)$this->customer->getId() && (int)($retry['next_at'] ?? 0) > time()) {
+            $this->error = $this->language->get('error_mail');
+        } elseif (!$service->hasPendingChallenge('customer',(int)$this->customer->getId())) {
+            $this->session->data['codecart_customer_device_retry'] = array('entity_id' => (int)$this->customer->getId(), 'next_at' => time() + 60);
             $this->load->model('account/customer'); $customer=$this->model_account_customer->getCustomer((int)$this->customer->getId()); $email=$customer['email']??'';
             try {$challenge=$service->startChallenge('customer',(int)$this->customer->getId());}catch(\Throwable $e){$challenge=array();}
             $sent=false;
@@ -20,9 +24,11 @@ class ControllerAccountDeviceAuthorize extends Controller {
                 $sent=(new \CodeCart\Core\SystemMailer($this->registry))->sendText($email,$subject,$body);
             }
             if (!$sent) {
-                $service->cancelPending('customer',(int)$this->customer->getId()); $this->session->data['codecart_customer_device_bypass']=1;
-                try{(new \CodeCart\Core\SystemNotification($this->registry))->notify('security.customer_device.mail','error','Customer device verification mail failed','The current customer session was allowed to continue because the verification e-mail could not be sent. Check mail settings.','tool/codecart_core');}catch(\Throwable $e){}
-                $this->finishRedirect(); return;
+                $service->cancelPending('customer',(int)$this->customer->getId());
+                try{(new \CodeCart\Core\SystemNotification($this->registry))->notify('security.customer_device.mail','error',$this->language->get('notice_mail_title'),$this->language->get('notice_mail_message'),'tool/codecart_core');}catch(\Throwable $e){}
+                $this->error=$this->language->get('error_mail');
+            } else {
+                unset($this->session->data['codecart_customer_device_retry']);
             }
         }
         $data['breadcrumbs']=array(array('text'=>$this->language->get('text_home'),'href'=>$this->url->link('common/home')),array('text'=>$this->language->get('heading_title'),'href'=>$this->url->link('account/device_authorize','',true)));

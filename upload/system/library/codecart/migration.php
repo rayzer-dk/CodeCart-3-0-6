@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '32';
+    const PRESENTATION_SCHEMA_VERSION = '33';
 
     private $db;
     private $config;
@@ -80,6 +80,7 @@ class Migration {
             $this->ensureOrderProductSkuSnapshot();
             $this->ensureVarchar('voucher', 'code', 32);
             $this->ensureVarchar('order_voucher', 'code', 32);
+            $this->ensureVarchar('order', 'shipping_company', 60);
             $this->currentStep = 'ocstore_compatibility';
             $this->ensureOcStoreCompatibilityTables();
             $this->ensureOcStoreSeoCompatibilityColumns();
@@ -107,12 +108,18 @@ class Migration {
             // Legacy/regional extensions are intentionally preserved on UPDATE.
             // FULL omits obsolete bundled components, but migration must never uninstall a payment/shipping/integration chosen by an existing store.
 
-            // Keep automatic UPDATE migrations bounded. Large customer/order history
-            // tables are already modernized in fresh-install SQL, but are not rebuilt
-            // implicitly on a live store where ALTER may cause a long lock.
+            // Explicit backed-up upgrades must accept the same valid IPv6 values as fresh installs.
             foreach (array(
                 array('api_ip', 'ip'),
                 array('api_session', 'ip'),
+                array('customer', 'ip'),
+                array('customer_activity', 'ip'),
+                array('customer_ip', 'ip'),
+                array('customer_login', 'ip'),
+                array('customer_online', 'ip'),
+                array('customer_search', 'ip'),
+                array('order', 'ip'),
+                array('order', 'forwarded_ip'),
                 array('user', 'ip')
             ) as $column) {
                 $this->ensureVarchar($column[0], $column[1], 45);
@@ -183,7 +190,6 @@ class Migration {
             $this->ensureSeoModeConsistency();
             $this->ensureBundledDemoPresentationData();
             $this->enableConfiguredPurchaseBlocksFromRc88();
-            $this->localizeBundledUkrainianDefaults();
             $this->ensureCodeCartThemeExtension();
             $this->ensureBundledModuleExtensions();
             $this->ensureCheckoutPaymentExtensions();
@@ -233,6 +239,7 @@ class Migration {
             $this->recordMigration('core', 'core-' . self::VERSION, self::VERSION, hash('sha256', self::VERSION));
             $this->saveVersion();
             $this->config->set('codecart_core_schema_version', self::VERSION);
+            $this->setPresentationSchemaMarker();
             $this->currentStep = 'template_cache';
             $this->clearTemplateCache();
             $this->invalidateModificationCacheMarker($forceRepair ? 'core_repair' : 'core_updated');
@@ -338,7 +345,6 @@ class Migration {
             if ($store->num_rows) { $storeName = (string)$store->row['value']; }
         }
         if (!in_array($storeName, array('CodeCart Demo Store', 'CodeCart PRO Demo Store'), true)) {
-            $this->setPresentationSchemaMarker();
             return;
         }
 
@@ -448,7 +454,6 @@ class Migration {
         }
 
         if (!$this->tableExists('layout_route') || !$this->tableExists('layout_module') || !$this->tableExists('module')) {
-            $this->setPresentationSchemaMarker();
             return;
         }
 
@@ -827,7 +832,7 @@ class Migration {
             $this->db->query("UPDATE `" . DB_PREFIX . "layout_module` SET sort_order='2' WHERE layout_id='1' AND code='html.36' AND position='content_top'");
         }
 
-        if (!$this->tableExists('codecart_purchase_block')) { $this->setPresentationSchemaMarker(); return; }
+        if (!$this->tableExists('codecart_purchase_block')) { return; }
         $existing = $this->db->query("SELECT owner_id FROM `" . DB_PREFIX . "codecart_purchase_block` WHERE owner_type='product' AND owner_id='42' AND language_id>0 AND data<>'[]' LIMIT 1");
         $seedPurchaseBlocks = !$existing->num_rows;
 
@@ -857,7 +862,6 @@ class Migration {
             $encoded = json_encode(\CodeCart\Core\PurchaseBlocks::sanitize($set[3]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             $this->db->query("REPLACE INTO `" . DB_PREFIX . "codecart_purchase_block` SET owner_type='" . $this->db->escape($ownerType) . "', owner_id='" . $ownerId . "', language_id='" . $languageId . "', mode='1', data='" . $this->db->escape($encoded) . "'");
         }
-        $this->setPresentationSchemaMarker();
     }
 
     private function setPresentationSchemaMarker() {
@@ -879,77 +883,6 @@ class Migration {
         if (!$configured->num_rows) { return; }
         $this->db->query("UPDATE `" . DB_PREFIX . "setting` SET value='1' WHERE setting_id='" . (int)$status->row['setting_id'] . "'");
         $this->config->set('theme_default_purchase_blocks_status', '1');
-    }
-
-    private function localizeBundledUkrainianDefaults() {
-        if (!$this->tableExists('language')) { return; }
-        $language = $this->db->query("SELECT language_id FROM `" . DB_PREFIX . "language` WHERE LOWER(code) IN ('uk-ua','uk') ORDER BY language_id LIMIT 1");
-        if (!$language->num_rows) { return; }
-        $languageId = (int)$language->row['language_id'];
-
-        // Only exact stock/demo values are touched. Merchant-created names are preserved.
-        // Banner names are global (not language-specific), so translate bundled English names
-        // only when the existing store itself uses Ukrainian as its primary catalog language.
-        $primaryLanguage = '';
-        if ($this->tableExists('setting')) {
-            $primary = $this->db->query("SELECT value FROM `" . DB_PREFIX . "setting` WHERE store_id='0' AND code='config' AND `key`='config_language' LIMIT 1");
-            if ($primary->num_rows) { $primaryLanguage = strtolower(trim((string)$primary->row['value'])); }
-        }
-        if (in_array($primaryLanguage, array('uk-ua','uk'), true) && $this->tableExists('module')) {
-            $moduleNames = array(
-                'Category' => 'Категорія',
-                'Home Page' => 'Головна сторінка',
-                'Banner 1' => 'Банер 1'
-            );
-            $modules = $this->db->query("SELECT module_id, name, setting FROM `" . DB_PREFIX . "module` WHERE name IN ('Category','Home Page','Banner 1')");
-            foreach ($modules->rows as $module) {
-                $from = (string)$module['name'];
-                if (!isset($moduleNames[$from])) { continue; }
-                $setting = json_decode((string)$module['setting'], true);
-                if (is_array($setting) && isset($setting['name']) && (string)$setting['name'] === $from) {
-                    $setting['name'] = $moduleNames[$from];
-                    $encoded = json_encode($setting, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                } else { $encoded = (string)$module['setting']; }
-                $this->db->query("UPDATE `" . DB_PREFIX . "module` SET name='" . $this->db->escape($moduleNames[$from]) . "', setting='" . $this->db->escape($encoded) . "' WHERE module_id='" . (int)$module['module_id'] . "'");
-            }
-        }
-
-        if (in_array($primaryLanguage, array('uk-ua','uk'), true) && $this->tableExists('banner')) {
-            $bannerNames = array(
-                'HP Products' => 'Товари HP',
-                'Home Page Slideshow' => 'Слайдшоу головної сторінки',
-                'Manufacturers' => 'Виробники'
-            );
-            foreach ($bannerNames as $from => $to) {
-                $this->db->query("UPDATE `" . DB_PREFIX . "banner` SET name='" . $this->db->escape($to) . "' WHERE name='" . $this->db->escape($from) . "'");
-            }
-        }
-
-        if ($this->tableExists('customer_group_description')) {
-            $this->db->query("UPDATE `" . DB_PREFIX . "customer_group_description` SET name='За замовчуванням' WHERE language_id='" . $languageId . "' AND name='Default'");
-        }
-
-        if ($this->tableExists('attribute_group_description')) {
-            $map = array('Memory'=>'Пам\'ять','Technical'=>'Технічні характеристики','Motherboard'=>'Материнська плата','Processor'=>'Процесор');
-            foreach ($map as $from=>$to) {
-                $this->db->query("UPDATE `" . DB_PREFIX . "attribute_group_description` SET name='" . $this->db->escape($to) . "' WHERE language_id='" . $languageId . "' AND name='" . $this->db->escape($from) . "'");
-            }
-        }
-
-        if ($this->tableExists('attribute_description')) {
-            $map = array('Description'=>'Опис','No. of Cores'=>'Кількість ядер','Clockspeed'=>'Тактова частота');
-            foreach ($map as $from=>$to) {
-                $this->db->query("UPDATE `" . DB_PREFIX . "attribute_description` SET name='" . $this->db->escape($to) . "' WHERE language_id='" . $languageId . "' AND name='" . $this->db->escape($from) . "'");
-            }
-            $this->db->query("UPDATE `" . DB_PREFIX . "attribute_description` SET name=CONCAT('Тест ', SUBSTRING(name, 6)) WHERE language_id='" . $languageId . "' AND name REGEXP '^test [0-9]+$'");
-        }
-
-        if ($this->tableExists('category_description')) {
-            $this->db->query("UPDATE `" . DB_PREFIX . "category_description` SET name='Принтери' WHERE language_id='" . $languageId . "' AND name='Сканери' AND category_id='30'");
-            $this->db->query("UPDATE `" . DB_PREFIX . "category_description` SET name='Сканери' WHERE language_id='" . $languageId . "' AND name='Сканеры'");
-            $this->db->query("UPDATE `" . DB_PREFIX . "category_description` SET name='MP3-плеєри' WHERE language_id='" . $languageId . "' AND name='MP3 Плеери'");
-            $this->db->query("UPDATE `" . DB_PREFIX . "category_description` SET name=CONCAT('Тест ', SUBSTRING(name, 6)) WHERE language_id='" . $languageId . "' AND name REGEXP '^test [0-9]+$'");
-        }
     }
 
     private function ensureTaxDisplayDefault() {
@@ -3067,7 +3000,7 @@ class Migration {
             $description = (string)$row['description'];
             if (strpos($description, '<') === false && preg_match('/&lt;[a-z\/]/i', $description)) {
                 $decoded = html_entity_decode($description, ENT_QUOTES, 'UTF-8');
-                if (class_exists('\\CodeCart\\Core\\SafeRichHtml')) { $decoded = \CodeCart\Core\SafeRichHtml::sanitize($decoded); }
+                if (class_exists('\\CodeCart\\Core\\SafeRichHtml')) { $decoded = \CodeCart\Core\SafeRichHtml::sanitize($decoded, false); }
                 $set[] = "`description` = '" . $this->db->escape($decoded) . "'";
             }
             if ($set) {

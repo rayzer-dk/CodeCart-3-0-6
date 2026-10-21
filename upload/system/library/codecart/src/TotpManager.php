@@ -77,10 +77,58 @@ final class TotpManager {
     }
 
     public function verify(int $userId, string $code, bool $consumeRecovery = true): bool {
-        $row = $this->getRow($userId);
+        $lock = 'cctotp_' . substr(hash('sha256', DB_DATABASE . '|' . DB_PREFIX . '|' . $this->attemptSource()), 0, 56);
+        try {
+            $query = $this->db->query("SELECT GET_LOCK('" . $this->db->escape($lock) . "', 2) AS acquired");
+            if ((int)($query->row['acquired'] ?? 0) !== 1) { return false; }
+        } catch (\Throwable $e) {
+            return false;
+        }
+
+        try {
+            // Acquire before the transaction so its snapshot includes prior source attempts.
+            $this->db->query('START TRANSACTION');
+            try {
+                $verified = $this->verifyAttempt($userId, $code, $consumeRecovery);
+                $this->db->query('COMMIT');
+                return $verified;
+            } catch (\Throwable $e) {
+                $this->db->query('ROLLBACK');
+                throw $e;
+            }
+        } finally {
+            $this->db->query("SELECT RELEASE_LOCK('" . $this->db->escape($lock) . "')");
+        }
+    }
+
+    public function retryAfter(int $userId): int {
+        $account = "username = '@totp:" . (int)$userId . "'";
+        $source = "ip = '" . $this->db->escape($this->attemptSource()) . "' AND username LIKE '@totp:%'";
+        $retry = 0;
+        foreach (array(array($account, 5), array($source, 15)) as $limit) {
+            $query = $this->db->query("SELECT COUNT(*) AS total, GREATEST(1, 900 - TIMESTAMPDIFF(SECOND, MIN(date_added), NOW())) AS retry_after FROM `" . DB_PREFIX . "codecart_admin_login_attempt` WHERE " . $limit[0] . " AND date_added >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
+            if ((int)$query->row['total'] >= $limit[1]) { $retry = max($retry, (int)$query->row['retry_after']); }
+        }
+        return $retry;
+    }
+
+    private function attemptSource(): string {
+        $request = $this->registry->get('request');
+        $server = $request ? (array)$request->server : array();
+        $ip = function_exists('codecart_client_ip') ? codecart_client_ip($server) : ($server['REMOTE_ADDR'] ?? '');
+        // Primary-password success/disable must never clear or disable MFA limits.
+        return 'totp:' . sha1((string)$ip);
+    }
+
+    private function verifyAttempt(int $userId, string $code, bool $consumeRecovery): bool {
+        // Serialize attempts for one account across sessions and sources.
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_user_mfa` WHERE user_id = '" . (int)$userId . "' LIMIT 1 FOR UPDATE");
+        $row = $query->num_rows ? $query->row : array();
         if (!$row || (int)$row['status'] !== 1 || trim((string)$row['secret']) === '') {
             return false;
         }
+        if ($this->retryAfter($userId) > 0) { return false; }
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_admin_login_attempt` SET username = '@totp:" . (int)$userId . "', ip = '" . $this->db->escape($this->attemptSource()) . "', date_added = NOW()");
 
         $secret = $this->decrypt((string)$row['secret']);
         $matchedCounter = $secret !== '' ? $this->matchingCounter($secret, $code) : null;

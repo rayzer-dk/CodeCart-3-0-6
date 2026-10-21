@@ -5,14 +5,22 @@ class ControllerCronStockNotify extends Controller {
         // Recover rows claimed by a worker that terminated before completion.
         $this->db->query("UPDATE `" . DB_PREFIX . "stock_notify` SET status='waiting', date_modified=NOW() WHERE status='processing' AND date_modified < DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND attempts < 5");
         $this->db->query("UPDATE `" . DB_PREFIX . "stock_notify` SET status='failed', date_modified=NOW() WHERE status='processing' AND date_modified < DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND attempts >= 5");
-        $q=$this->db->query("SELECT sn.*, p.image, p.price, pd.name, l.code AS language_code FROM `".DB_PREFIX."stock_notify` sn JOIN `".DB_PREFIX."product` p ON p.product_id=sn.product_id JOIN `".DB_PREFIX."product_description` pd ON pd.product_id=sn.product_id AND pd.language_id=sn.language_id LEFT JOIN `".DB_PREFIX."language` l ON l.language_id=sn.language_id WHERE sn.status='waiting' AND p.status='1' ORDER BY sn.stock_notify_id ASC LIMIT ".(int)$limit);
+        // Bound option checks and revisit the oldest unchecked subscriptions first.
+        $scan_limit = max(100, $limit);
+        $q=$this->db->query("SELECT sn.*, p.quantity, p.image, p.price, pd.name, l.code AS language_code FROM `".DB_PREFIX."stock_notify` sn JOIN `".DB_PREFIX."product` p ON p.product_id=sn.product_id JOIN `".DB_PREFIX."product_description` pd ON pd.product_id=sn.product_id AND pd.language_id=sn.language_id LEFT JOIN `".DB_PREFIX."language` l ON l.language_id=sn.language_id WHERE sn.status='waiting' AND p.status='1' AND p.quantity>0 ORDER BY sn.date_modified ASC, sn.stock_notify_id ASC LIMIT ".(int)$scan_limit);
         $sent=0;$failed=0; $this->db->query("DELETE FROM `".DB_PREFIX."stock_notify` WHERE status IN ('sent','failed') AND date_modified < DATE_SUB(NOW(), INTERVAL 180 DAY)");
         foreach($q->rows as $row){
+            if ($sent + $failed >= $limit) { break; }
             $eligible=(int)$row['quantity']>0;
             $optionIds=array();
             if(!empty($row['option_data'])){$decoded=json_decode((string)$row['option_data'],true);if(is_array($decoded)){$optionIds=array_values(array_unique(array_filter(array_map('intval',$decoded))));}}
             if($eligible && $optionIds){$oq=$this->db->query("SELECT COUNT(*) AS total, SUM(CASE WHEN subtract='0' OR quantity>0 THEN 1 ELSE 0 END) AS ready FROM `".DB_PREFIX."product_option_value` WHERE product_option_value_id IN (".implode(',',$optionIds).")");$eligible=$oq->num_rows && (int)$oq->row['total']===count($optionIds) && (int)$oq->row['ready']===count($optionIds);}
-            if(!$eligible){continue;}
+            if(!$eligible){
+                // Preserve the subscription and delivery attempts while yielding to
+                // later rows, even when successive batches run in the same second.
+                $this->db->query("UPDATE `".DB_PREFIX."stock_notify` SET date_modified=DATE_ADD(NOW(), INTERVAL 1 SECOND) WHERE stock_notify_id='".(int)$row['stock_notify_id']."' AND status='waiting'");
+                continue;
+            }
             $this->db->query("UPDATE `".DB_PREFIX."stock_notify` SET status='processing', attempts=attempts+1, date_modified=NOW() WHERE stock_notify_id='".(int)$row['stock_notify_id']."' AND status='waiting'");
             if(!$this->db->countAffected()){continue;}
             $sq=$this->db->query("SELECT `key`,`value` FROM `".DB_PREFIX."setting` WHERE store_id='".(int)$row['store_id']."' AND `key` IN ('config_url','config_ssl','config_name','config_email','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout')");

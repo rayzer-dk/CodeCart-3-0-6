@@ -7,8 +7,6 @@
  * @license		https://opensource.org/licenses/GPL-3.0
  */
 
-// CodeCart/ocStore main category flag is stored in product_to_category.main_category.
-
 class SeoPro {
 
     private $config;
@@ -734,7 +732,7 @@ class SeoPro {
             return false;
 
         if ($this->config->get('config_seo_url_cache')) {
-            $this->product_categories = $this->cache->get('seopro.product_categories');
+            $this->product_categories = $this->cache->get('seopro.product_categories.canonical');
             if (!is_array($this->product_categories)) {
                 $this->product_categories = [];
             }
@@ -742,8 +740,12 @@ class SeoPro {
                 return $this->product_categories[$product_id];
         }
 
-        $query = $this->db->query("SELECT category_id FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' ORDER BY main_category DESC, category_id ASC LIMIT 1");
-        $category_id = $this->getPathByCategory($query->num_rows ? (int)$query->row['category_id'] : 0);
+        $compat = $this->registry->get('codecart_compat');
+        if (!$compat instanceof \CodeCart\Core\CompatibilityLayer) {
+            $compat = new \CodeCart\Core\CompatibilityLayer($this->registry);
+        }
+        $main_category_id = $compat->getMainCategoryId((int)$product_id);
+        $category_id = $this->getPathByCategory($main_category_id);
 
         if ($this->config->get('config_seo_url_cache')) {
             if (!is_array($this->product_categories)) {
@@ -835,7 +837,7 @@ class SeoPro {
             $this->cache->set('seopro.keywords', $this->keywords);
             $this->cache->set('seopro.queries', $this->queries);
             $this->cache->set('seopro.cat_tree', $this->cat_tree);
-            $this->cache->set('seopro.product_categories', $this->product_categories);
+            $this->cache->set('seopro.product_categories.canonical', $this->product_categories);
         }
     }
 }

@@ -13,7 +13,7 @@ IP: %s
 If this was not you, change your password.';
 $_['error_code'] = 'Invalid or expired code.';
 $_['error_attempts'] = 'Too many invalid attempts. Sign in again to receive a new code.';
-$_['error_mail_fail_open'] = 'The security code could not be sent. This session was temporarily allowed and a critical system notification was created. Check mail settings.';
+$_['error_mail'] = 'The verification code could not be sent. Access remains blocked. Wait one minute and reload to retry, or log out and contact the store administrator to restore e-mail delivery.';
 $_['text_code_sent'] = 'Security code sent.';
 $_['notice_mail_title'] = 'Login protection mail failed';
-$_['notice_mail_message'] = 'Unknown-device protection could not send the e-mail. The current admin session was not locked out to prevent loss of access. Check SMTP/Mail.';
+$_['notice_mail_message'] = 'Unknown-device verification could not send a code. The session remains unverified. Check the account e-mail and SMTP/Mail settings.';

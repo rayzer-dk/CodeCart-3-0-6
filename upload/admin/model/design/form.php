@@ -88,7 +88,7 @@ class ModelDesignForm extends Model {
             // text and real (sanitized) HTML, like the bundled forms do: otherwise titles show
             // "&amp;"/"&quot;" and descriptions show literal "<b>" on the storefront.
             $title = $this->plainText(isset($row['title']) ? $row['title'] : '', 160);
-            $description = \CodeCart\Core\SafeRichHtml::sanitize(html_entity_decode((string)(isset($row['description']) ? $row['description'] : ''), ENT_QUOTES, 'UTF-8'));
+            $description = \CodeCart\Core\SafeRichHtml::sanitize(html_entity_decode((string)(isset($row['description']) ? $row['description'] : ''), ENT_QUOTES, 'UTF-8'), false);
             $submit_text = $this->plainText(isset($row['submit_text']) ? $row['submit_text'] : '', 80);
             $success_text = $this->plainText(isset($row['success_text']) ? $row['success_text'] : '', 255);
             $fields = \CodeCart\Core\FormBuilder::encode(isset($row['fields_json']) ? $row['fields_json'] : array());

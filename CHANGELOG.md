@@ -1,3 +1,15 @@
+# CodeCart 3.0.6.0 — Build 2.1.1 (2026-10-21)
+
+- Align the package build reported by storefront, administration, installer, CLI and cron entry points.
+- Normalize production ZIP metadata and include a complete entry manifest with file sizes, SHA-256 hashes and source revision.
+- Update optional extension packaging to include installer metadata and the maintained compatibility package builder.
+- Rebuild bundled documentation from current sources with deterministic ZIP metadata, retaining accepted licenses and notices; verify it in the release workflow.
+- Restore the production autoloader and database capability metadata in standalone SEO regression fixtures, preserving existing assertions.
+- Serialize administrator TOTP attempts from a shared source across accounts, retaining account limits and replay protection.
+- Apply additive presentation revision 33 to undersized IPv6 and order shipping-company columns, including stores already using core schema 3.0.6.0; synchronize fresh-install and CI markers.
+- Publish the presentation revision after a successful upgrade journal and core-version save, allowing failed upgrades to retry safely.
+- Validation of the final source and archive is pending. This entry does not declare production acceptance; see documentation/RELEASE_2.1.1.md.
+
 # CodeCart 3.0.6.0 — Build 2.1.0 (2026-10-16)
 
 - Replace formatting-sensitive extension table and translation-key checks with rendered structure checks and PHP token analysis; add mutation regressions.

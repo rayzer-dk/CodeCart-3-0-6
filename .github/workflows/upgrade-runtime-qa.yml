@@ -163,7 +163,7 @@ jobs:
           test "$marker" = "PRESERVE-ME"
           test "$seo" = "qa-upgrade-marker"
           test "$theme" = "$(cat /tmp/base-theme)"
-          test "$schema" = "32"
+          test "$schema" = "33"
           test "$core" = "3.0.6.0"
           test "$codecart_theme" = "1"
           test "$product_count" = "$(cat /tmp/base-product-count)"

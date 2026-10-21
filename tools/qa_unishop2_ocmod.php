@@ -200,7 +200,7 @@ $twice = $first;
 foreach ($package->getElementsByTagName('file') as $file) {
     $target = $file->getAttribute('path');
     foreach ($file->getElementsByTagName('operation') as $operation) {
-        list($twice[$target]) = $apply($twice[$target], $operation, 'unishop2_compatibility_pro_100', '1.0.1', $target);
+        list($twice[$target]) = $apply($twice[$target], $operation, trim($package->getElementsByTagName('code')->item(0)->textContent), trim($package->getElementsByTagName('version')->item(0)->textContent), $target);
     }
 }
 check($twice === $first, 'Standalone package nests fallbacks when applied twice');

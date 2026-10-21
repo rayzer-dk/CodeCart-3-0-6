@@ -35,7 +35,7 @@ final class DeviceAuthorization {
 
     public function isTrusted(string $type,int $entityId): bool {
         if (!$this->enabled($type) || $entityId < 1) return true;
-        if (!$this->isStorageReady($type)) return true;
+        if (!$this->isStorageReady($type)) return false;
         $cookie=$this->cookieName($type);
         $raw=isset($this->request->cookie[$cookie]) ? trim((string)$this->request->cookie[$cookie]) : '';
         if (!preg_match('/^[a-f0-9]{64}$/',$raw)) return false;

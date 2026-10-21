@@ -94,7 +94,7 @@ jobs:
           queue="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='codecart' AND table_name='oc_codecart_queue'")"
           worker="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM oc_codecart_scheduler WHERE code='core.queue.worker' AND status=1")"
           non_innodb="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='codecart' AND table_type='BASE TABLE' AND engine <> 'InnoDB'")"
-          test "$schema" = "32"
+          test "$schema" = "33"
           test "$theme" = "codecart"
           test "$queue" = "1"
           test "$worker" = "1"
@@ -283,7 +283,7 @@ jobs:
           set -euo pipefail
           schema="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='codecart_presentation_schema_version' LIMIT 1")"
           theme="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT value FROM oc_setting WHERE \`key\`='config_theme' LIMIT 1")"
-          test "$schema" = "32"
+          test "$schema" = "33"
           test "$theme" = "codecart"
           cd runtime
           php -S 127.0.0.1:8080 -t upload > /tmp/codecart-http.log 2>&1 &

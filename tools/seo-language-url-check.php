@@ -1,6 +1,8 @@
 <?php
 /** Standalone catalog URL regression tests: php tools/seo-language-url-check.php */
 error_reporting(E_ALL);
+require_once __DIR__.'/../upload/system/library/codecart/psr4.php';
+CodeCartPsr4::register('CodeCart\\Core\\', __DIR__.'/../upload/system/library/codecart/src/');
 if (!defined('DB_PREFIX')) define('DB_PREFIX', 'oc_');
 if (!function_exists('utf8_strlen')) { function utf8_strlen($v) { return strlen((string)$v); } }
 if (!function_exists('utf8_strtolower')) { function utf8_strtolower($v) { return strtolower((string)$v); } }
@@ -14,6 +16,10 @@ class Response {public $redirects=array(); public $headers=array();public functi
 class Cache {public function get($k){return array();} public function set($k,$v){} }
 class DataResult {public $num_rows;public $row;public $rows;public function __construct($rows){$this->rows=$rows;$this->num_rows=count($rows);$this->row=$rows?reset($rows):array();} }
 class DB {public function escape($s){return addslashes($s);}public function query($sql){
+ if ($sql === 'SHOW TABLES') return new DataResult(array(array('Tables_in_fixture'=>'oc_product_to_category'),array('Tables_in_fixture'=>'oc_product')));
+ if ($sql === 'SHOW COLUMNS FROM `oc_product_to_category`') return new DataResult(array(array('Field'=>'product_id'),array('Field'=>'category_id'),array('Field'=>'main_category')));
+ if ($sql === 'SHOW COLUMNS FROM `oc_product`') return new DataResult(array(array('Field'=>'product_id'),array('Field'=>'main_category_id')));
+ if (strpos($sql,' FROM `oc_product_to_category` ')!==false || strpos($sql,' FROM `oc_product` ')!==false) return new DataResult(array());
  if (strpos($sql,' FROM oc_category ')!==false || strpos($sql,' FROM oc_category ORDER')!==false) return new DataResult(array());
  if (strpos($sql,' FROM oc_product_to_category ')!==false) return new DataResult(array());
  if (strpos($sql,' FROM oc_language ')!==false) {
