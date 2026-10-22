@@ -779,8 +779,8 @@ class ControllerProductProduct extends Controller {
 			}
 			$data['internal_links'] = (new \CodeCart\Core\InternalLinking($this->registry))->product((int)$product_id, $link_category_id, (int)$product_info['manufacturer_id'], 8);
 
+			$this->model_catalog_product->updateViewed($this->request->get['product_id']);
 
-			
 			$data['column_left'] = $this->load->controller('common/column_left');
 			$data['column_right'] = $this->load->controller('common/column_right');
 			$data['content_top'] = $this->load->controller('common/content_top');

@@ -116,11 +116,6 @@ $(document).ready(function() {
 		setTimeout(function() { bar.removeClass('is-active is-done'); }, 260);
 	});
 
-	//Form Submit for IE Browser
-	$('button[type=\'submit\']').on('click', function() {
-		$("form[id*='form-']").submit();
-	});
-
 	// Highlight any found errors
 	$('.text-danger').each(function() {
 		var element = $(this).parent().parent();
@@ -309,6 +304,7 @@ $(document).ready(function() {
 		return this.each(function() {
 			var $this = $(this);
 			var $dropdown = $('<ul class="dropdown-menu" />');
+			var requestId = 0;
 
 			this.timer = null;
 			this.items = [];
@@ -324,6 +320,8 @@ $(document).ready(function() {
 
 			// Blur
 			$this.on('blur', function() {
+				clearTimeout(this.timer);
+				requestId++;
 				setTimeout(function(object) {
 					object.hide();
 				}, 200, this);
@@ -333,6 +331,8 @@ $(document).ready(function() {
 			$this.on('keydown', function(event) {
 				switch(event.keyCode) {
 					case 27: // escape
+						clearTimeout(this.timer);
+						requestId++;
 						this.hide();
 						break;
 					default:
@@ -372,9 +372,15 @@ $(document).ready(function() {
 			// Request
 			this.request = function() {
 				clearTimeout(this.timer);
+				var currentRequest = ++requestId;
 
 				this.timer = setTimeout(function(object) {
-					object.source($(object).val(), $.proxy(object.response, object));
+					var value = $(object).val();
+					object.source(value, function(json) {
+						if (currentRequest === requestId && value === $(object).val()) {
+							object.response(json);
+						}
+					});
 				}, 200, this);
 			}
 

@@ -30,7 +30,7 @@
 {% if (current_route|default('')) in ['extension/module/uni_settings','extension/theme/unishop2'] %}<style id="ccp-unishop-admin-compat">#unishop .nav-pills>li>a.section-0,#unishop .nav-pills>li>a.section-1,#unishop .nav-pills>li>a.section-2{position:relative;display:block;box-sizing:border-box;width:100%;padding-right:38px!important;white-space:normal;overflow:visible}#unishop .nav-pills>li>a.section-0>i,#unishop .nav-pills>li>a.section-1>i,#unishop .nav-pills>li>a.section-2>i{position:absolute;right:12px;top:50%;margin-top:-7px}#unishop .nav-pills .new-sticker{right:34px!important;top:50%!important;margin-top:-7px!important}#unishop .uni_set{min-width:0}#unishop #module{min-width:0;overflow:hidden}</style>{% endif %}
 <script src="view/javascript/editor/opencart.js?v=3.0.6.0" type="text/javascript"></script>
 <script>window.CodeCartI18n={{ codecart_ui_i18n|json_encode|raw }};</script>
-<script src="view/javascript/common.js?v=3.0.6.0" type="text/javascript"></script>
+<script src="view/javascript/common.js?v={{ package_build }}" type="text/javascript"></script>
 <script src="view/javascript/codecart-admin-ui.js?v=3.0.6.0" type="text/javascript"></script>
 {% for asset_id, asset in modern_assets %}
 {% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}

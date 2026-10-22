@@ -1,0 +1,19 @@
+# CodeCart 3.0.6.0 — Build 2.1.2
+
+Date: 2026-10-22. Package build: 2.1.2. Core schema remains 3.0.6.0.
+
+The maintenance change is limited to three demonstrated defects. Administration uses native form association and browser validation; the legacy click handler that submitted unrelated forms is removed. Autocomplete accepts only the current source callback for the current input value and invalidates pending callbacks on blur or Escape. Its source/select/response interfaces, empty selector requests and 200 ms debounce remain available. Successful product-page rendering again calls the existing updateViewed model method once; catalog lists and AJAX lookups do not increment views.
+
+No database migration, new dependencies, modules, queues or pricing/cart changes are introduced. Existing product models, routes, language resources, OCMOD and Event interfaces are retained. PHP 8.1–8.3 and OpenCart/ocStore compatibility checks are recorded in the release acceptance evidence; arbitrary separately installed commercial extensions require their own staging checks.
+
+## Verification scope
+
+- PHP syntax validation covers 2162 first-party files on PHP 8.1.34, 8.2.33 and 8.3.33. The 40 release sub-gates were exercised on each version: 38 passed in the sandbox; the bonus HTTP and cron-boundary fixtures passed after being rerun outside its loopback-network isolation. This includes the existing language, schema, SEO, OCMOD/UniShop2, authentication, cart and content-persistence regressions.
+- Ten Chrome regression scenarios cover native form submission, required fields, cancellation, copy actions, Enter, programmatic module submits, outdated autocomplete replies, blur/Escape, refocus, empty/grouped selectors, independent fields and direct response calls. A source-level scan of 313 admin templates found no explicit submit buttons without a form association; this scan is not a rendered test of every module page.
+- An isolated local store on PHP 8.2.33 and MySQL 8.4.3 passed 14 product-view HTTP/SQL scenarios. Actual administrator login, standard product save/reopen with restoration, the manufacturer selector and the multi-form backup page were checked in Chrome. A synthetic guest order with COD reached checkout success and persisted its order and product records. No external payment was attempted.
+- The existing Bootstrap regression passed 144 assertions. Scoped PHPCS checks passed. Scoped PHPStan reports the same three pre-existing findings in the product controller as the original 2.1.1 archive, with no added findings or suppressions; repository-wide PHPStan cleanliness is not claimed.
+- Independent review found no remaining blocking or actionable issue in the scoped production diff after the browser-cache finding was resolved. Exact artifact hashes and packaging/final-check results belong to the companion acceptance record.
+
+These results do not establish compatibility with every separately installed commercial extension, a production upgrade/restore, external payment APIs, mail delivery or production load. Check those integrations on the store's staging copy. Do not infer full production acceptance from the archive name.
+
+Before installation or update, create and verify a complete website and database backup. Preserve deployment configuration, merchant files and persistent storage. Apply the normal upgrade procedure, refresh Modifications and theme/Twig/asset caches, then check product pages, popular products, administrator saves and the store's installed extensions. The standard admin header versions common.js by package build so browsers request the corrected file. After updating custom admin headers or proxy/CDN caches, explicitly hard-reload the admin page or clear its browser cache and verify the common.js build query. Inspect custom modifications that independently add a product-view increment to prevent double counting. Do not import clean-install SQL into an existing shop.

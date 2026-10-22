@@ -1,3 +1,10 @@
+# CodeCart 3.0.6.0 — Build 2.1.2 (2026-10-22)
+
+- Use native administration form submission instead of submitting every form from a legacy IE click handler.
+- Ignore outdated autocomplete callbacks after newer requests, input changes, blur or Escape, preserving empty selectors and the public callback API.
+- Restore the existing product-view increment in the successful product page controller, leaving list and AJAX consumers unchanged.
+- Retain schema 3.0.6.0 and existing extension interfaces. Verification scope is recorded in documentation/RELEASE_2.1.2.md; deployment-specific acceptance remains separate.
+
 # CodeCart 3.0.6.0 — Build 2.1.1 (2026-10-21)
 
 - Align the package build reported by storefront, administration, installer, CLI and cron entry points.
