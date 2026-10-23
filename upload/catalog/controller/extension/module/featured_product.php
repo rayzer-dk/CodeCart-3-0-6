@@ -111,8 +111,8 @@ class ControllerExtensionModuleFeaturedProduct extends Controller {
         foreach ($results as $product) {
             if (!$product || empty($product['product_id'])) { continue; }
             $image = !empty($product['image'])
-                ? $this->model_tool_image->resize($product['image'], $width, $height)
-                : $this->model_tool_image->resize('no_image.webp', $width, $height);
+                ? ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($product['image'], $width, $height) : $this->model_tool_image->resize($product['image'], $width, $height))
+                : ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage('no_image.webp', $width, $height) : $this->model_tool_image->resize('no_image.webp', $width, $height));
 
             $price = false;
             if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
@@ -127,6 +127,7 @@ class ControllerExtensionModuleFeaturedProduct extends Controller {
             if ($descriptionLength < 1) { $descriptionLength = 100; }
 
             $data['products'][] = array(
+                    'image_size' => $this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize(!empty($product['image']) ? $product['image'] : 'no_image.webp', $width, $height) : array(),
                 'product_id' => (int)$product['product_id'],
                 'attributes' => isset($card_attributes[(int)$product['product_id']]) ? $card_attributes[(int)$product['product_id']] : array(),
                 'can_buy' => (int)$product['quantity'] > 0,
@@ -148,7 +149,7 @@ class ControllerExtensionModuleFeaturedProduct extends Controller {
         }
 
         $this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-9');
-        $this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-7', 'footer');
+        $this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-8', 'footer');
 
         return $this->load->view('extension/module/featured_product', $data);
     }

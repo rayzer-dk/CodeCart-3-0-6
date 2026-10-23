@@ -379,8 +379,8 @@ class ControllerProductProduct extends Controller {
 					$gallery_image = 'no_image.webp';
 				}
 
-				$data['popup'] = $this->model_tool_image->display($gallery_image, $popup_width, $popup_height);
-				$popup_size = $this->model_tool_image->getDisplaySize($gallery_image, $popup_width, $popup_height);
+				$data['popup'] = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($gallery_image, $popup_width, $popup_height, 'gallery') : $this->model_tool_image->display($gallery_image, $popup_width, $popup_height));
+				$popup_size = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize($gallery_image, $popup_width, $popup_height, 'gallery') : $this->model_tool_image->getDisplaySize($gallery_image, $popup_width, $popup_height));
 				$data['image_popup_width'] = (int)$popup_size['width'];
 				$data['image_popup_height'] = (int)$popup_size['height'];
 
@@ -388,15 +388,15 @@ class ControllerProductProduct extends Controller {
 				$data['image_display_height'] = max(1, (int)$data['image_thumb_height']);
 				$display_width = max(1400, (int)$this->config->get('theme_' . $this->config->get('config_theme') . '_image_thumb_width'));
 				$display_height = max(1050, (int)$this->config->get('theme_' . $this->config->get('config_theme') . '_image_thumb_height'));
-				$data['thumb'] = $this->model_tool_image->display($gallery_image, $display_width, $display_height);
+				$data['thumb'] = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($gallery_image, $display_width, $display_height, 'gallery') : $this->model_tool_image->display($gallery_image, $display_width, $display_height));
 				if (empty($data['thumb'])) {
 					$gallery_image = 'no_image.webp';
-					$data['popup'] = $this->model_tool_image->display($gallery_image, $popup_width, $popup_height);
-					$data['thumb'] = $this->model_tool_image->display($gallery_image, $display_width, $display_height);
+					$data['popup'] = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($gallery_image, $popup_width, $popup_height, 'gallery') : $this->model_tool_image->display($gallery_image, $popup_width, $popup_height));
+					$data['thumb'] = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($gallery_image, $display_width, $display_height, 'gallery') : $this->model_tool_image->display($gallery_image, $display_width, $display_height));
 				}
 				$resolved_gallery_source = $this->model_tool_image->resolveFilename((string)$product_info['image']);
 				$data['image_is_fallback'] = empty($product_info['image']) || $resolved_gallery_source === '' || !is_file(DIR_IMAGE . $resolved_gallery_source);
-				$display_size = $this->model_tool_image->getDisplaySize($gallery_image, $display_width, $display_height);
+				$display_size = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize($gallery_image, $display_width, $display_height, 'gallery') : $this->model_tool_image->getDisplaySize($gallery_image, $display_width, $display_height));
 				$data['image_display_width'] = (int)$display_size['width'];
 				$data['image_display_height'] = (int)$display_size['height'];
 
@@ -413,14 +413,15 @@ class ControllerProductProduct extends Controller {
 			$additional_popup_height = $popup_height;
 
 			foreach ($results as $result) {
-				$popup_size = $this->model_tool_image->getDisplaySize($result['image'], $additional_popup_width, $additional_popup_height);
+				$popup_size = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize($result['image'], $additional_popup_width, $additional_popup_height, 'gallery') : $this->model_tool_image->getDisplaySize($result['image'], $additional_popup_width, $additional_popup_height));
 				$image_popup_width = (int)$popup_size['width'];
 				$image_popup_height = (int)$popup_size['height'];
 
 				$data['images'][] = array(
-					'popup' => $this->model_tool_image->display($result['image'], $additional_popup_width, $additional_popup_height),
-					'main' => $this->model_tool_image->display($result['image'], $display_width, $display_height),
-					'thumb' => $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_additional_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_additional_height')),
+					'thumb_size' => $this->model_tool_image->getProductImageSize($result['image'], $data['image_additional_width'], $data['image_additional_height'], 'thumbnail'),
+                    'popup' => ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($result['image'], $additional_popup_width, $additional_popup_height, 'gallery') : $this->model_tool_image->display($result['image'], $additional_popup_width, $additional_popup_height)),
+					'main' => ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($result['image'], $display_width, $display_height, 'gallery') : $this->model_tool_image->display($result['image'], $display_width, $display_height)),
+					'thumb' => ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_additional_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_additional_height'), 'thumbnail') : $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_additional_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_additional_height'))),
 					'width' => $image_popup_width,
 					'height' => $image_popup_height
 				);
@@ -486,9 +487,9 @@ class ControllerProductProduct extends Controller {
 							$resolved_option_image = $this->model_tool_image->resolveFilename($option_image);
 							if ($resolved_option_image !== '' && is_file(DIR_IMAGE . $resolved_option_image)) {
 								$option_image = $resolved_option_image;
-								$option_image_main = $this->model_tool_image->display($option_image, $display_width, $display_height);
-								$option_image_popup = $this->model_tool_image->display($option_image, $popup_width, $popup_height);
-								$option_popup_size = $this->model_tool_image->getDisplaySize($option_image, $popup_width, $popup_height);
+								$option_image_main = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($option_image, $display_width, $display_height, 'gallery') : $this->model_tool_image->display($option_image, $display_width, $display_height));
+								$option_image_popup = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($option_image, $popup_width, $popup_height, 'gallery') : $this->model_tool_image->display($option_image, $popup_width, $popup_height));
+								$option_popup_size = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize($option_image, $popup_width, $popup_height, 'gallery') : $this->model_tool_image->getDisplaySize($option_image, $popup_width, $popup_height));
 								$option_image_popup_width = (int)$option_popup_size['width'];
 								$option_image_popup_height = (int)$option_popup_size['height'];
 							}
@@ -498,7 +499,7 @@ class ControllerProductProduct extends Controller {
 							'product_option_value_id' => $option_value['product_option_value_id'],
 							'option_value_id'         => $option_value['option_value_id'],
 							'name'                    => $option_value['name'],
-							'image'                   => $option_image !== '' ? $this->model_tool_image->resize($option_image, $uniOptionImageSize[0], $uniOptionImageSize[1]) : '',
+							'image'                   => $option_image !== '' ? ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($option_image, $uniOptionImageSize[0], $uniOptionImageSize[1], 'thumbnail') : $this->model_tool_image->resize($option_image, $uniOptionImageSize[0], $uniOptionImageSize[1])) : '',
 							'image_main'              => $option_image_main,
 							'image_popup'             => $option_image_popup,
 							'image_popup_width'       => $option_image_popup_width,
@@ -609,9 +610,9 @@ class ControllerProductProduct extends Controller {
 
 			foreach ($results as $result) {
 				if ($result['image']) {
-					$image = $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_height'));
+					$image = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_height')) : $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_height')));
 				} else {
-					$image = $this->model_tool_image->resize('no_image.webp', $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_height'));
+					$image = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage('no_image.webp', $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_height')) : $this->model_tool_image->resize('no_image.webp', $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_height')));
 				}
 
 				if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
@@ -637,6 +638,7 @@ class ControllerProductProduct extends Controller {
 				}
 
 				$data['products'][] = array(
+                    'image_size' => $this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize(!empty($result['image']) ? $result['image'] : 'no_image.webp', $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_related_height')) : array(),
 					'product_id'  => $result['product_id'],
 					'attributes'  => isset($related_card_attributes[(int)$result['product_id']]) ? $related_card_attributes[(int)$result['product_id']] : array(),
 					'can_buy'     => (int)$result['quantity'] > 0,
@@ -657,7 +659,7 @@ class ControllerProductProduct extends Controller {
 
 			if ($data['products']) {
 				$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-9', 'stylesheet', 'screen', 'footer');
-				$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-7', 'footer');
+				$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-8', 'footer');
 			}
 			$data['text_previous_images'] = $this->language->get('text_previous_images');
 			$data['text_next_images'] = $this->language->get('text_next_images');

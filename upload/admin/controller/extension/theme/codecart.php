@@ -16,6 +16,10 @@ class ControllerExtensionThemeCodecart extends Controller {
 		$this->load->model('setting/setting');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+			foreach ($this->imageOptionFields() as $key => $field) {
+				$value = $this->request->post[$key] ?? $field['default'];
+				$this->request->post[$key] = is_scalar($value) && in_array((string)$value, $field['allowed'], true) ? (string)$value : $field['default'];
+			}
 			// CodeCart Theme always renders from its own directory; legacy default stays a filesystem fallback only.
 			$this->request->post['theme_codecart_directory'] = 'codecart';
 			$allowed_fonts = array('system', 'inter', 'arial', 'verdana', 'tahoma', 'trebuchet', 'georgia');
@@ -672,12 +676,39 @@ class ControllerExtensionThemeCodecart extends Controller {
 		}
 		
 		$data['header'] = $this->load->controller('common/header');
+		$data['image_contexts'] = array('common', 'catalog', 'gallery', 'thumbnail');
+		$data['image_option_labels'] = array(
+			'fit' => array('contain' => 'text_image_contain', 'cover' => 'text_image_cover'),
+			'background' => array('white' => 'text_image_white', 'theme' => 'text_image_theme', 'dark' => 'text_image_dark'),
+			'upscale' => array('1' => 'text_image_no_upscale', '2' => 'text_image_upscale_2', '3' => 'text_image_upscale_3', '0' => 'text_image_unlimited')
+		);
+		foreach (array('text_product_images', 'text_image_common', 'text_image_catalog', 'text_image_gallery', 'text_image_thumbnail', 'text_image_inherit', 'text_image_preview', 'help_product_images', 'help_image_fit', 'help_image_background', 'help_image_upscale', 'entry_image_fit', 'entry_image_background', 'entry_image_upscale') as $key) {
+			$data[$key] = $this->language->get($key);
+		}
+		foreach ($data['image_option_labels'] as $labels) {
+			foreach ($labels as $key) { $data[$key] = $this->language->get($key); }
+		}
+		foreach ($this->imageOptionFields() as $key => $field) {
+			$value = $this->request->post[$key] ?? ($setting_info[$key] ?? $field['default']);
+			$data[$key] = is_scalar($value) && in_array((string)$value, $field['allowed'], true) ? (string)$value : $field['default'];
+		}
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
 		$this->response->setOutput($this->load->view('extension/theme/codecart', $data));
 	}
 
+
+	private function imageOptionFields() {
+		$fields = array();
+		foreach (array('common', 'catalog', 'gallery', 'thumbnail') as $context) {
+			foreach (array('fit' => array('contain', 'cover'), 'background' => array('white', 'theme', 'dark'), 'upscale' => array('3', '1', '2', '0')) as $name => $allowed) {
+				$prefix = 'theme_codecart_image_' . ($context === 'common' ? '' : $context . '_');
+				$fields[$prefix . $name] = array('default' => $context === 'common' ? $allowed[0] : 'inherit', 'allowed' => $context === 'common' ? $allowed : array_merge(array('inherit'), $allowed));
+			}
+		}
+		return $fields;
+	}
 
 	public function catalogAjaxCheck() {
 		$this->load->language('extension/theme/codecart');

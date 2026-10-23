@@ -1066,6 +1066,75 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		$this->getList();
 	}
 
+	public function bulkEnable() {
+		$this->setSelectedStatus(true);
+	}
+
+	public function bulkDisable() {
+		$this->setSelectedStatus(false);
+	}
+
+	private function setSelectedStatus($enabled) {
+		$this->load->language('marketplace/modification');
+		$this->document->setTitle($this->language->get('heading_title'));
+		$this->load->model('setting/modification');
+
+		$token = isset($this->request->get['user_token']) ? $this->request->get['user_token'] : null;
+		if (!is_string($token) || !isset($this->session->data['user_token']) || !hash_equals($this->session->data['user_token'], $token) || !$this->user->hasPermission('access', 'marketplace/modification') || !$this->validate()) {
+			$this->response->addHeader('HTTP/1.1 403 Forbidden');
+			$this->error['warning'] = $this->language->get('error_permission');
+		} elseif ($this->request->server['REQUEST_METHOD'] !== 'POST') {
+			$this->response->addHeader('HTTP/1.1 405 Method Not Allowed');
+			$this->response->addHeader('Allow: POST');
+			$this->error['warning'] = $this->language->get('error_bulk_method');
+		} else {
+			$selected = isset($this->request->post['selected']) ? $this->request->post['selected'] : array();
+			if (!is_array($selected) || !$selected) {
+				$this->error['warning'] = $this->language->get('error_bulk_selected');
+			} else {
+				$modification_ids = array();
+				foreach ($selected as $modification_id) {
+					if ((!is_string($modification_id) && !is_int($modification_id)) || filter_var($modification_id, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1, 'max_range' => 2147483647))) === false) {
+						$this->error['warning'] = $this->language->get('error_bulk_selected');
+						break;
+					}
+				}
+
+				// Validate the entire selection before changing any modification.
+				if (!$this->error) {
+					$modification_ids = array_unique(array_map('intval', $selected));
+					foreach ($modification_ids as $modification_id) {
+						if (!$this->model_setting_modification->getModification($modification_id)) {
+							$this->error['warning'] = $this->language->get('error_bulk_selected');
+							break;
+						}
+					}
+				}
+
+				if (!$this->error) {
+					foreach ($modification_ids as $modification_id) {
+						if ($enabled) {
+							$this->model_setting_modification->enableModification($modification_id);
+						} else {
+							$this->model_setting_modification->disableModification($modification_id);
+						}
+					}
+					$this->session->data['success'] = sprintf($this->language->get($enabled ? 'text_bulk_enabled' : 'text_bulk_disabled'), count($modification_ids));
+					$query = array('user_token' => $this->session->data['user_token']);
+					foreach (array('sort', 'order', 'page', 'compatibility_filter') as $key) {
+						if (isset($this->request->get[$key]) && is_scalar($this->request->get[$key])) {
+							$query[$key] = $this->request->get[$key];
+						}
+					}
+					$this->response->redirect($this->url->link('marketplace/modification', http_build_query($query), true));
+					return;
+				}
+			}
+		}
+
+		$this->getList();
+	}
+
 	public function enable() {
 		$this->load->language('marketplace/modification');
 
@@ -1258,6 +1327,8 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		$data['refresh'] = $this->url->link('marketplace/modification/refresh', 'user_token=' . $this->session->data['user_token'] . $url, true);
 		$data['clear'] = $this->url->link('marketplace/modification/clear', 'user_token=' . $this->session->data['user_token'] . $url, true);
 		$data['delete'] = $this->url->link('marketplace/modification/delete', 'user_token=' . $this->session->data['user_token'] . $url, true);
+		$data['bulk_enable'] = $this->url->link('marketplace/modification/bulkEnable', 'user_token=' . $this->session->data['user_token'] . $url, true);
+		$data['bulk_disable'] = $this->url->link('marketplace/modification/bulkDisable', 'user_token=' . $this->session->data['user_token'] . $url, true);
 		$data['details_url'] = str_replace('&amp;', '&', $this->url->link('marketplace/modification/details', 'user_token=' . $this->session->data['user_token'], true));
 
 		$data['modifications'] = array();

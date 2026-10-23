@@ -438,6 +438,33 @@
 
           <fieldset>
             <legend>{{ text_image }}</legend>
+            <div class="ccp-image-settings">
+              <h4>{{ text_product_images }}</h4>
+              <p class="help-block">{{ help_product_images }}</p>
+              {% for context in image_contexts %}
+              {% set prefix = 'theme_codecart_image_' ~ (context == 'common' ? '' : context ~ '_') %}
+              {% if context != 'common' %}<details><summary>{{ attribute(_context, 'text_image_' ~ context) }}</summary>{% else %}<h5>{{ text_image_common }}</h5>{% endif %}
+              <div class="row">
+                {% for option, labels in image_option_labels %}
+                <div class="col-sm-4 form-group" style="margin:0 0 12px">
+                  <label for="image-{{ context }}-{{ option }}">{{ attribute(_context, 'entry_image_' ~ option) }}</label>
+                  <select class="form-control" id="image-{{ context }}-{{ option }}" name="{{ prefix ~ option }}" data-image-context="{{ context }}" data-image-option="{{ option }}">
+                    {% if context != 'common' %}<option value="inherit"{% if attribute(_context, prefix ~ option) == 'inherit' %} selected{% endif %}>{{ text_image_inherit }}</option>{% endif %}
+                    {% for value, label in labels %}<option value="{{ value }}"{% if attribute(_context, prefix ~ option) == value %} selected{% endif %}>{{ attribute(_context, label) }}</option>{% endfor %}
+                  </select>
+                  <small class="help-block">{{ attribute(_context, 'help_image_' ~ option) }}</small>
+                </div>
+                {% endfor %}
+              </div>
+              {% if context != 'common' %}</details>{% endif %}
+              {% endfor %}
+              <p class="help-block">{{ text_image_preview }}</p>
+              <div class="ccp-image-preview" aria-hidden="true">
+                {% for context in ['catalog', 'gallery', 'thumbnail'] %}
+                <div><strong>{{ attribute(_context, 'text_image_' ~ context) }}</strong><div class="ccp-image-preview-box" data-image-preview="{{ context }}"><svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="180" fill="#1565a9"/><circle cx="150" cy="90" r="60" fill="#eebd36"/><path d="M0 160L80 80L180 180H0Z" fill="#0a374f"/></svg></div></div>
+                {% endfor %}
+              </div>
+            </div>
             <div class="form-group required">
               <label class="col-sm-2 control-label" for="input-image-category-width">{{ entry_image_category }}</label>
               <div class="col-sm-10">
@@ -766,5 +793,35 @@ $('#button-catalog-ajax-check').on('click', function() {
     if (el.scrollIntoView) { el.scrollIntoView({behavior:'smooth', block:'center'}); }
   }, 120);
 })(jQuery);
+</script>
+<style>
+.ccp-theme-admin .ccp-image-settings{padding:12px 16px;margin-bottom:18px;background:#f7f9fc;border:1px solid #dce4ee;border-radius:6px}
+.ccp-theme-admin .ccp-image-settings details{border-top:1px solid #dce4ee;padding:9px 0}
+html.ccp-admin-dark .ccp-theme-admin .ccp-image-settings{background:#18222d;border-color:#364554;color:#dbe5ef}
+html.ccp-admin-dark .ccp-theme-admin .ccp-image-settings details{border-color:#364554}
+.ccp-theme-admin .ccp-image-settings summary{cursor:pointer;font-weight:600;margin-bottom:8px}
+.ccp-theme-admin .ccp-image-settings .form-group{padding:0 12px}
+.ccp-theme-admin .ccp-image-preview{display:flex;gap:16px;flex-wrap:wrap}
+.ccp-theme-admin .ccp-image-preview-box{display:flex;align-items:center;justify-content:center;width:140px;height:140px;margin-top:5px;overflow:hidden;border:1px solid #c5d0dc;background:#fff}
+.ccp-theme-admin .ccp-image-preview-box svg{display:block;width:100%;height:100%;flex:none}
+</style>
+<script>
+(function(){
+  var root=document.querySelector('.ccp-theme-admin .ccp-image-settings');
+  function value(context,option){
+    var result=root.querySelector('[data-image-context="'+context+'"][data-image-option="'+option+'"]').value;
+    return result==='inherit'?value('common',option):result;
+  }
+  function preview(){
+    root.querySelectorAll('[data-image-preview]').forEach(function(box){
+      var context=box.getAttribute('data-image-preview'), fit=value(context,'fit'), limit=Number(value(context,'upscale'));
+      box.style.background={white:'#fff',theme:'#e8edf3',dark:'#171e27'}[value(context,'background')];
+      var svg=box.querySelector('svg'), scale=Math.min(fit==='cover'?140/36:140/60,limit||Infinity);
+      svg.setAttribute('viewBox',fit==='cover'?'60 0 180 180':'0 0 300 180');
+      svg.style.width=((fit==='cover'?36:60)*scale)+'px';svg.style.height=(36*scale)+'px';
+    });
+  }
+  root.addEventListener('change',preview);preview();
+})();
 </script>
 {{ footer }}

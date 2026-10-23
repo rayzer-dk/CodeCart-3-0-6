@@ -24,10 +24,14 @@ class ModelToolImage extends Model {
         // Keep small originals at their native size while preserving the cache
         // integration point used by storefront format adapters.
         if ($source_width <= $width && $source_height <= $height) {
-            return $this->resize($filename, max(1, $source_width), max(1, $source_height));
+            return $this->config->get('config_theme') === 'codecart'
+                ? $this->resizeContain($filename, max(1, $source_width), max(1, $source_height))
+                : $this->resize($filename, max(1, $source_width), max(1, $source_height));
         }
 
-        return $this->resize($filename, $width, $height);
+        return $this->config->get('config_theme') === 'codecart'
+            ? $this->resizeContain($filename, $width, $height)
+            : $this->resize($filename, $width, $height);
     }
 
 
@@ -48,9 +52,15 @@ class ModelToolImage extends Model {
             return array('width' => $source_width, 'height' => $source_height, 'filename' => $filename);
         }
 
-        // Image::resize() creates an exact target canvas while preserving the
-        // source inside it, so these are the intrinsic dimensions of the URL returned by display().
-        return array('width' => $width, 'height' => $height, 'filename' => $filename);
+        $scale = min($width / $source_width, $height / $source_height);
+        if ($this->config->get('config_theme') !== 'codecart') {
+            return array('width' => $width, 'height' => $height, 'filename' => $filename);
+        }
+        return array(
+            'width' => max(1, min($width, (int)round($source_width * $scale))),
+            'height' => max(1, min($height, (int)round($source_height * $scale))),
+            'filename' => $filename
+        );
     }
 
     public function resolveFilename($filename) {
@@ -112,6 +122,65 @@ class ModelToolImage extends Model {
     }
 
     public function resize($filename, $width, $height) {
+        return $this->resizeImage($filename, $width, $height, '');
+    }
+
+    public function resizeContain($filename, $width, $height) {
+        return $this->resizeImage($filename, $width, $height, 'contain');
+    }
+
+    public function resizeCover($filename, $width, $height) {
+        return $this->resizeImage($filename, $width, $height, 'cover');
+    }
+
+    public function getProductImageOptions($context = 'catalog') {
+        $context = in_array($context, array('catalog', 'gallery', 'thumbnail'), true) ? $context : 'catalog';
+        $options = array();
+        foreach (array('fit' => array('contain', 'cover'), 'background' => array('white', 'theme', 'dark'), 'upscale' => array('3', '1', '2', '0')) as $name => $allowed) {
+            $common = (string)$this->config->get('theme_codecart_image_' . $name);
+            $value = (string)$this->config->get('theme_codecart_image_' . $context . '_' . $name);
+            $options[$name] = in_array($value, $allowed, true) ? $value : (in_array($common, $allowed, true) ? $common : $allowed[0]);
+        }
+        return $options;
+    }
+
+    public function productImage($filename, $width, $height, $context = 'catalog') {
+        if ($this->config->get('config_theme') !== 'codecart') {
+            return $context === 'gallery' ? $this->display($filename, $width, $height) : $this->resize($filename, $width, $height);
+        }
+        $options = $this->getProductImageOptions($context);
+        return $this->resizeImage($filename, $width, $height, $options['fit'], (float)$options['upscale']);
+    }
+
+    public function getProductImageSize($filename, $width, $height, $context = 'catalog') {
+        if ($this->config->get('config_theme') !== 'codecart' && $context === 'gallery') {
+            return $this->getDisplaySize($filename, $width, $height);
+        }
+        $filename = $this->resolveWithFallback((string)$filename);
+        $width = max(1, (int)$width);
+        $height = max(1, (int)$height);
+        $size = array('width' => $width, 'height' => $height, 'filename' => $filename);
+        if ($this->config->get('config_theme') !== 'codecart' || !$this->isSafeImageFile($filename)) {
+            return $size;
+        }
+        $info = Image::getInfo(DIR_IMAGE . $filename);
+        if (!$info || !$info[0] || !$info[1]) {
+            return $size;
+        }
+        $options = $this->getProductImageOptions($context);
+        $scale = $options['fit'] === 'cover' ? max($width / $info[0], $height / $info[1]) : min($width / $info[0], $height / $info[1]);
+        $limited_scale = (float)$options['upscale'] > 0 ? min($scale, (float)$options['upscale']) : $scale;
+        if ($options['fit'] === 'cover') {
+            $size['width'] = max(1, (int)round($width * $limited_scale / $scale));
+            $size['height'] = max(1, (int)round($height * $limited_scale / $scale));
+        } else {
+            $size['width'] = max(1, min($width, (int)round($info[0] * $limited_scale)));
+            $size['height'] = max(1, min($height, (int)round($info[1] * $limited_scale)));
+        }
+        return $size;
+    }
+
+    private function resizeImage($filename, $width, $height, $mode, $max_scale = 0) {
         $filename = $this->resolveWithFallback((string)$filename);
         $source = DIR_IMAGE . $filename;
 
@@ -166,13 +235,20 @@ class ModelToolImage extends Model {
         }
 
         $stem = utf8_substr($image_old, 0, utf8_strrpos($image_old, '.'));
+        $mode_suffix = '';
+        if ($mode !== '') {
+            $mode_suffix = '-' . $mode;
+            if ($max_scale > 0) {
+                $mode_suffix .= '-u' . (int)$max_scale;
+            }
+        }
         if ($output_format !== '') {
             // Include format and quality in the cache name so settings changes never reuse stale derivatives.
             $source_version = dechex((int)@filemtime($source)) . '-' . dechex((int)@filesize($source));
-            $image_new = 'cache/' . $stem . '-' . $width . 'x' . $height . '-v' . $source_version . '-q' . $quality . '.' . $output_format;
+            $image_new = 'cache/' . $stem . '-' . $width . 'x' . $height . '-v' . $source_version . $mode_suffix . '-q' . $quality . '.' . $output_format;
         } else {
             $source_version = dechex((int)@filemtime($source)) . '-' . dechex((int)@filesize($source));
-            $image_new = 'cache/' . $stem . '-' . $width . 'x' . $height . '-v' . $source_version . '.' . $extension;
+            $image_new = 'cache/' . $stem . '-' . $width . 'x' . $height . '-v' . $source_version . $mode_suffix . '.' . $extension;
         }
 
         $target = DIR_IMAGE . $image_new;
@@ -190,31 +266,31 @@ class ModelToolImage extends Model {
                 try {
                     $image = new Image($source);
                     if ($width_orig !== $width || $height_orig !== $height) {
-                        $image->resize($width, $height);
+                        $this->transform($image, $width, $height, $mode, $max_scale);
                     }
                     $image->save($tmp, $quality);
                     if (!is_file($tmp) || filesize($tmp) < 1) {
                         @unlink($tmp);
-                        return $this->fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig);
+                        return $this->fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig, $mode, $max_scale);
                     }
                     if (is_file($target)) {
                         @unlink($target);
                     }
                     if (!@rename($tmp, $target)) {
                         @unlink($tmp);
-                        return $this->fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig);
+                        return $this->fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig, $mode, $max_scale);
                     }
                     @chmod($target, 0644);
                 } catch (\Throwable $e) {
                     if (is_file($tmp)) {
                         @unlink($tmp);
                     }
-                    return $this->fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig);
+                    return $this->fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig, $mode, $max_scale);
                 }
             } else {
                 if ($width_orig !== $width || $height_orig !== $height) {
                     $image = new Image($source);
-                    $image->resize($width, $height);
+                    $this->transform($image, $width, $height, $mode, $max_scale);
                     $image->save($target);
                 } else {
                     if (!@copy($source, $target)) {
@@ -256,11 +332,28 @@ class ModelToolImage extends Model {
         return @mkdir($directory, 0755, true) || is_dir($directory);
     }
 
-    private function fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig) {
+    private function transform($image, $width, $height, $mode, $max_scale) {
+        if ($mode === 'contain') {
+            $image->resizeContain($width, $height, (float)$max_scale);
+        } elseif ($mode === 'cover') {
+            $image->resizeCover($width, $height, (float)$max_scale);
+        } else {
+            $image->resize($width, $height);
+        }
+    }
+
+    private function fallbackResize($image_old, $extension, $width, $height, $width_orig, $height_orig, $mode, $max_scale) {
         $source = DIR_IMAGE . $image_old;
         $stem = utf8_substr($image_old, 0, utf8_strrpos($image_old, '.'));
+        $mode_suffix = '';
+        if ($mode !== '') {
+            $mode_suffix = '-' . $mode;
+            if ($max_scale > 0) {
+                $mode_suffix .= '-u' . (int)$max_scale;
+            }
+        }
         $source_version = dechex((int)@filemtime($source)) . '-' . dechex((int)@filesize($source));
-        $image_new = 'cache/' . $stem . '-' . (int)$width . 'x' . (int)$height . '-v' . $source_version . '.' . $extension;
+        $image_new = 'cache/' . $stem . '-' . (int)$width . 'x' . (int)$height . '-v' . $source_version . $mode_suffix . '.' . $extension;
         $target = DIR_IMAGE . $image_new;
 
         if (!$this->ensureDirectory(dirname($target))) {
@@ -269,7 +362,7 @@ class ModelToolImage extends Model {
         if (!is_file($target) || filemtime($source) > filemtime($target)) {
             if ((int)$width_orig !== (int)$width || (int)$height_orig !== (int)$height) {
                 $image = new Image($source);
-                $image->resize((int)$width, (int)$height);
+                $this->transform($image, (int)$width, (int)$height, $mode, $max_scale);
                 $image->save($target);
             } elseif (!@copy($source, $target)) {
                 return $this->sourceUrl($image_old);

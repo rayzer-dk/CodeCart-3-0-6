@@ -16,7 +16,9 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
 
   <div class="page-header">
     <div class="container-fluid">
-      <div class="pull-right"><a href="{{ refresh }}" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-info"><i class="fa fa-refresh"></i></a> <a href="{{ clear }}" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-warning"><i class="fa fa-eraser"></i></a>
+      <div class="pull-right"><button type="submit" form="form-modification" formaction="{{ bulk_enable }}" id="button-bulk-enable" data-bulk-confirm="{{ text_bulk_enable_confirm }}" data-toggle="tooltip" title="{{ button_bulk_enable }}" class="btn btn-success" disabled="disabled"><i class="fa fa-toggle-on"></i></button>
+        <button type="submit" form="form-modification" formaction="{{ bulk_disable }}" id="button-bulk-disable" data-bulk-confirm="{{ text_bulk_disable_confirm }}" data-toggle="tooltip" title="{{ button_bulk_disable }}" class="btn btn-danger" disabled="disabled"><i class="fa fa-toggle-off"></i></button>
+        <a href="{{ refresh }}" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-info"><i class="fa fa-refresh"></i></a> <a href="{{ clear }}" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-warning"><i class="fa fa-eraser"></i></a>
         <button type="button" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-modification').submit() : false;"><i class="fa fa-trash-o"></i></button>
       </div>
       <h1>{{ heading_title }}</h1>
@@ -185,6 +187,17 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
 <script type="text/javascript"><!--
   var step = new Array();
   var total = 0;
+
+  function updateBulkButtons() {
+    $('#button-bulk-enable, #button-bulk-disable').prop('disabled', !$('#form-modification input[name="selected[]"]:checked').length);
+  }
+  $('#form-modification input[type="checkbox"]').on('change', updateBulkButtons);
+  $('#button-bulk-enable, #button-bulk-disable').on('click', function(event) {
+    if (!$('#form-modification input[name="selected[]"]:checked').length || !confirm($(this).attr('data-bulk-confirm'))) {
+      event.preventDefault();
+    }
+  });
+  updateBulkButtons();
 
   function ccpCopyText(text, button) { var done=function(){if(button){$(button).addClass('btn-success').removeClass('btn-default');setTimeout(function(){$(button).removeClass('btn-success').addClass('btn-default');},1200);}}; text=String(text||''); if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done);return;} var a=document.createElement('textarea');a.value=text;a.style.position='fixed';a.style.left='-9999px';document.body.appendChild(a);a.focus();a.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(a); }
   $('#cc-copy-ocmod-log').on('click',function(){ccpCopyText(document.getElementById('cc-ocmod-log')?document.getElementById('cc-ocmod-log').textContent:'',this);});

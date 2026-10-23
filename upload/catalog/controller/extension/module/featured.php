@@ -83,7 +83,7 @@ class ControllerExtensionModuleFeatured extends Controller {
 			$description_length = max(20, min(1000, (int)$this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')));
 
 			foreach ($results as $product_info) {
-				$image = $product_info['image'] ? $this->model_tool_image->resize($product_info['image'], $width, $height) : $this->model_tool_image->resize('no_image.webp', $width, $height);
+				$image = $product_info['image'] ? ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($product_info['image'], $width, $height) : $this->model_tool_image->resize($product_info['image'], $width, $height)) : ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage('no_image.webp', $width, $height) : $this->model_tool_image->resize('no_image.webp', $width, $height));
 				$price = ($this->customer->isLogged() || !$this->config->get('config_customer_price')) ? \CodeCart\Core\TaxDisplay::primary($this->registry, $product_info['price'], (int)$product_info['tax_class_id'], isset($product_info['tax_display_mode']) ? $product_info['tax_display_mode'] : 'inherit') : false;
 				if (!is_null($product_info['special']) && (float)$product_info['special'] >= 0) {
 					$special = \CodeCart\Core\TaxDisplay::primary($this->registry, $product_info['special'], (int)$product_info['tax_class_id'], isset($product_info['tax_display_mode']) ? $product_info['tax_display_mode'] : 'inherit');
@@ -96,6 +96,7 @@ class ControllerExtensionModuleFeatured extends Controller {
 				$rating = $this->config->get('config_review_status') ? $product_info['rating'] : false;
 
 				$data['products'][] = array(
+                    'image_size' => $this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize(!empty($product_info['image']) ? $product_info['image'] : 'no_image.webp', $width, $height) : array(),
 					'product_id' => (int)$product_info['product_id'],
 					'attributes' => isset($card_attributes[(int)$product_info['product_id']]) ? $card_attributes[(int)$product_info['product_id']] : array(),
 					'can_buy' => (int)$product_info['quantity'] > 0,
@@ -115,7 +116,7 @@ class ControllerExtensionModuleFeatured extends Controller {
 
 		if ($data['products']) {
 			$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-9');
-		$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-7', 'footer');
+		$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-8', 'footer');
 		return $this->load->view('extension/module/featured', $data);
 		}
 	}

@@ -56,9 +56,10 @@ class ControllerStartupStartup extends Controller {
 			}
 		}
 
-		// Storefront image URLs may vary between original format and WebP based on Accept.
+		// Storefront image URLs may vary between original format and WebP/AVIF based on Accept.
 		// Tell HTTP/proxy caches about that negotiation; CLI/cron never enters this path.
-		if ((int)$this->config->get('config_image_webp') && function_exists('imagewebp')) {
+		if (((int)$this->config->get('config_image_webp') && function_exists('imagewebp'))
+			|| ((int)$this->config->get('config_image_avif') && function_exists('imageavif') && function_exists('imagecreatefromavif'))) {
 			$this->response->addHeader('Vary: Accept');
 		}
 

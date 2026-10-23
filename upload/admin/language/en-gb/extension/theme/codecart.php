@@ -1,4 +1,27 @@
 <?php
+$_['text_product_images'] = 'Product photo display';
+$_['text_image_common'] = 'Common defaults';
+$_['text_image_catalog'] = 'Catalog cards';
+$_['text_image_gallery'] = 'Product gallery';
+$_['text_image_thumbnail'] = 'Thumbnails';
+$_['text_image_inherit'] = 'Use common default';
+$_['entry_image_fit'] = 'Scaling';
+$_['entry_image_background'] = 'Image area background';
+$_['entry_image_upscale'] = 'Maximum enlargement';
+$_['text_image_contain'] = 'Contain: whole image';
+$_['text_image_cover'] = 'Cover: center crop';
+$_['text_image_white'] = 'White';
+$_['text_image_theme'] = 'Transparent (theme background)';
+$_['text_image_dark'] = 'Dark';
+$_['text_image_no_upscale'] = 'Do not enlarge (1x)';
+$_['text_image_upscale_2'] = 'Up to 2x';
+$_['text_image_upscale_3'] = 'Up to 3x';
+$_['text_image_unlimited'] = 'Unlimited';
+$_['help_product_images'] = 'Applies to CodeCart product photos. Originals stay unchanged; background is drawn by the interface. Save with the standard Save button.';
+$_['help_image_fit'] = 'Contain preserves the whole photo; Cover crops centrally.';
+$_['help_image_background'] = 'No background pixels are added to generated files. A white background already in a photo is preserved.';
+$_['help_image_upscale'] = 'Small photos may lose sharpness when enlarged. Disabled limits scaling to the original size.';
+$_['text_image_preview'] = 'Preview of a small landscape photo. Changes here affect the preview until you save.';
 // *	@source		See SOURCE.txt for source and other copyright.
 // *	@license	GNU General Public License version 3; see LICENSE.txt
 

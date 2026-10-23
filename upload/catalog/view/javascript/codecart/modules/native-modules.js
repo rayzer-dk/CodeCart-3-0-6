@@ -19,7 +19,7 @@ function initCodeCartNativeModules(scope){
     function responsiveColumns(){
       var node=$module[0],style=getComputedStyle(node),w=Math.max(0,$viewport.width()||$module.width()||0),viewportW=Math.max(0,window.innerWidth||document.documentElement.clientWidth||0),$content=$module.closest('#content'),sidebar=$module.closest('#column-left,#column-right').length>0,inMainContent=$content.length>0,cardModule=$module.hasClass('ccp-native-module--products')||$module.hasClass('ccp-native-module--articles')||$module.hasClass('ccp-native-product-module'),v;
       if(sidebar){v=1;}
-      else if(viewportW<576||(!inMainContent&&w>0&&w<576)){v=parseFloat(style.getPropertyValue('--ccp-module-cols-mobile'))||2;}
+      else if(viewportW<576||($module.hasClass('ccp-native-module--articles')&&viewportW<768)||(!inMainContent&&w>0&&w<576)){v=parseFloat(style.getPropertyValue('--ccp-module-cols-mobile'))||2;}
       else if(viewportW<992||(!inMainContent&&w>0&&w<992)){v=parseFloat(style.getPropertyValue('--ccp-module-cols-tablet'))||3;}
       else if(cardModule&&inMainContent&&($content.hasClass('col-sm-12')||$content.hasClass('col-md-12'))){v=5;}
       else if(cardModule&&inMainContent&&($content.hasClass('col-sm-9')||$content.hasClass('col-md-9'))){v=4;}

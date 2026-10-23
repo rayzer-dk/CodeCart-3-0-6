@@ -1,6 +1,6 @@
 # CodeCart 3.0.6
 
-Current package build: **2.1.2**. Core schema version remains **3.0.6.0**. This maintenance build corrects administration form submission, autocomplete responses and product view counting; see [release notes](documentation/RELEASE_2.1.2.md) for verification scope and deployment requirements.
+Current package build: **2.1.3**. Core schema version remains **3.0.6.0**. This maintenance build corrects administration form submission, autocomplete responses and product view counting; see [release notes](documentation/RELEASE_2.1.3.md) for verification scope and deployment requirements.
 
 **CodeCart** is a free, open-source e-commerce content management system for creating and managing online stores. It builds on the familiar OpenCart/ocStore 3.x architecture while combining a modern responsive storefront, a comprehensive administration panel, multilingual SEO routing and a foundation for developing independent extensions.
 

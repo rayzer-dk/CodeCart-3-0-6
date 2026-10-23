@@ -201,6 +201,8 @@ $gates = [
     ['qa_commerce_defensive.php', 'stock'],
     ['qa_commerce_defensive.php', 'background'],
     ['qa_commerce_defensive.php', 'image'],
+    ['qa_image_modes.php'],
+    ['qa_product_image_events.php'],
     ['qa_commerce_defensive.php', 'category-admin'],
     ['qa_commerce_defensive.php', 'category-catalog'],
     ['qa_commerce_defensive.php', 'category-seo'],

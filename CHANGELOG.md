@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.1.3 (2026-10-23)
+
+- Add explicit contain/cover product image processing, configurable enlargement limits and separate CSS backgrounds for catalog cards, galleries and thumbnails; retain legacy resize contracts.
+- Reuse optional native WebP/AVIF conversion after scaling; retain transparency, distinct mode cache keys and AVIF-only Accept cache variation.
+- Align mobile article carousel columns with the existing grid breakpoint below 768px, preserving merchant column settings and desktop/list layouts.
+- Add validated POST bulk enable/disable for selected OCMOD modifications with confirmation and existing compatibility dirty signals.
+- Keep schema 3.0.6.0; see documentation/RELEASE_2.1.3.md and archive acceptance evidence for verification scope.
+
 # CodeCart 3.0.6.0 — Build 2.1.2 (2026-10-22)
 
 - Use native administration form submission instead of submitting every form from a legacy IE click handler.

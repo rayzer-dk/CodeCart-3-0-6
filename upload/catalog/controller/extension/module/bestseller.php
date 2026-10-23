@@ -56,9 +56,9 @@ class ControllerExtensionModuleBestSeller extends Controller {
 
 			foreach ($results as $result) {
 				if ($result['image']) {
-					$image = $this->model_tool_image->resize($result['image'], $width, $height);
+					$image = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage($result['image'], $width, $height) : $this->model_tool_image->resize($result['image'], $width, $height));
 				} else {
-					$image = $this->model_tool_image->resize('no_image.webp', $width, $height);
+					$image = ($this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->productImage('no_image.webp', $width, $height) : $this->model_tool_image->resize('no_image.webp', $width, $height));
 				}
 
 				if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
@@ -84,6 +84,7 @@ class ControllerExtensionModuleBestSeller extends Controller {
 				}
 
 				$data['products'][] = array(
+                    'image_size' => $this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize(!empty($result['image']) ? $result['image'] : 'no_image.webp', $width, $height) : array(),
 					'product_id'  => $result['product_id'],
 					'attributes'  => isset($card_attributes[(int)$result['product_id']]) ? $card_attributes[(int)$result['product_id']] : array(),
 					'can_buy'     => (int)$result['quantity'] > 0,
@@ -101,7 +102,7 @@ class ControllerExtensionModuleBestSeller extends Controller {
 			}
 
 			$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-9');
-		$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-7', 'footer');
+		$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-8', 'footer');
 		return $this->load->view('extension/module/bestseller', $data);
 		}
 	}

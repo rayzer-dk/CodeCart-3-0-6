@@ -6,6 +6,14 @@ $_['heading_title']     = 'Modifications';
 $_['text_success']      = 'Success: You have modified modifications!';
 $_['text_refresh']      = 'Whenever you enable / disable or delete a modification you need to click the refresh button to rebuild your modification cache!';
 $_['text_list']         = 'Modification List';
+$_['button_bulk_enable'] = 'Enable selected modifications';
+$_['button_bulk_disable'] = 'Disable selected modifications';
+$_['text_bulk_enable_confirm'] = 'Enable all selected modifications? Refresh the modification cache afterwards to apply the changes.';
+$_['text_bulk_disable_confirm'] = 'Disable all selected modifications? Refresh the modification cache afterwards to apply the changes.';
+$_['text_bulk_enabled'] = 'Enabled selected modifications: %d. Refresh the modification cache to apply the changes.';
+$_['text_bulk_disabled'] = 'Disabled selected modifications: %d. Refresh the modification cache to apply the changes.';
+$_['error_bulk_method'] = 'Use the selected-action buttons to submit a POST request.';
+$_['error_bulk_selected'] = 'Select valid modifications from the list. No changes were made.';
 
 $_['text_incompatible'] = 'Incompatible';
 $_['text_compatible_skips'] = 'Compatible / skips';

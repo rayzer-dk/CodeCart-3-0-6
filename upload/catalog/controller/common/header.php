@@ -167,6 +167,12 @@ class ControllerCommonHeader extends Controller {
 		$stylesheet_min = $stylesheet_dir . 'stylesheet.min.css';
 		$data['developer_theme'] = $this->isMinifiedStylesheetStale($stylesheet_source, $stylesheet_min);
 
+		$this->load->model('tool/image');
+		$data['product_image_options'] = array();
+		foreach (array('catalog', 'gallery', 'thumbnail') as $image_context) {
+			$data['product_image_options'][$image_context] = $this->model_tool_image->getProductImageOptions($image_context);
+		}
+
 		$data['logo_width'] = 0;
 		$data['logo_height'] = 0;
 		$data['logo_srcset'] = '';

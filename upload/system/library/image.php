@@ -226,12 +226,52 @@ class Image {
 		$this->height = $height;
 	}
 	
+	public function resizeContain(int $width, int $height, float $max_scale = 0) {
+		if (!$this->width || !$this->height || $width < 1 || $height < 1) {
+			return;
+		}
+		$scale = min($width / $this->width, $height / $this->height);
+		if ($max_scale > 0) {
+			$scale = min($scale, $max_scale);
+		}
+		$target_width = max(1, min($width, (int)round($this->width * $scale)));
+		$target_height = max(1, min($height, (int)round($this->height * $scale)));
+		$this->resample($target_width, $target_height, 0, 0, $this->width, $this->height);
+	}
+
+	public function resizeCover(int $width, int $height, float $max_scale = 0) {
+		if (!$this->width || !$this->height || $width < 1 || $height < 1) {
+			return;
+		}
+		$scale = max($width / $this->width, $height / $this->height);
+		if ($max_scale > 0 && $scale > $max_scale) {
+			$width = max(1, (int)round($width * $max_scale / $scale));
+			$height = max(1, (int)round($height * $max_scale / $scale));
+			$scale = max($width / $this->width, $height / $this->height);
+		}
+		$crop_width = max(1, min($this->width, (int)round($width / $scale)));
+		$crop_height = max(1, min($this->height, (int)round($height / $scale)));
+		$this->resample($width, $height, (int)(($this->width - $crop_width) / 2), (int)(($this->height - $crop_height) / 2), $crop_width, $crop_height);
+	}
+
+	private function resample(int $width, int $height, int $x, int $y, int $source_width, int $source_height) {
+		$target = imagecreatetruecolor($width, $height);
+		imagealphablending($target, false);
+		imagesavealpha($target, true);
+		imagefill($target, 0, 0, imagecolorallocatealpha($target, 0, 0, 0, 127));
+		if ($this->mime === 'image/gif' && imagecolortransparent($this->image) >= 0) {
+			imagecolortransparent($target, imagecolorallocatealpha($target, 0, 0, 0, 127));
+		}
+		imagecopyresampled($target, $this->image, 0, 0, $x, $y, $width, $height, $source_width, $source_height);
+		$this->image = $target;
+		$this->width = $width;
+		$this->height = $height;
+	}
+
 	/**
-     * 
-     *
-     * @param	string	$watermark
-	 * @param	string	$position
-     */
+	 * @param string $watermark
+	 * @param string $position
+	 */
 	public function watermark($watermark, $position = 'bottomright') {
 		switch($position) {
 			case 'topleft':

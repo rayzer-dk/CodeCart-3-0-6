@@ -68,7 +68,7 @@
       <div class="row ccp-product-grid" data-display-switcher="product"> {% for product in products %}
         <div class="product-layout product-grid col-xs-6">
           <div class="product-thumb">
-            <div class="image"><a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" width="{{ product_image_width }}" height="{{ product_image_height }}" loading="lazy" decoding="async" class="img-responsive" /></a></div>
+            <div class="image"><a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" width="{{ product.image_size.width }}" height="{{ product.image_size.height }}" loading="lazy" decoding="async" class="img-responsive" /></a></div>
             <div class="ccp-product-list-body">
               <div class="caption">
                 <h4><a href="{{ product.href }}">{{ product.name }}</a></h4>

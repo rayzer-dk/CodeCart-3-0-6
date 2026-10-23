@@ -40,7 +40,7 @@ class ControllerExtensionModuleStore extends Controller {
 			}
 
 			$this->document->addStyle('catalog/view/javascript/codecart/modules/native-modules.css?v=3.0.6.0-9');
-		$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-7', 'footer');
+		$this->document->addScript('catalog/view/javascript/codecart/modules/native-modules.js?v=3.0.6.0-8', 'footer');
 		return $this->load->view('extension/module/store', $data);
 		}
 	}

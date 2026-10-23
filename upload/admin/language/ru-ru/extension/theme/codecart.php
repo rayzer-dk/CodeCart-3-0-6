@@ -1,4 +1,27 @@
 <?php
+$_['text_product_images'] = 'Отображение фотографий товаров';
+$_['text_image_common'] = 'Общие настройки';
+$_['text_image_catalog'] = 'Карточки каталога';
+$_['text_image_gallery'] = 'Галерея товара';
+$_['text_image_thumbnail'] = 'Миниатюры';
+$_['text_image_inherit'] = 'Использовать общую настройку';
+$_['entry_image_fit'] = 'Масштабирование';
+$_['entry_image_background'] = 'Фон области изображения';
+$_['entry_image_upscale'] = 'Максимальное увеличение';
+$_['text_image_contain'] = 'Вписывать полностью';
+$_['text_image_cover'] = 'Заполнять с обрезкой по центру';
+$_['text_image_white'] = 'Белый';
+$_['text_image_theme'] = 'Прозрачный (фон темы)';
+$_['text_image_dark'] = 'Тёмный';
+$_['text_image_no_upscale'] = 'Не увеличивать (1x)';
+$_['text_image_upscale_2'] = 'До 2x';
+$_['text_image_upscale_3'] = 'До 3x';
+$_['text_image_unlimited'] = 'Без ограничения';
+$_['help_product_images'] = 'Действует для фотографий товаров в CodeCart. Оригиналы не меняются; фон задаётся интерфейсом. Настройки применяются стандартной кнопкой сохранения.';
+$_['help_image_fit'] = 'Вписывание сохраняет всё фото; заполнение обрезает края по центру.';
+$_['help_image_background'] = 'Пиксели фона не добавляются в файл. Белый фон внутри исходного фото сохраняется.';
+$_['help_image_upscale'] = 'Увеличение маленьких фото снижает резкость. Без увеличения размер ограничен оригиналом.';
+$_['text_image_preview'] = 'Предпросмотр небольшого горизонтального фото. До сохранения изменения действуют только в предпросмотре.';
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Тема CodeCart';
 $_['text_extension'] = 'Расширения';
