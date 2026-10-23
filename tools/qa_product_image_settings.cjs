@@ -112,7 +112,8 @@ if (args.includes('--preview-only')) {
     const preview = context => page.locator('[data-image-preview="' + context + '"]').evaluate(box => ({
       background: getComputedStyle(box).backgroundColor,
       width: box.querySelector('svg').getBoundingClientRect().width,
-      height: box.querySelector('svg').getBoundingClientRect().height
+      height: box.querySelector('svg').getBoundingClientRect().height,
+      viewBox: box.querySelector('svg').getAttribute('viewBox')
     }));
     await select('common', 'upscale', '1');
     let rendered = await preview('catalog');
@@ -125,7 +126,7 @@ if (args.includes('--preview-only')) {
     await select('gallery', 'background', 'dark');
     await select('gallery', 'upscale', '0');
     rendered = await preview('gallery');
-    check('gallery override previews cover with unlimited enlargement', Math.abs(rendered.width - 233.333) < 0.2 && Math.abs(rendered.height - 140) < 0.1 && rendered.background === 'rgb(23, 30, 39)');
+    check('gallery override previews centered cover with unlimited enlargement', Math.abs(rendered.width - 140) < 0.1 && Math.abs(rendered.height - 140) < 0.1 && rendered.viewBox === '60 0 180 180' && rendered.background === 'rgb(23, 30, 39)');
     await select('thumbnail', 'background', 'white');
     check('preview changes send no POST and do not change settings', savePosts === 0 && canonical(snapshot()) === beforePreview);
     for (const details of await policy.locator('details').all()) {

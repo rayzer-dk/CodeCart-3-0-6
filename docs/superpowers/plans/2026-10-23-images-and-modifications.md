@@ -12,5 +12,5 @@ Product policy: contain, maximum upscale 3x, white CSS background by default. Co
 - [x] Verify theme settings save/reopen, inheritance, input validation, preview and actual product/catalog rendering in light/dark mobile/desktop.
 - [x] Verify bulk actions POST/token/permissions/selection/status and dirty-cache signal, including browser confirmation.
 - [x] Verify mobile article grids and carousel breakpoints with rendered pages, preserving merchant settings.
-- [ ] Independent final diff review, release gates, documentation/integrity refresh, complete archive verification.
-- [ ] Commit and push verified changes to main (explicit user authorization); no release publication or live installation.
+- [x] Independent final diff review, release gates, documentation/integrity refresh, complete archive verification.
+- Delivery: commit and push verified changes to main under the user's explicit authorization; record the confirmed remote revision in the archive acceptance report. No release publication or live installation.
