@@ -19,7 +19,7 @@
         {% else %}
         {% set class = 'col-md-6' %}
         {% endif %}
-        <div class="{{ class }} ccp-product-media{% if image_is_fallback %} ccp-product-media--fallback{% endif %}{% if product_gallery_fit %} ccp-product-media--fit-frame{% endif %} ccp-product-media--bg-{{ product_gallery_background|default('none') }}"> {% if thumb or images %}
+        <div class="{{ class }} ccp-product-media{% if image_is_fallback %} ccp-product-media--fallback{% endif %}{% if product_gallery_fit %} ccp-product-media--fit-frame{% endif %} ccp-product-media--bg-{{ product_gallery_background|default('white') }}" style="--ccp-gallery-thumb-width:{{ image_additional_width > 0 ? image_additional_width : 74 }}px;--ccp-gallery-thumb-height:{{ image_additional_height > 0 ? image_additional_height : 74 }}px;"> {% if thumb or images %}
           <div class="ccp-product-gallery">
             {% if thumb %}
             <div class="ccp-product-gallery-main"><a class="thumbnail ccp-main-product-image" id="ccp-main-product-image" href="{{ popup }}" title="{{ heading_title }}" data-pswp-width="{{ image_popup_width }}" data-pswp-height="{{ image_popup_height }}" data-default-href="{{ popup }}" data-default-width="{{ image_popup_width }}" data-default-height="{{ image_popup_height }}"{% if product_gallery_fit %} style="--ccp-gallery-aspect: {{ image_thumb_width > 0 ? image_thumb_width : 640 }} / {{ image_thumb_height > 0 ? image_thumb_height : 480 }};"{% endif %}><img id="ccp-main-product-image-img" src="{{ thumb }}" data-default-src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_display_width }}" height="{{ image_display_height }}" fetchpriority="high" /></a></div>
