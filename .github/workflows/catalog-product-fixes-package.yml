@@ -42,22 +42,49 @@ jobs:
           for lang in en-gb ru-ru uk-ua; do
             php -l "upload/admin/language/$lang/extension/theme/codecart.php"
           done
+          python3 - <<'PY'
+          from pathlib import Path
+          controller = Path("upload/catalog/controller/product/product.php").read_text()
+          model = Path("upload/catalog/model/tool/image.php").read_text()
+          template = Path("upload/catalog/view/theme/codecart/template/product/product.twig").read_text()
+          css = Path("upload/catalog/view/theme/codecart/stylesheet/stylesheet.css").read_text()
+          settings = Path("upload/admin/controller/extension/theme/codecart.php").read_text()
+          assert "=== 'native' ? 'native' : 'contain'" in controller
+          assert "array('none', 'white', 'theme', 'dark')" in model
+          assert "($context === 'gallery' && $name === 'background') ? 'none'" in settings
+          assert "product_gallery_background|default('none')" in template
+          assert "ccp-product-media--bg-none" in css
+          assert "background: transparent !important" in css
+          assert "background: #fff !important" in css
+          assert "ccp-product-media--fit-frame" in css
+          print("Gallery model, defaults, template and CSS checks: PASS")
+          PY
           cat > README-CHANGESET.txt <<'README'
-          CodeCart 3.0.6 — catalog SKU filter and optional product gallery fit.
-          This package contains the 13 complete modified source files, in upload/ layout.
-          Back up all site files and the database before replacing anything.
-          Upload these files over the corresponding CodeCart 3.0.6 files.
-          Clear the template cache and refresh modifications after deployment.
-          Setting: Extensions > Themes > CodeCart > Product images > Product photo display.
-          Native OpenCart sizing is default. Fit to frame is opt-in, CodeCart theme only.
-          The originals are never edited; derived image cache files are generated as needed.
-          This package targets the repo's current main commit at build time.
+          CodeCart 3.0.6 — catalog SKU filter and product image/background controls.
+          Archive contains 13 complete modified source files in upload/ layout.
+          Make a FULL BACKUP of the store files and database before updating!
+          Replace corresponding CodeCart 3.0.6 files; clear Twig cache and refresh OCMOD.
+          Theme settings > Product images > Product photo display:
+          Fit to frame without cropping is the default for NEW configurations. No pixels
+          are added to the image and small photos can be proportionally enlarged.
+          Standard OpenCart processing remains available as a legacy compatible option,
+          which may add white padding inside a generated JPEG.
+          Product gallery > Image area background: None (transparent) is the new
+          gallery default; White, Theme or Dark color the frame only.
+          Previously SAVED gallery mode/background settings stay unchanged.
+          For an existing shop choose Fit to frame and None to remove new padding.
+          A white or colored background that is already in the original JPEG/PNG
+          cannot be removed with a CSS setting (requires image background removal).
+          Product source files are never overwritten: derived images use cache.
+          These settings affect CodeCart theme product detail gallery only; other
+          installed OpenCart/ocStore themes keep their original behavior.
+          The package uses files from the repository main branch at build time.
           README
-          zip -q CodeCart_Catalog_Photo_Fixes_2026-10-25.zip "${files[@]}" README-CHANGESET.txt
-          unzip -t CodeCart_Catalog_Photo_Fixes_2026-10-25.zip
+          zip -q CodeCart_Catalog_Image_Background_2026-10-25.zip "${files[@]}" README-CHANGESET.txt
+          unzip -t CodeCart_Catalog_Image_Background_2026-10-25.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeCart_Catalog_Photo_Fixes_2026-10-25
-          path: CodeCart_Catalog_Photo_Fixes_2026-10-25.zip
+          name: CodeCart_Catalog_Image_Background_2026-10-25
+          path: CodeCart_Catalog_Image_Background_2026-10-25.zip
           if-no-files-found: error
           retention-days: 30
