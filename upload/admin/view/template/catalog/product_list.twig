@@ -1,6 +1,6 @@
 {{ header }}{{ column_left }}
 <div id="content">
-  <link rel="stylesheet" href="view/stylesheet/codecart_product_list.css?v=3.0.6.5" />
+  <link rel="stylesheet" href="view/stylesheet/codecart_product_list.css?v=3.0.6.6" />
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
@@ -47,6 +47,13 @@
 			</div>
 			</div>
             <div class="form-group">
+              <label class="control-label" for="input-sku">{{ entry_sku }}</label>
+              <div class="input-group">
+                <input type="text" name="filter_sku" value="{{ filter_sku }}" placeholder="{{ entry_sku }}" id="input-sku" class="form-control" autocomplete="off" />
+                <div class="input-group-btn"><button type="button" id="button-clear-input-sku" class="btn btn-default" data-toggle="tooltip" title="{{ button_clear }}"><i class="fa fa-times"></i></button></div>
+              </div>
+            </div>
+            <div class="form-group">
               <label class="control-label" for="input-model">{{ entry_model }}</label>
 			  <div class="input-group">
               <input type="text" name="filter_model" value="{{ filter_model }}" placeholder="{{ entry_model }}" id="input-model" class="form-control" />
@@ -56,7 +63,7 @@
 				</div>
 				</div>
 			<div class="form-group">
-                 <label class="control-label" for="input-category-name">{{ entry_category }}</label> <label class="control-label pull-right" for="input-sub-category">{{ entry_sub_category }} <input type="checkbox" class="checkbox-inline" name="filter_sub_category" id="input-sub-category" class="form-control"{{ filter_sub_category}}    {% if filter_sub_category %} checked="checked" {% endif %} /></label>
+                 <label class="control-label" for="input-category-name">{{ entry_category }}</label> <label class="control-label pull-right" for="input-sub-category">{{ entry_sub_category }} <input type="checkbox" class="checkbox-inline" name="filter_sub_category" id="input-sub-category"  {% if filter_sub_category %} checked="checked" {% endif %} /></label>
                 <div class="clearfix"></div>
 				<div class="input-group">
                   <input type="text" name="filter_category_name" value="{{ filter_category_name }}" placeholder="{{ entry_category }}" id="input-category-name" class="form-control" />
@@ -409,6 +416,9 @@ $('#button-filter').on('click', function() {
 		url += '&filter_name=' + encodeURIComponent(filter_name);
 	}
 
+	var filter_sku = $('input[name=\'filter_sku\']').val();
+	if (filter_sku) { url += '&filter_sku=' + encodeURIComponent(filter_sku); }
+
 	var filter_model = $('input[name=\'filter_model\']').val();
 
 	if (filter_model) {
@@ -492,6 +502,8 @@ $('#button-clear-filter').on('click', function() {
 });
 //--></script> 
   <script type="text/javascript"><!--
+$('#filter-product').on('mouseenter', 'input[type="text"]', function() { this.title = this.value || ''; });
+$('#filter-product').on('mouseenter', '.dropdown-menu > li > a', function() { this.title = $.trim($(this).text()); });
 // IE and Edge fix!
 $('button[form=\'form-product\']').on('click', function(e) {
 	$('#form-product').attr('action', $(this).attr('formaction'));
@@ -521,6 +533,24 @@ $('#button-clear-input-name').on('click',function(){
 	$('#button-filter').trigger('click');
 });
 
+$('input[name=\'filter_sku\']').autocomplete({
+  'source': function(request, response) {
+    $.ajax({
+      url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_sku=' + encodeURIComponent(request),
+      dataType: 'json',
+      success: function(json) {
+        response($.map(json, function(item) {
+          return {label: $('<div>').text(item['sku']).html(), value: item['product_id'], sku: item['sku']};
+        }));
+      }
+    });
+  },
+  'select': function(item) { $('input[name=\'filter_sku\']').val(item['sku']); }
+});
+$('#button-clear-input-sku').on('click', function() {
+  $('input[name=\'filter_sku\']').val('');
+  $('#button-filter').trigger('click');
+});
 $('input[name=\'filter_model\']').autocomplete({
 	'source': function(request, response) {
 		$.ajax({
@@ -684,7 +714,7 @@ $('#button-clear-input-quantity-max').on('click',function(){
 	$('input[name=\'filter_quantity_max\']').val('');
 	$('#button-filter').trigger('click');
 });
-$('input[name=\'filter_name\'], input[name=\'filter_model\'], input[name=\'filter_category_name\'], input[name=\'filter_manufacturer_name\'], input[name=\'filter_attribute_name\'], input[name=\'filter_option_name\'], input[name=\'filter_download_name\'], input[name=\'filter_seo_url\'], input[name=\'filter_price_min\'], input[name=\'filter_price_max\'], input[name=\'filter_quantity_min\'], input[name=\'filter_quantity_max\']').keypress(function (e) {
+$('input[name=\'filter_name\'], input[name=\'filter_sku\'], input[name=\'filter_model\'], input[name=\'filter_category_name\'], input[name=\'filter_manufacturer_name\'], input[name=\'filter_attribute_name\'], input[name=\'filter_option_name\'], input[name=\'filter_download_name\'], input[name=\'filter_seo_url\'], input[name=\'filter_price_min\'], input[name=\'filter_price_max\'], input[name=\'filter_quantity_min\'], input[name=\'filter_quantity_max\']').keypress(function (e) {
 	if (e.which == 13) {
 		$('#button-filter').trigger('click');
 		return false;
