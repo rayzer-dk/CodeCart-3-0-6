@@ -45,6 +45,10 @@ class ControllerCatalogProduct extends Controller {
 				$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
 			}
 
+			if (isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) && $this->request->get['filter_sku'] !== '') {
+				$url .= '&filter_sku=' . urlencode($this->request->get['filter_sku']);
+			}
+
 			if (isset($this->request->get['filter_price'])) {
 				$url .= '&filter_price=' . $this->request->get['filter_price'];
 			}
@@ -152,6 +156,10 @@ class ControllerCatalogProduct extends Controller {
 				$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
 			}
 
+			if (isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) && $this->request->get['filter_sku'] !== '') {
+				$url .= '&filter_sku=' . urlencode($this->request->get['filter_sku']);
+			}
+
 			if (isset($this->request->get['filter_price'])) {
 				$url .= '&filter_price=' . $this->request->get['filter_price'];
 			}
@@ -251,6 +259,10 @@ class ControllerCatalogProduct extends Controller {
 
 			if (isset($this->request->get['filter_model'])) {
 				$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
+			}
+
+			if (isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) && $this->request->get['filter_sku'] !== '') {
+				$url .= '&filter_sku=' . urlencode($this->request->get['filter_sku']);
 			}
 
 			if (isset($this->request->get['filter_price'])) {
@@ -354,6 +366,10 @@ class ControllerCatalogProduct extends Controller {
 				$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
 			}
 
+			if (isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) && $this->request->get['filter_sku'] !== '') {
+				$url .= '&filter_sku=' . urlencode($this->request->get['filter_sku']);
+			}
+
 			if (isset($this->request->get['filter_price'])) {
 				$url .= '&filter_price=' . $this->request->get['filter_price'];
 			}
@@ -443,6 +459,8 @@ class ControllerCatalogProduct extends Controller {
 		} else {
 			$filter_model = '';
 		}
+
+		$filter_sku = isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) ? trim($this->request->get['filter_sku']) : '';
 
 		if (isset($this->request->get['filter_price'])) {
 			$filter_price = $this->request->get['filter_price'];
@@ -638,6 +656,10 @@ class ControllerCatalogProduct extends Controller {
 			$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
 		}
 
+		if (isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) && $this->request->get['filter_sku'] !== '') {
+			$url .= '&filter_sku=' . urlencode($this->request->get['filter_sku']);
+		}
+
 		if (isset($this->request->get['filter_price'])) {
 			$url .= '&filter_price=' . $this->request->get['filter_price'];
 		}
@@ -729,6 +751,7 @@ class ControllerCatalogProduct extends Controller {
 		$filter_data = array(
 			'filter_name'	  => $filter_name,
 			'filter_model'	  => $filter_model,
+			'filter_sku'      => $filter_sku,
 			'filter_price'	  => $filter_price,
 			'filter_price_min'=> $filter_price_min,
 			'filter_price_max'=> $filter_price_max,
@@ -835,6 +858,10 @@ class ControllerCatalogProduct extends Controller {
 			$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
 		}
 
+		if (isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) && $this->request->get['filter_sku'] !== '') {
+			$url .= '&filter_sku=' . urlencode($this->request->get['filter_sku']);
+		}
+
 		if (isset($this->request->get['filter_price'])) {
 			$url .= '&filter_price=' . $this->request->get['filter_price'];
 		}
@@ -913,6 +940,10 @@ class ControllerCatalogProduct extends Controller {
 			$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
 		}
 
+		if (isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) && $this->request->get['filter_sku'] !== '') {
+			$url .= '&filter_sku=' . urlencode($this->request->get['filter_sku']);
+		}
+
 		if (isset($this->request->get['filter_price'])) {
 			$url .= '&filter_price=' . $this->request->get['filter_price'];
 		}
@@ -984,6 +1015,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['text_products_per_page'] = $this->language->get('text_products_per_page');
 		$data['filter_name'] = $filter_name;
 		$data['filter_model'] = $filter_model;
+		$data['filter_sku'] = $filter_sku;
 		$data['filter_price'] = $filter_price;
 		$data['filter_price_min'] = $filter_price_min;
 		$data['filter_price_max'] = $filter_price_max;
@@ -1004,7 +1036,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['filter_download_id'] = $filter_download_id;
 		$data['filter_download_name'] = $filter_download_name;
 		$data['filter_seo_url'] = $filter_seo_url;
-		$data['active_filter_count'] = count(array_filter(array($filter_name, $filter_model, $filter_price_min, $filter_price_max, $filter_quantity_min, $filter_quantity_max, ($filter_status === '' ? '' : '1'), ($filter_category === null ? '' : '1'), $filter_manufacturer_id ? '1' : '', ($filter_noindex === '' ? '' : '1'), $filter_attribute_id, $filter_option_id, $filter_download_id, $filter_seo_url), function($value) { return $value !== '' && $value !== null && $value !== 0; }));
+		$data['active_filter_count'] = count(array_filter(array($filter_name, $filter_model, $filter_sku, $filter_price_min, $filter_price_max, $filter_quantity_min, $filter_quantity_max, ($filter_status === '' ? '' : '1'), ($filter_category === null ? '' : '1'), $filter_manufacturer_id ? '1' : '', ($filter_noindex === '' ? '' : '1'), $filter_attribute_id, $filter_option_id, $filter_download_id, $filter_seo_url), function($value) { return $value !== '' && $value !== null && $value !== 0; }));
 
 		$data['sort'] = $sort;
 		$data['order'] = $order;
@@ -1098,6 +1130,10 @@ class ControllerCatalogProduct extends Controller {
 
 		if (isset($this->request->get['filter_model'])) {
 			$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
+		}
+
+		if (isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) && $this->request->get['filter_sku'] !== '') {
+			$url .= '&filter_sku=' . urlencode($this->request->get['filter_sku']);
 		}
 
 		if (isset($this->request->get['filter_price'])) {
@@ -2120,7 +2156,7 @@ class ControllerCatalogProduct extends Controller {
 	public function autocomplete() {
 		$json = array();
 
-		if (isset($this->request->get['filter_name']) || isset($this->request->get['filter_model'])) {
+		if (isset($this->request->get['filter_name']) || isset($this->request->get['filter_model']) || isset($this->request->get['filter_sku'])) {
 			$this->load->model('catalog/product');
 			$this->load->model('catalog/option');
 
@@ -2142,9 +2178,12 @@ class ControllerCatalogProduct extends Controller {
 				$limit = $this->config->get('config_limit_autocomplete');
 			}
 
+			$filter_sku = isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) ? trim($this->request->get['filter_sku']) : '';
+
 			$filter_data = array(
 				'filter_name'  => $filter_name,
 				'filter_model' => $filter_model,
+				'filter_sku'   => $filter_sku,
 				'start'        => 0,
 				'limit'        => $limit
 			);
@@ -2192,6 +2231,7 @@ class ControllerCatalogProduct extends Controller {
 					'product_id' => $result['product_id'],
 					'name'       => strip_tags(html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8')),
 					'model'      => $result['model'],
+					'sku'        => $result['sku'],
 					'option'     => $option_data,
 					'price'      => $result['price']
 				);
