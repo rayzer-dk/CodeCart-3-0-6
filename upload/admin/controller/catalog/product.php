@@ -2218,7 +2218,7 @@ class ControllerCatalogProduct extends Controller {
 					if ($field === 'price') {
 						$raw = str_replace(array(chr(194) . chr(160), ' '), '', $raw);
 						$raw = str_replace(',', '.', $raw);
-						$valid = (bool)preg_match('/^(?:0|[1-9][0-9]{0,10})(?:\\.[0-9]{1,4})?$/', $raw);
+						$valid = (bool)preg_match('/^(?:0|[1-9][0-9]{0,10})(?:\.[0-9]{1,4})?$/', $raw);
 						$value = $valid ? number_format((float)$raw, 4, '.', '') : '';
 					} elseif ($field === 'quantity') {
 						$valid = (bool)preg_match('/^(?:0|[1-9][0-9]{0,9})$/', $raw);
