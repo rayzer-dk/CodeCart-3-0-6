@@ -2352,7 +2352,7 @@ html.ccp-theme-dark .ccp-blog-copy code{
   aspect-ratio: 4 / 3;
   overflow: hidden !important;
   padding: 0 !important;
-  background: transparent !important;
+  background: var(--ccp-image-gallery-background, transparent) !important;
 }
 #product-product .ccp-product-media--fit-frame .ccp-product-gallery-main > .thumbnail > img,
 #product-product .ccp-product-media--fit-frame.ccp-product-media--fallback .ccp-product-gallery-main > .thumbnail > img {
@@ -2367,4 +2367,28 @@ html.ccp-theme-dark .ccp-blog-copy code{
   object-position: center !important;
   margin: 0 !important;
   opacity: 1;
+}
+
+/* Background is a visual preference on the frame, never composited into image files. */
+#product-product .ccp-product-media--bg-none .ccp-product-gallery-main > .thumbnail,
+#product-product .ccp-product-media--bg-none .ccp-product-gallery-thumb,
+#product-product .ccp-product-media--bg-theme .ccp-product-gallery-main > .thumbnail,
+#product-product .ccp-product-media--bg-theme .ccp-product-gallery-thumb {
+  background: transparent !important;
+  background-image: none !important;
+}
+#product-product .ccp-product-media--bg-white .ccp-product-gallery-main > .thumbnail,
+#product-product .ccp-product-media--bg-white .ccp-product-gallery-thumb {
+  background: #fff !important;
+  background-image: none !important;
+}
+#product-product .ccp-product-media--bg-dark .ccp-product-gallery-main > .thumbnail,
+#product-product .ccp-product-media--bg-dark .ccp-product-gallery-thumb {
+  background: #171e27 !important;
+  background-image: none !important;
+}
+#product-product .ccp-product-media--bg-none .ccp-product-gallery-main > .thumbnail > img,
+#product-product .ccp-product-media--bg-none .ccp-product-gallery-thumb > img {
+  background: transparent !important;
+  background-image: none !important;
 }
