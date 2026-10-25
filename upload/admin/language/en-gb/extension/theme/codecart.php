@@ -223,3 +223,8 @@ $_['entry_custom_link_sort'] = "Sort order";
 $_['button_custom_link_add'] = "Add link";
 $_['entry_header_product_search'] = "Search product";
 $_['error_image_manufacturer'] = 'Manufacturer Image Size dimensions required!';
+
+$_['entry_product_gallery_mode'] = 'Product photo display';
+$_['text_product_gallery_native'] = 'Standard OpenCart sizing (default)';
+$_['text_product_gallery_contain'] = 'Fit to frame without cropping (enlarge)';
+$_['help_product_gallery_mode'] = 'Standard mode uses the native OpenCart image resize. Fit mode enlarges the main and selected additional photo by its longer suitable side, preserves its proportions and transparency, and never crops or adds a background. Only CodeCart product detail pages are affected.';
