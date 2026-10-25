@@ -156,3 +156,23 @@ jobs:
           path: CodeCart_3.0.6_Gallery_Cron_Quick_Edit.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Archive the complete main-branch source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git archive --format=zip --output=CodeCart_3.0.6_Full_Main.zip HEAD
+          unzip -tq CodeCart_3.0.6_Full_Main.zip
+          for required in upload/index.php upload/admin/index.php upload/system/engine/action.php upload/catalog/controller/product/product.php upload/admin/controller/catalog/product.php; do
+            unzip -Z -1 CodeCart_3.0.6_Full_Main.zip | grep -Fxq "$required"
+          done
+          echo "Git revision: $(git rev-parse HEAD)"
+          echo "Tracked source files: $(git ls-files | wc -l)"
+          echo "Archived entries: $(unzip -Z -1 CodeCart_3.0.6_Full_Main.zip | wc -l)"
+          sha256sum CodeCart_3.0.6_Full_Main.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Full_Main
+          path: CodeCart_3.0.6_Full_Main.zip
+          if-no-files-found: error
+          retention-days: 30
