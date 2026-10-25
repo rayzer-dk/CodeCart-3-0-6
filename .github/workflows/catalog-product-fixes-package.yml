@@ -100,6 +100,8 @@ jobs:
           assert "image_thumb_height > 0" in gallery
           assert "ccp-gallery-thumb-width" in gallery
           assert "ccp-gallery-thumb-width" in gallery_css
+          assert "--ccp-image-thumbnail-background" in gallery_css
+          assert "--ccp-image-catalog-background" in gallery_css
           assert "var(--ccp-gallery-aspect" in gallery_css
           assert "naturalWidth" not in gallery
           for locale in ("en-gb", "ru-ru", "uk-ua"):
@@ -120,6 +122,7 @@ jobs:
           sizes. Each image is displayed with object-fit: contain, without crops.
           White is the DEFAULT frame background; transparent/none is optional.
           Background colors are CSS-only and never change original photo pixels.
+          White stage colors apply to all CodeCart product cards, gallery and thumbs.
           Common image settings affect catalog, gallery and thumbnails; per-context
           settings can override them. Existing saved overrides remain unchanged.
           An already white JPEG photo retains its internal white background.
