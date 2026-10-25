@@ -114,6 +114,8 @@ jobs:
           assert "ccp-qpe-controls" not in js
           assert "codecart_product_list.css?v=3.0.6.9" in view
           assert "codecart-quick-price-edit.js?v=3.0.6.5" in view
+          assert "scroll.ccpQpe" in js and "placeEditor(active)" in js
+          assert "if (active && !active.busy) { closeEditor(false); }" not in js
           assert "ccp-qpe-quantity-cell" in css
           assert "core.stock.notify" in scheduler and "cron/stock_notify" in scheduler
           assert "core.queue.worker" in scheduler and "cron/queue_worker" in scheduler
@@ -149,7 +151,7 @@ jobs:
             It NEVER moves the price, changes the table width, or pushes
             quantity controls under status/indexing columns.
             Click outside/Escape to cancel; Enter to save.
-            Horizontal scroll closes editor, responsive resize repositions it.
+            Horizontal scroll and window resize keep the popup correctly anchored.
           - Clickable on/off switches for visibility and search indexing.
             Indexing ON means noindex=1; Indexing OFF means noindex=0.
             This matches CodeCart/ocStore storefront robots logic.
