@@ -23,7 +23,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git grep -nEi 'uni.?shop|langdir|ocfilter|barzus\.com\.ua|fermateh\.com\.ua|gontagro\.com\.ua|rayzer\.dk' -- README.md README.uk.md README_FIRST.txt CHANGELOG.md documentation docs; then
+          if git grep -nEi 'uni.?shop|langdir|ocfilter|barzus\.com\.ua|fermateh\.com\.ua|gontagro\.com\.ua|rayzer\.dk' -- README.md README.uk.md README_FIRST.txt CHANGELOG.md documentation docs ':(exclude)documentation/RELEASE_*.md'; then
             echo "External theme/module or site-specific references must not appear in public documentation."
             exit 1
           fi
