@@ -125,8 +125,8 @@ class ModelToolImage extends Model {
         return $this->resizeImage($filename, $width, $height, '');
     }
 
-    public function resizeContain($filename, $width, $height) {
-        return $this->resizeImage($filename, $width, $height, 'contain');
+    public function resizeContain($filename, $width, $height, $max_scale = 0) {
+        return $this->resizeImage($filename, $width, $height, 'contain', (float)$max_scale);
     }
 
     public function resizeCover($filename, $width, $height) {
@@ -139,7 +139,7 @@ class ModelToolImage extends Model {
         foreach (array('fit' => array('contain', 'cover'), 'background' => array('none', 'white', 'theme', 'dark'), 'upscale' => array('3', '1', '2', '0')) as $name => $allowed) {
             $common = (string)$this->config->get('theme_codecart_image_' . $name);
             $value = (string)$this->config->get('theme_codecart_image_' . $context . '_' . $name);
-            $options[$name] = in_array($value, $allowed, true) ? $value : (in_array($common, $allowed, true) ? $common : ($name === 'background' ? 'white' : $allowed[0]));
+            $options[$name] = in_array($value, $allowed, true) ? $value : ($context === 'gallery' && $name === 'upscale' && $value === '' ? '1' : (in_array($common, $allowed, true) ? $common : ($name === 'background' ? 'white' : $allowed[0])));
         }
         return $options;
     }
@@ -147,7 +147,8 @@ class ModelToolImage extends Model {
     // The product detail gallery uses native OpenCart resizing unless the fit mode is enabled.
     public function productGalleryImage($filename, $width, $height, $mode = 'native') {
         if ($mode === 'contain') {
-            return $this->resizeContain($filename, $width, $height);
+            $options = $this->getProductImageOptions('gallery');
+            return $this->resizeContain($filename, $width, $height, (float)$options['upscale']);
         }
         return $this->resize($filename, $width, $height);
     }
@@ -168,6 +169,10 @@ class ModelToolImage extends Model {
             return $size;
         }
         $scale = min($width / (int)$info[0], $height / (int)$info[1]);
+        $options = $this->getProductImageOptions('gallery');
+        if ((float)$options['upscale'] > 0) {
+            $scale = min($scale, (float)$options['upscale']);
+        }
         return array(
             'width' => max(1, min($width, (int)round((int)$info[0] * $scale))),
             'height' => max(1, min($height, (int)round((int)$info[1] * $scale)))
