@@ -79,8 +79,8 @@ class ControllerExtensionThemeCodecart extends Controller {
 			if (!isset($this->request->post['theme_codecart_gallery_engine']) || !in_array((string)$this->request->post['theme_codecart_gallery_engine'], $allowed_gallery_engines, true)) {
 				$this->request->post['theme_codecart_gallery_engine'] = 'photoswipe';
 			}
-			$gallery_mode = (string)($this->request->post['theme_codecart_product_gallery_mode'] ?? 'native');
-			$this->request->post['theme_codecart_product_gallery_mode'] = in_array($gallery_mode, array('native', 'contain'), true) ? $gallery_mode : 'native';
+			$gallery_mode = (string)($this->request->post['theme_codecart_product_gallery_mode'] ?? 'contain');
+			$this->request->post['theme_codecart_product_gallery_mode'] = in_array($gallery_mode, array('native', 'contain'), true) ? $gallery_mode : 'contain';
 			$custom_css = isset($this->request->post['theme_codecart_custom_css']) ? (string)$this->request->post['theme_codecart_custom_css'] : '';
 			$custom_css = str_replace(chr(0), '', $custom_css);
 			$custom_css = preg_replace('#</?style\b[^>]*>#i', '', $custom_css);
@@ -677,8 +677,8 @@ class ControllerExtensionThemeCodecart extends Controller {
 			$data['theme_codecart_image_location_height'] = 50;
 		}
 		
-		$gallery_mode = $this->request->post['theme_codecart_product_gallery_mode'] ?? ($setting_info['theme_codecart_product_gallery_mode'] ?? 'native');
-		$data['theme_codecart_product_gallery_mode'] = in_array((string)$gallery_mode, array('native', 'contain'), true) ? (string)$gallery_mode : 'native';
+		$gallery_mode = $this->request->post['theme_codecart_product_gallery_mode'] ?? ($setting_info['theme_codecart_product_gallery_mode'] ?? 'contain');
+		$data['theme_codecart_product_gallery_mode'] = in_array((string)$gallery_mode, array('native', 'contain'), true) ? (string)$gallery_mode : 'contain';
 		foreach (array('entry_product_gallery_mode', 'help_product_gallery_mode', 'text_product_gallery_native', 'text_product_gallery_contain') as $key) {
 			$data[$key] = $this->language->get($key);
 		}
@@ -686,7 +686,7 @@ class ControllerExtensionThemeCodecart extends Controller {
 		$data['image_contexts'] = array('common', 'catalog', 'gallery', 'thumbnail');
 		$data['image_option_labels'] = array(
 			'fit' => array('contain' => 'text_image_contain', 'cover' => 'text_image_cover'),
-			'background' => array('white' => 'text_image_white', 'theme' => 'text_image_theme', 'dark' => 'text_image_dark'),
+			'background' => array('none' => 'text_image_none', 'white' => 'text_image_white', 'theme' => 'text_image_theme', 'dark' => 'text_image_dark'),
 			'upscale' => array('1' => 'text_image_no_upscale', '2' => 'text_image_upscale_2', '3' => 'text_image_upscale_3', '0' => 'text_image_unlimited')
 		);
 		foreach (array('text_product_images', 'text_image_common', 'text_image_catalog', 'text_image_gallery', 'text_image_thumbnail', 'text_image_inherit', 'text_image_preview', 'help_product_images', 'help_image_fit', 'help_image_background', 'help_image_upscale', 'entry_image_fit', 'entry_image_background', 'entry_image_upscale') as $key) {
@@ -709,9 +709,9 @@ class ControllerExtensionThemeCodecart extends Controller {
 	private function imageOptionFields() {
 		$fields = array();
 		foreach (array('common', 'catalog', 'gallery', 'thumbnail') as $context) {
-			foreach (array('fit' => array('contain', 'cover'), 'background' => array('white', 'theme', 'dark'), 'upscale' => array('3', '1', '2', '0')) as $name => $allowed) {
+			foreach (array('fit' => array('contain', 'cover'), 'background' => array('none', 'white', 'theme', 'dark'), 'upscale' => array('3', '1', '2', '0')) as $name => $allowed) {
 				$prefix = 'theme_codecart_image_' . ($context === 'common' ? '' : $context . '_');
-				$fields[$prefix . $name] = array('default' => $context === 'common' ? $allowed[0] : 'inherit', 'allowed' => $context === 'common' ? $allowed : array_merge(array('inherit'), $allowed));
+				$fields[$prefix . $name] = array('default' => ($context === 'gallery' && $name === 'background') ? 'none' : ($context === 'common' ? ($name === 'background' ? 'white' : $allowed[0]) : 'inherit'), 'allowed' => $context === 'common' ? $allowed : array_merge(array('inherit'), $allowed));
 			}
 		}
 		return $fields;
