@@ -1016,6 +1016,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['filter_name'] = $filter_name;
 		$data['filter_model'] = $filter_model;
 		$data['filter_sku'] = $filter_sku;
+		$data['quick_price_edit_enabled'] = !$this->config->has('config_codecart_quick_price_edit') || (bool)$this->config->get('config_codecart_quick_price_edit');
 		$data['filter_price'] = $filter_price;
 		$data['filter_price_min'] = $filter_price_min;
 		$data['filter_price_max'] = $filter_price_max;
@@ -2133,6 +2134,103 @@ class ControllerCatalogProduct extends Controller {
 		}
 
 		return !$this->error;
+	}
+
+	/**
+	 * Lightweight SKU autocomplete: a unique list rather than duplicate product rows.
+	 * Avoid calling the general product autocomplete for SKU-only suggestions.
+	 */
+	public function skuAutocomplete() {
+		$json = array();
+		$token = isset($this->request->get['user_token']) && is_string($this->request->get['user_token']) ? $this->request->get['user_token'] : '';
+		$expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+		if ($token === '' || $expected === '' || !hash_equals($expected, $token)
+			|| !$this->user->hasPermission('access', 'catalog/product')) {
+			$this->response->setStatusCode(403);
+		} else {
+			$term = isset($this->request->get['filter_sku']) && is_string($this->request->get['filter_sku']) ? trim($this->request->get['filter_sku']) : '';
+			if (utf8_strlen($term) >= 2) {
+				$this->load->model('catalog/product');
+				foreach ($this->model_catalog_product->searchDistinctSkus($term, 15) as $row) {
+					$json[] = array('product_id' => (int)$row['product_id'], 'sku' => (string)$row['sku']);
+				}
+			}
+		}
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->addHeader('Cache-Control: no-store');
+		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE));
+	}
+
+	/**
+	 * Built-in product price editor. OFF blocks AJAX; Save is gated by modify
+	 * permission and a valid admin token and never bypasses normal product forms.
+	 */
+	public function quickPrice() {
+		$this->load->language('catalog/product');
+		$json = array('success' => false);
+		$token = isset($this->request->get['user_token']) && is_string($this->request->get['user_token']) ? $this->request->get['user_token'] : '';
+		$expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+		$action = isset($this->request->post['action']) && is_string($this->request->post['action']) ? $this->request->post['action'] : '';
+		$id = isset($this->request->post['product_id']) ? (int)$this->request->post['product_id'] : 0;
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->addHeader('Cache-Control: no-store');
+		$this->response->addHeader('X-Content-Type-Options: nosniff');
+
+		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST'
+			|| !in_array($action, array('get', 'save'), true) || $id < 1) {
+			$this->response->setStatusCode(400);
+			$json['error'] = $this->language->get('error_quick_price_request');
+		} elseif ($token === '' || $expected === '' || !hash_equals($expected, $token)
+			|| !$this->user->hasPermission('access', 'catalog/product')
+			|| ($action === 'save' && !$this->user->hasPermission('modify', 'catalog/product'))) {
+			$this->response->setStatusCode(403);
+			$json['error'] = $this->language->get('error_permission');
+		} elseif ($this->config->has('config_codecart_quick_price_edit')
+			&& !(bool)$this->config->get('config_codecart_quick_price_edit')) {
+			$this->response->setStatusCode(403);
+			$json['error'] = $this->language->get('error_quick_price_disabled');
+		} else {
+			$this->load->model('catalog/product');
+			$price = $this->model_catalog_product->getQuickPrice($id);
+			if ($price === null) {
+				$this->response->setStatusCode(404);
+				$json['error'] = $this->language->get('error_quick_price_not_found');
+			} else {
+				if ($action === 'save') {
+					$raw = isset($this->request->post['price']) && is_string($this->request->post['price']) ? trim($this->request->post['price']) : '';
+					$raw = str_replace(array(chr(194) . chr(160), ' '), '', $raw);
+					$raw = str_replace(',', '.', $raw);
+					if (!preg_match('/^(?:0|[1-9][0-9]{0,10})(?:\\.[0-9]{1,4})?$/', $raw)) {
+						$this->response->setStatusCode(422);
+						$json['error'] = $this->language->get('error_quick_price_value');
+					} else {
+						$price = number_format((float)$raw, 4, '.', '');
+						if (!$this->model_catalog_product->setQuickPrice($id, $price)) {
+							$this->response->setStatusCode(404);
+							$json['error'] = $this->language->get('error_quick_price_not_found');
+						}
+					}
+				}
+
+				if (!isset($json['error'])) {
+					$json['success'] = true;
+					$json['product_id'] = $id;
+					$json['price_value'] = rtrim(rtrim(number_format((float)$price, 4, '.', ''), '0'), '.');
+					$json['price_formatted'] = $this->currency->format((float)$price, $this->config->get('config_currency'));
+					$json['can_modify'] = $this->user->hasPermission('modify', 'catalog/product');
+					$json['special_formatted'] = '';
+					$specials = $this->model_catalog_product->getProductSpecialsByProductIds(array($id));
+					foreach ($specials[$id] ?? array() as $special) {
+						if (($special['date_start'] === '0000-00-00' || strtotime($special['date_start']) < time())
+							&& ($special['date_end'] === '0000-00-00' || strtotime($special['date_end']) > time())) {
+							$json['special_formatted'] = $this->currency->format((float)$special['price'], $this->config->get('config_currency'));
+							break;
+						}
+					}
+				}
+			}
+		}
+		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 	public function seoAutocomplete() {
