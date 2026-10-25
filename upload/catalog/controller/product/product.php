@@ -363,7 +363,7 @@ class ControllerProductProduct extends Controller {
 
 			$this->load->model('tool/image');
 			$is_codecart_gallery = $this->config->get('config_theme') === 'codecart';
-			$gallery_mode = $is_codecart_gallery && $this->config->get('theme_codecart_product_gallery_mode') === 'contain' ? 'contain' : 'native';
+			$gallery_mode = $is_codecart_gallery && (string)$this->config->get('theme_codecart_product_gallery_mode') === 'native' ? 'native' : 'contain';
 			$data['product_gallery_fit'] = $is_codecart_gallery && $gallery_mode === 'contain';
 			$gallery_options = $is_codecart_gallery ? $this->model_tool_image->getProductImageOptions('gallery') : array('background' => 'none');
 			$data['product_gallery_background'] = in_array((string)$gallery_options['background'], array('none', 'white', 'theme', 'dark'), true) ? (string)$gallery_options['background'] : 'none';
