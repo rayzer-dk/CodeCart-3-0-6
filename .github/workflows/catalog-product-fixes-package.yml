@@ -87,7 +87,7 @@ jobs:
           assert 'data-field="noindex"' in view and 'data-field="status"' in view
           assert "data-quantity" in view
           assert "field: current.field" in js and "aria-checked" in js
-          assert "var value = String(response.value), enabled = value === '1'" in js
+          assert "var value = String(result.value), enabled = value === '1'" in js
           assert "enabled = field === 'status'" not in js
           assert '{% if product.noindex_value %} is-on' in view
           assert 'aria-checked="{{ product.noindex_value ?' in view
