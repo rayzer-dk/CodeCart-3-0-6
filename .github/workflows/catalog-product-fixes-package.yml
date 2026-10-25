@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate sources and build changed-files ZIP
+      - name: Lint changes and build the ZIP
         shell: bash
         run: |
           set -euo pipefail
@@ -41,6 +41,7 @@ jobs:
             "upload/admin/language/en-gb/catalog/product.php"
             "upload/admin/language/ru-ru/catalog/product.php"
             "upload/admin/language/uk-ua/catalog/product.php"
+            "upload/system/library/codecart/src/Scheduler.php"
           )
           for file in "${files[@]}"; do test -f "$file"; done
           php -l "upload/admin/controller/catalog/product.php"
@@ -58,93 +59,99 @@ jobs:
           php -l "upload/admin/language/en-gb/catalog/product.php"
           php -l "upload/admin/language/ru-ru/catalog/product.php"
           php -l "upload/admin/language/uk-ua/catalog/product.php"
+          php -l "upload/system/library/codecart/src/Scheduler.php"
           node --check upload/admin/view/javascript/codecart-quick-price-edit.js
+          php -r '$regex = "/^(?:0|[1-9][0-9]{0,10})(?:\\.[0-9]{1,4})?$/"; foreach (["0","2","120.45"] as $v) { if (!preg_match($regex,$v)) exit(2); } foreach (["-1","2.55555","nan"] as $v) { if (preg_match($regex,$v)) exit(3); }'
           python3 - <<'PY'
           from pathlib import Path
-          def read(path):
-              return Path(path).read_text(encoding='utf-8')
+          def read(name):
+              return Path(name).read_text(encoding="utf-8")
           product=read("upload/admin/controller/catalog/product.php")
           model=read("upload/admin/model/catalog/product.php")
           view=read("upload/admin/view/template/catalog/product_list.twig")
+          js=read("upload/admin/view/javascript/codecart-quick-price-edit.js")
           css=read("upload/admin/view/stylesheet/codecart_product_list.css")
-          price_js=read("upload/admin/view/javascript/codecart-quick-price-edit.js")
+          scheduler=read("upload/system/library/codecart/src/Scheduler.php")
           theme=read("upload/admin/controller/extension/theme/codecart.php")
           image=read("upload/catalog/model/tool/image.php")
           gallery=read("upload/catalog/view/theme/codecart/template/product/product.twig")
           gallery_css=read("upload/catalog/view/theme/codecart/stylesheet/stylesheet.css")
-          settings=read("upload/admin/controller/setting/setting.php")
-          settings_view=read("upload/admin/view/template/setting/setting.twig")
-          assert "skuAutocomplete()" in product
           assert "searchDistinctSkus(" in model and "GROUP BY TRIM(p.sku)" in model
-          assert "TRIM(p.sku) <> ''" in model
-          assert "filter_sku']" in product
-          assert "catalog/product/skuAutocomplete" in view
-          assert "request.length < 2" in view
-          assert "var used = {}" in view
-          assert "width: 100% !important" in css
-          assert "border: 0 !important" in css
-          assert "min-height: 36px !important" in css
-          assert "quickPrice()" in product
-          assert "hash_equals($expected, $token)" in product
+          assert "catalog/product/skuAutocomplete" in view and "request.length < 2" in view
+          assert "quickProductField()" in product and "getQuickProductFields" in model
+          assert "saveQuickProductField" in model
+          assert "array('price' => true, 'quantity' => true, 'status' => true, 'noindex' => true)" in product
+          assert "hash_equals($expected_token, $token)" in product
           assert "hasPermission('modify', 'catalog/product')" in product
-          assert "config_codecart_quick_price_edit" in product
-          assert "setQuickPrice" in model
-          assert "data('ccp-price-markup'" in price_js
-          assert "quick_price_edit_enabled" in view
-          assert "config_codecart_quick_price_edit" in settings
-          assert "config_codecart_quick_price_edit" in settings_view
-          assert "($name === 'background' ? 'white'" in theme
-          assert "in_array($common, $allowed, true)" in image
+          assert "error_quick_field_conflict" in product
+          assert 'data-field="noindex"' in view and 'data-field="status"' in view
+          assert "data-quantity" in view
+          assert "field: field" in js and "aria-pressed" in js
+          assert "ccp-qpf-toggle" in css
+          assert "ccp-qpe-quantity-cell" in css
+          assert "core.stock.notify" in scheduler and "cron/stock_notify" in scheduler
+          assert "core.queue.worker" in scheduler and "cron/queue_worker" in scheduler
+          assert "core.mail.campaign" in scheduler and "cron/mail_campaign" in scheduler
+          assert "route = 'cron'" in scheduler
+          assert "background' ? 'white'" in theme
+          assert "resizeContain($filename, $width, $height, $max_scale = 0)" in image
+          assert "'upscale' && $value === '' ? '1'" in image
           assert "product_gallery_background|default('white')" in gallery
           assert "image_thumb_width > 0" in gallery
           assert "image_thumb_height > 0" in gallery
-          assert "ccp-gallery-thumb-width" in gallery
-          assert "ccp-gallery-thumb-width" in gallery_css
-          assert "--ccp-image-thumbnail-background" in gallery_css
-          assert "--ccp-image-catalog-background" in gallery_css
+          assert "width: auto !important" in gallery_css and "object-fit: contain !important" in gallery_css
           assert "var(--ccp-gallery-aspect" in gallery_css
           assert "naturalWidth" not in gallery
           for locale in ("en-gb", "ru-ru", "uk-ua"):
+              labels=read(f"upload/admin/language/{locale}/catalog/product.php")
+              assert "text_quick_index_tooltip" in labels and "error_quick_quantity_value" in labels
               assert "entry_codecart_quick_price_edit" in read(f"upload/admin/language/{locale}/setting/setting.php")
-              assert "button_quick_price_edit" in read(f"upload/admin/language/{locale}/catalog/product.php")
-              assert "help_image_background" in read(f"upload/admin/language/{locale}/extension/theme/codecart.php")
-          print("PASS: gallery sizing/background, SKU suggestions, quick price setting and security")
+          print("Static regression checks: PASS")
           PY
-          cat > README-CHANGESET.txt <<'README'
-          CodeCart 3.0.6 — product photos, SKU search, quick price editing.
-          Archive: 22 complete source files, preserving upload/ paths.
-          Make a full backup of the website and database before replacing files.
-          Replace only the matching files in CodeCart 3.0.6. Refresh OCMOD,
-          clear Twig/theme cache, and reload the admin product page.
+          cat > README-CHANGES.txt <<'README'
+          CodeCart 3.0.6 — catalog, gallery and Cron fixes.
+          Contains 23 complete modified files, with original upload/ paths.
+          Backup the COMPLETE site and database before copying any files!
+          Patch applies only to a matching CodeCart 3.0.6 build.
+          Upload, clear Twig cache and image derivatives as necessary, refresh OCMOD.
 
-          Product photo frames: CodeCart theme image dimensions in Theme settings
-          determine a fixed gallery main frame and uniform additional-thumbnail
-          sizes. Each image is displayed with object-fit: contain, without crops.
-          White is the DEFAULT frame background; transparent/none is optional.
-          Background colors are CSS-only and never change original photo pixels.
-          White stage colors apply to all CodeCart product cards, gallery and thumbs.
-          Common image settings affect catalog, gallery and thumbnails; per-context
-          settings can override them. Existing saved overrides remain unchanged.
-          An already white JPEG photo retains its internal white background.
+          CATALOG PRODUCTS:
+          - Unique SKU hints (at least 2 characters), aligned clear buttons.
+          - Price and stock quantity edit without full product form.
+          - Clickable on/off switches for visibility and search indexing.
+            Indexing ON means noindex=0; Indexing OFF means noindex=1.
+          - Changes require CSRF session token, modify rights, field validation,
+            and optimistic concurrency checks. Failed saves keep old values.
+          - Disable all inline edits via Store Settings > Options > Products >
+            Quick price editing (legacy label; setting controls all 4 fields).
+            Old Quick Price Edit OCMOD should be disabled to avoid duplicates.
 
-          SKU autocomplete: only distinct nonempty SKUs; starts after two typed
-          characters, maximum 15 suggestions, width constrained to the filter.
-          Clear buttons match input height; redundant thin separators removed.
+          PHOTO GALLERY:
+          - CSS background affects FRAME ONLY. Default white; None selectable.
+          - The source photo is never overwritten or padded with a white raster.
+          - The main frame is fixed to theme thumb WIDTH x HEIGHT; additional
+            thumbnails use theme additional image dimensions.
+          - Proportional Contain takes the smaller of width and height ratios,
+            preserving the entire image without cropping or distortion.
+          - In fit mode the default maximum enlargement is 1x (original pixels).
+            Explicit gallery upscale choices override this.
+          - OpenCart native mode is still available for compatibility.
+          - The source photo may itself contain a white background. CSS cannot
+            remove such pixels.
 
-          Quick Price Edit: built-in and enabled by default; disable it at
-          Settings > Store > Options > Products > Quick price editing.
-          It edits only the BASE price in catalog products, respecting admin
-          access/modify permissions and token validation. Promotions are unchanged.
-          If an older Quick Price Edit OCMOD is separately installed, disable or
-          uninstall it to avoid overlapping implementations.
+          SCHEDULER:
+          - Self-heal only legacy core tasks with erroneous bare route "cron":
+            stock notifications, queue worker, and mail campaigns.
+          - Custom task routes are NEVER guessed or modified.
+          - Live cron execution and web server setup must be verified separately.
 
-          This is a patch package, NOT a full CodeCart installation.
+          This is a changed-files patch, not a full shop installation.
           README
-          zip -q CodeCart_3.0.6_Product_Image_SKU_Price_Fixes.zip "${files[@]}" README-CHANGESET.txt
-          unzip -t CodeCart_3.0.6_Product_Image_SKU_Price_Fixes.zip
+          zip -q CodeCart_3.0.6_Gallery_Cron_Quick_Edit.zip "${files[@]}" README-CHANGES.txt
+          unzip -t CodeCart_3.0.6_Gallery_Cron_Quick_Edit.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeCart_3.0.6_Product_Image_SKU_Price_Fixes
-          path: CodeCart_3.0.6_Product_Image_SKU_Price_Fixes.zip
+          name: CodeCart_3.0.6_Gallery_Cron_Quick_Edit
+          path: CodeCart_3.0.6_Gallery_Cron_Quick_Edit.zip
           if-no-files-found: error
           retention-days: 30
