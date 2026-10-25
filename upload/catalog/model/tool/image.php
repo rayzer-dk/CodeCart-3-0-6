@@ -139,7 +139,7 @@ class ModelToolImage extends Model {
         foreach (array('fit' => array('contain', 'cover'), 'background' => array('none', 'white', 'theme', 'dark'), 'upscale' => array('3', '1', '2', '0')) as $name => $allowed) {
             $common = (string)$this->config->get('theme_codecart_image_' . $name);
             $value = (string)$this->config->get('theme_codecart_image_' . $context . '_' . $name);
-            $options[$name] = in_array($value, $allowed, true) ? $value : ($context === 'gallery' && $name === 'background' ? 'none' : (in_array($common, $allowed, true) ? $common : ($name === 'background' ? 'white' : $allowed[0])));
+            $options[$name] = in_array($value, $allowed, true) ? $value : (in_array($common, $allowed, true) ? $common : ($name === 'background' ? 'white' : $allowed[0]));
         }
         return $options;
     }
