@@ -1,6 +1,6 @@
 {{ header }}{{ column_left }}
 <div id="content">
-  <link rel="stylesheet" href="view/stylesheet/codecart_product_list.css?v=3.0.6.6" />
+  <link rel="stylesheet" href="view/stylesheet/codecart_product_list.css?v=3.0.6.7" />
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
@@ -535,17 +535,24 @@ $('#button-clear-input-name').on('click',function(){
 
 $('input[name=\'filter_sku\']').autocomplete({
   'source': function(request, response) {
+    request = $.trim(String(request || ''));
+    if (request.length < 2) { response([]); return; }
     $.ajax({
-      url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_sku=' + encodeURIComponent(request),
+      url: 'index.php?route=catalog/product/skuAutocomplete&user_token={{ user_token }}&filter_sku=' + encodeURIComponent(request),
       dataType: 'json',
       success: function(json) {
-        response($.map(json, function(item) {
-          return {label: $('<div>').text(item['sku']).html(), value: item['product_id'], sku: item['sku']};
+        var used = {};
+        response($.map(json || [], function(item) {
+          var sku = $.trim(String(item.sku || ''));
+          if (!sku || used[sku.toLowerCase()]) { return null; }
+          used[sku.toLowerCase()] = true;
+          return { label: $('<div>').text(sku).html(), value: item.product_id, sku: sku };
         }));
-      }
+      },
+      error: function() { response([]); }
     });
   },
-  'select': function(item) { $('input[name=\'filter_sku\']').val(item['sku']); }
+  'select': function(item) { $('input[name=\'filter_sku\']').val(item.sku); }
 });
 $('#button-clear-input-sku').on('click', function() {
   $('input[name=\'filter_sku\']').val('');
@@ -721,4 +728,16 @@ $('input[name=\'filter_name\'], input[name=\'filter_sku\'], input[name=\'filter_
 	}
 });
 //--></script></div>
+{% if quick_price_edit_enabled %}
+<div id="ccp-quick-price-config" hidden="hidden"
+  data-url="index.php?route=catalog/product/quickPrice&amp;user_token={{ user_token }}"
+  data-edit="{{ button_quick_price_edit }}"
+  data-save="{{ button_quick_price_save }}"
+  data-cancel="{{ button_quick_price_cancel }}"
+  data-saved="{{ text_quick_price_saved }}"
+  data-load-error="{{ error_quick_price_load }}"
+  data-save-error="{{ error_quick_price_save }}"
+  data-invalid="{{ error_quick_price_value }}"></div>
+<script src="view/javascript/codecart-quick-price-edit.js?v=3.0.6.2" type="text/javascript"></script>
+{% endif %}
 {{ footer }} 
