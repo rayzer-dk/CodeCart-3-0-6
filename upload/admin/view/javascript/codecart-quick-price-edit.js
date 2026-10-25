@@ -68,7 +68,7 @@
     }
     function drawQuantity($cell, response) {
       $cell.removeClass('ccp-qpe-editing ccp-qpe-loading');
-      var $value = $cell.find('.ccp-qpf-quantity-value');
+      var $value = $cell.find('.ccp-qpf-quantity-value').show();
       if (response && response.value !== undefined) {
         $value.empty().append(quantityLabel(response.value));
         $cell.attr('data-quantity', response.value);
