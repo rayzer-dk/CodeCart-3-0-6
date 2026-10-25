@@ -816,6 +816,8 @@ class ControllerCatalogProduct extends Controller {
 				'price'      => $this->currency->format($result['price'], $this->config->get('config_currency')),
 				'special'    => $special,
 				'quantity'   => $result['quantity'],
+				'status_value' => (int)$result['status'],
+				'noindex_value' => (int)$result['noindex'],
 				'stock_notify_count' => isset($stock_notify_counts[(int)$result['product_id']]) ? $stock_notify_counts[(int)$result['product_id']] : 0,
 				'status'     => $result['status'] ? $this->language->get('text_enabled_short') : $this->language->get('text_disabled_short'),
 				'noindex'    => $result['noindex'] ? $this->language->get('text_enabled_short') : $this->language->get('text_disabled_short'),
@@ -2168,22 +2170,33 @@ class ControllerCatalogProduct extends Controller {
 	 * Built-in product price editor. OFF blocks AJAX; Save is gated by modify
 	 * permission and a valid admin token and never bypasses normal product forms.
 	 */
+	// Backward-compatible alias for the original price-only inline editor.
 	public function quickPrice() {
+		$this->request->post['field'] = 'price';
+		return $this->quickProductField();
+	}
+
+	/**
+	 * Product list inline editor. Only whitelisted columns can be changed.
+	 * It does not edit product descriptions, options, special prices or SEO URLs.
+	 */
+	public function quickProductField() {
 		$this->load->language('catalog/product');
-		$json = array('success' => false);
-		$token = isset($this->request->get['user_token']) && is_string($this->request->get['user_token']) ? $this->request->get['user_token'] : '';
-		$expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
-		$action = isset($this->request->post['action']) && is_string($this->request->post['action']) ? $this->request->post['action'] : '';
-		$id = isset($this->request->post['product_id']) ? (int)$this->request->post['product_id'] : 0;
 		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
 		$this->response->addHeader('Cache-Control: no-store');
 		$this->response->addHeader('X-Content-Type-Options: nosniff');
-
-		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST'
-			|| !in_array($action, array('get', 'save'), true) || $id < 1) {
+		$json = array('success' => false);
+		$token = isset($this->request->get['user_token']) && is_string($this->request->get['user_token']) ? $this->request->get['user_token'] : '';
+		$expected_token = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+		$action = isset($this->request->post['action']) && is_string($this->request->post['action']) ? $this->request->post['action'] : '';
+		$field = isset($this->request->post['field']) && is_string($this->request->post['field']) ? $this->request->post['field'] : '';
+		$id = isset($this->request->post['product_id']) ? (int)$this->request->post['product_id'] : 0;
+		$allowed = array('price' => true, 'quantity' => true, 'status' => true, 'noindex' => true);
+		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST' || !in_array($action, array('get', 'save'), true)
+			|| $id < 1 || !isset($allowed[$field])) {
 			$this->response->setStatusCode(400);
 			$json['error'] = $this->language->get('error_quick_price_request');
-		} elseif ($token === '' || $expected === '' || !hash_equals($expected, $token)
+		} elseif ($token === '' || $expected_token === '' || !hash_equals($expected_token, $token)
 			|| !$this->user->hasPermission('access', 'catalog/product')
 			|| ($action === 'save' && !$this->user->hasPermission('modify', 'catalog/product'))) {
 			$this->response->setStatusCode(403);
@@ -2194,40 +2207,63 @@ class ControllerCatalogProduct extends Controller {
 			$json['error'] = $this->language->get('error_quick_price_disabled');
 		} else {
 			$this->load->model('catalog/product');
-			$price = $this->model_catalog_product->getQuickPrice($id);
-			if ($price === null) {
+			$row = $this->model_catalog_product->getQuickProductFields($id);
+			if (!$row) {
 				$this->response->setStatusCode(404);
 				$json['error'] = $this->language->get('error_quick_price_not_found');
 			} else {
 				if ($action === 'save') {
-					$raw = isset($this->request->post['price']) && is_string($this->request->post['price']) ? trim($this->request->post['price']) : '';
-					$raw = str_replace(array(chr(194) . chr(160), ' '), '', $raw);
-					$raw = str_replace(',', '.', $raw);
-					if (!preg_match('/^(?:0|[1-9][0-9]{0,10})(?:\\.[0-9]{1,4})?$/', $raw)) {
-						$this->response->setStatusCode(422);
-						$json['error'] = $this->language->get('error_quick_price_value');
+					$raw = isset($this->request->post['value']) && is_string($this->request->post['value'])
+						? trim($this->request->post['value']) : '';
+					if ($field === 'price') {
+						$raw = str_replace(array(chr(194) . chr(160), ' '), '', $raw);
+						$raw = str_replace(',', '.', $raw);
+						$valid = (bool)preg_match('/^(?:0|[1-9][0-9]{0,10})(?:\\.[0-9]{1,4})?$/', $raw);
+						$value = $valid ? number_format((float)$raw, 4, '.', '') : '';
+					} elseif ($field === 'quantity') {
+						$valid = (bool)preg_match('/^(?:0|[1-9][0-9]{0,9})$/', $raw);
+						$value = $valid && (float)$raw <= 2147483647 ? (int)$raw : 0;
+						$valid = $valid && (float)$raw <= 2147483647;
 					} else {
-						$price = number_format((float)$raw, 4, '.', '');
-						if (!$this->model_catalog_product->setQuickPrice($id, $price)) {
-							$this->response->setStatusCode(404);
-							$json['error'] = $this->language->get('error_quick_price_not_found');
+						$valid = in_array($raw, array('0', '1'), true);
+						$value = (int)$raw;
+					}
+					if (!$valid) {
+						$this->response->setStatusCode(422);
+						$json['error'] = $this->language->get($field === 'price' ? 'error_quick_price_value' : 'error_quick_field_value');
+					} else {
+						$expected = $this->request->post['expected'] ?? null;
+						if (is_array($expected)) { $expected = null; }
+						if ($expected !== null && (string)$expected !== (string)$row[$field] && !($field === 'price' && is_numeric($expected) && (float)$expected === (float)$row[$field])) {
+							$this->response->setStatusCode(409);
+							$json['error'] = $this->language->get('error_quick_field_conflict');
+						} elseif ((string)$value !== (string)$row[$field] && !($field === 'price' && (float)$value === (float)$row[$field])) {
+							if (!$this->model_catalog_product->saveQuickProductField($id, $field, $value, $row[$field])) {
+								$this->response->setStatusCode(409);
+								$json['error'] = $this->language->get('error_quick_field_conflict');
+							} else {
+								$row[$field] = $value;
+							}
 						}
 					}
 				}
-
 				if (!isset($json['error'])) {
 					$json['success'] = true;
 					$json['product_id'] = $id;
-					$json['price_value'] = rtrim(rtrim(number_format((float)$price, 4, '.', ''), '0'), '.');
-					$json['price_formatted'] = $this->currency->format((float)$price, $this->config->get('config_currency'));
+					$json['field'] = $field;
+					$json['value'] = (string)$row[$field];
 					$json['can_modify'] = $this->user->hasPermission('modify', 'catalog/product');
-					$json['special_formatted'] = '';
-					$specials = $this->model_catalog_product->getProductSpecialsByProductIds(array($id));
-					foreach ($specials[$id] ?? array() as $special) {
-						if (($special['date_start'] === '0000-00-00' || strtotime($special['date_start']) < time())
-							&& ($special['date_end'] === '0000-00-00' || strtotime($special['date_end']) > time())) {
-							$json['special_formatted'] = $this->currency->format((float)$special['price'], $this->config->get('config_currency'));
-							break;
+					if ($field === 'price') {
+						$json['price_value'] = rtrim(rtrim(number_format((float)$row['price'], 4, '.', ''), '0'), '.');
+						$json['price_formatted'] = $this->currency->format((float)$row['price'], $this->config->get('config_currency'));
+						$json['special_formatted'] = '';
+						$specials = $this->model_catalog_product->getProductSpecialsByProductIds(array($id));
+						foreach ($specials[$id] ?? array() as $special) {
+							if (($special['date_start'] === '0000-00-00' || strtotime($special['date_start']) < time())
+								&& ($special['date_end'] === '0000-00-00' || strtotime($special['date_end']) > time())) {
+								$json['special_formatted'] = $this->currency->format((float)$special['price'], $this->config->get('config_currency'));
+								break;
+							}
 						}
 					}
 				}
