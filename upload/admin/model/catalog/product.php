@@ -502,6 +502,22 @@ class ModelCatalogProduct extends Model {
 	 * Unique non-empty SKU hints only. The product list itself may contain many
 	 * products with the same SKU; returning products makes the dropdown repeat.
 	 */
+	/** Quick price editor: only product price and modification timestamp are changed. */
+	public function setQuickPrice($product_id, $price) {
+		$product_id = (int)$product_id;
+		if ($product_id < 1) { return false; }
+		$query = $this->db->query("SELECT product_id FROM `" . DB_PREFIX . "product` WHERE product_id = '" . $product_id . "' LIMIT 1");
+		if (!$query->num_rows) { return false; }
+		$this->db->query("UPDATE `" . DB_PREFIX . "product` SET price = '" . $this->db->escape((string)$price) . "', date_modified = NOW() WHERE product_id = '" . $product_id . "'");
+		$this->cache->delete('product');
+		return true;
+	}
+
+	public function getQuickPrice($product_id) {
+		$query = $this->db->query("SELECT price FROM `" . DB_PREFIX . "product` WHERE product_id = '" . (int)$product_id . "' LIMIT 1");
+		return $query->num_rows ? (string)$query->row['price'] : null;
+	}
+
 	public function searchDistinctSkus($term, $limit = 15) {
 		$term = trim((string)$term);
 		if (utf8_strlen($term) < 2) { return array(); }
