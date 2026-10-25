@@ -2349,7 +2349,8 @@ html.ccp-theme-dark .ccp-blog-copy code{
   width: 100%;
   height: auto;
   min-height: 0;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: var(--ccp-gallery-aspect, 4 / 3);
+  max-height: min(680px, 82vh);
   overflow: hidden !important;
   padding: 0 !important;
   background: var(--ccp-image-gallery-background, transparent) !important;
