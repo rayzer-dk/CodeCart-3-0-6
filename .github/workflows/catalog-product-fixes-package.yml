@@ -86,7 +86,21 @@ jobs:
           assert "error_quick_field_conflict" in product
           assert 'data-field="noindex"' in view and 'data-field="status"' in view
           assert "data-quantity" in view
-          assert "field: field" in js and "aria-pressed" in js
+          assert "field: field" in js and "aria-checked" in js
+          assert "var value = String(response.value), enabled = value === '1'" in js
+          assert "enabled = field === 'status'" not in js
+          assert '{% if product.noindex_value %} is-on' in view
+          assert 'aria-checked="{{ product.noindex_value ?' in view
+          assert 'role="switch"' in view
+          assert "ccp-qpf-toggle-label" not in view
+          assert "ccp-qpf-toggle-label" not in js
+          assert 'button.ccp-qpf-toggle.is-on > .ccp-qpf-toggle-track' in css
+          assert 'background: #24a35b' in css
+          assert "ccp-qpf-toggle-track" in css and "ccp-qpf-toggle-knob" in css
+          storefront=read("upload/catalog/controller/product/product.php")
+          form=read("upload/admin/view/template/catalog/product_form.twig")
+          assert "if ($product_info['noindex'] <= 0" in storefront
+          assert '<option value="1" selected="selected">{{ text_enabled }}</option>' in form
           assert "ccp-qpf-toggle" in css
           assert "ccp-qpe-quantity-cell" in css
           assert "core.stock.notify" in scheduler and "cron/stock_notify" in scheduler
@@ -120,7 +134,8 @@ jobs:
           - Unique SKU hints (at least 2 characters), aligned clear buttons.
           - Price and stock quantity edit without full product form.
           - Clickable on/off switches for visibility and search indexing.
-            Indexing ON means noindex=0; Indexing OFF means noindex=1.
+            Indexing ON means noindex=1; Indexing OFF means noindex=0.
+            This matches CodeCart/ocStore storefront robots logic.
           - Changes require CSRF session token, modify rights, field validation,
             and optimistic concurrency checks. Failed saves keep old values.
           - Disable all inline edits via Store Settings > Options > Products >
@@ -146,6 +161,7 @@ jobs:
           - Custom task routes are NEVER guessed or modified.
           - Live cron execution and web server setup must be verified separately.
 
+          The status/index switches are pill controls without text in cells.
           This is a changed-files patch, not a full shop installation.
           README
           zip -q CodeCart_3.0.6_Gallery_Cron_Quick_Edit.zip "${files[@]}" README-CHANGES.txt
@@ -155,6 +171,33 @@ jobs:
           name: CodeCart_3.0.6_Gallery_Cron_Quick_Edit
           path: CodeCart_3.0.6_Gallery_Cron_Quick_Edit.zip
           if-no-files-found: error
+          retention-days: 30
+
+      - name: Package only this switch fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > README-SWITCH-FIX.txt <<'README'
+          CodeCart 3.0.6 — status and indexing switch UI fix.
+          Includes three full files with original paths.
+          Changes:
+          1. Compact green/grey graphical switches (no button text).
+          2. Indexing ON = product.noindex 1; OFF = product.noindex 0.
+          3. Correct AJAX polarity, screen-reader state, and CSS cache version.
+          No product data is changed automatically.
+          Back up website files and database before replacing these files.
+          Replace matching files, clear template/OCMOD cache, refresh page.
+          README
+          zip -q CodeCart_3.0.6_Switch_Fix.zip \
+            upload/admin/view/template/catalog/product_list.twig \
+            upload/admin/view/stylesheet/codecart_product_list.css \
+            upload/admin/view/javascript/codecart-quick-price-edit.js \
+            README-SWITCH-FIX.txt
+          unzip -tq CodeCart_3.0.6_Switch_Fix.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Switch_Fix
+          path: CodeCart_3.0.6_Switch_Fix.zip
           retention-days: 30
 
       - name: Archive the complete main-branch source tree
