@@ -323,9 +323,9 @@
                       {% else %}
                       {{ product.price }}
                       {% endif %}</td>
-                    <td class="text-right">{% if product.quantity <= 0 %} <span class="label label-warning">{{ product.quantity }}</span>{% if product.stock_notify_count %}<br><span class="label label-info" title="{{ text_stock_notify_waiting }}"><i class="fa fa-bell"></i> {{ product.stock_notify_count }}</span>{% endif %} {% elseif product.quantity <= 5 %} <span class="label label-danger">{{ product.quantity }}</span> {% else %} <span class="label label-success">{{ product.quantity }}</span> {% endif %}</td>
-                    <td class="text-left">{{ product.status }}</td>
-					<td class="text-left">{{ product.noindex }}</td>
+                    <td class="text-right ccp-qpf-quantity-cell" data-quantity="{{ product.quantity }}"><span class="ccp-qpf-quantity-value">{% if product.quantity <= 0 %}<span class="label label-warning">{{ product.quantity }}</span>{% elseif product.quantity <= 5 %}<span class="label label-danger">{{ product.quantity }}</span>{% else %}<span class="label label-success">{{ product.quantity }}</span>{% endif %}</span>{% if product.stock_notify_count %}<br><span class="label label-info" title="{{ text_stock_notify_waiting }}"><i class="fa fa-bell"></i> {{ product.stock_notify_count }}</span>{% endif %}</td>
+                    <td class="text-left">{% if quick_price_edit_enabled %}<button type="button" class="ccp-qpf-toggle{% if product.status_value %} is-on{% endif %}" data-field="status" data-value="{{ product.status_value }}" aria-pressed="{{ product.status_value ? 'true' : 'false' }}" title="{{ text_quick_status_tooltip }}"><span class="ccp-qpf-toggle-track"><span class="ccp-qpf-toggle-knob"></span></span><span class="ccp-qpf-toggle-label">{{ product.status_value ? text_quick_on : text_quick_off }}</span></button>{% else %}{{ product.status }}{% endif %}</td>
+					<td class="text-left">{% if quick_price_edit_enabled %}<button type="button" class="ccp-qpf-toggle{% if not product.noindex_value %} is-on{% endif %}" data-field="noindex" data-value="{{ product.noindex_value }}" aria-pressed="{{ product.noindex_value ? 'false' : 'true' }}" title="{{ text_quick_index_tooltip }}"><span class="ccp-qpf-toggle-track"><span class="ccp-qpf-toggle-knob"></span></span><span class="ccp-qpf-toggle-label">{{ product.noindex_value ? text_quick_off : text_quick_on }}</span></button>{% else %}{{ product.noindex }}{% endif %}</td>
                     <td class="text-right">
 						<a target="_blank" href="{{ product.href_shop }}" data-toggle="tooltip" title="{{ button_shop }}" class="btn btn-success"><i class="fa fa-eye"></i></a>
 						<a href="{{ product.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
@@ -730,14 +730,19 @@ $('input[name=\'filter_name\'], input[name=\'filter_sku\'], input[name=\'filter_
 //--></script></div>
 {% if quick_price_edit_enabled %}
 <div id="ccp-quick-price-config" hidden="hidden"
-  data-url="index.php?route=catalog/product/quickPrice&amp;user_token={{ user_token }}"
+  data-url="index.php?route=catalog/product/quickProductField&amp;user_token={{ user_token }}"
   data-edit="{{ button_quick_price_edit }}"
   data-save="{{ button_quick_price_save }}"
   data-cancel="{{ button_quick_price_cancel }}"
   data-saved="{{ text_quick_price_saved }}"
   data-load-error="{{ error_quick_price_load }}"
   data-save-error="{{ error_quick_price_save }}"
-  data-invalid="{{ error_quick_price_value }}"></div>
-<script src="view/javascript/codecart-quick-price-edit.js?v=3.0.6.2" type="text/javascript"></script>
+  data-invalid="{{ error_quick_price_value }}"
+  data-quantity="{{ text_quick_quantity_edit }}"
+  data-on="{{ text_quick_on }}"
+  data-off="{{ text_quick_off }}"
+  data-quantity-invalid="{{ error_quick_quantity_value }}"
+  data-conflict="{{ error_quick_field_conflict }}"></div>
+<script src="view/javascript/codecart-quick-price-edit.js?v=3.0.6.3" type="text/javascript"></script>
 {% endif %}
 {{ footer }} 
