@@ -19,7 +19,7 @@ $_['text_image_upscale_3'] = 'Up to 3x';
 $_['text_image_unlimited'] = 'Unlimited';
 $_['help_product_images'] = 'Applies to CodeCart product photos. Originals stay unchanged; background is drawn by the interface. Save with the standard Save button.';
 $_['help_image_fit'] = 'Contain preserves the whole photo; Cover crops centrally.';
-$_['help_image_background'] = 'No background pixels are added to generated files. A white background already in a photo is preserved.';
+$_['help_image_background'] = 'Choose no background (transparent), white, theme or dark for the displayed area. This never paints the image file. Background already present in the original image cannot be removed here.';
 $_['help_image_upscale'] = 'Small photos may lose sharpness when enlarged. Disabled limits scaling to the original size.';
 $_['text_image_preview'] = 'Preview of a small landscape photo. Changes here affect the preview until you save.';
 // *	@source		See SOURCE.txt for source and other copyright.
@@ -225,6 +225,7 @@ $_['entry_header_product_search'] = "Search product";
 $_['error_image_manufacturer'] = 'Manufacturer Image Size dimensions required!';
 
 $_['entry_product_gallery_mode'] = 'Product photo display';
-$_['text_product_gallery_native'] = 'Standard OpenCart sizing (default)';
-$_['text_product_gallery_contain'] = 'Fit to frame without cropping (enlarge)';
-$_['help_product_gallery_mode'] = 'Standard mode uses the native OpenCart image resize. Fit mode enlarges the main and selected additional photo by its longer suitable side, preserves its proportions and transparency, and never crops or adds a background. Only CodeCart product detail pages are affected.';
+$_['text_product_gallery_native'] = 'OpenCart original resize (may add white padding)';
+$_['text_product_gallery_contain'] = 'Fit whole photo, fill available side (no added pixels)';
+$_['help_product_gallery_mode'] = 'Fit is recommended: main and additional photos scale proportionally inside the frame, without cropping, composited padding or backgrounds. Native preserves OpenCart legacy resizing and may add white margins inside generated JPEGs. The background control below changes only the gallery frame. Existing background in a photo is not removed.';
+$_['text_image_none'] = 'None (transparent)';
