@@ -116,6 +116,22 @@ final class Scheduler {
         $message = 'OK';
         try {
             $route = $this->normalizeRoute((string)$job['route']);
+            // Repair a legacy built-in route stored as just "cron": Action would
+            // otherwise try to load a non-existent controller/cron.php and throw
+            // "Could not call /cron!". Never reinterpret custom task routes.
+            if ($route === 'cron') {
+                $builtin_routes = array(
+                    'core.stock.notify' => 'cron/stock_notify',
+                    'core.queue.worker' => 'cron/queue_worker',
+                    'core.mail.campaign' => 'cron/mail_campaign'
+                );
+                $code = (string)$job['code'];
+                if (!isset($builtin_routes[$code])) {
+                    throw new \RuntimeException('Invalid scheduler route: cron (a controller action is required).');
+                }
+                $route = $builtin_routes[$code];
+                $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET route = '" . $this->db->escape($route) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$job['scheduler_id'] . "' AND route = 'cron'");
+            }
             $args = json_decode((string)$job['args'], true);
             if (!is_array($args)) { $args = array(); }
             $result = $this->registry->get('load')->controller($route, $args, true);
