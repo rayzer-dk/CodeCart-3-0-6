@@ -498,6 +498,19 @@ class ModelCatalogProduct extends Model {
 		return $query->row;
 	}
 
+	/**
+	 * Unique non-empty SKU hints only. The product list itself may contain many
+	 * products with the same SKU; returning products makes the dropdown repeat.
+	 */
+	public function searchDistinctSkus($term, $limit = 15) {
+		$term = trim((string)$term);
+		if (utf8_strlen($term) < 2) { return array(); }
+		$term = utf8_substr($term, 0, 64);
+		$limit = max(1, min(20, (int)$limit));
+		$sql = "SELECT MIN(p.product_id) AS product_id, TRIM(p.sku) AS sku FROM `" . DB_PREFIX . "product` p WHERE TRIM(p.sku) <> '' AND p.sku LIKE '%" . $this->db->escape($term) . "%' GROUP BY TRIM(p.sku) ORDER BY sku ASC LIMIT " . $limit;
+		return $this->db->query($sql)->rows;
+	}
+
 	public function getProducts($data = array()) {
 		$sql = "SELECT p.*, pd.* FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 		$sql .= $this->buildProductFilterWhere($data);
