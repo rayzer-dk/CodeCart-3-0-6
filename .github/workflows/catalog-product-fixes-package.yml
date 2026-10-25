@@ -1,0 +1,63 @@
+name: Catalog product fixes package
+
+on:
+  push:
+    paths:
+      - '.github/workflows/catalog-product-fixes-package.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify changed sources and package
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            "upload/admin/controller/catalog/product.php"
+            "upload/admin/model/catalog/product.php"
+            "upload/admin/view/template/catalog/product_list.twig"
+            "upload/admin/view/stylesheet/codecart_product_list.css"
+            "upload/admin/controller/extension/theme/codecart.php"
+            "upload/admin/view/template/extension/theme/codecart.twig"
+            "upload/admin/language/en-gb/extension/theme/codecart.php"
+            "upload/admin/language/ru-ru/extension/theme/codecart.php"
+            "upload/admin/language/uk-ua/extension/theme/codecart.php"
+            "upload/catalog/model/tool/image.php"
+            "upload/catalog/controller/product/product.php"
+            "upload/catalog/view/theme/codecart/template/product/product.twig"
+            "upload/catalog/view/theme/codecart/stylesheet/stylesheet.css"
+          )
+          for file in "${files[@]}"; do test -f "$file"; done
+          php -l upload/admin/controller/catalog/product.php
+          php -l upload/admin/model/catalog/product.php
+          php -l upload/admin/controller/extension/theme/codecart.php
+          php -l upload/catalog/controller/product/product.php
+          php -l upload/catalog/model/tool/image.php
+          for lang in en-gb ru-ru uk-ua; do
+            php -l "upload/admin/language/$lang/extension/theme/codecart.php"
+          done
+          cat > README-CHANGESET.txt <<'README'
+          CodeCart 3.0.6 — catalog SKU filter and optional product gallery fit.
+          This package contains the 13 complete modified source files, in upload/ layout.
+          Back up all site files and the database before replacing anything.
+          Upload these files over the corresponding CodeCart 3.0.6 files.
+          Clear the template cache and refresh modifications after deployment.
+          Setting: Extensions > Themes > CodeCart > Product images > Product photo display.
+          Native OpenCart sizing is default. Fit to frame is opt-in, CodeCart theme only.
+          The originals are never edited; derived image cache files are generated as needed.
+          This package targets the repo's current main commit at build time.
+          README
+          zip -q CodeCart_Catalog_Photo_Fixes_2026-10-25.zip "${files[@]}" README-CHANGESET.txt
+          unzip -t CodeCart_Catalog_Photo_Fixes_2026-10-25.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_Catalog_Photo_Fixes_2026-10-25
+          path: CodeCart_Catalog_Photo_Fixes_2026-10-25.zip
+          if-no-files-found: error
+          retention-days: 30
