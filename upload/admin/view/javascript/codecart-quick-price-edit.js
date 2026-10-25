@@ -255,11 +255,13 @@
     $(window).on('resize.ccpQpe', function () {
       if (active && !active.busy) { placeEditor(active); }
     });
+    // On responsive screens the browser may horizontally scroll to reveal
+    // the pencil before opening the popover. Reposition instead of cancelling.
     $(window).on('scroll.ccpQpe', function () {
-      if (active && !active.busy) { closeEditor(false); }
+      if (active && !active.busy) { placeEditor(active); }
     });
     $('#ccp-product-list .table-responsive').on('scroll.ccpQpe', function () {
-      if (active && !active.busy) { closeEditor(false); }
+      if (active && !active.busy) { placeEditor(active); }
     });
 
     // Status and indexing switches remain AJAX-only and keep their saved states.
