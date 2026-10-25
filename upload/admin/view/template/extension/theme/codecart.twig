@@ -441,6 +441,16 @@
             <div class="ccp-image-settings">
               <h4>{{ text_product_images }}</h4>
               <p class="help-block">{{ help_product_images }}</p>
+              <div class="form-group ccp-product-gallery-mode-setting">
+                <label class="col-sm-3 control-label" for="input-product-gallery-mode">{{ entry_product_gallery_mode }}</label>
+                <div class="col-sm-9">
+                  <select class="form-control" id="input-product-gallery-mode" name="theme_codecart_product_gallery_mode">
+                    <option value="native"{% if theme_codecart_product_gallery_mode == 'native' %} selected="selected"{% endif %}>{{ text_product_gallery_native }}</option>
+                    <option value="contain"{% if theme_codecart_product_gallery_mode == 'contain' %} selected="selected"{% endif %}>{{ text_product_gallery_contain }}</option>
+                  </select>
+                  <p class="help-block">{{ help_product_gallery_mode }}</p>
+                </div>
+              </div>
               {% for context in image_contexts %}
               {% set prefix = 'theme_codecart_image_' ~ (context == 'common' ? '' : context ~ '_') %}
               {% if context != 'common' %}<details><summary>{{ attribute(_context, 'text_image_' ~ context) }}</summary>{% else %}<h5>{{ text_image_common }}</h5>{% endif %}
