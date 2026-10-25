@@ -57,6 +57,8 @@ jobs:
           assert "background: transparent !important" in css
           assert "background: #fff !important" in css
           assert "ccp-product-media--fit-frame" in css
+          assert "--ccp-gallery-aspect" in css and "--ccp-gallery-aspect" in template
+          assert "naturalWidth" in template and "naturalHeight" in template
           print("Gallery model, defaults, template and CSS checks: PASS")
           PY
           cat > README-CHANGESET.txt <<'README'
@@ -71,6 +73,7 @@ jobs:
           which may add white padding inside a generated JPEG.
           Product gallery > Image area background: None (transparent) is the new
           gallery default; White, Theme or Dark color the frame only.
+          Fit mode adapts the frame to the selected photo ratio, with a height cap.
           Previously SAVED gallery mode/background settings stay unchanged.
           For an existing shop choose Fit to frame and None to remove new padding.
           A white or colored background that is already in the original JPEG/PNG
