@@ -234,42 +234,99 @@
   vertical-align: middle;
 }
 #ccp-product-list .ccp-qpe-edit-btn:hover { color: #034aa6; }
-#ccp-product-list .ccp-qpe-controls {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  width: 100%;
-  gap: 2px;
+/* The editor is mounted on <body>, outside the table's fixed layout and
+   .table-responsive overflow. No input/buttons are ever injected into a cell. */
+#ccp-qpe-popover.ccp-qpe-popover {
+  position: fixed;
+  z-index: 11500;
+  box-sizing: border-box;
+  width: 254px;
+  max-width: calc(100vw - 16px);
+  padding: 11px 12px 12px;
+  border: 1px solid #cbd7e7;
+  border-radius: 8px;
+  background: #fff;
+  color: #253550;
+  box-shadow: 0 7px 25px rgba(20, 45, 80, .18), 0 1px 3px rgba(20, 45, 80, .1);
 }
-#ccp-product-list .ccp-qpe-input {
+#ccp-qpe-popover .ccp-qpe-popover-title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  text-align: left;
+  color: #344767;
+}
+#ccp-qpe-popover .ccp-qpe-popover-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  width: 100%;
+}
+#ccp-qpe-popover .ccp-qpe-popover-input {
   display: block;
   flex: 1 1 auto;
-  width: 50px;
-  min-width: 40px;
-  height: 27px;
-  padding: 3px 4px;
-  border: 1px solid #bfc9d6;
-  border-radius: 3px;
-  box-sizing: border-box;
-  font-size: 12px;
-  text-align: right;
-}
-#ccp-product-list .ccp-qpe-controls button {
-  flex: 0 0 20px;
-  width: 20px;
-  height: 27px;
-  padding: 0;
-  border: 1px solid #cbd5e1;
-  border-radius: 3px;
+  width: 96px;
+  min-width: 0;
+  height: 34px;
+  margin: 0;
+  padding: 5px 9px;
+  border: 1px solid #b8c9dc;
+  border-radius: 5px;
+  outline: none;
+  box-shadow: none;
   background: #fff;
-  cursor: pointer;
-  font-size: 12px;
+  color: #243551;
+  font-size: 13px;
+  line-height: 22px;
+  text-align: right;
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
 }
-#ccp-product-list .ccp-qpe-controls .ccp-qpe-save { color: #178242; }
-#ccp-product-list .ccp-qpe-controls .ccp-qpe-cancel { color: #b42318; }
-#ccp-product-list .ccp-qpe-invalid { border-color: #d9534f; }
-#ccp-product-list .ccp-qpe-loading { opacity: 0.72; }
-#ccp-product-list .ccp-qpe-saved { background: #eaf8ee !important; }
+#ccp-qpe-popover .ccp-qpe-popover-input:focus {
+  border-color: #0b6fd3;
+  box-shadow: 0 0 0 2px rgba(11, 111, 211, .12);
+}
+#ccp-qpe-popover .ccp-qpe-popover-input.ccp-qpe-invalid { border-color: #dc3545; }
+#ccp-qpe-popover .ccp-qpe-popover-controls > button {
+  display: inline-flex;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #cad5e2;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: none;
+}
+#ccp-qpe-popover .ccp-qpe-popover-save { color: #168347; }
+#ccp-qpe-popover .ccp-qpe-popover-save:hover {
+  background: #e8f7ef;
+  border-color: #95d3b0;
+}
+#ccp-qpe-popover .ccp-qpe-popover-cancel { color: #ad3841; }
+#ccp-qpe-popover .ccp-qpe-popover-cancel:hover {
+  background: #fff0f0;
+  border-color: #e0aaaa;
+}
+#ccp-qpe-popover .ccp-qpe-popover-progress {
+  min-height: 34px;
+  padding: 6px 0;
+  color: #64758e;
+  text-align: center;
+}
+#ccp-qpe-popover.ccp-qpe-popover--saving { opacity: .78; }
+#ccp-qpe-popover button:focus-visible { outline: 2px solid #0b6fd3; outline-offset: 1px; }
+#ccp-product-list .ccp-qpe-active { background-color: #f3f8ff !important; }
+#ccp-product-list .ccp-qpe-saved { background-color: #eaf8ee !important; }
 .ccp-qpe-notice {
   position: fixed;
   top: 70px;
@@ -282,7 +339,12 @@
 @media(max-width:767px) { .ccp-qpe-notice { left: 12px; right: 12px; } }
 
 /* Fast catalog updates: quantity pencil + compact ON/OFF switches, no table resize. */
-#ccp-product-list .ccp-qpe-quantity-cell { white-space: nowrap; min-width: 90px; }
+#ccp-product-list .ccp-qpe-quantity-cell {
+  white-space: nowrap;
+  overflow: visible;
+  min-width: 0;
+}
+#ccp-product-list .ccp-qpe-price-cell { white-space: nowrap; }
 #ccp-product-list .ccp-qpe-quantity-cell .ccp-qpe-edit-btn {
   width: 17px;
   height: 20px;
