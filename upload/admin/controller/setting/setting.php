@@ -13,6 +13,7 @@ class ControllerSettingSetting extends Controller {
 			// Single built-in editor: local Summernote with its native plain Code View. Keep config_editor for legacy compatibility.
 			$this->request->post['config_editor'] = 'summernote';
 			$this->request->post['codecart_internal_linking_status'] = !empty($this->request->post['codecart_internal_linking_status']) ? 1 : 0;
+			$this->request->post['config_codecart_quick_price_edit'] = !empty($this->request->post['config_codecart_quick_price_edit']) ? 1 : 0;
 			foreach (array(
 				'config_admin_accent_color' => '#0b6fd3',
 				'config_admin_sidebar_color' => '#1f2937',
@@ -631,6 +632,8 @@ class ControllerSettingSetting extends Controller {
 		} else {
             $data['config_limit_autocomplete'] = 5;
         }
+
+		$data['config_codecart_quick_price_edit'] = isset($this->request->post['config_codecart_quick_price_edit']) ? (int)$this->request->post['config_codecart_quick_price_edit'] : ($this->config->has('config_codecart_quick_price_edit') ? (int)$this->config->get('config_codecart_quick_price_edit') : 1);
 
 		if (isset($this->request->post['config_product_count'])) {
 			$data['config_product_count'] = $this->request->post['config_product_count'];
