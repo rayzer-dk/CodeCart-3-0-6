@@ -2419,3 +2419,22 @@ html.ccp-theme-dark .ccp-blog-copy code{
   object-fit: contain !important;
   object-position: center !important;
 }
+
+/* Consistent display-only backgrounds for CodeCart product cards and separately
+   configurable gallery thumbnails. Never paint or extend photo pixels. */
+.ccp-product-grid .product-thumb > .image,
+.product-layout .product-thumb > .image,
+.ccp-native-module--products .product-thumb > .image,
+.ccp-native-product-module .product-thumb > .image,
+.ccp-related-product-grid .product-thumb > .image {
+  background: var(--ccp-image-catalog-background, #fff) !important;
+  background-image: none !important;
+}
+#product-product .ccp-product-media .ccp-product-gallery-strip .ccp-product-gallery-thumb {
+  background: var(--ccp-image-thumbnail-background, #fff) !important;
+  background-image: none !important;
+}
+#product-product .ccp-product-media .ccp-product-gallery-strip .ccp-product-gallery-thumb > img {
+  background: transparent !important;
+  background-image: none !important;
+}
