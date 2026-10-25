@@ -19,7 +19,7 @@ $_['text_image_upscale_3'] = 'Up to 3x';
 $_['text_image_unlimited'] = 'Unlimited';
 $_['help_product_images'] = 'Applies to CodeCart product photos. Originals stay unchanged; background is drawn by the interface. Save with the standard Save button.';
 $_['help_image_fit'] = 'Contain preserves the whole photo; Cover crops centrally.';
-$_['help_image_background'] = 'Choose no background (transparent), white, theme or dark for the displayed area. This never paints the image file. Background already present in the original image cannot be removed here.';
+$_['help_image_background'] = 'White is the default image-area background; choose None for transparency or Dark/Theme as needed. This CSS surface is independent of the image file and is used by gallery, catalog and thumbnail contexts; each context can override the common preference. Pixels baked into the source image are never removed.';
 $_['help_image_upscale'] = 'Small photos may lose sharpness when enlarged. Disabled limits scaling to the original size.';
 $_['text_image_preview'] = 'Preview of a small landscape photo. Changes here affect the preview until you save.';
 // *	@source		See SOURCE.txt for source and other copyright.
