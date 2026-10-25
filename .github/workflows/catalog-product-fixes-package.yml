@@ -1,4 +1,4 @@
-name: Catalog product fixes package
+name: Catalog Product Corrections Package
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify changed sources and package
+      - name: Validate sources and build changed-files ZIP
         shell: bash
         run: |
           set -euo pipefail
@@ -23,6 +23,7 @@ jobs:
             "upload/admin/model/catalog/product.php"
             "upload/admin/view/template/catalog/product_list.twig"
             "upload/admin/view/stylesheet/codecart_product_list.css"
+            "upload/admin/view/javascript/codecart-quick-price-edit.js"
             "upload/admin/controller/extension/theme/codecart.php"
             "upload/admin/view/template/extension/theme/codecart.twig"
             "upload/admin/language/en-gb/extension/theme/codecart.php"
@@ -32,62 +33,115 @@ jobs:
             "upload/catalog/controller/product/product.php"
             "upload/catalog/view/theme/codecart/template/product/product.twig"
             "upload/catalog/view/theme/codecart/stylesheet/stylesheet.css"
+            "upload/admin/controller/setting/setting.php"
+            "upload/admin/view/template/setting/setting.twig"
+            "upload/admin/language/en-gb/setting/setting.php"
+            "upload/admin/language/ru-ru/setting/setting.php"
+            "upload/admin/language/uk-ua/setting/setting.php"
+            "upload/admin/language/en-gb/catalog/product.php"
+            "upload/admin/language/ru-ru/catalog/product.php"
+            "upload/admin/language/uk-ua/catalog/product.php"
           )
           for file in "${files[@]}"; do test -f "$file"; done
-          php -l upload/admin/controller/catalog/product.php
-          php -l upload/admin/model/catalog/product.php
-          php -l upload/admin/controller/extension/theme/codecart.php
-          php -l upload/catalog/controller/product/product.php
-          php -l upload/catalog/model/tool/image.php
-          for lang in en-gb ru-ru uk-ua; do
-            php -l "upload/admin/language/$lang/extension/theme/codecart.php"
-          done
+          php -l "upload/admin/controller/catalog/product.php"
+          php -l "upload/admin/model/catalog/product.php"
+          php -l "upload/admin/controller/extension/theme/codecart.php"
+          php -l "upload/admin/language/en-gb/extension/theme/codecart.php"
+          php -l "upload/admin/language/ru-ru/extension/theme/codecart.php"
+          php -l "upload/admin/language/uk-ua/extension/theme/codecart.php"
+          php -l "upload/catalog/model/tool/image.php"
+          php -l "upload/catalog/controller/product/product.php"
+          php -l "upload/admin/controller/setting/setting.php"
+          php -l "upload/admin/language/en-gb/setting/setting.php"
+          php -l "upload/admin/language/ru-ru/setting/setting.php"
+          php -l "upload/admin/language/uk-ua/setting/setting.php"
+          php -l "upload/admin/language/en-gb/catalog/product.php"
+          php -l "upload/admin/language/ru-ru/catalog/product.php"
+          php -l "upload/admin/language/uk-ua/catalog/product.php"
+          node --check upload/admin/view/javascript/codecart-quick-price-edit.js
           python3 - <<'PY'
           from pathlib import Path
-          controller = Path("upload/catalog/controller/product/product.php").read_text()
-          model = Path("upload/catalog/model/tool/image.php").read_text()
-          template = Path("upload/catalog/view/theme/codecart/template/product/product.twig").read_text()
-          css = Path("upload/catalog/view/theme/codecart/stylesheet/stylesheet.css").read_text()
-          settings = Path("upload/admin/controller/extension/theme/codecart.php").read_text()
-          assert "=== 'native' ? 'native' : 'contain'" in controller
-          assert "array('none', 'white', 'theme', 'dark')" in model
-          assert "($context === 'gallery' && $name === 'background') ? 'none'" in settings
-          assert "product_gallery_background|default('none')" in template
-          assert "ccp-product-media--bg-none" in css
-          assert "background: transparent !important" in css
-          assert "background: #fff !important" in css
-          assert "ccp-product-media--fit-frame" in css
-          assert "--ccp-gallery-aspect" in css and "--ccp-gallery-aspect" in template
-          assert "naturalWidth" in template and "naturalHeight" in template
-          print("Gallery model, defaults, template and CSS checks: PASS")
+          def read(path):
+              return Path(path).read_text(encoding='utf-8')
+          product=read("upload/admin/controller/catalog/product.php")
+          model=read("upload/admin/model/catalog/product.php")
+          view=read("upload/admin/view/template/catalog/product_list.twig")
+          css=read("upload/admin/view/stylesheet/codecart_product_list.css")
+          price_js=read("upload/admin/view/javascript/codecart-quick-price-edit.js")
+          theme=read("upload/admin/controller/extension/theme/codecart.php")
+          image=read("upload/catalog/model/tool/image.php")
+          gallery=read("upload/catalog/view/theme/codecart/template/product/product.twig")
+          gallery_css=read("upload/catalog/view/theme/codecart/stylesheet/stylesheet.css")
+          settings=read("upload/admin/controller/setting/setting.php")
+          settings_view=read("upload/admin/view/template/setting/setting.twig")
+          assert "skuAutocomplete()" in product
+          assert "searchDistinctSkus(" in model and "GROUP BY TRIM(p.sku)" in model
+          assert "TRIM(p.sku) <> ''" in model
+          assert "filter_sku']" in product
+          assert "catalog/product/skuAutocomplete" in view
+          assert "request.length < 2" in view
+          assert "var used = {}" in view
+          assert "width: 100% !important" in css
+          assert "border: 0 !important" in css
+          assert "min-height: 36px !important" in css
+          assert "quickPrice()" in product
+          assert "hash_equals($expected, $token)" in product
+          assert "hasPermission('modify', 'catalog/product')" in product
+          assert "config_codecart_quick_price_edit" in product
+          assert "setQuickPrice" in model
+          assert "data('ccp-price-markup'" in price_js
+          assert "quick_price_edit_enabled" in view
+          assert "config_codecart_quick_price_edit" in settings
+          assert "config_codecart_quick_price_edit" in settings_view
+          assert "($name === 'background' ? 'white'" in theme
+          assert "in_array($common, $allowed, true)" in image
+          assert "product_gallery_background|default('white')" in gallery
+          assert "image_thumb_width > 0" in gallery
+          assert "image_thumb_height > 0" in gallery
+          assert "ccp-gallery-thumb-width" in gallery
+          assert "ccp-gallery-thumb-width" in gallery_css
+          assert "var(--ccp-gallery-aspect" in gallery_css
+          assert "naturalWidth" not in gallery
+          for locale in ("en-gb", "ru-ru", "uk-ua"):
+              assert "entry_codecart_quick_price_edit" in read(f"upload/admin/language/{locale}/setting/setting.php")
+              assert "button_quick_price_edit" in read(f"upload/admin/language/{locale}/catalog/product.php")
+              assert "help_image_background" in read(f"upload/admin/language/{locale}/extension/theme/codecart.php")
+          print("PASS: gallery sizing/background, SKU suggestions, quick price setting and security")
           PY
           cat > README-CHANGESET.txt <<'README'
-          CodeCart 3.0.6 — catalog SKU filter and product image/background controls.
-          Archive contains 13 complete modified source files in upload/ layout.
-          Make a FULL BACKUP of the store files and database before updating!
-          Replace corresponding CodeCart 3.0.6 files; clear Twig cache and refresh OCMOD.
-          Theme settings > Product images > Product photo display:
-          Fit to frame without cropping is the default for NEW configurations. No pixels
-          are added to the image and small photos can be proportionally enlarged.
-          Standard OpenCart processing remains available as a legacy compatible option,
-          which may add white padding inside a generated JPEG.
-          Product gallery > Image area background: None (transparent) is the new
-          gallery default; White, Theme or Dark color the frame only.
-          Fit mode adapts the frame to the selected photo ratio, with a height cap.
-          Previously SAVED gallery mode/background settings stay unchanged.
-          For an existing shop choose Fit to frame and None to remove new padding.
-          A white or colored background that is already in the original JPEG/PNG
-          cannot be removed with a CSS setting (requires image background removal).
-          Product source files are never overwritten: derived images use cache.
-          These settings affect CodeCart theme product detail gallery only; other
-          installed OpenCart/ocStore themes keep their original behavior.
-          The package uses files from the repository main branch at build time.
+          CodeCart 3.0.6 — product photos, SKU search, quick price editing.
+          Archive: 22 complete source files, preserving upload/ paths.
+          Make a full backup of the website and database before replacing files.
+          Replace only the matching files in CodeCart 3.0.6. Refresh OCMOD,
+          clear Twig/theme cache, and reload the admin product page.
+
+          Product photo frames: CodeCart theme image dimensions in Theme settings
+          determine a fixed gallery main frame and uniform additional-thumbnail
+          sizes. Each image is displayed with object-fit: contain, without crops.
+          White is the DEFAULT frame background; transparent/none is optional.
+          Background colors are CSS-only and never change original photo pixels.
+          Common image settings affect catalog, gallery and thumbnails; per-context
+          settings can override them. Existing saved overrides remain unchanged.
+          An already white JPEG photo retains its internal white background.
+
+          SKU autocomplete: only distinct nonempty SKUs; starts after two typed
+          characters, maximum 15 suggestions, width constrained to the filter.
+          Clear buttons match input height; redundant thin separators removed.
+
+          Quick Price Edit: built-in and enabled by default; disable it at
+          Settings > Store > Options > Products > Quick price editing.
+          It edits only the BASE price in catalog products, respecting admin
+          access/modify permissions and token validation. Promotions are unchanged.
+          If an older Quick Price Edit OCMOD is separately installed, disable or
+          uninstall it to avoid overlapping implementations.
+
+          This is a patch package, NOT a full CodeCart installation.
           README
-          zip -q CodeCart_Catalog_Image_Background_2026-10-25.zip "${files[@]}" README-CHANGESET.txt
-          unzip -t CodeCart_Catalog_Image_Background_2026-10-25.zip
+          zip -q CodeCart_3.0.6_Product_Image_SKU_Price_Fixes.zip "${files[@]}" README-CHANGESET.txt
+          unzip -t CodeCart_3.0.6_Product_Image_SKU_Price_Fixes.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeCart_Catalog_Image_Background_2026-10-25
-          path: CodeCart_Catalog_Image_Background_2026-10-25.zip
+          name: CodeCart_3.0.6_Product_Image_SKU_Price_Fixes
+          path: CodeCart_3.0.6_Product_Image_SKU_Price_Fixes.zip
           if-no-files-found: error
           retention-days: 30
