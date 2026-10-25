@@ -19,7 +19,7 @@
         {% else %}
         {% set class = 'col-md-6' %}
         {% endif %}
-        <div class="{{ class }} ccp-product-media{% if image_is_fallback %} ccp-product-media--fallback{% endif %}"> {% if thumb or images %}
+        <div class="{{ class }} ccp-product-media{% if image_is_fallback %} ccp-product-media--fallback{% endif %}{% if product_gallery_fit %} ccp-product-media--fit-frame{% endif %}"> {% if thumb or images %}
           <div class="ccp-product-gallery">
             {% if thumb %}
             <div class="ccp-product-gallery-main"><a class="thumbnail ccp-main-product-image" id="ccp-main-product-image" href="{{ popup }}" title="{{ heading_title }}" data-pswp-width="{{ image_popup_width }}" data-pswp-height="{{ image_popup_height }}" data-default-href="{{ popup }}" data-default-width="{{ image_popup_width }}" data-default-height="{{ image_popup_height }}"><img id="ccp-main-product-image-img" src="{{ thumb }}" data-default-src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_display_width }}" height="{{ image_display_height }}" fetchpriority="high" /></a></div>
