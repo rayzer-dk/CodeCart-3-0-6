@@ -151,35 +151,44 @@
   }
 }
 
-/* Product catalog filter only: keep controls dense and dropdowns readable. */
+/* Compact product filter. No redundant separator lines or oversized dropdowns. */
 #filter-product .panel { overflow: visible; }
-#filter-product .panel-heading { padding: 10px 13px; }
+#filter-product .panel-heading { padding: 9px 12px; }
 #filter-product .panel-body { padding: 10px 12px; overflow: visible; }
 #filter-product .panel-body > .form-group {
-  margin: 0 0 9px;
-  padding: 0 0 9px;
-  border-bottom: 1px solid #edf1f5;
+  margin: 0 0 9px !important;
+  padding: 0 !important;
+  border: 0 !important;
 }
-#filter-product .panel-body > .form-group:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: 0;
-}
+#filter-product .panel-body > .form-group:last-child { margin-bottom: 0 !important; }
 #filter-product .control-label { margin-bottom: 4px; font-size: 13px; }
 #filter-product .input-group { width: 100%; }
-#filter-product .form-control {
-  height: 34px;
-  min-height: 34px;
+#filter-product .input-group > .form-control {
+  height: 36px !important;
+  min-height: 36px !important;
   padding: 6px 9px;
   font-size: 13px;
+  box-sizing: border-box !important;
 }
-#filter-product .input-group-btn > .btn { height: 34px; padding: 6px 10px; }
+#filter-product .input-group > .input-group-btn > .btn {
+  display: inline-block;
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 34px !important;
+  box-sizing: border-box !important;
+  vertical-align: top;
+  border-radius: 0 4px 4px 0 !important;
+}
 #filter-product #input-sub-category {
   display: inline-block;
   position: static;
-  width: 14px;
-  height: 14px;
-  min-height: 0;
+  width: 14px !important;
+  height: 14px !important;
+  min-height: 0 !important;
   margin: 0 0 0 4px;
   padding: 0;
   vertical-align: -2px;
@@ -187,12 +196,12 @@
 #filter-product .form-group > .row { margin-left: -4px; margin-right: -4px; }
 #filter-product .form-group > .row > [class*="col-"] { padding-left: 4px; padding-right: 4px; }
 #filter-product .input-group .dropdown-menu {
-  left: auto !important;
-  right: 0;
-  width: min(540px, calc(100vw - 24px));
-  min-width: 100%;
-  max-width: calc(100vw - 24px);
-  max-height: min(360px, 55vh);
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  max-height: 240px;
   overflow-x: hidden;
   overflow-y: auto;
   z-index: 1050;
@@ -201,6 +210,73 @@
 #filter-product .input-group .dropdown-menu > li > a {
   white-space: normal;
   overflow-wrap: anywhere;
-  line-height: 1.35;
-  padding: 6px 10px;
+  line-height: 1.4;
+  padding: 7px 10px;
 }
+
+/* The price column stays compact; the pencil and inline editor cannot collide
+   with quantity or action columns. All rules are scoped to Catalog > Products. */
+#ccp-product-list .ccp-qpe-price-cell { position: relative; }
+#ccp-product-list .ccp-qpe-display { display: inline-block; max-width: calc(100% - 20px); vertical-align: middle; }
+#ccp-product-list .ccp-qpe-old-price { display: block; text-decoration: line-through; }
+#ccp-product-list .ccp-qpe-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 23px;
+  margin: 0 0 0 3px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #0460d7;
+  font-size: 14px;
+  vertical-align: middle;
+}
+#ccp-product-list .ccp-qpe-edit-btn:hover { color: #034aa6; }
+#ccp-product-list .ccp-qpe-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: 100%;
+  gap: 2px;
+}
+#ccp-product-list .ccp-qpe-input {
+  display: block;
+  flex: 1 1 auto;
+  width: 50px;
+  min-width: 40px;
+  height: 27px;
+  padding: 3px 4px;
+  border: 1px solid #bfc9d6;
+  border-radius: 3px;
+  box-sizing: border-box;
+  font-size: 12px;
+  text-align: right;
+}
+#ccp-product-list .ccp-qpe-controls button {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 27px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+}
+#ccp-product-list .ccp-qpe-controls .ccp-qpe-save { color: #178242; }
+#ccp-product-list .ccp-qpe-controls .ccp-qpe-cancel { color: #b42318; }
+#ccp-product-list .ccp-qpe-invalid { border-color: #d9534f; }
+#ccp-product-list .ccp-qpe-loading { opacity: 0.72; }
+#ccp-product-list .ccp-qpe-saved { background: #eaf8ee !important; }
+.ccp-qpe-notice {
+  position: fixed;
+  top: 70px;
+  right: 18px;
+  z-index: 11000;
+  max-width: 370px;
+  min-width: 220px;
+  box-shadow: 0 5px 20px rgba(0,0,0,.15);
+}
+@media(max-width:767px) { .ccp-qpe-notice { left: 12px; right: 12px; } }
