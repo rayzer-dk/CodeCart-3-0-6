@@ -1019,7 +1019,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['filter_model'] = $filter_model;
 		$data['filter_sku'] = $filter_sku;
 		$data['quick_price_edit_enabled'] = (!$this->config->has('config_codecart_quick_price_edit') || (bool)$this->config->get('config_codecart_quick_price_edit')) && $this->user->hasPermission('modify', 'catalog/product');
-		foreach (array('button_quick_price_edit', 'button_quick_price_save', 'button_quick_price_cancel', 'text_quick_price_saved', 'error_quick_price_load', 'error_quick_price_save', 'error_quick_price_value') as $quick_price_language_key) {
+		foreach (array('button_quick_price_edit', 'button_quick_price_save', 'button_quick_price_cancel', 'text_quick_price_saved', 'error_quick_price_load', 'error_quick_price_save', 'error_quick_price_value', 'text_quick_on', 'text_quick_off', 'text_quick_status_tooltip', 'text_quick_index_tooltip', 'text_quick_quantity_edit', 'error_quick_quantity_value', 'error_quick_field_conflict') as $quick_price_language_key) {
 			$data[$quick_price_language_key] = $this->language->get($quick_price_language_key);
 		}
 		$data['filter_price'] = $filter_price;
