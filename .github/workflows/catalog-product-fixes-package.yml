@@ -106,6 +106,7 @@ jobs:
               labels=read(f"upload/admin/language/{locale}/catalog/product.php")
               assert "text_quick_index_tooltip" in labels and "error_quick_quantity_value" in labels
               assert "entry_codecart_quick_price_edit" in read(f"upload/admin/language/{locale}/setting/setting.php")
+              assert "help_codecart_quick_price_edit" in read(f"upload/admin/language/{locale}/setting/setting.php")
           print("Static regression checks: PASS")
           PY
           cat > README-CHANGES.txt <<'README'
@@ -123,7 +124,7 @@ jobs:
           - Changes require CSRF session token, modify rights, field validation,
             and optimistic concurrency checks. Failed saves keep old values.
           - Disable all inline edits via Store Settings > Options > Products >
-            Quick price editing (legacy label; setting controls all 4 fields).
+            Quick product editing (single switch for all four fields).
             Old Quick Price Edit OCMOD should be disabled to avoid duplicates.
 
           PHOTO GALLERY:
