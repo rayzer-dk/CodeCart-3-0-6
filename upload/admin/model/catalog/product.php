@@ -859,6 +859,9 @@ class ModelCatalogProduct extends Model {
 		if (!empty($data['filter_model'])) {
 			$where .= " AND p.model LIKE '%" . $this->db->escape((string)$data['filter_model']) . "%'";
 		}
+		if (!empty($data['filter_sku'])) {
+			$where .= " AND p.sku LIKE '%" . $this->db->escape((string)$data['filter_sku']) . "%'";
+		}
 		if (array_key_exists('filter_category', $data) && $data['filter_category'] !== null && $data['filter_category'] !== '') {
 			$category_id = (int)$data['filter_category'];
 			if ($category_id > 0) {
