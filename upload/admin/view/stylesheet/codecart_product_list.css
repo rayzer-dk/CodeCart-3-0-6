@@ -151,24 +151,56 @@
   }
 }
 
-
-/* Category suggestions: reveal complete category paths without widening the filter panel. */
-#ccp-product-list #input-category-name ~ .dropdown-menu,
-#ccp-product-list input[name="filter_category_name"] ~ .dropdown-menu {
+/* Product catalog filter only: keep controls dense and dropdowns readable. */
+#filter-product .panel { overflow: visible; }
+#filter-product .panel-heading { padding: 10px 13px; }
+#filter-product .panel-body { padding: 10px 12px; overflow: visible; }
+#filter-product .panel-body > .form-group {
+  margin: 0 0 9px;
+  padding: 0 0 9px;
+  border-bottom: 1px solid #edf1f5;
+}
+#filter-product .panel-body > .form-group:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+#filter-product .control-label { margin-bottom: 4px; font-size: 13px; }
+#filter-product .input-group { width: 100%; }
+#filter-product .form-control {
+  height: 34px;
+  min-height: 34px;
+  padding: 6px 9px;
+  font-size: 13px;
+}
+#filter-product .input-group-btn > .btn { height: 34px; padding: 6px 10px; }
+#filter-product #input-sub-category {
+  display: inline-block;
+  position: static;
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  margin: 0 0 0 4px;
+  padding: 0;
+  vertical-align: -2px;
+}
+#filter-product .form-group > .row { margin-left: -4px; margin-right: -4px; }
+#filter-product .form-group > .row > [class*="col-"] { padding-left: 4px; padding-right: 4px; }
+#filter-product .input-group .dropdown-menu {
   left: auto !important;
   right: 0;
-  width: min(560px, calc(100vw - 24px));
+  width: min(540px, calc(100vw - 24px));
+  min-width: 100%;
   max-width: calc(100vw - 24px);
-  max-height: min(420px, 55vh);
-  overflow-y: auto;
+  max-height: min(360px, 55vh);
   overflow-x: hidden;
-  white-space: normal;
+  overflow-y: auto;
   z-index: 1050;
+  padding: 4px 0;
 }
-#ccp-product-list #input-category-name ~ .dropdown-menu > li > a,
-#ccp-product-list input[name="filter_category_name"] ~ .dropdown-menu > li > a {
+#filter-product .input-group .dropdown-menu > li > a {
   white-space: normal;
   overflow-wrap: anywhere;
-  line-height: 1.4;
-  padding: 8px 12px;
+  line-height: 1.35;
+  padding: 6px 10px;
 }
