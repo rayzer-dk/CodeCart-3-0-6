@@ -280,3 +280,58 @@
   box-shadow: 0 5px 20px rgba(0,0,0,.15);
 }
 @media(max-width:767px) { .ccp-qpe-notice { left: 12px; right: 12px; } }
+
+/* Fast catalog updates: quantity pencil + compact ON/OFF switches, no table resize. */
+#ccp-product-list .ccp-qpe-quantity-cell { white-space: nowrap; min-width: 90px; }
+#ccp-product-list .ccp-qpe-quantity-cell .ccp-qpe-edit-btn {
+  width: 17px;
+  height: 20px;
+  font-size: 12px;
+}
+#ccp-product-list .ccp-qpf-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  min-width: 72px;
+  height: 28px;
+  margin: 0;
+  padding: 2px 5px;
+  border: 1px solid #d4dce7;
+  border-radius: 5px;
+  background: transparent;
+  color: #667085;
+  box-shadow: none;
+  white-space: nowrap;
+  font-size: 12px;
+  cursor: pointer;
+}
+#ccp-product-list .ccp-qpf-toggle .ccp-qpf-toggle-track {
+  position: relative;
+  flex: 0 0 26px;
+  width: 26px;
+  height: 15px;
+  border-radius: 10px;
+  background: #aab3c0;
+  transition: background .16s ease;
+}
+#ccp-product-list .ccp-qpf-toggle .ccp-qpf-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left .16s ease;
+}
+#ccp-product-list .ccp-qpf-toggle.is-on {
+  color: #237244;
+  border-color: #b6d7c2;
+  background: #f2faf5;
+}
+#ccp-product-list .ccp-qpf-toggle.is-on .ccp-qpf-toggle-track { background: #36ad5b; }
+#ccp-product-list .ccp-qpf-toggle.is-on .ccp-qpf-toggle-knob { left: 13px; }
+#ccp-product-list .ccp-qpf-toggle:focus-visible { outline: 2px solid #0b6fd3; outline-offset: 1px; }
+#ccp-product-list .ccp-qpf-toggle.ccp-qpf-pending { opacity: .55; }
+#ccp-product-list .ccp-qpf-toggle:disabled { cursor: wait; }
