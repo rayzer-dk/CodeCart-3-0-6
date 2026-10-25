@@ -2393,3 +2393,29 @@ html.ccp-theme-dark .ccp-blog-copy code{
   background: transparent !important;
   background-image: none !important;
 }
+
+/* Product gallery layout uses THEME image dimensions; photo content never
+   changes the frame geometry. Independent options control the frame background. */
+#product-product .ccp-product-gallery-strip .image-additional {
+  flex: 0 0 clamp(48px, var(--ccp-gallery-thumb-width, 74px), 144px) !important;
+  max-width: clamp(48px, var(--ccp-gallery-thumb-width, 74px), 144px) !important;
+}
+#product-product .ccp-product-gallery-strip .image-additional .thumbnail {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: clamp(48px, var(--ccp-gallery-thumb-width, 74px), 144px) !important;
+  height: clamp(48px, var(--ccp-gallery-thumb-height, 74px), 144px) !important;
+  min-height: 0 !important;
+  aspect-ratio: auto !important;
+  padding: 4px !important;
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+#product-product .ccp-product-gallery-strip .image-additional .thumbnail img {
+  display: block;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
