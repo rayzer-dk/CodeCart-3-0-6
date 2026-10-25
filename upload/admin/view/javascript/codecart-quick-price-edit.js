@@ -189,9 +189,13 @@
           if (!response || !response.success) {
             note(response && response.error ? response.error : text.saveError, true); return;
           }
-          var value = String(response.value), enabled = field === 'status' ? value === '1' : value === '0';
-          $btn.attr('data-value', value).attr('aria-pressed', enabled ? 'true' : 'false')
-            .toggleClass('is-on', enabled).find('.ccp-qpf-toggle-label').text(enabled ? text.on : text.off);
+          // In CodeCart/ocStore both product.status and product.noindex use 1 for
+          // enabled. Here noindex=1 means indexing is permitted; 0 blocks it.
+          var value = String(response.value), enabled = value === '1';
+          $btn.attr('data-value', value)
+            .attr('aria-checked', enabled ? 'true' : 'false')
+            .attr('aria-label', String($btn.attr('data-label') || '') + ': ' + (enabled ? text.on : text.off))
+            .toggleClass('is-on', enabled);
         })
         .fail(function (xhr) { note(errorFrom(xhr, text.conflict), true); })
         .always(function () { $btn.prop('disabled', false).removeClass('ccp-qpf-pending'); });
