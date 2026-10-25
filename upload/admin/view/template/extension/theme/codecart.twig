@@ -825,7 +825,7 @@ html.ccp-admin-dark .ccp-theme-admin .ccp-image-settings details{border-color:#3
   function preview(){
     root.querySelectorAll('[data-image-preview]').forEach(function(box){
       var context=box.getAttribute('data-image-preview'), fit=value(context,'fit'), limit=Number(value(context,'upscale'));
-      box.style.background={white:'#fff',theme:'#e8edf3',dark:'#171e27'}[value(context,'background')];
+      box.style.background={none:'transparent',white:'#fff',theme:'#e8edf3',dark:'#171e27'}[value(context,'background')];
       var svg=box.querySelector('svg'), scale=Math.min(fit==='cover'?140/36:140/60,limit||Infinity);
       svg.setAttribute('viewBox',fit==='cover'?'60 0 180 180':'0 0 300 180');
       svg.style.width=((fit==='cover'?36:60)*scale)+'px';svg.style.height=(36*scale)+'px';
