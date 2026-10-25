@@ -252,7 +252,10 @@
       if (!active || active.busy) { return; }
       if (!$(event.target).closest('#ccp-qpe-popover, .ccp-qpe-edit-btn').length) { closeEditor(false); }
     });
-    $(window).on('resize.ccpQpe scroll.ccpQpe', function () {
+    $(window).on('resize.ccpQpe', function () {
+      if (active && !active.busy) { placeEditor(active); }
+    });
+    $(window).on('scroll.ccpQpe', function () {
       if (active && !active.busy) { closeEditor(false); }
     });
     $('#ccp-product-list .table-responsive').on('scroll.ccpQpe', function () {
