@@ -144,6 +144,36 @@ class ModelToolImage extends Model {
         return $options;
     }
 
+    // The product detail gallery uses native OpenCart resizing unless the fit mode is enabled.
+    public function productGalleryImage($filename, $width, $height, $mode = 'native') {
+        if ($mode === 'contain') {
+            return $this->resizeContain($filename, $width, $height);
+        }
+        return $this->resize($filename, $width, $height);
+    }
+
+    public function getProductGallerySize($filename, $width, $height, $mode = 'native') {
+        $width = max(1, (int)$width);
+        $height = max(1, (int)$height);
+        $size = array('width' => $width, 'height' => $height);
+        if ($mode !== 'contain') {
+            return $size;
+        }
+        $filename = $this->resolveWithFallback((string)$filename);
+        if (!$this->isSafeImageFile($filename)) {
+            return $size;
+        }
+        $info = Image::getInfo(DIR_IMAGE . $filename);
+        if (!is_array($info) || empty($info[0]) || empty($info[1])) {
+            return $size;
+        }
+        $scale = min($width / (int)$info[0], $height / (int)$info[1]);
+        return array(
+            'width' => max(1, min($width, (int)round((int)$info[0] * $scale))),
+            'height' => max(1, min($height, (int)round((int)$info[1] * $scale)))
+        );
+    }
+
     public function productImage($filename, $width, $height, $context = 'catalog') {
         if ($this->config->get('config_theme') !== 'codecart') {
             return $context === 'gallery' ? $this->display($filename, $width, $height) : $this->resize($filename, $width, $height);
