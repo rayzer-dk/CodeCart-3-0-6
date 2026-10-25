@@ -2345,7 +2345,9 @@ html.ccp-theme-dark .ccp-blog-copy code{
    white padding, background overlays or changing stock OpenCart behavior. */
 #product-product .ccp-product-media--fit-frame .ccp-product-gallery-main > .thumbnail {
   position: relative;
-  display: block;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: auto;
   min-height: 0;
@@ -2353,20 +2355,20 @@ html.ccp-theme-dark .ccp-blog-copy code{
   max-height: min(680px, 82vh);
   overflow: hidden !important;
   padding: 0 !important;
-  background: var(--ccp-image-gallery-background, transparent) !important;
+  background: var(--ccp-image-gallery-background, #fff) !important;
 }
 #product-product .ccp-product-media--fit-frame .ccp-product-gallery-main > .thumbnail > img,
 #product-product .ccp-product-media--fit-frame.ccp-product-media--fallback .ccp-product-gallery-main > .thumbnail > img {
-  position: absolute !important;
-  inset: 0;
+  position: static !important;
+  inset: auto !important;
   display: block;
-  width: 100% !important;
-  height: 100% !important;
+  width: auto !important;
+  height: auto !important;
   max-width: 100% !important;
   max-height: 100% !important;
   object-fit: contain !important;
   object-position: center !important;
-  margin: 0 !important;
+  margin: auto !important;
   opacity: 1;
 }
 
