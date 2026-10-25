@@ -22,7 +22,7 @@
         <div class="{{ class }} ccp-product-media{% if image_is_fallback %} ccp-product-media--fallback{% endif %}{% if product_gallery_fit %} ccp-product-media--fit-frame{% endif %} ccp-product-media--bg-{{ product_gallery_background|default('none') }}"> {% if thumb or images %}
           <div class="ccp-product-gallery">
             {% if thumb %}
-            <div class="ccp-product-gallery-main"><a class="thumbnail ccp-main-product-image" id="ccp-main-product-image" href="{{ popup }}" title="{{ heading_title }}" data-pswp-width="{{ image_popup_width }}" data-pswp-height="{{ image_popup_height }}" data-default-href="{{ popup }}" data-default-width="{{ image_popup_width }}" data-default-height="{{ image_popup_height }}"{% if product_gallery_fit %} style="--ccp-gallery-aspect: {{ image_display_width }} / {{ image_display_height }};"{% endif %}><img id="ccp-main-product-image-img" src="{{ thumb }}" data-default-src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_display_width }}" height="{{ image_display_height }}" fetchpriority="high" /></a></div>
+            <div class="ccp-product-gallery-main"><a class="thumbnail ccp-main-product-image" id="ccp-main-product-image" href="{{ popup }}" title="{{ heading_title }}" data-pswp-width="{{ image_popup_width }}" data-pswp-height="{{ image_popup_height }}" data-default-href="{{ popup }}" data-default-width="{{ image_popup_width }}" data-default-height="{{ image_popup_height }}"{% if product_gallery_fit %} style="--ccp-gallery-aspect: {{ image_thumb_width > 0 ? image_thumb_width : 640 }} / {{ image_thumb_height > 0 ? image_thumb_height : 480 }};"{% endif %}><img id="ccp-main-product-image-img" src="{{ thumb }}" data-default-src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_display_width }}" height="{{ image_display_height }}" fetchpriority="high" /></a></div>
             {% endif %}
             {% if images %}
             <div class="ccp-product-gallery-strip" id="ccp-product-gallery-strip">
@@ -647,21 +647,7 @@ $('#button-review').on('click', function() {
 });
 
 
-{% if product_gallery_fit %}
-// Follow the actual image ratio, rather than forcing every photo into a 4:3 box.
-// This runs for main, additional, and option-selected images and never changes image pixels.
-(function($){
-  var $main=$('#ccp-main-product-image'),$img=$('#ccp-main-product-image-img');
-  if(!$main.length||!$img.length){return;}
-  function syncRatio(){
-    if(this.naturalWidth>0 && this.naturalHeight>0){
-      $main.css('--ccp-gallery-aspect',this.naturalWidth+' / '+this.naturalHeight);
-    }
-  }
-  $img.on('load',syncRatio);
-  if($img[0].complete){syncRatio.call($img[0]);}
-})(jQuery);
-{% endif %}
+
 
 // Option-image preview: storefront presentation only. Native option values and cart payload stay unchanged.
 (function($){
