@@ -711,7 +711,7 @@ class ControllerExtensionThemeCodecart extends Controller {
 		foreach (array('common', 'catalog', 'gallery', 'thumbnail') as $context) {
 			foreach (array('fit' => array('contain', 'cover'), 'background' => array('none', 'white', 'theme', 'dark'), 'upscale' => array('3', '1', '2', '0')) as $name => $allowed) {
 				$prefix = 'theme_codecart_image_' . ($context === 'common' ? '' : $context . '_');
-				$fields[$prefix . $name] = array('default' => ($context === 'gallery' && $name === 'background') ? 'none' : ($context === 'common' ? ($name === 'background' ? 'white' : $allowed[0]) : 'inherit'), 'allowed' => $context === 'common' ? $allowed : array_merge(array('inherit'), $allowed));
+				$fields[$prefix . $name] = array('default' => $context === 'common' ? ($name === 'background' ? 'white' : $allowed[0]) : 'inherit', 'allowed' => $context === 'common' ? $allowed : array_merge(array('inherit'), $allowed));
 			}
 		}
 		return $fields;
