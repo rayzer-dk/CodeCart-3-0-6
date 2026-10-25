@@ -102,6 +102,18 @@ jobs:
           assert "if ($product_info['noindex'] <= 0" in storefront
           assert '<option value="1" selected="selected">{{ text_enabled }}</option>' in form
           assert "ccp-qpf-toggle" in css
+          assert "ccp-qpe-popover" in css
+          assert "position: fixed" in css
+          assert "width: 254px" in css
+          assert "min-width: 90px" not in css
+          assert "appendTo('body')" in js
+          assert "current.$popup.append($label, $controls)" in js
+          assert "drawPrice(current.$cell, result)" in js
+          assert "drawQuantity(current.$cell, result)" in js
+          assert ".closest('td').find('.ccp-qpe-save')" not in js
+          assert "ccp-qpe-controls" not in js
+          assert "codecart_product_list.css?v=3.0.6.9" in view
+          assert "codecart-quick-price-edit.js?v=3.0.6.5" in view
           assert "ccp-qpe-quantity-cell" in css
           assert "core.stock.notify" in scheduler and "cron/stock_notify" in scheduler
           assert "core.queue.worker" in scheduler and "cron/queue_worker" in scheduler
@@ -133,6 +145,11 @@ jobs:
           CATALOG PRODUCTS:
           - Unique SKU hints (at least 2 characters), aligned clear buttons.
           - Price and stock quantity edit without full product form.
+          - A compact floating editor is anchored to the original cell.
+            It NEVER moves the price, changes the table width, or pushes
+            quantity controls under status/indexing columns.
+            Click outside/Escape to cancel; Enter to save.
+            Horizontal scroll closes editor, responsive resize repositions it.
           - Clickable on/off switches for visibility and search indexing.
             Indexing ON means noindex=1; Indexing OFF means noindex=0.
             This matches CodeCart/ocStore storefront robots logic.
@@ -198,6 +215,36 @@ jobs:
         with:
           name: CodeCart_3.0.6_Switch_Fix
           path: CodeCart_3.0.6_Switch_Fix.zip
+          retention-days: 30
+
+      - name: Build only product quick editor layout fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > README-QUICK-EDITOR.txt <<'README'
+          CodeCart 3.0.6 — product list inline editor layout fix.
+          Update the three files below at their exact paths:
+          upload/admin/view/javascript/codecart-quick-price-edit.js
+          upload/admin/view/stylesheet/codecart_product_list.css
+          upload/admin/view/template/catalog/product_list.twig
+
+          Price and stock quantity now open in an anchored floating editor.
+          The source cell remains unchanged, so no columns shift or overlap.
+          Save via green check or Enter. Cancel via X, Escape or outside click.
+          Status/index switches are unchanged and stay secured by existing AJAX.
+          Clear OpenCart modification and Twig cache after updating.
+          Always create a full backup of all site files and the database first!
+          README
+          zip -q CodeCart_3.0.6_Quick_Edit_UI_Fix.zip \
+            upload/admin/view/javascript/codecart-quick-price-edit.js \
+            upload/admin/view/stylesheet/codecart_product_list.css \
+            upload/admin/view/template/catalog/product_list.twig \
+            README-QUICK-EDITOR.txt
+          unzip -tq CodeCart_3.0.6_Quick_Edit_UI_Fix.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Quick_Edit_UI_Fix
+          path: CodeCart_3.0.6_Quick_Edit_UI_Fix.zip
           retention-days: 30
 
       - name: Archive the complete main-branch source tree
