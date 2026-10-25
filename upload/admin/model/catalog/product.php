@@ -513,6 +513,40 @@ class ModelCatalogProduct extends Model {
 		return true;
 	}
 
+	/**
+	 * Read a product's editable attributes without loading descriptions or options.
+	 */
+	public function getQuickProductFields($product_id) {
+		$product_id = (int)$product_id;
+		if ($product_id < 1) { return array(); }
+		$query = $this->db->query("SELECT product_id, price, quantity, status, noindex FROM `" . DB_PREFIX . "product` WHERE product_id = '" . $product_id . "' LIMIT 1");
+		return $query->num_rows ? $query->row : array();
+	}
+
+	/**
+	 * Update exactly one allowlisted field. The expected value guards stale AJAX
+	 * requests so concurrent edits cannot overwrite a newer admin change.
+	 */
+	public function saveQuickProductField($product_id, $field, $value, $expected) {
+		$product_id = (int)$product_id;
+		$columns = array('price' => true, 'quantity' => true, 'status' => true, 'noindex' => true);
+		if ($product_id < 1 || !isset($columns[$field])) { return false; }
+		if ($field === 'price') {
+			$value = $this->db->escape((string)$value);
+			$expected = $this->db->escape((string)$expected);
+		} else {
+			$value = (int)$value;
+			$expected = (int)$expected;
+		}
+		$this->db->query("UPDATE `" . DB_PREFIX . "product` SET `" . $field . "` = '" . $value . "', date_modified = NOW() WHERE product_id = '" . $product_id . "' AND `" . $field . "` = '" . $expected . "'");
+		$updated = (int)$this->db->countAffected();
+		if ($updated) {
+			$this->cache->delete('product');
+			$this->cache->delete('admin.product_sidebar_stats');
+		}
+		return $updated > 0;
+	}
+
 	public function getQuickPrice($product_id) {
 		$query = $this->db->query("SELECT price FROM `" . DB_PREFIX . "product` WHERE product_id = '" . (int)$product_id . "' LIMIT 1");
 		return $query->num_rows ? (string)$query->row['price'] : null;
