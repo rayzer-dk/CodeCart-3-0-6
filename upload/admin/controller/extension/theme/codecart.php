@@ -79,6 +79,8 @@ class ControllerExtensionThemeCodecart extends Controller {
 			if (!isset($this->request->post['theme_codecart_gallery_engine']) || !in_array((string)$this->request->post['theme_codecart_gallery_engine'], $allowed_gallery_engines, true)) {
 				$this->request->post['theme_codecart_gallery_engine'] = 'photoswipe';
 			}
+			$gallery_mode = (string)($this->request->post['theme_codecart_product_gallery_mode'] ?? 'native');
+			$this->request->post['theme_codecart_product_gallery_mode'] = in_array($gallery_mode, array('native', 'contain'), true) ? $gallery_mode : 'native';
 			$custom_css = isset($this->request->post['theme_codecart_custom_css']) ? (string)$this->request->post['theme_codecart_custom_css'] : '';
 			$custom_css = str_replace(chr(0), '', $custom_css);
 			$custom_css = preg_replace('#</?style\b[^>]*>#i', '', $custom_css);
@@ -675,6 +677,11 @@ class ControllerExtensionThemeCodecart extends Controller {
 			$data['theme_codecart_image_location_height'] = 50;
 		}
 		
+		$gallery_mode = $this->request->post['theme_codecart_product_gallery_mode'] ?? ($setting_info['theme_codecart_product_gallery_mode'] ?? 'native');
+		$data['theme_codecart_product_gallery_mode'] = in_array((string)$gallery_mode, array('native', 'contain'), true) ? (string)$gallery_mode : 'native';
+		foreach (array('entry_product_gallery_mode', 'help_product_gallery_mode', 'text_product_gallery_native', 'text_product_gallery_contain') as $key) {
+			$data[$key] = $this->language->get($key);
+		}
 		$data['header'] = $this->load->controller('common/header');
 		$data['image_contexts'] = array('common', 'catalog', 'gallery', 'thumbnail');
 		$data['image_option_labels'] = array(
