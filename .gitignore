@@ -46,3 +46,8 @@ __pycache__/
 
 # Development-only quality tools
 /tools/quality/vendor/
+
+# Local Playwright dependencies and reports
+/node_modules/
+/playwright-report/
+/test-results/

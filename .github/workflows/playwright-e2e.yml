@@ -1,0 +1,143 @@
+name: Playwright E2E
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'upload/**'
+      - 'playwright.config.*'
+      - 'package.json'
+      - 'tests/E2E/**'
+      - '.github/workflows/playwright-e2e.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'upload/**'
+      - 'playwright.config.*'
+      - 'package.json'
+      - 'tests/E2E/**'
+      - '.github/workflows/playwright-e2e.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    name: Browser E2E / Chromium, Firefox, WebKit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      db:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: codecart
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      CI: '1'
+      E2E_BASE_URL: http://127.0.0.1:8080
+      E2E_ADMIN_USERNAME: qaadmin
+      E2E_ADMIN_PASSWORD: CodeCart-E2E-Only-2026!
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, mysqli, pdo_mysql, gd
+          coverage: none
+          tools: composer:v2
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install locked PHP dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Clean install on disposable MariaDB
+        working-directory: upload/install
+        shell: bash
+        run: |
+          set -euo pipefail
+          php cli_install.php install \
+            --db_hostname 127.0.0.1 \
+            --db_username root \
+            --db_password root \
+            --db_database codecart \
+            --db_prefix oc_ \
+            --db_driver mysqli \
+            --db_port 3306 \
+            --username "$E2E_ADMIN_USERNAME" \
+            --password "$E2E_ADMIN_PASSWORD" \
+            --email admin@example.test \
+            --http_server http://127.0.0.1:8080/
+
+      - name: Select an in-stock product without required options
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq default-mysql-client
+          pid="$(mysql -h127.0.0.1 -uroot -proot -N codecart -e "SELECT p.product_id FROM oc_product p WHERE p.status=1 AND p.quantity>0 AND NOT EXISTS (SELECT 1 FROM oc_product_option po WHERE po.product_id=p.product_id AND po.required=1) ORDER BY p.product_id LIMIT 1")"
+          if [ -z "$pid" ]; then
+            echo 'No eligible QA product was found in the clean install.' >&2
+            exit 1
+          fi
+          echo "E2E_PRODUCT_ID=$pid" >> "$GITHUB_ENV"
+
+      - name: Start isolated CodeCart web server
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -S 127.0.0.1:8080 -t upload > /tmp/codecart-e2e-http.log 2>&1 &
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/codecart-e2e-http.log
+          exit 1
+
+      - name: Install Playwright test runner and browsers
+        run: |
+          npm install --no-audit --no-fund --package-lock=false
+          npx playwright install --with-deps chromium firefox webkit
+
+      - name: Validate E2E test discovery
+        run: npm run test:e2e:list
+
+      - name: Run all four browser projects
+        run: npm run test:e2e
+
+      - name: Inspect PHP application errors
+        if: always()
+        shell: bash
+        run: |
+          cat /tmp/codecart-e2e-http.log 2>/dev/null || true
+          cat upload/system/storage/logs/error.log 2>/dev/null || true
+          if grep -Eqi 'PHP (Fatal|Parse|Warning)|Uncaught (Exception|Error)|mysqli_sql_exception' upload/system/storage/logs/error.log 2>/dev/null; then
+            exit 1
+          fi
+
+      - name: Upload Playwright report and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codecart-playwright-e2e
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: warn
