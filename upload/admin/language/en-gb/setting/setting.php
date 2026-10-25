@@ -504,5 +504,5 @@ $_['error_ftp_username'] = 'Enter the FTP username.';
 $_['error_ftp_password'] = 'Enter the FTP password.';
 $_['error_error_filename'] = 'Enter the error log filename.';
 $_['error_malformed_filename'] = 'Invalid filename.';
-$_['entry_codecart_quick_price_edit'] = 'Quick price editing in product list';
-$_['help_codecart_quick_price_edit'] = 'Enable editing base product prices directly in Catalog > Products. Only users with permission to modify products can save changes. Special prices are not altered.';
+$_['entry_codecart_quick_price_edit'] = 'Quick product editing';
+$_['help_codecart_quick_price_edit'] = 'Enable quick editing of base price and stock quantity, plus storefront visibility and search indexing switches in Catalog > Products. Requires product modify permission. Special prices are unaffected.';
