@@ -11,6 +11,7 @@
   <div class="container-fluid">
     {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
     {% if success %}<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    <div class="ccp-abandoned-summary alert alert-info"><i class="fa fa-info-circle"></i> {{ text_quick_guide }}</div>
     <div class="panel panel-default ccp-abandoned-settings">
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-sliders"></i> {{ text_settings }}</h3></div>
       <div class="panel-body">
@@ -59,7 +60,7 @@
       </div>
     </div>
     {% if not cart_enabled %}<div class="alert alert-default ccp-abandoned-off">{{ text_disabled_note }}</div>{% else %}
-    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_scope_help }}
+    <div class="ccp-abandoned-scope help-block"><i class="fa fa-info-circle"></i> {{ text_scope_help }}
       {% if cart_source == 'external' %} {{ text_cart_amount_estimate }}{% endif %}
       {{ text_cart_storefront_note }}
     </div>
@@ -81,6 +82,7 @@
         <td>{% for product in cart.products %}<div class="ccp-abandoned-product"><a href="{{ product.href }}" title="{{ button_product }}">{{ product.name }}</a> × {{ product.quantity }}</div>{% endfor %}</td>
         <td class="text-right">{{ cart.quantity }}</td><td class="text-right"><strong>{{ cart.total }}</strong></td><td>{{ cart.last_activity }}</td><td>{{ cart.inactive }}</td>
         <td class="text-right ccp-abandoned-actions">
+          {% if cart.email %}<a href="mailto:{{ cart.email|url_encode }}?subject={{ text_mail_subject|url_encode }}" class="btn btn-success" title="{{ button_compose_email }}" data-toggle="tooltip"><i class="fa fa-envelope-o"></i></a>{% else %}<span class="text-muted" title="{{ text_no_email }}"><i class="fa fa-envelope-o"></i></span>{% endif %}
           {% if cart.customer_href %}<a href="{{ cart.customer_href }}" class="btn btn-primary" data-toggle="tooltip" title="{{ button_customer }}"><i class="fa fa-user"></i></a>{% endif %}
           {% if cart_source == 'standard' and cart_can_modify %}<form action="{{ delete_url }}" method="post" class="ccp-abandoned-delete-form" onsubmit="return confirm('{{ text_confirm_delete|e('js') }}');"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-danger" data-toggle="tooltip" title="{{ button_delete }}"><i class="fa fa-trash"></i></button></form>{% endif %}
         </td>
@@ -93,6 +95,7 @@
 .ccp-abandoned-cart-table{border-top:3px solid #0057d9}.ccp-abandoned-cart-table thead td{font-weight:600;vertical-align:middle}.ccp-abandoned-cart-table thead td+td{border-left-color:#d5dbe3}.ccp-abandoned-cart-table thead a{position:relative;padding-right:14px;color:#1f3a57}.ccp-abandoned-cart-table thead a.asc:after,.ccp-abandoned-cart-table thead a.desc:after{position:absolute;right:0;font-family:FontAwesome;font-size:10px}.ccp-abandoned-cart-table thead a.asc:after{content:"\f0d8"}.ccp-abandoned-cart-table thead a.desc:after{content:"\f0d7"}.ccp-abandoned-cart-table td{vertical-align:middle}.ccp-abandoned-product+.ccp-abandoned-product{margin-top:3px}.ccp-abandoned-product a{max-width:420px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}.ccp-abandoned-actions{white-space:nowrap}.ccp-abandoned-delete-form{display:inline-block;margin-left:4px}.ccp-abandoned-clear-form{margin:0}
 
 .ccp-abandoned-settings { margin-bottom:12px; }
+.ccp-abandoned-summary{margin-bottom:12px}.ccp-abandoned-scope{margin:0 0 12px}.ccp-abandoned-actions .btn{margin-left:3px}.ccp-abandoned-cart-table td:last-child{width:132px}
 .ccp-abandoned-settings .panel-body { padding:12px 15px; }
 .ccp-abandoned-settings .row > div { margin-bottom:9px; }
 .ccp-abandoned-settings label { font-weight:600; font-size:12px; margin-bottom:4px; }
