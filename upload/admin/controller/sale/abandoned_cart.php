@@ -54,7 +54,7 @@ class ControllerSaleAbandonedCart extends Controller {
 
         $data = array();
         foreach (array(
-            'heading_title','text_home','text_sale','text_no_results','text_scope_help','text_confirm_delete','text_confirm_clear','text_success_delete','text_success_clear',
+            'heading_title','text_home','text_sale','text_no_results','text_enabled','text_disabled','text_scope_help','text_confirm_delete','text_confirm_clear','text_success_delete','text_success_clear',
             'column_customer','column_email','column_phone','column_products','column_quantity','column_total','column_last_activity','column_inactive','column_action','text_guest',
             'button_customer','button_product','button_delete','button_clear',
             'text_settings','text_disabled_note','text_source_standard','text_source_external','text_cart_mapping_info',
@@ -136,6 +136,7 @@ class ControllerSaleAbandonedCart extends Controller {
         }
         $data['sort'] = $sort;
         $data['order'] = $order;
+        $data['settings_url'] = $this->url->link('sale/abandoned_cart', $base, true);
         $data['delete_url'] = $this->url->link('sale/abandoned_cart/delete', $base, true);
         $data['clear_url'] = $this->url->link('sale/abandoned_cart/clear', $base, true);
         $data['user_token'] = $this->session->data['user_token'];
