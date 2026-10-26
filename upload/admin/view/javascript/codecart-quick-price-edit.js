@@ -128,21 +128,17 @@
       var viewWidth = document.documentElement.clientWidth;
       var viewHeight = document.documentElement.clientHeight;
       var left = Math.max(8, Math.min(rect.right - width, viewWidth - width - 8));
-      var top = rect.bottom + 7;
-      if (top + height > viewHeight - 8 && rect.top - height - 7 >= 8) {
-        top = rect.top - height - 7;
-        current.$popup.addClass('ccp-qpe-popover--above');
-      } else {
-        current.$popup.removeClass('ccp-qpe-popover--above');
-        top = Math.max(8, Math.min(top, viewHeight - height - 8));
-      }
+      // Prefer the compact editor directly ABOVE the source cell. Near the top
+      // of the screen, clamp it to the viewport rather than opening below.
+      var top = Math.max(6, rect.top - height - 5);
+      top = Math.min(top, Math.max(6, viewHeight - height - 6));
+      current.$popup.addClass('ccp-qpe-popover--above');
       current.$popup.css({left: Math.round(left) + 'px', top: Math.round(top) + 'px'});
     }
     function popupInput(current, result) {
       if (active !== current) { return; }
       current.expected = String(result.value);
       current.$popup.empty().removeClass('ccp-qpe-popover--loading');
-      var $label = $('<div class="ccp-qpe-popover-title"></div>').text(labels[current.field]);
       var $controls = $('<div class="ccp-qpe-popover-controls"></div>');
       var $input = $('<input type="text" class="ccp-qpe-popover-input" autocomplete="off" />')
         .attr({'inputmode': current.field === 'price' ? 'decimal' : 'numeric',
@@ -154,7 +150,7 @@
         .attr({title: labels.cancel, 'aria-label': labels.cancel});
       current.$input = $input;
       $controls.append($input, $save, $cancel);
-      current.$popup.append($label, $controls);
+      current.$popup.append($controls);
       placeEditor(current);
       $input.trigger('focus').select();
     }
@@ -163,8 +159,7 @@
       var id = ++nextId;
       var $popup = $('<div id="ccp-qpe-popover" class="ccp-qpe-popover ccp-qpe-popover--loading" role="dialog"></div>')
         .attr('aria-label', labels[field])
-        .append($('<div class="ccp-qpe-popover-title"></div>').text(labels[field]),
-                $('<div class="ccp-qpe-popover-progress"></div>').text(labels.loadError === '' ? '...' : '…'))
+        .append($('<div class="ccp-qpe-popover-progress" aria-hidden="true"></div>').text('…'))
         .appendTo('body');
       var current = {id: id, $cell: $cell, $button: $button, $popup: $popup,
         field: field, productId: productId, expected: null, busy: false, $input: null};
