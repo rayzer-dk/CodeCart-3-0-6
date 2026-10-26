@@ -3,6 +3,43 @@ class ControllerSaleAbandonedCart extends Controller {
     public function index() {
         $this->load->language('sale/abandoned_cart');
         $this->document->setTitle($this->language->get('heading_title'));
+        // OFF: do not query carts or run cart actions. Core shopping cart unaffected.
+        $enabled = !$this->config->has('codecart_abandoned_cart_status') || (bool)$this->config->get('codecart_abandoned_cart_status');
+        $source = (string)$this->config->get('codecart_abandoned_cart_source') === 'external' ? 'external' : 'standard';
+        if (($this->request->server['REQUEST_METHOD'] ?? '') === 'POST' && isset($this->request->post['save_cart_settings'])) {
+            $token = (string)($this->request->get['user_token'] ?? '');
+            $sessionToken = (string)($this->session->data['user_token'] ?? '');
+            $error = '';
+            if ($token === '' || $sessionToken === '' || !hash_equals($token, $sessionToken)
+                || !$this->user->hasPermission('access', 'sale/abandoned_cart')
+                || !$this->user->hasPermission('modify', 'sale/abandoned_cart')) {
+                $error = $this->language->get('error_permission');
+            } else {
+                $settings = array(
+                    'codecart_abandoned_cart_status' => !empty($this->request->post['cart_status']) ? 1 : 0,
+                    'codecart_abandoned_cart_source' => ($this->request->post['cart_source'] ?? '') === 'external' ? 'external' : 'standard',
+                    'codecart_abandoned_cart_idle_minutes' => max(5, min(10080, (int)($this->request->post['cart_idle_minutes'] ?? 60))),
+                    'codecart_abandoned_cart_days' => max(1, min(7, (int)($this->request->post['cart_days'] ?? 7)))
+                );
+                foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
+                    $value = trim((string)($this->request->post['cart_' . $name] ?? ''));
+                    if ($value !== '' && !preg_match('/^[a-zA-Z0-9_]{1,64}$/', $value)) {
+                        $error = $this->language->get('error_cart_mapping');
+                        break;
+                    }
+                    $settings['codecart_abandoned_cart_' . $name] = $value;
+                }
+                if ($error === '') {
+                    $this->load->model('setting/setting');
+                    $this->model_setting_setting->editSetting('codecart_abandoned_cart', $settings, 0);
+                    $this->session->data['success'] = $this->language->get('text_settings_saved');
+                }
+            }
+            if ($error !== '') { $this->session->data['error_warning'] = $error; }
+            $this->response->redirect($this->url->link('sale/abandoned_cart', 'user_token=' . $sessionToken, true));
+            return;
+        }
+
         $this->load->model('sale/abandoned_cart');
 
         $page = isset($this->request->get['page']) ? max(1, (int)$this->request->get['page']) : 1;
@@ -12,14 +49,19 @@ class ControllerSaleAbandonedCart extends Controller {
         $sort = isset($this->request->get['sort']) && in_array((string)$this->request->get['sort'], $allowedSort, true) ? (string)$this->request->get['sort'] : 'last_activity';
         $order = isset($this->request->get['order']) && strtoupper((string)$this->request->get['order']) === 'ASC' ? 'ASC' : 'DESC';
 
-        $total = $this->model_sale_abandoned_cart->getTotalAbandonedCarts();
-        $rows = $this->model_sale_abandoned_cart->getAbandonedCarts(($page - 1) * $limit, $limit, $sort, $order);
+        $total = $enabled ? $this->model_sale_abandoned_cart->getTotalAbandonedCarts() : 0;
+        $rows = $enabled ? $this->model_sale_abandoned_cart->getAbandonedCarts(($page - 1) * $limit, $limit, $sort, $order) : array();
 
         $data = array();
         foreach (array(
             'heading_title','text_home','text_sale','text_no_results','text_scope_help','text_confirm_delete','text_confirm_clear','text_success_delete','text_success_clear',
             'column_customer','column_email','column_phone','column_products','column_quantity','column_total','column_last_activity','column_inactive','column_action','text_guest',
-            'button_customer','button_product','button_delete','button_clear'
+            'button_customer','button_product','button_delete','button_clear',
+            'text_settings','text_disabled_note','text_source_standard','text_source_external','text_cart_mapping_info',
+            'text_cart_source_help','text_cart_amount_estimate','text_cart_storefront_note','text_settings_saved','error_cart_mapping',
+            'entry_cart_status','entry_cart_source','entry_cart_table','entry_cart_idle_minutes','entry_cart_days',
+            'entry_col_session','entry_col_product','entry_col_quantity','entry_col_date',
+            'entry_col_customer','entry_col_email','entry_col_phone','button_save'
         ) as $key) { $data[$key] = $this->language->get($key); }
 
         if (!empty($this->session->data['success'])) {
@@ -29,9 +71,22 @@ class ControllerSaleAbandonedCart extends Controller {
         $data['error_warning'] = !empty($this->session->data['error_warning']) ? $this->session->data['error_warning'] : '';
         unset($this->session->data['error_warning']);
 
+        $data['cart_enabled'] = $enabled;
+        $data['cart_source'] = $source;
+        $data['cart_can_modify'] = $this->user->hasPermission('modify', 'sale/abandoned_cart');
+        $data['cart_fields'] = array('status' => $enabled ? 1 : 0, 'source' => $source,
+            'idle_minutes' => (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60,
+            'days' => (int)$this->config->get('codecart_abandoned_cart_days') ?: 7);
+        foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
+            $data['cart_fields'][$name] = (string)$this->config->get('codecart_abandoned_cart_' . $name);
+        }
+        $data['cart_mapping_valid'] = !$enabled || $source !== 'external'
+            || $this->model_sale_abandoned_cart->getExternalSourceStatus();
         $data['carts'] = array();
         foreach ($rows as $row) {
-            $products = $this->model_sale_abandoned_cart->getCartProducts((int)$row['customer_id'], (string)$row['session_id']);
+            $products = $source === 'external'
+                ? $this->model_sale_abandoned_cart->getExternalCartProducts((int)$row['customer_id'], (string)$row['session_id'])
+                : $this->model_sale_abandoned_cart->getCartProducts((int)$row['customer_id'], (string)$row['session_id']);
             $product_rows = array();
             $cart_total = '0.0000';
             foreach ($products as $product) {
@@ -101,7 +156,13 @@ class ControllerSaleAbandonedCart extends Controller {
 
     public function delete() {
         $this->load->language('sale/abandoned_cart');
-        if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->user->hasPermission('modify', 'sale/abandoned_cart')) {
+        if ($this->request->server['REQUEST_METHOD'] !== 'POST'
+            || (string)($this->request->get['user_token'] ?? '') === ''
+            || !hash_equals((string)($this->session->data['user_token'] ?? ''), (string)($this->request->get['user_token'] ?? ''))
+            || !$this->user->hasPermission('access', 'sale/abandoned_cart')
+            || !$this->user->hasPermission('modify', 'sale/abandoned_cart')
+            || ($this->config->has('codecart_abandoned_cart_status') && !$this->config->get('codecart_abandoned_cart_status'))
+            || (string)$this->config->get('codecart_abandoned_cart_source') === 'external') {
             $this->session->data['error_warning'] = $this->language->get('error_permission');
         } else {
             $this->load->model('sale/abandoned_cart');
@@ -117,7 +178,13 @@ class ControllerSaleAbandonedCart extends Controller {
 
     public function clear() {
         $this->load->language('sale/abandoned_cart');
-        if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->user->hasPermission('modify', 'sale/abandoned_cart')) {
+        if ($this->request->server['REQUEST_METHOD'] !== 'POST'
+            || (string)($this->request->get['user_token'] ?? '') === ''
+            || !hash_equals((string)($this->session->data['user_token'] ?? ''), (string)($this->request->get['user_token'] ?? ''))
+            || !$this->user->hasPermission('access', 'sale/abandoned_cart')
+            || !$this->user->hasPermission('modify', 'sale/abandoned_cart')
+            || ($this->config->has('codecart_abandoned_cart_status') && !$this->config->get('codecart_abandoned_cart_status'))
+            || (string)$this->config->get('codecart_abandoned_cart_source') === 'external') {
             $this->session->data['error_warning'] = $this->language->get('error_permission');
         } else {
             $this->load->model('sale/abandoned_cart');
