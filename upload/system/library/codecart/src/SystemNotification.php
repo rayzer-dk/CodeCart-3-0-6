@@ -102,6 +102,9 @@ final class SystemNotification {
                 // Header notifications are rendered outside tool/notification, so load
                 // the canonical notification translations before presenting DB rows.
                 $loader->language('tool/notification');
+                // Diagnostic strings have their own language pack so they can be
+                // reused by the Scheduler screen without overwriting heading_title.
+                $loader->language('tool/diagnostics');
             }
         }
         foreach($rows as &$row){
@@ -109,11 +112,7 @@ final class SystemNotification {
             if($language && strpos($code,'scheduler.')===0){
                 $task=substr($code,strlen('scheduler.'));
                 $row['title']=sprintf($language->get('text_notice_cron_failed'),$task);
-                if(trim((string)$row['message'])==='Handler returned false') {
-                    $row['message']=$language->get('text_notice_handler_false');
-                } elseif (stripos((string)$row['message'], 'URL rejected: No host part in the URL') !== false) {
-                    $row['message']=$language->get('text_notice_invalid_catalog_url');
-                }
+                $row['message'] = self::localizeDiagnostic((string)$row['message'], $language);
             } elseif($language && strpos($code,'health.')===0){
                 $healthKey = substr($code, 7);
                 $titleKey = 'text_health_' . str_replace('.', '_', $healthKey);
@@ -138,6 +137,53 @@ final class SystemNotification {
         }
         unset($row);
         return $rows;
+    }
+
+    /**
+     * Human-readable translation of known scheduler/queue diagnostics.
+     * Storage and the protected technical logs keep the original text.
+     * Unknown diagnostics retain their complete technical details, with a
+     * localized label, instead of being silently altered or concealed.
+     */
+    public static function localizeDiagnostic(string $message, $language): string {
+        $message = trim($message);
+        if ($message === '' || !$language || !method_exists($language, 'get')) {
+            return $message;
+        }
+
+        if (preg_match('~^(?:(?:Exception|Error|RuntimeException|InvalidArgumentException):[ ]*)*Could not call[ ]+(/?[a-z0-9_/-]+)!?$~i', $message, $matches)) {
+            return sprintf($language->get('text_diag_controller_unavailable'), $matches[1]);
+        }
+        if (stripos($message, 'URL rejected: No host part in the URL') !== false) {
+            return $language->get('text_diag_invalid_catalog_url');
+        }
+
+        $known = array(
+            'OK' => 'text_diag_ok',
+            'Handler returned false' => 'text_diag_handler_false',
+            'Task failed without details' => 'text_diag_task_failed',
+            'Scheduler is already running.' => 'text_diag_scheduler_locked',
+            'Scheduler task not found.' => 'text_diag_task_not_found',
+            'Invalid scheduler route.' => 'text_diag_invalid_route',
+            'Invalid scheduler code.' => 'text_diag_invalid_code',
+            'Invalid scheduler arguments.' => 'text_diag_invalid_arguments',
+            'Scheduler code already exists.' => 'text_diag_duplicate_code',
+            'Built-in scheduler task code cannot be renamed.' => 'text_diag_core_code_locked',
+            'Built-in scheduler tasks can be disabled, but not deleted.' => 'text_diag_core_delete_locked',
+            'recovered_stale_processing' => 'text_diag_recovered_stale',
+            'stale_processing_attempt_limit' => 'text_diag_attempt_limit'
+        );
+        if (isset($known[$message])) {
+            return $language->get($known[$message]);
+        }
+
+        if (preg_match('~^Invalid scheduler route:[ ]*([a-z0-9_/-]+)[ ]*\\(a controller action is required\\)\\.$~i', $message, $matches)) {
+            return sprintf($language->get('text_diag_invalid_route_detail'), $matches[1]);
+        }
+
+        // The caller may still need the exact provider/SQL/PHP diagnostic.
+        // The technical text is deliberately preserved, not mistranslated.
+        return sprintf($language->get('text_diag_technical_details'), $message);
     }
 
     private function healthValue(string $healthKey,string $message,$language): string {
