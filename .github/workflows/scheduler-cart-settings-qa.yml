@@ -1,0 +1,130 @@
+name: Scheduler and Cart Config QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/scheduler-cart-settings-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate PHP, JavaScript and language structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l "upload/admin/controller/tool/scheduler.php"
+          php -l "upload/admin/language/en-gb/tool/scheduler.php"
+          php -l "upload/admin/language/ru-ru/tool/scheduler.php"
+          php -l "upload/admin/language/uk-ua/tool/scheduler.php"
+          php -l "upload/admin/controller/sale/abandoned_cart.php"
+          php -l "upload/admin/model/sale/abandoned_cart.php"
+          php -l "upload/admin/language/en-gb/sale/abandoned_cart.php"
+          php -l "upload/admin/language/ru-ru/sale/abandoned_cart.php"
+          php -l "upload/admin/language/uk-ua/sale/abandoned_cart.php"
+          node --check upload/admin/view/javascript/codecart-scheduler.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          read=lambda n:Path(n).read_text(encoding='utf-8')
+          c=read('upload/admin/controller/tool/scheduler.php')
+          f=read('upload/admin/view/template/tool/scheduler.twig')
+          js=read('upload/admin/view/javascript/codecart-scheduler.js')
+          cart=read('upload/admin/controller/sale/abandoned_cart.php')
+          model=read('upload/admin/model/sale/abandoned_cart.php')
+          view=read('upload/admin/view/template/sale/abandoned_cart_list.twig')
+          assert 'error_route_allowed' in c and "is_file($handlerFile)" in c
+          assert "error_duplicate_route" in c and "error_reserved_code" in c
+          assert 'text_server_interval' in f and '*/5 * * * *' in f
+          assert 'input-scheduler-template' in f and 'js-scheduler-edit' in js
+          assert 'text_job_code_help' in f and 'text_json_example' in f
+          assert 'codecart_abandoned_cart_status' in cart
+          assert "codecart_abandoned_cart_source" in cart and "save_cart_settings" in cart
+          assert "getExternalCartProducts" in model
+          assert "getExternalSourceStatus" in model
+          assert "SHOW COLUMNS FROM" in model and 'customSource' in model
+          assert "codecart_abandoned_cart_source') === 'external'" in model
+          assert 'cart_mapping_valid' in cart and 'cart_enabled' in view
+          assert 'cart_can_modify' in view and 'cart_source' in view
+          assert 'save_cart_settings' in view
+          assert "hash_equals(" in cart
+          for suffix in ('tool/scheduler','sale/abandoned_cart'):
+              langs=[]
+              for lang in ('en-gb','ru-ru','uk-ua'):
+                  p=f'upload/admin/language/{lang}/{suffix}.php'
+                  s=read(p)
+                  assert not s.startswith('\ufeff')
+                  keys=re.findall(r"\$_\['([^']+)'\]\s*=",s)
+                  assert len(keys)==len(set(keys)),(p,'duplicate keys')
+                  langs.append(set(keys))
+              assert langs[0]==langs[1]==langs[2],suffix
+          print('PASS: task routes, mapping, OFF, permissions and translations')
+          PY
+      - name: Archive corrected source files and entire main
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            "upload/admin/controller/tool/scheduler.php"
+            "upload/admin/view/template/tool/scheduler.twig"
+            "upload/admin/view/javascript/codecart-scheduler.js"
+            "upload/admin/language/en-gb/tool/scheduler.php"
+            "upload/admin/language/ru-ru/tool/scheduler.php"
+            "upload/admin/language/uk-ua/tool/scheduler.php"
+            "upload/admin/controller/sale/abandoned_cart.php"
+            "upload/admin/model/sale/abandoned_cart.php"
+            "upload/admin/view/template/sale/abandoned_cart_list.twig"
+            "upload/admin/language/en-gb/sale/abandoned_cart.php"
+            "upload/admin/language/ru-ru/sale/abandoned_cart.php"
+            "upload/admin/language/uk-ua/sale/abandoned_cart.php"
+          )
+          for f in "${files[@]}"; do test -f "$f"; done
+          cat > README-CHANGES.txt <<'README'
+          CodeCart 3.0.6 - Scheduler and Abandoned Carts.
+          Back up the complete shop and its database before updating.
+          12 complete modified files retaining upload/ paths.
+
+          Scheduler: one server cron every 5 min (*/5 * * * *).
+          Use ONLY the displayed command with the actual PHP binary/path.
+          The internal scheduler handles each task's own interval.
+          Existing core codes are stable and should never be translated or
+          duplicated. The UI now explains routes, codes and JSON arguments.
+          Only real catalog cron controller files can be configured from admin.
+
+          Abandoned carts: independent ON/OFF switch (OFF leaves checkout intact).
+          Standard oc_cart remains the default data source. Optional mapped
+          external SQL table is read-only and requires one row per cart product
+          plus session ID, product ID, quantity, timestamp. Its own column names
+          must be supplied. External cart prices are estimates; options and
+          historic discounts are not reconstructed. External records cannot be
+          deleted from the CodeCart UI. Browser-only localStorage carts cannot
+          be read through a database mapping.
+          This is NOT an importer for arbitrary HTML/cart URLs.
+
+          Older session records are already managed by OpenCart's session GC.
+          Do not schedule full OCMOD regeneration or total cache deletion.
+          Clear Twig cache and refresh OCMOD manually after deploying.
+          Runtime checkout, theme-specific carts and production cron schedules
+          must still be tested on the actual installation.
+          README
+          zip -q CodeCart_3.0.6_Scheduler_Cart_Enhancements.zip "${files[@]}" README-CHANGES.txt
+          unzip -tq CodeCart_3.0.6_Scheduler_Cart_Enhancements.zip
+          git archive --format=zip --output=CodeCart_3.0.6_Full_Main_Scheduler_Cart.zip HEAD
+          unzip -tq CodeCart_3.0.6_Full_Main_Scheduler_Cart.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Scheduler_Cart_Enhancements
+          path: CodeCart_3.0.6_Scheduler_Cart_Enhancements.zip
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Full_Main_Scheduler_Cart
+          path: CodeCart_3.0.6_Full_Main_Scheduler_Cart.zip
+          if-no-files-found: error
+          retention-days: 30
