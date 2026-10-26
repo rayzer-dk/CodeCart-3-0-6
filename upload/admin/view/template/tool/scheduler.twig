@@ -14,13 +14,19 @@
     <div class="panel panel-default">
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-clock-o"></i> {{ heading_title }}</h3></div>
       <div class="panel-body">
+        <div class="ccp-scheduler-status ccp-scheduler-status-{{ scheduler_health }}">
+          <i class="fa fa-{{ scheduler_health == 'ok' ? 'check-circle' : 'exclamation-circle' }}"></i>
+          <strong>{{ text_scheduler_health }}:</strong> {{ scheduler_health == 'ok' ? text_scheduler_health_ok : (scheduler_health == 'warn' ? text_scheduler_health_warn : text_scheduler_health_none) }}
+          {% if scheduler_health_date %}<code>{{ scheduler_health_date }}</code>{% endif %}
+          <div class="help-block">{{ text_last_execution_help }}</div>
+        </div>
         <p class="help-block">{{ help_cron }}</p>
-        <p class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_existing_codes_info }}</p>
+        <details class="ccp-scheduler-help"><summary><i class="fa fa-question-circle"></i> {{ text_scheduler_usage }}</summary><p>{{ text_existing_codes_info }}</p></details>
         <p class="ccp-scheduler-setup"><strong>{{ text_server_setup }}</strong> {{ text_server_one_command }}</p>
-        <div class="ccp-scheduler-frequency"><strong>{{ text_server_interval }}</strong> <code>*/5 * * * *</code></div>
+        <div class="ccp-scheduler-frequency"><strong>{{ text_server_interval }}</strong> <code>* * * * *</code></div>
         <p class="help-block">{{ text_session_cleanup }} {{ text_cache_note }} {{ text_extra_modules }}</p>
         <div class="form-group"><label>{{ text_cli }}</label><div class="input-group"><input id="cron-cli" class="form-control" readonly value="{{ cli_command }}"><span class="input-group-btn"><button class="btn btn-default js-copy" type="button" data-target="cron-cli" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>
-        <div class="form-group"><label>{{ text_web_cron }}</label><div class="input-group"><input id="cron-http" class="form-control" readonly value="{{ http_command }}"><span class="input-group-btn"><button class="btn btn-default js-copy" type="button" data-target="cron-http" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>
+        <div class="form-group"><label>{{ text_web_cron }}</label><div class="input-group"><input type="password" id="cron-http" class="form-control" readonly value="{{ http_command }}"><span class="input-group-btn"><button class="btn btn-default js-reveal" type="button" data-target="cron-http" title="{{ text_advanced_options }}"><i class="fa fa-eye"></i></button><button class="btn btn-default js-copy" type="button" data-target="cron-http" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>
       </div>
     </div>
 
@@ -126,10 +132,15 @@
               </div>
             </div>
           </div>
+          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-available">{{ text_choose_available_handler }}</label><div class="col-sm-10">
+            <select id="input-scheduler-available" class="form-control"><option value="">{{ text_manual }}</option>{% for handler in available_handlers %}<option value="{{ handler.route }}" data-code="{{ handler.code }}">{{ handler.route }}</option>{% endfor %}</select>
+            <small class="help-block">{{ text_no_custom_handlers }}</small>
+          </div></div>
           <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-code">{{ entry_code }}</label><div class="col-sm-10"><input type="text" name="code" value="{{ edit_task.code }}" id="input-scheduler-code" class="form-control" required maxlength="128" placeholder="custom.my_task" {{ edit_task.is_core ? 'readonly' : '' }}><small class="help-block">{{ text_job_code_help }}</small></div></div>
           <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-route"><span data-toggle="tooltip" title="{{ text_route_help }}">{{ entry_route }}</span></label><div class="col-sm-10"><input type="text" name="route" value="{{ edit_task.route }}" id="input-scheduler-route" class="form-control" required placeholder="cron/my_handler"><small class="help-block">{{ text_route_help }}</small></div></div>
           <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-interval"><span data-toggle="tooltip" title="{{ text_interval_help }}">{{ entry_interval }}</span></label><div class="col-sm-10"><input type="number" min="60" max="31536000" step="1" name="interval_seconds" value="{{ edit_task.interval_seconds }}" id="input-scheduler-interval" class="form-control" required></div></div>
-          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-args"><span data-toggle="tooltip" title="{{ text_args_help }}">{{ entry_args }}</span></label><div class="col-sm-10"><textarea name="args" rows="3" id="input-scheduler-args" class="form-control" spellcheck="false">{{ edit_task.args }}</textarea><small class="help-block">{{ text_json_example }}</small></div></div>
+          <details class="ccp-scheduler-advanced"><summary><i class="fa fa-cog"></i> {{ text_advanced_options }}</summary>
+          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-args"><span data-toggle="tooltip" title="{{ text_args_help }}">{{ entry_args }}</span></label><div class="col-sm-10"><textarea name="args" rows="3" id="input-scheduler-args" class="form-control" spellcheck="false">{{ edit_task.args }}</textarea><small class="help-block">{{ text_json_example }}</small></div></div></details>
           <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-status">{{ entry_status }}</label><div class="col-sm-10"><select name="status" id="input-scheduler-status" class="form-control"><option value="1" {{ edit_task.status ? 'selected' : '' }}>{{ text_enabled }}</option><option value="0" {{ not edit_task.status ? 'selected' : '' }}>{{ text_disabled }}</option></select></div></div>
           <div class="text-right"><a href="{{ cancel }}" class="btn btn-default js-scheduler-cancel"><i class="fa fa-reply"></i> {{ button_cancel }}</a> <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div>
         </form>
@@ -141,10 +152,12 @@
 <link rel="stylesheet" href="view/stylesheet/codecart_scheduler.css?v=3.0.6.1">
 <script src="view/javascript/codecart-scheduler.js?v=3.0.6.1"></script>
 <style>
+.ccp-scheduler-status{border:1px solid #d9e6f4;background:#f8fbff;padding:10px 12px;border-radius:5px;margin-bottom:12px}.ccp-scheduler-status-warn,.ccp-scheduler-status-none{background:#fffaf0;border-color:#f2deb3}.ccp-scheduler-status .help-block{margin:4px 0 0}.ccp-scheduler-help{margin-bottom:10px}.ccp-scheduler-help summary,.ccp-scheduler-advanced summary{cursor:pointer;font-weight:600;color:#174875}.ccp-scheduler-help p{margin:8px 0}.ccp-scheduler-advanced{border:1px solid #e0e9f2;background:#f8fbff;border-radius:4px;padding:10px;margin-bottom:12px}.ccp-scheduler-advanced .form-group{margin:10px 0 0}
 .codecart-scheduler-table thead,.codecart-queue-table thead{border-top:3px solid #0057d9}.codecart-scheduler-table thead th,.codecart-queue-table thead th{border-right:1px solid #dce4ed;vertical-align:middle}.codecart-queue-filters{margin-bottom:0}.codecart-queue-filter-actions>label{display:block}.codecart-queue-table{table-layout:fixed;margin-bottom:0}.codecart-queue-table th:nth-child(1){width:65px}.codecart-queue-table th:nth-child(4){width:95px}.codecart-queue-table th:nth-child(5){width:80px}.codecart-queue-table th:nth-child(6),.codecart-queue-table th:nth-child(7){width:155px}.codecart-queue-table th:nth-child(9){width:105px}.codecart-queue-table thead a{color:inherit;white-space:nowrap}.codecart-queue-actions form+form{margin-left:4px}.ccp-ellipsis{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.codecart-queue-panel .panel-footer .pagination{margin:0}.codecart-queue-panel .panel-footer{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px}.codecart-queue-panel .panel-footer>.pull-left,.codecart-queue-panel .panel-footer>.pull-right{float:none!important}
 @media(max-width:767px){.codecart-queue-filters>[class*="col-"]{margin-bottom:8px}.codecart-queue-panel .panel-footer{align-items:flex-start;flex-direction:column}.codecart-queue-table{min-width:980px}}
 </style>
 <script>
+$('.js-reveal').on('click',function(){var el=document.getElementById($(this).data('target'));if(!el)return;el.type=el.type==='password'?'text':'password';$(this).find('i').toggleClass('fa-eye fa-eye-slash');});
 $('.js-copy').on('click',function(){var el=document.getElementById($(this).data('target'));el.select();el.setSelectionRange(0,99999);if(navigator.clipboard){navigator.clipboard.writeText(el.value);}else{document.execCommand('copy');}});
 </script>
 {{ footer }}

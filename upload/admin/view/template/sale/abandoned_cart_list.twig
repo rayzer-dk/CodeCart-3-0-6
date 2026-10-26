@@ -2,9 +2,7 @@
 <div id="content">
   <div class="page-header"><div class="container-fluid">
     <div class="pull-right">
-      {% if cart_enabled and cart_source == "standard" and cart_can_modify %}<form action="{{ clear_url }}" method="post" class="ccp-abandoned-clear-form" style="display:inline-block" onsubmit="return confirm('{{ text_confirm_clear|e('js') }}');">
-        <button type="submit" class="btn btn-danger" title="{{ button_clear }}"><i class="fa fa-trash"></i> {{ button_clear }}</button>
-      </form>{% endif %}
+      {% if cart_enabled and cart_source == 'standard' and cart_can_modify %}<details class="ccp-clear-menu"><summary class="btn btn-default btn-sm"><i class="fa fa-ellipsis-h"></i> {{ column_action }}</summary><form action="{{ clear_url }}" method="post" class="ccp-abandoned-clear-form" onsubmit="return confirm('{{ text_confirm_clear|e('js') }}');"><button type="submit" class="btn btn-danger btn-sm" title="{{ button_clear }}"><i class="fa fa-trash"></i> {{ button_clear }}</button></form></details>{% endif %}
     </div>
     <h1>{{ heading_title }}</h1><ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul>
   </div></div>
@@ -12,6 +10,10 @@
     {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
     {% if success %}<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
     <div class="ccp-abandoned-summary alert alert-info"><i class="fa fa-info-circle"></i> {{ text_quick_guide }}</div>
+    <div class="row ccp-abandoned-overview">
+      <div class="col-sm-6"><div class="ccp-stat"><i class="fa fa-shopping-basket"></i><span>{{ text_cart_count }}</span><strong>{{ cart_total }}</strong></div></div>
+      <div class="col-sm-6"><div class="ccp-stat"><i class="fa fa-envelope"></i><span>{{ text_email_count }}</span><strong>{{ mail_eligible_count }}</strong></div></div>
+    </div>
     <div class="panel panel-default ccp-abandoned-settings">
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-sliders"></i> {{ text_settings }}</h3></div>
       <div class="panel-body">
@@ -34,6 +36,11 @@
               <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="30" value="{{ cart_fields.days }}"></div>
           </div>
           <p class="help-block">{{ text_cart_source_help }}</p>
+          <div class="ccp-mail-control"><label for="abandoned-mail-auto"><i class="fa fa-envelope-o"></i> {{ entry_mail_auto }}</label>
+            <select id="abandoned-mail-auto" name="cart_mail_auto" class="form-control">
+              <option value="0" {{ not cart_fields.mail_auto ? 'selected' : '' }}>{{ text_disabled }}</option>
+              <option value="1" {{ cart_fields.mail_auto ? 'selected' : '' }}>{{ text_enabled }}</option>
+            </select><p class="help-block">{{ text_mail_auto_help }}</p></div>
           <div class="ccp-external-fields">
             <div class="alert alert-info">{{ text_cart_mapping_info }}</div>
             <div class="row">
@@ -64,8 +71,10 @@
       {% if cart_source == 'external' %} {{ text_cart_amount_estimate }}{% endif %}
       {{ text_cart_storefront_note }}
     </div>
+    <p class="ccp-cart-mail-disclaimer"><i class="fa fa-shield"></i> {{ text_mail_disclaimer }}</p>
 
     <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"><i class="fa fa-shopping-basket"></i> {{ heading_title }}</h3></div><div class="panel-body">
+      <form method="get" action="index.php" class="ccp-cart-list-tools"><input type="hidden" name="route" value="sale/abandoned_cart"><input type="hidden" name="user_token" value="{{ user_token }}"><label for="ccp-cart-limit">{{ text_on_page }}</label><select class="form-control input-sm" id="ccp-cart-limit" name="limit" onchange="this.form.submit()">{% for value in [10,25,50,100] %}<option value="{{ value }}" {{ value == limit ? 'selected' : '' }}>{{ value }}</option>{% endfor %}</select></form>
       <div class="table-responsive"><table class="table table-bordered table-hover ccp-abandoned-cart-table"><thead><tr>
         <td><a href="{{ sort_customer }}"{% if sort == 'customer' %} class="{{ order|lower }}"{% endif %}>{{ column_customer }}</a></td>
         <td><a href="{{ sort_email }}"{% if sort == 'email' %} class="{{ order|lower }}"{% endif %}>{{ column_email }}</a></td>
@@ -82,7 +91,15 @@
         <td>{% for product in cart.products %}<div class="ccp-abandoned-product"><a href="{{ product.href }}" title="{{ button_product }}">{{ product.name }}</a> × {{ product.quantity }}</div>{% endfor %}</td>
         <td class="text-right">{{ cart.quantity }}</td><td class="text-right"><strong>{{ cart.total }}</strong></td><td>{{ cart.last_activity }}</td><td>{{ cart.inactive }}</td>
         <td class="text-right ccp-abandoned-actions">
-          {% if cart.email %}<a href="mailto:{{ cart.email|url_encode }}?subject={{ text_mail_subject|url_encode }}" class="btn btn-success" title="{{ button_compose_email }}" data-toggle="tooltip"><i class="fa fa-envelope-o"></i></a>{% else %}<span class="text-muted" title="{{ text_no_email }}"><i class="fa fa-envelope-o"></i></span>{% endif %}
+          {% if cart.cart_key and mail_last_status[cart.cart_key] is defined %}
+            <span class="ccp-mail-state label label-{{ mail_last_status[cart.cart_key].status == 'sent' ? 'success' : (mail_last_status[cart.cart_key].status == 'failed' ? 'danger' : 'warning') }}" title="{{ mail_last_status[cart.cart_key].date_sent }}">{{ text_mail_history }}: {{ mail_last_status[cart.cart_key].status }}</span>
+            {% if mail_last_status[cart.cart_key].status == 'failed' and cart.mail_eligible and cart_can_modify %}
+            <form action="{{ send_url }}" method="post" class="ccp-abandoned-send-form" onsubmit="return confirm('{{ text_send_confirm|e('js') }}');"><input type="hidden" name="confirm_send" value="1"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-warning" title="{{ text_retry_failed }}" data-toggle="tooltip"><i class="fa fa-repeat"></i></button></form>{% endif %}
+          {% elseif cart.mail_eligible and cart_can_modify %}
+            <form action="{{ send_url }}" method="post" class="ccp-abandoned-send-form" onsubmit="return confirm('{{ text_send_confirm|e('js') }}');">
+              <input type="hidden" name="confirm_send" value="1"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-success" title="{{ button_send_now }}" data-toggle="tooltip"><i class="fa fa-envelope"></i></button>
+            </form>
+          {% else %}<span class="ccp-mail-unavailable" title="{{ text_mail_optin_required }}"><i class="fa fa-envelope-o"></i></span>{% endif %}
           {% if cart.customer_href %}<a href="{{ cart.customer_href }}" class="btn btn-primary" data-toggle="tooltip" title="{{ button_customer }}"><i class="fa fa-user"></i></a>{% endif %}
           {% if cart_source == 'standard' and cart_can_modify %}<form action="{{ delete_url }}" method="post" class="ccp-abandoned-delete-form" onsubmit="return confirm('{{ text_confirm_delete|e('js') }}');"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-danger" data-toggle="tooltip" title="{{ button_delete }}"><i class="fa fa-trash"></i></button></form>{% endif %}
         </td>
@@ -92,9 +109,11 @@
   </div>
 </div>
 <style>
-.ccp-abandoned-cart-table{border-top:3px solid #0057d9}.ccp-abandoned-cart-table thead td{font-weight:600;vertical-align:middle}.ccp-abandoned-cart-table thead td+td{border-left-color:#d5dbe3}.ccp-abandoned-cart-table thead a{position:relative;padding-right:14px;color:#1f3a57}.ccp-abandoned-cart-table thead a.asc:after,.ccp-abandoned-cart-table thead a.desc:after{position:absolute;right:0;font-family:FontAwesome;font-size:10px}.ccp-abandoned-cart-table thead a.asc:after{content:"\f0d8"}.ccp-abandoned-cart-table thead a.desc:after{content:"\f0d7"}.ccp-abandoned-cart-table td{vertical-align:middle}.ccp-abandoned-product+.ccp-abandoned-product{margin-top:3px}.ccp-abandoned-product a{max-width:420px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}.ccp-abandoned-actions{white-space:nowrap}.ccp-abandoned-delete-form{display:inline-block;margin-left:4px}.ccp-abandoned-clear-form{margin:0}
+.ccp-abandoned-cart-table{border-top:3px solid #0057d9}.ccp-abandoned-cart-table thead td{font-weight:600;vertical-align:middle}.ccp-abandoned-cart-table thead td+td{border-left-color:#d5dbe3}.ccp-abandoned-cart-table thead a{position:relative;padding-right:14px;color:#1f3a57}.ccp-abandoned-cart-table thead a.asc:after,.ccp-abandoned-cart-table thead a.desc:after{position:absolute;right:0;font-family:FontAwesome;font-size:10px}.ccp-abandoned-cart-table thead a.asc:after{content:"\f0d8"}.ccp-abandoned-cart-table thead a.desc:after{content:"\f0d7"}.ccp-abandoned-cart-table td{vertical-align:middle}.ccp-abandoned-product+.ccp-abandoned-product{margin-top:3px}.ccp-abandoned-product a{max-width:420px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}.ccp-abandoned-actions{white-space:nowrap}.ccp-abandoned-delete-form,.ccp-abandoned-send-form{display:inline-block;margin-left:4px}.ccp-mail-state{display:inline-block;font-size:10px;white-space:normal;max-width:140px}.ccp-mail-unavailable{color:#8496a8;margin-right:8px}.ccp-abandoned-clear-form{margin:0}
 
 .ccp-abandoned-settings { margin-bottom:12px; }
+.ccp-clear-menu{display:inline-block;position:relative}.ccp-clear-menu summary{list-style:none;cursor:pointer}.ccp-clear-menu summary::-webkit-details-marker{display:none}.ccp-clear-menu form{position:absolute;right:0;top:37px;z-index:3;background:#fff;border:1px solid #d9e1ea;border-radius:4px;box-shadow:0 3px 12px #0002;padding:8px}.ccp-cart-list-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:0 0 10px}.ccp-cart-list-tools select{width:85px}
+.ccp-abandoned-overview{margin:0 -8px 9px}.ccp-abandoned-overview>div{padding:0 8px}.ccp-stat{display:flex;align-items:center;gap:12px;border:1px solid #dce8f4;border-radius:5px;background:#fff;padding:12px 14px;margin-bottom:8px}.ccp-stat i{font-size:21px;color:#1471d5}.ccp-stat span{flex:1}.ccp-stat strong{font-size:21px;color:#213b58}.ccp-cart-mail-disclaimer{color:#576b7e;font-size:12px;margin:6px 0 14px}.ccp-mail-control{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8fbff;border:1px solid #dbe8f4;border-radius:5px;margin:7px 0}.ccp-mail-control label{margin:0;min-width:230px}.ccp-mail-control select{max-width:200px}.ccp-mail-control .help-block{margin:0!important;flex:1} @media(max-width:700px){.ccp-mail-control{display:block}.ccp-mail-control select{margin:8px 0}}
 .ccp-abandoned-summary{margin-bottom:12px}.ccp-abandoned-scope{margin:0 0 12px}.ccp-abandoned-actions .btn{margin-left:3px}.ccp-abandoned-cart-table td:last-child{width:132px}
 .ccp-abandoned-settings .panel-body { padding:12px 15px; }
 .ccp-abandoned-settings .row > div { margin-bottom:9px; }

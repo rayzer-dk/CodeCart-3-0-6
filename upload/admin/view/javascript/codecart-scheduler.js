@@ -20,8 +20,9 @@
       $form.find('input[name="scheduler_id"]').val('0');
       $form.find('input[name="code"]').val('').prop('readOnly', false);
       $form.find('input[name="route"]').val('');
+      $('#input-scheduler-available').val('');
       $form.find('input[name="interval_seconds"]').val('3600');
-      $form.find('textarea[name="args"]').val('[]');
+      $form.find('textarea[name="args"]').val('{}');
       $form.find('select[name="status"]').val('1');
       $heading.empty().append($('<i class="fa fa-plus" aria-hidden="true"></i>'))
         .append(document.createTextNode(' ' + ($panel.attr('data-add-title') || 'Add task')));
@@ -42,7 +43,7 @@
       $form.find('input[name="code"]').val(task.code).prop('readOnly', !!task.is_core);
       $form.find('input[name="route"]').val(task.route);
       $form.find('input[name="interval_seconds"]').val(task.interval_seconds);
-      $form.find('textarea[name="args"]').val(task.args || '[]');
+      $form.find('textarea[name="args"]').val(task.args || '{}');
       $form.find('select[name="status"]').val(String(task.status));
       $heading.empty().append($('<i class="fa fa-pencil" aria-hidden="true"></i>'))
         .append(document.createTextNode(' ' + ($panel.attr('data-edit-title') || 'Edit task')));
@@ -102,6 +103,15 @@
       if (!editorRow) { return; }
       event.preventDefault();
       restoreEditor(true);
+    });
+
+    $('#input-scheduler-available').on('change', function () {
+      if (+$form.find('input[name="scheduler_id"]').val() > 0) { return; }
+      var $selected = $(this).find('option:selected');
+      var route = $(this).val();
+      if (!route) { return; }
+      $form.find('input[name="route"]').val(route);
+      $form.find('input[name="code"]').val($selected.attr('data-code') || 'custom.' + route.split('/').pop());
     });
 
     $('#input-scheduler-template').on('change', function () {

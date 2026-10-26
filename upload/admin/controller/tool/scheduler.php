@@ -48,7 +48,9 @@ class ControllerToolScheduler extends Controller {
         }
         unset($example);
         foreach (array('text_server_setup', 'text_server_interval', 'text_server_one_command', 'text_job_help', 'text_job_type', 'text_manual', 'text_choose_example', 'text_handler_warning',
-          'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help','text_existing_codes_info') as $key) {
+          'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help','text_existing_codes_info',
+          'text_choose_available_handler','text_advanced_options','text_scheduler_health','text_scheduler_health_ok','text_scheduler_health_warn','text_scheduler_health_none',
+          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info') as $key) {
             $data[$key] = $this->language->get($key);
         }
         $data['text_loading_task'] = $this->language->get('text_loading_task');
@@ -76,6 +78,9 @@ class ControllerToolScheduler extends Controller {
 
         $data['jobs'] = array();
         $data['queue_stats'] = array('pending'=>0,'processing'=>0,'failed'=>0,'done'=>0);
+        $data['available_handlers'] = array();
+        $data['scheduler_health'] = 'none';
+        $data['scheduler_health_date'] = '';
         try {
             $data['jobs'] = $scheduler->listTasks();
             foreach ($data['jobs'] as &$job) {
@@ -91,6 +96,23 @@ class ControllerToolScheduler extends Controller {
                 $job['last_message_localized'] = trim((string)$job['last_message']) !== '' ? $this->safeDiagnostic((string)$job['last_message']) : '';
             }
             unset($job);
+            $registered = array();
+            $latest = 0;
+            foreach ($data['jobs'] as $job) {
+                $registered[(string)$job['route']] = true;
+                if ($job['date_last'] && strtotime((string)$job['date_last']) > $latest) { $latest = strtotime((string)$job['date_last']); }
+            }
+            // The latest scheduler execution is evidence of a run, not proof a host cron is installed.
+            $data['scheduler_health'] = !$latest ? 'none' : (($latest >= time()-600) ? 'ok' : 'warn');
+            $data['scheduler_health_date'] = $latest ? date('Y-m-d H:i:s', $latest) : '';
+            $blocked = array('codecart','mail_delivery','cart_reminder');
+            foreach (glob(DIR_CATALOG . 'controller/cron/*.php') ?: array() as $handlerFile) {
+                $handler = basename($handlerFile,'.php');
+                if (!preg_match('/^[a-z0-9_]+$/i',$handler) || in_array($handler,$blocked,true)) { continue; }
+                $route = 'cron/' . $handler;
+                if (isset($registered[$route])) { continue; }
+                $data['available_handlers'][] = array('route'=>$route,'code'=>'custom.' . $handler);
+            }
             $stats = $this->db->query("SELECT status, COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_queue` GROUP BY status");
             foreach ($stats->rows as $row) { $data['queue_stats'][(string)$row['status']] = (int)$row['total']; }
         } catch (\Throwable $e) {
@@ -257,8 +279,11 @@ class ControllerToolScheduler extends Controller {
 
         if ($action === 'run_queue') {
             $result = $this->runCatalogQueue();
-            $this->session->data['success'] = sprintf($this->language->get('text_queue_run_result'), (int)$result['processed'], (int)$result['failed']);
-            if (empty($result['success'])) { $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message']); }
+            if (!empty($result['success']) && (int)$result['failed'] === 0) {
+                $this->session->data['success'] = sprintf($this->language->get('text_queue_run_result'), (int)$result['processed'], (int)$result['failed']);
+            } else {
+                $this->session->data['error_warning'] = sprintf($this->language->get('text_queue_run_result'), (int)$result['processed'], (int)$result['failed']) . ' ' . $this->safeDiagnostic((string)$result['message']);
+            }
             return;
         }
 
@@ -320,11 +345,10 @@ class ControllerToolScheduler extends Controller {
                     throw new \InvalidArgumentException($this->language->get('error_core_route'));
                 }
             }
-            if ($schedulerId < 1) {
-                foreach ($scheduler->listTasks() as $existingTask) {
-                    if ($existingTask['route'] === $route && (int)$existingTask['status'] === 1) {
-                        throw new \InvalidArgumentException($this->language->get('error_duplicate_route'));
-                    }
+            foreach ($scheduler->listTasks() as $existingTask) {
+                if ((int)$existingTask['scheduler_id'] !== $schedulerId
+                    && rtrim((string)$existingTask['route'],'/') === rtrim($route,'/')) {
+                    throw new \InvalidArgumentException($this->language->get('error_duplicate_route'));
                 }
             }
             if ($interval < 60 || $interval > 31536000) {
@@ -347,8 +371,11 @@ class ControllerToolScheduler extends Controller {
             $this->session->data['success'] = $this->language->get('text_success');
         } elseif ($action === 'run') {
             $result = $this->runCatalogTask($schedulerId);
-            $this->session->data['success'] = $this->language->get('text_run_result') . ': ' . $result['status'] . ', ' . (int)$result['duration_ms'] . ' ms';
-            if (empty($result['success'])) { $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message']); }
+            if (!empty($result['success'])) {
+                $this->session->data['success'] = $this->language->get('text_run_result') . ': ' . $this->safeDiagnostic((string)$result['message']) . ', ' . (int)$result['duration_ms'] . ' ms';
+            } else {
+                $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message']);
+            }
         } elseif ($action === 'delete') {
             $scheduler->deleteTask($schedulerId);
             $this->session->data['success'] = $this->language->get('text_success');
@@ -392,7 +419,7 @@ class ControllerToolScheduler extends Controller {
             return array('success'=>false, 'processed'=>0, 'failed'=>0, 'message'=>'Invalid queue worker response (HTTP ' . $status . ').');
         }
         return array(
-            'success' => isset($json['queue']['status']) && (string)$json['queue']['status'] === 'ok',
+            'success' => isset($json['queue']['status']) && (string)$json['queue']['status'] === 'ok' && (int)($json['queue']['failed'] ?? 0) === 0,
             'processed' => isset($json['queue']['processed']) ? (int)$json['queue']['processed'] : 0,
             'failed' => isset($json['queue']['failed']) ? (int)$json['queue']['failed'] : 0,
             'message' => isset($json['queue']['status']) ? (string)$json['queue']['status'] : 'ok'

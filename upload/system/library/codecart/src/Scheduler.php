@@ -123,7 +123,8 @@ final class Scheduler {
                 $builtin_routes = array(
                     'core.stock.notify' => 'cron/stock_notify',
                     'core.queue.worker' => 'cron/queue_worker',
-                    'core.mail.campaign' => 'cron/mail_campaign'
+                    'core.mail.campaign' => 'cron/mail_campaign',
+                    'core.cart.reminder' => 'cron/cart_reminder'
                 );
                 $code = (string)$job['code'];
                 if (!isset($builtin_routes[$code])) {
@@ -138,9 +139,24 @@ final class Scheduler {
             if (is_array($result) && array_key_exists('success', $result)) {
                 $ok = !empty($result['success']);
                 $message = isset($result['message']) && trim((string)$result['message']) !== '' ? trim((string)$result['message']) : ($ok ? 'OK' : 'Task failed without details');
-            } elseif ($result === false) {
+            } elseif (is_array($result) && isset($result['status'])) {
+                $ok = in_array((string)$result['status'], array('ok','success','skipped'),true) && (int)($result['failed'] ?? 0) === 0;
+                $message = isset($result['message']) ? (string)$result['message'] : 'status=' . (string)$result['status'] . ', processed=' . (int)($result['processed'] ?? 0) . ', failed=' . (int)($result['failed'] ?? 0);
+            } elseif (is_array($result) && array_key_exists('failed', $result)) {
+                $ok = (int)$result['failed'] === 0;
+                $message = 'processed=' . (int)($result['processed'] ?? 0) . ', failed=' . (int)$result['failed'];
+            } elseif ($result === true) {
+                $message = 'Handler completed.';
+            } elseif (is_array($result) && !empty($result)) {
+                // Legitimate legacy cron/cart counters; do not report an empty execution.
+                $message = json_encode($result, JSON_UNESCAPED_SLASHES);
+            } else {
                 $ok = false;
-                $message = 'Handler returned false';
+                $message = 'Handler returned no execution result.';
+            }
+            if (is_array($result) && (int)($result['failed'] ?? 0) > 0) {
+                $ok = false;
+                $message .= ' (' . (int)$result['failed'] . ' failed)';
             }
         } catch (\Throwable $e) {
             $ok = false;

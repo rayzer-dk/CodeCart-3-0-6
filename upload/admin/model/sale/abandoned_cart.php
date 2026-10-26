@@ -44,7 +44,7 @@ class ModelSaleAbandonedCart extends Model {
         $email = $this->sourceColumn($f, 'email', 'cu.email');
         $phone = $this->sourceColumn($f, 'phone', 'cu.telephone');
         $idle = max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
-        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $from = ' FROM ' . chr(96) . $source['table'] . chr(96) . ' c LEFT JOIN '
             . chr(96) . DB_PREFIX . 'customer' . chr(96) . ' cu ON cu.customer_id=' . $cid;
         $where = ' WHERE ' . $dt . ' >= DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)'
@@ -110,11 +110,11 @@ class ModelSaleAbandonedCart extends Model {
             return $sql ? $this->db->query($sql . ' ORDER BY ' . $this->sortSql($sort, $order)
                 . ' LIMIT ' . $start . ',' . $limit)->rows : array();
         }
-        $sql = "SELECT c.customer_id, c.session_id, COUNT(*) AS line_count, SUM(c.quantity) AS quantity, MAX(c.date_added) AS last_activity, " .
+        $sql = "SELECT c.customer_id, c.session_id, COUNT(*) AS line_count, SUM(c.quantity) AS quantity, MAX(c.cart_id) AS max_cart_id, MAX(c.date_added) AS last_activity, " .
                "MAX(CASE WHEN cu.customer_id IS NULL THEN '' ELSE CONCAT(cu.firstname, ' ', cu.lastname) END) AS customer, " .
-               "MAX(COALESCE(cu.email,'')) AS email, MAX(COALESCE(cu.telephone,'')) AS telephone, TIMESTAMPDIFF(MINUTE, MAX(c.date_added), NOW()) AS idle_minutes " .
+               "MAX(COALESCE(cu.email,'')) AS email, MAX(COALESCE(cu.telephone,'')) AS telephone, MAX(COALESCE(cu.newsletter,0)) AS newsletter, TIMESTAMPDIFF(MINUTE, MAX(c.date_added), NOW()) AS idle_minutes " .
                "FROM `" . DB_PREFIX . "cart` c LEFT JOIN `" . DB_PREFIX . "customer` cu ON (cu.customer_id=c.customer_id AND c.customer_id>0) " .
-               "WHERE c.api_id = '0' AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) " .
+               "WHERE c.api_id = '0' AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) " .
                "GROUP BY c.customer_id, c.session_id HAVING MAX(c.date_added) < DATE_SUB(NOW(), INTERVAL " . max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE) ORDER BY " . $this->sortSql((string)$sort, (string)$order) . " LIMIT " . $start . "," . $limit;
 
         return $this->db->query($sql)->rows;
@@ -125,7 +125,7 @@ class ModelSaleAbandonedCart extends Model {
             $sql = $this->externalQuery(true);
             return $sql ? (int)$this->db->query($sql)->row['total'] : 0;
         }
-        $query = $this->db->query("SELECT COUNT(*) AS total FROM (SELECT c.customer_id, c.session_id FROM `" . DB_PREFIX . "cart` c WHERE c.api_id = '0' AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) GROUP BY c.customer_id, c.session_id HAVING MAX(c.date_added) < DATE_SUB(NOW(), INTERVAL " . max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE)) x");
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM (SELECT c.customer_id, c.session_id FROM `" . DB_PREFIX . "cart` c WHERE c.api_id = '0' AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) GROUP BY c.customer_id, c.session_id HAVING MAX(c.date_added) < DATE_SUB(NOW(), INTERVAL " . max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE)) x");
         return (int)($query->row['total'] ?? 0);
     }
 
@@ -138,7 +138,7 @@ class ModelSaleAbandonedCart extends Model {
         $row = $this->db->query('SELECT MAX(date_added) AS last_activity FROM ' . $table . ' WHERE ' . $where)->row;
         $last = isset($row['last_activity']) ? strtotime((string)$row['last_activity']) : 0;
         $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
-        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         if (!$last || $last >= time() - $idle * 60 || $last < time() - $days * 86400) { return; }
         // Delete a complete inactive cart, not just an old line of an active cart.
         $this->db->query('DELETE FROM ' . $table . ' WHERE ' . $where);
@@ -147,7 +147,7 @@ class ModelSaleAbandonedCart extends Model {
     public function clearAbandonedCarts() {
         $table = chr(96) . DB_PREFIX . 'cart' . chr(96);
         $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
-        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         // A nested derived table prevents a MySQL update-target table conflict.
         // Only whole abandoned carts in the selected history are removed.
         $sql = 'DELETE FROM ' . $table . " WHERE api_id='0' AND cart_id IN ("

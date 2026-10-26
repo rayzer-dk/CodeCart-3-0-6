@@ -52,7 +52,25 @@ $_['button_save'] = 'Save settings';
 $_['text_enabled'] = 'Enabled';
 $_['text_disabled'] = 'Disabled';
 
-$_['text_quick_guide'] = 'Select a cart source, save settings, and review the carts below. The envelope opens a draft in your mail application; it does not send automatically. Automated reminders need a separate integration.';
+$_['text_quick_guide'] = 'Manage carts and send reminders here. Sending requires a registered, subscribed customer. Enable automatic reminders separately below.';
 $_['button_compose_email'] = 'Compose email in mail application (does not send automatically)';
 $_['text_no_email'] = 'Customer email unavailable';
 $_['text_mail_subject'] = 'Your unfinished checkout';
+
+$_['entry_mail_auto'] = 'Automatic abandoned-cart reminders';
+$_['text_mail_auto_help'] = 'Off by default. Registered newsletter-subscribed customers only; once per cart and at most once per 24 hours. Scheduler task: core.cart.reminder. Enable only with appropriate consent for these messages.';
+$_['button_send_now'] = 'Send reminder using store mail server';
+$_['text_send_confirm'] = 'Send an email using the store mail transport? Confirm customer consent for this message.';
+$_['text_mail_sent'] = 'Mail processed.';
+$_['text_mail_not_sent'] = 'Mail not sent.';
+$_['text_mail_optin_required'] = 'Missing email, subscription or guest cart. Cannot send.';
+$_['text_mail_history'] = 'Mail';
+$_['text_mail_no_history'] = 'Not sent';
+$_['text_cart_count'] = 'Abandoned carts found';
+$_['text_email_count'] = 'Contactable (this page)';
+$_['text_mail_disclaimer'] = 'Reminders link to account sign-in; they do not restore a guest cart automatically. Delivery depends on SMTP and mailbox providers.';
+$_['error_mail_requires_standard'] = 'Auto reminders require analytics enabled and the standard OpenCart cart source.';
+
+$_['text_on_page'] = 'Rows per page';
+
+$_['text_retry_failed'] = 'Retry failed send (up to 3 attempts, 10-minute delay)';

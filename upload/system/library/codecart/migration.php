@@ -2893,6 +2893,7 @@ class Migration {
         $tasks = array(
             array('code' => 'core.currency.refresh', 'route' => 'cron/currency', 'interval' => 86400),
             array('code' => 'core.cart.cleanup', 'route' => 'cron/cart', 'interval' => 3600),
+            array('code' => 'core.cart.reminder', 'route' => 'cron/cart_reminder', 'interval' => 300),
             array('code' => 'core.health.check', 'route' => 'cron/health', 'interval' => 21600),
             array('code' => 'core.security.cleanup', 'route' => 'cron/security', 'interval' => 86400),
             array('code' => 'core.stock.notify', 'route' => 'cron/stock_notify', 'interval' => 300),
