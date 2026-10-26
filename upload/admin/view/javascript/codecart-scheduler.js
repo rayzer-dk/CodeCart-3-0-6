@@ -104,6 +104,18 @@
       restoreEditor(true);
     });
 
+    $('#input-scheduler-template').on('change', function () {
+      var id = parseInt($(this).val(), 10);
+      if (!id) {
+        restoreEditor(true);
+        return;
+      }
+      var $edit = $('table.codecart-scheduler-table .js-scheduler-edit').filter(function () {
+        return parseInt($(this).attr('data-id'), 10) === id;
+      }).first();
+      if ($edit.length) { $edit.trigger('click'); }
+    });
+
     $add.on('click', function (event) {
       if (!editorRow) { return; }
       event.preventDefault();
