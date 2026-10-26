@@ -129,11 +129,31 @@ class ModelSaleAbandonedCart extends Model {
         $customer_id = (int)$customer_id;
         $session_id = (string)$session_id;
         if ($session_id === '') { return; }
-        $this->db->query("DELETE FROM `" . DB_PREFIX . "cart` WHERE api_id='0' AND customer_id='" . $customer_id . "' AND session_id='" . $this->db->escape($session_id) . "' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+        $table = chr(96) . DB_PREFIX . 'cart' . chr(96);
+        $where = "api_id='0' AND customer_id='" . $customer_id . "' AND session_id='" . $this->db->escape($session_id) . "'";
+        $row = $this->db->query('SELECT MAX(date_added) AS last_activity FROM ' . $table . ' WHERE ' . $where)->row;
+        $last = isset($row['last_activity']) ? strtotime((string)$row['last_activity']) : 0;
+        $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        if (!$last || $last >= time() - $idle * 60 || $last < time() - $days * 86400) { return; }
+        // Delete a complete inactive cart, not just an old line of an active cart.
+        $this->db->query('DELETE FROM ' . $table . ' WHERE ' . $where);
     }
 
     public function clearAbandonedCarts() {
-        $this->db->query("DELETE FROM `" . DB_PREFIX . "cart` WHERE api_id='0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+        $table = chr(96) . DB_PREFIX . 'cart' . chr(96);
+        $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        // A nested derived table prevents a MySQL update-target table conflict.
+        // Only whole abandoned carts in the selected history are removed.
+        $sql = 'DELETE FROM ' . $table . " WHERE api_id='0' AND cart_id IN ("
+            . 'SELECT cart_id FROM (SELECT c.cart_id FROM ' . $table . ' c JOIN ('
+            . 'SELECT customer_id, session_id FROM ' . $table . " WHERE api_id='0'"
+            . ' GROUP BY customer_id, session_id HAVING MAX(date_added) < DATE_SUB(NOW(), INTERVAL ' . $idle . ' MINUTE)'
+            . ' AND MAX(date_added) >= DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)'
+            . ') inactive ON inactive.customer_id=c.customer_id AND inactive.session_id=c.session_id'
+            . " WHERE c.api_id='0') nested)";
+        $this->db->query($sql);
     }
 
     public function getCartProducts($customer_id, $session_id) {
