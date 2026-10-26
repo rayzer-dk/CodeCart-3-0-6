@@ -38,6 +38,19 @@ class ControllerToolScheduler extends Controller {
 
         $data['action'] = $this->url->link('tool/scheduler', 'user_token=' . $this->session->data['user_token'], true);
         $data['task_info_url'] = html_entity_decode($this->url->link('tool/scheduler/taskInfo', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
+        $data['scheduler_examples'] = array(
+            array('code' => 'custom.cart_cleanup', 'route' => 'cron/cart', 'interval' => 3600, 'key' => 'text_task_core_cart_cleanup'),
+            array('code' => 'custom.health_check', 'route' => 'cron/health', 'interval' => 21600, 'key' => 'text_task_core_health_check'),
+            array('code' => 'custom.security_cleanup', 'route' => 'cron/security', 'interval' => 86400, 'key' => 'text_task_core_security_cleanup')
+        );
+        foreach ($data['scheduler_examples'] as &$example) {
+            $example['label'] = $this->language->get($example['key']);
+        }
+        unset($example);
+        foreach (array('text_server_setup', 'text_server_interval', 'text_server_one_command', 'text_job_help', 'text_job_type', 'text_manual', 'text_choose_example', 'text_handler_warning',
+          'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help') as $key) {
+            $data[$key] = $this->language->get($key);
+        }
         $data['text_loading_task'] = $this->language->get('text_loading_task');
         $data['error_loading_task'] = $this->language->get('error_loading_task');
         $data['cancel'] = $data['action'];
@@ -266,6 +279,33 @@ class ControllerToolScheduler extends Controller {
             $args = json_decode($rawArgs, true);
             if (!is_array($args) || json_last_error() !== JSON_ERROR_NONE) {
                 throw new \InvalidArgumentException($this->language->get('error_args'));
+            }
+            // Only existing catalog Cron handlers may be scheduled from admin.
+            // Arbitrary admin routes and script/URL commands are not supported.
+            if (!preg_match('#^cron/[a-z0-9_]+(?:/(?:index|batch))?$#i', $route) ||
+                in_array($route, array('cron/codecart', 'cron/mail_delivery', 'cron/relation/batch'), true)) {
+                throw new \InvalidArgumentException($this->language->get('error_route_allowed'));
+            }
+            $parts = explode('/', $route);
+            $handlerFile = DIR_CATALOG . 'controller/cron/' . $parts[1] . '.php';
+            if (!is_file($handlerFile)) {
+                throw new \InvalidArgumentException($this->language->get('error_route_missing'));
+            }
+            if ($schedulerId < 1 && strpos($code, 'core.') === 0) {
+                throw new \InvalidArgumentException($this->language->get('error_reserved_code'));
+            }
+            if ($schedulerId > 0) {
+                $oldTask = $scheduler->getTask($schedulerId);
+                if ($oldTask && strpos((string)$oldTask['code'], 'core.') === 0 && (string)$oldTask['route'] !== $route) {
+                    throw new \InvalidArgumentException($this->language->get('error_core_route'));
+                }
+            }
+            if ($schedulerId < 1) {
+                foreach ($scheduler->listTasks() as $existingTask) {
+                    if ($existingTask['route'] === $route && (int)$existingTask['status'] === 1) {
+                        throw new \InvalidArgumentException($this->language->get('error_duplicate_route'));
+                    }
+                }
             }
             if ($interval < 60 || $interval > 31536000) {
                 throw new \InvalidArgumentException($this->language->get('error_interval'));
