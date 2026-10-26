@@ -80,7 +80,7 @@ final class AbandonedCartReminder {
             }
         }
         if (!$keys) { return array(); }
-        $result = $this->db->query("SELECT cart_key,status,date_sent FROM " . $this->table() . " WHERE cart_key IN (" . implode(',', $keys) . ")");
+        $result = $this->db->query("SELECT cart_key,status,date_sent,date_added,attempts FROM " . $this->table() . " WHERE cart_key IN (" . implode(',', $keys) . ")");
         $out = array();
         foreach ($result->rows as $row) { $out[$row['cart_key']] = $row; }
         return $out;

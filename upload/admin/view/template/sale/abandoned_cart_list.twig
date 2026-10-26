@@ -93,7 +93,7 @@
         <td class="text-right ccp-abandoned-actions">
           {% if cart.cart_key and mail_last_status[cart.cart_key] is defined %}
             <span class="ccp-mail-state label label-{{ mail_last_status[cart.cart_key].status == 'sent' ? 'success' : (mail_last_status[cart.cart_key].status == 'failed' ? 'danger' : 'warning') }}" title="{{ mail_last_status[cart.cart_key].date_sent }}">{{ text_mail_history }}: {{ mail_last_status[cart.cart_key].status }}</span>
-            {% if mail_last_status[cart.cart_key].status == 'failed' and cart.mail_eligible and cart_can_modify %}
+            {% if mail_last_status[cart.cart_key].retry_allowed and cart.mail_eligible and cart_can_modify %}
             <form action="{{ send_url }}" method="post" class="ccp-abandoned-send-form" onsubmit="return confirm('{{ text_send_confirm|e('js') }}');"><input type="hidden" name="confirm_send" value="1"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-warning" title="{{ text_retry_failed }}" data-toggle="tooltip"><i class="fa fa-repeat"></i></button></form>{% endif %}
           {% elseif cart.mail_eligible and cart_can_modify %}
             <form action="{{ send_url }}" method="post" class="ccp-abandoned-send-form" onsubmit="return confirm('{{ text_send_confirm|e('js') }}');">

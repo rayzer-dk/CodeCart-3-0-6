@@ -167,6 +167,12 @@ class ControllerSaleAbandonedCart extends Controller {
                 $keys = array(); foreach ($data['carts'] as $item) { if ($item['cart_key']) { $keys[] = $item; } }
                 $mailer = new \CodeCart\Core\AbandonedCartReminder($this->registry);
                 $data['mail_last_status'] = $mailer->history($keys);
+                foreach ($data['mail_last_status'] as &$reminderStatus) {
+                    $reminderStatus['retry_allowed'] = $reminderStatus['status'] === 'failed'
+                        && (int)$reminderStatus['attempts'] < 3
+                        && strtotime((string)$reminderStatus['date_added']) <= time()-600;
+                }
+                unset($reminderStatus);
             } catch (\Throwable $e) {
                 // Existing sites get the ledger on first explicit configuration/save.
                 $data['mail_last_status'] = array();

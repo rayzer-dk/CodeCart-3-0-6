@@ -97,18 +97,19 @@ class ControllerToolScheduler extends Controller {
             }
             unset($job);
             $registered = array();
-            $latest = 0;
-            foreach ($data['jobs'] as $job) {
-                $registered[(string)$job['route']] = true;
-                if ($job['date_last'] && strtotime((string)$job['date_last']) > $latest) { $latest = strtotime((string)$job['date_last']); }
-            }
-            // The latest scheduler execution is evidence of a run, not proof a host cron is installed.
-            $data['scheduler_health'] = !$latest ? 'none' : (($latest >= time()-600) ? 'ok' : 'warn');
-            $data['scheduler_health_date'] = $latest ? date('Y-m-d H:i:s', $latest) : '';
-            $blocked = array('codecart','mail_delivery','cart_reminder');
+            foreach ($data['jobs'] as $job) { $registered[(string)$job['route']] = true; }
+            // Compare NOW() and date_last in the same DB timezone.
+            $heartbeat = $this->db->query("SELECT MAX(date_last) AS last_run, TIMESTAMPDIFF(MINUTE, MAX(date_last), NOW()) AS age_minutes FROM `" . DB_PREFIX . "codecart_scheduler`");
+            $lastRun = (string)($heartbeat->row['last_run'] ?? '');
+            $age = isset($heartbeat->row['age_minutes']) ? (int)$heartbeat->row['age_minutes'] : 999999;
+            $data['scheduler_health'] = !$lastRun ? 'none' : (($age >= 0 && $age <= 10) ? 'ok' : 'warn');
+            $data['scheduler_health_date'] = $lastRun;
+            $blocked = array('codecart','mail_delivery','cart_reminder','relation','lost_url');
             foreach (glob(DIR_CATALOG . 'controller/cron/*.php') ?: array() as $handlerFile) {
                 $handler = basename($handlerFile,'.php');
                 if (!preg_match('/^[a-z0-9_]+$/i',$handler) || in_array($handler,$blocked,true)) { continue; }
+                $source = file_get_contents($handlerFile);
+                if ($source === false || !preg_match('/function\s+index\s*\(/i',$source)) { continue; }
                 $route = 'cron/' . $handler;
                 if (isset($registered[$route])) { continue; }
                 $data['available_handlers'][] = array('route'=>$route,'code'=>'custom.' . $handler);
