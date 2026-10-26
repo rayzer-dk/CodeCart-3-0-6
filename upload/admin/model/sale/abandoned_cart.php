@@ -1,7 +1,11 @@
 <?php
 class ModelSaleAbandonedCart extends Model {
+    private $customSourceResolved = false;
+    private $customSourceCache = null;
     // Optional external SQL cart adapter. Never writes to another module's table.
     private function customSource() {
+        if ($this->customSourceResolved) { return $this->customSourceCache; }
+        $this->customSourceResolved = true;
         $table = trim((string)$this->config->get('codecart_abandoned_cart_table'));
         if (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $table)) { return null; }
         if (strpos($table, DB_PREFIX) !== 0) { $table = DB_PREFIX . $table; }
@@ -18,7 +22,8 @@ class ModelSaleAbandonedCart extends Model {
             foreach ($cols as $col) { $exists[$col['Field']] = true; }
             foreach ($fields as $field) { if ($field !== '' && !isset($exists[$field])) { return null; } }
         } catch (\Throwable $e) { return null; }
-        return array('table'=>$table,'fields'=>$fields);
+        $this->customSourceCache = array('table'=>$table,'fields'=>$fields);
+        return $this->customSourceCache;
     }
 
     public function getExternalSourceStatus() { return $this->customSource() !== null; }
