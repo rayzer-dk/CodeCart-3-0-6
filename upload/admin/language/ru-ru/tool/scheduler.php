@@ -76,3 +76,5 @@ $_['error_interval'] = 'Интервал должен быть от 60 до 3153
 $_['error_task'] = 'Задача не найдена.';
 $_['error_action'] = 'Неизвестное действие планировщика.';
 $_['error_catalog_url'] = 'Не удалось определить полный HTTPS/HTTP адрес витрины. Проверьте admin/config.php (HTTP_CATALOG/HTTPS_CATALOG).';
+$_['text_result_success'] = 'Успешно';
+$_['text_result_error'] = 'Ошибка';
