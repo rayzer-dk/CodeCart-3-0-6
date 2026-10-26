@@ -30,7 +30,7 @@
             <div class="col-md-3"><label for="abandoned-idle">{{ entry_cart_idle_minutes }}</label>
               <input type="number" name="cart_idle_minutes" id="abandoned-idle" class="form-control" min="5" max="10080" value="{{ cart_fields.idle_minutes }}"></div>
             <div class="col-md-3"><label for="abandoned-days">{{ entry_cart_days }}</label>
-              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="7" value="{{ cart_fields.days }}"></div>
+              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="30" value="{{ cart_fields.days }}"></div>
           </div>
           <p class="help-block">{{ text_cart_source_help }}</p>
           <div class="ccp-external-fields">
