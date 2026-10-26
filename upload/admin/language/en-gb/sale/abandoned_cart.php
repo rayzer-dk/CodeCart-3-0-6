@@ -2,14 +2,14 @@
 $_['heading_title']='Abandoned carts';
 $_['text_home']='Home';
 $_['text_sale']='Sales';
-$_['text_no_results']='No abandoned carts in the last 7 days.';
+$_['text_no_results'] = 'No carts match the chosen inactivity and history settings.';
 $_['text_guest']='Guest';
-$_['text_scope_help']='Shows carts with no activity for more than 1 hour. Storefront sessions are retained for up to 7 days. Registered customers include saved contact details; guest carts have no e-mail or phone until those details are captured during checkout.';
+$_['text_scope_help'] = 'Carts are listed after the configured inactive interval, within the selected history (maximum seven days). Registered buyers include saved contact details. Guest contact details may be unavailable until checkout saves them.';
 $_['text_idle_minutes']='%d min';
 $_['text_idle_hours']='%d h %d min';
 $_['text_idle_days']='%d d %d h';
 $_['text_confirm_delete']='Delete this abandoned cart?';
-$_['text_confirm_clear']='Delete all carts inactive for more than 1 hour? Active carts will not be deleted.';
+$_['text_confirm_clear'] = 'Delete all fully inactive carts in the selected time window? Active carts are not deleted.';
 $_['text_success_delete']='Abandoned cart deleted.';
 $_['text_success_clear']='Abandoned carts cleared.';
 $_['column_customer']='Customer';
