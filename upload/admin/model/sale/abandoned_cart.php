@@ -1,5 +1,85 @@
 <?php
 class ModelSaleAbandonedCart extends Model {
+    // Optional external SQL cart adapter. Never writes to another module's table.
+    private function customSource() {
+        $table = trim((string)$this->config->get('codecart_abandoned_cart_table'));
+        if (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $table)) { return null; }
+        if (strpos($table, DB_PREFIX) !== 0) { $table = DB_PREFIX . $table; }
+        $fields = array();
+        foreach (array('session','product','quantity','date','customer','email','phone') as $key) {
+            $value = trim((string)$this->config->get('codecart_abandoned_cart_col_' . $key));
+            if ($value === '' && in_array($key, array('customer','email','phone'), true)) { $fields[$key] = ''; continue; }
+            if (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $value)) { return null; }
+            $fields[$key] = $value;
+        }
+        try {
+            $cols = $this->db->query('SHOW COLUMNS FROM ' . chr(96) . $table . chr(96))->rows;
+            $exists = array();
+            foreach ($cols as $col) { $exists[$col['Field']] = true; }
+            foreach ($fields as $field) { if ($field !== '' && !isset($exists[$field])) { return null; } }
+        } catch (\Throwable $e) { return null; }
+        return array('table'=>$table,'fields'=>$fields);
+    }
+
+    public function getExternalSourceStatus() { return $this->customSource() !== null; }
+
+    private function sourceColumn($fields, $name, $otherwise) {
+        return $fields[$name] === '' ? $otherwise : 'c.' . chr(96) . $fields[$name] . chr(96);
+    }
+
+    private function externalQuery($count = false) {
+        $source = $this->customSource();
+        if (!$source) { return ''; }
+        $f = $source['fields'];
+        $sid = $this->sourceColumn($f, 'session', "''");
+        $pid = $this->sourceColumn($f, 'product', '0');
+        $qty = $this->sourceColumn($f, 'quantity', '0');
+        $dt = $this->sourceColumn($f, 'date', 'NOW()');
+        $cid = $this->sourceColumn($f, 'customer', '0');
+        $email = $this->sourceColumn($f, 'email', 'cu.email');
+        $phone = $this->sourceColumn($f, 'phone', 'cu.telephone');
+        $idle = max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $from = ' FROM ' . chr(96) . $source['table'] . chr(96) . ' c LEFT JOIN '
+            . chr(96) . DB_PREFIX . 'customer' . chr(96) . ' cu ON cu.customer_id=' . $cid;
+        $where = ' WHERE ' . $dt . ' < DATE_SUB(NOW(), INTERVAL ' . $idle . ' MINUTE)'
+            . ' AND ' . $dt . ' >= DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)'
+            . ' AND ' . $sid . " <> '' AND " . $qty . ' > 0 AND ' . $pid . ' > 0';
+        if ($count) {
+            return 'SELECT COUNT(*) AS total FROM (SELECT ' . $sid . ' AS session_id, ' . $cid . ' AS customer_id'
+                . $from . $where . ' GROUP BY ' . $cid . ', ' . $sid . ') x';
+        }
+        return 'SELECT ' . $cid . ' AS customer_id, ' . $sid . ' AS session_id, '
+            . 'COUNT(*) AS line_count, SUM(' . $qty . ') AS quantity, MAX(' . $dt . ') AS last_activity,'
+            . " MAX(COALESCE(CONCAT(cu.firstname,' ',cu.lastname),'')) AS customer,"
+            . ' MAX(COALESCE(' . $email . ",'')) AS email, MAX(COALESCE(" . $phone . ",'')) AS telephone,"
+            . ' TIMESTAMPDIFF(MINUTE,MAX(' . $dt . '),NOW()) AS idle_minutes '
+            . $from . $where . ' GROUP BY ' . $cid . ', ' . $sid;
+    }
+
+    public function getExternalCartProducts($customerId, $sessionId) {
+        $source = $this->customSource();
+        if (!$source || $sessionId === '') { return array(); }
+        $f = $source['fields'];
+        $sid = $this->sourceColumn($f,'session',"''");
+        $cid = $this->sourceColumn($f,'customer','0');
+        $pid = $this->sourceColumn($f,'product','0');
+        $qty = $this->sourceColumn($f,'quantity','0');
+        $sql = 'SELECT ' . $pid . ' AS product_id, ' . $qty . ' AS quantity, p.price, pd.name'
+            . ' FROM ' . chr(96) . $source['table'] . chr(96) . ' c LEFT JOIN '
+            . chr(96) . DB_PREFIX . 'product' . chr(96) . ' p ON p.product_id=' . $pid
+            . ' LEFT JOIN ' . chr(96) . DB_PREFIX . 'product_description' . chr(96)
+            . ' pd ON pd.product_id=' . $pid . " AND pd.language_id='" . (int)$this->config->get('config_language_id') . "'"
+            . ' WHERE ' . $cid . "='" . (int)$customerId . "' AND " . $sid . "='" . $this->db->escape((string)$sessionId) . "' LIMIT 100";
+        $rows = $this->db->query($sql)->rows;
+        foreach ($rows as &$row) {
+            $row['line_total'] = \CodeCart\Core\Money::decimal(
+                \CodeCart\Core\Money::multiply((float)$row['price'], (int)$row['quantity']));
+        }
+        unset($row);
+        return $rows;
+    }
+
     private function sortSql($sort, $order) {
         $map = array(
             'customer' => 'customer',
@@ -21,18 +101,27 @@ class ModelSaleAbandonedCart extends Model {
         $start = max(0, (int)$start);
         $limit = max(1, min(100, (int)$limit));
 
+        if ((string)$this->config->get('codecart_abandoned_cart_source') === 'external') {
+            $sql = $this->externalQuery();
+            return $sql ? $this->db->query($sql . ' ORDER BY ' . $this->sortSql($sort, $order)
+                . ' LIMIT ' . $start . ',' . $limit)->rows : array();
+        }
         $sql = "SELECT c.customer_id, c.session_id, COUNT(*) AS line_count, SUM(c.quantity) AS quantity, MAX(c.date_added) AS last_activity, " .
                "MAX(CASE WHEN cu.customer_id IS NULL THEN '' ELSE CONCAT(cu.firstname, ' ', cu.lastname) END) AS customer, " .
                "MAX(COALESCE(cu.email,'')) AS email, MAX(COALESCE(cu.telephone,'')) AS telephone, TIMESTAMPDIFF(MINUTE, MAX(c.date_added), NOW()) AS idle_minutes " .
                "FROM `" . DB_PREFIX . "cart` c LEFT JOIN `" . DB_PREFIX . "customer` cu ON (cu.customer_id=c.customer_id AND c.customer_id>0) " .
-               "WHERE c.api_id = '0' AND c.date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR) AND c.date_added >= DATE_SUB(NOW(), INTERVAL 7 DAY) " .
+               "WHERE c.api_id = '0' AND c.date_added < DATE_SUB(NOW(), INTERVAL " . max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE) AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) " .
                "GROUP BY c.customer_id, c.session_id ORDER BY " . $this->sortSql((string)$sort, (string)$order) . " LIMIT " . $start . "," . $limit;
 
         return $this->db->query($sql)->rows;
     }
 
     public function getTotalAbandonedCarts() {
-        $query = $this->db->query("SELECT COUNT(*) AS total FROM (SELECT c.customer_id, c.session_id FROM `" . DB_PREFIX . "cart` c WHERE c.api_id = '0' AND c.date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR) AND c.date_added >= DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY c.customer_id, c.session_id) x");
+        if ((string)$this->config->get('codecart_abandoned_cart_source') === 'external') {
+            $sql = $this->externalQuery(true);
+            return $sql ? (int)$this->db->query($sql)->row['total'] : 0;
+        }
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM (SELECT c.customer_id, c.session_id FROM `" . DB_PREFIX . "cart` c WHERE c.api_id = '0' AND c.date_added < DATE_SUB(NOW(), INTERVAL " . max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE) AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) GROUP BY c.customer_id, c.session_id) x");
         return (int)($query->row['total'] ?? 0);
     }
 
