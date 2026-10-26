@@ -110,7 +110,7 @@ class ModelSaleAbandonedCart extends Model {
                "MAX(CASE WHEN cu.customer_id IS NULL THEN '' ELSE CONCAT(cu.firstname, ' ', cu.lastname) END) AS customer, " .
                "MAX(COALESCE(cu.email,'')) AS email, MAX(COALESCE(cu.telephone,'')) AS telephone, TIMESTAMPDIFF(MINUTE, MAX(c.date_added), NOW()) AS idle_minutes " .
                "FROM `" . DB_PREFIX . "cart` c LEFT JOIN `" . DB_PREFIX . "customer` cu ON (cu.customer_id=c.customer_id AND c.customer_id>0) " .
-               "WHERE c.api_id = '0' AND c.date_added < DATE_SUB(NOW(), INTERVAL " . max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE) AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) " .
+               "WHERE c.api_id = '0' AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) " .
                "GROUP BY c.customer_id, c.session_id HAVING MAX(c.date_added) < DATE_SUB(NOW(), INTERVAL " . max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE) ORDER BY " . $this->sortSql((string)$sort, (string)$order) . " LIMIT " . $start . "," . $limit;
 
         return $this->db->query($sql)->rows;
@@ -121,7 +121,7 @@ class ModelSaleAbandonedCart extends Model {
             $sql = $this->externalQuery(true);
             return $sql ? (int)$this->db->query($sql)->row['total'] : 0;
         }
-        $query = $this->db->query("SELECT COUNT(*) AS total FROM (SELECT c.customer_id, c.session_id FROM `" . DB_PREFIX . "cart` c WHERE c.api_id = '0' AND c.date_added < DATE_SUB(NOW(), INTERVAL " . max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE) AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) GROUP BY c.customer_id, c.session_id) x");
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM (SELECT c.customer_id, c.session_id FROM `" . DB_PREFIX . "cart` c WHERE c.api_id = '0' AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) GROUP BY c.customer_id, c.session_id HAVING MAX(c.date_added) < DATE_SUB(NOW(), INTERVAL " . max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE)) x");
         return (int)($query->row['total'] ?? 0);
     }
 
