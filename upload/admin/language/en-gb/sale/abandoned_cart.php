@@ -51,3 +51,8 @@ $_['entry_col_phone'] = 'Phone column (optional)';
 $_['button_save'] = 'Save settings';
 $_['text_enabled'] = 'Enabled';
 $_['text_disabled'] = 'Disabled';
+
+$_['text_quick_guide'] = 'Select a cart source, save settings, and review the carts below. The envelope opens a draft in your mail application; it does not send automatically. Automated reminders need a separate integration.';
+$_['button_compose_email'] = 'Compose email in mail application (does not send automatically)';
+$_['text_no_email'] = 'Customer email unavailable';
+$_['text_mail_subject'] = 'Your unfinished checkout';
