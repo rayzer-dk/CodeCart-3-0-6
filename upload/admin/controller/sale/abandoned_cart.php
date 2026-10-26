@@ -29,6 +29,15 @@ class ControllerSaleAbandonedCart extends Controller {
                     }
                     $settings['codecart_abandoned_cart_' . $name] = $value;
                 }
+                if ($error === '' && $settings['codecart_abandoned_cart_status']
+                    && $settings['codecart_abandoned_cart_source'] === 'external') {
+                    foreach (array('table','col_session','col_product','col_quantity','col_date') as $required) {
+                        if ($settings['codecart_abandoned_cart_' . $required] === '') {
+                            $error = $this->language->get('error_cart_mapping');
+                            break;
+                        }
+                    }
+                }
                 if ($error === '') {
                     $this->load->model('setting/setting');
                     $this->model_setting_setting->editSetting('codecart_abandoned_cart', $settings, 0);
