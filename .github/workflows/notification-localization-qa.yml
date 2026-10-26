@@ -1,0 +1,114 @@
+name: Notification localization QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/notification-localization-qa.yml'
+      - 'tools/qa_notification_diagnostics.php'
+      - 'upload/system/library/codecart/src/SystemNotification.php'
+      - 'upload/admin/controller/tool/scheduler.php'
+      - 'upload/admin/view/template/tool/scheduler.twig'
+      - 'upload/admin/language/**/tool/diagnostics.php'
+      - 'upload/admin/language/**/tool/scheduler.php'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate multilingual diagnostics and source syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l upload/system/library/codecart/src/SystemNotification.php
+          php -l upload/admin/controller/tool/scheduler.php
+          php -l tools/qa_notification_diagnostics.php
+          for locale in en-gb ru-ru uk-ua; do
+            php -l "upload/admin/language/$locale/tool/diagnostics.php"
+            php -l "upload/admin/language/$locale/tool/notification.php"
+            php -l "upload/admin/language/$locale/tool/scheduler.php"
+          done
+          php tools/qa_notification_diagnostics.php
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for part in ('diagnostics','notification','scheduler'):
+              keys = []
+              for loc in ('en-gb','ru-ru','uk-ua'):
+                  content = Path(f'upload/admin/language/{loc}/tool/{part}.php').read_text(encoding='utf-8')
+                  assert not content.startswith('\ufeff')
+                  names = re.findall(r"\$_\['([^']+)'\]\s*=", content)
+                  assert len(names) == len(set(names)), (loc,part,'duplicates')
+                  keys.append(set(names))
+              assert keys[0] == keys[1] == keys[2], (part,'mismatched key sets')
+          s = Path('upload/system/library/codecart/src/SystemNotification.php').read_text(encoding='utf-8')
+          c = Path('upload/admin/controller/tool/scheduler.php').read_text(encoding='utf-8')
+          view = Path('upload/admin/view/template/tool/scheduler.twig').read_text(encoding='utf-8')
+          assert "localizeDiagnostic((string)$row['message'], $language)" in s
+          assert "$loader->language('tool/diagnostics')" in s
+          assert "'last_message_localized'" in c and "'last_error_localized'" in c
+          assert 'job.last_status_text' in view
+          assert 'job.last_message_localized' in view
+          assert 'job.last_error_localized' in view
+          print('PASS: three-language dictionaries, statuses and UI bindings')
+          PY
+      - name: Create localized-notification installation patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            "upload/system/library/codecart/src/SystemNotification.php"
+            "upload/admin/controller/tool/scheduler.php"
+            "upload/admin/view/template/tool/scheduler.twig"
+            "upload/admin/language/en-gb/tool/diagnostics.php"
+            "upload/admin/language/ru-ru/tool/diagnostics.php"
+            "upload/admin/language/uk-ua/tool/diagnostics.php"
+            "upload/admin/language/en-gb/tool/scheduler.php"
+            "upload/admin/language/ru-ru/tool/scheduler.php"
+            "upload/admin/language/uk-ua/tool/scheduler.php"
+          )
+          for f in "${files[@]}"; do test -f "$f"; done
+          cat > README.txt <<'README'
+          CodeCart 3.0.6 - Notification and Scheduler language updates
+          Patch contains nine complete files retaining the upload/ structure.
+          Required: a matching CodeCart 3.0.6 main build.
+
+          Known scheduler/queue errors, results and statuses are displayed in
+          the currently selected admin language (en-gb, ru-ru, uk-ua).
+          Previously saved errors display translated immediately; original
+          diagnostic details remain unchanged in database and technical logs.
+          Unknown provider/PHP errors retain the original text with a
+          localized technical-details prefix, to avoid hiding root causes.
+          Route names and codes like core.queue.worker are never translated.
+
+          Before updating, BACK UP all website files and the complete database.
+          Copy the files over the corresponding CodeCart paths, then refresh
+          OCMOD modifications and clear template/opcache as appropriate.
+          Existing Cron execution errors require separate verification: this
+          change translates their presentation and does not claim to repair
+          the failing jobs.
+          README
+          zip -q CodeCart_3.0.6_Notification_Translations.zip "${files[@]}" README.txt
+          unzip -tq CodeCart_3.0.6_Notification_Translations.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Notification_Translations
+          path: CodeCart_3.0.6_Notification_Translations.zip
+          retention-days: 30
+          if-no-files-found: error
+      - name: Snapshot complete CodeCart main source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git archive --format=zip --output=CodeCart_3.0.6_Main_With_Notifications.zip HEAD
+          unzip -tq CodeCart_3.0.6_Main_With_Notifications.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Main_With_Notifications
+          path: CodeCart_3.0.6_Main_With_Notifications.zip
+          retention-days: 30
+          if-no-files-found: error
