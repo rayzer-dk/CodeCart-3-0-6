@@ -35,7 +35,7 @@
               <td>{% if job.status %}<span class="label label-success">{{ text_enabled }}</span>{% else %}<span class="label label-default">{{ text_disabled }}</span>{% endif %}</td>
               <td>{{ job.date_last ?: '—' }}</td>
               <td>{{ job.date_next ?: '—' }}</td>
-              <td>{% if job.last_status %}<span class="label label-{{ job.last_status == 'success' ? 'success' : 'danger' }}" title="{{ job.last_message }}">{{ job.last_status }}</span>{% if job.last_duration_ms is not null %} <small>{{ job.last_duration_ms }} ms</small>{% endif %}{% else %}—{% endif %}</td>
+              <td>{% if job.last_status %}<span class="label label-{{ job.last_status == 'success' ? 'success' : 'danger' }}" title="{{ job.last_message_localized }}">{{ job.last_status_text }}</span>{% if job.last_duration_ms is not null %} <small>{{ job.last_duration_ms }} ms</small>{% endif %}{% else %}—{% endif %}</td>
               <td class="text-right" style="white-space:nowrap;">
                 {% if can_modify %}
                 <form action="{{ action }}" method="post" style="display:inline-block;"><input type="hidden" name="scheduler_action" value="run"><input type="hidden" name="scheduler_id" value="{{ job.scheduler_id }}"><button type="submit" class="btn btn-info" data-toggle="tooltip" title="{{ button_run }}"><i class="fa fa-play"></i></button></form>
@@ -88,7 +88,7 @@
               <td>{{ job.attempts }}/{{ job.max_attempts }}</td>
               <td>{{ job.available_at ?: '—' }}</td>
               <td>{{ job.date_modified ?: '—' }}</td>
-              <td><span class="ccp-ellipsis" title="{{ job.last_error ?: '' }}">{{ job.last_error ?: '—' }}</span></td>
+              <td><span class="ccp-ellipsis" title="{{ job.last_error_localized ?: '' }}">{{ job.last_error_localized ?: '—' }}</span></td>
               <td class="text-right codecart-queue-actions">
                 {% if can_modify and job.status in ['pending','failed'] %}<form action="{{ action }}" method="post" style="display:inline-block"><input type="hidden" name="scheduler_action" value="run_queue_one"><input type="hidden" name="queue_id" value="{{ job.queue_id }}"><input type="hidden" name="retry" value="{{ job.status == 'failed' ? 1 : 0 }}"><button type="submit" class="btn btn-primary btn-sm" title="{{ job.status == 'failed' ? button_queue_retry : button_queue_run }}"><i class="fa fa-{{ job.status == 'failed' ? 'repeat' : 'play' }}"></i></button></form>{% endif %}
                 {% if can_modify and job.status != 'processing' %}<form action="{{ action }}" method="post" style="display:inline-block" onsubmit="return confirm('{{ text_queue_confirm_delete|e('js') }}');"><input type="hidden" name="scheduler_action" value="delete_queue_one"><input type="hidden" name="queue_id" value="{{ job.queue_id }}"><button type="submit" class="btn btn-danger btn-sm" title="{{ button_queue_delete }}"><i class="fa fa-trash-o"></i></button></form>{% endif %}
