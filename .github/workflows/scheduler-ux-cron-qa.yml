@@ -1,0 +1,134 @@
+name: Scheduler UX and Cron Context QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/scheduler-ux-cron-qa.yml'
+      - 'upload/system/framework.php'
+      - 'upload/system/library/codecart/src/Heartbeat.php'
+      - 'upload/admin/controller/tool/scheduler.php'
+      - 'upload/admin/view/template/tool/scheduler.twig'
+      - 'upload/admin/view/javascript/codecart-scheduler.js'
+      - 'upload/admin/view/stylesheet/codecart_scheduler.css'
+      - 'upload/admin/language/**/tool/scheduler.php'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate PHP, Javascript and scheduler invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l upload/system/framework.php
+          php -l upload/system/library/codecart/src/Heartbeat.php
+          php -l upload/admin/controller/tool/scheduler.php
+          php -l upload/system/library/codecart/src/Scheduler.php
+          for lang in en-gb ru-ru uk-ua; do php -l "upload/admin/language/$lang/tool/scheduler.php"; done
+          node --check upload/admin/view/javascript/codecart-scheduler.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('upload')
+          read=lambda path:Path(path).read_text(encoding='utf-8')
+          fw=read(root/'system/framework.php')
+          hb=read(root/'system/library/codecart/src/Heartbeat.php')
+          controller=read(root/'admin/controller/tool/scheduler.php')
+          twig=read(root/'admin/view/template/tool/scheduler.twig')
+          js=read(root/'admin/view/javascript/codecart-scheduler.js')
+          css=read(root/'admin/view/stylesheet/codecart_scheduler.css')
+          assert "!defined('DIR_CATALOG') && !defined('DIR_OPENCART') && PHP_SAPI" in fw
+          assert "defined('DIR_CATALOG') || defined('DIR_OPENCART')" in hb
+          assert "public function taskInfo()" in controller
+          assert "hash_equals($sessionToken, $token)" in controller
+          assert "hasPermission('modify', 'tool/scheduler')" in controller
+          assert "getTask($taskId)" in controller
+          assert "data-scheduler-id" in twig
+          assert "js-scheduler-edit" in twig
+          assert "ccp-scheduler-action-group" in twig
+          assert "ccp-scheduler-editor-loading" in js and "fa-spinner fa-spin" in js
+          assert "insertAfter($target)" in js
+          assert "dataType: 'json'" in js and "populateForm(result)" in js
+          assert "$panel.detach().hide().appendTo($holder).fadeIn(160)" in js
+          assert "flex: 0 0 36px" in css and "width: 36px" in css
+          assert "ccp-scheduler-task-code" in css
+          assert 'codecart_scheduler.css?v=3.0.6.1' in twig
+          assert 'codecart-scheduler.js?v=3.0.6.1' in twig
+          # Built-in technical codes are not translated or mutated in the DB.
+          routes={'core.cart.cleanup':'cart','core.currency.refresh':'currency',
+                  'core.health.check':'health','core.mail.campaign':'mail_campaign',
+                  'core.queue.worker':'queue_worker','core.security.cleanup':'security',
+                  'core.stock.notify':'stock_notify'}
+          pack=[]
+          for loc in ('en-gb','ru-ru','uk-ua'):
+              src=read(root/f'admin/language/{loc}/tool/scheduler.php')
+              keys=re.findall(r"\$_\['([^']+)'\]\s*=", src)
+              assert len(keys)==len(set(keys)),(loc,'duplicates')
+              pack.append(set(keys))
+              for code,controller_file in routes.items():
+                  key='text_task_'+code.replace('.','_')
+                  assert key in keys and key+'_description' in keys,(loc,code)
+                  assert (root/f'catalog/controller/cron/{controller_file}.php').is_file(),code
+              assert 'text_loading_task' in keys
+              assert 'error_loading_task' in keys
+          assert pack[0]==pack[1]==pack[2], 'Translation key mismatch'
+          print('PASS: authenticated loading, inline form, even buttons and catalog-only cron guards')
+          PY
+      - name: Package nine modified files and complete main
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            "upload/system/framework.php"
+            "upload/system/library/codecart/src/Heartbeat.php"
+            "upload/admin/controller/tool/scheduler.php"
+            "upload/admin/view/template/tool/scheduler.twig"
+            "upload/admin/view/javascript/codecart-scheduler.js"
+            "upload/admin/view/stylesheet/codecart_scheduler.css"
+            "upload/admin/language/en-gb/tool/scheduler.php"
+            "upload/admin/language/ru-ru/tool/scheduler.php"
+            "upload/admin/language/uk-ua/tool/scheduler.php"
+          )
+          for file in "${files[@]}"; do test -f "$file"; done
+          cat > README-SCHEDULER.txt <<'README'
+          CodeCart 3.0.6 - Cron execution context and Scheduler UI.
+          This ZIP includes 9 complete changed files in their upload/ paths.
+          FULL BACKUP of all site files and database is required before update.
+
+          Editing: Pencil opens a loading indicator directly BELOW the selected
+          task, then expands the existing standard Save form in the same row.
+          No accidental full-page jump, row mismatch or duplicate ID forms.
+          Task titles/descriptions are localized in en-gb, ru-ru and uk-ua;
+          technical codes and routes remain unchanged for compatibility.
+          Action buttons have identical 36x36 dimensions and tooltip titles.
+
+          Error repair: Automatic catalog Cron scheduling no longer executes
+          from the admin application context (where catalog handlers are absent).
+          Catalog traffic or the real cron.php/CLI entrypoint handles tasks.
+          Previous notifications remain in history; this package does not
+          guarantee live task success without running on a configured store.
+
+          Apply the files, refresh OpenCart modifications and Twig/asset cache,
+          and run the scheduler health check. No database migration required.
+          README
+          zip -q CodeCart_3.0.6_Scheduler_UI_Cron_Fix.zip "${files[@]}" README-SCHEDULER.txt
+          unzip -tq CodeCart_3.0.6_Scheduler_UI_Cron_Fix.zip
+          git archive --format=zip --output=CodeCart_3.0.6_Main_Scheduler_Updated.zip HEAD
+          unzip -tq CodeCart_3.0.6_Main_Scheduler_Updated.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Scheduler_UI_Cron_Fix
+          path: CodeCart_3.0.6_Scheduler_UI_Cron_Fix.zip
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Main_Scheduler_Updated
+          path: CodeCart_3.0.6_Main_Scheduler_Updated.zip
+          retention-days: 30
+          if-no-files-found: error
