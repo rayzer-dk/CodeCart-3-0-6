@@ -49,6 +49,10 @@ jobs:
           assert "getExternalSourceStatus" in model
           assert "SHOW COLUMNS FROM" in model and 'customSource' in model
           assert 'HAVING MAX(c.date_added) < DATE_SUB' in model
+          assert 'private $customSourceCache' in model
+          assert 'customSourceResolved' in model
+          assert "settings['codecart_abandoned_cart_source'] === 'external'" in cart
+          assert "error_cart_mapping" in cart
           assert 'SELECT MAX(date_added) AS last_activity' in model
           assert ') nested)' in model
           assert "WHERE c.api_id = '0' AND c.date_added >= DATE_SUB" in model
@@ -109,6 +113,9 @@ jobs:
           historic discounts are not reconstructed. External records cannot be
           deleted from the CodeCart UI. Browser-only localStorage carts cannot
           be read through a database mapping.
+          Mapping requires an existing verified SQL table; no data writes to
+          a third-party table are performed. The interface validates required
+          fields and caches the inspected schema once per admin request.
           This is NOT an importer for arbitrary HTML/cart URLs.
 
           Older session records are already managed by OpenCart's session GC.
