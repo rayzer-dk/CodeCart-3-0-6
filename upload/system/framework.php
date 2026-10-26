@@ -325,7 +325,10 @@ $response->output();
 // is prepared first. On PHP-FPM, fastcgi_finish_request() flushes the response to
 // the visitor before scheduled work starts. Exact no-traffic execution and heavy
 // queue workers can still use cli.php/cron.php from the hosting scheduler.
-if (isset($db) && PHP_SAPI !== 'cli' && !defined('CODECART_CLI')) {
+// The handlers for core.* tasks are catalog controllers. Running the scheduler
+// from an admin request resolves routes relative to admin/controller and fails.
+// DIR_CATALOG is defined by admin/config.php, not by catalog/config.php.
+if (isset($db) && !defined('DIR_CATALOG') && !defined('DIR_OPENCART') && PHP_SAPI !== 'cli' && !defined('CODECART_CLI')) {
     register_shutdown_function(function() use ($registry, $log) {
         try {
             \CodeCart\Core\Heartbeat::finishRequest();
