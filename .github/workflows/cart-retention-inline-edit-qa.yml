@@ -1,0 +1,63 @@
+name: Cart 30 Days and In-Cell Editing QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cart-retention-inline-edit-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check source and package changed files
+        run: |
+          set -euo pipefail
+          php -l upload/admin/controller/sale/abandoned_cart.php
+          php -l upload/admin/model/sale/abandoned_cart.php
+          php -l upload/admin/controller/tool/scheduler.php
+          node --check upload/admin/view/javascript/codecart-quick-price-edit.js
+          python3 - <<'PY'
+          from pathlib import Path
+          c=Path('upload/admin/controller/sale/abandoned_cart.php').read_text()
+          m=Path('upload/admin/model/sale/abandoned_cart.php').read_text()
+          t=Path('upload/admin/view/template/sale/abandoned_cart_list.twig').read_text()
+          js=Path('upload/admin/view/javascript/codecart-quick-price-edit.js').read_text()
+          css=Path('upload/admin/view/stylesheet/codecart_product_list.css').read_text()
+          assert c.count('min(30,')>=2
+          assert m.count('min(30,')>=5
+          assert 'max="30"' in t
+          assert 'max="7"' not in t
+          assert 'ccp-qpe-inline-editor' in js and 'appendTo(current.$cell)' in js
+          assert 'function placeEditor' not in js
+          assert 'ccp-qpe-inline-editor' in css
+          assert 'ccp-qpe-inline-input' in css
+          print('PASS retention and true in-cell quick edit')
+          PY
+          cat > README-PATCH.txt <<'README'
+          CodeCart 3.0.6 current main: 30-day abandoned-cart limit and
+          product price/quantity editor inserted in the same cell as the pencil.
+          Includes complete files with original upload/ paths.
+          Make a full backup of site files and database before updating.
+          Refresh OCMOD, Twig and browser asset caches after copying.
+          The HTTP 500 error in tool/scheduler is NOT proven fixed by these
+          checks. Retrieve the server PHP error log and identify the exception.
+          README
+          zip -q CodeCart_3.0.6_Cart_30_Days_Inline_Edit.zip \
+            upload/admin/controller/sale/abandoned_cart.php \
+            upload/admin/model/sale/abandoned_cart.php \
+            upload/admin/view/template/sale/abandoned_cart_list.twig \
+            upload/admin/view/javascript/codecart-quick-price-edit.js \
+            upload/admin/view/stylesheet/codecart_product_list.css \
+            upload/admin/view/template/catalog/product_list.twig
+            README-PATCH.txt
+          unzip -tq CodeCart_3.0.6_Cart_30_Days_Inline_Edit.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_3.0.6_Cart_30_Days_Inline_Edit
+          path: CodeCart_3.0.6_Cart_30_Days_Inline_Edit.zip
+          retention-days: 30
