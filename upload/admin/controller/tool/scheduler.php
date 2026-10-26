@@ -17,7 +17,7 @@ class ControllerToolScheduler extends Controller {
                 try {
                     $this->processAction($scheduler);
                 } catch (\Throwable $e) {
-                    $this->session->data['error_warning'] = \CodeCart\Core\SystemNotification::localizeDiagnostic($e->getMessage(), $this->language);
+                    $this->session->data['error_warning'] = $this->safeDiagnostic($e->getMessage(), $this->language);
                 }
             }
             $this->response->redirect($this->url->link('tool/scheduler', 'user_token=' . $this->session->data['user_token'], true));
@@ -88,13 +88,14 @@ class ControllerToolScheduler extends Controller {
                 $localizedDesc = $this->language->get($codeDesc);
                 $job['description'] = $localizedDesc !== $codeDesc ? $localizedDesc : '';
                 $job['last_status_text'] = $job['last_status'] === 'success' ? $this->language->get('text_result_success') : ($job['last_status'] === 'error' ? $this->language->get('text_result_error') : '');
-                $job['last_message_localized'] = trim((string)$job['last_message']) !== '' ? \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$job['last_message'], $this->language) : '';
+                $job['last_message_localized'] = trim((string)$job['last_message']) !== '' ? $this->safeDiagnostic((string)$job['last_message'], $this->language) : '';
             }
             unset($job);
             $stats = $this->db->query("SELECT status, COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_queue` GROUP BY status");
             foreach ($stats->rows as $row) { $data['queue_stats'][(string)$row['status']] = (int)$row['total']; }
         } catch (\Throwable $e) {
-            $data['warning'] = \CodeCart\Core\SystemNotification::localizeDiagnostic($e->getMessage(), $this->language);
+            $this->log->write('CodeCart scheduler list failure: ' . $e->getMessage());
+            $data['warning'] = $this->safeDiagnostic($e->getMessage(), $this->language);
         }
 
         $queueStatus = isset($this->request->get['queue_status']) ? (string)$this->request->get['queue_status'] : '';
@@ -142,11 +143,11 @@ class ControllerToolScheduler extends Controller {
             $queueRows = $this->db->query("SELECT queue_id, code, route, priority, status, attempts, max_attempts, available_at, locked_at, last_error, date_added, date_modified FROM `" . DB_PREFIX . "codecart_queue`" . $queueWhereSql . " ORDER BY " . $queueOrderSql . " LIMIT " . (int)$queueStart . "," . (int)$queueLimit);
             $data['queue_jobs'] = $queueRows->rows;
             foreach ($data['queue_jobs'] as &$queueJob) {
-                $queueJob['last_error_localized'] = trim((string)$queueJob['last_error']) !== '' ? \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$queueJob['last_error'], $this->language) : '';
+                $queueJob['last_error_localized'] = trim((string)$queueJob['last_error']) !== '' ? $this->safeDiagnostic((string)$queueJob['last_error'], $this->language) : '';
             }
             unset($queueJob);
         } catch (\Throwable $e) {
-            if ($data['warning'] === '') { $data['warning'] = \CodeCart\Core\SystemNotification::localizeDiagnostic($e->getMessage(), $this->language); }
+            if ($data['warning'] === '') { $data['warning'] = $this->safeDiagnostic($e->getMessage(), $this->language); }
         }
         $data['queue_filter_status'] = $queueStatus;
         $data['queue_filter_search'] = $queueSearch;
@@ -184,6 +185,24 @@ class ControllerToolScheduler extends Controller {
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
         $this->response->setOutput($this->load->view('tool/scheduler', $data));
+    }
+
+    /**
+     * Tolerate a partially deployed SystemNotification file or stale PHP OPcache.
+     * Avoid throwing a second error while reporting the original scheduler error.
+     */
+    private function safeDiagnostic($message): string {
+        $message = (string)$message;
+        if (is_callable(array('\CodeCart\Core\SystemNotification', 'localizeDiagnostic'))) {
+            try {
+                return \CodeCart\Core\SystemNotification::localizeDiagnostic($message, $this->language);
+            } catch (\Throwable $ignored) {
+                // Use the original diagnostic if an outdated helper cannot run.
+            }
+        }
+        $technical = $this->language->get('text_diag_technical_details');
+        return $technical !== 'text_diag_technical_details' && strpos($technical, '%s') !== false
+            ? sprintf($technical, $message) : $message;
     }
 
     public function taskInfo() {
@@ -238,7 +257,7 @@ class ControllerToolScheduler extends Controller {
         if ($action === 'run_queue') {
             $result = $this->runCatalogQueue();
             $this->session->data['success'] = sprintf($this->language->get('text_queue_run_result'), (int)$result['processed'], (int)$result['failed']);
-            if (empty($result['success'])) { $this->session->data['error_warning'] = \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$result['message'], $this->language); }
+            if (empty($result['success'])) { $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message'], $this->language); }
             return;
         }
 
@@ -251,7 +270,7 @@ class ControllerToolScheduler extends Controller {
             $queueStateKey = 'text_queue_' . $queueState;
             $queueStateLabel = in_array($queueState, array('pending', 'processing', 'failed', 'done'), true) ? $this->language->get($queueStateKey) : $queueState;
             $this->session->data['success'] = sprintf($this->language->get('text_queue_one_result'), $queueId, $queueStateLabel);
-            if (empty($result['success'])) { $this->session->data['error_warning'] = \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$result['message'], $this->language); }
+            if (empty($result['success'])) { $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message'], $this->language); }
             return;
         }
 
@@ -328,7 +347,7 @@ class ControllerToolScheduler extends Controller {
         } elseif ($action === 'run') {
             $result = $this->runCatalogTask($schedulerId);
             $this->session->data['success'] = $this->language->get('text_run_result') . ': ' . $result['status'] . ', ' . (int)$result['duration_ms'] . ' ms';
-            if (empty($result['success'])) { $this->session->data['error_warning'] = \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$result['message'], $this->language); }
+            if (empty($result['success'])) { $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message'], $this->language); }
         } elseif ($action === 'delete') {
             $scheduler->deleteTask($schedulerId);
             $this->session->data['success'] = $this->language->get('text_success');
