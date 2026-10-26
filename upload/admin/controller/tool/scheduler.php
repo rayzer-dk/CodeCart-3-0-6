@@ -48,7 +48,7 @@ class ControllerToolScheduler extends Controller {
         }
         unset($example);
         foreach (array('text_server_setup', 'text_server_interval', 'text_server_one_command', 'text_job_help', 'text_job_type', 'text_manual', 'text_choose_example', 'text_handler_warning',
-          'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help') as $key) {
+          'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help','text_existing_codes_info') as $key) {
             $data[$key] = $this->language->get($key);
         }
         $data['text_loading_task'] = $this->language->get('text_loading_task');
