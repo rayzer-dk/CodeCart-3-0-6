@@ -104,16 +104,21 @@ jobs:
           assert "ccp-qpf-toggle" in css
           assert "ccp-qpe-popover" in css
           assert "position: fixed" in css
-          assert "width: 254px" in css
+          assert "width: 180px" in css
+          assert "height: 40px" in css
+          assert "ccp-qpe-popover-title" not in css
           assert "min-width: 90px" not in css
           assert "appendTo('body')" in js
-          assert "current.$popup.append($label, $controls)" in js
+          assert "current.$popup.append($controls)" in js
+          assert "ccp-qpe-popover-title" not in js
+          assert "rect.top - height - 5" in js
+          assert "rect.bottom + 7" not in js
           assert "drawPrice(current.$cell, result)" in js
           assert "drawQuantity(current.$cell, result)" in js
           assert ".closest('td').find('.ccp-qpe-save')" not in js
           assert "ccp-qpe-controls" not in js
-          assert "codecart_product_list.css?v=3.0.6.9" in view
-          assert "codecart-quick-price-edit.js?v=3.0.6.5" in view
+          assert "codecart_product_list.css?v=3.0.6.10" in view
+          assert "codecart-quick-price-edit.js?v=3.0.6.6" in view
           assert "scroll.ccpQpe" in js and "placeEditor(active)" in js
           assert "if (active && !active.busy) { closeEditor(false); }" not in js
           assert "ccp-qpe-quantity-cell" in css
@@ -147,7 +152,9 @@ jobs:
           CATALOG PRODUCTS:
           - Unique SKU hints (at least 2 characters), aligned clear buttons.
           - Price and stock quantity edit without full product form.
-          - A compact floating editor is anchored to the original cell.
+          - A 180px single-row editor appears ABOVE the original cell.
+            The title has been removed; it contains only the input, Save and Cancel.
+            If the cell is near the top edge, it is clamped inside the viewport.
             It NEVER moves the price, changes the table width, or pushes
             quantity controls under status/indexing columns.
             Click outside/Escape to cancel; Enter to save.
@@ -230,7 +237,8 @@ jobs:
           upload/admin/view/stylesheet/codecart_product_list.css
           upload/admin/view/template/catalog/product_list.twig
 
-          Price and stock quantity now open in an anchored floating editor.
+          Price and quantity now open in a compact 180px editor ABOVE the value.
+          The title text is removed. Only input, Save and Cancel remain.
           The source cell remains unchanged, so no columns shift or overlap.
           Save via green check or Enter. Cancel via X, Escape or outside click.
           Status/index switches are unchanged and stay secured by existing AJAX.
