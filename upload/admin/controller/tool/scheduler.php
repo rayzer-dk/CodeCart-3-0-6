@@ -8,7 +8,10 @@ class ControllerToolScheduler extends Controller {
         $scheduler = new \CodeCart\Core\Scheduler($this->registry);
 
         if ($this->request->server['REQUEST_METHOD'] === 'POST') {
-            if (!$this->user->hasPermission('modify', 'tool/scheduler')) {
+            $token = isset($this->request->get['user_token']) && is_string($this->request->get['user_token']) ? $this->request->get['user_token'] : '';
+            $sessionToken = (string)($this->session->data['user_token'] ?? '');
+            if ($token === '' || $sessionToken === '' || !hash_equals($sessionToken, $token)
+                || !$this->user->hasPermission('access', 'tool/scheduler') || !$this->user->hasPermission('modify', 'tool/scheduler')) {
                 $this->session->data['error_warning'] = $this->language->get('error_permission');
             } else {
                 try {
@@ -34,6 +37,9 @@ class ControllerToolScheduler extends Controller {
         }
 
         $data['action'] = $this->url->link('tool/scheduler', 'user_token=' . $this->session->data['user_token'], true);
+        $data['task_info_url'] = html_entity_decode($this->url->link('tool/scheduler/taskInfo', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
+        $data['text_loading_task'] = $this->language->get('text_loading_task');
+        $data['error_loading_task'] = $this->language->get('error_loading_task');
         $data['cancel'] = $data['action'];
         $data['user_token'] = $this->session->data['user_token'];
         $data['can_modify'] = $this->user->hasPermission('modify', 'tool/scheduler');
@@ -62,6 +68,12 @@ class ControllerToolScheduler extends Controller {
             foreach ($data['jobs'] as &$job) {
                 $job['is_core'] = strpos((string)$job['code'], 'core.') === 0;
                 $job['interval_text'] = $this->formatInterval((int)$job['interval_seconds']);
+                $codeKey = 'text_task_' . str_replace('.', '_', (string)$job['code']);
+                $codeDesc = $codeKey . '_description';
+                $localizedName = $this->language->get($codeKey);
+                $job['display_name'] = $localizedName !== $codeKey ? $localizedName : (string)$job['code'];
+                $localizedDesc = $this->language->get($codeDesc);
+                $job['description'] = $localizedDesc !== $codeDesc ? $localizedDesc : '';
                 $job['last_status_text'] = $job['last_status'] === 'success' ? $this->language->get('text_result_success') : ($job['last_status'] === 'error' ? $this->language->get('text_result_error') : '');
                 $job['last_message_localized'] = trim((string)$job['last_message']) !== '' ? \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$job['last_message'], $this->language) : '';
             }
@@ -159,6 +171,51 @@ class ControllerToolScheduler extends Controller {
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
         $this->response->setOutput($this->load->view('tool/scheduler', $data));
+    }
+
+    public function taskInfo() {
+        $this->load->language('tool/scheduler');
+        $json = array('success' => false);
+        $token = isset($this->request->get['user_token']) && is_string($this->request->get['user_token']) ? $this->request->get['user_token'] : '';
+        $sessionToken = (string)($this->session->data['user_token'] ?? '');
+        $taskId = (int)($this->request->get['scheduler_id'] ?? 0);
+        $this->response->addHeader('Content-Type: application/json; charset=utf-8');
+        $this->response->addHeader('Cache-Control: no-store, private');
+        $this->response->addHeader('X-Content-Type-Options: nosniff');
+
+        if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'GET' || $token === '' || $sessionToken === '' || !hash_equals($sessionToken, $token)
+            || !$this->user->hasPermission('access', 'tool/scheduler') || !$this->user->hasPermission('modify', 'tool/scheduler')) {
+            $this->response->setStatusCode(403);
+            $json['error'] = $this->language->get('error_permission');
+        } elseif ($taskId <= 0) {
+            $this->response->setStatusCode(400);
+            $json['error'] = $this->language->get('error_task');
+        } else {
+            try {
+                $task = (new \CodeCart\Core\Scheduler($this->registry))->getTask($taskId);
+                if (!$task) {
+                    $this->response->setStatusCode(404);
+                    $json['error'] = $this->language->get('error_task');
+                } else {
+                    $args = json_decode((string)$task['args'], true);
+                    $json = array(
+                        'success' => true,
+                        'scheduler_id' => (int)$task['scheduler_id'],
+                        'code' => (string)$task['code'],
+                        'route' => (string)$task['route'],
+                        'interval_seconds' => (int)$task['interval_seconds'],
+                        'status' => (int)$task['status'],
+                        'args' => is_array($args) ? json_encode($args, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '[]',
+                        'is_core' => strpos((string)$task['code'], 'core.') === 0
+                    );
+                }
+            } catch (\Throwable $e) {
+                $this->response->setStatusCode(500);
+                $json['error'] = $this->language->get('error_loading_task');
+                $this->log->write('CodeCart scheduler taskInfo failed for #' . $taskId . ': ' . $e->getMessage());
+            }
+        }
+        $this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
     private function processAction(\CodeCart\Core\Scheduler $scheduler): void {
