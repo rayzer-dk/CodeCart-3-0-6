@@ -53,7 +53,7 @@ jobs:
             upload/admin/view/template/sale/abandoned_cart_list.twig \
             upload/admin/view/javascript/codecart-quick-price-edit.js \
             upload/admin/view/stylesheet/codecart_product_list.css \
-            upload/admin/view/template/catalog/product_list.twig
+            upload/admin/view/template/catalog/product_list.twig \
             README-PATCH.txt
           unzip -tq CodeCart_3.0.6_Cart_30_Days_Inline_Edit.zip
       - uses: actions/upload-artifact@v4
