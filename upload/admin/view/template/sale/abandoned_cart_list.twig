@@ -2,16 +2,68 @@
 <div id="content">
   <div class="page-header"><div class="container-fluid">
     <div class="pull-right">
-      <form action="{{ clear_url }}" method="post" class="ccp-abandoned-clear-form" style="display:inline-block" onsubmit="return confirm('{{ text_confirm_clear|e('js') }}');">
+      {% if cart_enabled and cart_source == "standard" and cart_can_modify %}<form action="{{ clear_url }}" method="post" class="ccp-abandoned-clear-form" style="display:inline-block" onsubmit="return confirm('{{ text_confirm_clear|e('js') }}');">
         <button type="submit" class="btn btn-danger" title="{{ button_clear }}"><i class="fa fa-trash"></i> {{ button_clear }}</button>
-      </form>
+      </form>{% endif %}
     </div>
     <h1>{{ heading_title }}</h1><ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul>
   </div></div>
   <div class="container-fluid">
     {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
     {% if success %}<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
-    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_scope_help }}</div>
+    <div class="panel panel-default ccp-abandoned-settings">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-sliders"></i> {{ text_settings }}</h3></div>
+      <div class="panel-body">
+        <form method="post" action="{{ settings_url }}" class="form-horizontal">
+          <input type="hidden" name="save_cart_settings" value="1">
+          <div class="row">
+            <div class="col-md-3"><label for="abandoned-status">{{ entry_cart_status }}</label>
+              <select name="cart_status" class="form-control" id="abandoned-status">
+                <option value="1" {{ cart_fields.status ? 'selected' : '' }}>{{ text_enabled }}</option>
+                <option value="0" {{ not cart_fields.status ? 'selected' : '' }}>{{ text_disabled }}</option>
+              </select></div>
+            <div class="col-md-3"><label for="abandoned-source">{{ entry_cart_source }}</label>
+              <select name="cart_source" class="form-control" id="abandoned-source">
+                <option value="standard" {{ cart_source == 'standard' ? 'selected' : '' }}>{{ text_source_standard }}</option>
+                <option value="external" {{ cart_source == 'external' ? 'selected' : '' }}>{{ text_source_external }}</option>
+              </select></div>
+            <div class="col-md-3"><label for="abandoned-idle">{{ entry_cart_idle_minutes }}</label>
+              <input type="number" name="cart_idle_minutes" id="abandoned-idle" class="form-control" min="5" max="10080" value="{{ cart_fields.idle_minutes }}"></div>
+            <div class="col-md-3"><label for="abandoned-days">{{ entry_cart_days }}</label>
+              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="7" value="{{ cart_fields.days }}"></div>
+          </div>
+          <p class="help-block">{{ text_cart_source_help }}</p>
+          <div class="ccp-external-fields">
+            <div class="alert alert-info">{{ text_cart_mapping_info }}</div>
+            <div class="row">
+              {% set mapping = {'table': entry_cart_table, 'col_session': entry_col_session, 'col_product': entry_col_product,
+                'col_quantity': entry_col_quantity, 'col_date': entry_col_date, 'col_customer': entry_col_customer,
+                'col_email': entry_col_email, 'col_phone': entry_col_phone} %}
+              {% set placeholders = {'table':'theme_cart','col_session':'session_id','col_product':'product_id',
+                'col_quantity':'quantity','col_date':'date_added','col_customer':'customer_id',
+                'col_email':'email','col_phone':'telephone'} %}
+              {% for key, label in mapping %}
+                <div class="col-sm-6 col-md-3 ccp-map-field"><label for="map-{{ key }}">{{ label }}</label>
+                  <input type="text" name="cart_{{ key }}" id="map-{{ key }}" class="form-control" value="{{ attribute(cart_fields, key) }}"
+                    placeholder="{{ attribute(placeholders,key) }}" autocomplete="off" maxlength="64"></div>
+              {% endfor %}
+            </div>
+            {% if cart_source == 'external' and cart_enabled and not cart_mapping_valid %}
+              <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ error_cart_mapping }}</div>
+            {% endif %}
+          </div>
+          {% if cart_can_modify %}<div class="text-right ccp-abandoned-settings-actions">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button>
+          </div>{% endif %}
+        </form>
+      </div>
+    </div>
+    {% if not cart_enabled %}<div class="alert alert-default ccp-abandoned-off">{{ text_disabled_note }}</div>{% else %}
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_scope_help }}
+      {% if cart_source == 'external' %} {{ text_cart_amount_estimate }}{% endif %}
+      {{ text_cart_storefront_note }}
+    </div>
+
     <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"><i class="fa fa-shopping-basket"></i> {{ heading_title }}</h3></div><div class="panel-body">
       <div class="table-responsive"><table class="table table-bordered table-hover ccp-abandoned-cart-table"><thead><tr>
         <td><a href="{{ sort_customer }}"{% if sort == 'customer' %} class="{{ order|lower }}"{% endif %}>{{ column_customer }}</a></td>
@@ -30,14 +82,32 @@
         <td class="text-right">{{ cart.quantity }}</td><td class="text-right"><strong>{{ cart.total }}</strong></td><td>{{ cart.last_activity }}</td><td>{{ cart.inactive }}</td>
         <td class="text-right ccp-abandoned-actions">
           {% if cart.customer_href %}<a href="{{ cart.customer_href }}" class="btn btn-primary" data-toggle="tooltip" title="{{ button_customer }}"><i class="fa fa-user"></i></a>{% endif %}
-          <form action="{{ delete_url }}" method="post" class="ccp-abandoned-delete-form" onsubmit="return confirm('{{ text_confirm_delete|e('js') }}');"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-danger" data-toggle="tooltip" title="{{ button_delete }}"><i class="fa fa-trash"></i></button></form>
+          {% if cart_source == 'standard' and cart_can_modify %}<form action="{{ delete_url }}" method="post" class="ccp-abandoned-delete-form" onsubmit="return confirm('{{ text_confirm_delete|e('js') }}');"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-danger" data-toggle="tooltip" title="{{ button_delete }}"><i class="fa fa-trash"></i></button></form>{% endif %}
         </td>
       </tr>{% endfor %}{% else %}<tr><td colspan="9" class="text-center">{{ text_no_results }}</td></tr>{% endif %}
       </tbody></table></div><div class="row"><div class="col-sm-6 text-left">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
-    </div></div>
+    </div></div>{% endif %}
   </div>
 </div>
 <style>
 .ccp-abandoned-cart-table{border-top:3px solid #0057d9}.ccp-abandoned-cart-table thead td{font-weight:600;vertical-align:middle}.ccp-abandoned-cart-table thead td+td{border-left-color:#d5dbe3}.ccp-abandoned-cart-table thead a{position:relative;padding-right:14px;color:#1f3a57}.ccp-abandoned-cart-table thead a.asc:after,.ccp-abandoned-cart-table thead a.desc:after{position:absolute;right:0;font-family:FontAwesome;font-size:10px}.ccp-abandoned-cart-table thead a.asc:after{content:"\f0d8"}.ccp-abandoned-cart-table thead a.desc:after{content:"\f0d7"}.ccp-abandoned-cart-table td{vertical-align:middle}.ccp-abandoned-product+.ccp-abandoned-product{margin-top:3px}.ccp-abandoned-product a{max-width:420px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}.ccp-abandoned-actions{white-space:nowrap}.ccp-abandoned-delete-form{display:inline-block;margin-left:4px}.ccp-abandoned-clear-form{margin:0}
+
+.ccp-abandoned-settings { margin-bottom:12px; }
+.ccp-abandoned-settings .panel-body { padding:12px 15px; }
+.ccp-abandoned-settings .row > div { margin-bottom:9px; }
+.ccp-abandoned-settings label { font-weight:600; font-size:12px; margin-bottom:4px; }
+.ccp-abandoned-settings .help-block { margin:5px 0 10px; }
+.ccp-abandoned-settings .ccp-external-fields { display:none; margin:8px 0; padding:12px; background:#f8fbff; border:1px solid #dbe8f4; border-radius:5px; }
+.ccp-abandoned-settings .ccp-external-fields.is-visible { display:block; }
+.ccp-abandoned-settings-actions { padding-top:5px; }
+.ccp-abandoned-cart-table { table-layout:fixed; min-width:850px; }
+.ccp-abandoned-cart-table td { overflow:hidden; text-overflow:ellipsis; }
 </style>
+<script>
+(function($) {
+  var $select=$('#abandoned-source');
+  function update() { $('.ccp-external-fields').toggleClass('is-visible',$select.val()==='external'); }
+  $select.on('change',update); update();
+})(jQuery);
+</script>
 {{ footer }}
