@@ -70,7 +70,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'text_cart_source_help','text_cart_amount_estimate','text_cart_storefront_note','text_settings_saved','error_cart_mapping',
             'entry_cart_status','entry_cart_source','entry_cart_table','entry_cart_idle_minutes','entry_cart_days',
             'entry_col_session','entry_col_product','entry_col_quantity','entry_col_date',
-            'entry_col_customer','entry_col_email','entry_col_phone','button_save'
+            'entry_col_customer','entry_col_email','entry_col_phone','button_save','text_quick_guide','button_compose_email','text_no_email','text_mail_subject'
         ) as $key) { $data[$key] = $this->language->get($key); }
 
         if (!empty($this->session->data['success'])) {
