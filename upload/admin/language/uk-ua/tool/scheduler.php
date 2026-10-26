@@ -75,3 +75,5 @@ $_['error_interval'] = 'Інтервал має бути від 60 до 31536000
 $_['error_task'] = 'Завдання не знайдено.';
 $_['error_action'] = 'Невідома дія планувальника.';
 $_['error_catalog_url'] = 'Не вдалося визначити повну HTTPS/HTTP адресу вітрини. Перевірте admin/config.php (HTTP_CATALOG/HTTPS_CATALOG).';
+$_['text_result_success'] = 'Успішно';
+$_['text_result_error'] = 'Помилка';
