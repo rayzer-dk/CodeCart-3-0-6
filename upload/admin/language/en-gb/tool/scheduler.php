@@ -111,3 +111,5 @@ $_['error_route_missing'] = 'The chosen controller file does not exist in the ca
 $_['error_reserved_code'] = 'The core. prefix is reserved for built-in system tasks.';
 $_['error_core_route'] = 'Changing the handler of a built-in system task is not permitted.';
 $_['error_duplicate_route'] = 'This handler is already enabled in another scheduled task. Edit it instead of adding a duplicate.';
+
+$_['text_existing_codes_info'] = 'Task codes appear under task names in the list below (e.g. core.mail.campaign). Use the pencil to edit a task. Create a new unique code only for a new installed handler. core.mail.campaign sends marketing campaigns, not abandoned-cart reminders.';
