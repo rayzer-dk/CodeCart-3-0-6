@@ -1,6 +1,5 @@
-/* CodeCart: product list quick editor, opt-in via Settings > Options > Products.
- * Price and quantity are edited in one body-mounted popover, never inside table cells.
- * This prevents table column shifts and preserves OpenCart/OCMOD column compatibility.
+/* CodeCart product list: in-cell editing (no popup and no table reflow).
+ * Status/indexing switches continue to use the same permission-checked API.
  */
 (function ($) {
   'use strict';
@@ -11,7 +10,6 @@
     var endpoint = String($cfg.attr('data-url') || '');
     if (!endpoint) { return; }
     window.CodeCartProductQuickEditLoaded = true;
-
     var labels = {
       price: $cfg.attr('data-edit') || 'Edit price',
       quantity: $cfg.attr('data-quantity') || 'Edit quantity',
@@ -24,11 +22,11 @@
       saveError: $cfg.attr('data-save-error') || 'Unable to save',
       invalid: $cfg.attr('data-invalid') || 'Invalid price',
       quantityInvalid: $cfg.attr('data-quantity-invalid') || 'Invalid quantity',
-      conflict: $cfg.attr('data-conflict') || 'The product was changed elsewhere'
+      conflict: $cfg.attr('data-conflict') || 'Data changed, reload'
     };
-    var $head = $table.find('thead > tr:first > td');
+    var $headers = $table.find('thead > tr:first > td');
     function columnIndex(sort) {
-      var $header = $head.filter(function () {
+      var $header = $headers.filter(function () {
         return $(this).find('a[href*="sort=' + sort + '"]').length > 0;
       }).first();
       return $header.length ? $header.index() : -1;
@@ -36,14 +34,13 @@
     var priceCol = columnIndex('p.price');
     var quantityCol = columnIndex('p.quantity');
     var legacyPricePlugin = !!window.CodeCartQuickPriceEditModifierLoaded;
-    var active = null, nextId = 0;
+    var active = null, generation = 0;
 
-    function notice(message, isError) {
+    function note(message, bad) {
       $('.ccp-qpe-notice').remove();
       $('<div class="ccp-qpe-notice alert" role="status"></div>')
-        .addClass(isError ? 'alert-danger' : 'alert-success')
-        .text(String(message || ''))
-        .appendTo('body')
+        .addClass(bad ? 'alert-danger' : 'alert-success')
+        .text(String(message || '')).appendTo('body')
         .delay(2400).fadeOut(200, function () { $(this).remove(); });
     }
     function request(data) {
@@ -58,10 +55,9 @@
         .addClass(n <= 0 ? 'label-warning' : n <= 5 ? 'label-danger' : 'label-success')
         .text(String(value));
     }
-    function addPencil($cell, field) {
-      $('<button type="button" class="ccp-qpe-edit-btn"><i class="fa fa-pencil" aria-hidden="true"></i></button>')
-        .attr({title: labels[field], 'aria-label': labels[field], 'data-field': field})
-        .appendTo($cell);
+    function pencil(field) {
+      return $('<button type="button" class="ccp-qpe-edit-btn"><i class="fa fa-pencil" aria-hidden="true"></i></button>')
+        .attr({title: labels[field], 'aria-label': labels[field], 'data-field': field});
     }
     function drawPrice($cell, response) {
       var $display = $('<span class="ccp-qpe-display"></span>');
@@ -73,28 +69,20 @@
       } else {
         $display.html($cell.data('ccp-qpe-original') || '');
       }
-      $cell.empty().append($display);
+      $cell.empty().append($display, pencil('price'));
       $cell.data('ccp-qpe-original', $display.html());
-      addPencil($cell, 'price');
     }
     function drawQuantity($cell, response) {
-      var $value = $cell.find('.ccp-qpf-quantity-value');
+      var $label = $cell.find('.ccp-qpf-quantity-value');
       if (response && response.value !== undefined) {
-        $value.empty().append(quantityBadge(response.value));
+        $label.empty().append(quantityBadge(response.value));
         $cell.attr('data-quantity', response.value);
       }
       $cell.find('.ccp-qpe-edit-btn').remove();
-      if ($value.length) {
-        // Keep the badge and the notify-count badge in their original cells.
-        $('<button type="button" class="ccp-qpe-edit-btn"><i class="fa fa-pencil" aria-hidden="true"></i></button>')
-          .attr({title: labels.quantity, 'aria-label': labels.quantity, 'data-field': 'quantity'})
-          .insertAfter($value);
-      }
+      if ($label.length) { pencil('quantity').insertAfter($label); }
     }
-
     $table.find('tbody > tr').each(function () {
-      var $row = $(this);
-      var id = parseInt($row.find('input[name="selected[]"]').first().val(), 10);
+      var $row = $(this), id = parseInt($row.find('input[name="selected[]"]').first().val(), 10);
       if (!id) { return; }
       $row.attr('data-ccp-quick-id', id);
       if (priceCol >= 0 && !legacyPricePlugin) {
@@ -110,76 +98,52 @@
       }
     });
 
-    function closeEditor(restoreFocus) {
+    function closeEditor() {
       if (!active) { return; }
-      var current = active;
+      var previous = active;
       active = null;
-      current.$popup.remove();
-      current.$cell.removeClass('ccp-qpe-active');
-      if (restoreFocus && current.$button && current.$button.closest('body').length) {
-        current.$button.trigger('focus');
-      }
+      previous.$cell.removeClass('ccp-qpe-editing ccp-qpe-loading');
+      previous.$cell.find('.ccp-qpe-inline-editor').remove();
     }
-    function placeEditor(current) {
-      if (!current || !current.$popup.length || !current.$cell[0]) { return; }
-      var rect = current.$cell[0].getBoundingClientRect();
-      var width = current.$popup.outerWidth();
-      var height = current.$popup.outerHeight();
-      var viewWidth = document.documentElement.clientWidth;
-      var viewHeight = document.documentElement.clientHeight;
-      var left = Math.max(8, Math.min(rect.right - width, viewWidth - width - 8));
-      // Prefer the compact editor directly ABOVE the source cell. Near the top
-      // of the screen, clamp it to the viewport rather than opening below.
-      var top = Math.max(6, rect.top - height - 5);
-      top = Math.min(top, Math.max(6, viewHeight - height - 6));
-      current.$popup.addClass('ccp-qpe-popover--above');
-      current.$popup.css({left: Math.round(left) + 'px', top: Math.round(top) + 'px'});
-    }
-    function popupInput(current, result) {
+    function showInput(current, result) {
       if (active !== current) { return; }
       current.expected = String(result.value);
-      current.$popup.empty().removeClass('ccp-qpe-popover--loading');
-      var $controls = $('<div class="ccp-qpe-popover-controls"></div>');
-      var $input = $('<input type="text" class="ccp-qpe-popover-input" autocomplete="off" />')
-        .attr({'inputmode': current.field === 'price' ? 'decimal' : 'numeric',
+      current.$cell.removeClass('ccp-qpe-loading').addClass('ccp-qpe-editing');
+      var $editor = $('<span class="ccp-qpe-inline-editor" role="group"></span>')
+        .attr('aria-label', labels[current.field]);
+      var $input = $('<input type="text" class="ccp-qpe-inline-input" autocomplete="off" />')
+        .attr({inputmode: current.field === 'price' ? 'decimal' : 'numeric',
           'aria-label': labels[current.field]})
         .val(current.field === 'price' ? result.price_value : result.value);
-      var $save = $('<button type="button" class="ccp-qpe-popover-save"><i class="fa fa-check" aria-hidden="true"></i></button>')
+      var $save = $('<button type="button" class="ccp-qpe-inline-save"><i class="fa fa-check" aria-hidden="true"></i></button>')
         .attr({title: labels.save, 'aria-label': labels.save});
-      var $cancel = $('<button type="button" class="ccp-qpe-popover-cancel"><i class="fa fa-times" aria-hidden="true"></i></button>')
+      var $cancel = $('<button type="button" class="ccp-qpe-inline-cancel"><i class="fa fa-times" aria-hidden="true"></i></button>')
         .attr({title: labels.cancel, 'aria-label': labels.cancel});
       current.$input = $input;
-      $controls.append($input, $save, $cancel);
-      current.$popup.append($controls);
-      placeEditor(current);
+      $editor.append($input, $save, $cancel).appendTo(current.$cell);
       $input.trigger('focus').select();
     }
-    function showEditor($cell, $button, field, productId) {
-      closeEditor(false);
-      var id = ++nextId;
-      var $popup = $('<div id="ccp-qpe-popover" class="ccp-qpe-popover ccp-qpe-popover--loading" role="dialog"></div>')
-        .attr('aria-label', labels[field])
-        .append($('<div class="ccp-qpe-popover-progress" aria-hidden="true"></div>').text('…'))
-        .appendTo('body');
-      var current = {id: id, $cell: $cell, $button: $button, $popup: $popup,
-        field: field, productId: productId, expected: null, busy: false, $input: null};
+    function openEditor($cell, field, productId) {
+      if (active && active.busy) { return; }
+      closeEditor();
+      var current = {generation: ++generation, $cell: $cell, field: field,
+        productId: productId, expected: '', busy: false, $input: null};
       active = current;
-      $cell.addClass('ccp-qpe-active');
-      placeEditor(current);
+      $cell.addClass('ccp-qpe-loading');
       request({action: 'get', field: field, product_id: productId})
         .done(function (result) {
           if (active !== current) { return; }
           if (!result || !result.success || !result.can_modify) {
-            closeEditor(true);
-            notice(result && result.error ? result.error : labels.loadError, true);
+            closeEditor();
+            note(result && result.error ? result.error : labels.loadError, true);
             return;
           }
-          popupInput(current, result);
+          showInput(current, result);
         })
         .fail(function (xhr) {
           if (active !== current) { return; }
-          closeEditor(true);
-          notice(errorText(xhr, labels.loadError), true);
+          closeEditor();
+          note(errorText(xhr, labels.loadError), true);
         });
     }
     function saveEditor() {
@@ -191,33 +155,35 @@
         : /^(?:0|[1-9][0-9]{0,9})$/.test(value) && Number(value) <= 2147483647;
       if (!valid) {
         current.$input.addClass('ccp-qpe-invalid').trigger('focus');
-        notice(current.field === 'price' ? labels.invalid : labels.quantityInvalid, true);
+        note(current.field === 'price' ? labels.invalid : labels.quantityInvalid, true);
         return;
       }
       current.busy = true;
-      current.$popup.addClass('ccp-qpe-popover--saving').find('button,input').prop('disabled', true);
+      current.$cell.find('.ccp-qpe-inline-editor').addClass('ccp-qpe-saving')
+        .find('button,input').prop('disabled', true);
       request({action: 'save', field: current.field, product_id: current.productId,
         value: value, expected: current.expected})
         .done(function (result) {
           if (active !== current) { return; }
           if (!result || !result.success) {
-            notice(result && result.error ? result.error : labels.saveError, true);
+            note(result && result.error ? result.error : labels.saveError, true);
             return;
           }
+          closeEditor();
           if (current.field === 'price') { drawPrice(current.$cell, result); }
           else { drawQuantity(current.$cell, result); }
           current.$cell.addClass('ccp-qpe-saved');
           window.setTimeout(function () { current.$cell.removeClass('ccp-qpe-saved'); }, 850);
-          closeEditor(false);
-          notice(labels.saved, false);
+          note(labels.saved, false);
         })
         .fail(function (xhr) {
-          if (active === current) { notice(errorText(xhr, labels.conflict), true); }
+          if (active === current) { note(errorText(xhr, labels.conflict), true); }
         })
         .always(function () {
           current.busy = false;
           if (active === current) {
-            current.$popup.removeClass('ccp-qpe-popover--saving').find('button,input').prop('disabled', false);
+            current.$cell.find('.ccp-qpe-inline-editor').removeClass('ccp-qpe-saving')
+              .find('button,input').prop('disabled', false);
             current.$input.trigger('focus').select();
           }
         });
@@ -226,64 +192,47 @@
     $table.on('click', '.ccp-qpe-edit-btn', function (event) {
       event.preventDefault();
       event.stopPropagation();
-      var $button = $(this);
-      var $cell = $button.closest('td');
-      var field = $button.attr('data-field');
-      var productId = parseInt($button.closest('tr').attr('data-ccp-quick-id'), 10);
+      var $cell = $(this).closest('td');
+      var field = $(this).attr('data-field');
+      var productId = parseInt($cell.closest('tr').attr('data-ccp-quick-id'), 10);
       if ((field !== 'price' && field !== 'quantity') || !productId) { return; }
-      if (active && active.busy) { return; }
-      showEditor($cell, $button, field, productId);
+      openEditor($cell, field, productId);
     });
-    $(document).on('click.ccpQpe', '#ccp-qpe-popover .ccp-qpe-popover-save', function () { saveEditor(); });
-    $(document).on('click.ccpQpe', '#ccp-qpe-popover .ccp-qpe-popover-cancel', function () { closeEditor(true); });
-    $(document).on('keydown.ccpQpe', '#ccp-qpe-popover .ccp-qpe-popover-input', function (event) {
+    $table.on('click', '.ccp-qpe-inline-save', function () { saveEditor(); });
+    $table.on('click', '.ccp-qpe-inline-cancel', function () { if (active && !active.busy) { closeEditor(); } });
+    $table.on('keydown', '.ccp-qpe-inline-input', function (event) {
       if (event.which === 13) { event.preventDefault(); saveEditor(); }
-      if (event.which === 27) { event.preventDefault(); if (active && !active.busy) { closeEditor(true); } }
+      if (event.which === 27) { event.preventDefault(); if (active && !active.busy) { closeEditor(); } }
     });
-    $(document).on('keydown.ccpQpe', function (event) {
-      if (event.which === 27 && active && !active.busy) { closeEditor(true); }
+    $(document).on('keydown.ccpQuickCell', function (event) {
+      if (event.which === 27 && active && !active.busy) { closeEditor(); }
     });
-    $(document).on('mousedown.ccpQpe', function (event) {
+    $(document).on('mousedown.ccpQuickCell', function (event) {
       if (!active || active.busy) { return; }
-      if (!$(event.target).closest('#ccp-qpe-popover, .ccp-qpe-edit-btn').length) { closeEditor(false); }
-    });
-    $(window).on('resize.ccpQpe', function () {
-      if (active && !active.busy) { placeEditor(active); }
-    });
-    // On responsive screens the browser may horizontally scroll to reveal
-    // the pencil before opening the popover. Reposition instead of cancelling.
-    $(window).on('scroll.ccpQpe', function () {
-      if (active && !active.busy) { placeEditor(active); }
-    });
-    $('#ccp-product-list .table-responsive').on('scroll.ccpQpe', function () {
-      if (active && !active.busy) { placeEditor(active); }
+      if (!$(event.target).closest('.ccp-qpe-inline-editor,.ccp-qpe-edit-btn').length) { closeEditor(); }
     });
 
-    // Status and indexing switches remain AJAX-only and keep their saved states.
+    // Product status and indexability switches retain the previously validated
+    // CodeCart/ocStore polarity: 1=enabled, 0=disabled.
     $table.on('click', '.ccp-qpf-toggle', function (event) {
       event.preventDefault();
-      var $button = $(this);
-      var $row = $button.closest('tr');
-      var field = $button.attr('data-field');
+      var $button = $(this), $row = $button.closest('tr'), field = $button.attr('data-field');
       if ($button.prop('disabled') || (field !== 'status' && field !== 'noindex')) { return; }
-      var old = String($button.attr('data-value'));
-      var next = old === '1' ? '0' : '1';
+      var previous = String($button.attr('data-value')), next = previous === '1' ? '0' : '1';
       $button.prop('disabled', true).addClass('ccp-qpf-pending');
       request({action: 'save', field: field, product_id: $row.attr('data-ccp-quick-id'),
-        value: next, expected: old})
+        value: next, expected: previous})
         .done(function (result) {
           if (!result || !result.success) {
-            notice(result && result.error ? result.error : labels.saveError, true);
-            return;
+            note(result && result.error ? result.error : labels.saveError, true); return;
           }
-          // Both CodeCart status and ocStore noindex use 1 for "enabled".
           var value = String(result.value), enabled = value === '1';
           $button.attr('data-value', value)
             .attr('aria-checked', enabled ? 'true' : 'false')
             .attr('aria-label', String($button.attr('data-label') || '') + ': ' + (enabled ? labels.on : labels.off))
             .toggleClass('is-on', enabled);
         })
-        .fail(function (xhr) { notice(errorText(xhr, labels.conflict), true); })
+        .fail(function (xhr) { note(errorText(xhr, labels.conflict), true); })
         .always(function () { $button.prop('disabled', false).removeClass('ccp-qpf-pending'); });
     });
   });
