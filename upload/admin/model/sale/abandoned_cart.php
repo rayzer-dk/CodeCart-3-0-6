@@ -42,19 +42,18 @@ class ModelSaleAbandonedCart extends Model {
         $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $from = ' FROM ' . chr(96) . $source['table'] . chr(96) . ' c LEFT JOIN '
             . chr(96) . DB_PREFIX . 'customer' . chr(96) . ' cu ON cu.customer_id=' . $cid;
-        $where = ' WHERE ' . $dt . ' < DATE_SUB(NOW(), INTERVAL ' . $idle . ' MINUTE)'
-            . ' AND ' . $dt . ' >= DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)'
+        $where = ' WHERE ' . $dt . ' >= DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)'
             . ' AND ' . $sid . " <> '' AND " . $qty . ' > 0 AND ' . $pid . ' > 0';
         if ($count) {
             return 'SELECT COUNT(*) AS total FROM (SELECT ' . $sid . ' AS session_id, ' . $cid . ' AS customer_id'
-                . $from . $where . ' GROUP BY ' . $cid . ', ' . $sid . ') x';
+                . $from . $where . ' GROUP BY ' . $cid . ', ' . $sid . ' HAVING MAX(' . $dt . ') < DATE_SUB(NOW(), INTERVAL ' . $idle . ' MINUTE)' . ') x';
         }
         return 'SELECT ' . $cid . ' AS customer_id, ' . $sid . ' AS session_id, '
             . 'COUNT(*) AS line_count, SUM(' . $qty . ') AS quantity, MAX(' . $dt . ') AS last_activity,'
             . " MAX(COALESCE(CONCAT(cu.firstname,' ',cu.lastname),'')) AS customer,"
             . ' MAX(COALESCE(' . $email . ",'')) AS email, MAX(COALESCE(" . $phone . ",'')) AS telephone,"
             . ' TIMESTAMPDIFF(MINUTE,MAX(' . $dt . '),NOW()) AS idle_minutes '
-            . $from . $where . ' GROUP BY ' . $cid . ', ' . $sid;
+            . $from . $where . ' GROUP BY ' . $cid . ', ' . $sid . ' HAVING MAX(' . $dt . ') < DATE_SUB(NOW(), INTERVAL ' . $idle . ' MINUTE)';
     }
 
     public function getExternalCartProducts($customerId, $sessionId) {
