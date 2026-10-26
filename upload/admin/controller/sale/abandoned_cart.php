@@ -19,7 +19,7 @@ class ControllerSaleAbandonedCart extends Controller {
                     'codecart_abandoned_cart_status' => !empty($this->request->post['cart_status']) ? 1 : 0,
                     'codecart_abandoned_cart_source' => ($this->request->post['cart_source'] ?? '') === 'external' ? 'external' : 'standard',
                     'codecart_abandoned_cart_idle_minutes' => max(5, min(10080, (int)($this->request->post['cart_idle_minutes'] ?? 60))),
-                    'codecart_abandoned_cart_days' => max(1, min(7, (int)($this->request->post['cart_days'] ?? 7)))
+                    'codecart_abandoned_cart_days' => max(1, min(30, (int)($this->request->post['cart_days'] ?? 7)))
                 );
                 foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
                     $value = trim((string)($this->request->post['cart_' . $name] ?? ''));
@@ -85,7 +85,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $data['cart_can_modify'] = $this->user->hasPermission('modify', 'sale/abandoned_cart');
         $data['cart_fields'] = array('status' => $enabled ? 1 : 0, 'source' => $source,
             'idle_minutes' => (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60,
-            'days' => (int)$this->config->get('codecart_abandoned_cart_days') ?: 7);
+            'days' => max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)));
         foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
             $data['cart_fields'][$name] = (string)$this->config->get('codecart_abandoned_cart_' . $name);
         }
