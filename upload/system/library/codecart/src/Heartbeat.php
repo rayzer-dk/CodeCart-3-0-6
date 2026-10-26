@@ -39,7 +39,7 @@ final class Heartbeat {
     }
 
     public function run(int $interval = 300): void {
-        if (PHP_SAPI === 'cli' || defined('CODECART_CLI') || !defined('DIR_STORAGE')) { return; }
+        if (PHP_SAPI === 'cli' || defined('CODECART_CLI') || !defined('DIR_STORAGE') || defined('DIR_CATALOG') || defined('DIR_OPENCART')) { return; }
         $script = isset($_SERVER['SCRIPT_NAME']) ? basename((string)$_SERVER['SCRIPT_NAME']) : '';
         $route = isset($_GET['route']) ? trim((string)$_GET['route'], '/') : '';
         if ($script === 'cron.php' || $script === 'cli.php' || strpos($route, 'cron/') === 0) { return; }
