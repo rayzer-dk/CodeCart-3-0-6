@@ -75,3 +75,5 @@ $_['error_interval'] = 'Interval must be between 60 and 31536000 seconds.';
 $_['error_task'] = 'Scheduler task was not found.';
 $_['error_action'] = 'Unknown scheduler action.';
 $_['error_catalog_url'] = 'The full catalog HTTPS/HTTP URL could not be determined. Check HTTP_CATALOG/HTTPS_CATALOG in admin/config.php.';
+$_['text_result_success'] = 'Success';
+$_['text_result_error'] = 'Error';
