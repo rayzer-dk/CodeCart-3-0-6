@@ -48,6 +48,11 @@ jobs:
           assert "getExternalCartProducts" in model
           assert "getExternalSourceStatus" in model
           assert "SHOW COLUMNS FROM" in model and 'customSource' in model
+          assert 'HAVING MAX(c.date_added) < DATE_SUB' in model
+          assert 'SELECT MAX(date_added) AS last_activity' in model
+          assert ') nested)' in model
+          assert "WHERE c.api_id = '0' AND c.date_added >= DATE_SUB" in model
+          assert "GROUP BY c.customer_id, c.session_id HAVING" in model
           assert "codecart_abandoned_cart_source') === 'external'" in model
           assert 'cart_mapping_valid' in cart and 'cart_enabled' in view
           assert 'cart_can_modify' in view and 'cart_source' in view
@@ -109,6 +114,7 @@ jobs:
           Older session records are already managed by OpenCart's session GC.
           Do not schedule full OCMOD regeneration or total cache deletion.
           Clear Twig cache and refresh OCMOD manually after deploying.
+          Clearing uses whole-cart inactivity and configured history cutoffs.
           Runtime checkout, theme-specific carts and production cron schedules
           must still be tested on the actual installation.
           README
