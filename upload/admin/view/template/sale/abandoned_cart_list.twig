@@ -68,7 +68,7 @@
             {% if cart_can_modify and cart_source == 'standard' %}<td class="ccp-cart-check"><input type="checkbox" form="ccp-cart-bulk-form" name="selected[]" class="ccp-cart-select" value="{{ cart.customer_id }}|{{ cart.session_id|e('html_attr') }}" aria-label="{{ text_choose_rows }}"></td>{% endif %}
             <td><strong>{% if cart.customer_href %}<a href="{{ cart.customer_href }}">{{ cart.customer|e }}</a>{% else %}{{ cart.customer|e }}{% endif %}</strong><small class="ccp-cart-muted">{{ cart.telephone ? cart.telephone : text_guest_no_email }}</small></td>
             <td>{% if cart.email %}<span title="{{ cart.email|e('html_attr') }}">{{ cart.email|e }}</span>{% else %}<span class="label label-default">{{ text_no_email }}</span>{% endif %}</td>
-            <td>{% for product in cart.products %}<div class="ccp-abandoned-product"><a href="{{ product.href }}" title="{{ product.name|e('html_attr') }}">{{ product.name|e }}</a><span>× {{ product.quantity }}</span></div>{% endfor %}</td>
+            <td>{% for product in cart.products %}<div class="ccp-abandoned-product">{% if product.thumb %}<a class="ccp-product-image-link" href="{{ product.href|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ text_product_storefront }}"><img class="ccp-product-thumb" src="{{ product.thumb|e('html_attr') }}" width="40" height="40" alt="" loading="lazy"></a>{% else %}<span class="ccp-product-thumb-placeholder"><i class="fa fa-image"></i></span>{% endif %}<a href="{{ product.href|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ product.name|e('html_attr') }} — {{ text_product_storefront }}">{{ product.name|e }}</a><span>× {{ product.quantity }}</span></div>{% endfor %}</td>
             <td class="text-right">{{ cart.quantity }}</td><td class="text-right"><strong>{{ cart.total }}</strong></td>
             <td>{{ cart.last_activity|e }}<small class="ccp-cart-muted">{{ cart.inactive|e }}</small></td>
             <td>
@@ -130,6 +130,9 @@
               <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="7" value="{{ cart_fields.days }}"></div>
           </div>
           <p class="help-block">{{ text_cart_source_help }}</p>
+          <div class="ccp-checkout-link-setting"><label for="ccp-cart-checkout-url">{{ entry_checkout_url }}</label>
+            <div class="input-group"><input type="url" name="cart_checkout_url" id="ccp-cart-checkout-url" class="form-control" maxlength="512" required value="{{ cart_fields.checkout_url|e('html_attr') }}" placeholder="https://store.example/index.php?route=checkout/checkout"><span class="input-group-btn"><a href="{{ catalog_checkout_url|e('html_attr') }}" class="btn btn-default" target="_blank" rel="noopener noreferrer" title="{{ entry_checkout_url }}"><i class="fa fa-external-link"></i></a></span></div>
+            <p class="help-block">{{ text_checkout_url_help }}</p></div>
           <div class="ccp-mail-control"><label for="abandoned-mail-auto"><i class="fa fa-envelope-o"></i> {{ entry_mail_auto }}</label>
             <select id="abandoned-mail-auto" name="cart_mail_auto" class="form-control">
               <option value="0" {{ not cart_fields.mail_auto ? 'selected' : '' }}>{{ text_disabled }}</option>
@@ -143,7 +146,12 @@
           <div class="ccp-external-fields" id="ccp-external-mapping" data-schema-url="{{ external_schema_url|e('html_attr') }}"
                data-detect-ok="{{ text_external_detect_success|e('html_attr') }}" data-detect-failed="{{ text_external_detect_failed|e('html_attr') }}"
                data-missing="{{ text_external_detect_warning|e('html_attr') }}">
+            <p class="help-block">{{ text_external_source_explanation }}</p>
             <p class="help-block">{{ text_external_simple }}</p>
+            <div class="ccp-table-chooser" data-source-url="{{ external_tables_url|e('html_attr') }}" data-empty="{{ text_external_no_candidates|e('html_attr') }}">
+              <button type="button" id="ccp-find-cart-tables" class="btn btn-default btn-sm"><i class="fa fa-database"></i> {{ text_external_table_candidates }}</button>
+              <select id="ccp-cart-table-chooser" class="form-control" style="display:none" aria-label="{{ text_external_choose_table }}"><option value="">{{ text_external_choose_table }}</option></select>
+            </div>
             <div class="row"><div class="col-sm-7 col-md-6 ccp-map-field"><label for="map-table">{{ entry_cart_table }} <span class="text-danger">*</span></label>
               <input type="text" name="cart_table" id="map-table" class="form-control" value="{{ cart_fields.table }}" placeholder="theme_cart" autocomplete="off" maxlength="64"></div>
               <div class="col-sm-5 col-md-3 ccp-map-field"><label>&nbsp;</label><button type="button" class="btn btn-default btn-block" id="ccp-external-autodetect"><i class="fa fa-search"></i> {{ text_external_auto_detect }}</button></div></div>

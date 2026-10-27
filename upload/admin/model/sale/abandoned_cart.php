@@ -66,6 +66,26 @@ class ModelSaleAbandonedCart extends Model {
         return array('valid' => true, 'columns' => $columns, 'fields' => $fields, 'missing' => $missing);
     }
 
+    /** Names only: the storefront route is never interpreted as a database table. */
+    public function findExternalCartTables(): array {
+        $found = array();
+        try {
+            $rows = $this->db->query('SHOW TABLES')->rows;
+            foreach ($rows as $row) {
+                $name = (string)reset($row);
+                if (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $name)) { continue; }
+                if (strpos($name, DB_PREFIX) !== 0) { continue; }
+                $suffix = strtolower(substr($name, strlen(DB_PREFIX)));
+                if ($suffix === 'cart' || $suffix === 'codecart_cart_guest_contact' ||
+                    $suffix === 'codecart_cart_reminder_log') { continue; }
+                if (strpos($suffix, 'cart') === false && strpos($suffix, 'basket') === false) { continue; }
+                $found[] = array('table' => $name, 'mapping' => $this->inspectExternalTable($name));
+                if (count($found) >= 30) { break; }
+            }
+        } catch (\Throwable $e) { return array(); }
+        return $found;
+    }
+
     public function getExternalSourceStatus() { return $this->customSource() !== null; }
 
     private function sourceColumn($fields, $name, $otherwise) {
@@ -109,7 +129,7 @@ class ModelSaleAbandonedCart extends Model {
         $cid = $this->sourceColumn($f,'customer','0');
         $pid = $this->sourceColumn($f,'product','0');
         $qty = $this->sourceColumn($f,'quantity','0');
-        $sql = 'SELECT ' . $pid . ' AS product_id, ' . $qty . ' AS quantity, p.price, pd.name'
+        $sql = 'SELECT ' . $pid . ' AS product_id, ' . $qty . ' AS quantity, p.price, p.image, pd.name'
             . ' FROM ' . chr(96) . $source['table'] . chr(96) . ' c LEFT JOIN '
             . chr(96) . DB_PREFIX . 'product' . chr(96) . ' p ON p.product_id=' . $pid
             . ' LEFT JOIN ' . chr(96) . DB_PREFIX . 'product_description' . chr(96)
@@ -241,7 +261,7 @@ class ModelSaleAbandonedCart extends Model {
         $customer_id = (int)$customer_id;
         $session_id = (string)$session_id;
 
-        $sql = "SELECT c.cart_id,c.product_id,c.quantity,c.option,p.price,p.tax_class_id,pd.name " .
+        $sql = "SELECT c.cart_id,c.product_id,c.quantity,c.option,p.price,p.tax_class_id,p.image,pd.name " .
                "FROM `" . DB_PREFIX . "cart` c " .
                "LEFT JOIN `" . DB_PREFIX . "product` p ON (p.product_id=c.product_id) " .
                "LEFT JOIN `" . DB_PREFIX . "product_description` pd ON (pd.product_id=c.product_id AND pd.language_id='" . (int)$this->config->get('config_language_id') . "') " .

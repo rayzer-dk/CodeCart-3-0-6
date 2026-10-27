@@ -66,7 +66,7 @@ class ControllerToolScheduler extends Controller {
         foreach (array('text_server_setup', 'text_server_interval', 'text_server_one_command', 'text_job_help', 'text_job_type', 'text_manual', 'text_choose_example', 'text_handler_warning',
           'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help','text_existing_codes_info',
           'text_choose_available_handler','text_advanced_options','text_scheduler_health','text_scheduler_health_ok','text_scheduler_health_warn','text_scheduler_health_none',
-          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info','text_ready_handlers_count','text_no_free_handler','text_save_failed','text_interval_preset','text_interval_custom','text_scheduler_host_unverified','text_scheduler_intro','text_create_task_hint','text_task_paused','text_native_task_type','text_host_task_type','text_host_command_label','text_host_command_help','text_host_schedule_help','text_host_copy','text_host_security','text_handler_select_help','text_advanced_identifiers','text_task_no_handler','text_host_minute','text_host_hour','text_host_dom','text_host_month','text_host_dow','text_job_name_header') as $key) {
+          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info','text_ready_handlers_count','text_no_free_handler','text_save_failed','text_interval_preset','text_interval_custom','text_scheduler_host_unverified','text_scheduler_intro','text_create_task_hint','text_task_paused','text_native_task_type','text_host_task_type','text_host_command_label','text_host_command_help','text_host_schedule_help','text_host_copy','text_host_security','text_handler_select_help','text_advanced_identifiers','text_task_no_handler','text_host_minute','text_host_hour','text_host_dom','text_host_month','text_host_dow','text_job_name_header','text_external_import_title','text_external_import_help','text_external_import_command','text_external_import_frequency','text_external_import_submit','text_external_import_safety','text_external_import_secret_note','text_external_import_success','text_external_import_failed','text_external_job_name') as $key) {
             $data[$key] = $this->language->get($key);
         }
         $data['text_loading_task'] = $this->language->get('text_loading_task');
@@ -108,6 +108,11 @@ class ControllerToolScheduler extends Controller {
                 $codeDesc = $codeKey . '_description';
                 $localizedName = $this->language->get($codeKey);
                 $job['display_name'] = $localizedName !== $codeKey ? $localizedName : (string)$job['code'];
+                if ($job['route'] === 'cron/codecart_external_http') {
+                    $arguments = json_decode((string)$job['args'], true);
+                    $hostname = parse_url((string)($arguments['url'] ?? ''), PHP_URL_HOST);
+                    $job['display_name'] = $this->language->get('text_external_job_name') . ': ' . (string)$hostname;
+                }
                 $localizedDesc = $this->language->get($codeDesc);
                 $job['description'] = $localizedDesc !== $codeDesc ? $localizedDesc : '';
                 $job['last_status_text'] = $job['last_status'] === 'success' ? $this->language->get('text_result_success') : ($job['last_status'] === 'error' ? $this->language->get('text_result_error') : '');
@@ -122,7 +127,7 @@ class ControllerToolScheduler extends Controller {
             $age = isset($heartbeat->row['age_minutes']) ? (int)$heartbeat->row['age_minutes'] : 999999;
             $data['scheduler_health'] = !$lastRun ? 'none' : (($age >= 0 && $age <= 10) ? 'ok' : 'warn');
             $data['scheduler_health_date'] = $lastRun;
-            $blocked = array('codecart','mail_delivery','cart_reminder','cart_guest_purge','relation','lost_url');
+            $blocked = array('codecart','codecart_external_http','mail_delivery','cart_reminder','cart_guest_purge','relation','lost_url');
             foreach (glob(DIR_CATALOG . 'controller/cron/*.php') ?: array() as $handlerFile) {
                 $handler = basename($handlerFile,'.php');
                 if (!preg_match('/^[a-z0-9_]+$/i',$handler) || in_array($handler,$blocked,true)) { continue; }
@@ -222,7 +227,7 @@ class ControllerToolScheduler extends Controller {
             $task = $scheduler->getTask((int)$this->request->get['edit_id']);
             if ($task) {
                 $decoded = json_decode((string)$task['args'], true);
-                $task['args'] = is_array($decoded) ? json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '{}';
+                $task['args'] = (string)$task['route'] === 'cron/codecart_external_http' ? '{}' : (is_array($decoded) ? json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '{}');
                 $task['is_core'] = strpos((string)$task['code'], 'core.') === 0;
                 $data['edit_task'] = $task;
             }
@@ -300,7 +305,7 @@ class ControllerToolScheduler extends Controller {
                         'route' => (string)$task['route'],
                         'interval_seconds' => (int)$task['interval_seconds'],
                         'status' => (int)$task['status'],
-                        'args' => is_array($args) ? json_encode($args, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '[]',
+                        'args' => (string)$task['route'] === 'cron/codecart_external_http' ? '{}' : (is_array($args) ? json_encode($args, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '[]'),
                         'is_core' => strpos((string)$task['code'], 'core.') === 0
                     );
                 }
@@ -351,6 +356,26 @@ class ControllerToolScheduler extends Controller {
             }
             if (!$deleted) { throw new \InvalidArgumentException($this->language->get('error_task')); }
             $this->session->data['success'] = $this->language->get('text_success');
+            return;
+        }
+
+        if ($action === 'save_external') {
+            if (!isset($this->request->post['external_command'])) {
+                throw new \InvalidArgumentException($this->language->get('text_external_import_failed'));
+            }
+            $command = trim((string)$this->request->post['external_command']);
+            $interval = (int)($this->request->post['external_interval'] ?? 900);
+            if ($interval < 300 || $interval > 86400 || $interval % 300 !== 0) {
+                throw new \InvalidArgumentException($this->language->get('error_interval'));
+            }
+            $remote = new \CodeCart\Core\ExternalHttpTask($this->registry);
+            $endpoint = $remote->parseCommand($command);
+            $code = 'external.http.' . substr(hash('sha256', $endpoint['url']), 0, 16);
+            $scheduler->createTask($code, 'cron/codecart_external_http', $interval, false, array(
+                'url' => $endpoint['url'],
+                'key_enc' => $remote->protect($endpoint['secret'])
+            ));
+            $this->session->data['success'] = $this->language->get('text_external_import_success');
             return;
         }
 
@@ -408,8 +433,20 @@ class ControllerToolScheduler extends Controller {
                 if (strcasecmp((string)$existingTask['code'], $code) === 0) {
                     throw new \InvalidArgumentException($this->language->get('error_duplicate_code'));
                 }
-                if (rtrim((string)$existingTask['route'], '/') === rtrim($route, '/')) {
+                if (rtrim((string)$existingTask['route'], '/') === rtrim($route, '/')
+                    && !($schedulerId > 0 && $route === 'cron/codecart_external_http')) {
                     throw new \InvalidArgumentException($this->language->get('error_duplicate_route'));
+                }
+            }
+            if ($schedulerId > 0) {
+                $existing = $scheduler->getTask($schedulerId);
+                if ($existing && (string)$existing['route'] === 'cron/codecart_external_http') {
+                    if ((string)$existing['code'] !== $code || $route !== 'cron/codecart_external_http') {
+                        throw new \InvalidArgumentException($this->language->get('error_core_route'));
+                    }
+                    $protectedArgs = json_decode((string)$existing['args'], true);
+                    if (!is_array($protectedArgs)) { throw new \RuntimeException('Protected task configuration is invalid.'); }
+                    $args = $protectedArgs; // Editing a task never drops or exposes the encrypted key.
                 }
             }
             if ($interval < ($schedulerId === 0 ? 300 : 60) || $interval > 31536000) {

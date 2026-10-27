@@ -160,3 +160,15 @@ $_['text_host_dom'] = 'Дни месяца';
 $_['text_host_month'] = 'Месяцы';
 $_['text_host_dow'] = 'Дни недели';
 $_['text_job_name_header'] = 'Задание';
+
+// Restricted external HTTPS Cron import.
+$_['text_external_import_title'] = 'Добавить HTTPS Cron стороннего модуля';
+$_['text_external_import_help'] = 'Вставьте одну готовую curl/wget-команду с HTTPS URL и заголовком X-ACP-Cron-Key. CodeCart сохранит безопасный HTTP-запрос, а не будет запускать shell-команду. Основной Cron CodeCart должен работать на хостинге каждые 5 минут.';
+$_['text_external_import_command'] = 'Команда curl / wget';
+$_['text_external_import_frequency'] = 'Периодичность';
+$_['text_external_import_submit'] = 'Добавить выключенным';
+$_['text_external_import_safety'] = 'Новые задачи выключены до ручного включения. Поддерживаются только публичные HTTPS-адреса index.php?route=extension/module/.../cron без перенаправлений. Только GET с X-ACP-Cron-Key. Не дублируйте такое задание в Mirohost.';
+$_['text_external_import_secret_note'] = 'Секретный ключ скрыт и шифруется в БД. После сохранения повторный ввод не требуется.';
+$_['text_external_import_success'] = 'Внешняя HTTPS Cron-задача добавлена выключенной. Проверьте настройки, затем включите её.';
+$_['text_external_import_failed'] = 'Невозможно импортировать Cron-команду.';
+$_['text_external_job_name'] = 'Внешний HTTPS Cron';

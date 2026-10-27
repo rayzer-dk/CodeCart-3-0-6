@@ -13,6 +13,26 @@
             $guest.prop('disabled', external);
         }
         $('#abandoned-source').on('change', mapping); mapping();
+        $('#ccp-find-cart-tables').on('click', function () {
+            var $root = $(this).closest('.ccp-table-chooser');
+            var $select = $('#ccp-cart-table-chooser'), $button = $(this);
+            $button.prop('disabled', true);
+            $.getJSON($root.attr('data-source-url')).done(function (result) {
+                $select.find('option:not(:first)').remove();
+                if (!result || !result.success || !(result.tables || []).length) {
+                    $('#ccp-external-detect-result').text($root.attr('data-empty'));
+                    $select.hide(); return;
+                }
+                $.each(result.tables, function (_, entry) {
+                    $('<option>').val(entry.table).text(entry.table).appendTo($select);
+                });
+                $select.show();
+            }).fail(function () { $('#ccp-external-detect-result').text($root.attr('data-empty')); })
+              .always(function () { $button.prop('disabled', false); });
+        });
+        $('#ccp-cart-table-chooser').on('change', function () {
+            if (this.value) { $('#map-table').val(this.value); $('#ccp-external-autodetect').trigger('click'); }
+        });
         $('#ccp-external-autodetect').on('click', function () {
             var $section = $('#ccp-external-mapping'), table = $('#map-table').val().trim();
             var $status = $('#ccp-external-detect-result');

@@ -142,3 +142,13 @@ $_['text_external_detect_failed'] = 'Таблицю не знайдено або
 $_['text_external_required'] = 'Обов’язкові: ID сесії, ID товару, кількість і дата/час.';
 $_['text_external_optional'] = 'ID покупця, email і телефон необов’язкові; якщо немає email чи згоди, нагадування неможливе.';
 $_['text_external_detect_warning'] = 'Не вдалося знайти обов’язкові колонки автоматично';
+
+// Storefront and source identification.
+$_['entry_checkout_url'] = 'Адреса сторінки оформлення замовлення';
+$_['text_checkout_url_help'] = 'Це адреса checkout на вітрині, а не назва SQL-таблиці. Для UniShop2 зазвичай checkout/uni_checkout. Товари, як правило, зберігаються у стандартній таблиці OpenCart. Посилання має вести на цей магазин (HTTPS).';
+$_['text_external_source_explanation'] = 'Тільки якщо модуль зберігає товари окремо у SQL. Шлях checkout/uni_checkout — це маршрут сторінки, а не таблиця БД. Не змінюйте джерело на зовнішнє тільки через інший checkout.';
+$_['text_external_table_candidates'] = 'Знайти можливі таблиці';
+$_['text_external_no_candidates'] = 'Додаткових таблиць з назвами cart/basket не знайдено. Зазвичай використовуйте стандартний OpenCart.';
+$_['text_external_choose_table'] = 'Виберіть SQL-таблицю (не адресу checkout)';
+$_['text_product_storefront'] = 'Відкрити товар на вітрині';
+$_['error_checkout_url'] = 'Вкажіть HTTPS-адресу сторінки оформлення саме цього магазину без стороннього домену.';

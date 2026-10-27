@@ -24,6 +24,38 @@ class ControllerSaleAbandonedCart extends Controller {
         $this->response->setOutput(json_encode($result, JSON_UNESCAPED_UNICODE));
     }
 
+    /** Frontend URL is independent from how cart rows are stored. */
+    private function catalogBaseUrl(): string {
+        $base = defined('HTTPS_CATALOG') ? HTTPS_CATALOG : (defined('HTTP_CATALOG') ? HTTP_CATALOG : (string)$this->config->get('config_ssl'));
+        return rtrim((string)$base, '/') . '/';
+    }
+
+    private function defaultCheckoutUrl(): string {
+        $route = (is_file(DIR_CATALOG . 'controller/checkout/uni_checkout.php') || (defined('DIR_MODIFICATION') && is_file(DIR_MODIFICATION . 'catalog/controller/checkout/uni_checkout.php'))) ? 'checkout/uni_checkout' : 'checkout/checkout';
+        return $this->catalogBaseUrl() . 'index.php?route=' . $route;
+    }
+
+    private function checkoutUrl(): string {
+        $saved = trim((string)$this->config->get('codecart_abandoned_cart_checkout_url'));
+        return $saved !== '' ? $saved : $this->defaultCheckoutUrl();
+    }
+
+    public function externalTables() {
+        $this->load->language('sale/abandoned_cart');
+        $token = (string)($this->request->get['user_token'] ?? '');
+        $sessionToken = (string)($this->session->data['user_token'] ?? '');
+        $json = array('success' => false, 'tables' => array());
+        if (($this->request->server['REQUEST_METHOD'] ?? '') === 'GET' && $token !== '' && $sessionToken !== '' && hash_equals($sessionToken, $token)
+            && $this->user->hasPermission('access', 'sale/abandoned_cart') && $this->user->hasPermission('modify', 'sale/abandoned_cart')) {
+            $this->load->model('sale/abandoned_cart');
+            $json['tables'] = $this->model_sale_abandoned_cart->findExternalCartTables();
+            $json['success'] = true;
+        }
+        $this->response->addHeader('Content-Type: application/json; charset=utf-8');
+        $this->response->addHeader('Cache-Control: no-store, private');
+        $this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE));
+    }
+
     public function index() {
         $this->load->language('sale/abandoned_cart');
         $this->document->setTitle($this->language->get('heading_title'));
@@ -49,6 +81,19 @@ class ControllerSaleAbandonedCart extends Controller {
                     'codecart_abandoned_cart_mail_auto' => !empty($this->request->post['cart_mail_auto']) ? 1 : 0,
                     'codecart_abandoned_cart_guest_capture' => !empty($this->request->post['cart_guest_capture']) ? 1 : 0
                 );
+                $checkoutUrl = trim((string)($this->request->post['cart_checkout_url'] ?? ''));
+                if ($checkoutUrl === '') { $checkoutUrl = $this->defaultCheckoutUrl(); }
+                $expected = parse_url($this->catalogBaseUrl());
+                $given = parse_url($checkoutUrl);
+                if (!is_array($given) || strtolower((string)($given['scheme'] ?? '')) !== 'https'
+                    || strtolower((string)($given['host'] ?? '')) !== strtolower((string)($expected['host'] ?? ''))
+                    || isset($given['user']) || isset($given['pass']) || isset($given['port']) || isset($given['fragment'])
+                    || !isset($given['path']) || strlen($checkoutUrl) > 512
+                    || !preg_match('#^/[^\x00-\x1F]*$#', (string)$given['path'])) {
+                    $error = $this->language->get('error_checkout_url');
+                } else {
+                    $settings['codecart_abandoned_cart_checkout_url'] = $checkoutUrl;
+                }
                 foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
                     $value = trim((string)($this->request->post['cart_' . $name] ?? ''));
                     if ($value !== '' && !preg_match('/^[a-zA-Z0-9_]{1,64}$/', $value)) {
@@ -159,7 +204,10 @@ class ControllerSaleAbandonedCart extends Controller {
             'text_history_status','text_history_attempts','text_history_date','text_history_origin','text_history_email',
             'text_history_empty','text_guest_cart_restored','text_restored_count','text_restored_note','text_search_button',
             'text_reset_filter','text_selected_count','text_recent_history','text_date_range_notice','text_clear_danger',
-            'text_send_only_optin','text_history_error','text_history_manual','text_history_auto'
+            'text_send_only_optin',            'text_history_error','text_history_manual','text_history_auto',
+            'entry_checkout_url','text_checkout_url_help','text_external_source_explanation',
+            'text_external_table_candidates','text_external_no_candidates','text_external_choose_table',
+            'text_product_storefront','error_checkout_url'
         ) as $key) { $data[$key] = $this->language->get($key); }
 
         if (!empty($this->session->data['success'])) {
@@ -180,6 +228,10 @@ class ControllerSaleAbandonedCart extends Controller {
         foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
             $data['cart_fields'][$name] = (string)$this->config->get('codecart_abandoned_cart_' . $name);
         }
+        $data['cart_fields']['checkout_url'] = $this->checkoutUrl();
+        $data['external_tables_url'] = html_entity_decode($this->url->link('sale/abandoned_cart/externalTables', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
+        $data['catalog_checkout_url'] = $this->checkoutUrl();
+        $data['text_external_source_explanation'] = $this->language->get('text_external_source_explanation');
         $data['external_schema_url'] = html_entity_decode($this->url->link('sale/abandoned_cart/externalSchema', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
         foreach (array('text_external_simple','text_external_advanced','text_external_auto_detect','text_external_detect_success','text_external_detect_failed','text_external_required','text_external_optional','text_external_detect_warning') as $key) {
             $data[$key] = $this->language->get($key);
@@ -187,6 +239,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $data['cart_mapping_valid'] = !$enabled || $source !== 'external'
             || $this->model_sale_abandoned_cart->getExternalSourceStatus();
         $data['carts'] = array();
+        if ($enabled && $rows) { $this->load->model('tool/image'); }
         foreach ($rows as $row) {
             $products = $source === 'external'
                 ? $this->model_sale_abandoned_cart->getExternalCartProducts((int)$row['customer_id'], (string)$row['session_id'])
@@ -199,10 +252,17 @@ class ControllerSaleAbandonedCart extends Controller {
                 if ($name === '') { $name = '#' . $product_id; }
                 $line_total = isset($product['line_total']) ? (string)$product['line_total'] : '0.0000';
                 $cart_total = \CodeCart\Core\Money::add($cart_total, $line_total);
+                $image = (string)($product['image'] ?? '');
+                $thumb = '';
+                if ($image !== '' && strpos($image, '..') === false && is_file(DIR_IMAGE . $image)) {
+                    try { $thumb = $this->model_tool_image->resize($image, 48, 48); }
+                    catch (\Throwable $e) { $thumb = ''; }
+                }
                 $product_rows[] = array(
                     'name' => $name,
                     'quantity' => (int)$product['quantity'],
-                    'href' => $this->url->link('catalog/product/edit', 'user_token=' . $this->session->data['user_token'] . '&product_id=' . $product_id, true)
+                    'thumb' => $thumb,
+                    'href' => $this->catalogBaseUrl() . 'index.php?route=product/product&product_id=' . $product_id
                 );
             }
 

@@ -64,3 +64,13 @@
 .ccp-external-advanced > summary{cursor:pointer;font-weight:600;color:#20517e}
 .ccp-external-advanced[open] > summary{margin-bottom:12px}
 #ccp-external-detect-result{margin:8px 0 0}
+
+/* Compact storefront preview and separate checkout URL. */
+.ccp-carts-page .ccp-abandoned-product{align-items:center;min-height:40px;gap:8px}
+.ccp-carts-page .ccp-abandoned-product .ccp-product-image-link{flex:0 0 40px;width:40px;height:40px;max-width:40px}
+.ccp-carts-page .ccp-product-thumb{display:block;width:40px;height:40px;object-fit:contain;background:#fff;border:1px solid #dbe3ef;border-radius:4px}
+.ccp-carts-page .ccp-product-thumb-placeholder{display:flex;width:40px;height:40px;flex:0 0 40px;align-items:center;justify-content:center;background:#f4f7fa;border:1px solid #e0e6ed;border-radius:4px;color:#8191a2}
+.ccp-carts-page .ccp-abandoned-product>a:not(.ccp-product-image-link){flex:1 1 auto;min-width:0}
+.ccp-carts-page .ccp-checkout-link-setting{margin:4px 0 12px;max-width:950px}
+.ccp-carts-page .ccp-table-chooser{display:flex;gap:9px;align-items:center;margin:5px 0 12px;flex-wrap:wrap}
+.ccp-carts-page .ccp-table-chooser select{max-width:380px;flex:1 1 250px}

@@ -159,3 +159,15 @@ $_['text_host_dom'] = 'Days of month';
 $_['text_host_month'] = 'Months';
 $_['text_host_dow'] = 'Days of week';
 $_['text_job_name_header'] = 'Task';
+
+// Restricted external HTTPS Cron import.
+$_['text_external_import_title'] = 'Add third-party HTTPS Cron';
+$_['text_external_import_help'] = 'Paste one curl/wget command with HTTPS URL and X-ACP-Cron-Key header. CodeCart stores a restricted HTTP request, never executes shell commands. The primary CodeCart Cron must run on the hosting server every five minutes.';
+$_['text_external_import_command'] = 'curl / wget command';
+$_['text_external_import_frequency'] = 'Frequency';
+$_['text_external_import_submit'] = 'Add disabled';
+$_['text_external_import_safety'] = 'New jobs remain OFF until manually enabled. Only public HTTPS index.php?route=extension/module/.../cron endpoints are supported, with no redirects. GET requests only, with X-ACP-Cron-Key. Do not also schedule the same command on Mirohost.';
+$_['text_external_import_secret_note'] = 'The secret is masked and encrypted in the database. No re-entry is needed when editing the schedule.';
+$_['text_external_import_success'] = 'External HTTPS Cron added in disabled state. Review it before enabling.';
+$_['text_external_import_failed'] = 'Unable to import the Cron command.';
+$_['text_external_job_name'] = 'External HTTPS Cron';

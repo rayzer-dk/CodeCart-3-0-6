@@ -142,3 +142,13 @@ $_['text_external_detect_failed'] = 'Table not found or no read access. Check it
 $_['text_external_required'] = 'Required: session ID, product ID, quantity and timestamp.';
 $_['text_external_optional'] = 'Customer ID, email and phone are optional. Reminders require email and consent.';
 $_['text_external_detect_warning'] = 'Could not automatically detect required columns';
+
+// Storefront and source identification.
+$_['entry_checkout_url'] = 'Checkout page URL';
+$_['text_checkout_url_help'] = 'This is the storefront checkout URL, not a database table name. UniShop2 usually uses checkout/uni_checkout and the standard OpenCart cart table. Only HTTPS URLs on this store are accepted.';
+$_['text_external_source_explanation'] = 'Use an external table only when an extension actually stores cart items in a separate SQL table. checkout/uni_checkout is a page route, not a table.';
+$_['text_external_table_candidates'] = 'Find possible tables';
+$_['text_external_no_candidates'] = 'No additional cart/basket tables were found. Standard OpenCart is usually correct.';
+$_['text_external_choose_table'] = 'Choose SQL table (not checkout URL)';
+$_['text_product_storefront'] = 'Open product in storefront';
+$_['error_checkout_url'] = 'Enter an HTTPS checkout URL on the same store, not another domain.';

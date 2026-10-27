@@ -35,7 +35,7 @@ final class Scheduler {
         }
         $interval = $this->normalizeInterval($interval);
         $payload = $this->encodeArgs($args);
-        $duplicate = $this->db->query("SELECT scheduler_id FROM `" . DB_PREFIX . "codecart_scheduler` WHERE code = '" . $this->db->escape($code) . "' OR route = '" . $this->db->escape($route) . "' LIMIT 1");
+        $duplicate = $this->db->query("SELECT scheduler_id FROM `" . DB_PREFIX . "codecart_scheduler` WHERE code = '" . $this->db->escape($code) . "' OR (route = '" . $this->db->escape($route) . "' AND route != 'cron/codecart_external_http') LIMIT 1");
         if ($duplicate->num_rows) {
             throw new \InvalidArgumentException('Scheduler task code or handler is already registered.');
         }
@@ -152,6 +152,9 @@ final class Scheduler {
             }
             $args = json_decode((string)$job['args'], true);
             if (!is_array($args)) { $args = array(); }
+            if ($route === 'cron/codecart_external_http') {
+                $args['_codecart_external_dispatch'] = hash_hmac('sha256', (string)($args['url'] ?? ''), (string)$this->registry->get('config')->get('codecart_scheduler_key'));
+            }
             $result = $this->registry->get('load')->controller($route, $args, true);
             if (is_array($result) && array_key_exists('success', $result)) {
                 $ok = !empty($result['success']);

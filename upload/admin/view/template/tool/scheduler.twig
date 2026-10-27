@@ -103,6 +103,28 @@
     </div>
     {% endif %}
 
+    {% if can_modify %}
+    <div class="panel panel-default ccp-external-cron-import" id="ccp-external-cron-import">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-cloud"></i> {{ text_external_import_title }}</h3></div>
+      <div class="panel-body">
+        <p class="help-block">{{ text_external_import_help }}</p>
+        <form action="{{ action }}" method="post" class="form-horizontal">
+          <input type="hidden" name="scheduler_action" value="save_external">
+          <div class="form-group"><label class="col-sm-2 control-label" for="ccp-external-command">{{ text_external_import_command }}</label>
+          <div class="col-sm-10"><div class="input-group"><input type="password" name="external_command" id="ccp-external-command" class="form-control" autocomplete="off" spellcheck="false" maxlength="4096" required placeholder="curl -fsSL -H 'X-ACP-Cron-Key: …' 'https://shop.example/index.php?route=extension/module/example/cron'">
+          <span class="input-group-btn"><button class="btn btn-default js-reveal" type="button" data-target="ccp-external-command" title="{{ text_advanced_options }}"><i class="fa fa-eye"></i></button></span></div>
+          <small class="help-block">{{ text_external_import_secret_note }}</small></div></div>
+          <div class="form-group"><label class="col-sm-2 control-label" for="ccp-external-interval">{{ text_external_import_frequency }}</label>
+          <div class="col-sm-10"><select name="external_interval" id="ccp-external-interval" class="form-control">
+            <option value="300">5 min</option><option value="600">10 min</option><option value="900" selected>15 min</option><option value="1800">30 min</option><option value="3600">1 h</option><option value="21600">6 h</option><option value="43200">12 h</option><option value="86400">24 h</option>
+          </select></div></div>
+          <div class="text-right"><button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i> {{ text_external_import_submit }}</button></div>
+        </form>
+        <p class="help-block ccp-external-cron-warning"><i class="fa fa-shield"></i> {{ text_external_import_safety }}</p>
+      </div>
+    </div>
+    {% endif %}
+
     <div class="panel panel-default ccp-host-task-helper">
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-terminal"></i> {{ text_host_task_type }}</h3></div>
       <div class="panel-body">
