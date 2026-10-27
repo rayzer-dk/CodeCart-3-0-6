@@ -111,3 +111,5 @@ $_['entry_quick_address_2'] = 'Уточнення адреси';
 
 // CodeCart PRO one-click quick checkout
 $_['button_quick_order'] = 'Оформити замовлення';
+
+$_['text_ccp_cart_recovery_consent'] = 'Погоджуюся отримати один лист із нагадуванням про залишений кошик та посиланням для його відновлення. Необов’язково.';

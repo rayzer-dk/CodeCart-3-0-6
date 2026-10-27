@@ -1,0 +1,61 @@
+/* CodeCart abandoned carts: scoped admin layout. */
+.ccp-carts-page .ccp-cart-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 12px}
+.ccp-carts-page .ccp-cart-kpi{min-width:0;display:flex;align-items:center;gap:12px;border:1px solid #dbe5ef;border-radius:5px;background:#fff;padding:13px 15px}
+.ccp-carts-page .ccp-cart-kpi i{font-size:19px;color:#176bd2;width:24px;text-align:center}
+.ccp-carts-page .ccp-cart-kpi span{flex:1;min-width:0;color:#304963;font-size:12px}
+.ccp-carts-page .ccp-cart-kpi strong{font-size:23px;color:#172f4e;font-weight:700}
+.ccp-carts-page .ccp-cart-brief{display:flex;align-items:center;gap:9px 22px;flex-wrap:wrap;background:#f8fbff;border:1px solid #dfebf6;border-radius:5px;padding:9px 12px;color:#526579;font-size:12px;margin-bottom:14px}
+.ccp-carts-page .ccp-cart-brief .ccp-cart-cron.is-ok{color:#147341}
+.ccp-carts-page .ccp-cart-brief .ccp-cart-cron.is-error{color:#bc3640}
+.ccp-carts-page .ccp-cart-brief .ccp-cart-cron.is-muted{color:#6a7885}
+.ccp-carts-page .ccp-cart-tabs{margin:0;border-bottom:3px solid #0057d9}
+.ccp-carts-page .ccp-cart-tabs>li>a{font-size:13px;color:#294965;padding:10px 14px;border-radius:5px 5px 0 0}
+.ccp-carts-page .ccp-cart-tabs>li.active>a{color:#0057d9;background:#fff;font-weight:600;border-color:#dbe5ef #dbe5ef transparent}
+.ccp-carts-page .ccp-cart-content{background:#fff;border:1px solid #dce4ef;border-top:0;border-radius:0 0 6px 6px;padding:15px}
+.ccp-carts-page .ccp-cart-filter{display:flex;align-items:end;gap:9px;flex-wrap:wrap;margin-bottom:12px}
+.ccp-carts-page .ccp-cart-filter>div:not(.ccp-cart-filter-main){min-width:110px}
+.ccp-carts-page .ccp-cart-filter label{display:block;font-size:12px;color:#314860;margin:0 0 5px}
+.ccp-carts-page .ccp-cart-filter .ccp-cart-filter-main{flex:1 1 260px;min-width:210px}
+.ccp-carts-page .ccp-cart-filter #ccp-filter-contact{min-width:175px}
+.ccp-carts-page .ccp-cart-filter-actions{display:flex;align-items:center;gap:5px}
+.ccp-carts-page .ccp-cart-bulk{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 10px;margin:0 0 10px;background:#f7fafc;border:1px solid #e0e9f2;border-radius:4px}
+.ccp-carts-page .ccp-cart-bulk label{font-size:12px;color:#25405b;margin:0 7px 0 0}
+.ccp-carts-page .ccp-cart-bulk select{max-width:200px}
+.ccp-carts-page .ccp-cart-bulk small{flex:1;text-align:right;font-size:11px}
+.ccp-carts-page .ccp-abandoned-cart-table,.ccp-carts-page .ccp-cart-history-table{border-top:3px solid #0057d9;font-size:12px;margin-bottom:8px}
+.ccp-carts-page .ccp-abandoned-cart-table{table-layout:fixed;min-width:940px}
+.ccp-carts-page .ccp-abandoned-cart-table thead th,.ccp-carts-page .ccp-cart-history-table thead th{font-weight:600;background:#f6f8fb;color:#223e5d;vertical-align:middle;padding:9px 8px;border-right:1px solid #d4deea}
+.ccp-carts-page .ccp-abandoned-cart-table thead th a{color:inherit;text-decoration:none}
+.ccp-carts-page .ccp-abandoned-cart-table td,.ccp-carts-page .ccp-cart-history-table td{vertical-align:middle;padding:8px;overflow-wrap:anywhere}
+.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(1){width:98px}
+.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(2){width:103px}
+.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(3){width:132px}
+.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(4){width:105px}
+.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(5){width:65px}
+.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(6){width:195px}
+.ccp-carts-page .ccp-cart-check{text-align:center;width:35px!important}
+.ccp-carts-page .ccp-cart-row-actions{white-space:nowrap}
+.ccp-carts-page .ccp-cart-inline{display:inline-block;margin-left:3px}
+.ccp-carts-page .ccp-abandoned-product{display:flex;gap:7px;align-items:baseline;margin:0 0 3px}
+.ccp-carts-page .ccp-abandoned-product a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:100%;display:inline-block;flex:1}
+.ccp-carts-page .ccp-abandoned-product span{color:#546679}
+.ccp-carts-page .ccp-cart-muted{display:block;color:#687a89;font-size:11px;margin-top:4px}
+.ccp-carts-page .ccp-cart-empty{padding:35px 10px!important;color:#6a7885}
+.ccp-carts-page .ccp-cart-pagination .pagination{margin:10px 0}
+.ccp-carts-page .ccp-cart-help{color:#617285;font-size:12px;margin:10px 0 15px}
+.ccp-carts-page .ccp-cart-settings-head h3{font-size:16px;margin:0 0 7px;color:#29435d}
+.ccp-carts-page .ccp-cart-settings-head p{font-size:12px;color:#587085;margin:0 0 13px}
+.ccp-carts-page .ccp-cart-settings-form label{font-weight:600;font-size:12px;margin:0 0 5px;color:#253c56}
+.ccp-carts-page .ccp-cart-settings-form .row>div{margin-bottom:10px}
+.ccp-carts-page .ccp-cart-settings-form .help-block{font-size:12px;line-height:1.45;margin:6px 0 12px}
+.ccp-carts-page .ccp-mail-control{display:grid;grid-template-columns:minmax(180px,240px) 190px 1fr;gap:12px;align-items:center;background:#f8fbff;padding:10px;border:1px solid #dce8f4;border-radius:5px;margin-bottom:9px}
+.ccp-carts-page .ccp-mail-control label{margin:0}
+.ccp-carts-page .ccp-mail-control .help-block{margin:0}
+.ccp-carts-page .ccp-external-fields{display:none;border:1px solid #dee8f2;background:#f8fbff;padding:13px;margin:9px 0;border-radius:5px}
+.ccp-carts-page .ccp-external-fields.is-visible{display:block}
+.ccp-carts-page .ccp-cart-settings-actions{padding:6px 0 12px}
+.ccp-carts-page .ccp-cart-danger-zone{border-top:1px solid #e5eaf0;padding:12px 0}
+.ccp-carts-page .ccp-cart-danger-zone summary{cursor:pointer;font-size:13px;color:#9c3340}
+.ccp-carts-page .ccp-cart-danger-zone p{font-size:12px;margin:10px 0}
+@media(max-width:1100px){.ccp-carts-page .ccp-cart-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:767px){.ccp-carts-page .ccp-cart-kpis{gap:7px}.ccp-carts-page .ccp-cart-kpi{padding:10px;gap:7px}.ccp-carts-page .ccp-cart-kpi strong{font-size:18px}.ccp-carts-page .ccp-cart-kpi i{font-size:16px;width:16px}.ccp-carts-page .ccp-cart-kpi span{font-size:11px}.ccp-carts-page .ccp-cart-tabs>li>a{padding:9px 8px;font-size:12px}.ccp-carts-page .ccp-cart-content{padding:9px}.ccp-carts-page .ccp-mail-control{display:block}.ccp-carts-page .ccp-mail-control select{margin:8px 0}.ccp-carts-page .ccp-cart-bulk small{flex-basis:100%;text-align:left}}

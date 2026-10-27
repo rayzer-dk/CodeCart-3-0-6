@@ -7,6 +7,8 @@ class ControllerCheckoutGuest extends Controller {
 		$this->load->language('checkout/checkout');
 		$this->load->helper('codecart_checkout');
 
+		$data['ccp_cart_recovery_enabled'] = (bool)$this->config->get('codecart_abandoned_cart_status') && (bool)$this->config->get('codecart_abandoned_cart_guest_capture') && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external';
+		$data['ccp_cart_recovery_label'] = $this->language->get('text_ccp_cart_recovery_consent');
 		$data['quick_checkout'] = !empty($this->request->get['quick']);
 		$data['compact_delivery_checkout'] = $data['quick_checkout'] && $this->useCompactCarrierCheckout();
 		$field_language_keys = array(
@@ -336,6 +338,14 @@ class ControllerCheckoutGuest extends Controller {
 			$this->session->data['guest']['lastname'] = $this->request->post['lastname'];
 			$this->session->data['guest']['email'] = $this->request->post['email'];
 			$this->session->data['guest']['telephone'] = $this->request->post['telephone'];
+			if ($this->config->get('codecart_abandoned_cart_status') && $this->config->get('codecart_abandoned_cart_guest_capture') && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
+				try {
+					(new \CodeCart\Core\GuestCartContact($this->registry))->saveFromCheckout((string)$this->session->getId(), $this->request->post);
+				} catch (\Throwable $e) {
+					$this->log->write('Guest cart contact capture failed: ' . get_class($e));
+				}
+			}
+
 
 			if (isset($this->request->post['custom_field']['account'])) {
 				$this->session->data['guest']['custom_field'] = $this->request->post['custom_field']['account'];

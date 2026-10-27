@@ -40,6 +40,11 @@
         <input type="email" name="email" value="{{ email|e('html_attr') }}" placeholder="{{ checkout_label_email|e('html_attr') }}" id="input-payment-email" class="form-control" autocomplete="email" />
       </div>
       {% endif %}
+      {% if ccp_cart_recovery_enabled and checkout_field_email %}
+      <div class="form-group ccp-cart-consent" style="margin-bottom:12px">
+        <label style="font-weight:400"><input type="checkbox" name="ccp_cart_recovery_consent" value="1" /> {{ ccp_cart_recovery_label }}</label>
+      </div>
+      {% endif %}
       {% if checkout_field_telephone %}
       <div class="form-group{% if checkout_field_telephone_required %} required{% endif %}">
         <label class="control-label" for="input-payment-telephone">{{ checkout_label_telephone }}</label>

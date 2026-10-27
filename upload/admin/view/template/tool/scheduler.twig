@@ -23,7 +23,7 @@
         <p class="help-block">{{ help_cron }}</p>
         <details class="ccp-scheduler-help"><summary><i class="fa fa-question-circle"></i> {{ text_scheduler_usage }}</summary><p>{{ text_existing_codes_info }}</p></details>
         <p class="ccp-scheduler-setup"><strong>{{ text_server_setup }}</strong> {{ text_server_one_command }}</p>
-        <div class="ccp-scheduler-frequency"><strong>{{ text_server_interval }}</strong> <code>* * * * *</code></div>
+        <div class="ccp-scheduler-frequency"><strong>{{ text_server_interval }}</strong> <code>*/5 * * * *</code></div>
         <p class="help-block">{{ text_session_cleanup }} {{ text_cache_note }} {{ text_extra_modules }}</p>
         <div class="form-group"><label>{{ text_cli }}</label><div class="input-group"><input id="cron-cli" class="form-control" readonly value="{{ cli_command }}"><span class="input-group-btn"><button class="btn btn-default js-copy" type="button" data-target="cron-cli" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>
         <div class="form-group"><label>{{ text_web_cron }}</label><div class="input-group"><input type="password" id="cron-http" class="form-control" readonly value="{{ http_command }}"><span class="input-group-btn"><button class="btn btn-default js-reveal" type="button" data-target="cron-http" title="{{ text_advanced_options }}"><i class="fa fa-eye"></i></button><button class="btn btn-default js-copy" type="button" data-target="cron-http" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>

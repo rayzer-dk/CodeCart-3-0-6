@@ -53,9 +53,23 @@ final class AbandonedCartReminder {
     }
 
     public function getCart(int $customerId, string $sessionId): array {
-        if (!$this->active() || $customerId < 1 || $sessionId === '') { return array(); }
+        if (!$this->active() || $customerId < 0 || $sessionId === '') { return array(); }
         $idle = $this->idle();
         $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        if ($customerId === 0) {
+            if (!(bool)$this->config->get('codecart_abandoned_cart_guest_capture')) { return array(); }
+            $sql = "SELECT c.customer_id,c.session_id,MAX(c.date_added) AS last_activity,
+                    MAX(c.cart_id) AS max_cart_id,SUM(c.quantity) AS quantity,
+                    MAX(gc.firstname) AS firstname,MAX(gc.email) AS email,MAX(gc.consent) AS newsletter
+                FROM `" . DB_PREFIX . "cart` c
+                INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.store_id='" . (int)$this->config->get('config_store_id') . "' AND gc.consent=1 AND gc.recovered_at IS NULL AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)
+                WHERE c.api_id=0 AND c.customer_id=0 AND c.session_id='" . $this->db->escape($sessionId) . "'
+                    AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
+                GROUP BY c.customer_id,c.session_id
+                HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND SUM(c.quantity)>0 LIMIT 1";
+            $result = $this->db->query($sql);
+            return $result->num_rows ? $result->row : array();
+        }
         $sql = "SELECT c.customer_id,c.session_id,MAX(c.date_added) AS last_activity,
                     MAX(c.cart_id) AS max_cart_id,SUM(c.quantity) AS quantity,
                     MAX(cu.firstname) AS firstname,MAX(cu.email) AS email, MAX(cu.newsletter) AS newsletter
@@ -80,10 +94,37 @@ final class AbandonedCartReminder {
             }
         }
         if (!$keys) { return array(); }
-        $result = $this->db->query("SELECT cart_key,status,date_sent,date_added,attempts FROM " . $this->table() . " WHERE cart_key IN (" . implode(',', $keys) . ")");
+        $result = $this->db->query("SELECT cart_key,status,date_sent,date_added,attempts,TIMESTAMPDIFF(SECOND,date_added,NOW()) AS age_seconds FROM " . $this->table() . " WHERE cart_key IN (" . implode(',', $keys) . ")");
         $out = array();
         foreach ($result->rows as $row) { $out[$row['cart_key']] = $row; }
         return $out;
+    }
+
+    public function summary(): array {
+        $q = $this->db->query("SELECT status,COUNT(*) AS total FROM " . $this->table() . " WHERE date_added>=DATE_SUB(NOW(),INTERVAL 7 DAY) GROUP BY status");
+        $out = array('sent'=>0,'failed'=>0,'sending'=>0,'total'=>0);
+        foreach ($q->rows as $row) {
+            if (isset($out[$row['status']])) { $out[$row['status']] = (int)$row['total']; }
+            $out['total'] += (int)$row['total'];
+        }
+        return $out;
+    }
+
+    public function historyTotal(string $status = '', string $email = ''): int {
+        return (int)($this->db->query("SELECT COUNT(*) AS total FROM " . $this->table() . $this->historyWhere($status,$email))->row['total'] ?? 0);
+    }
+
+    private function historyWhere(string $status, string $email): string {
+        $where = array();
+        if (in_array($status, array('sent','failed','sending'),true)) { $where[] = "status='" . $status . "'"; }
+        if ($email !== '') { $where[] = "email LIKE '%" . $this->db->escape(substr($email,0,80)) . "%'"; }
+        return $where ? ' WHERE ' . implode(' AND ',$where) : '';
+    }
+
+    public function recentHistory(int $limit = 25, int $start = 0, string $status = '', string $email = ''): array {
+        $limit = max(1,min(100,$limit));
+        $start = max(0,$start);
+        return $this->db->query("SELECT reminder_id,customer_id,email,origin,status,attempts,error_code,date_added,date_sent FROM " . $this->table() . $this->historyWhere($status,$email) . " ORDER BY reminder_id DESC LIMIT " . $start . ',' . $limit)->rows;
     }
 
     public function send(int $customerId, string $sessionId, string $origin = 'manual'): array {
@@ -103,13 +144,13 @@ final class AbandonedCartReminder {
         }
         $key = $this->fingerprint($cart);
         // Once per customer per day, even when their cart contents change.
-        $recent = $this->db->query("SELECT reminder_id FROM " . $this->table() . " WHERE customer_id='" . $customerId . "' AND status IN ('sending','sent') AND date_added>DATE_SUB(NOW(),INTERVAL 1 DAY) LIMIT 1");
+        $recent = $this->db->query("SELECT reminder_id FROM " . $this->table() . " WHERE " . ($customerId > 0 ? "customer_id='" . $customerId . "'" : "LOWER(email)='" . $this->db->escape(strtolower($email)) . "'") . " AND status IN ('sending','sent') AND date_added>DATE_SUB(NOW(),INTERVAL 1 DAY) LIMIT 1");
         if ($recent->num_rows) { return array('success'=>false,'message'=>'Reminder already sent or in progress in the last 24 hours.'); }
-        $previous = $this->db->query("SELECT status,attempts,date_added FROM " . $this->table() . " WHERE cart_key='" . $key . "' LIMIT 1");
+        $previous = $this->db->query("SELECT status,attempts,date_added,TIMESTAMPDIFF(SECOND,date_added,NOW()) AS age_seconds FROM " . $this->table() . " WHERE cart_key='" . $key . "' LIMIT 1");
         if ($previous->num_rows) {
             $old = $previous->row;
             if ($origin !== 'manual' || (string)$old['status'] !== 'failed'
-                || (int)$old['attempts'] >= 3 || strtotime((string)$old['date_added']) > time()-600) {
+                || (int)$old['attempts'] >= 3 || (int)$old['age_seconds'] < 600) {
                 return array('success'=>false,'message'=>'This cart has already been processed.');
             }
             $this->db->query("UPDATE " . $this->table() . " SET status='sending', attempts=attempts+1,origin='manual',date_added=NOW(),error_code='' WHERE cart_key='" . $key . "' AND status='failed' AND attempts<3");
@@ -133,6 +174,12 @@ final class AbandonedCartReminder {
             $store = (string)$setting('config_name', 'Store');
             $name = trim((string)$cart['firstname']);
             $link = rtrim($base, '/') . '/index.php?route=account/login';
+            if ($customerId === 0) {
+                $token = (new GuestCartContact($this->registry))->issueToken($sessionId);
+                if ($token === '') { throw new \RuntimeException('Guest cart recovery token not available.'); }
+                // URL stays on the originating storefront and contains a single-use random token.
+                $link = rtrim($base, '/') . '/index.php?route=extension/module/codecart_cart_recover&token=' . $token;
+            }
             $locale = strtolower(str_replace('_', '-', (string)$setting('config_language','en-gb')));
             if (strpos($locale,'uk') === 0) {
                 $subject = 'Незавершена покупка — ' . $store;
@@ -178,6 +225,10 @@ final class AbandonedCartReminder {
         $idle = $this->idle();
         $days = max(1,min(7,(int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $results = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id WHERE c.api_id=0 AND c.customer_id>0 AND cu.newsletter=1 AND cu.email<>'' AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 4));
+        if ($this->config->get('codecart_abandoned_cart_guest_capture')) {
+            $guest = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.store_id='" . (int)$this->config->get('config_store_id') . "' AND gc.consent=1 AND gc.recovered_at IS NULL WHERE c.api_id=0 AND c.customer_id=0 AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 2));
+            $results->rows = array_merge($results->rows, $guest->rows);
+        }
         $sent = 0; $failed=0; $skipped=0;
         foreach ($results->rows as $row) {
             if ($sent+$failed >= $limit) { break; }

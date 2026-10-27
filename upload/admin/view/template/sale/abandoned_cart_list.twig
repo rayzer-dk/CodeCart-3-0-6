@@ -1,23 +1,117 @@
 {{ header }}{{ column_left }}
-<div id="content">
+<div id="content" class="ccp-carts-page">
   <div class="page-header"><div class="container-fluid">
-    <div class="pull-right">
-      {% if cart_enabled and cart_source == 'standard' and cart_can_modify %}<details class="ccp-clear-menu"><summary class="btn btn-default btn-sm"><i class="fa fa-ellipsis-h"></i> {{ column_action }}</summary><form action="{{ clear_url }}" method="post" class="ccp-abandoned-clear-form" onsubmit="return confirm('{{ text_confirm_clear|e('js') }}');"><button type="submit" class="btn btn-danger btn-sm" title="{{ button_clear }}"><i class="fa fa-trash"></i> {{ button_clear }}</button></form></details>{% endif %}
-    </div>
-    <h1>{{ heading_title }}</h1><ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul>
+    <h1>{{ heading_title }}</h1>
+    <ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul>
   </div></div>
   <div class="container-fluid">
     {% if error_warning %}<div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
     {% if success %}<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
-    <div class="ccp-abandoned-summary alert alert-info"><i class="fa fa-info-circle"></i> {{ text_quick_guide }}</div>
-    <div class="row ccp-abandoned-overview">
-      <div class="col-sm-6"><div class="ccp-stat"><i class="fa fa-shopping-basket"></i><span>{{ text_cart_count }}</span><strong>{{ cart_total }}</strong></div></div>
-      <div class="col-sm-6"><div class="ccp-stat"><i class="fa fa-envelope"></i><span>{{ text_email_count }}</span><strong>{{ mail_eligible_count }}</strong></div></div>
+    <div class="ccp-cart-kpis">
+      <div class="ccp-cart-kpi"><i class="fa fa-shopping-basket"></i><span>{{ text_cart_count }}</span><strong>{{ cart_global_total }}</strong></div>
+      <div class="ccp-cart-kpi"><i class="fa fa-envelope-o"></i><span>{{ text_email_count }}</span><strong>{{ mail_eligible_count }}</strong></div>
+      <div class="ccp-cart-kpi"><i class="fa fa-paper-plane-o"></i><span>{{ text_summary_sent }}</span><strong>{{ mail_summary.sent }}</strong></div>
+      <div class="ccp-cart-kpi"><i class="fa fa-undo"></i><span>{{ text_restored_count }}</span><strong>{{ restored_count }}</strong></div>
     </div>
-    <div class="panel panel-default ccp-abandoned-settings">
-      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-sliders"></i> {{ text_settings }}</h3></div>
-      <div class="panel-body">
-        <form method="post" action="{{ settings_url }}" class="form-horizontal">
+    <div class="ccp-cart-brief">
+      <span><i class="fa fa-calendar"></i> {{ text_date_range_notice }}</span>{% if cart_enabled and cart_source == 'standard' %}<span title="{{ text_summary_value_note }}"><i class="fa fa-money"></i> {{ text_summary_value }}: <strong>{{ cart_estimated_total }}</strong></span>{% endif %}
+      {% if cart_enabled and cart_source == 'standard' %}
+        <span class="ccp-cart-cron {{ mail_cron_state == 'ok' ? 'is-ok' : (mail_cron_state == 'error' ? 'is-error' : 'is-muted') }}">
+          <i class="fa fa-clock-o"></i>
+          {% if mail_cron_state == 'ok' %}{{ text_mail_cron_ok }}{% elseif mail_cron_state == 'off' %}{{ text_mail_cron_off }}{% elseif mail_cron_state == 'error' %}{{ text_mail_cron_error }}{% elseif mail_cron_state == 'idle' %}{{ text_mail_cron_idle }}{% else %}{{ text_mail_cron_missing }}{% endif %}
+          <a href="{{ scheduler_url }}" title="{{ text_mail_cron_details }}"><i class="fa fa-external-link"></i></a>
+        </span>
+      {% endif %}
+      <span title="{{ text_restored_note }}"><i class="fa fa-info-circle"></i> {{ text_restored_note }}</span>
+    </div>
+    <ul class="nav nav-tabs ccp-cart-tabs" role="tablist">
+      <li class="active"><a href="#ccp-tab-carts" data-toggle="tab"><i class="fa fa-shopping-basket"></i> {{ text_carts_tab }}</a></li>
+      <li><a href="#ccp-tab-history" data-toggle="tab"><i class="fa fa-envelope-o"></i> {{ text_history_tab }} {% if mail_summary.failed %}<span class="label label-danger">{{ mail_summary.failed }}</span>{% endif %}</a></li>
+      <li><a href="#ccp-tab-settings" data-toggle="tab"><i class="fa fa-sliders"></i> {{ text_settings_tab }}</a></li>
+    </ul>
+    <div class="tab-content ccp-cart-content">
+      <div class="tab-pane active" id="ccp-tab-carts">
+        {% if not cart_enabled %}<div class="alert alert-warning">{{ text_disabled_note }}</div>{% else %}
+        <form class="ccp-cart-filter" method="get" action="index.php">
+          <input type="hidden" name="route" value="sale/abandoned_cart"><input type="hidden" name="user_token" value="{{ user_token }}">
+          {% if cart_source == 'standard' %}<div class="ccp-cart-filter-main"><label for="ccp-cart-search">{{ text_search }}</label><input type="text" name="filter_search" id="ccp-cart-search" class="form-control" value="{{ filter_search|e('html_attr') }}" maxlength="80" placeholder="{{ text_search_placeholder }}" /></div>
+          <div><label for="ccp-filter-contact">{{ text_filter_contact }}</label><select name="filter_contact" id="ccp-filter-contact" class="form-control">
+            <option value="" {{ not filter_contact ? 'selected' : '' }}>{{ text_filter_all }}</option>
+            <option value="yes" {{ filter_contact == 'yes' ? 'selected' : '' }}>{{ text_filter_reachable }}</option>
+            <option value="no" {{ filter_contact == 'no' ? 'selected' : '' }}>{{ text_filter_unreachable }}</option>
+            <option value="guest" {{ filter_contact == 'guest' ? 'selected' : '' }}>{{ text_filter_guest }}</option>
+          </select></div>
+          {% endif %}<div><label for="ccp-cart-limit">{{ text_on_page }}</label><select class="form-control" id="ccp-cart-limit" name="limit">{% for value in [10,25,50,100] %}<option value="{{ value }}" {{ value == limit ? 'selected' : '' }}>{{ value }}</option>{% endfor %}</select></div>
+          <input type="hidden" name="sort" value="{{ sort }}"><input type="hidden" name="order" value="{{ order }}">
+          <div class="ccp-cart-filter-actions"><button class="btn btn-primary" type="submit" title="{{ text_search_button }}"><i class="fa fa-search"></i> {{ text_search_button }}</button><a href="{{ filter_url }}" class="btn btn-default" title="{{ text_reset_filter }}"><i class="fa fa-refresh"></i></a></div>
+        </form>
+        {% if cart_source == 'external' %}<div class="alert alert-info">{{ text_cart_amount_estimate }} {{ text_external_readonly }}</div>{% endif %}
+        {% if cart_can_modify and cart_source == 'standard' %}<form method="post" id="ccp-cart-bulk-form" action="{{ bulk_url }}" class="ccp-cart-bulk" data-confirm-send="{{ text_bulk_confirm_send }}" data-confirm-delete="{{ text_bulk_confirm_delete }}">
+          <label for="ccp-bulk-action">{{ text_selected_count }} <strong id="ccp-cart-selected-count">0</strong></label>
+          <select name="bulk_action" id="ccp-bulk-action" class="form-control input-sm" aria-label="{{ column_action }}"><option value="">{{ column_action }}</option><option value="send">{{ text_bulk_send }}</option><option value="delete">{{ text_bulk_delete }}</option></select>
+          <button type="submit" class="btn btn-default btn-sm" id="ccp-cart-bulk-submit" disabled><i class="fa fa-check"></i> {{ text_apply }}</button>
+          <small class="text-muted">{{ text_send_only_optin }}</small>
+        </form>{% endif %}
+        <div class="table-responsive"><table class="table table-hover table-bordered ccp-abandoned-cart-table">
+          <thead><tr>
+            {% if cart_can_modify and cart_source == 'standard' %}<th class="ccp-cart-check"><input type="checkbox" id="ccp-cart-select-all" aria-label="{{ text_choose_rows }}"></th>{% endif %}
+            <th><a href="{{ sort_customer }}" class="{{ sort == 'customer' ? order|lower : '' }}">{{ column_customer }}</a></th>
+            <th><a href="{{ sort_email }}" class="{{ sort == 'email' ? order|lower : '' }}">{{ column_email }}</a></th>
+            <th>{{ column_products }}</th>
+            <th class="text-right"><a href="{{ sort_quantity }}" class="{{ sort == 'quantity' ? order|lower : '' }}">{{ column_quantity }}</a></th>
+            <th class="text-right">{{ column_total }}</th>
+            <th><a href="{{ sort_last_activity }}" class="{{ sort == 'last_activity' ? order|lower : '' }}">{{ column_last_activity }}</a></th>
+            <th>{{ text_history_status }}</th>
+            <th class="text-right ccp-cart-actions-heading">{{ column_action }}</th>
+          </tr></thead>
+          <tbody>{% if carts %}{% for cart in carts %}<tr>
+            {% if cart_can_modify and cart_source == 'standard' %}<td class="ccp-cart-check"><input type="checkbox" form="ccp-cart-bulk-form" name="selected[]" class="ccp-cart-select" value="{{ cart.customer_id }}|{{ cart.session_id|e('html_attr') }}" aria-label="{{ text_choose_rows }}"></td>{% endif %}
+            <td><strong>{% if cart.customer_href %}<a href="{{ cart.customer_href }}">{{ cart.customer|e }}</a>{% else %}{{ cart.customer|e }}{% endif %}</strong><small class="ccp-cart-muted">{{ cart.telephone ? cart.telephone : text_guest_no_email }}</small></td>
+            <td>{% if cart.email %}<span title="{{ cart.email|e('html_attr') }}">{{ cart.email|e }}</span>{% else %}<span class="label label-default">{{ text_no_email }}</span>{% endif %}</td>
+            <td>{% for product in cart.products %}<div class="ccp-abandoned-product"><a href="{{ product.href }}" title="{{ product.name|e('html_attr') }}">{{ product.name|e }}</a><span>× {{ product.quantity }}</span></div>{% endfor %}</td>
+            <td class="text-right">{{ cart.quantity }}</td><td class="text-right"><strong>{{ cart.total }}</strong></td>
+            <td>{{ cart.last_activity|e }}<small class="ccp-cart-muted">{{ cart.inactive|e }}</small></td>
+            <td>
+              {% if cart.recovered %}<span class="label label-info">{{ text_guest_cart_restored }}</span>
+              {% elseif cart.cart_key and mail_last_status[cart.cart_key] is defined %}
+                {% set mail_state = mail_last_status[cart.cart_key] %}<span class="label label-{{ mail_state.status == 'sent' ? 'success' : (mail_state.status == 'failed' ? 'danger' : 'warning') }}" title="{{ mail_state.date_added }}">
+                  {% if mail_state.status == 'sent' %}{{ text_mail_status_sent }}{% elseif mail_state.status == 'failed' %}{{ text_mail_status_failed }}{% else %}{{ text_mail_status_sending }}{% endif %}
+                </span>
+              {% elseif cart.mail_eligible %}<span class="label label-default">{{ text_mail_status_ready }}</span>
+              {% else %}<span class="label label-default" title="{{ text_mail_optin_required }}">{{ text_mail_status_none }}</span>{% endif %}
+            </td>
+            <td class="text-right ccp-cart-row-actions">
+              {% if cart.mail_eligible and cart_can_modify and cart_source == 'standard' %}
+                {% if (not cart.cart_key or mail_last_status[cart.cart_key] is not defined) or (mail_last_status[cart.cart_key].retry_allowed is defined and mail_last_status[cart.cart_key].retry_allowed) %}
+                <form method="post" action="{{ send_url }}" class="ccp-cart-inline" data-confirm="{{ text_send_confirm }}"><input type="hidden" name="confirm_send" value="1"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id|e('html_attr') }}"><button type="submit" class="btn btn-success btn-sm" title="{{ button_send_now }}" data-toggle="tooltip"><i class="fa fa-envelope"></i></button></form>
+                {% endif %}
+              {% endif %}
+              {% if cart_source == 'standard' and cart_can_modify %}<form method="post" action="{{ delete_url }}" class="ccp-cart-inline" data-confirm="{{ text_confirm_delete }}"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id|e('html_attr') }}"><button type="submit" class="btn btn-danger btn-sm" title="{{ button_delete }}" data-toggle="tooltip"><i class="fa fa-trash"></i></button></form>{% endif %}
+            </td>
+          </tr>{% endfor %}{% else %}<tr><td colspan="{{ cart_can_modify and cart_source == 'standard' ? 9 : 8 }}" class="text-center ccp-cart-empty">{{ text_no_results }}</td></tr>{% endif %}</tbody>
+        </table></div>
+        <div class="row ccp-cart-pagination"><div class="col-sm-6">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
+        {% endif %}
+      </div>
+      <div class="tab-pane" id="ccp-tab-history">
+        <p class="ccp-cart-help">{{ text_recent_history }} {{ text_history_mail_note }}</p>
+        <form method="get" action="index.php" class="ccp-cart-filter ccp-cart-history-filter">
+          <input type="hidden" name="route" value="sale/abandoned_cart"><input type="hidden" name="user_token" value="{{ user_token }}">
+          <div class="ccp-cart-filter-main"><label for="ccp-history-search">{{ text_history_email }}</label><input type="text" name="history_search" id="ccp-history-search" value="{{ history_search|e('html_attr') }}" class="form-control" maxlength="80"></div>
+          <div><label for="ccp-history-status">{{ text_history_status }}</label><select name="history_status" id="ccp-history-status" class="form-control"><option value="">{{ text_filter_all }}</option><option value="sent" {{ history_status == 'sent' ? 'selected' : '' }}>{{ text_mail_status_sent }}</option><option value="failed" {{ history_status == 'failed' ? 'selected' : '' }}>{{ text_mail_status_failed }}</option><option value="sending" {{ history_status == 'sending' ? 'selected' : '' }}>{{ text_mail_status_sending }}</option></select></div>
+          <div class="ccp-cart-filter-actions"><button class="btn btn-primary" type="submit"><i class="fa fa-search"></i> {{ text_search_button }}</button></div>
+        </form>
+        <div class="table-responsive"><table class="table table-bordered table-hover ccp-cart-history-table"><thead><tr><th>{{ text_history_date }}</th><th>{{ text_history_email }}</th><th>{{ text_history_origin }}</th><th>{{ text_history_status }}</th><th class="text-right">{{ text_history_attempts }}</th><th>{{ text_history_error }}</th></tr></thead><tbody>
+          {% if mail_records %}{% for item in mail_records %}<tr><td>{{ item.date_added|e }}</td><td>{{ item.email|e }}</td><td>{{ item.origin == 'auto' ? text_history_auto : text_history_manual }}</td>
+          <td><span class="label label-{{ item.status == 'sent' ? 'success' : (item.status == 'failed' ? 'danger' : 'default') }}">{% if item.status == 'sent' %}{{ text_mail_status_sent }}{% elseif item.status == 'failed' %}{{ text_mail_status_failed }}{% else %}{{ text_mail_status_sending }}{% endif %}</span></td><td class="text-right">{{ item.attempts }}</td><td>{{ item.error_code ? item.error_code : '—' }}</td></tr>{% endfor %}
+          {% else %}<tr><td colspan="6" class="text-center ccp-cart-empty">{{ text_history_empty }}</td></tr>{% endif %}
+        </tbody></table></div>
+        <div class="row ccp-cart-pagination"><div class="col-sm-6">{{ history_pagination }}</div><div class="col-sm-6 text-right">{{ history_results }}</div></div>
+        <p class="ccp-cart-help">{{ text_summary_failed }}: {{ mail_summary.failed }}. {{ text_mail_disclaimer }}</p>
+      </div>
+      <div class="tab-pane" id="ccp-tab-settings">
+        <div class="ccp-cart-settings-head"><h3><i class="fa fa-cog"></i> {{ text_settings }}</h3><p>{{ text_settings_summary }}</p></div>
+        <form method="post" action="{{ settings_url }}" class="ccp-cart-settings-form">
           <input type="hidden" name="save_cart_settings" value="1">
           <div class="row">
             <div class="col-md-3"><label for="abandoned-status">{{ entry_cart_status }}</label>
@@ -33,7 +127,7 @@
             <div class="col-md-3"><label for="abandoned-idle">{{ entry_cart_idle_minutes }}</label>
               <input type="number" name="cart_idle_minutes" id="abandoned-idle" class="form-control" min="5" max="10080" value="{{ cart_fields.idle_minutes }}"></div>
             <div class="col-md-3"><label for="abandoned-days">{{ entry_cart_days }}</label>
-              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="30" value="{{ cart_fields.days }}"></div>
+              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="7" value="{{ cart_fields.days }}"></div>
           </div>
           <p class="help-block">{{ text_cart_source_help }}</p>
           <div class="ccp-mail-control"><label for="abandoned-mail-auto"><i class="fa fa-envelope-o"></i> {{ entry_mail_auto }}</label>
@@ -41,6 +135,11 @@
               <option value="0" {{ not cart_fields.mail_auto ? 'selected' : '' }}>{{ text_disabled }}</option>
               <option value="1" {{ cart_fields.mail_auto ? 'selected' : '' }}>{{ text_enabled }}</option>
             </select><p class="help-block">{{ text_mail_auto_help }}</p></div>
+          <div class="ccp-mail-control"><label for="abandoned-guest-capture"><i class="fa fa-user-plus"></i> {{ text_guest_capture_label }}</label>
+            <select id="abandoned-guest-capture" name="cart_guest_capture" class="form-control">
+              <option value="0" {{ not cart_fields.guest_capture ? 'selected' : '' }}>{{ text_disabled }}</option>
+              <option value="1" {{ cart_fields.guest_capture ? 'selected' : '' }}>{{ text_enabled }}</option>
+            </select><p class="help-block">{{ text_guest_capture_help }}</p></div>
           <div class="ccp-external-fields">
             <div class="alert alert-info">{{ text_cart_mapping_info }}</div>
             <div class="row">
@@ -60,76 +159,17 @@
               <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ error_cart_mapping }}</div>
             {% endif %}
           </div>
-          {% if cart_can_modify %}<div class="text-right ccp-abandoned-settings-actions">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button>
-          </div>{% endif %}
+
+          {% if cart_can_modify %}<div class="text-right ccp-cart-settings-actions"><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div>{% endif %}
         </form>
+        {% if cart_enabled and cart_source == 'standard' and cart_can_modify %}
+        <details class="ccp-cart-danger-zone"><summary><i class="fa fa-exclamation-triangle"></i> {{ text_clear_danger }}</summary>
+          <p>{{ text_confirm_clear }}</p>
+          <form method="post" action="{{ clear_url }}" data-confirm="{{ text_confirm_clear }}"><button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> {{ button_clear }}</button></form>
+        </details>{% endif %}
+        <p class="ccp-cart-help">{{ text_scope_help }} {{ text_cart_storefront_note }}</p>
       </div>
     </div>
-    {% if not cart_enabled %}<div class="alert alert-default ccp-abandoned-off">{{ text_disabled_note }}</div>{% else %}
-    <div class="ccp-abandoned-scope help-block"><i class="fa fa-info-circle"></i> {{ text_scope_help }}
-      {% if cart_source == 'external' %} {{ text_cart_amount_estimate }}{% endif %}
-      {{ text_cart_storefront_note }}
-    </div>
-    <p class="ccp-cart-mail-disclaimer"><i class="fa fa-shield"></i> {{ text_mail_disclaimer }}</p>
-
-    <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"><i class="fa fa-shopping-basket"></i> {{ heading_title }}</h3></div><div class="panel-body">
-      <form method="get" action="index.php" class="ccp-cart-list-tools"><input type="hidden" name="route" value="sale/abandoned_cart"><input type="hidden" name="user_token" value="{{ user_token }}"><label for="ccp-cart-limit">{{ text_on_page }}</label><select class="form-control input-sm" id="ccp-cart-limit" name="limit" onchange="this.form.submit()">{% for value in [10,25,50,100] %}<option value="{{ value }}" {{ value == limit ? 'selected' : '' }}>{{ value }}</option>{% endfor %}</select></form>
-      <div class="table-responsive"><table class="table table-bordered table-hover ccp-abandoned-cart-table"><thead><tr>
-        <td><a href="{{ sort_customer }}"{% if sort == 'customer' %} class="{{ order|lower }}"{% endif %}>{{ column_customer }}</a></td>
-        <td><a href="{{ sort_email }}"{% if sort == 'email' %} class="{{ order|lower }}"{% endif %}>{{ column_email }}</a></td>
-        <td><a href="{{ sort_telephone }}"{% if sort == 'telephone' %} class="{{ order|lower }}"{% endif %}>{{ column_phone }}</a></td>
-        <td>{{ column_products }}</td>
-        <td class="text-right"><a href="{{ sort_quantity }}"{% if sort == 'quantity' %} class="{{ order|lower }}"{% endif %}>{{ column_quantity }}</a></td>
-        <td class="text-right">{{ column_total }}</td>
-        <td><a href="{{ sort_last_activity }}"{% if sort == 'last_activity' %} class="{{ order|lower }}"{% endif %}>{{ column_last_activity }}</a></td>
-        <td><a href="{{ sort_inactive }}"{% if sort == 'inactive' %} class="{{ order|lower }}"{% endif %}>{{ column_inactive }}</a></td>
-        <td class="text-right">{{ column_action }}</td>
-      </tr></thead><tbody>
-      {% if carts %}{% for cart in carts %}<tr>
-        <td>{{ cart.customer }}</td><td>{{ cart.email ? cart.email : '—' }}</td><td>{{ cart.telephone ? cart.telephone : '—' }}</td>
-        <td>{% for product in cart.products %}<div class="ccp-abandoned-product"><a href="{{ product.href }}" title="{{ button_product }}">{{ product.name }}</a> × {{ product.quantity }}</div>{% endfor %}</td>
-        <td class="text-right">{{ cart.quantity }}</td><td class="text-right"><strong>{{ cart.total }}</strong></td><td>{{ cart.last_activity }}</td><td>{{ cart.inactive }}</td>
-        <td class="text-right ccp-abandoned-actions">
-          {% if cart.cart_key and mail_last_status[cart.cart_key] is defined %}
-            <span class="ccp-mail-state label label-{{ mail_last_status[cart.cart_key].status == 'sent' ? 'success' : (mail_last_status[cart.cart_key].status == 'failed' ? 'danger' : 'warning') }}" title="{{ mail_last_status[cart.cart_key].date_sent }}">{{ text_mail_history }}: {{ mail_last_status[cart.cart_key].status }}</span>
-            {% if mail_last_status[cart.cart_key].retry_allowed and cart.mail_eligible and cart_can_modify %}
-            <form action="{{ send_url }}" method="post" class="ccp-abandoned-send-form" onsubmit="return confirm('{{ text_send_confirm|e('js') }}');"><input type="hidden" name="confirm_send" value="1"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-warning" title="{{ text_retry_failed }}" data-toggle="tooltip"><i class="fa fa-repeat"></i></button></form>{% endif %}
-          {% elseif cart.mail_eligible and cart_can_modify %}
-            <form action="{{ send_url }}" method="post" class="ccp-abandoned-send-form" onsubmit="return confirm('{{ text_send_confirm|e('js') }}');">
-              <input type="hidden" name="confirm_send" value="1"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-success" title="{{ button_send_now }}" data-toggle="tooltip"><i class="fa fa-envelope"></i></button>
-            </form>
-          {% else %}<span class="ccp-mail-unavailable" title="{{ text_mail_optin_required }}"><i class="fa fa-envelope-o"></i></span>{% endif %}
-          {% if cart.customer_href %}<a href="{{ cart.customer_href }}" class="btn btn-primary" data-toggle="tooltip" title="{{ button_customer }}"><i class="fa fa-user"></i></a>{% endif %}
-          {% if cart_source == 'standard' and cart_can_modify %}<form action="{{ delete_url }}" method="post" class="ccp-abandoned-delete-form" onsubmit="return confirm('{{ text_confirm_delete|e('js') }}');"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id }}"><button type="submit" class="btn btn-danger" data-toggle="tooltip" title="{{ button_delete }}"><i class="fa fa-trash"></i></button></form>{% endif %}
-        </td>
-      </tr>{% endfor %}{% else %}<tr><td colspan="9" class="text-center">{{ text_no_results }}</td></tr>{% endif %}
-      </tbody></table></div><div class="row"><div class="col-sm-6 text-left">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
-    </div></div>{% endif %}
   </div>
 </div>
-<style>
-.ccp-abandoned-cart-table{border-top:3px solid #0057d9}.ccp-abandoned-cart-table thead td{font-weight:600;vertical-align:middle}.ccp-abandoned-cart-table thead td+td{border-left-color:#d5dbe3}.ccp-abandoned-cart-table thead a{position:relative;padding-right:14px;color:#1f3a57}.ccp-abandoned-cart-table thead a.asc:after,.ccp-abandoned-cart-table thead a.desc:after{position:absolute;right:0;font-family:FontAwesome;font-size:10px}.ccp-abandoned-cart-table thead a.asc:after{content:"\f0d8"}.ccp-abandoned-cart-table thead a.desc:after{content:"\f0d7"}.ccp-abandoned-cart-table td{vertical-align:middle}.ccp-abandoned-product+.ccp-abandoned-product{margin-top:3px}.ccp-abandoned-product a{max-width:420px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}.ccp-abandoned-actions{white-space:nowrap}.ccp-abandoned-delete-form,.ccp-abandoned-send-form{display:inline-block;margin-left:4px}.ccp-mail-state{display:inline-block;font-size:10px;white-space:normal;max-width:140px}.ccp-mail-unavailable{color:#8496a8;margin-right:8px}.ccp-abandoned-clear-form{margin:0}
-
-.ccp-abandoned-settings { margin-bottom:12px; }
-.ccp-clear-menu{display:inline-block;position:relative}.ccp-clear-menu summary{list-style:none;cursor:pointer}.ccp-clear-menu summary::-webkit-details-marker{display:none}.ccp-clear-menu form{position:absolute;right:0;top:37px;z-index:3;background:#fff;border:1px solid #d9e1ea;border-radius:4px;box-shadow:0 3px 12px #0002;padding:8px}.ccp-cart-list-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:0 0 10px}.ccp-cart-list-tools select{width:85px}
-.ccp-abandoned-overview{margin:0 -8px 9px}.ccp-abandoned-overview>div{padding:0 8px}.ccp-stat{display:flex;align-items:center;gap:12px;border:1px solid #dce8f4;border-radius:5px;background:#fff;padding:12px 14px;margin-bottom:8px}.ccp-stat i{font-size:21px;color:#1471d5}.ccp-stat span{flex:1}.ccp-stat strong{font-size:21px;color:#213b58}.ccp-cart-mail-disclaimer{color:#576b7e;font-size:12px;margin:6px 0 14px}.ccp-mail-control{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8fbff;border:1px solid #dbe8f4;border-radius:5px;margin:7px 0}.ccp-mail-control label{margin:0;min-width:230px}.ccp-mail-control select{max-width:200px}.ccp-mail-control .help-block{margin:0!important;flex:1} @media(max-width:700px){.ccp-mail-control{display:block}.ccp-mail-control select{margin:8px 0}}
-.ccp-abandoned-summary{margin-bottom:12px}.ccp-abandoned-scope{margin:0 0 12px}.ccp-abandoned-actions .btn{margin-left:3px}.ccp-abandoned-cart-table td:last-child{width:132px}
-.ccp-abandoned-settings .panel-body { padding:12px 15px; }
-.ccp-abandoned-settings .row > div { margin-bottom:9px; }
-.ccp-abandoned-settings label { font-weight:600; font-size:12px; margin-bottom:4px; }
-.ccp-abandoned-settings .help-block { margin:5px 0 10px; }
-.ccp-abandoned-settings .ccp-external-fields { display:none; margin:8px 0; padding:12px; background:#f8fbff; border:1px solid #dbe8f4; border-radius:5px; }
-.ccp-abandoned-settings .ccp-external-fields.is-visible { display:block; }
-.ccp-abandoned-settings-actions { padding-top:5px; }
-.ccp-abandoned-cart-table { table-layout:fixed; min-width:850px; }
-.ccp-abandoned-cart-table td { overflow:hidden; text-overflow:ellipsis; }
-</style>
-<script>
-(function($) {
-  var $select=$('#abandoned-source');
-  function update() { $('.ccp-external-fields').toggleClass('is-visible',$select.val()==='external'); }
-  $select.on('change',update); update();
-})(jQuery);
-</script>
 {{ footer }}

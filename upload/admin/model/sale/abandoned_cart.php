@@ -101,32 +101,67 @@ class ModelSaleAbandonedCart extends Model {
         return $column . ' ' . $direction;
     }
 
-    public function getAbandonedCarts($start = 0, $limit = 20, $sort = 'last_activity', $order = 'DESC') {
+    private function standardGroupedSql(array $filters = array()): string {
+        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        $guest = (bool)$this->config->get('codecart_abandoned_cart_guest_capture');
+        $guestJoin = $guest ? " LEFT JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON (gc.session_id=c.session_id AND c.customer_id=0 AND gc.store_id='" . (int)$this->config->get('config_store_id') . "' AND gc.consent=1 AND gc.date_modified>=DATE_SUB(NOW(), INTERVAL 7 DAY)) " : '';
+        $name = "MAX(CASE WHEN cu.customer_id IS NULL THEN " . ($guest ? "COALESCE(gc.firstname,'')" : "''") . " ELSE CONCAT(cu.firstname,' ',cu.lastname) END)";
+        $email = $guest ? "MAX(COALESCE(cu.email,gc.email,''))" : "MAX(COALESCE(cu.email,''))";
+        $phone = $guest ? "MAX(COALESCE(cu.telephone,gc.telephone,''))" : "MAX(COALESCE(cu.telephone,''))";
+        $optin = $guest ? "MAX(CASE WHEN c.customer_id=0 THEN COALESCE(gc.consent,0) ELSE COALESCE(cu.newsletter,0) END)" : "MAX(COALESCE(cu.newsletter,0))";
+        $verified = $guest ? "MAX(CASE WHEN c.customer_id=0 AND gc.recovered_at IS NOT NULL THEN 1 ELSE 0 END)" : '0';
+        $sql = "SELECT c.customer_id,c.session_id,COUNT(*) AS line_count,SUM(c.quantity) AS quantity,MAX(c.cart_id) AS max_cart_id,MAX(c.date_added) AS last_activity, " .
+            $name . " AS customer," . $email . " AS email," . $phone . " AS telephone," . $optin . " AS newsletter," . $verified . " AS recovered, " .
+            " TIMESTAMPDIFF(MINUTE, MAX(c.date_added), NOW()) AS idle_minutes " .
+            " FROM `" . DB_PREFIX . "cart` c LEFT JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id AND c.customer_id>0 " . $guestJoin .
+            " WHERE c.api_id=0 AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)";
+        $sql .= " GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE)";
+        if (!empty($filters['search'])) {
+            $search = $this->db->escape((string)$filters['search']);
+            $sql .= " AND (MAX(cu.firstname) LIKE '%" . $search . "%' OR MAX(cu.lastname) LIKE '%" . $search . "%' OR MAX(cu.email) LIKE '%" . $search . "%' OR MAX(cu.telephone) LIKE '%" . $search . "%'" .
+                ($guest ? " OR MAX(gc.email) LIKE '%" . $search . "%' OR MAX(gc.firstname) LIKE '%" . $search . "%' OR MAX(gc.telephone) LIKE '%" . $search . "%'" : '') .
+                " OR EXISTS (SELECT 1 FROM `" . DB_PREFIX . "cart` search_cart JOIN `" . DB_PREFIX . "product_description` pd ON pd.product_id=search_cart.product_id AND pd.language_id='" . (int)$this->config->get('config_language_id') . "' WHERE search_cart.customer_id=c.customer_id AND search_cart.session_id=c.session_id AND search_cart.api_id=0 AND pd.name LIKE '%" . $search . "%'))";
+        }
+        if (($filters['contact'] ?? '') === 'yes') { $sql .= " AND " . $optin . "=1 AND " . $email . "<>''"; }
+        if (($filters['contact'] ?? '') === 'no') { $sql .= " AND (" . $optin . "<>1 OR " . $email . "='')"; }
+        if (($filters['contact'] ?? '') === 'guest') { $sql .= " AND c.customer_id=0"; }
+        return $sql;
+    }
+
+    public function getAbandonedCarts($start = 0, $limit = 20, $sort = 'last_activity', $order = 'DESC', array $filters = array()) {
         $start = max(0, (int)$start);
         $limit = max(1, min(100, (int)$limit));
-
         if ((string)$this->config->get('codecart_abandoned_cart_source') === 'external') {
             $sql = $this->externalQuery();
             return $sql ? $this->db->query($sql . ' ORDER BY ' . $this->sortSql($sort, $order)
                 . ' LIMIT ' . $start . ',' . $limit)->rows : array();
         }
-        $sql = "SELECT c.customer_id, c.session_id, COUNT(*) AS line_count, SUM(c.quantity) AS quantity, MAX(c.cart_id) AS max_cart_id, MAX(c.date_added) AS last_activity, " .
-               "MAX(CASE WHEN cu.customer_id IS NULL THEN '' ELSE CONCAT(cu.firstname, ' ', cu.lastname) END) AS customer, " .
-               "MAX(COALESCE(cu.email,'')) AS email, MAX(COALESCE(cu.telephone,'')) AS telephone, MAX(COALESCE(cu.newsletter,0)) AS newsletter, TIMESTAMPDIFF(MINUTE, MAX(c.date_added), NOW()) AS idle_minutes " .
-               "FROM `" . DB_PREFIX . "cart` c LEFT JOIN `" . DB_PREFIX . "customer` cu ON (cu.customer_id=c.customer_id AND c.customer_id>0) " .
-               "WHERE c.api_id = '0' AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) " .
-               "GROUP BY c.customer_id, c.session_id HAVING MAX(c.date_added) < DATE_SUB(NOW(), INTERVAL " . max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE) ORDER BY " . $this->sortSql((string)$sort, (string)$order) . " LIMIT " . $start . "," . $limit;
-
-        return $this->db->query($sql)->rows;
+        return $this->db->query($this->standardGroupedSql($filters) . ' ORDER BY ' . $this->sortSql((string)$sort, (string)$order) . ' LIMIT ' . $start . ',' . $limit)->rows;
     }
 
-    public function getTotalAbandonedCarts() {
+    public function getTotalAbandonedCarts(array $filters = array()) {
         if ((string)$this->config->get('codecart_abandoned_cart_source') === 'external') {
             $sql = $this->externalQuery(true);
             return $sql ? (int)$this->db->query($sql)->row['total'] : 0;
         }
-        $query = $this->db->query("SELECT COUNT(*) AS total FROM (SELECT c.customer_id, c.session_id FROM `" . DB_PREFIX . "cart` c WHERE c.api_id = '0' AND c.date_added >= DATE_SUB(NOW(), INTERVAL " . max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY) GROUP BY c.customer_id, c.session_id HAVING MAX(c.date_added) < DATE_SUB(NOW(), INTERVAL " . max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60)) . " MINUTE)) x");
-        return (int)($query->row['total'] ?? 0);
+        $q = $this->db->query('SELECT COUNT(*) AS total FROM (' . $this->standardGroupedSql($filters) . ') grouped');
+        return (int)($q->row['total'] ?? 0);
+    }
+
+    public function getEstimatedCartValue(): float {
+        // Current base product prices, without option, tax and historical discounts.
+        // The seven-day limit and grouping prevent counting old lines of active carts.
+        if ((string)$this->config->get('codecart_abandoned_cart_source') === 'external') { return 0.0; }
+        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        $sql = "SELECT SUM(c.quantity*COALESCE(p.price,0)) AS total FROM `" . DB_PREFIX . "cart` c INNER JOIN (SELECT customer_id,session_id FROM `" . DB_PREFIX . "cart` WHERE api_id=0 AND date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY customer_id,session_id HAVING MAX(date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE)) cart_scope ON cart_scope.customer_id=c.customer_id AND cart_scope.session_id=c.session_id LEFT JOIN `" . DB_PREFIX . "product` p ON p.product_id=c.product_id WHERE c.api_id=0 AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)";
+        return (float)($this->db->query($sql)->row['total'] ?? 0);
+    }
+
+    public function getCartContactSummary(): array {
+        $result = $this->db->query("SELECT COUNT(*) AS total,SUM(CASE WHEN newsletter=1 AND email<>'' THEN 1 ELSE 0 END) AS reachable FROM (" . $this->standardGroupedSql() . ') all_carts');
+        return array('total'=>(int)($result->row['total'] ?? 0), 'reachable'=>(int)($result->row['reachable'] ?? 0));
     }
 
     public function deleteAbandonedCart($customer_id, $session_id) {
@@ -135,13 +170,15 @@ class ModelSaleAbandonedCart extends Model {
         if ($session_id === '') { return; }
         $table = chr(96) . DB_PREFIX . 'cart' . chr(96);
         $where = "api_id='0' AND customer_id='" . $customer_id . "' AND session_id='" . $this->db->escape($session_id) . "'";
-        $row = $this->db->query('SELECT MAX(date_added) AS last_activity FROM ' . $table . ' WHERE ' . $where)->row;
-        $last = isset($row['last_activity']) ? strtotime((string)$row['last_activity']) : 0;
         $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
         $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
-        if (!$last || $last >= time() - $idle * 60 || $last < time() - $days * 86400) { return; }
-        // Delete a complete inactive cart, not just an old line of an active cart.
-        $this->db->query('DELETE FROM ' . $table . ' WHERE ' . $where);
+        $eligible = $this->db->query('SELECT MAX(date_added) AS last_activity FROM ' . $table . ' WHERE ' . $where .
+            ' HAVING MAX(date_added) < DATE_SUB(NOW(),INTERVAL ' . $idle . ' MINUTE) AND MAX(date_added)>=DATE_SUB(NOW(),INTERVAL ' . $days . ' DAY)');
+        if (!$eligible->num_rows) { return; }
+        // Recheck within the DELETE query to avoid removing a cart that became active meanwhile.
+        $this->db->query('DELETE FROM ' . $table . ' WHERE ' . $where .
+            ' AND (SELECT 1 FROM (SELECT MAX(date_added) AS updated FROM ' . $table . ' WHERE ' . $where .
+            ') state WHERE state.updated < DATE_SUB(NOW(),INTERVAL ' . $idle . ' MINUTE) AND state.updated>=DATE_SUB(NOW(),INTERVAL ' . $days . ' DAY))=1');
     }
 
     public function clearAbandonedCarts() {

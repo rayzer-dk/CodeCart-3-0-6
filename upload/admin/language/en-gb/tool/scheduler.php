@@ -94,7 +94,7 @@ $_['text_task_core_security_cleanup_description'] = 'Removes expired security, a
 $_['text_task_core_stock_notify'] = 'Stock availability notifications';
 $_['text_task_core_stock_notify_description'] = 'Emails customers subscribed to notifications when products become available.';
 $_['text_server_setup'] = 'Hosting Cron:';
-$_['text_server_one_command'] = 'Create ONE task in your hosting panel using either the CLI or HTTPS command below. Choose every minute, not one task per CodeCart handler.';
+$_['text_server_one_command'] = 'Create ONE task in the hosting panel using the CLI or HTTPS command below. Schedule every 5 minutes. Do not add separate hosting Cron tasks for each handler.';
 $_['text_server_interval'] = 'Schedule (minute / hour / day / month / weekday):';
 $_['text_job_help'] = 'To change an existing job, select it below or click its pencil. For a new integration, create a compatible catalog cron controller first.';
 $_['text_choose_example'] = 'Open existing task';
@@ -124,3 +124,8 @@ $_['text_last_execution_help'] = 'A task run does not prove that a host cron is 
 $_['text_no_custom_handlers'] = 'Only installed, unscheduled catalog/controller/cron handlers are offered; system endpoints are excluded. A new task needs an installed handler.';
 $_['text_scheduler_usage'] = 'How to add or edit tasks';
 $_['text_scheduler_limit_info'] = 'Actual frequency depends on the server cron interval.';
+
+$_['text_task_core_cart_reminder'] = 'Abandoned cart reminders';
+$_['text_task_core_cart_reminder_description'] = 'Sends opted-in reminders subject to cart settings. Does not send when automation is disabled.';
+$_['text_task_core_cart_guest_purge'] = 'Guest contact cleanup';
+$_['text_task_core_cart_guest_purge_description'] = 'Deletes opt-in guest contact records older than 7 days.';
