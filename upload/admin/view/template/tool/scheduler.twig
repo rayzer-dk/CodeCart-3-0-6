@@ -20,13 +20,16 @@
           {% if scheduler_health_date %}<code>{{ scheduler_health_date }}</code>{% endif %}
           <div class="help-block">{{ text_last_execution_help }}</div>
         </div>
-        <p class="help-block">{{ help_cron }}</p>
-        <details class="ccp-scheduler-help"><summary><i class="fa fa-question-circle"></i> {{ text_scheduler_usage }}</summary><p>{{ text_existing_codes_info }}</p></details>
-        <p class="ccp-scheduler-setup"><strong>{{ text_server_setup }}</strong> {{ text_server_one_command }}</p>
-        <div class="ccp-scheduler-frequency"><strong>{{ text_server_interval }}</strong> <code>*/5 * * * *</code></div>
-        <p class="help-block">{{ text_session_cleanup }} {{ text_cache_note }} {{ text_extra_modules }}</p>
-        <div class="form-group"><label>{{ text_cli }}</label><div class="input-group"><input id="cron-cli" class="form-control" readonly value="{{ cli_command }}"><span class="input-group-btn"><button class="btn btn-default js-copy" type="button" data-target="cron-cli" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>
-        <div class="form-group"><label>{{ text_web_cron }}</label><div class="input-group"><input type="password" id="cron-http" class="form-control" readonly value="{{ http_command }}"><span class="input-group-btn"><button class="btn btn-default js-reveal" type="button" data-target="cron-http" title="{{ text_advanced_options }}"><i class="fa fa-eye"></i></button><button class="btn btn-default js-copy" type="button" data-target="cron-http" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>
+        <p class="help-block ccp-scheduler-intro">{{ text_scheduler_intro }} <strong>{{ text_scheduler_host_unverified }}</strong></p>
+        <details class="ccp-scheduler-setup-details"><summary><i class="fa fa-cog"></i> {{ text_server_setup }} <i class="fa fa-angle-down"></i></summary>
+          <p class="help-block">{{ text_server_one_command }}</p>
+          <p class="help-block"><strong>{{ text_server_interval }}</strong> <code>*/5 * * * *</code></p>
+          <div class="form-group"><label>{{ text_cli }}</label><div class="input-group"><input type="text" id="cron-cli" class="form-control" readonly value="{{ cli_command }}"><span class="input-group-btn"><button class="btn btn-default js-copy" type="button" data-target="cron-cli" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>
+          <div class="form-group"><label>{{ text_web_cron }}</label><div class="input-group"><input type="password" id="cron-http" class="form-control" readonly value="{{ http_command }}"><span class="input-group-btn"><button class="btn btn-default js-reveal" type="button" data-target="cron-http" title="{{ text_advanced_options }}"><i class="fa fa-eye"></i></button><button class="btn btn-default js-copy" type="button" data-target="cron-http" title="{{ button_copy }}"><i class="fa fa-copy"></i></button></span></div></div>
+          <details class="ccp-scheduler-help"><summary><i class="fa fa-question-circle"></i> {{ text_scheduler_usage }}</summary>
+            <p>{{ text_existing_codes_info }}</p><p>{{ text_session_cleanup }} {{ text_cache_note }} {{ text_extra_modules }}</p>
+          </details>
+        </details>
       </div>
     </div>
 
@@ -44,7 +47,7 @@
               <td title="{{ job.interval_seconds }} s">{{ job.interval_text }}</td>
               <td>{% if job.status %}<span class="label label-success">{{ text_enabled }}</span>{% else %}<span class="label label-default">{{ text_disabled }}</span>{% endif %}</td>
               <td>{{ job.date_last ?: '—' }}</td>
-              <td>{{ job.date_next ?: '—' }}</td>
+              <td>{% if job.status %}{{ job.date_next ?: '—' }}{% else %}<span class="text-muted" title="{{ text_task_paused }}">—</span>{% endif %}</td>
               <td>{% if job.last_status %}<span class="label label-{{ job.last_status == 'success' ? 'success' : 'danger' }}" title="{{ job.last_message_localized }}">{{ job.last_status_text }}</span>{% if job.last_duration_ms is not null %} <small>{{ job.last_duration_ms }} ms</small>{% endif %}{% else %}—{% endif %}</td>
               <td class="text-right codecart-scheduler-actions">
                 {% if can_modify %}<div class="ccp-scheduler-action-group">
@@ -62,6 +65,42 @@
       </div>
       <div class="panel-footer">{{ text_queue }}: {{ text_queue_pending }} {{ queue_stats.pending|default(0) }}, {{ text_queue_processing }} {{ queue_stats.processing|default(0) }}, {{ text_queue_failed }} {{ queue_stats.failed|default(0) }}, {{ text_queue_done }} {{ queue_stats.done|default(0) }}</div>
     </div>
+
+    {% if can_modify %}
+    <div class="panel panel-default" id="scheduler-form" data-info-url="{{ task_info_url|e('html_attr') }}" data-loading="{{ text_loading_task|e('html_attr') }}" data-load-error="{{ error_loading_task|e('html_attr') }}" data-add-title="{{ text_add_task|e('html_attr') }}" data-edit-title="{{ text_edit_task|e('html_attr') }}">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-{{ edit_task.scheduler_id ? 'pencil' : 'plus' }}"></i> {{ edit_task.scheduler_id ? text_edit_task : text_add_task }}</h3></div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" class="form-horizontal">
+          <input type="hidden" name="scheduler_action" value="save">
+          <input type="hidden" name="scheduler_id" value="{{ edit_task.scheduler_id }}">
+          <div class="ccp-scheduler-guide help-block">{{ text_create_task_hint }}</div>
+          {% if scheduler_form_error %}<div class="alert alert-danger ccp-scheduler-form-error" role="alert"><i class="fa fa-exclamation-triangle"></i> {{ scheduler_form_error }}</div>{% endif %}
+          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-available">{{ text_choose_available_handler }}</label><div class="col-sm-10">
+            <select id="input-scheduler-available" class="form-control"><option value="">{{ text_manual }}</option>{% for handler in available_handlers %}<option value="{{ handler.route }}" data-code="{{ handler.code }}">{{ handler.route }}</option>{% endfor %}</select>
+            {% if available_handlers %}<small class="help-block">{{ text_ready_handlers_count }}: {{ available_handlers|length }}. {{ text_no_custom_handlers }}</small>{% else %}<div class="ccp-scheduler-empty-handlers help-block"><i class="fa fa-info-circle"></i> {{ text_no_free_handler }}</div>{% endif %}
+          </div></div>
+          <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-code">{{ entry_code }}</label><div class="col-sm-10"><input type="text" name="code" value="{{ edit_task.code }}" id="input-scheduler-code" class="form-control" required maxlength="128" placeholder="custom.my_task" {{ edit_task.is_core ? 'readonly' : '' }}><small class="help-block">{{ text_job_code_help }}</small></div></div>
+          <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-route"><span data-toggle="tooltip" title="{{ text_route_help }}">{{ entry_route }}</span></label><div class="col-sm-10"><input type="text" name="route" value="{{ edit_task.route }}" id="input-scheduler-route" class="form-control" required placeholder="cron/my_handler"><small class="help-block">{{ text_route_help }}</small></div></div>
+          <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-frequency">{{ text_interval_preset }}</label><div class="col-sm-10">
+            <select id="input-scheduler-frequency" class="form-control">
+              {% for preset in frequency_presets %}
+              <option value="{{ preset.seconds }}" {{ edit_task.interval_seconds == preset.seconds ? 'selected' : '' }}>{{ preset.label }}</option>
+              {% endfor %}
+              <option value="custom" {{ edit_task.interval_seconds not in [300,600,900,1800,3600,21600,43200,86400] ? 'selected' : '' }}>{{ text_interval_custom }}</option>
+            </select>
+            <div class="ccp-scheduler-custom-interval" id="scheduler-custom-interval"><label class="control-label" for="input-scheduler-interval">{{ entry_interval }}</label>
+              <input type="number" min="60" max="31536000" step="1" name="interval_seconds" value="{{ edit_task.interval_seconds }}" id="input-scheduler-interval" class="form-control" required>
+              <small class="help-block">{{ text_scheduler_limit_info }}</small>
+            </div>
+          </div></div>
+          <details class="ccp-scheduler-advanced"><summary><i class="fa fa-cog"></i> {{ text_advanced_options }}</summary>
+          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-args"><span data-toggle="tooltip" title="{{ text_args_help }}">{{ entry_args }}</span></label><div class="col-sm-10"><textarea name="args" rows="3" id="input-scheduler-args" class="form-control" spellcheck="false">{{ edit_task.args }}</textarea><small class="help-block">{{ text_json_example }}</small></div></div></details>
+          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-status">{{ entry_status }}</label><div class="col-sm-10"><select name="status" id="input-scheduler-status" class="form-control"><option value="1" {{ edit_task.status ? 'selected' : '' }}>{{ text_enabled }}</option><option value="0" {{ not edit_task.status ? 'selected' : '' }}>{{ text_disabled }}</option></select></div></div>
+          <div class="text-right"><a href="{{ cancel }}" class="btn btn-default js-scheduler-cancel"><i class="fa fa-reply"></i> {{ button_cancel }}</a> <button type="submit" id="scheduler-save-button" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
 
     <div class="panel panel-default codecart-queue-panel">
       <div class="panel-heading clearfix">
@@ -112,46 +151,23 @@
       <div class="panel-footer clearfix"><div class="pull-left">{{ queue_results }}</div><div class="pull-right">{{ queue_pagination }}</div></div>
     </div>
 
-    {% if can_modify %}
-    <div class="panel panel-default" id="scheduler-form" data-info-url="{{ task_info_url|e('html_attr') }}" data-loading="{{ text_loading_task|e('html_attr') }}" data-load-error="{{ error_loading_task|e('html_attr') }}" data-add-title="{{ text_add_task|e('html_attr') }}" data-edit-title="{{ text_edit_task|e('html_attr') }}">
-      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-{{ edit_task.scheduler_id ? 'pencil' : 'plus' }}"></i> {{ edit_task.scheduler_id ? text_edit_task : text_add_task }}</h3></div>
-      <div class="panel-body">
-        <form action="{{ action }}" method="post" class="form-horizontal">
-          <input type="hidden" name="scheduler_action" value="save">
-          <input type="hidden" name="scheduler_id" value="{{ edit_task.scheduler_id }}">
-          <div class="ccp-scheduler-guide">
-            <strong>{{ text_job_help }}</strong>
-            <div class="form-group">
-              <label class="col-sm-2 control-label" for="input-scheduler-template">{{ text_choose_example }}</label>
-              <div class="col-sm-10">
-                <select id="input-scheduler-template" class="form-control">
-                  <option value="">{{ text_manual }}</option>
-                  {% for job in jobs %}<option value="{{ job.scheduler_id }}" data-code="{{ job.code }}">{{ job.display_name }} — {{ job.interval_text }}</option>{% endfor %}
-                </select>
-                <p class="help-block">{{ text_handler_warning }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-available">{{ text_choose_available_handler }}</label><div class="col-sm-10">
-            <select id="input-scheduler-available" class="form-control"><option value="">{{ text_manual }}</option>{% for handler in available_handlers %}<option value="{{ handler.route }}" data-code="{{ handler.code }}">{{ handler.route }}</option>{% endfor %}</select>
-            <small class="help-block">{{ text_no_custom_handlers }}</small>
-          </div></div>
-          <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-code">{{ entry_code }}</label><div class="col-sm-10"><input type="text" name="code" value="{{ edit_task.code }}" id="input-scheduler-code" class="form-control" required maxlength="128" placeholder="custom.my_task" {{ edit_task.is_core ? 'readonly' : '' }}><small class="help-block">{{ text_job_code_help }}</small></div></div>
-          <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-route"><span data-toggle="tooltip" title="{{ text_route_help }}">{{ entry_route }}</span></label><div class="col-sm-10"><input type="text" name="route" value="{{ edit_task.route }}" id="input-scheduler-route" class="form-control" required placeholder="cron/my_handler"><small class="help-block">{{ text_route_help }}</small></div></div>
-          <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-interval"><span data-toggle="tooltip" title="{{ text_interval_help }}">{{ entry_interval }}</span></label><div class="col-sm-10"><input type="number" min="60" max="31536000" step="1" name="interval_seconds" value="{{ edit_task.interval_seconds }}" id="input-scheduler-interval" class="form-control" required></div></div>
-          <details class="ccp-scheduler-advanced"><summary><i class="fa fa-cog"></i> {{ text_advanced_options }}</summary>
-          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-args"><span data-toggle="tooltip" title="{{ text_args_help }}">{{ entry_args }}</span></label><div class="col-sm-10"><textarea name="args" rows="3" id="input-scheduler-args" class="form-control" spellcheck="false">{{ edit_task.args }}</textarea><small class="help-block">{{ text_json_example }}</small></div></div></details>
-          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-status">{{ entry_status }}</label><div class="col-sm-10"><select name="status" id="input-scheduler-status" class="form-control"><option value="1" {{ edit_task.status ? 'selected' : '' }}>{{ text_enabled }}</option><option value="0" {{ not edit_task.status ? 'selected' : '' }}>{{ text_disabled }}</option></select></div></div>
-          <div class="text-right"><a href="{{ cancel }}" class="btn btn-default js-scheduler-cancel"><i class="fa fa-reply"></i> {{ button_cancel }}</a> <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div>
-        </form>
-      </div>
-    </div>
-    {% endif %}
+
   </div>
 </div>
-<link rel="stylesheet" href="view/stylesheet/codecart_scheduler.css?v=3.0.6.1">
-<script src="view/javascript/codecart-scheduler.js?v=3.0.6.1"></script>
+<link rel="stylesheet" href="view/stylesheet/codecart_scheduler.css?v=3.0.6.2">
+<script src="view/javascript/codecart-scheduler.js?v=3.0.6.2"></script>
 <style>
+.ccp-scheduler-setup-details { margin:10px 0 0;padding:10px 12px;border:1px solid #dde6f2;border-radius:5px; background:#f9fbfe }
+.ccp-scheduler-setup-details > summary {cursor:pointer;font-weight:600;color:#174875;list-style-position:inside}
+.ccp-scheduler-setup-details[open] > summary {margin-bottom:12px}
+.ccp-scheduler-setup-details .form-group {margin-bottom:10px}
+.ccp-scheduler-setup-details .help-block {margin:6px 0}
+.ccp-scheduler-intro{margin:6px 0 0}
+.ccp-scheduler-guide{margin:0 0 10px}
+.ccp-scheduler-empty-handlers{color:#8a5500}
+.ccp-scheduler-custom-interval{margin-top:8px;max-width:280px}
+.ccp-scheduler-custom-interval .control-label{padding-top:0;margin-bottom:5px}
+.ccp-scheduler-form-error{margin-bottom:12px}
 .ccp-scheduler-status{border:1px solid #d9e6f4;background:#f8fbff;padding:10px 12px;border-radius:5px;margin-bottom:12px}.ccp-scheduler-status-warn,.ccp-scheduler-status-none{background:#fffaf0;border-color:#f2deb3}.ccp-scheduler-status .help-block{margin:4px 0 0}.ccp-scheduler-help{margin-bottom:10px}.ccp-scheduler-help summary,.ccp-scheduler-advanced summary{cursor:pointer;font-weight:600;color:#174875}.ccp-scheduler-help p{margin:8px 0}.ccp-scheduler-advanced{border:1px solid #e0e9f2;background:#f8fbff;border-radius:4px;padding:10px;margin-bottom:12px}.ccp-scheduler-advanced .form-group{margin:10px 0 0}
 .codecart-scheduler-table thead,.codecart-queue-table thead{border-top:3px solid #0057d9}.codecart-scheduler-table thead th,.codecart-queue-table thead th{border-right:1px solid #dce4ed;vertical-align:middle}.codecart-queue-filters{margin-bottom:0}.codecart-queue-filter-actions>label{display:block}.codecart-queue-table{table-layout:fixed;margin-bottom:0}.codecart-queue-table th:nth-child(1){width:65px}.codecart-queue-table th:nth-child(4){width:95px}.codecart-queue-table th:nth-child(5){width:80px}.codecart-queue-table th:nth-child(6),.codecart-queue-table th:nth-child(7){width:155px}.codecart-queue-table th:nth-child(9){width:105px}.codecart-queue-table thead a{color:inherit;white-space:nowrap}.codecart-queue-actions form+form{margin-left:4px}.ccp-ellipsis{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.codecart-queue-panel .panel-footer .pagination{margin:0}.codecart-queue-panel .panel-footer{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px}.codecart-queue-panel .panel-footer>.pull-left,.codecart-queue-panel .panel-footer>.pull-right{float:none!important}
 @media(max-width:767px){.codecart-queue-filters>[class*="col-"]{margin-bottom:8px}.codecart-queue-panel .panel-footer{align-items:flex-start;flex-direction:column}.codecart-queue-table{min-width:980px}}

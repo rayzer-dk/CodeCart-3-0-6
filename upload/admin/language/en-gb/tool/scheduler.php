@@ -107,10 +107,10 @@ $_['text_job_code_help'] = 'Unique stable ID for integrations, e.g. custom.my_ha
 $_['text_json_example'] = 'Optional JSON object or array: {} or {"limit": 25}. Leave {} when the handler needs no arguments.';
 $_['text_job_type'] = 'Task type';
 $_['error_route_allowed'] = 'Only existing cron/handler routes are allowed. System entrypoints and queued mail controllers cannot be scheduled here.';
-$_['error_route_missing'] = 'The chosen controller file does not exist in the catalog. Install its module or correct the route.';
+$_['error_route_missing'] = 'No PHP controller exists for this route. Install a compatible cron handler before creating a task.';
 $_['error_reserved_code'] = 'The core. prefix is reserved for built-in system tasks.';
 $_['error_core_route'] = 'Changing the handler of a built-in system task is not permitted.';
-$_['error_duplicate_route'] = 'This handler is already enabled in another scheduled task. Edit it instead of adding a duplicate.';
+$_['error_duplicate_route'] = 'This handler is already scheduled. Use the pencil next to the existing task to adjust its interval.';
 
 $_['text_existing_codes_info'] = 'Task codes appear under task names in the list below (e.g. core.mail.campaign). Use the pencil to edit a task. Create a new unique code only for a new installed handler. core.mail.campaign sends marketing campaigns, not abandoned-cart reminders.';
 
@@ -123,9 +123,23 @@ $_['text_scheduler_health_none'] = 'no recorded task executions';
 $_['text_last_execution_help'] = 'A task run does not prove that a host cron is installed. Configure one command below for guaranteed execution without visitors.';
 $_['text_no_custom_handlers'] = 'Only installed, unscheduled catalog/controller/cron handlers are offered; system endpoints are excluded. A new task needs an installed handler.';
 $_['text_scheduler_usage'] = 'How to add or edit tasks';
-$_['text_scheduler_limit_info'] = 'Actual frequency depends on the server cron interval.';
+$_['text_scheduler_limit_info'] = 'A five-minute external cron is recommended. Actual frequency depends on that cron, not only the task interval.';
 
 $_['text_task_core_cart_reminder'] = 'Abandoned cart reminders';
 $_['text_task_core_cart_reminder_description'] = 'Sends opted-in reminders subject to cart settings. Does not send when automation is disabled.';
 $_['text_task_core_cart_guest_purge'] = 'Guest contact cleanup';
 $_['text_task_core_cart_guest_purge_description'] = 'Deletes opt-in guest contact records older than 7 days.';
+
+$_['error_duplicate_code'] = 'This task code already exists. Edit the task in the table instead of adding another.';
+$_['text_ready_handlers_count'] = 'Available unscheduled handlers';
+$_['text_no_free_handler'] = 'No free cron handlers are available. Installed handlers are already registered or reserved. New tasks require an installed PHP handler; use the pencil in the list to change an existing schedule.';
+$_['text_save_failed'] = 'Task was not saved. Correct the fields.';
+$_['text_interval_preset'] = 'Frequency';
+$_['text_interval_custom'] = 'Custom seconds';
+$_['text_interval_unit_minute'] = '%d min';
+$_['text_interval_unit_hour'] = '%d h';
+$_['text_interval_unit_day'] = '%d day';
+$_['text_scheduler_host_unverified'] = 'This does not verify that hosting cron is configured.';
+$_['text_scheduler_intro'] = 'Execution data may come from a manual action or visitor heartbeat.';
+$_['text_create_task_hint'] = 'Use the pencil in the list above to edit an existing task. A new task requires an available installed cron handler. Select it to fill in the code and route.';
+$_['text_task_paused'] = 'Disabled tasks are not scheduled.';

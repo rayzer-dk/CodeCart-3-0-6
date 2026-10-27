@@ -26,6 +26,23 @@ final class Scheduler {
         }
     }
 
+    /** Admin-only creation: never upsert or overwrite a pre-existing system task. */
+    public function createTask(string $code, string $route, int $interval, bool $status, array $args = array()): void {
+        $code = $this->normalizeCode($code);
+        $route = $this->normalizeRoute($route);
+        if (strpos($code, 'core.') === 0) {
+            throw new \InvalidArgumentException('Built-in scheduler code is reserved.');
+        }
+        $interval = $this->normalizeInterval($interval);
+        $payload = $this->encodeArgs($args);
+        $duplicate = $this->db->query("SELECT scheduler_id FROM `" . DB_PREFIX . "codecart_scheduler` WHERE code = '" . $this->db->escape($code) . "' OR route = '" . $this->db->escape($route) . "' LIMIT 1");
+        if ($duplicate->num_rows) {
+            throw new \InvalidArgumentException('Scheduler task code or handler is already registered.');
+        }
+        // The DB unique key on `code` also prevents simultaneous duplicate inserts.
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', status = '" . (int)$status . "', date_next = NOW(), date_added = NOW(), date_modified = NOW()");
+    }
+
     public function save(int $schedulerId, string $code, string $route, int $interval, bool $status, array $args = array()): void {
         $schedulerId = max(1, $schedulerId);
         $existing = $this->getTask($schedulerId);
@@ -167,8 +184,8 @@ final class Scheduler {
         }
 
         $duration = (int)round((microtime(true) - $started) * 1000);
-        $next = date('Y-m-d H:i:s', time() + $this->normalizeInterval((int)$job['interval_seconds']));
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET date_last = NOW(), date_next = '" . $this->db->escape($next) . "', last_duration_ms = '" . (int)$duration . "', last_status = '" . ($ok ? 'success' : 'error') . "', last_message = '" . $this->db->escape(substr($message, 0, 1000)) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$job['scheduler_id'] . "'");
+        $nextSeconds = $this->normalizeInterval((int)$job['interval_seconds']);
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET date_last = NOW(), date_next = DATE_ADD(NOW(), INTERVAL " . (int)$nextSeconds . " SECOND), last_duration_ms = '" . (int)$duration . "', last_status = '" . ($ok ? 'success' : 'error') . "', last_message = '" . $this->db->escape(substr($message, 0, 1000)) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$job['scheduler_id'] . "'");
 
         try {
             $notice = new SystemNotification($this->registry);

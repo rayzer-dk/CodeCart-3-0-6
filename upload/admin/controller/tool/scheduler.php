@@ -16,11 +16,26 @@ class ControllerToolScheduler extends Controller {
             } else {
                 try {
                     $this->processAction($scheduler);
+                    unset($this->session->data['scheduler_form_old'], $this->session->data['scheduler_form_error']);
                 } catch (\Throwable $e) {
-                    $this->session->data['error_warning'] = $this->safeDiagnostic($e->getMessage());
+                    $message = $this->safeDiagnostic($e->getMessage());
+                    $this->session->data['error_warning'] = $message;
+                    if (($this->request->post['scheduler_action'] ?? '') === 'save') {
+                        $this->session->data['scheduler_form_error'] = $message;
+                        $this->session->data['scheduler_form_old'] = array(
+                            'scheduler_id' => max(0, (int)($this->request->post['scheduler_id'] ?? 0)),
+                            'code' => substr((string)($this->request->post['code'] ?? ''), 0, 128),
+                            'route' => substr((string)($this->request->post['route'] ?? ''), 0, 255),
+                            'args' => substr((string)($this->request->post['args'] ?? '{}'), 0, 8192),
+                            'interval_seconds' => (int)($this->request->post['interval_seconds'] ?? 3600),
+                            'status' => !empty($this->request->post['status']) ? 1 : 0
+                        );
+                    }
                 }
             }
-            $this->response->redirect($this->url->link('tool/scheduler', 'user_token=' . $this->session->data['user_token'], true));
+            $back = $this->url->link('tool/scheduler', 'user_token=' . $this->session->data['user_token'], true);
+            if (!empty($this->session->data['scheduler_form_error'])) { $back .= '#scheduler-form'; }
+            $this->response->redirect($back);
             return;
         }
 
@@ -50,7 +65,7 @@ class ControllerToolScheduler extends Controller {
         foreach (array('text_server_setup', 'text_server_interval', 'text_server_one_command', 'text_job_help', 'text_job_type', 'text_manual', 'text_choose_example', 'text_handler_warning',
           'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help','text_existing_codes_info',
           'text_choose_available_handler','text_advanced_options','text_scheduler_health','text_scheduler_health_ok','text_scheduler_health_warn','text_scheduler_health_none',
-          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info') as $key) {
+          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info','text_ready_handlers_count','text_no_free_handler','text_save_failed','text_interval_preset','text_interval_custom','text_scheduler_host_unverified','text_scheduler_intro','text_create_task_hint','text_task_paused') as $key) {
             $data[$key] = $this->language->get($key);
         }
         $data['text_loading_task'] = $this->language->get('text_loading_task');
@@ -81,6 +96,8 @@ class ControllerToolScheduler extends Controller {
         $data['available_handlers'] = array();
         $data['scheduler_health'] = 'none';
         $data['scheduler_health_date'] = '';
+        $data['scheduler_form_error'] = (string)($this->session->data['scheduler_form_error'] ?? '');
+        unset($this->session->data['scheduler_form_error']);
         try {
             $data['jobs'] = $scheduler->listTasks();
             foreach ($data['jobs'] as &$job) {
@@ -194,6 +211,11 @@ class ControllerToolScheduler extends Controller {
             $data['queue_sort_links'][$sortKey] = $this->url->link('tool/scheduler', $queueSortBase . '&queue_sort=' . urlencode($sortKey) . '&queue_order=' . $nextOrder, true);
         }
 
+        $data['frequency_presets'] = array();
+        foreach (array(300=>5, 600=>10, 900=>15, 1800=>30, 3600=>1, 21600=>6, 43200=>12, 86400=>1) as $seconds=>$amount) {
+            $unit = $seconds < 3600 ? 'text_interval_unit_minute' : ($seconds < 86400 ? 'text_interval_unit_hour' : 'text_interval_unit_day');
+            $data['frequency_presets'][] = array('seconds'=>$seconds,'label'=>sprintf($this->language->get($unit), $amount));
+        }
         $data['edit_task'] = array('scheduler_id'=>0,'code'=>'','route'=>'','args'=>'{}','interval_seconds'=>3600,'status'=>1,'is_core'=>false);
         if (!empty($this->request->get['edit_id'])) {
             $task = $scheduler->getTask((int)$this->request->get['edit_id']);
@@ -205,6 +227,21 @@ class ControllerToolScheduler extends Controller {
             }
         }
 
+        if (isset($this->session->data['scheduler_form_old']) && is_array($this->session->data['scheduler_form_old'])) {
+            $old = $this->session->data['scheduler_form_old'];
+            unset($this->session->data['scheduler_form_old']);
+            $id = max(0, (int)($old['scheduler_id'] ?? 0));
+            $original = $id > 0 ? $scheduler->getTask($id) : array();
+            $data['edit_task'] = array(
+                'scheduler_id' => $original ? $id : 0,
+                'code' => (string)($old['code'] ?? ''),
+                'route' => (string)($old['route'] ?? ''),
+                'args' => (string)($old['args'] ?? '{}'),
+                'interval_seconds' => (int)($old['interval_seconds'] ?? 3600),
+                'status' => (int)($old['status'] ?? 0),
+                'is_core' => $original && strpos((string)$original['code'], 'core.') === 0
+            );
+        }
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
@@ -347,8 +384,11 @@ class ControllerToolScheduler extends Controller {
                 }
             }
             foreach ($scheduler->listTasks() as $existingTask) {
-                if ((int)$existingTask['scheduler_id'] !== $schedulerId
-                    && rtrim((string)$existingTask['route'],'/') === rtrim($route,'/')) {
+                if ((int)$existingTask['scheduler_id'] === $schedulerId) { continue; }
+                if (strcasecmp((string)$existingTask['code'], $code) === 0) {
+                    throw new \InvalidArgumentException($this->language->get('error_duplicate_code'));
+                }
+                if (rtrim((string)$existingTask['route'], '/') === rtrim($route, '/')) {
                     throw new \InvalidArgumentException($this->language->get('error_duplicate_route'));
                 }
             }
@@ -358,7 +398,7 @@ class ControllerToolScheduler extends Controller {
             if ($schedulerId > 0) {
                 $scheduler->save($schedulerId, $code, $route, $interval, $status, $args);
             } else {
-                $scheduler->register($code, $route, $interval, $status, $args);
+                $scheduler->createTask($code, $route, $interval, $status, $args);
             }
             $this->session->data['success'] = $this->language->get('text_success');
             return;

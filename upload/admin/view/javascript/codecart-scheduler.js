@@ -15,15 +15,37 @@
     var url = $panel.attr('data-info-url') || '';
     var editorRow = null;
     var pendingRequest = null;
+    var $frequency = $('#input-scheduler-frequency');
+    var $interval = $('#input-scheduler-interval');
+    var $customInterval = $('#scheduler-custom-interval');
+
+    function setFrequency(seconds) {
+      var value = String(parseInt(seconds, 10) || 3600);
+      $interval.val(value);
+      $frequency.val($frequency.find('option[value="' + value + '"]').length ? value : 'custom');
+      $customInterval.toggle($frequency.val() === 'custom');
+    }
+
+    $frequency.on('change', function () {
+      if ($(this).val() === 'custom') {
+        $customInterval.show();
+        $interval.trigger('focus');
+      } else {
+        $interval.val($(this).val());
+        $customInterval.hide();
+      }
+    });
+    setFrequency($interval.val());
 
     function resetForm() {
       $form.find('input[name="scheduler_id"]').val('0');
       $form.find('input[name="code"]').val('').prop('readOnly', false);
       $form.find('input[name="route"]').val('');
       $('#input-scheduler-available').val('');
-      $form.find('input[name="interval_seconds"]').val('3600');
+      setFrequency(3600);
       $form.find('textarea[name="args"]').val('{}');
       $form.find('select[name="status"]').val('1');
+      $panel.find('.ccp-scheduler-form-error').hide();
       $heading.empty().append($('<i class="fa fa-plus" aria-hidden="true"></i>'))
         .append(document.createTextNode(' ' + ($panel.attr('data-add-title') || 'Add task')));
     }
@@ -42,9 +64,10 @@
       $form.find('input[name="scheduler_id"]').val(task.scheduler_id);
       $form.find('input[name="code"]').val(task.code).prop('readOnly', !!task.is_core);
       $form.find('input[name="route"]').val(task.route);
-      $form.find('input[name="interval_seconds"]').val(task.interval_seconds);
+      setFrequency(task.interval_seconds);
       $form.find('textarea[name="args"]').val(task.args || '{}');
       $form.find('select[name="status"]').val(String(task.status));
+      $panel.find('.ccp-scheduler-form-error').hide();
       $heading.empty().append($('<i class="fa fa-pencil" aria-hidden="true"></i>'))
         .append(document.createTextNode(' ' + ($panel.attr('data-edit-title') || 'Edit task')));
     }
@@ -114,22 +137,10 @@
       $form.find('input[name="code"]').val($selected.attr('data-code') || 'custom.' + route.split('/').pop());
     });
 
-    $('#input-scheduler-template').on('change', function () {
-      var id = parseInt($(this).val(), 10);
-      if (!id) {
-        restoreEditor(true);
-        return;
-      }
-      var $edit = $('table.codecart-scheduler-table .js-scheduler-edit').filter(function () {
-        return parseInt($(this).attr('data-id'), 10) === id;
-      }).first();
-      if ($edit.length) { $edit.trigger('click'); }
-    });
-
     $add.on('click', function (event) {
-      if (!editorRow) { return; }
       event.preventDefault();
-      restoreEditor(true);
+      if (editorRow) { restoreEditor(true); }
+      else { resetForm(); }
       if ($panel[0]) { $panel[0].scrollIntoView({behavior: 'smooth', block: 'start'}); }
     });
   });
