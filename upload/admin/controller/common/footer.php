@@ -25,7 +25,9 @@ class ControllerCommonFooter extends Controller {
 				'text_runtime_server_time', 'text_runtime_time_hint', 'text_runtime_more',
 				'text_runtime_memory', 'text_runtime_execution', 'text_runtime_unlimited',
 				'text_runtime_upload', 'text_runtime_post', 'text_runtime_timezone',
-				'text_runtime_sapi', 'text_runtime_db_driver', 'text_runtime_build'
+				'text_runtime_sapi', 'text_runtime_db_driver', 'text_runtime_build',
+				'text_runtime_db_name', 'text_runtime_db_charset', 'text_runtime_db_collation',
+				'text_runtime_web_server', 'text_runtime_db_unknown'
 			) as $key) {
 				$data[$key] = $this->language->get($key);
 			}
@@ -50,6 +52,44 @@ class ControllerCommonFooter extends Controller {
 			$data['runtime_sapi'] = PHP_SAPI;
 			$data['runtime_db_driver'] = defined('DB_DRIVER') ? (string)DB_DRIVER : '';
 			$data['runtime_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '';
+
+			// Read database details no more than once per five minutes per admin session.
+			// The footer must never break if the DB does not expose these variables.
+			$data['runtime_db_name'] = '';
+			$data['runtime_db_version'] = '';
+			$data['runtime_db_version_full'] = '';
+			$data['runtime_db_charset'] = '';
+			$data['runtime_db_collation'] = '';
+			$cache_key = 'codecart_footer_db_details';
+			$cached = isset($this->session->data[$cache_key]) && is_array($this->session->data[$cache_key])
+				? $this->session->data[$cache_key] : array();
+			if (!isset($cached['expires'], $cached['values']) || (int)$cached['expires'] < time() || !is_array($cached['values'])) {
+				$values = array('db_version' => '', 'db_charset' => '', 'db_collation' => '');
+				try {
+					$info = $this->db->query('SELECT VERSION() AS db_version, @@character_set_database AS db_charset, @@collation_database AS db_collation');
+					if (isset($info->row) && is_array($info->row)) {
+						foreach ($values as $name => $unused) {
+							$values[$name] = isset($info->row[$name]) ? (string)$info->row[$name] : '';
+						}
+					}
+				} catch (\Throwable $e) {
+					// A diagnostic label must not affect the admin page or log on every request.
+				}
+				$cached = array('expires' => time() + 300, 'values' => $values);
+				$this->session->data[$cache_key] = $cached;
+			}
+			$values = $cached['values'];
+			$version = isset($values['db_version']) ? trim((string)$values['db_version']) : '';
+			if ($version !== '') {
+				$data['runtime_db_name'] = stripos($version, 'mariadb') !== false ? 'MariaDB' : 'MySQL';
+				$data['runtime_db_version_full'] = substr($version, 0, 120);
+				$data['runtime_db_version'] = preg_match('/^[0-9]+(?:\.[0-9]+){1,2}/', $version, $match) ? $match[0] : $data['runtime_db_version_full'];
+			}
+			$data['runtime_db_charset'] = isset($values['db_charset']) ? (string)$values['db_charset'] : '';
+			$data['runtime_db_collation'] = isset($values['db_collation']) ? (string)$values['db_collation'] : '';
+			$server_software = isset($this->request->server['SERVER_SOFTWARE']) ? (string)$this->request->server['SERVER_SOFTWARE'] : '';
+			$data['runtime_web_server'] = substr(trim((string)preg_replace('/[\x00-\x1f\x7f]/', '', strip_tags($server_software))), 0, 120);
+
 		}
 
 		$data['project_support_enabled'] = $logged;

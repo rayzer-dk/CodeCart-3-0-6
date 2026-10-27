@@ -11,7 +11,6 @@ namespace {
     define('VERSION', '3.0.6.0');
     define('CODECART_PACKAGE_BUILD', '2.1.3');
     define('DB_DRIVER', 'mysqli');
-
     class Controller {
         public $load;
         public $language;
@@ -19,6 +18,7 @@ namespace {
         public $request;
         public $session;
         public $document;
+        public $db;
     }
     class StubLanguage { public function get($key) { return 'lang:' . $key; } }
     class StubLoader {
@@ -31,35 +31,68 @@ namespace {
         public function isLogged() { return $this->active; }
     }
     class StubDocument { public function getAssets($position) { return array(); } }
-
+    class StubDB {
+        public $calls = 0;
+        public $version;
+        public $fail = false;
+        public function __construct($version) { $this->version = $version; }
+        public function query($sql) {
+            $this->calls++;
+            if ($this->fail) { throw new \RuntimeException('DB unavailable'); }
+            if (strpos($sql, 'SELECT VERSION()') !== 0) { throw new \RuntimeException('Unexpected query'); }
+            return (object)array('row' => array(
+                'db_version' => $this->version,
+                'db_charset' => 'utf8mb4',
+                'db_collation' => 'utf8mb4_unicode_ci'
+            ));
+        }
+    }
     require dirname(__DIR__) . '/upload/admin/controller/common/footer.php';
-
-    function renderFooter($login, $urlToken) {
+    function check($ok, $message) { if (!$ok) throw new \RuntimeException($message); }
+    function renderFooter($logged, $urlToken, $session, $db) {
         $controller = new \ControllerCommonFooter();
         $controller->load = new StubLoader();
         $controller->language = new StubLanguage();
-        $controller->user = new StubUser($login);
-        $controller->request = (object)array('get' => array('user_token' => $urlToken));
-        $controller->session = (object)array('data' => array('user_token' => 'valid'));
+        $controller->user = new StubUser($logged);
+        $controller->request = (object)array(
+            'get' => array('user_token' => $urlToken),
+            'server' => array('SERVER_SOFTWARE' => 'nginx/1.26.0')
+        );
+        $controller->session = $session;
         $controller->document = new StubDocument();
+        $controller->db = $db;
         return $controller->index();
     }
-    function check($ok, $message) { if (!$ok) throw new \RuntimeException($message); }
-
-    $authorized = renderFooter(true, 'valid');
-    check($authorized['environment_visible'] === true, 'Authenticated footer is hidden');
-    check($authorized['runtime_php_version'] === PHP_VERSION, 'PHP version does not match runtime');
-    check($authorized['runtime_server_time_iso'] !== '', 'Missing server time');
-    check($authorized['runtime_timezone'] === date_default_timezone_get(), 'Wrong timezone');
-    check($authorized['runtime_build'] === '2.1.3', 'Wrong package build');
-    check($authorized['runtime_memory_limit'] === (string)ini_get('memory_limit'), 'Memory limit not reported');
-    check($authorized['runtime_db_driver'] === 'mysqli', 'DB driver not reported');
-    check(isset($authorized['project_links']) && isset($authorized['project_support_methods']), 'Existing footer metadata regressed');
-
-    foreach (array(renderFooter(false, 'valid'), renderFooter(true, 'invalid')) as $guest) {
-        check($guest['environment_visible'] === false, 'Diagnostic info should be restricted');
-        check($guest['text_codecart_release'] === '', 'Version info should remain restricted');
-        check(!isset($guest['runtime_php_version']), 'Private diagnostics leaked to guest');
+    $session = (object)array('data' => array('user_token' => 'valid'));
+    $db = new StubDB('11.4.5-MariaDB');
+    $data = renderFooter(true, 'valid', $session, $db);
+    check($data['environment_visible'] === true, 'Private footer hidden');
+    check($data['runtime_php_version'] === PHP_VERSION, 'Wrong PHP version');
+    check($data['runtime_db_name'] === 'MariaDB' && $data['runtime_db_version'] === '11.4.5', 'MariaDB parsing failed');
+    check($data['runtime_db_charset'] === 'utf8mb4', 'DB charset missing');
+    check($data['runtime_db_collation'] === 'utf8mb4_unicode_ci', 'DB collation missing');
+    check($data['runtime_web_server'] === 'nginx/1.26.0', 'Web server missing');
+    check($data['runtime_build'] === '2.1.3' && $data['runtime_db_driver'] === 'mysqli', 'Original runtime details regressed');
+    check(isset($data['project_links']) && isset($data['project_support_methods']), 'Support links regressed');
+    renderFooter(true, 'valid', $session, $db);
+    check($db->calls === 1, 'DB read should be cached per session');
+    $session->data['codecart_footer_db_details']['expires'] = time() - 1;
+    $db->version = '8.4.4';
+    $mysql = renderFooter(true, 'valid', $session, $db);
+    check($mysql['runtime_db_name'] === 'MySQL' && $mysql['runtime_db_version'] === '8.4.4', 'MySQL parsing failed');
+    check($db->calls === 2, 'Expired cache should refresh');
+    foreach (array(array(false, 'valid'), array(true, 'invalid')) as $case) {
+        $guest = renderFooter($case[0], $case[1], $session, $db);
+        check($guest['environment_visible'] === false && !isset($guest['runtime_php_version']), 'Sensitive detail leaked');
     }
-    echo "Footer environment smoke test: PASS\n";
+    check($db->calls === 2, 'Unauthorized visitor triggered DB read');
+    $missingDb = new StubDB('');
+    $missingDb->fail = true;
+    $emptySession = (object)array('data' => array('user_token' => 'valid'));
+    $failed = renderFooter(true, 'valid', $emptySession, $missingDb);
+    check($failed['runtime_db_version'] === '', 'Failed DB read should hide DB version');
+    check($failed['runtime_php_version'] === PHP_VERSION, 'Failed DB read broke footer');
+    renderFooter(true, 'valid', $emptySession, $missingDb);
+    check($missingDb->calls === 1, 'Failed DB read must also be cached');
+    echo "Admin footer environment: PASS\n";
 }

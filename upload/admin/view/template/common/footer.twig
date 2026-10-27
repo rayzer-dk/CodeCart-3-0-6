@@ -10,6 +10,10 @@
   {% if environment_visible %}
     <div class="ccp-footer-runtime" aria-label="{{ text_runtime_more }}">
       <span class="ccp-footer-runtime-item"><span>{{ text_runtime_php }}:</span> <strong>{{ runtime_php_version }}</strong></span>
+      {% if runtime_db_version %}
+        <span class="ccp-footer-runtime-item" title="{{ runtime_db_version_full|e('html_attr') }}"><span>{{ runtime_db_name }}:</span> <strong>{{ runtime_db_version }}</strong></span>
+      {% endif %}
+      {% if runtime_db_charset %}<span class="ccp-footer-runtime-item"><span>{{ text_runtime_db_charset }}:</span> <strong>{{ runtime_db_charset }}</strong></span>{% endif %}
       {% if runtime_ioncube_version %}
         <span class="ccp-footer-runtime-item"><span>{{ text_runtime_ioncube }}:</span> <strong>{{ runtime_ioncube_version }}</strong></span>
       {% endif %}
@@ -27,6 +31,9 @@
           <span>{{ text_runtime_upload }}: <strong>{{ runtime_upload_limit }}</strong></span>
           <span>{{ text_runtime_post }}: <strong>{{ runtime_post_limit }}</strong></span>
           <span>{{ text_runtime_sapi }}: <strong>{{ runtime_sapi }}</strong></span>
+          {% if runtime_web_server %}<span>{{ text_runtime_web_server }}: <strong>{{ runtime_web_server }}</strong></span>{% endif %}
+          {% if runtime_db_version_full %}<span>{{ runtime_db_name }}: <strong>{{ runtime_db_version_full }}</strong></span>{% endif %}
+          {% if runtime_db_collation %}<span>{{ text_runtime_db_collation }}: <strong>{{ runtime_db_collation }}</strong></span>{% endif %}
           {% if runtime_db_driver %}<span>{{ text_runtime_db_driver }}: <strong>{{ runtime_db_driver }}</strong></span>{% endif %}
           {% if runtime_build %}<span>{{ text_runtime_build }}: <strong>{{ runtime_build }}</strong></span>{% endif %}
         </div>
