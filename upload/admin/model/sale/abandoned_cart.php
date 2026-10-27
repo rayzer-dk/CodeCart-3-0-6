@@ -80,7 +80,10 @@ class ModelSaleAbandonedCart extends Model {
                 if ($suffix === 'cart' || $suffix === 'codecart_cart_guest_contact' ||
                     $suffix === 'codecart_cart_reminder_log') { continue; }
                 if (strpos($suffix, 'cart') === false && strpos($suffix, 'basket') === false) { continue; }
-                $found[] = array('table' => $name, 'mapping' => $this->inspectExternalTable($name));
+                $schema = $this->inspectExternalTable($name);
+                // Do not offer unrelated tables merely because their name includes cart/basket.
+                if (!$schema['valid'] || $schema['missing']) { continue; }
+                $found[] = array('table' => $name, 'mapping' => $schema);
                 if (count($found) >= 30) { break; }
             }
         } catch (\Throwable $e) { return array(); }

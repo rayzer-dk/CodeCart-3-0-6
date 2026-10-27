@@ -153,3 +153,18 @@ $_['text_external_no_candidates'] = 'Дополнительные таблицы
 $_['text_external_choose_table'] = 'Выберите SQL-таблицу (не адрес checkout)';
 $_['text_product_storefront'] = 'Открыть товар на витрине';
 $_['error_checkout_url'] = 'Введите HTTPS-адрес страницы оформления этого магазина, без стороннего домена.';
+
+// Cart source selection and robust metadata discovery.
+$_['entry_checkout_mode'] = 'Страница оформления заказа';
+$_['text_checkout_auto'] = 'Определять автоматически (рекомендуется)';
+$_['text_checkout_standard'] = 'Стандартный CodeCart / OpenCart';
+$_['text_checkout_unishop2'] = 'UniShop2 — uni_checkout';
+$_['text_checkout_custom'] = 'Другая страница (свой URL)';
+$_['text_checkout_mode_help'] = 'Это адрес, куда ведёт ссылка на оформление. Он не определяет таблицу корзин. Быстрое оформление CodeCart использует стандартную корзину.';
+$_['text_cart_data_help'] = 'Сначала используйте стандартную корзину. SQL-таблица нужна только когда модуль отдельно хранит товары.';
+$_['text_detect_tables_ready'] = 'Найдены возможные таблицы. Выберите одну и нажмите «Найти поля». Данные не изменены.';
+$_['error_table_route'] = 'Это маршрут страницы, а не SQL-таблица. Укажите таблицу (например, oc_theme_cart) или выберите стандартный источник.';
+$_['text_source_section'] = 'Источник данных и история';
+$_['text_checkout_section'] = 'Страница оформления';
+$_['text_reminders_section'] = 'Согласие и напоминания';
+$_['text_detect_no_write'] = 'Проверка читает только структуру базы, не изменяет данные и не сохраняет настройки.';

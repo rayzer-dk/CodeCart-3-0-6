@@ -35,7 +35,19 @@ class ControllerSaleAbandonedCart extends Controller {
         return $this->catalogBaseUrl() . 'index.php?route=' . $route;
     }
 
+    private function checkoutMode(): string {
+        $mode = (string)$this->config->get('codecart_abandoned_cart_checkout_mode');
+        if (in_array($mode, array('auto', 'standard', 'unishop2', 'custom'), true)) { return $mode; }
+        // Keep older installations with a custom checkout URL working unchanged.
+        $saved = trim((string)$this->config->get('codecart_abandoned_cart_checkout_url'));
+        return $saved !== '' && $saved !== $this->defaultCheckoutUrl() ? 'custom' : 'auto';
+    }
+
     private function checkoutUrl(): string {
+        $mode = $this->checkoutMode();
+        if ($mode === 'standard') { return $this->catalogBaseUrl() . 'index.php?route=checkout/checkout'; }
+        if ($mode === 'unishop2') { return $this->catalogBaseUrl() . 'index.php?route=checkout/uni_checkout'; }
+        if ($mode === 'auto') { return $this->defaultCheckoutUrl(); }
         $saved = trim((string)$this->config->get('codecart_abandoned_cart_checkout_url'));
         return $saved !== '' ? $saved : $this->defaultCheckoutUrl();
     }
@@ -64,7 +76,57 @@ class ControllerSaleAbandonedCart extends Controller {
         // OFF: do not query carts or run cart actions. Core shopping cart unaffected.
         $enabled = (bool)$this->config->get('codecart_abandoned_cart_status');
         $source = (string)$this->config->get('codecart_abandoned_cart_source') === 'external' ? 'external' : 'standard';
-        if (($this->request->server['REQUEST_METHOD'] ?? '') === 'POST' && isset($this->request->post['save_cart_settings'])) {
+        // Native POST discovery works even when AJAX is blocked by a theme or hosting WAF.
+        // It only reads schema metadata and never saves or alters cart settings.
+        $detectRequest = ($this->request->server['REQUEST_METHOD'] ?? '') === 'POST'
+            && isset($this->request->post['detect_cart_source']);
+        $detectedTables = array();
+        $detectedFields = array();
+        $detectMessage = '';
+        $detectError = false;
+        $detectedTable = '';
+        if ($detectRequest) {
+            $token = (string)($this->request->get['user_token'] ?? '');
+            $sessionToken = (string)($this->session->data['user_token'] ?? '');
+            $operation = (string)$this->request->post['detect_cart_source'];
+            if ($token === '' || $sessionToken === '' || !hash_equals($sessionToken, $token)
+                || !$this->user->hasPermission('access', 'sale/abandoned_cart')
+                || !$this->user->hasPermission('modify', 'sale/abandoned_cart')) {
+                $detectError = true;
+                $detectMessage = $this->language->get('error_permission');
+            } else {
+                $this->load->model('sale/abandoned_cart');
+                if ($operation === 'tables') {
+                    $detectedTables = $this->model_sale_abandoned_cart->findExternalCartTables();
+                    $detectMessage = $detectedTables ? $this->language->get('text_detect_tables_ready') : $this->language->get('text_external_no_candidates');
+                } elseif ($operation === 'columns') {
+                    $detectedTable = trim((string)($this->request->post['cart_detect_table'] ?? ''));
+                    if ($detectedTable === '') { $detectedTable = trim((string)($this->request->post['cart_table'] ?? '')); }
+                    if (strpos($detectedTable, '/') !== false || strpos($detectedTable, '?') !== false) {
+                        $detectMessage = $this->language->get('error_table_route');
+                        $detectError = true;
+                    } else {
+                        $schema = $this->model_sale_abandoned_cart->inspectExternalTable($detectedTable);
+                        if (!$schema['valid']) {
+                            $detectMessage = $this->language->get('text_external_detect_failed');
+                            $detectError = true;
+                        } else {
+                            $detectedFields = $schema['fields'];
+                            if ($schema['missing']) {
+                                $detectMessage = $this->language->get('text_external_detect_warning') . ': ' . implode(', ', $schema['missing']);
+                                $detectError = true;
+                            } else {
+                                $detectMessage = $this->language->get('text_external_detect_success');
+                            }
+                        }
+                    }
+                } else {
+                    $detectError = true;
+                    $detectMessage = $this->language->get('text_external_detect_failed');
+                }
+            }
+        }
+        if (($this->request->server['REQUEST_METHOD'] ?? '') === 'POST' && !$detectRequest && isset($this->request->post['save_cart_settings'])) {
             $token = (string)($this->request->get['user_token'] ?? '');
             $sessionToken = (string)($this->session->data['user_token'] ?? '');
             $error = '';
@@ -81,8 +143,13 @@ class ControllerSaleAbandonedCart extends Controller {
                     'codecart_abandoned_cart_mail_auto' => !empty($this->request->post['cart_mail_auto']) ? 1 : 0,
                     'codecart_abandoned_cart_guest_capture' => !empty($this->request->post['cart_guest_capture']) ? 1 : 0
                 );
-                $checkoutUrl = trim((string)($this->request->post['cart_checkout_url'] ?? ''));
-                if ($checkoutUrl === '') { $checkoutUrl = $this->defaultCheckoutUrl(); }
+                $checkoutMode = (string)($this->request->post['cart_checkout_mode'] ?? 'auto');
+                if (!in_array($checkoutMode, array('auto', 'standard', 'unishop2', 'custom'), true)) { $checkoutMode = 'auto'; }
+                $settings['codecart_abandoned_cart_checkout_mode'] = $checkoutMode;
+                if ($checkoutMode === 'standard') { $checkoutUrl = $this->catalogBaseUrl() . 'index.php?route=checkout/checkout'; }
+                elseif ($checkoutMode === 'unishop2') { $checkoutUrl = $this->catalogBaseUrl() . 'index.php?route=checkout/uni_checkout'; }
+                elseif ($checkoutMode === 'auto') { $checkoutUrl = $this->defaultCheckoutUrl(); }
+                else { $checkoutUrl = trim((string)($this->request->post['cart_checkout_url'] ?? '')); }
                 $expected = parse_url($this->catalogBaseUrl());
                 $given = parse_url($checkoutUrl);
                 if (!is_array($given) || strtolower((string)($given['scheme'] ?? '')) !== 'https'
@@ -207,7 +274,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'text_send_only_optin',            'text_history_error','text_history_manual','text_history_auto',
             'entry_checkout_url','text_checkout_url_help','text_external_source_explanation',
             'text_external_table_candidates','text_external_no_candidates','text_external_choose_table',
-            'text_product_storefront','error_checkout_url'
+            'text_product_storefront','error_checkout_url','entry_checkout_mode','text_checkout_auto','text_checkout_standard','text_checkout_unishop2','text_checkout_custom','text_checkout_mode_help','text_cart_data_help','text_detect_tables_ready','error_table_route','text_source_section','text_checkout_section','text_reminders_section','text_detect_no_write'
         ) as $key) { $data[$key] = $this->language->get($key); }
 
         if (!empty($this->session->data['success'])) {
@@ -228,7 +295,34 @@ class ControllerSaleAbandonedCart extends Controller {
         foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
             $data['cart_fields'][$name] = (string)$this->config->get('codecart_abandoned_cart_' . $name);
         }
+        // Discovery is a preview only. Keep all current form inputs after a detection POST.
+        $data['cart_form_source'] = $source;
+        $data['cart_checkout_mode'] = $this->checkoutMode();
+        if ($detectRequest) {
+            $data['cart_form_source'] = 'external';
+            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
+                if (isset($this->request->post['cart_' . $name])) {
+                    $data['cart_fields'][$name] = substr(trim((string)$this->request->post['cart_' . $name]), 0, 64);
+                }
+            }
+            if ($detectedTable !== '') { $data['cart_fields']['table'] = $detectedTable; }
+            foreach ($detectedFields as $name => $column) {
+                // Preserve manual mapping for unmatched optional columns.
+                if ($column !== '') { $data['cart_fields'][$name] = $column; }
+            }
+            foreach (array('status'=>'cart_status','idle_minutes'=>'cart_idle_minutes','days'=>'cart_days','mail_auto'=>'cart_mail_auto','guest_capture'=>'cart_guest_capture') as $name=>$post) {
+                if (isset($this->request->post[$post])) { $data['cart_fields'][$name] = (int)$this->request->post[$post]; }
+            }
+            if (isset($this->request->post['cart_checkout_mode'])) {
+                $postedMode = (string)$this->request->post['cart_checkout_mode'];
+                if (in_array($postedMode, array('auto','standard','unishop2','custom'), true)) { $data['cart_checkout_mode'] = $postedMode; }
+            }
+        }
+        $data['detected_tables'] = $detectedTables;
+        $data['detect_message'] = $detectMessage;
+        $data['detect_error'] = $detectError;
         $data['cart_fields']['checkout_url'] = $this->checkoutUrl();
+        if ($detectRequest && isset($this->request->post['cart_checkout_url'])) { $data['cart_fields']['checkout_url'] = substr(trim((string)$this->request->post['cart_checkout_url']), 0, 512); }
         $data['external_tables_url'] = html_entity_decode($this->url->link('sale/abandoned_cart/externalTables', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
         $data['catalog_checkout_url'] = $this->checkoutUrl();
         $data['text_external_source_explanation'] = $this->language->get('text_external_source_explanation');

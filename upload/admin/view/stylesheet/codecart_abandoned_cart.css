@@ -74,3 +74,32 @@
 .ccp-carts-page .ccp-checkout-link-setting{margin:4px 0 12px;max-width:950px}
 .ccp-carts-page .ccp-table-chooser{display:flex;gap:9px;align-items:center;margin:5px 0 12px;flex-wrap:wrap}
 .ccp-carts-page .ccp-table-chooser select{max-width:380px;flex:1 1 250px}
+
+/* Balanced columns on desktop, with horizontal overflow only when genuinely narrow. */
+.ccp-carts-page .ccp-abandoned-cart-table{min-width:1060px;table-layout:fixed;width:100%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-select{width:3%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-customer{width:14%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-email{width:16%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-products{width:27%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-quantity{width:5%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-total{width:9%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-activity{width:11%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-status{width:7%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-actions{width:8%}
+.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(-n+6){width:auto}
+.ccp-carts-page .ccp-abandoned-cart-table td{overflow-wrap:break-word;word-break:normal}
+.ccp-carts-page .ccp-abandoned-cart-table td:nth-last-child(2){overflow-wrap:anywhere}
+.ccp-carts-page .ccp-settings-section-heading{font-size:14px;font-weight:700;margin:12px 0 11px;padding:0 0 7px;border-bottom:1px solid #e4eaf1;color:#254663}
+.ccp-carts-page .ccp-checkout-link-setting{max-width:100%;margin:10px 0 16px}
+.ccp-carts-page #ccp-cart-checkout-mode{max-width:520px}
+.ccp-carts-page .ccp-checkout-url-box{max-width:950px;margin:9px 0}
+.ccp-carts-page .ccp-data-hint{font-size:12px;padding:9px 11px;background:#fff;border-left:3px solid #0057d9;border-radius:3px;color:#385675}
+.ccp-carts-page #ccp-external-detect-result{margin:8px 0;font-size:12px}
+@media(max-width:1100px){.ccp-carts-page .ccp-abandoned-cart-table{min-width:1100px}}
+.ccp-carts-page .ccp-cart-history-table{table-layout:fixed;min-width:800px}
+.ccp-carts-page .ccp-cart-history-table th:nth-child(1){width:17%}
+.ccp-carts-page .ccp-cart-history-table th:nth-child(2){width:22%}
+.ccp-carts-page .ccp-cart-history-table th:nth-child(3){width:12%}
+.ccp-carts-page .ccp-cart-history-table th:nth-child(4){width:12%}
+.ccp-carts-page .ccp-cart-history-table th:nth-child(5){width:8%}
+.ccp-carts-page .ccp-cart-history-table th:nth-child(6){width:29%}

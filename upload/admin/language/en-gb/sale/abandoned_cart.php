@@ -152,3 +152,18 @@ $_['text_external_no_candidates'] = 'No additional cart/basket tables were found
 $_['text_external_choose_table'] = 'Choose SQL table (not checkout URL)';
 $_['text_product_storefront'] = 'Open product in storefront';
 $_['error_checkout_url'] = 'Enter an HTTPS checkout URL on the same store, not another domain.';
+
+// Cart source selection and robust metadata discovery.
+$_['entry_checkout_mode'] = 'Checkout page type';
+$_['text_checkout_auto'] = 'Detect automatically (recommended)';
+$_['text_checkout_standard'] = 'Standard CodeCart / OpenCart';
+$_['text_checkout_unishop2'] = 'UniShop2 — uni_checkout';
+$_['text_checkout_custom'] = 'Different page (custom URL)';
+$_['text_checkout_mode_help'] = 'This is where a checkout link opens, not the shopping-cart database table. CodeCart quick checkout uses the standard cart.';
+$_['text_cart_data_help'] = 'Start with the standard OpenCart cart. Only choose an SQL table if an extension stores the cart items separately.';
+$_['text_detect_tables_ready'] = 'Potential tables found. Select one and click Detect columns. No settings were changed.';
+$_['error_table_route'] = 'This is a checkout route, not a database table. Enter a table (e.g. oc_theme_cart) or select the standard source.';
+$_['text_source_section'] = 'Cart storage and history';
+$_['text_checkout_section'] = 'Checkout page';
+$_['text_reminders_section'] = 'Consent and reminders';
+$_['text_detect_no_write'] = 'Detection reads database metadata only; it does not modify records or save configuration.';
