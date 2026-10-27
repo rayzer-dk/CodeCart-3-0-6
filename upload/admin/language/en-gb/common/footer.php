@@ -47,3 +47,20 @@ Description: ';
 
 $_['text_community'] = 'Telegram community';
 $_['text_repository'] = 'GitHub repository';
+
+// Compact, authenticated administration environment information.
+$_['text_runtime_php'] = 'PHP';
+$_['text_runtime_ioncube'] = 'ionCube';
+$_['text_runtime_not_installed'] = 'Not installed';
+$_['text_runtime_server_time'] = 'Server time';
+$_['text_runtime_time_hint'] = 'PHP server time at page load; the database timezone may differ.';
+$_['text_runtime_more'] = 'System details';
+$_['text_runtime_memory'] = 'PHP memory limit';
+$_['text_runtime_execution'] = 'Execution time limit';
+$_['text_runtime_unlimited'] = 'Unlimited';
+$_['text_runtime_upload'] = 'Maximum file upload';
+$_['text_runtime_post'] = 'Maximum POST size';
+$_['text_runtime_timezone'] = 'PHP timezone';
+$_['text_runtime_sapi'] = 'PHP mode';
+$_['text_runtime_db_driver'] = 'Database driver';
+$_['text_runtime_build'] = 'Package build';

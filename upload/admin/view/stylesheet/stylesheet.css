@@ -2274,3 +2274,22 @@ html.ccp-admin-dark #header .ccp-admin-profile-fallback{background:#273443;borde
 .ccp-notification-pagination .btn{min-width:36px}
 html.ccp-admin-dark .ccp-notification-statuses>.btn.active{background:#173350;color:#9dcdff;border-color:#3971ac}
 @media(max-width:767px){.ccp-notification-statuses{width:100%;overflow-x:auto;flex-wrap:nowrap}.ccp-notification-page-toolbar{gap:10px}.ccp-notification-page-toolbar #button-clear-read{width:100%}}
+
+/* CodeCart PRO: concise administration environment summary in the footer. */
+#footer{height:auto;min-height:100px;padding:10px 12px 16px;box-sizing:border-box;line-height:1.5}
+#footer .ccp-footer-runtime{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 13px;margin:7px auto 0;max-width:100%;font-size:12px;color:#64748b}
+#footer .ccp-footer-runtime-item{display:inline-flex;gap:4px;align-items:center;white-space:nowrap}
+#footer .ccp-footer-runtime-item+ .ccp-footer-runtime-item:before{content:'|';margin-right:9px;color:#9aa7b5}
+#footer .ccp-footer-runtime-item strong{font-weight:600;color:#334155}
+#footer .ccp-footer-runtime-details{display:inline-block;max-width:100%}
+#footer .ccp-footer-runtime-details>summary{display:inline-block;cursor:pointer;color:#0b6fd3;list-style:none;font-weight:600}
+#footer .ccp-footer-runtime-details>summary::-webkit-details-marker{display:none}
+#footer .ccp-footer-runtime-details>summary:focus-visible{outline:2px solid #0b6fd3;outline-offset:2px;border-radius:3px}
+#footer .ccp-footer-runtime-details[open]{flex-basis:100%}
+#footer .ccp-footer-runtime-detail-list{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 16px;margin-top:5px;font-size:11px}
+#footer .ccp-footer-runtime-detail-list>span{white-space:nowrap}
+#footer .ccp-footer-runtime-detail-list strong{font-weight:600;color:#334155}
+html.ccp-admin-dark #footer .ccp-footer-runtime{color:#a8b8cb}
+html.ccp-admin-dark #footer .ccp-footer-runtime-item strong,html.ccp-admin-dark #footer .ccp-footer-runtime-detail-list strong{color:#e0e8f0}
+html.ccp-admin-dark #footer .ccp-footer-runtime-details>summary{color:#80beff}
+@media(max-width:767px){#footer{min-height:0;padding:12px 8px 18px}#footer .ccp-footer-runtime{gap:3px 10px;font-size:11px}#footer .ccp-footer-runtime-item+ .ccp-footer-runtime-item:before{margin-right:5px}}

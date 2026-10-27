@@ -14,10 +14,42 @@ class ControllerCommonFooter extends Controller {
 
 		$logged = $this->user->isLogged() && isset($this->request->get['user_token']) && ($this->request->get['user_token'] == $this->session->data['user_token']);
 
+		$data['environment_visible'] = $logged;
+		$data['text_codecart_release'] = $logged ? 'CodeCart PRO ' . VERSION : '';
+
+		// Lightweight diagnostic snapshot. No SQL, remote calls or extra assets
+		// are needed to render the footer on every administration page.
 		if ($logged) {
-			$data['text_codecart_release'] = 'CodeCart PRO ' . VERSION;
-		} else {
-			$data['text_codecart_release'] = '';
+			foreach (array(
+				'text_runtime_php', 'text_runtime_ioncube', 'text_runtime_not_installed',
+				'text_runtime_server_time', 'text_runtime_time_hint', 'text_runtime_more',
+				'text_runtime_memory', 'text_runtime_execution', 'text_runtime_unlimited',
+				'text_runtime_upload', 'text_runtime_post', 'text_runtime_timezone',
+				'text_runtime_sapi', 'text_runtime_db_driver', 'text_runtime_build'
+			) as $key) {
+				$data[$key] = $this->language->get($key);
+			}
+
+			$data['runtime_php_version'] = PHP_VERSION;
+			$ioncube = '';
+			if (function_exists('ioncube_loader_version')) {
+				$ioncube = (string)ioncube_loader_version();
+			} elseif (extension_loaded('ionCube Loader')) {
+				$ioncube = (string)phpversion('ionCube Loader');
+			}
+			$data['runtime_ioncube_version'] = $ioncube;
+			$data['runtime_server_time'] = date('d.m.Y H:i:s');
+			$data['runtime_server_time_iso'] = date('c');
+			$data['runtime_timezone'] = date_default_timezone_get();
+			$data['runtime_memory_limit'] = (string)ini_get('memory_limit');
+			$data['runtime_upload_limit'] = (string)ini_get('upload_max_filesize');
+			$data['runtime_post_limit'] = (string)ini_get('post_max_size');
+			$max_execution_time = (int)ini_get('max_execution_time');
+			$data['runtime_execution_limit'] = $max_execution_time > 0
+				? $max_execution_time . ' s' : $data['text_runtime_unlimited'];
+			$data['runtime_sapi'] = PHP_SAPI;
+			$data['runtime_db_driver'] = defined('DB_DRIVER') ? (string)DB_DRIVER : '';
+			$data['runtime_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '';
 		}
 
 		$data['project_support_enabled'] = $logged;

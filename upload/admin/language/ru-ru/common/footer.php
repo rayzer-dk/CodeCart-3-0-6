@@ -46,3 +46,20 @@ $_['text_report_body'] = 'Тип: ошибка / предложение / дор
 
 $_['text_community'] = 'Сообщество Telegram';
 $_['text_repository'] = 'Репозиторий GitHub';
+
+// Compact, authenticated administration environment information.
+$_['text_runtime_php'] = 'PHP';
+$_['text_runtime_ioncube'] = 'ionCube';
+$_['text_runtime_not_installed'] = 'Не установлен';
+$_['text_runtime_server_time'] = 'Время сервера';
+$_['text_runtime_time_hint'] = 'Время PHP на момент загрузки страницы; часовой пояс базы данных может отличаться.';
+$_['text_runtime_more'] = 'Параметры системы';
+$_['text_runtime_memory'] = 'Лимит памяти PHP';
+$_['text_runtime_execution'] = 'Лимит времени выполнения';
+$_['text_runtime_unlimited'] = 'Без ограничений';
+$_['text_runtime_upload'] = 'Максимальный размер файла';
+$_['text_runtime_post'] = 'Максимальный размер POST';
+$_['text_runtime_timezone'] = 'Часовой пояс PHP';
+$_['text_runtime_sapi'] = 'Режим PHP';
+$_['text_runtime_db_driver'] = 'Драйвер БД';
+$_['text_runtime_build'] = 'Сборка';
