@@ -21,3 +21,11 @@ Carts: search by email, customer, phone, product; filter by contactability or gu
 ## Security and cleanup
 
 All mutating admin actions require POST, user-token check and access/modify permissions. Source field names use an identifier allowlist. Guest recovery uses an unguessable single-use token. Turning guest capture off removes guest contact records from that store after an explicit settings save. The scheduled guest purge is disabled when guest capture is disabled.
+
+## External SQL cart source
+
+Use the Standard OpenCart source unless the checkout writes cart lines to a **separate real SQL table**. External mode reads only and cannot send automated reminders or capture guest checkout contacts. Enter the table name, select **Detect columns**, review the suggestions and save. If a non-standard column cannot be detected, expand **Column mapping** and enter its actual database identifier. A session ID, product ID, quantity and timestamp are required per cart line; customer ID, email and telephone are optional. The adapter does not support carts stored exclusively in localStorage or arbitrary serialized JSON payloads. It does not delete or edit third-party tables. Backup your site and database before deploying updates.
+
+## Scheduler and hosting Cron
+
+CodeCart internal tasks select an installed `catalog/controller/cron/*.php` handler, choose a schedule (minimum five minutes for new custom tasks) and save. The technical code and route are generated from the selected handler; existing built-in jobs are not duplicated. The optional hosting helper accepts a third-party module's one-line CLI/HTTPS command and shows the five matching Mirohost cron scheduling fields, but **does not execute or store that command**. Paste it into the hosting control panel as a separate host job. The shared CodeCart CLI command `php /path/to/site/cli.php cron:run` should be installed once on the host, ideally every five minutes. Do not execute both the CodeCart CLI and HTTPS commands for the same schedule.

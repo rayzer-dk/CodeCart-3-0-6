@@ -28,7 +28,8 @@ class ControllerToolScheduler extends Controller {
                             'route' => substr((string)($this->request->post['route'] ?? ''), 0, 255),
                             'args' => substr((string)($this->request->post['args'] ?? '{}'), 0, 8192),
                             'interval_seconds' => (int)($this->request->post['interval_seconds'] ?? 3600),
-                            'status' => !empty($this->request->post['status']) ? 1 : 0
+                            'status' => !empty($this->request->post['status']) ? 1 : 0,
+                            'available_handler' => substr((string)($this->request->post['available_handler'] ?? ''), 0, 128)
                         );
                     }
                 }
@@ -65,7 +66,7 @@ class ControllerToolScheduler extends Controller {
         foreach (array('text_server_setup', 'text_server_interval', 'text_server_one_command', 'text_job_help', 'text_job_type', 'text_manual', 'text_choose_example', 'text_handler_warning',
           'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help','text_existing_codes_info',
           'text_choose_available_handler','text_advanced_options','text_scheduler_health','text_scheduler_health_ok','text_scheduler_health_warn','text_scheduler_health_none',
-          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info','text_ready_handlers_count','text_no_free_handler','text_save_failed','text_interval_preset','text_interval_custom','text_scheduler_host_unverified','text_scheduler_intro','text_create_task_hint','text_task_paused') as $key) {
+          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info','text_ready_handlers_count','text_no_free_handler','text_save_failed','text_interval_preset','text_interval_custom','text_scheduler_host_unverified','text_scheduler_intro','text_create_task_hint','text_task_paused','text_native_task_type','text_host_task_type','text_host_command_label','text_host_command_help','text_host_schedule_help','text_host_copy','text_host_security','text_handler_select_help','text_advanced_identifiers','text_task_no_handler','text_host_minute','text_host_hour','text_host_dom','text_host_month','text_host_dow','text_job_name_header') as $key) {
             $data[$key] = $this->language->get($key);
         }
         $data['text_loading_task'] = $this->language->get('text_loading_task');
@@ -121,7 +122,7 @@ class ControllerToolScheduler extends Controller {
             $age = isset($heartbeat->row['age_minutes']) ? (int)$heartbeat->row['age_minutes'] : 999999;
             $data['scheduler_health'] = !$lastRun ? 'none' : (($age >= 0 && $age <= 10) ? 'ok' : 'warn');
             $data['scheduler_health_date'] = $lastRun;
-            $blocked = array('codecart','mail_delivery','cart_reminder','relation','lost_url');
+            $blocked = array('codecart','mail_delivery','cart_reminder','cart_guest_purge','relation','lost_url');
             foreach (glob(DIR_CATALOG . 'controller/cron/*.php') ?: array() as $handlerFile) {
                 $handler = basename($handlerFile,'.php');
                 if (!preg_match('/^[a-z0-9_]+$/i',$handler) || in_array($handler,$blocked,true)) { continue; }
@@ -239,6 +240,7 @@ class ControllerToolScheduler extends Controller {
                 'args' => (string)($old['args'] ?? '{}'),
                 'interval_seconds' => (int)($old['interval_seconds'] ?? 3600),
                 'status' => (int)($old['status'] ?? 0),
+                'available_handler' => (string)($old['available_handler'] ?? ''),
                 'is_core' => $original && strpos((string)$original['code'], 'core.') === 0
             );
         }
@@ -356,6 +358,24 @@ class ControllerToolScheduler extends Controller {
             $code = isset($this->request->post['code']) ? trim((string)$this->request->post['code']) : '';
             $route = isset($this->request->post['route']) ? trim((string)$this->request->post['route']) : '';
             $interval = isset($this->request->post['interval_seconds']) ? (int)$this->request->post['interval_seconds'] : 0;
+            if ($schedulerId === 0) {
+                // The chosen installed handler is the sole source for the route and task code.
+                $selected = trim((string)($this->request->post['available_handler'] ?? ''));
+                if (!preg_match('#^cron/([a-z0-9_]+)$#i', $selected, $match)
+                    || in_array(strtolower($match[1]), array('codecart','mail_delivery','cart_reminder','cart_guest_purge','relation','lost_url'), true)) {
+                    throw new \InvalidArgumentException($this->language->get('text_task_no_handler'));
+                }
+                $handlerFile = DIR_CATALOG . 'controller/cron/' . $match[1] . '.php';
+                if (!is_file($handlerFile)) {
+                    throw new \InvalidArgumentException($this->language->get('error_route_missing'));
+                }
+                $source = file_get_contents($handlerFile);
+                if ($source === false || !preg_match('/function\s+index\s*\(/i', $source)) {
+                    throw new \InvalidArgumentException($this->language->get('error_route_missing'));
+                }
+                $route = $selected;
+                $code = 'custom.' . strtolower($match[1]);
+            }
             $status = !empty($this->request->post['status']);
             $rawArgs = isset($this->request->post['args']) ? trim((string)$this->request->post['args']) : '{}';
             if ($rawArgs === '') { $rawArgs = '{}'; }
@@ -392,7 +412,7 @@ class ControllerToolScheduler extends Controller {
                     throw new \InvalidArgumentException($this->language->get('error_duplicate_route'));
                 }
             }
-            if ($interval < 60 || $interval > 31536000) {
+            if ($interval < ($schedulerId === 0 ? 300 : 60) || $interval > 31536000) {
                 throw new \InvalidArgumentException($this->language->get('error_interval'));
             }
             if ($schedulerId > 0) {

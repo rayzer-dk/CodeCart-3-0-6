@@ -59,3 +59,8 @@
 .ccp-carts-page .ccp-cart-danger-zone p{font-size:12px;margin:10px 0}
 @media(max-width:1100px){.ccp-carts-page .ccp-cart-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){.ccp-carts-page .ccp-cart-kpis{gap:7px}.ccp-carts-page .ccp-cart-kpi{padding:10px;gap:7px}.ccp-carts-page .ccp-cart-kpi strong{font-size:18px}.ccp-carts-page .ccp-cart-kpi i{font-size:16px;width:16px}.ccp-carts-page .ccp-cart-kpi span{font-size:11px}.ccp-carts-page .ccp-cart-tabs>li>a{padding:9px 8px;font-size:12px}.ccp-carts-page .ccp-cart-content{padding:9px}.ccp-carts-page .ccp-mail-control{display:block}.ccp-carts-page .ccp-mail-control select{margin:8px 0}.ccp-carts-page .ccp-cart-bulk small{flex-basis:100%;text-align:left}}
+
+.ccp-external-advanced{margin-top:9px;padding:10px 12px;border:1px solid #d9e3ee;background:#fafcfe;border-radius:4px}
+.ccp-external-advanced > summary{cursor:pointer;font-weight:600;color:#20517e}
+.ccp-external-advanced[open] > summary{margin-bottom:12px}
+#ccp-external-detect-result{margin:8px 0 0}

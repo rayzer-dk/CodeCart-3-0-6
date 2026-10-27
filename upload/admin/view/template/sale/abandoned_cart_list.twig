@@ -140,24 +140,26 @@
               <option value="0" {{ not cart_fields.guest_capture ? 'selected' : '' }}>{{ text_disabled }}</option>
               <option value="1" {{ cart_fields.guest_capture ? 'selected' : '' }}>{{ text_enabled }}</option>
             </select><p class="help-block">{{ text_guest_capture_help }}</p></div>
-          <div class="ccp-external-fields">
-            <div class="alert alert-info">{{ text_cart_mapping_info }}</div>
-            <div class="row">
-              {% set mapping = {'table': entry_cart_table, 'col_session': entry_col_session, 'col_product': entry_col_product,
-                'col_quantity': entry_col_quantity, 'col_date': entry_col_date, 'col_customer': entry_col_customer,
-                'col_email': entry_col_email, 'col_phone': entry_col_phone} %}
-              {% set placeholders = {'table':'theme_cart','col_session':'session_id','col_product':'product_id',
-                'col_quantity':'quantity','col_date':'date_added','col_customer':'customer_id',
-                'col_email':'email','col_phone':'telephone'} %}
+          <div class="ccp-external-fields" id="ccp-external-mapping" data-schema-url="{{ external_schema_url|e('html_attr') }}"
+               data-detect-ok="{{ text_external_detect_success|e('html_attr') }}" data-detect-failed="{{ text_external_detect_failed|e('html_attr') }}"
+               data-missing="{{ text_external_detect_warning|e('html_attr') }}">
+            <p class="help-block">{{ text_external_simple }}</p>
+            <div class="row"><div class="col-sm-7 col-md-6 ccp-map-field"><label for="map-table">{{ entry_cart_table }} <span class="text-danger">*</span></label>
+              <input type="text" name="cart_table" id="map-table" class="form-control" value="{{ cart_fields.table }}" placeholder="theme_cart" autocomplete="off" maxlength="64"></div>
+              <div class="col-sm-5 col-md-3 ccp-map-field"><label>&nbsp;</label><button type="button" class="btn btn-default btn-block" id="ccp-external-autodetect"><i class="fa fa-search"></i> {{ text_external_auto_detect }}</button></div></div>
+            <div id="ccp-external-detect-result" class="help-block" role="status" aria-live="polite"></div>
+            <details class="ccp-external-advanced"><summary><i class="fa fa-wrench"></i> {{ text_external_advanced }}</summary>
+              <p class="help-block">{{ text_cart_mapping_info }}</p><div class="row">
+              {% set mapping = {'col_session': entry_col_session, 'col_product': entry_col_product, 'col_quantity': entry_col_quantity,
+                'col_date': entry_col_date, 'col_customer': entry_col_customer,'col_email': entry_col_email, 'col_phone': entry_col_phone} %}
+              {% set placeholders = {'col_session':'session_id','col_product':'product_id', 'col_quantity':'quantity',
+                'col_date':'date_added','col_customer':'customer_id','col_email':'email','col_phone':'telephone'} %}
               {% for key, label in mapping %}
-                <div class="col-sm-6 col-md-3 ccp-map-field"><label for="map-{{ key }}">{{ label }}</label>
-                  <input type="text" name="cart_{{ key }}" id="map-{{ key }}" class="form-control" value="{{ attribute(cart_fields, key) }}"
-                    placeholder="{{ attribute(placeholders,key) }}" autocomplete="off" maxlength="64"></div>
+                <div class="col-sm-6 col-md-3 ccp-map-field"><label for="map-{{ key }}">{{ label }}{% if key in ['col_session','col_product','col_quantity','col_date'] %} <span class="text-danger">*</span>{% endif %}</label>
+                <input type="text" name="cart_{{ key }}" id="map-{{ key }}" class="form-control" value="{{ attribute(cart_fields, key) }}" placeholder="{{ attribute(placeholders,key) }}" autocomplete="off" maxlength="64"></div>
               {% endfor %}
-            </div>
-            {% if cart_source == 'external' and cart_enabled and not cart_mapping_valid %}
-              <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ error_cart_mapping }}</div>
-            {% endif %}
+              </div><p class="help-block">{{ text_external_required }} {{ text_external_optional }}</p></details>
+            {% if cart_source == 'external' and cart_enabled and not cart_mapping_valid %}<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ error_cart_mapping }}</div>{% endif %}
           </div>
 
           {% if cart_can_modify %}<div class="text-right ccp-cart-settings-actions"><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div>{% endif %}

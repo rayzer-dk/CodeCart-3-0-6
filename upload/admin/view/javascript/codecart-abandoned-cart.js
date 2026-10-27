@@ -4,9 +4,38 @@
         var $root = $('.ccp-carts-page');
         if (!$root.length) { return; }
         function mapping() {
-            $root.find('.ccp-external-fields').toggleClass('is-visible', $('#abandoned-source').val() === 'external');
+            var external = $('#abandoned-source').val() === 'external';
+            $root.find('.ccp-external-fields').toggleClass('is-visible', external);
+            // External mode is read-only and cannot send reminders or capture guest checkout contacts.
+            var $mail = $('#abandoned-mail-auto'), $guest = $('#abandoned-guest-capture');
+            if (external) { $mail.val('0'); $guest.val('0'); }
+            $mail.prop('disabled', external);
+            $guest.prop('disabled', external);
         }
         $('#abandoned-source').on('change', mapping); mapping();
+        $('#ccp-external-autodetect').on('click', function () {
+            var $section = $('#ccp-external-mapping'), table = $('#map-table').val().trim();
+            var $status = $('#ccp-external-detect-result');
+            var $button = $(this);
+            if (!table) { $status.text($section.attr('data-detect-failed')); return; }
+            $button.prop('disabled', true);
+            $.ajax({url: $section.attr('data-schema-url'), method: 'GET', dataType: 'json',
+                data: {table: table}, timeout: 12000, cache: false
+            }).done(function (result) {
+                if (!result || !result.success) {
+                    $status.text((result && result.error) || $section.attr('data-detect-failed'));
+                    return;
+                }
+                $.each(result.fields || {}, function (key, value) {
+                    $('#map-' + key).val(value || '');
+                });
+                if ((result.missing || []).length) {
+                    $section.find('.ccp-external-advanced').prop('open', true);
+                    $status.text($section.attr('data-missing') + ': ' + result.missing.join(', '));
+                } else { $status.text($section.attr('data-detect-ok')); }
+            }).fail(function () { $status.text($section.attr('data-detect-failed')); })
+              .always(function () { $button.prop('disabled', false); });
+        });
         var $boxes = $root.find('.ccp-cart-select');
         var $all = $('#ccp-cart-select-all');
         function selected() {

@@ -26,6 +26,46 @@ class ModelSaleAbandonedCart extends Model {
         return $this->customSourceCache;
     }
 
+    /** Read-only schema assistance for an administrator configuring a separate SQL cart table. */
+    public function inspectExternalTable(string $table): array {
+        $table = trim($table);
+        if (!preg_match('/^[A-Za-z0-9_]{1,64}$/', $table)) {
+            return array('valid' => false, 'columns' => array(), 'fields' => array(), 'missing' => array());
+        }
+        if (strpos($table, DB_PREFIX) !== 0) { $table = DB_PREFIX . $table; }
+        $columns = array();
+        try {
+            $query = $this->db->query('SHOW COLUMNS FROM `' . $table . '`');
+            foreach ($query->rows as $row) { $columns[] = (string)$row['Field']; }
+        } catch (\Throwable $e) {
+            return array('valid' => false, 'columns' => array(), 'fields' => array(), 'missing' => array());
+        }
+        $candidates = array(
+            'col_session' => array('session_id', 'session', 'cart_session_id'),
+            'col_product' => array('product_id', 'product', 'id_product'),
+            'col_quantity' => array('quantity', 'qty', 'count'),
+            'col_date' => array('date_added', 'date_modified', 'updated_at', 'created_at', 'date_create'),
+            'col_customer' => array('customer_id', 'id_customer', 'customer'),
+            'col_email' => array('email', 'customer_email'),
+            'col_phone' => array('telephone', 'phone', 'customer_phone')
+        );
+        $fields = array();
+        $missing = array();
+        foreach ($candidates as $key => $names) {
+            $found = '';
+            foreach ($names as $name) {
+                foreach ($columns as $column) {
+                    if (strcasecmp($column, $name) === 0) { $found = $column; break 2; }
+                }
+            }
+            $fields[$key] = $found;
+            if ($found === '' && in_array($key, array('col_session','col_product','col_quantity','col_date'), true)) {
+                $missing[] = $key;
+            }
+        }
+        return array('valid' => true, 'columns' => $columns, 'fields' => $fields, 'missing' => $missing);
+    }
+
     public function getExternalSourceStatus() { return $this->customSource() !== null; }
 
     private function sourceColumn($fields, $name, $otherwise) {

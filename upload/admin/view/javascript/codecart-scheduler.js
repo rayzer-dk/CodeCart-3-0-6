@@ -36,12 +36,16 @@
       }
     });
     setFrequency($interval.val());
+    if (+$form.find('input[name="scheduler_id"]').val() > 0) { $('#ccp-scheduler-handler-group').hide(); $interval.attr('min', '60'); }
+    else { $interval.attr('min', '300'); }
 
     function resetForm() {
       $form.find('input[name="scheduler_id"]').val('0');
-      $form.find('input[name="code"]').val('').prop('readOnly', false);
+      $form.find('input[name="code"]').val('').prop('readOnly', true);
       $form.find('input[name="route"]').val('');
       $('#input-scheduler-available').val('');
+      $('#ccp-scheduler-handler-group').show();
+      $interval.attr('min', '300');
       setFrequency(3600);
       $form.find('textarea[name="args"]').val('{}');
       $form.find('select[name="status"]').val('1');
@@ -62,7 +66,9 @@
 
     function populateForm(task) {
       $form.find('input[name="scheduler_id"]').val(task.scheduler_id);
-      $form.find('input[name="code"]').val(task.code).prop('readOnly', !!task.is_core);
+      $form.find('input[name="code"]').val(task.code).prop('readOnly', true);
+      $('#ccp-scheduler-handler-group').hide();
+      $interval.attr('min', '60');
       $form.find('input[name="route"]').val(task.route);
       setFrequency(task.interval_seconds);
       $form.find('textarea[name="args"]').val(task.args || '{}');
@@ -135,6 +141,31 @@
       if (!route) { return; }
       $form.find('input[name="route"]').val(route);
       $form.find('input[name="code"]').val($selected.attr('data-code') || 'custom.' + route.split('/').pop());
+    });
+
+    $('#ccp-host-reveal').on('click', function () {
+      var field = document.getElementById('ccp-host-command');
+      if (!field) { return; }
+      field.type = field.type === 'password' ? 'text' : 'password';
+      $(this).find('i').toggleClass('fa-eye fa-eye-slash');
+    });
+    $('#ccp-host-frequency').on('change', function () {
+      var interval = $(this).val(), minute = '*', hour = '*';
+      if (interval === 'custom') { return; }
+      if (interval === '5' || interval === '10' || interval === '15' || interval === '30') { minute = '*/' + interval; }
+      if (interval === '60') { minute = '0'; }
+      if (interval === '1440') { minute = '0'; hour = '0'; }
+      $('#ccp-host-minute').val(minute);
+      $('#ccp-host-hour').val(hour);
+      $('#ccp-host-dom,#ccp-host-month,#ccp-host-dow').val('*');
+    });
+    $('.ccp-host-time').on('input', function () { $('#ccp-host-frequency').val('custom'); });
+    $('#ccp-copy-host-command').on('click', function () {
+      var field = document.getElementById('ccp-host-command');
+      if (!field || !field.value.trim()) { field && field.focus(); return; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(field.value.trim()).catch(function () { field.select(); document.execCommand('copy'); });
+      } else { field.select(); document.execCommand('copy'); }
     });
 
     $add.on('click', function (event) {

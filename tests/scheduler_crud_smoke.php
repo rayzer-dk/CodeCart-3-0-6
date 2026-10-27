@@ -91,21 +91,29 @@ $adminDB = new SmokeDB();
 $adminScheduler = new \CodeCart\Core\Scheduler(new SmokeRegistry($adminDB));
 $controller = new ControllerToolScheduler();
 $controller->request = (object)array('post'=>array(
-    'scheduler_action'=>'save','scheduler_id'=>'0','code'=>'custom.guest_purge',
-    'route'=>'cron/cart_guest_purge','interval_seconds'=>'300','status'=>'1','args'=>'{}'
+    'scheduler_action'=>'save','scheduler_id'=>'0','available_handler'=>'cron/health',
+    'code'=>'', 'route'=>'','interval_seconds'=>'300','status'=>'1','args'=>'{}'
 ));
 $controller->session = (object)array('data'=>array());
 $controller->language = new SmokeLanguage();
 $method = (new ReflectionClass($controller))->getMethod('processAction');
 $method->invoke($controller, $adminScheduler);
 expect(count($adminDB->tasks) === 1, 'Admin save failed to create a task');
+expect($adminDB->tasks[1]['code'] === 'custom.health' && $adminDB->tasks[1]['route'] === 'cron/health', 'Automatic code/route generation failed');
 expect(!empty($controller->session->data['success']), 'Admin did not report success');
 try {
-    $controller->request->post['code'] = 'custom.guest_purge_dup';
+    $controller->request->post['code'] = 'custom.duplicate_attempt';
     $method->invoke($controller, $adminScheduler);
     throw new RuntimeException('Admin accepted duplicate handler');
 } catch (InvalidArgumentException $e) {
-    expect($e->getMessage() === 'error_duplicate_route', 'Admin used wrong duplicate handler error');
+    expect($e->getMessage() === 'error_duplicate_code', 'Admin used wrong duplicate handler error');
 }
 expect(count($adminDB->tasks) === 1, 'Admin duplicate request changed row count');
+$controller->request->post['available_handler'] = 'cron/cart_guest_purge';
+try { $method->invoke($controller, $adminScheduler); throw new RuntimeException('Reserved built-in handler accepted'); }
+catch (InvalidArgumentException $e) { expect($e->getMessage() === 'text_task_no_handler', 'Wrong reserved handler error'); }
+$controller->request->post['available_handler'] = 'cron/health';
+$controller->request->post['interval_seconds'] = '60';
+try { $method->invoke($controller, $adminScheduler); throw new RuntimeException('Too-frequent new task accepted'); }
+catch (InvalidArgumentException $e) { expect($e->getMessage() === 'error_duplicate_code' || $e->getMessage() === 'error_interval', 'Unexpected fast-task validation'); }
 echo "OK: create, duplicate safety, reserved codes, next run, admin POST create/duplicate.\n";

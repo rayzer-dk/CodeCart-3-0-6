@@ -49,3 +49,32 @@
   .codecart-scheduler-table tr.ccp-scheduler-editor-row #scheduler-form .col-sm-2 { width: 20%; }
   .codecart-scheduler-table tr.ccp-scheduler-editor-row #scheduler-form .col-sm-10 { width: 80%; }
 }
+
+/* One-line task names; technical identifiers are available in the tooltip. */
+.codecart-scheduler-table { table-layout:fixed; width:100%; margin-bottom:0; }
+.codecart-scheduler-table th:nth-child(1){width:24%}
+.codecart-scheduler-table th:nth-child(2){width:15%}
+.codecart-scheduler-table th:nth-child(3){width:7%}
+.codecart-scheduler-table th:nth-child(4){width:9%}
+.codecart-scheduler-table th:nth-child(5),.codecart-scheduler-table th:nth-child(6){width:14%}
+.codecart-scheduler-table th:nth-child(7){width:8%}
+.codecart-scheduler-table th:nth-child(8){width:9%;min-width:156px}
+.codecart-scheduler-table td { vertical-align:middle!important; padding:6px 8px!important }
+.codecart-scheduler-table .ccp-scheduler-task-cell { min-width:0; }
+.codecart-scheduler-table .ccp-task-single-line {display:flex;align-items:center;gap:5px;flex-wrap:nowrap;min-width:0;white-space:nowrap}
+.codecart-scheduler-table .ccp-task-single-line .ccp-task-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto}
+.codecart-scheduler-table .ccp-task-single-line .label{flex:0 0 auto;font-size:10px}
+.codecart-scheduler-table .ccp-task-single-line .ccp-scheduler-task-help{flex:0 0 auto;margin-left:0}
+.codecart-scheduler-table td:nth-child(2) code{display:inline-block;max-width:100%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;vertical-align:middle}
+.codecart-scheduler-table td:nth-child(5),.codecart-scheduler-table td:nth-child(6){white-space:nowrap;font-size:12px}
+.codecart-scheduler-table .ccp-scheduler-action-group{gap:3px}
+.codecart-scheduler-table .ccp-scheduler-action-group .btn { width:29px;min-width:29px;max-width:29px;height:29px;min-height:29px;max-height:29px;border-radius:4px }
+.ccp-host-task-helper .panel-body{padding:12px 16px}
+.ccp-host-time-fields{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;max-width:710px}
+.ccp-host-time-fields label{display:block;font-size:12px}
+.ccp-host-task-helper .form-group{margin-bottom:10px}
+.ccp-host-security{padding:8px 12px;margin:9px 0 0}
+@media (max-width:1100px){.codecart-scheduler-table{table-layout:auto;min-width:1060px}.codecart-scheduler-table th:nth-child(8){min-width:145px}}
+@media (max-width:540px){.ccp-host-time-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.ccp-host-frequency{max-width:240px}

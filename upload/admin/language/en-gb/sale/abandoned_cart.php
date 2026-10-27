@@ -133,3 +133,12 @@ $_['text_external_readonly'] = 'External-source carts are read-only; sending is 
 
 $_['text_summary_value'] = 'Estimated cart value';
 $_['text_summary_value_note'] = 'Current base prices only, excluding options, discounts, tax and shipping. Not actual revenue.';
+
+$_['text_external_simple'] = 'Most themes use the standard OpenCart cart table. Use an external SQL table only if your checkout stores carts separately. Enter its table name and click Detect columns.';
+$_['text_external_advanced'] = 'Column mapping (only if automatic detection fails)';
+$_['text_external_auto_detect'] = 'Detect columns';
+$_['text_external_detect_success'] = 'Columns detected. Review and save the settings.';
+$_['text_external_detect_failed'] = 'Table not found or no read access. Check its name.';
+$_['text_external_required'] = 'Required: session ID, product ID, quantity and timestamp.';
+$_['text_external_optional'] = 'Customer ID, email and phone are optional. Reminders require email and consent.';
+$_['text_external_detect_warning'] = 'Could not automatically detect required columns';

@@ -1,5 +1,29 @@
 <?php
 class ControllerSaleAbandonedCart extends Controller {
+    public function externalSchema() {
+        $this->load->language('sale/abandoned_cart');
+        $sessionToken = (string)($this->session->data['user_token'] ?? '');
+        $token = (string)($this->request->get['user_token'] ?? '');
+        $result = array('success' => false, 'fields' => array(), 'missing' => array(), 'columns' => array());
+        if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'GET' || $token === '' || $sessionToken === '' || !hash_equals($sessionToken, $token)
+            || !$this->user->hasPermission('access', 'sale/abandoned_cart')
+            || !$this->user->hasPermission('modify', 'sale/abandoned_cart')) {
+            $result['error'] = $this->language->get('error_permission');
+        } else {
+            $this->load->model('sale/abandoned_cart');
+            $schema = $this->model_sale_abandoned_cart->inspectExternalTable((string)($this->request->get['table'] ?? ''));
+            $result['success'] = $schema['valid'];
+            $result['fields'] = $schema['fields'];
+            $result['missing'] = $schema['missing'];
+            $result['columns'] = $schema['columns'];
+            if (!$schema['valid']) { $result['error'] = $this->language->get('error_cart_mapping'); }
+        }
+        $this->response->addHeader('Content-Type: application/json; charset=utf-8');
+        $this->response->addHeader('Cache-Control: no-store, private');
+        $this->response->addHeader('X-Content-Type-Options: nosniff');
+        $this->response->setOutput(json_encode($result, JSON_UNESCAPED_UNICODE));
+    }
+
     public function index() {
         $this->load->language('sale/abandoned_cart');
         $this->document->setTitle($this->language->get('heading_title'));
@@ -35,10 +59,23 @@ class ControllerSaleAbandonedCart extends Controller {
                 }
                 if ($error === '' && $settings['codecart_abandoned_cart_status']
                     && $settings['codecart_abandoned_cart_source'] === 'external') {
-                    foreach (array('table','col_session','col_product','col_quantity','col_date') as $required) {
-                        if ($settings['codecart_abandoned_cart_' . $required] === '') {
-                            $error = $this->language->get('error_cart_mapping');
-                            break;
+                    $this->load->model('sale/abandoned_cart');
+                    $schema = $this->model_sale_abandoned_cart->inspectExternalTable($settings['codecart_abandoned_cart_table']);
+                    if (!$schema['valid']) {
+                        $error = $this->language->get('error_cart_mapping');
+                    } else {
+                        foreach ($schema['fields'] as $key => $suggested) {
+                            $setting = 'codecart_abandoned_cart_' . $key;
+                            if ($settings[$setting] === '' && $suggested !== '') { $settings[$setting] = $suggested; }
+                            $chosen = $settings[$setting];
+                            if ($chosen !== '' && !in_array($chosen, $schema['columns'], true)) {
+                                $error = $this->language->get('error_cart_mapping');
+                            }
+                        }
+                        foreach (array('col_session','col_product','col_quantity','col_date') as $required) {
+                            if ($settings['codecart_abandoned_cart_' . $required] === '') {
+                                $error = $this->language->get('error_cart_mapping');
+                            }
                         }
                     }
                 }
@@ -142,6 +179,10 @@ class ControllerSaleAbandonedCart extends Controller {
             'guest_capture' => (int)$this->config->get('codecart_abandoned_cart_guest_capture'));
         foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
             $data['cart_fields'][$name] = (string)$this->config->get('codecart_abandoned_cart_' . $name);
+        }
+        $data['external_schema_url'] = html_entity_decode($this->url->link('sale/abandoned_cart/externalSchema', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
+        foreach (array('text_external_simple','text_external_advanced','text_external_auto_detect','text_external_detect_success','text_external_detect_failed','text_external_required','text_external_optional','text_external_detect_warning') as $key) {
+            $data[$key] = $this->language->get($key);
         }
         $data['cart_mapping_valid'] = !$enabled || $source !== 'external'
             || $this->model_sale_abandoned_cart->getExternalSourceStatus();
