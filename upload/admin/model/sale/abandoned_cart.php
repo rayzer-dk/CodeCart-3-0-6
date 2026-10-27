@@ -1,6 +1,7 @@
 <?php
 class ModelSaleAbandonedCart extends Model {
     private $customSourceResolved = false;
+    private $hasGuestSurname = null;
     private $customSourceCache = null;
     // Optional external SQL cart adapter. Never writes to another module's table.
     private function customSource() {
@@ -161,12 +162,21 @@ class ModelSaleAbandonedCart extends Model {
         return $column . ' ' . $direction;
     }
 
+    private function guestSurnameExists(): bool {
+        if ($this->hasGuestSurname !== null) { return $this->hasGuestSurname; }
+        try {
+            $found = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "codecart_cart_guest_contact` LIKE 'lastname'");
+            $this->hasGuestSurname = $found->num_rows > 0;
+        } catch (\Throwable $e) { $this->hasGuestSurname = false; }
+        return $this->hasGuestSurname;
+    }
+
     private function standardGroupedSql(array $filters = array()): string {
         $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
         $guest = (bool)$this->config->get('codecart_abandoned_cart_guest_capture');
         $guestJoin = $guest ? " LEFT JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON (gc.session_id=c.session_id AND c.customer_id=0 AND gc.store_id='" . (int)$this->config->get('config_store_id') . "' AND gc.consent=1 AND gc.date_modified>=DATE_SUB(NOW(), INTERVAL 7 DAY)) " : '';
-        $name = "MAX(CASE WHEN cu.customer_id IS NULL THEN " . ($guest ? "COALESCE(gc.firstname,'')" : "''") . " ELSE CONCAT(cu.firstname,' ',cu.lastname) END)";
+        $name = "MAX(CASE WHEN cu.customer_id IS NULL THEN " . ($guest ? ($this->guestSurnameExists() ? "TRIM(CONCAT(COALESCE(gc.firstname,''),' ',COALESCE(gc.lastname,'')))" : "COALESCE(gc.firstname,'')") : "''") . " ELSE TRIM(CONCAT(COALESCE(cu.firstname,''),' ',COALESCE(cu.lastname,''))) END)";
         $email = $guest ? "MAX(COALESCE(cu.email,gc.email,''))" : "MAX(COALESCE(cu.email,''))";
         $phone = $guest ? "MAX(COALESCE(cu.telephone,gc.telephone,''))" : "MAX(COALESCE(cu.telephone,''))";
         $optin = $guest ? "MAX(CASE WHEN c.customer_id=0 THEN COALESCE(gc.consent,0) ELSE COALESCE(cu.newsletter,0) END)" : "MAX(COALESCE(cu.newsletter,0))";
@@ -180,7 +190,7 @@ class ModelSaleAbandonedCart extends Model {
         if (!empty($filters['search'])) {
             $search = $this->db->escape((string)$filters['search']);
             $sql .= " AND (MAX(cu.firstname) LIKE '%" . $search . "%' OR MAX(cu.lastname) LIKE '%" . $search . "%' OR MAX(cu.email) LIKE '%" . $search . "%' OR MAX(cu.telephone) LIKE '%" . $search . "%'" .
-                ($guest ? " OR MAX(gc.email) LIKE '%" . $search . "%' OR MAX(gc.firstname) LIKE '%" . $search . "%' OR MAX(gc.telephone) LIKE '%" . $search . "%'" : '') .
+                ($guest ? " OR MAX(gc.email) LIKE '%" . $search . "%' OR MAX(gc.firstname) LIKE '%" . $search . "%'" . ($this->guestSurnameExists() ? " OR MAX(gc.lastname) LIKE '%" . $search . "%'" : '') . " OR MAX(gc.telephone) LIKE '%" . $search . "%'" : '') .
                 " OR EXISTS (SELECT 1 FROM `" . DB_PREFIX . "cart` search_cart JOIN `" . DB_PREFIX . "product_description` pd ON pd.product_id=search_cart.product_id AND pd.language_id='" . (int)$this->config->get('config_language_id') . "' WHERE search_cart.customer_id=c.customer_id AND search_cart.session_id=c.session_id AND search_cart.api_id=0 AND pd.name LIKE '%" . $search . "%'))";
         }
         if (($filters['contact'] ?? '') === 'yes') { $sql .= " AND " . $optin . "=1 AND " . $email . "<>''"; }

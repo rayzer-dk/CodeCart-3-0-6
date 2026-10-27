@@ -20,13 +20,15 @@ class ControllerCheckoutGuest extends Controller {
 		foreach ($field_language_keys as $checkout_field => $language_key) {
 			$is_digital_email = ($checkout_field === 'email' && $this->isDigitalCheckout());
 			if ($data['compact_delivery_checkout'] && !$this->isDigitalCheckout()) {
-				$visible = in_array($checkout_field, array('firstname', 'lastname', 'telephone'), true);
-				$required = $visible;
+				// An optional recovery email is visible only with guest capture enabled.
+				$visible = in_array($checkout_field, array('firstname', 'lastname', 'telephone'), true)
+					|| ($checkout_field === 'email' && $data['ccp_cart_recovery_enabled']);
+				$required = $visible && $checkout_field !== 'email';
 				$data['checkout_field_' . $checkout_field] = $visible;
 				$data['checkout_field_' . $checkout_field . '_required'] = $required;
 			} else {
-				$data['checkout_field_' . $checkout_field] = $is_digital_email ? true : codecart_checkout_field_visible($this->config, $checkout_field);
-				$data['checkout_field_' . $checkout_field . '_required'] = $is_digital_email ? true : codecart_checkout_field_required($this->config, $checkout_field);
+				$data['checkout_field_' . $checkout_field] = $is_digital_email || ($checkout_field === 'email' && $data['ccp_cart_recovery_enabled']) ? true : codecart_checkout_field_visible($this->config, $checkout_field);
+				$data['checkout_field_' . $checkout_field . '_required'] = $is_digital_email ? true : ($checkout_field === 'email' && $data['ccp_cart_recovery_enabled'] ? false : codecart_checkout_field_required($this->config, $checkout_field));
 			}
 			$data['checkout_label_' . $checkout_field] = codecart_checkout_field_label($this->config, (int)$this->config->get('config_language_id'), $checkout_field, $this->language->get($language_key));
 		}
@@ -185,11 +187,16 @@ class ControllerCheckoutGuest extends Controller {
 			$this->request->post['address_2'] = '';
 			$this->request->post['city'] = '';
 			$this->request->post['postcode'] = '';
-			$this->request->post['email'] = '';
+			// Keep a voluntarily entered email only when consent-based guest capture is enabled.
+			if (!$this->config->get('codecart_abandoned_cart_status') || !$this->config->get('codecart_abandoned_cart_guest_capture') ||
+			    (string)$this->config->get('codecart_abandoned_cart_source') === 'external') {
+				$this->request->post['email'] = '';
+			}
 		}
 
 		foreach (array('firstname', 'lastname', 'email', 'telephone', 'company', 'address_1', 'address_2', 'city', 'postcode') as $checkout_field) {
-			if (!codecart_checkout_field_visible($this->config, $checkout_field)) {
+			if (!codecart_checkout_field_visible($this->config, $checkout_field) &&
+				!($checkout_field === 'email' && $this->config->get('codecart_abandoned_cart_status') && $this->config->get('codecart_abandoned_cart_guest_capture') && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external')) {
 				$this->request->post[$checkout_field] = '';
 			}
 		}
