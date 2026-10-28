@@ -165,7 +165,7 @@ $_['text_external_import_title'] = 'HTTPS task through CodeCart';
 $_['text_external_import_help'] = 'Paste one curl/wget command with HTTPS URL and X-ACP-Cron-Key header. CodeCart stores a restricted HTTP request, never executes shell commands. The primary CodeCart Cron must run on the hosting server every five minutes.';
 $_['text_external_import_command'] = 'curl / wget command';
 $_['text_external_import_frequency'] = 'Frequency';
-$_['text_external_import_submit'] = 'Add disabled';
+$_['text_external_import_submit'] = 'Add';
 $_['text_external_import_safety'] = 'New jobs remain OFF until manually enabled. Only public HTTPS index.php?route=extension/module/.../cron endpoints are supported, with no redirects. GET requests only, with X-ACP-Cron-Key. Do not also schedule the same command on hosting control panel.';
 $_['text_external_import_secret_note'] = 'The secret is masked and encrypted in the database. No re-entry is needed when editing the schedule.';
 $_['text_external_import_success'] = 'External HTTPS Cron added in disabled state. Review it before enabling.';
@@ -197,3 +197,7 @@ $_['text_host_method_explanation'] = 'For a module with its own shell/CLI Cron c
 $_['text_host_expression_details'] = 'Advanced Cron expressions (five schedule fields)';
 $_['text_host_expression_hint'] = '*/5 means every five minutes; the number 5 alone means minute 05 of every hour.';
 $_['error_scheduler_redirect'] = 'HTTP 301/302: the Cron URL is redirected. Check the canonical HTTPS shop URL and hosting/CDN redirect rules. The secret key is not forwarded across redirects.';
+
+$_['text_no_handlers_option'] = 'No available handlers';
+$_['text_external_auto_mode'] = 'CodeCart will register this task in its scheduler. Enable it afterward from the task list.';
+$_['text_host_copy_action'] = 'Copy for hosting';

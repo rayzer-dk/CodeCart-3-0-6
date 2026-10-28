@@ -23,6 +23,7 @@
     });
     var $panel = $('#scheduler-form');
     if (!$panel.length) { return; }
+    var hasHandlers = $panel.attr('data-has-handlers') === '1';
 
     var $home = $('<div id="ccp-scheduler-form-home" aria-hidden="true"></div>').insertBefore($panel);
     var $form = $panel.find('form').first();
@@ -73,7 +74,7 @@
 
     function restoreEditor(shouldReset) {
       if (pendingRequest) { pendingRequest.abort(); pendingRequest = null; }
-      $panel.detach().show().insertAfter($home);
+      $panel.detach().insertAfter($home).toggle(hasHandlers);
       if (editorRow) {
         editorRow.remove();
         editorRow = null;
@@ -182,7 +183,7 @@
       $('#ccp-host-dom,#ccp-host-month,#ccp-host-dow').val('*');
     });
     $('.ccp-host-time').on('input', function () { $('#ccp-host-frequency').val('custom'); });
-    $('#ccp-copy-host-command').on('click', function () {
+    $('#ccp-copy-host-command, #ccp-host-copy-action').on('click', function () {
       var field = document.getElementById('ccp-host-command');
       if (!field || !field.value.trim()) { field && field.focus(); return; }
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -190,12 +191,17 @@
       } else { field.select(); document.execCommand('copy'); }
     });
 
+    $('.js-scheduler-open-external').on('click', function (event) {
+      event.preventDefault();
+      showTab('#ccp-scheduler-tab-external');
+    });
+
     $add.on('click', function (event) {
       event.preventDefault();
       if (editorRow) { restoreEditor(true); }
       else { resetForm(); }
       showTab('#ccp-scheduler-tab-tasks');
-      if ($panel[0]) { $panel[0].scrollIntoView({behavior: 'smooth', block: 'start'}); }
+      if ($panel[0] && hasHandlers) { $panel[0].scrollIntoView({behavior: 'smooth', block: 'start'}); }
     });
   });
 })(jQuery);

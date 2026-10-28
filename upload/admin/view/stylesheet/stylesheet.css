@@ -2290,3 +2290,9 @@ html.ccp-admin-dark #footer .ccp-footer-runtime{color:#a8b8cb}
 #footer .ccp-footer-runtime-item+ .ccp-footer-runtime-item:before{display:none}
 #footer .ccp-footer-runtime-item{gap:5px}
 @media(max-width:767px){#footer{line-height:1.8}#footer .ccp-footer-runtime{margin-top:8px;gap:5px 12px}}
+
+/* No legacy runtime-details disclosure in the compact footer. Older compiled Twig
+   can remain in the cache after updating files; hide its obsolete markup safely. */
+#footer .ccp-footer-runtime-details,
+#footer .ccp-footer-runtime-detail-list { display:none !important; }
+#footer .ccp-footer-runtime { max-width:100%; overflow-wrap:anywhere; }

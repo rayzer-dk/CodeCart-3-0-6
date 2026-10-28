@@ -165,7 +165,7 @@ $_['text_external_import_title'] = 'HTTPS-завдання через CodeCart';
 $_['text_external_import_help'] = 'Вставте одну готову curl/wget-команду з HTTPS URL та заголовком X-ACP-Cron-Key. CodeCart збереже безпечний HTTP-виклик, а не запустить shell-команду. Головний Cron CodeCart повинен працювати на хостингу кожні 5 хвилин.';
 $_['text_external_import_command'] = 'Команда curl / wget';
 $_['text_external_import_frequency'] = 'Періодичність';
-$_['text_external_import_submit'] = 'Додати вимкненим';
+$_['text_external_import_submit'] = 'Додати';
 $_['text_external_import_safety'] = 'Нові завдання вимкнені до ручного ввімкнення. Підтримуються лише публічні HTTPS-адреси index.php?route=extension/module/.../cron, без перенаправлень. Дозволено лише GET з X-ACP-Cron-Key. Не додавайте такий самий Cron повторно у панелі хостингу.';
 $_['text_external_import_secret_note'] = 'Секретний ключ прихований і шифрується в БД. Після збереження його повторно вводити не потрібно.';
 $_['text_external_import_success'] = 'Зовнішнє HTTPS Cron-завдання додано вимкненим. Перевірте налаштування, тоді увімкніть його.';
@@ -197,3 +197,7 @@ $_['text_host_method_explanation'] = 'Якщо модуль надає влас�
 $_['text_host_expression_details'] = 'Розширений синтаксис Cron (5 полів)';
 $_['text_host_expression_hint'] = '*/5 — кожні 5 хвилин; просто 5 — лише на п’ятій хвилині кожної години.';
 $_['error_scheduler_redirect'] = 'HTTP 301/302: адреса Cron перенаправляється. Перевірте основну HTTPS-адресу магазину та правила перенаправлення хостингу/CDN. Секретний ключ не передається через редирект.';
+
+$_['text_no_handlers_option'] = 'Немає доступних обробників';
+$_['text_external_auto_mode'] = 'CodeCart створить завдання у власному планувальнику. Після додавання його можна ввімкнути у списку завдань.';
+$_['text_host_copy_action'] = 'Скопіювати для хостингу';
