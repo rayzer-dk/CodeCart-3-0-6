@@ -2,9 +2,8 @@
 namespace CodeCart\Core;
 
 /**
- * Conservative recovery mailer. It never edits carts or sends to guests.
- * Disabled unless explicitly enabled, and only contacts newsletter-opted-in
- * registered customers. Stores an idempotent send ledger in InnoDB.
+ * Consent-based recovery mailer. Only the cart owner's explicit, session-specific
+ * consent permits a reminder. A persistent ledger prevents duplicate sends.
  */
 final class AbandonedCartReminder {
     private $registry;
@@ -44,7 +43,7 @@ final class AbandonedCartReminder {
     }
 
     public function fingerprint(array $cart): string {
-        return hash('sha256', (int)$cart['customer_id'] . '|' . (string)$cart['session_id'] . '|' .
+        return hash('sha256', (int)($cart['store_id'] ?? 0) . '|' . (int)$cart['customer_id'] . '|' . (string)$cart['session_id'] . '|' .
             (string)$cart['last_activity'] . '|' . (int)$cart['quantity'] . '|' . (int)$cart['max_cart_id']);
     }
 
@@ -60,28 +59,30 @@ final class AbandonedCartReminder {
             if (!(bool)$this->config->get('codecart_abandoned_cart_guest_capture')) { return array(); }
             $sql = "SELECT c.customer_id,c.session_id,MAX(c.date_added) AS last_activity,
                     MAX(c.cart_id) AS max_cart_id,SUM(c.quantity) AS quantity,
-                    MAX(gc.firstname) AS firstname,MAX(gc.email) AS email,MAX(gc.consent) AS newsletter
+                    MAX(gc.firstname) AS firstname,MAX(gc.email) AS email,MAX(gc.consent) AS newsletter, MAX(gc.store_id) AS store_id
                 FROM `" . DB_PREFIX . "cart` c
-                INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.store_id='" . (int)$this->config->get('config_store_id') . "' AND gc.consent=1 AND gc.recovered_at IS NULL AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)
+                INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)
                 WHERE c.api_id=0 AND c.customer_id=0 AND c.session_id='" . $this->db->escape($sessionId) . "'
                     AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
                 GROUP BY c.customer_id,c.session_id
-                HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND SUM(c.quantity)>0 LIMIT 1";
+                HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND SUM(c.quantity)>0 AND COUNT(DISTINCT gc.store_id)=1 LIMIT 1";
             $result = $this->db->query($sql);
             return $result->num_rows ? $result->row : array();
         }
         $sql = "SELECT c.customer_id,c.session_id,MAX(c.date_added) AS last_activity,
                     MAX(c.cart_id) AS max_cart_id,SUM(c.quantity) AS quantity,
-                    MAX(cu.firstname) AS firstname,MAX(cu.email) AS email, MAX(cu.newsletter) AS newsletter
+                    MAX(cu.firstname) AS firstname,MAX(cu.email) AS email, MAX(rc.consent) AS newsletter, MAX(rc.store_id) AS store_id
                 FROM `" . DB_PREFIX . "cart` c
                 INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id
+                INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)
                 WHERE c.api_id=0 AND c.customer_id='" . $customerId . "'
                     AND c.session_id='" . $this->db->escape($sessionId) . "'
                     AND c.date_added >= DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
                 GROUP BY c.customer_id,c.session_id
-                HAVING MAX(c.date_added) < DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND SUM(c.quantity)>0
+                HAVING MAX(c.date_added) < DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND SUM(c.quantity)>0 AND COUNT(DISTINCT rc.store_id)=1
                 LIMIT 1";
-        $result = $this->db->query($sql);
+        try { $result = $this->db->query($sql); }
+        catch (\Throwable $e) { return array(); }
         return $result->num_rows ? $result->row : array();
     }
 
@@ -133,7 +134,7 @@ final class AbandonedCartReminder {
         if (!$cart) { return array('success'=>false,'message'=>'Cart is no longer abandoned.'); }
         $email = trim((string)$cart['email']);
         if (!(int)$cart['newsletter'] || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return array('success'=>false,'message'=>'Newsletter preference or valid customer email is missing.');
+            return array('success'=>false,'message'=>'Explicit cart-reminder consent or valid email is missing.');
         }
         // Check additional suppression status when marketing suppression table exists.
         try {
@@ -162,12 +163,29 @@ final class AbandonedCartReminder {
         $success = false;
         $error = 'transport_failed';
         try {
+            // A cart belongs to the storefront where consent was given, not necessarily
+            // the default store. Do not guess an origin from a customer's account store.
+            $storeId = isset($cart['store_id']) ? (int)$cart['store_id'] : -1;
+            if ($storeId < 0) { throw new \RuntimeException('Cart origin store is unknown.'); }
+            $store = array();
+            if ($storeId > 0) {
+                $origin = $this->db->query("SELECT store_id,name,url,ssl FROM `" . DB_PREFIX . "store` WHERE store_id='" . $storeId . "' LIMIT 1");
+                if (!$origin->num_rows) { throw new \RuntimeException('Origin storefront no longer exists.'); }
+                $store = $origin->row;
+            }
             $settings = array();
-            $rows = $this->db->query("SELECT `key`,`value` FROM `" . DB_PREFIX . "setting` WHERE store_id=0 AND `key` IN ('config_name','config_email','config_language','config_ssl','config_url','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout')");
+            $rows = $this->db->query("SELECT store_id,`key`,`value` FROM `" . DB_PREFIX . "setting` WHERE store_id IN (0," . $storeId . ") AND `key` IN ('config_name','config_email','config_language','config_ssl','config_url','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout') ORDER BY store_id ASC");
             foreach ($rows->rows as $row) { $settings[$row['key']] = $row['value']; }
-            $setting = function($name, $default='') use ($settings) { return isset($settings[$name]) ? $settings[$name] : ($this->config->get($name) ?: $default); };
+            if ($storeId > 0) {
+                $settings['config_name'] = (string)$store['name'];
+                $settings['config_ssl'] = (string)($store['ssl'] ?: $store['url']);
+            }
+            $setting = function($name, $default='') use ($settings, $storeId) {
+                return array_key_exists($name,$settings) ? $settings[$name] : ($storeId === 0 ? ($this->config->get($name) ?: $default) : $default);
+            };
             $from = (string)$setting('config_email');
-            $base = (string)$setting('config_ssl', (string)$setting('config_url'));
+            $base = (string)$setting('config_ssl');
+            if ($base === '') { $base = (string)$setting('config_url'); }
             if (!filter_var($from, FILTER_VALIDATE_EMAIL) || !filter_var($base, FILTER_VALIDATE_URL)) {
                 throw new \RuntimeException('Store sender email or URL is missing.');
             }
@@ -224,9 +242,10 @@ final class AbandonedCartReminder {
         $limit = max(1,min(20,$limit));
         $idle = $this->idle();
         $days = max(1,min(7,(int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
-        $results = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id WHERE c.api_id=0 AND c.customer_id>0 AND cu.newsletter=1 AND cu.email<>'' AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 4));
+        try { $results = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) WHERE c.api_id=0 AND c.customer_id>0 AND cu.email<>'' AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT rc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 4)); }
+        catch (\Throwable $e) { return array('success'=>false,'message'=>'Cart reminder consent storage is unavailable.','sent'=>0,'failed'=>1,'skipped'=>0); }
         if ($this->config->get('codecart_abandoned_cart_guest_capture')) {
-            $guest = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.store_id='" . (int)$this->config->get('config_store_id') . "' AND gc.consent=1 AND gc.recovered_at IS NULL WHERE c.api_id=0 AND c.customer_id=0 AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 2));
+            $guest = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL WHERE c.api_id=0 AND c.customer_id=0 AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT gc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 2));
             $results->rows = array_merge($results->rows, $guest->rows);
         }
         $sent = 0; $failed=0; $skipped=0;

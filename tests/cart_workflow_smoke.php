@@ -51,6 +51,6 @@ $sql=end($db->sql);
 check(strpos($sql,"a\\' OR 1=1 --")!==false,'search must be escaped');
 check(strpos($sql,'GROUP BY c.customer_id,c.session_id HAVING')!==false,'aggregation must include unfiltered cart rows');
 check(strpos($sql,'LIMIT 0,25')!==false,'pagination limit must be bounded');
-check(strpos($sql,'gc.consent=1')!==false,'guest contacts must require consent');
+check(strpos($sql,'codecart_cart_guest_contact` WHERE consent=1')!==false,'guest contacts must require consent');
 check(strpos($sql,'`oc_codecart_cart_guest_contact`')!==false,'guest contact table expected');
 echo "PASS cart workflow smoke (OFF, consent, hashed tokens, filter, paging)\n";

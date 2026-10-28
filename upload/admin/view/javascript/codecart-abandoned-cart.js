@@ -42,7 +42,7 @@
             if (!count) { return false; }
             var action = $('#ccp-bulk-action').val();
             if (!action) { return false; }
-            if (action === 'send' && count > 10) { window.alert('Select up to 10 carts for one send operation.'); return false; }
+            if (action === 'send' && count > 10) { window.alert($root.attr('data-bulk-limit-message') || 'Maximum 10 carts.'); return false; }
             var question = action === 'send' ? $form.attr('data-confirm-send') : $form.attr('data-confirm-delete');
             return window.confirm(question);
         });

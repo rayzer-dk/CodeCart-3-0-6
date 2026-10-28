@@ -58,17 +58,17 @@ $_['text_no_email'] = 'Customer email unavailable';
 $_['text_mail_subject'] = 'Your unfinished checkout';
 
 $_['entry_mail_auto'] = 'Automatic abandoned-cart reminders';
-$_['text_mail_auto_help'] = 'Off by default. Registered newsletter-subscribed customers only; once per cart and at most once per 24 hours. Scheduler task: core.cart.reminder. Enable only with appropriate consent for these messages.';
+$_['text_mail_auto_help'] = 'Cron delivery starts disabled. Each cart requires its own explicit reminder consent and valid email; newsletter subscription is not sufficient. At most one reminder per 24 hours.';
 $_['button_send_now'] = 'Send reminder using store mail server';
 $_['text_send_confirm'] = 'Send an email using the store mail transport? Confirm customer consent for this message.';
 $_['text_mail_sent'] = 'Mail processed.';
 $_['text_mail_not_sent'] = 'Mail not sent.';
-$_['text_mail_optin_required'] = 'Missing email, subscription or guest cart. Cannot send.';
+$_['text_mail_optin_required'] = 'A valid email and separate reminder consent are required.';
 $_['text_mail_history'] = 'Mail';
 $_['text_mail_no_history'] = 'Not sent';
 $_['text_cart_count'] = 'Abandoned carts found';
-$_['text_email_count'] = 'Contactable (this page)';
-$_['text_mail_disclaimer'] = 'Reminders link to account sign-in; they do not restore a guest cart automatically. Delivery depends on SMTP and mailbox providers.';
+$_['text_email_count'] = 'Contacts with reminder consent';
+$_['text_mail_disclaimer'] = 'Guest reminders include a single-use recovery link; registered customers receive a login link. SMTP acceptance does not guarantee delivery.';
 $_['error_mail_requires_standard'] = 'Auto reminders require analytics enabled and the standard OpenCart cart source.';
 
 $_['text_on_page'] = 'Rows per page';
@@ -124,7 +124,7 @@ $_['text_restored_note'] = 'Counts confirmed guest cart restores from single-use
 $_['text_recent_history'] = 'Email attempt history, 25 records per page.';
 $_['text_date_range_notice'] = 'Carts: up to the last 7 days. Filtering does not delete older records.';
 $_['text_clear_danger'] = 'Danger zone: delete carts';
-$_['text_send_only_optin'] = 'Email requires recorded consent.';
+$_['text_send_only_optin'] = 'Each reminder requires explicit cart-specific consent.';
 $_['text_history_error'] = 'Error';
 $_['text_history_manual'] = 'Manual';
 $_['text_history_auto'] = 'Automatic';
@@ -167,3 +167,6 @@ $_['text_source_section'] = 'Cart storage and history';
 $_['text_checkout_section'] = 'Checkout page';
 $_['text_reminders_section'] = 'Consent and reminders';
 $_['text_detect_no_write'] = 'Detection reads database metadata only; it does not modify records or save configuration.';
+
+$_['text_bulk_send_limit'] = 'Select no more than 10 carts per send operation.';
+$_['text_cart_consent_notice'] = 'A separate cart-specific reminder consent is required. Newsletter opt-in alone is not sufficient.';

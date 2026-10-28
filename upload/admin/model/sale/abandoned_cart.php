@@ -2,6 +2,7 @@
 class ModelSaleAbandonedCart extends Model {
     private $customSourceResolved = false;
     private $hasGuestSurname = null;
+    private $registeredConsentTableExists = null;
     private $customSourceCache = null;
     // Optional external SQL cart adapter. Never writes to another module's table.
     private function customSource() {
@@ -174,20 +175,38 @@ class ModelSaleAbandonedCart extends Model {
         return $this->hasGuestSurname;
     }
 
+    private function hasRegisteredConsentTable(): bool {
+        if ($this->registeredConsentTableExists !== null) { return $this->registeredConsentTableExists; }
+        try {
+            $q = $this->db->query("SHOW TABLES LIKE '" . $this->db->escape(DB_PREFIX . 'codecart_cart_registered_consent') . "'");
+            $this->registeredConsentTableExists = $q->num_rows > 0;
+        } catch (\Throwable $e) { $this->registeredConsentTableExists = false; }
+        return $this->registeredConsentTableExists;
+    }
+
     private function standardGroupedSql(array $filters = array()): string {
         $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
         $guest = (bool)$this->config->get('codecart_abandoned_cart_guest_capture');
-        $guestJoin = $guest ? " LEFT JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON (gc.session_id=c.session_id AND c.customer_id=0 AND gc.store_id='" . (int)$this->config->get('config_store_id') . "' AND gc.consent=1 AND gc.date_modified>=DATE_SUB(NOW(), INTERVAL 7 DAY)) " : '';
+        // Group contact records first. One cart line must never be multiplied by
+        // consent records from multiple storefronts sharing a session id.
+        $guestJoin = $guest ? " LEFT JOIN (SELECT session_id, MAX(store_id) AS store_id, MAX(email) AS email, MAX(firstname) AS firstname, " . ($this->guestSurnameExists() ? 'MAX(lastname)' : "''") . " AS lastname, MAX(telephone) AS telephone, MAX(consent) AS consent, MAX(recovered_at) AS recovered_at FROM `" . DB_PREFIX . "codecart_cart_guest_contact` WHERE consent=1 AND date_modified>=DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY session_id HAVING COUNT(DISTINCT store_id)=1) gc ON gc.session_id=c.session_id AND c.customer_id=0 " : '';
+        $registeredJoin = $this->hasRegisteredConsentTable()
+            ? " LEFT JOIN (SELECT session_id,customer_id,MAX(store_id) AS store_id,MAX(consent) AS consent FROM `" . DB_PREFIX . "codecart_cart_registered_consent` WHERE consent=1 AND date_modified>=DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY session_id,customer_id HAVING COUNT(DISTINCT store_id)=1) rc ON rc.session_id=c.session_id AND rc.customer_id=c.customer_id AND c.customer_id>0 "
+            : '';
+        // Refer to a constant when the opt-in table has not been installed yet.
+        $registeredConsent = $registeredJoin !== '' ? 'rc.consent' : '0';
+        $registeredStore = $registeredJoin !== '' ? 'rc.store_id' : 'NULL';
         $name = "MAX(CASE WHEN cu.customer_id IS NULL THEN " . ($guest ? ($this->guestSurnameExists() ? "TRIM(CONCAT(COALESCE(gc.firstname,''),' ',COALESCE(gc.lastname,'')))" : "COALESCE(gc.firstname,'')") : "''") . " ELSE TRIM(CONCAT(COALESCE(cu.firstname,''),' ',COALESCE(cu.lastname,''))) END)";
         $email = $guest ? "MAX(COALESCE(cu.email,gc.email,''))" : "MAX(COALESCE(cu.email,''))";
         $phone = $guest ? "MAX(COALESCE(cu.telephone,gc.telephone,''))" : "MAX(COALESCE(cu.telephone,''))";
-        $optin = $guest ? "MAX(CASE WHEN c.customer_id=0 THEN COALESCE(gc.consent,0) ELSE COALESCE(cu.newsletter,0) END)" : "MAX(COALESCE(cu.newsletter,0))";
+        $optin = $guest ? "MAX(CASE WHEN c.customer_id=0 THEN COALESCE(gc.consent,0) ELSE COALESCE(" . $registeredConsent . ",0) END)" : "MAX(COALESCE(" . $registeredConsent . ",0))";
+        $storeId = $guest ? "MAX(CASE WHEN c.customer_id=0 THEN gc.store_id ELSE " . $registeredStore . " END)" : 'MAX(' . $registeredStore . ')';
         $verified = $guest ? "MAX(CASE WHEN c.customer_id=0 AND gc.recovered_at IS NOT NULL THEN 1 ELSE 0 END)" : '0';
         $sql = "SELECT c.customer_id,c.session_id,COUNT(*) AS line_count,SUM(c.quantity) AS quantity,MAX(c.cart_id) AS max_cart_id,MAX(c.date_added) AS last_activity, " .
-            $name . " AS customer," . $email . " AS email," . $phone . " AS telephone," . $optin . " AS newsletter," . $verified . " AS recovered, " .
+            $name . " AS customer," . $email . " AS email," . $phone . " AS telephone," . $optin . " AS newsletter," . $verified . " AS recovered, " . $storeId . " AS store_id, " .
             " TIMESTAMPDIFF(MINUTE, MAX(c.date_added), NOW()) AS idle_minutes " .
-            " FROM `" . DB_PREFIX . "cart` c LEFT JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id AND c.customer_id>0 " . $guestJoin .
+            " FROM `" . DB_PREFIX . "cart` c LEFT JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id AND c.customer_id>0 " . $guestJoin . $registeredJoin .
             " WHERE c.api_id=0 AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)";
         $sql .= " GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE)";
         if (!empty($filters['search'])) {
@@ -233,7 +252,7 @@ class ModelSaleAbandonedCart extends Model {
     }
 
     public function getCartContactSummary(): array {
-        $result = $this->db->query("SELECT COUNT(*) AS total,SUM(CASE WHEN newsletter=1 AND email<>'' THEN 1 ELSE 0 END) AS reachable FROM (" . $this->standardGroupedSql() . ') all_carts');
+        $result = $this->db->query("SELECT COUNT(*) AS total,SUM(CASE WHEN newsletter=1 AND recovered=0 AND email REGEXP '^[^@ ]+@[^@ ]+[.][^@ ]+$' THEN 1 ELSE 0 END) AS reachable FROM (" . $this->standardGroupedSql() . ') all_carts');
         return array('total'=>(int)($result->row['total'] ?? 0), 'reachable'=>(int)($result->row['reachable'] ?? 0));
     }
 
@@ -292,38 +311,64 @@ class ModelSaleAbandonedCart extends Model {
             $quantities[$product_id] += (int)$row['quantity'];
         }
 
-        foreach ($rows as &$row) {
+        $ids = array_values(array_unique(array_map('intval', array_keys($quantities))));
+        $in = implode(',', $ids);
+        $discounts = array();
+        $specials = array();
+        if ($in !== '') {
+            $discountRows = $this->db->query("SELECT product_id,quantity,price FROM `" . DB_PREFIX . "product_discount` WHERE product_id IN (" . $in . ") AND customer_group_id='" . (int)$customer_group_id . "' AND date_start < NOW() AND (date_end < '1000-01-01' OR date_end > NOW()) ORDER BY product_id,quantity DESC,priority ASC,price ASC")->rows;
+            foreach ($discountRows as $discount) {
+                $pid = (int)$discount['product_id'];
+                if (!isset($discounts[$pid]) && (int)$discount['quantity'] <= (int)$quantities[$pid]) { $discounts[$pid] = (float)$discount['price']; }
+            }
+            $specialRows = $this->db->query("SELECT product_id,price FROM `" . DB_PREFIX . "product_special` WHERE product_id IN (" . $in . ") AND customer_group_id='" . (int)$customer_group_id . "' AND date_start < NOW() AND (date_end < '1000-01-01' OR date_end > NOW()) ORDER BY product_id,priority ASC,price ASC")->rows;
+            foreach ($specialRows as $special) {
+                $pid = (int)$special['product_id'];
+                if (!isset($specials[$pid])) { $specials[$pid] = (float)$special['price']; }
+            }
+        }
+        $optionIds = array();
+        $optionsByRow = array();
+        foreach ($rows as $index => $row) {
+            $options = json_decode((string)$row['option'], true);
+            if (!is_array($options)) { $options = array(); }
+            $optionsByRow[$index] = $options;
+            foreach ($options as $id => $value) {
+                if ((int)$id > 0) { $optionIds[(int)$id] = (int)$id; }
+            }
+        }
+        $optionTypes = array(); $optionPrices = array();
+        if ($optionIds) {
+            $optionList = implode(',', array_values($optionIds));
+            $types = $this->db->query("SELECT po.product_option_id,po.product_id,o.type FROM `" . DB_PREFIX . "product_option` po JOIN `" . DB_PREFIX . "option` o ON o.option_id=po.option_id WHERE po.product_option_id IN (" . $optionList . ")")->rows;
+            foreach ($types as $type) { $optionTypes[(int)$type['product_option_id']] = array('product_id'=>(int)$type['product_id'],'type'=>(string)$type['type']); }
+            $prices = $this->db->query("SELECT product_option_id,product_option_value_id,price,price_prefix FROM `" . DB_PREFIX . "product_option_value` WHERE product_option_id IN (" . $optionList . ")")->rows;
+            foreach ($prices as $priceRow) { $optionPrices[(int)$priceRow['product_option_id']][(int)$priceRow['product_option_value_id']] = $priceRow; }
+        }
+        foreach ($rows as $index => &$row) {
             $product_id = (int)$row['product_id'];
             $quantity = max(0, (int)$row['quantity']);
             $price = (float)$row['price'];
-
-            $discount = $this->db->query("SELECT price FROM `" . DB_PREFIX . "product_discount` WHERE product_id='" . $product_id . "' AND customer_group_id='" . $customer_group_id . "' AND quantity <= '" . (int)$quantities[$product_id] . "' AND ((date_start < NOW()) AND (date_end < '1000-01-01' OR date_end > NOW())) ORDER BY quantity DESC, priority ASC, price ASC LIMIT 1");
-            if ($discount->num_rows) { $price = (float)$discount->row['price']; }
-
-            $special = $this->db->query("SELECT price FROM `" . DB_PREFIX . "product_special` WHERE product_id='" . $product_id . "' AND customer_group_id='" . $customer_group_id . "' AND ((date_start < NOW()) AND (date_end < '1000-01-01' OR date_end > NOW())) ORDER BY priority ASC, price ASC LIMIT 1");
-            if ($special->num_rows) { $price = (float)$special->row['price']; }
-
+            if (isset($discounts[$product_id])) { $price = $discounts[$product_id]; }
+            if (isset($specials[$product_id])) { $price = $specials[$product_id]; }
             $option_price = 0.0;
             $option_price_equal = null;
-            $options = json_decode((string)$row['option'], true);
-            if (!is_array($options)) { $options = array(); }
-
-            foreach ($options as $product_option_id => $value) {
-                $product_option_id = (int)$product_option_id;
-                $option_query = $this->db->query("SELECT o.type FROM `" . DB_PREFIX . "product_option` po LEFT JOIN `" . DB_PREFIX . "option` o ON (o.option_id=po.option_id) WHERE po.product_option_id='" . $product_option_id . "' AND po.product_id='" . $product_id . "' LIMIT 1");
-                if (!$option_query->num_rows) { continue; }
-
-                $type = (string)$option_query->row['type'];
-                if (($type === 'select' || $type === 'radio') && is_scalar($value)) {
-                    $this->applyOptionPrice($product_option_id, (int)$value, $option_price, $option_price_equal, true);
-                } elseif ($type === 'checkbox' && is_array($value)) {
-                    foreach ($value as $product_option_value_id) {
-                        $this->applyOptionPrice($product_option_id, (int)$product_option_value_id, $option_price, $option_price_equal, false);
-                    }
+            foreach ($optionsByRow[$index] as $optionId => $value) {
+                $optionId = (int)$optionId;
+                if (!isset($optionTypes[$optionId]) || $optionTypes[$optionId]['product_id'] !== $product_id) { continue; }
+                $type = $optionTypes[$optionId]['type'];
+                $selected = ($type === 'checkbox' && is_array($value)) ? $value : ((($type === 'select' || $type === 'radio') && is_scalar($value)) ? array($value) : array());
+                foreach ($selected as $selectedId) {
+                    $valueId = (int)$selectedId;
+                    if (!isset($optionPrices[$optionId][$valueId])) { continue; }
+                    $record = $optionPrices[$optionId][$valueId];
+                    $optionCost = (float)$record['price'];
+                    if ($record['price_prefix'] === '+') { $option_price += $optionCost; }
+                    elseif ($record['price_prefix'] === '-') { $option_price -= $optionCost; }
+                    elseif ($type !== 'checkbox' && $record['price_prefix'] === '=') { $option_price_equal = $optionCost; }
                 }
             }
-
-            $unit_price = $option_price_equal !== null ? (float)$option_price_equal : ($price + $option_price);
+            $unit_price = $option_price_equal !== null ? $option_price_equal : ($price + $option_price);
             $row['unit_price'] = \CodeCart\Core\Money::decimal($unit_price);
             $row['line_total'] = \CodeCart\Core\Money::decimal(\CodeCart\Core\Money::multiply($row['unit_price'], $quantity));
         }

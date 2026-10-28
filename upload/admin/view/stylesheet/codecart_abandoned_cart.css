@@ -103,3 +103,30 @@
 .ccp-carts-page .ccp-cart-history-table th:nth-child(4){width:12%}
 .ccp-carts-page .ccp-cart-history-table th:nth-child(5){width:8%}
 .ccp-carts-page .ccp-cart-history-table th:nth-child(6){width:29%}
+
+/* Cart dashboard: dark theme and readable medium-screen columns. */
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-kpi,
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-content{background:#202b39;border-color:#36485f}
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-kpi span,
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-brief,
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-muted{color:#b4c4d7}
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-kpi strong,
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-settings-head h3,
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-settings-form label{color:#e5edf8}
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-brief,
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-bulk,
+html.ccp-admin-dark .ccp-carts-page .ccp-mail-control,
+html.ccp-admin-dark .ccp-carts-page .ccp-external-fields,
+html.ccp-admin-dark .ccp-carts-page .ccp-external-advanced{background:#253246;border-color:#40526b;color:#c5d5e7}
+html.ccp-admin-dark .ccp-carts-page .ccp-abandoned-cart-table thead th,
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-history-table thead th{background:#263448;color:#d7e7f8;border-color:#40526b}
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-tabs>li.active>a{background:#202b39;border-color:#40526b;color:#83baff}
+.ccp-carts-page .ccp-abandoned-cart-table{min-width:980px}
+@media(min-width:1101px){.ccp-carts-page .ccp-abandoned-cart-table{min-width:980px}}
+@media(max-width:1100px){.ccp-carts-page .ccp-abandoned-cart-table{min-width:980px}}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-products{width:29%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-actions{width:8%}
+
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-customer{width:13%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-products{width:27%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-status{width:8%}

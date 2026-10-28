@@ -31,7 +31,10 @@ class ControllerSaleAbandonedCart extends Controller {
     }
 
     private function defaultCheckoutUrl(): string {
-        $route = (is_file(DIR_CATALOG . 'controller/checkout/uni_checkout.php') || (defined('DIR_MODIFICATION') && is_file(DIR_MODIFICATION . 'catalog/controller/checkout/uni_checkout.php'))) ? 'checkout/uni_checkout' : 'checkout/checkout';
+        $theme = strtolower((string)($this->config->get('config_theme') ?: $this->config->get('config_template')));
+        $uniActive = strpos($theme, 'unishop') !== false;
+        $uniHandler = is_file(DIR_CATALOG . 'controller/checkout/uni_checkout.php') || (defined('DIR_MODIFICATION') && is_file(DIR_MODIFICATION . 'catalog/controller/checkout/uni_checkout.php'));
+        $route = $uniActive && $uniHandler ? 'checkout/uni_checkout' : 'checkout/checkout';
         return $this->catalogBaseUrl() . 'index.php?route=' . $route;
     }
 
@@ -195,6 +198,9 @@ class ControllerSaleAbandonedCart extends Controller {
                     $this->load->model('setting/setting');
                     // Provision persistent deduplication ledger only on explicit activation.
                     $mailer = new \CodeCart\Core\AbandonedCartReminder($this->registry);
+                    if ($settings['codecart_abandoned_cart_status'] && $settings['codecart_abandoned_cart_source'] === 'standard') {
+                        (new \CodeCart\Core\RegisteredCartConsent($this->registry))->install();
+                    }
                     if ($settings['codecart_abandoned_cart_guest_capture']) {
                         if (!$settings['codecart_abandoned_cart_status'] || $settings['codecart_abandoned_cart_source'] !== 'standard') {
                             $error = $this->language->get('error_guest_requires_standard');
@@ -215,19 +221,36 @@ class ControllerSaleAbandonedCart extends Controller {
                         if ($task->num_rows) { $scheduler->setStatus((int)$task->row['scheduler_id'], $auto); }
                         else { $scheduler->register('core.cart.reminder','cron/cart_reminder',300,$auto,array('limit'=>10)); }
                         $guestPurge = $this->db->query("SELECT scheduler_id FROM `" . DB_PREFIX . "codecart_scheduler` WHERE code='core.cart.guest_purge' LIMIT 1");
-                        $capture = (bool)$settings['codecart_abandoned_cart_guest_capture'];
-                        if ($guestPurge->num_rows) { $scheduler->setStatus((int)$guestPurge->row['scheduler_id'], $capture); }
-                        else { $scheduler->register('core.cart.guest_purge','cron/cart_guest_purge',43200,$capture); }
-                        if (!$capture && (bool)$this->config->get('codecart_abandoned_cart_guest_capture')) {
-                            try { $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_cart_guest_contact` WHERE store_id='" . (int)$this->config->get('config_store_id') . "'"); }
+                        $retention = (bool)$settings['codecart_abandoned_cart_status'] && $settings['codecart_abandoned_cart_source'] === 'standard';
+                        if ($guestPurge->num_rows) { $scheduler->setStatus((int)$guestPurge->row['scheduler_id'], $retention); }
+                        else { $scheduler->register('core.cart.guest_purge','cron/cart_guest_purge',43200,$retention); }
+                        // Explicit deactivation/revocation removes no-longer-needed consent data.
+                        // Settings are global: clean all storefronts, not just store_id=0.
+                        if ((!$retention || !$settings['codecart_abandoned_cart_guest_capture'])
+                            && (bool)$this->config->get('codecart_abandoned_cart_guest_capture')) {
+                            try { $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_cart_guest_contact`"); }
                             catch (\Throwable $e) { $this->log->write('Cart guest consent cleanup: ' . get_class($e)); }
+                        }
+                        if (!$retention && (bool)$this->config->get('codecart_abandoned_cart_status')) {
+                            try { $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_cart_registered_consent`"); }
+                            catch (\Throwable $e) { $this->log->write('Cart registered consent cleanup: ' . get_class($e)); }
                         }
                     }
                     if ($error === '') { $this->session->data['success'] = $this->language->get('text_settings_saved'); }
                 }
             }
-            if ($error !== '') { $this->session->data['error_warning'] = $error; }
-            $this->response->redirect($this->url->link('sale/abandoned_cart', 'user_token=' . $sessionToken, true));
+            if ($error !== '') {
+                $this->session->data['error_warning'] = $error;
+                $old = array('source'=>(string)($this->request->post['cart_source'] ?? 'standard'), 'checkout_mode'=>(string)($this->request->post['cart_checkout_mode'] ?? 'auto'));
+                foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','checkout_url') as $key) {
+                    $old[$key] = substr(trim((string)($this->request->post['cart_' . $key] ?? '')), 0, $key === 'checkout_url' ? 512 : 64);
+                }
+                foreach (array('status','mail_auto','guest_capture') as $key) { $old[$key] = !empty($this->request->post['cart_' . $key]) ? 1 : 0; }
+                $old['idle_minutes'] = (int)($this->request->post['cart_idle_minutes'] ?? 60);
+                $old['days'] = (int)($this->request->post['cart_days'] ?? 7);
+                $this->session->data['ccp_cart_settings_form_old'] = $old;
+            }
+            $this->response->redirect($this->url->link('sale/abandoned_cart', 'user_token=' . $sessionToken, true) . ($error !== '' ? '#ccp-tab-settings' : ''));
             return;
         }
 
@@ -274,7 +297,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'text_send_only_optin',            'text_history_error','text_history_manual','text_history_auto',
             'entry_checkout_url','text_checkout_url_help','text_external_source_explanation',
             'text_external_table_candidates','text_external_no_candidates','text_external_choose_table',
-            'text_product_storefront','error_checkout_url','entry_checkout_mode','text_checkout_auto','text_checkout_standard','text_checkout_unishop2','text_checkout_custom','text_checkout_mode_help','text_cart_data_help','text_detect_tables_ready','error_table_route','text_source_section','text_checkout_section','text_reminders_section','text_detect_no_write'
+            'text_product_storefront','error_checkout_url','entry_checkout_mode','text_checkout_auto','text_checkout_standard','text_checkout_unishop2','text_checkout_custom','text_checkout_mode_help','text_cart_data_help','text_detect_tables_ready','error_table_route','text_source_section','text_checkout_section','text_reminders_section','text_detect_no_write','text_bulk_send_limit'
         ) as $key) { $data[$key] = $this->language->get($key); }
 
         if (!empty($this->session->data['success'])) {
@@ -322,6 +345,16 @@ class ControllerSaleAbandonedCart extends Controller {
         $data['detect_message'] = $detectMessage;
         $data['detect_error'] = $detectError;
         $data['cart_fields']['checkout_url'] = $this->checkoutUrl();
+        if (isset($this->session->data['ccp_cart_settings_form_old']) && is_array($this->session->data['ccp_cart_settings_form_old'])) {
+            $old = $this->session->data['ccp_cart_settings_form_old'];
+            unset($this->session->data['ccp_cart_settings_form_old']);
+            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','status','idle_minutes','days','mail_auto','guest_capture','checkout_url') as $field) {
+                if (isset($old[$field])) { $data['cart_fields'][$field] = $old[$field]; }
+            }
+            if (isset($old['source'])) { $data['cart_form_source'] = $old['source']; }
+            if (isset($old['checkout_mode'])) { $data['cart_checkout_mode'] = $old['checkout_mode']; }
+            $data['settings_error_tab'] = true;
+        } else { $data['settings_error_tab'] = false; }
         if ($detectRequest && isset($this->request->post['cart_checkout_url'])) { $data['cart_fields']['checkout_url'] = substr(trim((string)$this->request->post['cart_checkout_url']), 0, 512); }
         $data['external_tables_url'] = html_entity_decode($this->url->link('sale/abandoned_cart/externalTables', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
         $data['catalog_checkout_url'] = $this->checkoutUrl();
@@ -368,9 +401,10 @@ class ControllerSaleAbandonedCart extends Controller {
             $customer_id = (int)$row['customer_id'];
             $data['carts'][] = array(
                 'customer_id' => $customer_id,
-                'cart_key' => $source === 'standard' && ($customer_id > 0 || $data['cart_fields']['guest_capture']) ? hash('sha256', $customer_id . '|' . (string)$row['session_id'] . '|' . (string)$row['last_activity'] . '|' . (int)$row['quantity'] . '|' . (int)$row['max_cart_id']) : '',
+                'cart_key' => $source === 'standard' && ($customer_id > 0 || $data['cart_fields']['guest_capture']) ? hash('sha256', (int)($row['store_id'] ?? 0) . '|' . $customer_id . '|' . (string)$row['session_id'] . '|' . (string)$row['last_activity'] . '|' . (int)$row['quantity'] . '|' . (int)$row['max_cart_id']) : '',
                 'session_id' => (string)$row['session_id'],
-                'customer' => $customer_id > 0 && trim((string)$row['customer']) !== '' ? (string)$row['customer'] : $this->language->get('text_guest'),
+                'store_id' => (int)($row['store_id'] ?? 0),
+                'customer' => trim((string)$row['customer']) !== '' ? (string)$row['customer'] : $this->language->get('text_guest'),
                 'email' => (string)$row['email'],
                 'mail_optin' => !empty($row['newsletter']),
                 'recovered' => !empty($row['recovered']),

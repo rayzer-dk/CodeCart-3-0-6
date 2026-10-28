@@ -12,6 +12,13 @@ class ControllerCommonHeader extends Controller {
             && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
             $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js');
         }
+        // Registered checkouts require explicit cart-specific consent; newsletter is not sufficient.
+        $checkoutRoute = (string)($this->request->get['route'] ?? '');
+        if ($this->customer->isLogged() && $this->config->get('codecart_abandoned_cart_status')
+            && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external'
+            && ($checkoutRoute === 'checkout/checkout' || $checkoutRoute === 'checkout/uni_checkout')) {
+            $this->document->addScript('catalog/view/javascript/codecart/registered-cart-consent.js');
+        }
 		// Analytics
 		$this->load->model('setting/extension');
 

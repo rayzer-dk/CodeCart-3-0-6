@@ -197,6 +197,18 @@ class Migration {
             $this->ensureEditorDefault();
             $this->ensureStockNotifyInfrastructure();
             $this->ensureMailCampaignInfrastructure();
+            // Registered cart reminders require a dedicated, per-store consent record.
+            // This is schema-only; no reminder task is switched on during migration.
+            $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_cart_registered_consent` (
+                `store_id` INT UNSIGNED NOT NULL,
+                `customer_id` INT UNSIGNED NOT NULL,
+                `session_id` VARCHAR(128) NOT NULL,
+                `consent` TINYINT(1) NOT NULL DEFAULT 1,
+                `date_modified` DATETIME NOT NULL,
+                PRIMARY KEY (`store_id`,`customer_id`,`session_id`),
+                KEY `consent_expiry` (`date_modified`),
+                KEY `session_lookup` (`customer_id`,`session_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
             $this->ensureCoreSchedulerTasks();
             $this->ensureSchedulerAdminPermission();
             $this->ensureCoreToolsAdminPermission();
