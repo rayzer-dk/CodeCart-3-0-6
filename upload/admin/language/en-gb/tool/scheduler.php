@@ -144,7 +144,7 @@ $_['text_scheduler_intro'] = 'Execution data may come from a manual action or vi
 $_['text_create_task_hint'] = 'Use the pencil in the list above to edit an existing task. A new task requires an available installed cron handler. Select it to fill in the code and route.';
 $_['text_task_paused'] = 'Disabled tasks are not scheduled.';
 $_['text_native_task_type'] = 'Internal CodeCart task';
-$_['text_host_task_type'] = 'Third-party module command for hosting Cron';
+$_['text_host_task_type'] = 'Separate Cron command on your hosting';
 $_['text_host_command_label'] = 'Module-provided command (single line)';
 $_['text_host_command_help'] = 'If a module provides its own CLI/HTTPS Cron command, add it in your hosting control panel, not as an internal CodeCart route. Prepare the command and schedule here; the admin does not execute it.';
 $_['text_host_schedule_help'] = 'Copy these five schedule fields into your hosting control panel. Minimum interval: 5 minutes. Use the copy button for the command.';
@@ -161,7 +161,7 @@ $_['text_host_dow'] = 'Days of week';
 $_['text_job_name_header'] = 'Task';
 
 // Restricted external HTTPS Cron import.
-$_['text_external_import_title'] = 'Add third-party HTTPS Cron';
+$_['text_external_import_title'] = 'HTTPS task through CodeCart';
 $_['text_external_import_help'] = 'Paste one curl/wget command with HTTPS URL and X-ACP-Cron-Key header. CodeCart stores a restricted HTTP request, never executes shell commands. The primary CodeCart Cron must run on the hosting server every five minutes.';
 $_['text_external_import_command'] = 'curl / wget command';
 $_['text_external_import_frequency'] = 'Frequency';
