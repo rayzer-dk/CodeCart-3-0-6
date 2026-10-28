@@ -166,7 +166,7 @@ $_['text_external_import_help'] = 'Paste one curl/wget command with HTTPS URL an
 $_['text_external_import_command'] = 'curl / wget command';
 $_['text_external_import_frequency'] = 'Frequency';
 $_['text_external_import_submit'] = 'Add disabled';
-$_['text_external_import_safety'] = 'New jobs remain OFF until manually enabled. Only public HTTPS index.php?route=extension/module/.../cron endpoints are supported, with no redirects. GET requests only, with X-ACP-Cron-Key. Do not also schedule the same command on Mirohost.';
+$_['text_external_import_safety'] = 'New jobs remain OFF until manually enabled. Only public HTTPS index.php?route=extension/module/.../cron endpoints are supported, with no redirects. GET requests only, with X-ACP-Cron-Key. Do not also schedule the same command on hosting control panel.';
 $_['text_external_import_secret_note'] = 'The secret is masked and encrypted in the database. No re-entry is needed when editing the schedule.';
 $_['text_external_import_success'] = 'External HTTPS Cron added in disabled state. Review it before enabling.';
 $_['text_external_import_failed'] = 'Unable to import the Cron command.';
@@ -191,3 +191,9 @@ $_['text_history_filter'] = 'Task';
 $_['text_host_failed'] = 'Failures';
 $_['text_history_source_manual'] = 'Manual';
 $_['text_history_source_visitor'] = 'Visitor / automatic heartbeat';
+
+$_['text_external_method_explanation'] = 'Saved HTTPS endpoints are run by CodeCart\'s scheduler; do not add the same endpoint to your hosting panel.';
+$_['text_host_method_explanation'] = 'For a module with its own shell/CLI Cron command, configure that command in your hosting control panel instead of importing it here.';
+$_['text_host_expression_details'] = 'Advanced Cron expressions (five schedule fields)';
+$_['text_host_expression_hint'] = '*/5 means every five minutes; the number 5 alone means minute 05 of every hour.';
+$_['error_scheduler_redirect'] = 'HTTP 301/302: the Cron URL is redirected. Check the canonical HTTPS shop URL and hosting/CDN redirect rules. The secret key is not forwarded across redirects.';

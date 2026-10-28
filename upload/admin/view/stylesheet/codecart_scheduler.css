@@ -109,3 +109,12 @@ html.ccp-admin-dark .ccp-scheduler-tabs>li.active>a{background:#24364d;color:#b2
 html.ccp-admin-dark .ccp-scheduler-host-details>summary{background:#202d40;color:#dce9f7;border-color:#42556d}
 html.ccp-admin-dark .ccp-scheduler-status,html.ccp-admin-dark .ccp-scheduler-advanced{background:#202d40;color:#dce9f7;border-color:#42556d}
 @media(max-width:767px){.ccp-scheduler-tabs>li>a{padding:8px 9px;font-size:12px}.ccp-scheduler-history-table{min-width:750px}.ccp-scheduler-history-filter select{max-width:100%}}
+
+/* External Cron: two distinct setup paths, no duplicate headings. */
+.ccp-external-method-note{margin:7px 0 12px;padding:8px 11px;font-size:12px;line-height:1.5;color:#30506c;background:#f5f9ff;border-left:3px solid #0057d9;border-radius:3px}
+.ccp-scheduler-host-details .ccp-host-task-helper{margin:0 0 12px;border:1px solid #e1e9f2;border-top:0}
+.ccp-host-technical-fields{margin:11px 0 8px}
+.ccp-host-technical-fields>summary{color:#285376;font-weight:600;font-size:12px;cursor:pointer;padding:6px 0}
+.ccp-host-technical-fields[open]>summary{margin-bottom:8px}
+html.ccp-admin-dark .ccp-external-method-note{background:#24364d;color:#d3e3f5;border-left-color:#3584f4}
+html.ccp-admin-dark .ccp-host-technical-fields>summary{color:#b6dafc}

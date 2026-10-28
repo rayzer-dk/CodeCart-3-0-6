@@ -523,7 +523,7 @@ class ControllerToolScheduler extends Controller {
         \CodeCart\Core\TlsPolicy::applyCurl($ch);
         $body=curl_exec($ch); $error=curl_error($ch); $status=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);
         // CurlHandle is released automatically; curl_close() is deprecated in PHP 8.5.
-        if ($body===false || $status<200 || $status>=300) return array('success'=>false,'status'=>'error','message'=>$error!==''?$error:'HTTP '.$status,'duration_ms'=>0);
+        if ($body===false || $status<200 || $status>=300) return array('success'=>false,'status'=>'error','message'=>$error!==''?$error:(in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP '.$status),'duration_ms'=>0);
         $body=trim((string)$body); $json=json_decode($body,true); if (!is_array($json) || !isset($json['scheduler_one']) || !is_array($json['scheduler_one'])) { $contentType=(string)curl_getinfo($ch,CURLINFO_CONTENT_TYPE); return array('success'=>false,'status'=>'error','message'=>'Invalid scheduler response (HTTP '.(int)$status.($contentType!==''?', '.$contentType:'').').','duration_ms'=>0); }
         return $json['scheduler_one'];
     }
@@ -542,7 +542,7 @@ class ControllerToolScheduler extends Controller {
         $error = curl_error($ch);
         $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($body === false || $status < 200 || $status >= 300) {
-            return array('success'=>false, 'processed'=>0, 'failed'=>0, 'message'=>$error !== '' ? $error : 'HTTP ' . $status);
+            return array('success'=>false, 'processed'=>0, 'failed'=>0, 'message'=>$error !== '' ? $error : (in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP ' . $status));
         }
         $json = json_decode(trim((string)$body), true);
         if (!is_array($json) || !isset($json['queue']) || !is_array($json['queue'])) {
@@ -570,7 +570,7 @@ class ControllerToolScheduler extends Controller {
         $error = curl_error($ch);
         $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($body === false || $status < 200 || $status >= 300) {
-            return array('success'=>false, 'status'=>'error', 'message'=>$error !== '' ? $error : 'HTTP ' . $status);
+            return array('success'=>false, 'status'=>'error', 'message'=>$error !== '' ? $error : (in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP ' . $status));
         }
         $json = json_decode(trim((string)$body), true);
         if (!is_array($json) || !isset($json['queue_one']) || !is_array($json['queue_one'])) {

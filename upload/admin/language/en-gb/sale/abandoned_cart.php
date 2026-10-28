@@ -170,3 +170,6 @@ $_['text_detect_no_write'] = 'Detection reads database metadata only; it does no
 
 $_['text_bulk_send_limit'] = 'Select no more than 10 carts per send operation.';
 $_['text_cart_consent_notice'] = 'A separate cart-specific reminder consent is required. Newsletter opt-in alone is not sufficient.';
+
+$_['text_source_only_explanation'] = 'Cart source controls where item records are read from: the standard OpenCart cart table or an external SQL table. UniShop2 checkout normally still uses the standard table.';
+$_['text_checkout_only_explanation'] = 'Checkout page only controls where the recovery link takes the customer. It does not change the cart data source.';

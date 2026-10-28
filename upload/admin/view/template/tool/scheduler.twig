@@ -141,6 +141,7 @@
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-cloud"></i> {{ text_external_import_title }}</h3></div>
       <div class="panel-body">
         <p class="help-block">{{ text_external_import_help }}</p>
+        <p class="ccp-external-method-note">{{ text_external_method_explanation }}</p>
         <form action="{{ action }}" method="post" class="form-horizontal">
           <input type="hidden" name="scheduler_action" value="save_external">
           <div class="form-group"><label class="col-sm-2 control-label" for="ccp-external-command">{{ text_external_import_command }}</label>
@@ -160,8 +161,8 @@
 
     <details class="ccp-scheduler-host-details"><summary><i class="fa fa-terminal"></i> {{ text_host_task_type }} <i class="fa fa-angle-down"></i></summary>
     <div class="panel panel-default ccp-host-task-helper">
-      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-terminal"></i> {{ text_host_task_type }}</h3></div>
       <div class="panel-body">
+        <p class="ccp-external-method-note">{{ text_host_method_explanation }}</p>
         <p class="help-block">{{ text_host_command_help }}</p>
         <div class="form-group"><label for="ccp-host-command">{{ text_host_command_label }}</label>
           <div class="input-group"><input type="password" id="ccp-host-command" class="form-control" autocomplete="off" spellcheck="false" placeholder="php /path/to/module/cron.php" />
@@ -170,12 +171,14 @@
         <div class="form-group ccp-host-frequency"><label for="ccp-host-frequency">{{ text_interval_preset }}</label>
           <select class="form-control" id="ccp-host-frequency"><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option><option value="1440">1 d</option><option value="custom">{{ text_interval_custom }}</option></select>
         </div>
+        <details class="ccp-host-technical-fields"><summary><i class="fa fa-code"></i> {{ text_host_expression_details }}</summary>
         <div class="ccp-host-time-fields">
           {% for field in [{'id':'minute','label':text_host_minute,'value':'*/5'},{'id':'hour','label':text_host_hour,'value':'*'},{'id':'dom','label':text_host_dom,'value':'*'},{'id':'month','label':text_host_month,'value':'*'},{'id':'dow','label':text_host_dow,'value':'*'}] %}
           <div><label for="ccp-host-{{ field.id }}">{{ field.label }}</label><input type="text" class="form-control ccp-host-time" id="ccp-host-{{ field.id }}" value="{{ field.value }}" autocomplete="off" /></div>
           {% endfor %}
         </div>
-        <p class="help-block">{{ text_host_schedule_help }}</p>
+        <p class="help-block">{{ text_host_schedule_help }} {{ text_host_expression_hint }}</p>
+        </details>
         <div class="alert alert-info ccp-host-security"><i class="fa fa-info-circle"></i> {{ text_host_security }}</div>
       </div>
     </div>
@@ -236,8 +239,8 @@
 
   </div>
 </div>
-<link rel="stylesheet" href="view/stylesheet/codecart_scheduler.css?v=3.0.6.4">
-<script src="view/javascript/codecart-scheduler.js?v=3.0.6.4"></script>
+<link rel="stylesheet" href="view/stylesheet/codecart_scheduler.css?v=3.0.6.5">
+<script src="view/javascript/codecart-scheduler.js?v=3.0.6.5"></script>
 <style>
 .ccp-scheduler-setup-details { margin:10px 0 0;padding:10px 12px;border:1px solid #dde6f2;border-radius:5px; background:#f9fbfe }
 .ccp-scheduler-setup-details > summary {cursor:pointer;font-weight:600;color:#174875;list-style-position:inside}

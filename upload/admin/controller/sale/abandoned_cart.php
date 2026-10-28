@@ -297,7 +297,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'text_send_only_optin',            'text_history_error','text_history_manual','text_history_auto',
             'entry_checkout_url','text_checkout_url_help','text_external_source_explanation',
             'text_external_table_candidates','text_external_no_candidates','text_external_choose_table',
-            'text_product_storefront','error_checkout_url','entry_checkout_mode','text_checkout_auto','text_checkout_standard','text_checkout_unishop2','text_checkout_custom','text_checkout_mode_help','text_cart_data_help','text_detect_tables_ready','error_table_route','text_source_section','text_checkout_section','text_reminders_section','text_detect_no_write','text_bulk_send_limit'
+            'text_product_storefront','error_checkout_url','entry_checkout_mode','text_checkout_auto','text_checkout_standard','text_checkout_unishop2','text_checkout_custom','text_checkout_mode_help','text_cart_data_help','text_detect_tables_ready','error_table_route','text_source_section','text_source_only_explanation','text_checkout_only_explanation','text_checkout_section','text_reminders_section','text_detect_no_write','text_bulk_send_limit'
         ) as $key) { $data[$key] = $this->language->get($key); }
 
         if (!empty($this->session->data['success'])) {

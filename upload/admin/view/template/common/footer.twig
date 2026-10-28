@@ -21,23 +21,7 @@
         <span>{{ text_runtime_server_time }}:</span>
         <time datetime="{{ runtime_server_time_iso }}">{{ runtime_server_time }}</time>
       </span>
-      <details class="ccp-footer-runtime-details">
-        <summary>{{ text_runtime_more }} <i class="fa fa-angle-down" aria-hidden="true"></i></summary>
-        <div class="ccp-footer-runtime-detail-list">
-          <span>{{ text_runtime_timezone }}: <strong>{{ runtime_timezone }}</strong></span>
-          <span>{{ text_runtime_ioncube }}: <strong>{{ runtime_ioncube_version ?: text_runtime_not_installed }}</strong></span>
-          <span>{{ text_runtime_memory }}: <strong>{{ runtime_memory_limit }}</strong></span>
-          <span>{{ text_runtime_execution }}: <strong>{{ runtime_execution_limit }}</strong></span>
-          <span>{{ text_runtime_upload }}: <strong>{{ runtime_upload_limit }}</strong></span>
-          <span>{{ text_runtime_post }}: <strong>{{ runtime_post_limit }}</strong></span>
-          <span>{{ text_runtime_sapi }}: <strong>{{ runtime_sapi }}</strong></span>
-          {% if runtime_web_server %}<span>{{ text_runtime_web_server }}: <strong>{{ runtime_web_server }}</strong></span>{% endif %}
-          {% if runtime_db_version_full %}<span>{{ runtime_db_name }}: <strong>{{ runtime_db_version_full }}</strong></span>{% endif %}
-          {% if runtime_db_collation %}<span>{{ text_runtime_db_collation }}: <strong>{{ runtime_db_collation }}</strong></span>{% endif %}
-          {% if runtime_db_driver %}<span>{{ text_runtime_db_driver }}: <strong>{{ runtime_db_driver }}</strong></span>{% endif %}
-          {% if runtime_build %}<span>{{ text_runtime_build }}: <strong>{{ runtime_build }}</strong></span>{% endif %}
-        </div>
-      </details>
+
     </div>
   {% endif %}
 </footer></div>

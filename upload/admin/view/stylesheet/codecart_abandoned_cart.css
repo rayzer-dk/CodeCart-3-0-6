@@ -130,3 +130,27 @@ html.ccp-admin-dark .ccp-carts-page .ccp-cart-tabs>li.active>a{background:#202b3
 .ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-customer{width:13%}
 .ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-products{width:27%}
 .ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-status{width:8%}
+
+/* Unified contacts and balanced compact table, without sacrificing product space. */
+.ccp-carts-page .ccp-abandoned-cart-table{min-width:960px;table-layout:fixed;width:100%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-select{width:3%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-customer{width:21%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-products{width:31%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-quantity{width:5%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-total{width:9%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-activity{width:12%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-status{width:10%}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-actions{width:9%}
+.ccp-carts-page .ccp-abandoned-cart-table th{width:auto!important}
+.ccp-carts-page .ccp-abandoned-cart-table td{padding:9px 10px!important;vertical-align:middle;line-height:1.4}
+.ccp-carts-page .ccp-cart-contact strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccp-carts-page .ccp-cart-contact-email,.ccp-carts-page .ccp-cart-contact-phone{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;line-height:1.7;color:#526c80}
+.ccp-carts-page .ccp-cart-contact-noemail{display:block;font-size:11px;color:#768594;margin-top:3px}
+.ccp-carts-page .ccp-cart-heading-divider{margin:0 5px;color:#8495a6}
+.ccp-carts-page .ccp-abandoned-product{min-height:36px;align-items:center;gap:9px}
+.ccp-carts-page .ccp-abandoned-product .ccp-product-image-link,.ccp-carts-page .ccp-product-thumb,.ccp-carts-page .ccp-product-thumb-placeholder{width:36px;height:36px;flex-basis:36px;max-width:36px}
+.ccp-carts-page .ccp-abandoned-product span{flex:0 0 auto;white-space:nowrap}
+.ccp-carts-page .ccp-cart-row-actions .btn{width:30px;height:30px;padding:5px 7px}
+.ccp-carts-page .ccp-settings-distinction{font-size:12px;line-height:1.55;color:#44627d;background:#f4f8fc;border-left:3px solid #0057d9;border-radius:3px;padding:8px 11px;margin:1px 0 14px}
+html.ccp-admin-dark .ccp-carts-page .ccp-settings-distinction{background:#25364c;color:#d3e0ef}
+@media(max-width:1100px){.ccp-carts-page .ccp-abandoned-cart-table{min-width:960px}}

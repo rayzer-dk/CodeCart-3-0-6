@@ -30,6 +30,7 @@
     var $add = $('#button-scheduler-add');
     var url = $panel.attr('data-info-url') || '';
     var editorRow = null;
+    var editingId = null;
     var pendingRequest = null;
     var $frequency = $('#input-scheduler-frequency');
     var $interval = $('#input-scheduler-interval');
@@ -77,6 +78,7 @@
         editorRow.remove();
         editorRow = null;
       }
+      editingId = null;
       if (shouldReset) { resetForm(); }
     }
 
@@ -103,10 +105,14 @@
       var $target = $link.closest('tr');
       if (!id || !$target.length) { return; }
 
+      // A second click on the same pencil collapses its editor, including in-flight loading.
+      if (editorRow && editingId === id) { restoreEditor(true); return; }
+
       // No hard page navigation: the loading indicator occupies the EXACT
       // table row immediately below the clicked task.
       restoreEditor(true);
       editorRow = $('<tr class="ccp-scheduler-editor-row"><td colspan="8"></td></tr>').insertAfter($target);
+      editingId = id;
       var $holder = editorRow.children('td');
       var $progress = $('<div class="ccp-scheduler-editor-loading" role="status"></div>');
       $progress.append($('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>'));
