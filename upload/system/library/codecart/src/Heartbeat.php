@@ -70,7 +70,7 @@ final class Heartbeat {
             }
 
             $scheduler = new Scheduler($this->registry);
-            $scheduler->runDue(5);
+            $scheduler->runDue(5, 'visitor');
         } catch (\Throwable $e) {
             if ($this->log) { $this->log->write('CodeCart PRO heartbeat failed: ' . $e->getMessage()); }
         } finally {

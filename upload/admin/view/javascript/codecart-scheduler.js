@@ -5,6 +5,22 @@
 (function ($) {
   'use strict';
   $(function () {
+    var $tabs = $('#ccp-scheduler-tabs a[data-toggle="tab"]');
+    function showTab(hash) {
+      if (hash === '#ccp-scheduler-history') { hash = '#ccp-scheduler-tab-tasks'; }
+      if (hash === '#scheduler-form') { hash = '#ccp-scheduler-tab-tasks'; }
+      var $tab = $tabs.filter('[href="' + hash + '"]');
+      if ($tab.length) { $tab.tab('show'); }
+    }
+    if (window.location.hash) { showTab(window.location.hash); }
+    else if (/[?&]queue_(?:page|status|search|sort|limit)=/.test(window.location.search)) { showTab('#ccp-scheduler-tab-queue'); }
+    else if (/[?&]history_(?:page|task)=/.test(window.location.search)) { showTab('#ccp-scheduler-tab-tasks'); }
+    $tabs.on('shown.bs.tab', function (event) {
+      var hash = $(event.target).attr('href');
+      if (hash && window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search + hash);
+      }
+    });
     var $panel = $('#scheduler-form');
     if (!$panel.length) { return; }
 
@@ -172,6 +188,7 @@
       event.preventDefault();
       if (editorRow) { restoreEditor(true); }
       else { resetForm(); }
+      showTab('#ccp-scheduler-tab-tasks');
       if ($panel[0]) { $panel[0].scrollIntoView({behavior: 'smooth', block: 'start'}); }
     });
   });

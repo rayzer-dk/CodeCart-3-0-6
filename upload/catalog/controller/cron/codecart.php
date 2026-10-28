@@ -18,9 +18,12 @@ class ControllerCronCodeCart extends Controller {
         $scheduler = new \CodeCart\Core\Scheduler($this->registry);
         $queue = new \CodeCart\Core\Queue($this->registry);
         $mode = isset($this->request->get['mode']) ? (string)$this->request->get['mode'] : 'all';
+        // Explicit server Cron runs are tracked separately from visitor-triggered loopbacks.
+        $source = (PHP_SAPI === 'cli' || (defined('CODECART_CLI') && CODECART_CLI))
+            ? 'cli' : (!empty($this->request->get['heartbeat']) ? 'visitor' : 'web');
 
         if ($mode === 'scheduler') {
-            $result = array('scheduler' => $scheduler->runDue(20));
+            $result = array('scheduler' => $scheduler->runDue(20, $source));
         } elseif ($mode === 'queue') {
             $result = array('queue' => $queue->run(25));
         } elseif ($mode === 'queue_one') {
@@ -35,7 +38,7 @@ class ControllerCronCodeCart extends Controller {
         } elseif ($mode === 'queue_purge') {
             $hours = isset($this->request->get['hours']) ? (int)$this->request->get['hours'] : 24;
             $result = array('queue_purge' => array('deleted' => $queue->purgeCompleted($hours), 'stats' => $queue->stats()));
-        } elseif ($mode === 'scheduler_list') {
+        } elseif ($mode === 'scheduler_list' && (PHP_SAPI === 'cli' || (defined('CODECART_CLI') && CODECART_CLI))) {
             $result = array('scheduler' => $scheduler->listTasks(), 'queue' => $queue->stats());
         } elseif ($mode === 'scheduler_one') {
             $schedulerId = isset($this->request->get['scheduler_id']) ? (int)$this->request->get['scheduler_id'] : 0;
@@ -60,8 +63,13 @@ class ControllerCronCodeCart extends Controller {
                 $modernizer = new \CodeCart\Core\DatabaseModernizer($this->registry);
                 $result = array('database' => $modernizer->migrate(!empty($this->request->get['large'])));
             }
+        } elseif ($mode === 'all') {
+            // The queue runs only through the registered core.queue.worker task.
+            // A disabled queue worker must not be bypassed by cron:run.
+            $result = array('scheduler' => $scheduler->runDue(20, $source), 'queue' => array('status' => 'scheduled_worker', 'processed' => 0, 'failed' => 0));
         } else {
-            $result = array('scheduler' => $scheduler->runDue(20), 'queue' => $queue->run(25));
+            $this->response->setStatusCode(400);
+            $result = array('error' => 'Unknown or unavailable Cron mode.');
         }
 
         $payload = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

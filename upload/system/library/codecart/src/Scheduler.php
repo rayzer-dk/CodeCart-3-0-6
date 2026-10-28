@@ -92,19 +92,23 @@ final class Scheduler {
         $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET status = '" . (int)$status . "'" . $next . ", date_modified = NOW() WHERE scheduler_id = '" . (int)$schedulerId . "'");
     }
 
-    public function runDue(int $limit = 20): array {
+    public function runDue(int $limit = 20, string $source = 'visitor'): array {
         $limit = max(1, min(100, $limit));
-        return $this->withLock(function () use ($limit) {
+        $result = $this->withLock(function () use ($limit, $source) {
             $processed = 0;
             $failed = 0;
             $jobs = $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_scheduler` WHERE status = '1' AND date_next <= NOW() ORDER BY date_next ASC, scheduler_id ASC LIMIT " . (int)$limit);
             foreach ($jobs->rows as $job) {
-                $result = $this->execute($job);
+                $result = $this->execute($job, $source);
                 $processed++;
                 if (!$result['success']) { $failed++; }
             }
-            return array('status' => 'ok', 'processed' => $processed, 'failed' => $failed);
+            return array('status' => $failed > 0 ? 'error' : 'ok', 'processed' => $processed, 'failed' => $failed);
         }, array('status' => 'locked', 'processed' => 0, 'failed' => 0));
+        if (($result['status'] ?? '') !== 'locked' && in_array($source, array('cli','web','visitor'), true)) {
+            $this->recordHeartbeat($source, $result);
+        }
+        return $result;
     }
 
     public function runOne(int $schedulerId): array {
@@ -113,7 +117,7 @@ final class Scheduler {
             throw new \RuntimeException('Scheduler task not found.');
         }
         return $this->withLock(function () use ($task) {
-            return $this->execute($task);
+            return $this->execute($task, 'manual');
         }, array('success' => false, 'status' => 'locked', 'message' => 'Scheduler is already running.', 'duration_ms' => 0));
     }
 
@@ -127,7 +131,7 @@ final class Scheduler {
         return $query->rows;
     }
 
-    private function execute(array $job): array {
+    private function execute(array $job, string $source = 'manual'): array {
         $started = microtime(true);
         $ok = true;
         $message = 'OK';
@@ -188,7 +192,7 @@ final class Scheduler {
 
         $duration = (int)round((microtime(true) - $started) * 1000);
         $nextSeconds = $this->normalizeInterval((int)$job['interval_seconds']);
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET date_last = NOW(), date_next = DATE_ADD(NOW(), INTERVAL " . (int)$nextSeconds . " SECOND), last_duration_ms = '" . (int)$duration . "', last_status = '" . ($ok ? 'success' : 'error') . "', last_message = '" . $this->db->escape(substr($message, 0, 1000)) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$job['scheduler_id'] . "'");
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET date_last = NOW(), date_next = DATE_ADD(NOW(), INTERVAL " . (int)$nextSeconds . " SECOND), last_duration_ms = '" . (int)$duration . "', last_status = '" . ($ok ? 'success' : 'error') . "', last_message = '" . $this->db->escape($this->scrubDiagnostic($message)) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$job['scheduler_id'] . "'");
 
         try {
             $notice = new SystemNotification($this->registry);
@@ -197,7 +201,62 @@ final class Scheduler {
             else { $notice->notify($noticeCode, 'error', 'Cron task failed: ' . (string)$job['code'], substr($message,0,1000), 'tool/scheduler'); }
         } catch (\Throwable $e) {}
 
+        $this->recordHistory($job, $source, $ok, $duration, $message);
         return array('success' => $ok, 'status' => $ok ? 'success' : 'error', 'message' => $message, 'duration_ms' => $duration);
+    }
+
+    /** History and heartbeat are observational only; never turn a finished task into a retry. */
+    private function recordHistory(array $job, string $source, bool $ok, int $duration, string $message): void {
+        try {
+            $safeMessage = $this->scrubDiagnostic($message);
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler_history` SET scheduler_id = '" . (int)$job['scheduler_id'] . "', task_code = '" . $this->db->escape((string)$job['code']) . "', source = '" . $this->db->escape($source) . "', result = '" . ($ok ? 'success' : 'error') . "', duration_ms = '" . max(0, $duration) . "', message = '" . $this->db->escape($safeMessage) . "', date_added = NOW()");
+            // Keep the history bounded without a maintenance job running on every page.
+            if (random_int(1, 50) === 1) {
+                $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_scheduler_history` WHERE date_added < DATE_SUB(NOW(), INTERVAL 30 DAY)");
+            }
+        } catch (\Throwable $e) {
+            // During rolling deployment the new history table may not exist yet.
+        }
+    }
+
+    private function scrubDiagnostic(string $message): string {
+        $message = preg_replace('/(X-ACP-Cron-Key\s*:\s*)[^\s,;]+/i', '$1[hidden]', $message);
+        $message = preg_replace('/([?&](?:key|token|password|secret|auth)=)[^\s&]+/i', '$1[hidden]', $message);
+        return substr((string)$message, 0, 1000);
+    }
+
+    private function recordHeartbeat(string $source, array $result): void {
+        try {
+            $status = (string)($result['status'] ?? 'error');
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler_heartbeat` SET source = '" . $this->db->escape($source) . "', date_last = NOW(), last_status = '" . $this->db->escape($status) . "', processed = '" . (int)($result['processed'] ?? 0) . "', failed = '" . (int)($result['failed'] ?? 0) . "' ON DUPLICATE KEY UPDATE date_last = NOW(), last_status = VALUES(last_status), processed = VALUES(processed), failed = VALUES(failed)");
+        } catch (\Throwable $e) {
+            // The scheduler is functional even before the observability migration.
+        }
+    }
+
+    public function hostHeartbeat(): array {
+        try {
+            $q = $this->db->query("SELECT source, date_last, last_status, processed, failed, TIMESTAMPDIFF(MINUTE, date_last, NOW()) AS age_minutes FROM `" . DB_PREFIX . "codecart_scheduler_heartbeat` WHERE source IN ('cli', 'web') ORDER BY date_last DESC LIMIT 1");
+            return $q->num_rows ? $q->row : array();
+        } catch (\Throwable $e) { return array(); }
+    }
+
+    public function historyCount(int $taskId = 0): int {
+        $where = $taskId > 0 ? " WHERE scheduler_id = '" . $taskId . "'" : '';
+        try {
+            $q = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_scheduler_history`" . $where);
+            return (int)($q->row['total'] ?? 0);
+        } catch (\Throwable $e) { return 0; }
+    }
+
+    public function history(int $page = 1, int $limit = 25, int $taskId = 0): array {
+        $page = max(1, $page); $limit = max(10, min(100, $limit));
+        $offset = ($page - 1) * $limit;
+        $where = $taskId > 0 ? " WHERE scheduler_id = '" . $taskId . "'" : '';
+        try {
+            $q = $this->db->query("SELECT task_code, source, result, duration_ms, message, date_added FROM `" . DB_PREFIX . "codecart_scheduler_history`" . $where . " ORDER BY history_id DESC LIMIT " . (int)$offset . "," . (int)$limit);
+            return $q->rows;
+        } catch (\Throwable $e) { return array(); }
     }
 
     private function withLock(callable $callback, array $lockedResult): array {

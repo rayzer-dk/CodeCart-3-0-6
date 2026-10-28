@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '33';
+    const PRESENTATION_SCHEMA_VERSION = '34';
 
     private $db;
     private $config;
@@ -2011,6 +2011,28 @@ class Migration {
             KEY `code_status` (`code`,`status`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_scheduler_history` (
+            `history_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `scheduler_id` INT NOT NULL,
+            `task_code` VARCHAR(128) NOT NULL,
+            `source` VARCHAR(16) NOT NULL,
+            `result` VARCHAR(16) NOT NULL,
+            `duration_ms` INT UNSIGNED NOT NULL DEFAULT 0,
+            `message` VARCHAR(1000) NOT NULL DEFAULT '',
+            `date_added` DATETIME NOT NULL,
+            PRIMARY KEY (`history_id`),
+            KEY `task_recent` (`scheduler_id`,`history_id`),
+            KEY `date_added` (`date_added`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_scheduler_heartbeat` (
+            `source` VARCHAR(16) NOT NULL,
+            `date_last` DATETIME NOT NULL,
+            `last_status` VARCHAR(16) NOT NULL,
+            `processed` INT UNSIGNED NOT NULL DEFAULT 0,
+            `failed` INT UNSIGNED NOT NULL DEFAULT 0,
+            PRIMARY KEY (`source`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
         $key = $this->db->query("SELECT setting_id, value FROM `" . DB_PREFIX . "setting` WHERE store_id = '0' AND `key` = 'codecart_scheduler_key' LIMIT 1");
         if (!$key->num_rows || strlen((string)$key->row['value']) < 32) {
             $value = bin2hex(random_bytes(32));
@@ -2917,7 +2939,7 @@ class Migration {
             $code = $task['code']; $route = $task['route']; $interval = (int)$task['interval'];
             $query = $this->db->query("SELECT scheduler_id FROM `" . DB_PREFIX . "codecart_scheduler` WHERE code = '" . $this->db->escape($code) . "' LIMIT 1");
             if ($query->num_rows) {
-                $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET route = '" . $this->db->escape($route) . "', interval_seconds = '" . $interval . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$query->row['scheduler_id'] . "'");
+                $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET route = '" . $this->db->escape($route) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$query->row['scheduler_id'] . "' AND route <> '" . $this->db->escape($route) . "'");
             } else {
                 $default_status = in_array($code, array('core.stock.notify','core.mail.campaign','core.queue.worker'), true) ? 1 : 0;
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '{}', interval_seconds = '" . $interval . "', status = '" . (int)$default_status . "', date_next = NOW(), date_added = NOW(), date_modified = NOW()");

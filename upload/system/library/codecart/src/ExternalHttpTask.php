@@ -131,6 +131,9 @@ final class ExternalHttpTask {
                 throw new \RuntimeException('External Cron request failed (HTTP ' . $status . ').');
             }
             return array('success' => true, 'message' => 'HTTPS endpoint accepted the request (HTTP ' . $status . '); extension action not independently verified.');
-        } finally { curl_close($curl); }
+        } finally {
+            // The CurlHandle is released automatically; curl_close() is deprecated in PHP 8.5.
+            unset($curl);
+        }
     }
 }

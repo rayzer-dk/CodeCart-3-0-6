@@ -38,7 +38,7 @@ final class Queue {
             $failed += (int)$result['failed'];
         }
 
-        return array('status' => 'ok', 'processed' => $processed, 'failed' => $failed);
+        return array('status' => $failed > 0 ? 'error' : 'ok', 'processed' => $processed, 'failed' => $failed);
     }
 
     public function runOne(int $queueId, bool $retryFailed = false): array {
@@ -111,9 +111,18 @@ final class Queue {
             $args = json_decode((string)$job['args'], true);
             if (!is_array($args)) { $args = array(); }
             $result = $this->registry->get('load')->controller((string)$job['route'], $args, true);
-            if ($result === false) { throw new \RuntimeException('Handler returned false'); }
-            if (is_array($result) && array_key_exists('success', $result) && empty($result['success'])) {
-                throw new \RuntimeException(isset($result['message']) && trim((string)$result['message']) !== '' ? trim((string)$result['message']) : 'Task failed without details');
+            if ($result === false || $result === null || $result === '') {
+                throw new \RuntimeException('Handler returned no execution result');
+            }
+            if (is_array($result)) {
+                $failed = (int)($result['failed'] ?? 0);
+                $status = isset($result['status']) ? strtolower((string)$result['status']) : '';
+                if ((array_key_exists('success', $result) && empty($result['success']))
+                    || ($status !== '' && !in_array($status, array('ok','success','skipped'), true))
+                    || $failed > 0 || !$result) {
+                    $detail = trim((string)($result['message'] ?? ''));
+                    throw new \RuntimeException($detail !== '' ? $detail : 'Handler failed: status=' . $status . ', failed=' . $failed);
+                }
             }
         } catch (\Throwable $e) {
             $ok = false;
@@ -129,8 +138,8 @@ final class Queue {
         } else {
             $final = $attempts >= (int)$job['max_attempts'];
             $delay = min(3600, 30 * (2 ** max(0, $attempts - 1)));
-            $available = date('Y-m-d H:i:s', time() + $delay);
-            $this->db->query("UPDATE `" . DB_PREFIX . "codecart_queue` SET status = '" . ($final ? 'failed' : 'pending') . "', attempts = '" . $attempts . "', available_at = '" . $this->db->escape($available) . "', locked_at = NULL, locked_by = NULL, last_error = '" . $this->db->escape(substr($message, 0, 2000)) . "', date_modified = NOW() WHERE queue_id = '" . $queueId . "'");
+            $available = $delay;
+            $this->db->query("UPDATE `" . DB_PREFIX . "codecart_queue` SET status = '" . ($final ? 'failed' : 'pending') . "', attempts = '" . $attempts . "', available_at = DATE_ADD(NOW(), INTERVAL " . (int)$available . " SECOND), locked_at = NULL, locked_by = NULL, last_error = '" . $this->db->escape(substr($message, 0, 2000)) . "', date_modified = NOW() WHERE queue_id = '" . $queueId . "'");
             if ($final) {
                 try { (new SystemNotification($this->registry))->notify('queue.' . $queueId, 'error', 'Queue task failed: ' . (string)$job['code'], substr($message, 0, 1200), 'tool/scheduler'); } catch (\Throwable $e) {}
             }

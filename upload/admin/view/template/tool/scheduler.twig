@@ -18,9 +18,9 @@
           <i class="fa fa-{{ scheduler_health == 'ok' ? 'check-circle' : 'exclamation-circle' }}"></i>
           <strong>{{ text_scheduler_health }}:</strong> {{ scheduler_health == 'ok' ? text_scheduler_health_ok : (scheduler_health == 'warn' ? text_scheduler_health_warn : text_scheduler_health_none) }}
           {% if scheduler_health_date %}<code>{{ scheduler_health_date }}</code>{% endif %}
-          <div class="help-block">{{ text_last_execution_help }}</div>
+          <div class="help-block">{{ text_last_execution_help }}{% if scheduler_health_source %} ({{ scheduler_health_source == 'cli' ? text_host_source_cli : text_host_source_web }}{% if scheduler_health_errors %}, {{ text_host_failed }}: {{ scheduler_health_errors }}{% endif %}){% endif %}</div>
         </div>
-        <p class="help-block ccp-scheduler-intro">{{ text_scheduler_intro }} <strong>{{ text_scheduler_host_unverified }}</strong></p>
+        <p class="help-block ccp-scheduler-intro">{{ text_scheduler_intro }} <strong>{{ text_scheduler_host_unverified }}</strong> {{ text_real_frequency_help }}</p>
         <details class="ccp-scheduler-setup-details"><summary><i class="fa fa-cog"></i> {{ text_server_setup }} <i class="fa fa-angle-down"></i></summary>
           <p class="help-block">{{ text_server_one_command }}</p>
           <p class="help-block"><strong>{{ text_server_interval }}</strong> <code>*/5 * * * *</code></p>
@@ -33,6 +33,13 @@
       </div>
     </div>
 
+    <ul class="nav nav-tabs ccp-scheduler-tabs" role="tablist" id="ccp-scheduler-tabs">
+      <li class="active"><a href="#ccp-scheduler-tab-tasks" role="tab" data-toggle="tab"><i class="fa fa-clock-o"></i> {{ text_scheduled_tab }}</a></li>
+      <li><a href="#ccp-scheduler-tab-external" role="tab" data-toggle="tab"><i class="fa fa-cloud"></i> {{ text_external_tab }}</a></li>
+      <li><a href="#ccp-scheduler-tab-queue" role="tab" data-toggle="tab"><i class="fa fa-tasks"></i> {{ text_queue_tab }}{% if queue_stats.failed %} <span class="label label-danger">{{ queue_stats.failed }}</span>{% endif %}</a></li>
+    </ul>
+    <div class="tab-content ccp-scheduler-tab-content">
+    <div class="tab-pane active" id="ccp-scheduler-tab-tasks" role="tabpanel">
     <div class="panel panel-default">
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-list"></i> {{ text_jobs }}</h3></div>
       <div class="table-responsive">
@@ -43,7 +50,7 @@
             {% for job in jobs %}
             <tr data-scheduler-id="{{ job.scheduler_id }}">
               <td class="ccp-scheduler-task-cell"><div class="ccp-task-single-line"><strong class="ccp-task-name" title="{{ job.display_name|e('html_attr') }} — {{ job.code|e('html_attr') }}">{{ job.display_name }}</strong>{% if job.is_core %}<span class="label label-info" title="{{ text_core_task }}">{{ text_core_task }}</span>{% endif %}{% if job.description %}<span class="ccp-scheduler-task-help" data-toggle="tooltip" title="{{ job.description|e('html_attr') }}"><i class="fa fa-question-circle"></i></span>{% endif %}</div></td>
-              <td><code>{{ job.route }}</code></td>
+              <td title="{{ job.route|e('html_attr') }}"><code>{{ job.route }}</code></td>
               <td title="{{ job.interval_seconds }} s">{{ job.interval_text }}</td>
               <td>{% if job.status %}<span class="label label-success">{{ text_enabled }}</span>{% else %}<span class="label label-default">{{ text_disabled }}</span>{% endif %}</td>
               <td>{{ job.date_last ?: '—' }}</td>
@@ -51,7 +58,7 @@
               <td>{% if job.last_status %}<span class="label label-{{ job.last_status == 'success' ? 'success' : 'danger' }}" title="{{ job.last_message_localized }}">{{ job.last_status_text }}</span>{% if job.last_duration_ms is not null %} <small>{{ job.last_duration_ms }} ms</small>{% endif %}{% else %}—{% endif %}</td>
               <td class="text-right codecart-scheduler-actions">
                 {% if can_modify %}<div class="ccp-scheduler-action-group">
-                <form action="{{ action }}" method="post"><input type="hidden" name="scheduler_action" value="run"><input type="hidden" name="scheduler_id" value="{{ job.scheduler_id }}"><button type="submit" class="btn btn-info" data-toggle="tooltip" title="{{ button_run }}"><i class="fa fa-play"></i></button></form>
+                <form action="{{ action }}" method="post"{% if not job.status %} onsubmit="return confirm('{{ text_manual_run_disabled|e('js') }}');"{% endif %}><input type="hidden" name="scheduler_action" value="run"><input type="hidden" name="scheduler_id" value="{{ job.scheduler_id }}"><button type="submit" class="btn btn-info" data-toggle="tooltip" title="{{ button_run }}{% if not job.status %}: {{ text_manual_run_disabled|e('html_attr') }}{% endif %}"><i class="fa fa-play"></i></button></form>
                 <a href="{{ action }}&amp;edit_id={{ job.scheduler_id }}#scheduler-form" data-id="{{ job.scheduler_id }}" class="btn btn-primary js-scheduler-edit" data-toggle="tooltip" title="{{ button_edit }}"><i class="fa fa-pencil"></i></a>
                 <form action="{{ action }}" method="post"><input type="hidden" name="scheduler_action" value="toggle"><input type="hidden" name="scheduler_id" value="{{ job.scheduler_id }}"><input type="hidden" name="status" value="{{ job.status ? 0 : 1 }}"><button type="submit" class="btn btn-{{ job.status ? 'warning' : 'success' }}" data-toggle="tooltip" title="{{ job.status ? button_disable : button_enable }}"><i class="fa fa-{{ job.status ? 'pause' : 'play-circle' }}"></i></button></form>
                 {% if not job.is_core %}<form action="{{ action }}" method="post" onsubmit="return confirm('{{ text_confirm|e('js') }}');"><input type="hidden" name="scheduler_action" value="delete"><input type="hidden" name="scheduler_id" value="{{ job.scheduler_id }}"><button type="submit" class="btn btn-danger" data-toggle="tooltip" title="{{ button_delete }}"><i class="fa fa-trash-o"></i></button></form>{% endif %}
@@ -103,6 +110,32 @@
     </div>
     {% endif %}
 
+    <div class="panel panel-default" id="ccp-scheduler-history">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-history"></i> {{ text_run_history }}</h3></div>
+      <div class="panel-body ccp-scheduler-history-filter">
+        <form method="get" action="{{ history_filter_action }}" class="form-inline">
+          <input type="hidden" name="route" value="tool/scheduler"><input type="hidden" name="user_token" value="{{ user_token }}">
+          <label for="history-task">{{ text_history_filter }}</label>
+          <select id="history-task" name="history_task" class="form-control input-sm">
+            <option value="0">{{ text_all }}</option>
+            {% for task in jobs %}<option value="{{ task.scheduler_id }}" {{ history_filter_task == task.scheduler_id ? 'selected' : '' }}>{{ task.display_name }}</option>{% endfor %}
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm" title="{{ button_filter }}"><i class="fa fa-filter"></i></button>
+        </form>
+      </div>
+      <div class="table-responsive"><table class="table table-hover table-bordered ccp-scheduler-history-table">
+        <thead><tr><th>{{ text_history_date }}</th><th>{{ text_history_task }}</th><th>{{ text_history_source }}</th><th>{{ text_history_result }}</th><th>{{ text_history_duration }}</th><th>{{ text_history_message }}</th></tr></thead>
+        <tbody>{% for history in history_rows %}<tr>
+          <td class="text-nowrap">{{ history.date_added }}</td><td><span class="ccp-ellipsis" title="{{ history.task_code|e('html_attr') }}">{{ history.task_code }}</span></td>
+          <td>{{ history.source == 'cli' ? text_host_source_cli : (history.source == 'web' ? text_host_source_web : (history.source == 'manual' ? text_history_source_manual : text_history_source_visitor)) }}</td>
+          <td><span class="label label-{{ history.result == 'success' ? 'success' : 'danger' }}">{{ history.result == 'success' ? text_success : text_result_error }}</span></td>
+          <td>{{ history.duration_ms }} ms</td><td><span class="ccp-ellipsis" title="{{ history.message|e('html_attr') }}">{{ history.message }}</span></td>
+        </tr>{% else %}<tr><td colspan="6" class="text-center">{{ text_history_empty }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+      {% if history_pagination %}<div class="panel-footer ccp-scheduler-history-pagination">{{ history_pagination }}</div>{% endif %}
+    </div>
+    </div>
+    <div class="tab-pane" id="ccp-scheduler-tab-external" role="tabpanel">
     {% if can_modify %}
     <div class="panel panel-default ccp-external-cron-import" id="ccp-external-cron-import">
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-cloud"></i> {{ text_external_import_title }}</h3></div>
@@ -125,6 +158,7 @@
     </div>
     {% endif %}
 
+    <details class="ccp-scheduler-host-details"><summary><i class="fa fa-terminal"></i> {{ text_host_task_type }} <i class="fa fa-angle-down"></i></summary>
     <div class="panel panel-default ccp-host-task-helper">
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-terminal"></i> {{ text_host_task_type }}</h3></div>
       <div class="panel-body">
@@ -146,6 +180,9 @@
       </div>
     </div>
 
+    </details>
+    </div>
+    <div class="tab-pane" id="ccp-scheduler-tab-queue" role="tabpanel">
     <div class="panel panel-default codecart-queue-panel">
       <div class="panel-heading clearfix">
         <h3 class="panel-title pull-left"><i class="fa fa-tasks"></i> {{ text_queue_jobs }}</h3>
@@ -194,12 +231,13 @@
       </div>
       <div class="panel-footer clearfix"><div class="pull-left">{{ queue_results }}</div><div class="pull-right">{{ queue_pagination }}</div></div>
     </div>
-
+    </div>
+    </div>
 
   </div>
 </div>
-<link rel="stylesheet" href="view/stylesheet/codecart_scheduler.css?v=3.0.6.3">
-<script src="view/javascript/codecart-scheduler.js?v=3.0.6.3"></script>
+<link rel="stylesheet" href="view/stylesheet/codecart_scheduler.css?v=3.0.6.4">
+<script src="view/javascript/codecart-scheduler.js?v=3.0.6.4"></script>
 <style>
 .ccp-scheduler-setup-details { margin:10px 0 0;padding:10px 12px;border:1px solid #dde6f2;border-radius:5px; background:#f9fbfe }
 .ccp-scheduler-setup-details > summary {cursor:pointer;font-weight:600;color:#174875;list-style-position:inside}

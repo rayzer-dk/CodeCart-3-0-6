@@ -35,7 +35,10 @@ class ControllerToolScheduler extends Controller {
                 }
             }
             $back = $this->url->link('tool/scheduler', 'user_token=' . $this->session->data['user_token'], true);
+            $action = (string)($this->request->post['scheduler_action'] ?? '');
             if (!empty($this->session->data['scheduler_form_error'])) { $back .= '#scheduler-form'; }
+            elseif ($action === 'save_external') { $back .= '#ccp-scheduler-tab-external'; }
+            elseif (strpos($action, 'queue') !== false) { $back .= '#ccp-scheduler-tab-queue'; }
             $this->response->redirect($back);
             return;
         }
@@ -69,6 +72,9 @@ class ControllerToolScheduler extends Controller {
           'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info','text_ready_handlers_count','text_no_free_handler','text_save_failed','text_interval_preset','text_interval_custom','text_scheduler_host_unverified','text_scheduler_intro','text_create_task_hint','text_task_paused','text_native_task_type','text_host_task_type','text_host_command_label','text_host_command_help','text_host_schedule_help','text_host_copy','text_host_security','text_handler_select_help','text_advanced_identifiers','text_task_no_handler','text_host_minute','text_host_hour','text_host_dom','text_host_month','text_host_dow','text_job_name_header','text_external_import_title','text_external_import_help','text_external_import_command','text_external_import_frequency','text_external_import_submit','text_external_import_safety','text_external_import_secret_note','text_external_import_success','text_external_import_failed','text_external_job_name') as $key) {
             $data[$key] = $this->language->get($key);
         }
+        foreach (array('text_scheduled_tab','text_external_tab','text_queue_tab','text_run_history','text_history_empty','text_history_task','text_history_source','text_history_result','text_history_date','text_history_duration','text_history_message','text_manual_run_disabled','text_real_frequency_help','text_host_source_cli','text_host_source_web','text_history_filter','text_host_failed','text_history_source_manual','text_history_source_visitor') as $key) {
+            $data[$key] = $this->language->get($key);
+        }
         $data['text_loading_task'] = $this->language->get('text_loading_task');
         $data['error_loading_task'] = $this->language->get('error_loading_task');
         $data['cancel'] = $data['action'];
@@ -79,7 +85,7 @@ class ControllerToolScheduler extends Controller {
         $data['cli_command'] = 'php ' . $root . '/cli.php cron:run';
         $key = (string)$this->config->get('codecart_scheduler_key');
         $catalog = $this->getCatalogBaseUrl();
-        $data['http_command'] = 'curl -fsSL --max-redirs 3 --max-time 120 ' . escapeshellarg($catalog . 'cron.php?key=' . rawurlencode($key));
+        $data['http_command'] = 'curl -fsS --max-time 120 ' . escapeshellarg($catalog . 'cron.php?key=' . rawurlencode($key));
 
         $data['warning'] = '';
         if (!empty($this->session->data['error_warning'])) {
@@ -93,10 +99,18 @@ class ControllerToolScheduler extends Controller {
         }
 
         $data['jobs'] = array();
+        $data['history_rows'] = array();
+        $data['history_total'] = 0;
+        $data['history_filter_task'] = max(0, (int)($this->request->get['history_task'] ?? 0));
+        $data['history_page'] = max(1, (int)($this->request->get['history_page'] ?? 1));
+        $data['history_limit'] = 25;
         $data['queue_stats'] = array('pending'=>0,'processing'=>0,'failed'=>0,'done'=>0);
         $data['available_handlers'] = array();
         $data['scheduler_health'] = 'none';
         $data['scheduler_health_date'] = '';
+        $data['scheduler_health_source'] = '';
+        $data['scheduler_health_errors'] = 0;
+        $data['history_pagination'] = '';
         $data['scheduler_form_error'] = (string)($this->session->data['scheduler_form_error'] ?? '');
         unset($this->session->data['scheduler_form_error']);
         try {
@@ -121,12 +135,27 @@ class ControllerToolScheduler extends Controller {
             unset($job);
             $registered = array();
             foreach ($data['jobs'] as $job) { $registered[(string)$job['route']] = true; }
-            // Compare NOW() and date_last in the same DB timezone.
-            $heartbeat = $this->db->query("SELECT MAX(date_last) AS last_run, TIMESTAMPDIFF(MINUTE, MAX(date_last), NOW()) AS age_minutes FROM `" . DB_PREFIX . "codecart_scheduler`");
-            $lastRun = (string)($heartbeat->row['last_run'] ?? '');
-            $age = isset($heartbeat->row['age_minutes']) ? (int)$heartbeat->row['age_minutes'] : 999999;
-            $data['scheduler_health'] = !$lastRun ? 'none' : (($age >= 0 && $age <= 10) ? 'ok' : 'warn');
+            // The host heartbeat is written only by a real CLI or authenticated Web Cron.
+            // Manual runs and visitor-triggered heartbeats never count as server Cron health.
+            $heartbeat = $scheduler->hostHeartbeat();
+            $lastRun = (string)($heartbeat['date_last'] ?? '');
+            $age = isset($heartbeat['age_minutes']) ? (int)$heartbeat['age_minutes'] : 999999;
+            $data['scheduler_health'] = !$lastRun ? 'none' : (($age >= 0 && $age <= 12 && ($heartbeat['last_status'] ?? '') === 'ok') ? 'ok' : 'warn');
             $data['scheduler_health_date'] = $lastRun;
+            $data['scheduler_health_source'] = (string)($heartbeat['source'] ?? '');
+            $data['scheduler_health_errors'] = (int)($heartbeat['failed'] ?? 0);
+            $data['history_total'] = $scheduler->historyCount($data['history_filter_task']);
+            $lastHistoryPage = max(1, (int)ceil($data['history_total'] / $data['history_limit']));
+            $data['history_page'] = min($lastHistoryPage, $data['history_page']);
+            $data['history_rows'] = $scheduler->history($data['history_page'], $data['history_limit'], $data['history_filter_task']);
+            $historyBase = 'user_token=' . $this->session->data['user_token'] . '&history_task=' . (int)$data['history_filter_task'];
+            $historyPagination = new Pagination();
+            $historyPagination->total = $data['history_total'];
+            $historyPagination->page = $data['history_page'];
+            $historyPagination->limit = $data['history_limit'];
+            $historyPagination->url = $this->url->link('tool/scheduler', $historyBase . '&history_page={page}', true) . '#ccp-scheduler-history';
+            $data['history_pagination'] = $historyPagination->render();
+            $data['history_filter_action'] = $this->url->link('tool/scheduler', '', true);
             $blocked = array('codecart','codecart_external_http','mail_delivery','cart_reminder','cart_guest_purge','relation','lost_url');
             foreach (glob(DIR_CATALOG . 'controller/cron/*.php') ?: array() as $handlerFile) {
                 $handler = basename($handlerFile,'.php');
@@ -340,8 +369,11 @@ class ControllerToolScheduler extends Controller {
             $queueState = (string)$result['status'];
             $queueStateKey = 'text_queue_' . $queueState;
             $queueStateLabel = in_array($queueState, array('pending', 'processing', 'failed', 'done'), true) ? $this->language->get($queueStateKey) : $queueState;
-            $this->session->data['success'] = sprintf($this->language->get('text_queue_one_result'), $queueId, $queueStateLabel);
-            if (empty($result['success'])) { $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message']); }
+            if (!empty($result['success'])) {
+                $this->session->data['success'] = sprintf($this->language->get('text_queue_one_result'), $queueId, $queueStateLabel);
+            } else {
+                $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message']);
+            }
             return;
         }
 
@@ -487,7 +519,7 @@ class ControllerToolScheduler extends Controller {
         $catalog=$this->getCatalogBaseUrl();
         $url=$catalog.'cron.php?key='.rawurlencode($key).'&mode=scheduler_one&scheduler_id='.(int)$schedulerId;
         if (!function_exists('curl_init')) return array('success'=>false,'status'=>'error','message'=>'cURL is required for Run Now from admin. The normal CLI/HTTP scheduler is not affected.','duration_ms'=>0);
-        $ch=curl_init($url); curl_setopt_array($ch,array(CURLOPT_RETURNTRANSFER=>true,CURLOPT_FOLLOWLOCATION=>true,CURLOPT_MAXREDIRS=>3,CURLOPT_CONNECTTIMEOUT=>5,CURLOPT_TIMEOUT=>120,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,CURLOPT_ENCODING=>'',CURLOPT_HTTPHEADER=>array('Accept: application/json')));
+        $ch=curl_init($url); curl_setopt_array($ch,array(CURLOPT_RETURNTRANSFER=>true,CURLOPT_FOLLOWLOCATION=>false,CURLOPT_MAXREDIRS=>0,CURLOPT_CONNECTTIMEOUT=>5,CURLOPT_TIMEOUT=>120,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,CURLOPT_ENCODING=>'',CURLOPT_HTTPHEADER=>array('Accept: application/json')));
         \CodeCart\Core\TlsPolicy::applyCurl($ch);
         $body=curl_exec($ch); $error=curl_error($ch); $status=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);
         // CurlHandle is released automatically; curl_close() is deprecated in PHP 8.5.
@@ -504,7 +536,7 @@ class ControllerToolScheduler extends Controller {
             return array('success'=>false, 'processed'=>0, 'failed'=>0, 'message'=>'cURL is required for Run Queue Now from admin. The normal CLI/HTTP worker is not affected.');
         }
         $ch = curl_init($url);
-        curl_setopt_array($ch, array(CURLOPT_RETURNTRANSFER=>true, CURLOPT_FOLLOWLOCATION=>true, CURLOPT_MAXREDIRS=>3, CURLOPT_CONNECTTIMEOUT=>5, CURLOPT_TIMEOUT=>120, CURLOPT_SSL_VERIFYPEER=>true, CURLOPT_SSL_VERIFYHOST=>2, CURLOPT_ENCODING=>'', CURLOPT_HTTPHEADER=>array('Accept: application/json')));
+        curl_setopt_array($ch, array(CURLOPT_RETURNTRANSFER=>true, CURLOPT_FOLLOWLOCATION=>false, CURLOPT_MAXREDIRS=>0, CURLOPT_CONNECTTIMEOUT=>5, CURLOPT_TIMEOUT=>120, CURLOPT_SSL_VERIFYPEER=>true, CURLOPT_SSL_VERIFYHOST=>2, CURLOPT_ENCODING=>'', CURLOPT_HTTPHEADER=>array('Accept: application/json')));
         \CodeCart\Core\TlsPolicy::applyCurl($ch);
         $body = curl_exec($ch);
         $error = curl_error($ch);
@@ -532,7 +564,7 @@ class ControllerToolScheduler extends Controller {
             return array('success'=>false, 'status'=>'error', 'message'=>'cURL is required for Run Now from admin. The normal CLI/HTTP worker is not affected.');
         }
         $ch = curl_init($url);
-        curl_setopt_array($ch, array(CURLOPT_RETURNTRANSFER=>true, CURLOPT_FOLLOWLOCATION=>true, CURLOPT_MAXREDIRS=>3, CURLOPT_CONNECTTIMEOUT=>5, CURLOPT_TIMEOUT=>120, CURLOPT_SSL_VERIFYPEER=>true, CURLOPT_SSL_VERIFYHOST=>2, CURLOPT_ENCODING=>'', CURLOPT_HTTPHEADER=>array('Accept: application/json')));
+        curl_setopt_array($ch, array(CURLOPT_RETURNTRANSFER=>true, CURLOPT_FOLLOWLOCATION=>false, CURLOPT_MAXREDIRS=>0, CURLOPT_CONNECTTIMEOUT=>5, CURLOPT_TIMEOUT=>120, CURLOPT_SSL_VERIFYPEER=>true, CURLOPT_SSL_VERIFYHOST=>2, CURLOPT_ENCODING=>'', CURLOPT_HTTPHEADER=>array('Accept: application/json')));
         \CodeCart\Core\TlsPolicy::applyCurl($ch);
         $body = curl_exec($ch);
         $error = curl_error($ch);
@@ -546,7 +578,7 @@ class ControllerToolScheduler extends Controller {
         }
         $row = $json['queue_one'];
         return array(
-            'success' => isset($row['status']) && in_array((string)$row['status'], array('ok','skipped'), true),
+            'success' => isset($row['status']) && (string)$row['status'] === 'ok' && (int)($row['failed'] ?? 0) === 0,
             'status' => isset($row['status']) ? (string)$row['status'] : 'error',
             'message' => isset($row['message']) ? (string)$row['message'] : ''
         );
