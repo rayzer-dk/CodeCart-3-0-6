@@ -522,6 +522,10 @@ class ControllerToolScheduler extends Controller {
         $ch=curl_init($url); curl_setopt_array($ch,array(CURLOPT_RETURNTRANSFER=>true,CURLOPT_FOLLOWLOCATION=>false,CURLOPT_MAXREDIRS=>0,CURLOPT_CONNECTTIMEOUT=>5,CURLOPT_TIMEOUT=>120,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,CURLOPT_ENCODING=>'',CURLOPT_HTTPHEADER=>array('Accept: application/json')));
         \CodeCart\Core\TlsPolicy::applyCurl($ch);
         $body=curl_exec($ch); $error=curl_error($ch); $status=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);
+        if ($body !== false && in_array($status, array(301, 302, 303, 307, 308), true)) {
+            list($body, $error, $status) = $this->retryCanonicalCronRedirect($url, $ch);
+        }
+
         // CurlHandle is released automatically; curl_close() is deprecated in PHP 8.5.
         if ($body===false || $status<200 || $status>=300) return array('success'=>false,'status'=>'error','message'=>$error!==''?$error:(in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP '.$status),'duration_ms'=>0);
         $body=trim((string)$body); $json=json_decode($body,true); if (!is_array($json) || !isset($json['scheduler_one']) || !is_array($json['scheduler_one'])) { $contentType=(string)curl_getinfo($ch,CURLINFO_CONTENT_TYPE); return array('success'=>false,'status'=>'error','message'=>'Invalid scheduler response (HTTP '.(int)$status.($contentType!==''?', '.$contentType:'').').','duration_ms'=>0); }
@@ -541,6 +545,10 @@ class ControllerToolScheduler extends Controller {
         $body = curl_exec($ch);
         $error = curl_error($ch);
         $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($body !== false && in_array($status, array(301, 302, 303, 307, 308), true)) {
+            list($body, $error, $status) = $this->retryCanonicalCronRedirect($url, $ch);
+        }
+
         if ($body === false || $status < 200 || $status >= 300) {
             return array('success'=>false, 'processed'=>0, 'failed'=>0, 'message'=>$error !== '' ? $error : (in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP ' . $status));
         }
@@ -569,6 +577,10 @@ class ControllerToolScheduler extends Controller {
         $body = curl_exec($ch);
         $error = curl_error($ch);
         $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($body !== false && in_array($status, array(301, 302, 303, 307, 308), true)) {
+            list($body, $error, $status) = $this->retryCanonicalCronRedirect($url, $ch);
+        }
+
         if ($body === false || $status < 200 || $status >= 300) {
             return array('success'=>false, 'status'=>'error', 'message'=>$error !== '' ? $error : (in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP ' . $status));
         }
@@ -582,6 +594,49 @@ class ControllerToolScheduler extends Controller {
             'status' => isset($row['status']) ? (string)$row['status'] : 'error',
             'message' => isset($row['message']) ? (string)$row['message'] : ''
         );
+    }
+
+    /**
+     * Retry one HTTP redirect only when it changes the canonical HTTPS host
+     * between www/non-www. Never send the Cron secret to arbitrary redirect URLs.
+     * Location query parameters are deliberately ignored.
+     */
+    private function retryCanonicalCronRedirect(string $originalUrl, $handle): array {
+        $location = (string)curl_getinfo($handle, CURLINFO_REDIRECT_URL);
+        $source = parse_url($originalUrl);
+        $target = $location !== '' && !preg_match('/[\x00-\x20\x7f]/', $location) ? parse_url($location) : false;
+        $fail = array(false, 'HTTP 301: redirect is not a trusted HTTPS Cron endpoint. Configure the canonical storefront URL.', 301);
+        if (!is_array($source) || !is_array($target)
+            || strtolower((string)($source['scheme'] ?? '')) !== 'https'
+            || strtolower((string)($target['scheme'] ?? '')) !== 'https'
+            || empty($source['host']) || empty($source['path']) || empty($source['query'])
+            || empty($target['host']) || (string)($target['path'] ?? '') !== (string)$source['path']
+            || isset($target['user']) || isset($target['pass']) || isset($target['fragment'])
+            || (isset($target['port']) && (int)$target['port'] !== 443)) {
+            return $fail;
+        }
+        $oldHost = strtolower((string)$source['host']);
+        $newHost = strtolower((string)$target['host']);
+        $normalize = function ($host) {
+            return strpos($host, 'www.') === 0 ? substr($host, 4) : $host;
+        };
+        if ($normalize($oldHost) !== $normalize($newHost)) { return $fail; }
+        $retryUrl = 'https://' . $newHost . $source['path'] . '?' . $source['query'];
+        if ($retryUrl === $originalUrl || !function_exists('curl_init')) { return $fail; }
+        $retry = curl_init($retryUrl);
+        if (!$retry) { return array(false, 'Unable to initialize HTTPS Cron request.', 0); }
+        curl_setopt_array($retry, array(
+            CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_MAXREDIRS => 0, CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT => 120, CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2, CURLOPT_ENCODING => '',
+            CURLOPT_HTTPHEADER => array('Accept: application/json')
+        ));
+        \CodeCart\Core\TlsPolicy::applyCurl($retry);
+        $body = curl_exec($retry);
+        $error = (string)curl_error($retry);
+        $status = (int)curl_getinfo($retry, CURLINFO_HTTP_CODE);
+        return array($body, $error, $status);
     }
 
     private function formatInterval(int $seconds): string {
