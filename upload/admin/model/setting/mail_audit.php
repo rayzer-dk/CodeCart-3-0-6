@@ -38,7 +38,7 @@ class ModelSettingMailAudit extends Model {
             FROM " . $table . "
             WHERE date_added >= DATE_SUB(NOW(), INTERVAL 30 DAY)
             GROUP BY source_key
-            ORDER BY (accepted + failed + blocked) DESC LIMIT 20");
+            ORDER BY SUM(attempts) DESC, source_key ASC LIMIT 20");
         $sources = array();
         foreach ($groups->rows as $row) {
             $sources[] = array(
