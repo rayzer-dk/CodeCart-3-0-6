@@ -48,12 +48,18 @@ final class AbandonedCartReminder {
     }
 
     private function idle(): int {
-        return max(60, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        return max(1, min(10080, (int)($this->config->get('codecart_abandoned_cart_idle_minutes') ?? 5)));
+    }
+
+    /** Wait for the configured reminder interval, never send before the cart is abandoned. */
+    private function sendAfter(): int {
+        $delay = max(5, min(10080, (int)($this->config->get('codecart_abandoned_cart_reminder_delay_minutes') ?? 60)));
+        return max($this->idle(), $delay);
     }
 
     public function getCart(int $customerId, string $sessionId): array {
         if (!$this->active() || $customerId < 0 || $sessionId === '') { return array(); }
-        $idle = $this->idle();
+        $idle = $this->sendAfter();
         $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         if ($customerId === 0) {
             if (!(bool)$this->config->get('codecart_abandoned_cart_guest_capture')) { return array(); }
@@ -240,7 +246,7 @@ final class AbandonedCartReminder {
             return array('success'=>true,'message'=>'Abandoned-cart reminders disabled.');
         }
         $limit = max(1,min(20,$limit));
-        $idle = $this->idle();
+        $idle = $this->sendAfter();
         $days = max(1,min(7,(int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         try { $results = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) WHERE c.api_id=0 AND c.customer_id>0 AND cu.email<>'' AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT rc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 4)); }
         catch (\Throwable $e) { return array('success'=>false,'message'=>'Cart reminder consent storage is unavailable.','sent'=>0,'failed'=>1,'skipped'=>0); }
