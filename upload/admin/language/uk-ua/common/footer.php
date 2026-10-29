@@ -53,7 +53,6 @@ $_['text_runtime_ioncube'] = 'ionCube';
 $_['text_runtime_not_installed'] = 'Не встановлено';
 $_['text_runtime_server_time'] = 'Час сервера';
 $_['text_runtime_time_hint'] = 'Час PHP на момент завантаження сторінки; часовий пояс бази даних може відрізнятися.';
-$_['text_runtime_more'] = 'Параметри системи';
 $_['text_runtime_memory'] = 'Ліміт пам’яті PHP';
 $_['text_runtime_execution'] = 'Ліміт часу виконання';
 $_['text_runtime_unlimited'] = 'Без обмежень';
