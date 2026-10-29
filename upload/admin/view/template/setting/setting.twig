@@ -1331,11 +1331,11 @@
                       </div>
                       <div class="table-responsive"><table class="table table-striped table-condensed table-bordered" style="font-size:12px">
                         <thead><tr>
-                          <th>{{ text_mail_audit_date }}</th><th>{{ text_mail_audit_from }}</th><th>{{ text_mail_audit_to }}</th>
+                          <th>{{ text_mail_audit_date }}</th><th>{{ text_mail_audit_store }}</th><th>{{ text_mail_audit_from }}</th><th>{{ text_mail_audit_to }}</th>
                           <th>{{ text_mail_audit_subject }}</th><th>{{ text_mail_audit_source }}</th>
                           <th>{{ text_mail_audit_engine }}</th><th>{{ text_mail_audit_status_col }}</th><th>IP</th>
                         </tr></thead>
-                        <tbody id="mail-audit-rows"><tr><td colspan="8" class="text-muted">{{ text_mail_audit_empty }}</td></tr></tbody>
+                        <tbody id="mail-audit-rows"><tr><td colspan="9" class="text-muted">{{ text_mail_audit_empty }}</td></tr></tbody>
                       </table></div>
                       <div class="clearfix"><span id="mail-audit-count" class="text-muted small"></span>
                         <span class="pull-right">
@@ -2119,7 +2119,7 @@ $('select[name=\'config_country_id\']').trigger('change');
     var $box = $('#mail-audit-widget'), page = 1, total = 0, limit = 25;
     if (!$box.length) { return; }
     function cell($tr, value) { $('<td/>').text(value == null ? '' : String(value)).appendTo($tr); }
-    function error(value) { $('#mail-audit-rows').empty().append($('<tr/>').append($('<td/>').attr('colspan', 8).addClass('text-danger').text(value))); }
+    function error(value) { $('#mail-audit-rows').empty().append($('<tr/>').append($('<td/>').attr('colspan', 9).addClass('text-danger').text(value))); }
     function load() {
         $('#mail-audit-refresh').prop('disabled', true);
         $.getJSON($box.attr('data-list-url'), {page:page, email:$('#mail-audit-email').val(), status:$('#mail-audit-filter').val()})
@@ -2129,13 +2129,13 @@ $('select[name=\'config_country_id\']').trigger('change');
             var $rows = $('#mail-audit-rows').empty();
             $.each(data.rows || [], function(_, item) {
                 var $tr = $('<tr/>').appendTo($rows);
-                cell($tr, item.date_added); cell($tr, item.sender_email); cell($tr, item.recipient_email);
-                cell($tr, item.subject); cell($tr, item.source + (item.error_type ? ' / ' + item.error_type : ''));
+                cell($tr, item.date_added); cell($tr, item.store_id); cell($tr, item.sender_email); cell($tr, item.recipient_email);
+                cell($tr, item.subject); cell($tr, item.source + (item.error_type ? ' / ' + item.error_type : '') + (Number(item.attempts) > 1 ? ' ×' + item.attempts : ''));
                 cell($tr, item.engine);
                 $('<td/>').append($('<span/>').addClass('label ' + (item.status === 'failed' ? 'label-danger' : item.status === 'blocked' ? 'label-warning' : 'label-success')).text(item.status)).appendTo($tr);
                 cell($tr, item.remote_ip);
             });
-            if (!data.rows || !data.rows.length) { $('<tr/>').append($('<td/>').attr('colspan', 8).text($box.attr('data-empty'))).appendTo($rows); }
+            if (!data.rows || !data.rows.length) { $('<tr/>').append($('<td/>').attr('colspan', 9).text($box.attr('data-empty'))).appendTo($rows); }
             $('#mail-audit-count').text(total); $('#mail-audit-page').text(page);
             $('#mail-audit-prev').prop('disabled', page <= 1);
             $('#mail-audit-next').prop('disabled', page * limit >= total);
