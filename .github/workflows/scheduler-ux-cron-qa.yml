@@ -55,10 +55,11 @@ jobs:
           assert "insertAfter($target)" in js
           assert "dataType: 'json'" in js and "populateForm(result)" in js
           assert "$panel.detach().hide().appendTo($holder).fadeIn(160)" in js
-          assert "flex: 0 0 36px" in css and "width: 36px" in css
+          assert "flex: 0 0 29px" in css and "width: 29px" in css
           assert "ccp-scheduler-task-code" in css
-          assert 'codecart_scheduler.css?v=3.0.6.1' in twig
-          assert 'codecart-scheduler.js?v=3.0.6.1' in twig
+          assert "document->addStyle('view/stylesheet/codecart_scheduler.css?v=3.0.6.7')" in controller
+          assert '<style>' not in twig and '<link rel="stylesheet"' not in twig
+          assert 'codecart-scheduler.js?v=3.0.6.6' in twig
           # Built-in technical codes are not translated or mutated in the DB.
           routes={'core.cart.cleanup':'cart','core.currency.refresh':'currency',
                   'core.health.check':'health','core.mail.campaign':'mail_campaign',
