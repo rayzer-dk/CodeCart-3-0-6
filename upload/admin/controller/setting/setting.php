@@ -1577,25 +1577,40 @@ class ControllerSettingSetting extends Controller {
             $this->response->setStatusCode(403);
             return $this->auditJson(array('error' => 'forbidden'));
         }
+
+        // Browsing mail history must be read-only. Schema creation and migrations
+        // occur only when the administrator enables/saves Mail Audit.
+        $stage = 'listing';
         try {
-            // Explicit admin diagnostic action; this is never performed on storefront requests.
-            \CodeCart\Core\MailAudit::install($this->db);
             $this->load->model('setting/mail_audit');
-            $this->model_setting_mail_audit->purgeExpired();
             $filter = array(
                 'email' => isset($this->request->get['email']) ? (string)$this->request->get['email'] : '',
                 'status' => isset($this->request->get['status']) ? (string)$this->request->get['status'] : ''
             );
             $page = isset($this->request->get['page']) ? max(1, min(100000, (int)$this->request->get['page'])) : 1;
+
             $result = $this->model_setting_mail_audit->getRows($filter, $page);
-            $result['summary'] = $this->model_setting_mail_audit->getSummary();
-            $this->auditJson($result);
+            $stage = 'summary';
+            try {
+                $result['summary'] = $this->model_setting_mail_audit->getSummary();
+            } catch (\Throwable $e) {
+                // Do not hide valid mail-history rows when only statistics fail.
+                $result['summary'] = null;
+                $result['warning'] = 'audit_summary_unavailable';
+                $this->log->write('Mail Audit summary failed: ' . get_class($e) . ' db_code=' . (int)$e->getCode());
+            }
+            return $this->auditJson($result);
         } catch (\Throwable $e) {
-            $this->log->write('Mail Audit listing failed: ' . get_class($e) . ' code=' . (int)$e->getCode() . ' trace=' . substr(hash('sha256', (string)$e->getFile() . ':' . (int)$e->getLine()), 0, 12));
+            $code = (int)$e->getCode();
+            $this->log->write('Mail Audit listing failed at ' . $stage . ': ' . get_class($e) . ' db_code=' . $code);
+            // Only an error category and numeric DB error code are exposed; no
+            // customer data, query text, credentials or absolute PHP paths.
+            $kind = in_array($code, array(1054, 1146), true) ? 'audit_schema_outdated' : 'audit_storage_unavailable';
             $this->response->setStatusCode(500);
-            $this->auditJson(array('error' => 'audit_storage_unavailable'));
+            return $this->auditJson(array('error' => $kind, 'stage' => $stage, 'db_code' => $code));
         }
     }
+
 
     public function mailAuditClear() {
         if (!$this->auditAuthorized(true) || $this->request->server['REQUEST_METHOD'] !== 'POST'
