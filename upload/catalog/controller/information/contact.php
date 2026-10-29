@@ -199,6 +199,10 @@ class ControllerInformationContact extends Controller {
 			}
 		}
 
+		if (isset($this->error['rate_limit']) || isset($this->error['captcha'])) {
+			\CodeCart\Core\MailAudit::blocked('contact', isset($this->error['rate_limit']) ? 'rate_limit' : 'captcha', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
+		}
+
 		return !$this->error;
 	}
 
