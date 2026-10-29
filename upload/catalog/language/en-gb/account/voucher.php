@@ -1,4 +1,5 @@
 <?php
+$_['error_rate_limit'] = 'Too many requests. Please try again later.';
 // Heading
 $_['heading_title']    = 'Purchase a Gift Certificate';
 
