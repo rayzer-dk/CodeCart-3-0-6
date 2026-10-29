@@ -311,6 +311,7 @@ class ControllerSettingSetting extends Controller {
         $data['mail_audit_list_url'] = $this->url->link('setting/setting/mailAuditList', 'user_token=' . $this->session->data['user_token'], true);
         $data['mail_audit_clear_url'] = $this->url->link('setting/setting/mailAuditClear', 'user_token=' . $this->session->data['user_token'], true);
         $data['mail_audit_dns_url'] = $this->url->link('setting/setting/mailAuditDns', 'user_token=' . $this->session->data['user_token'], true);
+        $data['mail_audit_test_url'] = $this->url->link('setting/setting/mailAuditTest', 'user_token=' . $this->session->data['user_token'], true);
 		$data['user_token'] = $this->session->data['user_token'];
 
 		if (isset($this->request->post['config_meta_title'])) {
@@ -1600,6 +1601,50 @@ class ControllerSettingSetting extends Controller {
             $this->log->write('Mail Audit cleanup failed: ' . get_class($e));
             $this->response->setStatusCode(500);
             $this->auditJson(array('error' => 'audit_storage_unavailable'));
+        }
+    }
+
+
+    public function mailAuditTest() {
+        if (!$this->auditAuthorized(true) || $this->request->server['REQUEST_METHOD'] !== 'POST') {
+            $this->response->setStatusCode(403);
+            return $this->auditJson(array('error' => 'forbidden'));
+        }
+        $engine = isset($this->request->post['engine']) ? strtolower((string)$this->request->post['engine']) : '';
+        if (!in_array($engine, array('mail', 'smtp'), true)) {
+            return $this->auditJson(array('error' => 'invalid_engine'));
+        }
+        $email = trim((string)$this->config->get('config_email'));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->auditJson(array('error' => 'invalid_sender'));
+        }
+        if ($engine === 'smtp' && !trim((string)$this->config->get('config_mail_smtp_hostname'))) {
+            return $this->auditJson(array('error' => 'smtp_not_configured'));
+        }
+        $now = time();
+        $last = isset($this->session->data['mail_audit_test_time']) ? (int)$this->session->data['mail_audit_test_time'] : 0;
+        if ($last > 0 && $now - $last < 20) {
+            return $this->auditJson(array('error' => 'rate_limited'));
+        }
+        $this->session->data['mail_audit_test_time'] = $now;
+        try {
+            $mail = new \Mail($engine);
+            $mail->parameter = (string)$this->config->get('config_mail_parameter');
+            $mail->smtp_hostname = (string)$this->config->get('config_mail_smtp_hostname');
+            $mail->smtp_username = (string)$this->config->get('config_mail_smtp_username');
+            $mail->smtp_password = html_entity_decode((string)$this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
+            $mail->smtp_port = (int)$this->config->get('config_mail_smtp_port');
+            $mail->smtp_timeout = (int)$this->config->get('config_mail_smtp_timeout');
+            $mail->setTo($email);
+            $mail->setFrom($email);
+            $mail->setSender(html_entity_decode((string)$this->config->get('config_name'), ENT_QUOTES, 'UTF-8'));
+            $mail->setSubject('CodeCart Mail Audit ' . strtoupper($engine) . ' test');
+            $mail->setText('This is a requested test of the outgoing ' . strtoupper($engine) . ' transport. Inspect full message headers for DKIM-Signature and Authentication-Results. A successful PHP response alone is not proof of delivery.');
+            $success = \CodeCart\Core\MailDelivery::sendNow($this->registry, $mail, 'mail-audit-test:' . $engine);
+            return $this->auditJson(array('success' => (bool)$success, 'engine' => $engine, 'recipient' => $email));
+        } catch (\Throwable $e) {
+            $this->log->write('Mail Audit test failed: ' . get_class($e));
+            return $this->auditJson(array('error' => 'transport_failed'));
         }
     }
 
