@@ -22,7 +22,7 @@ class ControllerCommonFooter extends Controller {
 		if ($logged) {
 			foreach (array(
 				'text_runtime_php', 'text_runtime_ioncube', 'text_runtime_not_installed',
-				'text_runtime_server_time', 'text_runtime_time_hint', 'text_runtime_more',
+				'text_runtime_server_time', 'text_runtime_time_hint',
 				'text_runtime_memory', 'text_runtime_execution', 'text_runtime_unlimited',
 				'text_runtime_upload', 'text_runtime_post', 'text_runtime_timezone',
 				'text_runtime_sapi', 'text_runtime_db_driver', 'text_runtime_build',
@@ -88,7 +88,14 @@ class ControllerCommonFooter extends Controller {
 			$data['runtime_db_charset'] = isset($values['db_charset']) ? (string)$values['db_charset'] : '';
 			$data['runtime_db_collation'] = isset($values['db_collation']) ? (string)$values['db_collation'] : '';
 			$server_software = isset($this->request->server['SERVER_SOFTWARE']) ? (string)$this->request->server['SERVER_SOFTWARE'] : '';
-			$data['runtime_web_server'] = substr(trim((string)preg_replace('/[\x00-\x1f\x7f]/', '', strip_tags($server_software))), 0, 120);
+            // Show the web-server product only, not version/build details.
+            $data['runtime_web_server'] = '';
+            if (preg_match('/(?:^|[\s(])(Apache|nginx|OpenResty|LiteSpeed|OpenLiteSpeed|Caddy|lighttpd|Microsoft-IIS)(?:\/[0-9.]+|[\s)]|$)/i', $server_software, $server_match)) {
+                $labels = array('apache' => 'Apache', 'nginx' => 'Nginx', 'openresty' => 'OpenResty',
+                    'litespeed' => 'LiteSpeed', 'openlitespeed' => 'OpenLiteSpeed', 'caddy' => 'Caddy',
+                    'lighttpd' => 'lighttpd', 'microsoft-iis' => 'Microsoft IIS');
+                $data['runtime_web_server'] = $labels[strtolower($server_match[1])];
+            }
 
 		}
 
