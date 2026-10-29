@@ -197,6 +197,14 @@ class ControllerAccountVoucher extends Controller {
 
 
 	protected function validate() {
+		$rate = (new \CodeCart\Core\SpamService($this->registry))->consume('account_voucher', 12, 3600, 2);
+		if (empty($rate['allowed'])) {
+			$this->error['warning'] = $this->language->get('error_agree');
+			$this->response->setStatusCode(429);
+			$this->response->addHeader('Retry-After: ' . (int)$rate['retry_after']);
+			\CodeCart\Core\MailAudit::blocked('account_voucher', 'rate_limit', isset($this->request->post['from_email']) ? (string)$this->request->post['from_email'] : '');
+			return false;
+		}
 		if (!empty($this->request->post['to_name'])) {
 			if ((utf8_strlen($this->request->post['to_name']) < 1) || (utf8_strlen($this->request->post['to_name']) > 64)) {
 				$this->error['to_name'] = $this->language->get('error_to_name');
