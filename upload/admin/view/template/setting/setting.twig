@@ -2120,6 +2120,35 @@ $('select[name=\'config_country_id\']').trigger('change');
     'use strict';
     var $box = $('#mail-audit-widget'), page = 1, total = 0, limit = 25;
     if (!$box.length) { return; }
+    var labels = {accepted: '{{ text_mail_audit_accepted|escape('js') }}', failed: '{{ text_mail_audit_failed|escape('js') }}', blocked: '{{ text_mail_audit_blocked|escape('js') }}'};
+    var srcLabels = {
+        contact: '{{ mail_source_contact|escape('js') }}',
+        'customer-register': '{{ mail_source_customer_register|escape('js') }}',
+        'customer-register-alert': '{{ mail_source_customer_register_alert|escape('js') }}',
+        'customer-forgotten': '{{ mail_source_customer_forgotten|escape('js') }}',
+        account_register: '{{ mail_source_account_register|escape('js') }}',
+        account_forgotten: '{{ mail_source_account_forgotten|escape('js') }}',
+        affiliate_register: '{{ mail_source_affiliate_register|escape('js') }}',
+        account_return: '{{ mail_source_account_return|escape('js') }}',
+        checkout_register: '{{ mail_source_checkout_register|escape('js') }}',
+        product_review: '{{ mail_source_product_review|escape('js') }}',
+        'product-review': '{{ mail_source_product_review|escape('js') }}',
+        blog_review: '{{ mail_source_blog_review|escape('js') }}',
+        'blog-review': '{{ mail_source_blog_review|escape('js') }}',
+        stock_notify: '{{ mail_source_stock_notify|escape('js') }}',
+        'stock-notify': '{{ mail_source_stock_notify|escape('js') }}',
+        account_voucher: '{{ mail_source_account_voucher|escape('js') }}',
+        'mail-audit-test': '{{ mail_source_mail_audit_test|escape('js') }}',
+        'mail-campaign': '{{ mail_source_mail_campaign|escape('js') }}',
+        order: '{{ mail_source_order|escape('js') }}',
+        'order-alert': '{{ mail_source_order_alert|escape('js') }}',
+        mail: '{{ mail_source_mail|escape('js') }}'
+    };
+    var reasons = {rate_limit: '{{ mail_reason_rate_limit|escape('js') }}', captcha: '{{ mail_reason_captcha|escape('js') }}', transport_false: '{{ mail_reason_transport_false|escape('js') }}'};
+    var dnsStates = {found: '{{ mail_dns_found|escape('js') }}', missing: '{{ mail_dns_missing|escape('js') }}', revoked: '{{ mail_dns_revoked|escape('js') }}', unavailable: '{{ mail_dns_unavailable|escape('js') }}', delegated: '{{ mail_dns_delegated|escape('js') }}'};
+    function sourceName(raw) { var key=String(raw||'').split(' @ ')[0].split(':')[0]; return srcLabels[key]||key; }
+    function reasonName(raw) { return reasons[raw]||String(raw||''); }
+    function dnsName(raw) { return dnsStates[raw]||String(raw||''); }
     function cell($tr, value) { $('<td/>').text(value == null ? '' : String(value)).appendTo($tr); }
     function error(value) { $('#mail-audit-rows').empty().append($('<tr/>').append($('<td/>').attr('colspan', 9).addClass('text-danger').text(value))); }
     function load() {
