@@ -104,9 +104,9 @@ jobs:
           controller = Path('upload/admin/controller/tool/scheduler.php').read_text()
           assert '<style>' not in template and '<link rel="stylesheet"' not in template
           assert "document->addStyle('view/stylesheet/codecart_scheduler.css?v=3.0.6.7')" in controller
-          assert len(re.findall(r'\\.codecart-scheduler-table \\.ccp-scheduler-action-group \\.btn\\s*\\{',s)) == 1
+          assert len(re.findall(r'\.codecart-scheduler-table \.ccp-scheduler-action-group \.btn\s*\{',s)) == 1
           assert 'flex: 0 0 29px' in s and 'flex: 0 0 36px' not in s
-          widths = re.findall(r'\\.ccp-carts-page \\.ccp-abandoned-cart-table\\{[^}]*min-width:(\\d+)px', c)
+          widths = re.findall(r'\.ccp-carts-page \.ccp-abandoned-cart-table\{[^}]*min-width:(\d+)px', c)
           assert widths == ['960'], widths
           for prefix in ('.ccp-external-advanced',):
             assert not re.search(r'^' + re.escape(prefix), c, re.M)
