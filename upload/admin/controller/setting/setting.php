@@ -103,6 +103,14 @@ class ControllerSettingSetting extends Controller {
 			$cookie_custom_icon = str_replace(array('..\\','../','\\'), array('','','/'), $cookie_custom_icon);
 			$this->request->post['config_cookie_consent_custom_icon'] = ($cookie_custom_icon !== '' && is_file(DIR_IMAGE . $cookie_custom_icon)) ? $cookie_custom_icon : '';
 
+
+            // Audit is opt-in. Create its table before storing the enabled flag.
+            $this->request->post['config_mail_audit_status'] = !empty($this->request->post['config_mail_audit_status']) ? 1 : 0;
+            $selector = strtolower(trim((string)($this->request->post['config_mail_dkim_selector'] ?? 'default')));
+            $this->request->post['config_mail_dkim_selector'] = preg_match('/^[a-z0-9][a-z0-9_-]{0,62}$/', $selector) ? $selector : 'default';
+            if ($this->request->post['config_mail_audit_status']) {
+                \CodeCart\Core\MailAudit::install($this->db);
+            }
 			$this->model_setting_setting->editSetting('config', $this->request->post);
 
 			// codecart_* values intentionally use a shared code namespace. Persist them one-by-one: editSetting()
@@ -294,6 +302,15 @@ class ControllerSettingSetting extends Controller {
 
 		$data['cancel'] = $this->url->link('setting/store', 'user_token=' . $this->session->data['user_token'], true);
 
+        $data['config_mail_audit_status'] = isset($this->request->post['config_mail_audit_status'])
+            ? (int)$this->request->post['config_mail_audit_status']
+            : (int)$this->config->get('config_mail_audit_status');
+        $data['config_mail_dkim_selector'] = isset($this->request->post['config_mail_dkim_selector'])
+            ? (string)$this->request->post['config_mail_dkim_selector']
+            : ($this->config->get('config_mail_dkim_selector') ?: 'default');
+        $data['mail_audit_list_url'] = $this->url->link('setting/setting/mailAuditList', 'user_token=' . $this->session->data['user_token'], true);
+        $data['mail_audit_clear_url'] = $this->url->link('setting/setting/mailAuditClear', 'user_token=' . $this->session->data['user_token'], true);
+        $data['mail_audit_dns_url'] = $this->url->link('setting/setting/mailAuditDns', 'user_token=' . $this->session->data['user_token'], true);
 		$data['user_token'] = $this->session->data['user_token'];
 
 		if (isset($this->request->post['config_meta_title'])) {
@@ -1530,6 +1547,102 @@ class ControllerSettingSetting extends Controller {
 		return !$this->error;
 	}
 	
+
+    /** Mail Audit API endpoints reuse the existing setting/setting access rights. */
+    private function auditAuthorized($modify = false) {
+        $given = isset($this->request->get['user_token']) ? (string)$this->request->get['user_token'] : '';
+        $expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+        if ($given === '' || $expected === '' || !hash_equals($expected, $given)) { return false; }
+        return $this->user->hasPermission('access', 'setting/setting')
+            && (!$modify || $this->user->hasPermission('modify', 'setting/setting'));
+    }
+
+    private function auditJson($data) {
+        $this->response->addHeader('Content-Type: application/json; charset=utf-8');
+        $this->response->addHeader('Cache-Control: no-store');
+        $this->response->setOutput(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    public function mailAuditList() {
+        if (!$this->auditAuthorized()) {
+            $this->response->setStatusCode(403);
+            return $this->auditJson(array('error' => 'forbidden'));
+        }
+        try {
+            // Explicit admin diagnostic action; this is never performed on storefront requests.
+            \CodeCart\Core\MailAudit::install($this->db);
+            $this->load->model('setting/mail_audit');
+            $this->model_setting_mail_audit->purgeExpired();
+            $filter = array(
+                'email' => isset($this->request->get['email']) ? (string)$this->request->get['email'] : '',
+                'status' => isset($this->request->get['status']) ? (string)$this->request->get['status'] : ''
+            );
+            $page = isset($this->request->get['page']) ? max(1, min(100000, (int)$this->request->get['page'])) : 1;
+            $this->auditJson($this->model_setting_mail_audit->getRows($filter, $page));
+        } catch (\Throwable $e) {
+            $this->log->write('Mail Audit listing failed: ' . get_class($e));
+            $this->response->setStatusCode(500);
+            $this->auditJson(array('error' => 'audit_storage_unavailable'));
+        }
+    }
+
+    public function mailAuditClear() {
+        if (!$this->auditAuthorized(true) || $this->request->server['REQUEST_METHOD'] !== 'POST'
+            || !isset($this->request->post['confirm']) || (string)$this->request->post['confirm'] !== '1') {
+            $this->response->setStatusCode(403);
+            return $this->auditJson(array('error' => 'forbidden'));
+        }
+        try {
+            $this->load->model('setting/mail_audit');
+            $this->model_setting_mail_audit->clear();
+            $this->auditJson(array('success' => true));
+        } catch (\Throwable $e) {
+            $this->log->write('Mail Audit cleanup failed: ' . get_class($e));
+            $this->response->setStatusCode(500);
+            $this->auditJson(array('error' => 'audit_storage_unavailable'));
+        }
+    }
+
+    public function mailAuditDns() {
+        if (!$this->auditAuthorized()) {
+            $this->response->setStatusCode(403);
+            return $this->auditJson(array('error' => 'forbidden'));
+        }
+        $email = strtolower(trim((string)$this->config->get('config_email')));
+        $domain = strrchr($email, '@');
+        $domain = $domain ? substr($domain, 1) : '';
+        if (!preg_match('/^[a-z0-9](?:[a-z0-9.-]{1,251})\.[a-z]{2,63}$/', $domain)
+            || !function_exists('dns_get_record')) {
+            return $this->auditJson(array('error' => 'dns_unavailable'));
+        }
+        $selector = strtolower(trim((string)($this->request->get['selector'] ?? 'default')));
+        if (!preg_match('/^[a-z0-9][a-z0-9_-]{0,62}$/', $selector)) {
+            return $this->auditJson(array('error' => 'invalid_selector'));
+        }
+        $records = array();
+        foreach (array('spf' => $domain, 'dmarc' => '_dmarc.' . $domain, 'dkim' => $selector . '._domainkey.' . $domain) as $kind => $host) {
+            $data = @dns_get_record($host, DNS_TXT);
+            if ($data === false) { $records[$kind] = 'unavailable'; continue; }
+            $found = false;
+            $revoked = false;
+            foreach ($data as $entry) {
+                $txt = isset($entry['txt']) ? (string)$entry['txt'] : implode('', isset($entry['entries']) ? (array)$entry['entries'] : array());
+                if (($kind === 'spf' && stripos($txt, 'v=spf1') === 0)
+                    || ($kind === 'dmarc' && stripos($txt, 'v=DMARC1') === 0)
+                    || ($kind === 'dkim' && stripos($txt, 'v=DKIM1') !== false)) {
+                    $found = true;
+                    if ($kind === 'dkim' && preg_match('/(?:^|;)\s*p\s*=\s*(?:;|$)/i', $txt)) { $revoked = true; }
+                }
+            }
+            if ($kind === 'dkim' && !$found && defined('DNS_CNAME')) {
+                $delegation = @dns_get_record($host, DNS_CNAME);
+                if (is_array($delegation) && $delegation) { $records[$kind] = 'delegated'; continue; }
+            }
+            $records[$kind] = $revoked ? 'revoked' : ($found ? 'found' : 'missing');
+        }
+        $this->auditJson(array('domain' => $domain, 'selector' => $selector, 'records' => $records));
+    }
+
 	public function theme() {
 		if ($this->request->server['HTTPS']) {
 			$server = HTTPS_CATALOG;
