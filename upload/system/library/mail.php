@@ -255,6 +255,7 @@ class Mail extends \stdClass {
 	/** Minimal data only; never expose message contents or SMTP credentials to audit. */
 	public function auditMetadata() {
 		return array(
+			'store_id' => $this->audit_store_id,
 			'engine' => isset($this->adaptor) && is_object($this->adaptor) && stripos(get_class($this->adaptor), 'smtp') !== false ? 'smtp' : 'mail',
 			'from' => (string)$this->from,
 			'to' => is_array($this->to) ? implode(', ', $this->to) : (string)$this->to,
