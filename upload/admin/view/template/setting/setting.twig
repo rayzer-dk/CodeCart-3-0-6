@@ -2149,13 +2149,40 @@ $('select[name=\'config_country_id\']').trigger('change');
     function sourceName(raw) { var key=String(raw||'').split(' @ ')[0].split(':')[0]; return srcLabels[key]||key; }
     function reasonName(raw) { return reasons[raw]||String(raw||''); }
     function dnsName(raw) { return dnsStates[raw]||String(raw||''); }
+    var errors = {
+        forbidden: '{{ mail_error_forbidden|escape('js') }}',
+        invalid_engine: '{{ mail_error_invalid_engine|escape('js') }}',
+        invalid_sender: '{{ mail_error_invalid_sender|escape('js') }}',
+        smtp_not_configured: '{{ mail_error_smtp_not_configured|escape('js') }}',
+        rate_limited: '{{ mail_error_rate_limited|escape('js') }}',
+        transport_failed: '{{ mail_error_transport_failed|escape('js') }}',
+        dns_unavailable: '{{ mail_error_dns_unavailable|escape('js') }}',
+        invalid_selector: '{{ mail_error_invalid_selector|escape('js') }}',
+        audit_storage_unavailable: '{{ mail_error_audit_storage_unavailable|escape('js') }}'
+    };
+    function errorName(code) { return errors[code]||code||$box.attr('data-error'); }
+    function renderSummary(summary) {
+        var $stats=$('#mail-audit-stats').empty(), $forms=$('#mail-audit-source-stats').empty();
+        if (!summary) { return; }
+        var accepted=Number(summary.accepted)||0, failed=Number(summary.failed)||0, blocked=Number(summary.blocked)||0;
+        $stats.text('{{ text_mail_audit_last30|escape('js') }}: '+labels.accepted+' '+accepted+' · '+labels.failed+' '+failed+' · '+labels.blocked+' '+blocked);
+        if (!summary.sources || !summary.sources.length) { return; }
+        $('<div/>').addClass('text-muted').text('{{ text_mail_audit_source_counts|escape('js') }}:').appendTo($forms);
+        $.each(summary.sources.slice(0,12),function(_,item){
+            var amount=(Number(item.accepted)||0)+(Number(item.failed)||0)+(Number(item.blocked)||0);
+            $('<span/>').css({display:'inline-block',margin:'4px 14px 4px 0'})
+                .attr('title',String(item.source||''))
+                .text(sourceName(item.source)+' · '+amount+' ('+(Number(item.accepted)||0)+' / '+(Number(item.failed)||0)+' / '+(Number(item.blocked)||0)+')')
+                .appendTo($forms);
+        });
+    }
     function cell($tr, value) { $('<td/>').text(value == null ? '' : String(value)).appendTo($tr); }
     function error(value) { $('#mail-audit-rows').empty().append($('<tr/>').append($('<td/>').attr('colspan', 9).addClass('text-danger').text(value))); }
     function load() {
         $('#mail-audit-refresh').prop('disabled', true);
         $.getJSON($box.attr('data-list-url'), {page:page, email:$('#mail-audit-email').val(), status:$('#mail-audit-filter').val()})
         .done(function(data) {
-            if (data.error) { error(data.error); return; }
+            if (data.error) { error(errorName(data.error)); return; }
             renderSummary(data.summary);
             total = Number(data.total) || 0;
             var $rows = $('#mail-audit-rows').empty();
@@ -2180,12 +2207,12 @@ $('select[name=\'config_country_id\']').trigger('change');
     $('#mail-audit-next').on('click', function(){ if(page * limit < total){ page++; load(); } });
     $('#mail-audit-clear').on('click', function(){
         if(!window.confirm($box.attr('data-confirm'))){ return; }
-        $.post($box.attr('data-clear-url'), {confirm:'1'}, null, 'json').done(function(data){ if(data.success){page=1;load();}else{error(data.error||$box.attr('data-error'));} }).fail(function(){error($box.attr('data-error'));});
+        $.post($box.attr('data-clear-url'), {confirm:'1'}, null, 'json').done(function(data){ if(data.success){page=1;load();}else{error(errorName(data.error));} }).fail(function(){error($box.attr('data-error'));});
     });
     $('#mail-dns-check').on('click', function(){
         var $result=$('#mail-dns-result');
         $.getJSON($box.attr('data-dns-url'), {selector:$('#mail-dkim-selector').val()}).done(function(data){
-            if(data.error){$result.text(data.error);return;}
+            if(data.error){$result.text(errorName(data.error));return;}
             $result.text(data.domain+' · '+data.selector+' · SPF: '+dnsName(data.records.spf)+' · DMARC: '+dnsName(data.records.dmarc)+' · DKIM: '+dnsName(data.records.dkim)+'. '+$box.attr('data-dns-warning'));
         }).fail(function(){$result.text($box.attr('data-error'));});
     });
@@ -2194,7 +2221,7 @@ $('select[name=\'config_country_id\']').trigger('change');
         $buttons.prop('disabled',true);
         $.post($('#mail-test-group').attr('data-test-url'),{engine:engine},null,'json')
         .done(function(data){
-            $('#mail-test-result').text(data.success ? ($('#mail-test-group').attr('data-ok')+' '+data.recipient) : (data.error || $('#mail-test-group').attr('data-test-failed')));
+            $('#mail-test-result').text(data.success ? ($('#mail-test-group').attr('data-ok')+' '+data.recipient) : errorName(data.error || 'transport_failed'));
         }).fail(function(){ $('#mail-test-result').text($('#mail-test-group').attr('data-error')); })
         .always(function(){ $buttons.prop('disabled',false); });
     });
