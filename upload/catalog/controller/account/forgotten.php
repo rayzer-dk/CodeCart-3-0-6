@@ -75,6 +75,7 @@ class ControllerAccountForgotten extends Controller {
         $guard = (new \CodeCart\Core\SpamService($this->registry))->consume('account_forgotten', 8, 3600, 5);
         if (empty($guard['allowed'])) {
             $this->error['warning'] = $this->language->get('error_rate');
+            \CodeCart\Core\MailAudit::blocked('account_forgotten', 'rate_limit', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
             return false;
         }
 
