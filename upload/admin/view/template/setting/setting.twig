@@ -2198,7 +2198,10 @@ $('select[name=\'config_country_id\']').trigger('change');
             $('#mail-audit-count').text(total+' {{ text_mail_audit_records|escape('js') }}'); $('#mail-audit-page').text(page);
             $('#mail-audit-prev').prop('disabled', page <= 1);
             $('#mail-audit-next').prop('disabled', page * limit >= total);
-        }).fail(function(){ error($box.attr('data-error')); }).always(function(){ $('#mail-audit-refresh').prop('disabled', false); });
+        }).fail(function(xhr){
+            var code=xhr&&xhr.responseJSON&&xhr.responseJSON.error ? xhr.responseJSON.error : 'audit_storage_unavailable';
+            error(errorName(code)+(xhr&&xhr.status ? ' (HTTP '+xhr.status+')' : ''));
+        }).always(function(){ $('#mail-audit-refresh').prop('disabled', false); });
     }
     $('#mail-audit-refresh').on('click', function(){ page = 1; load(); });
     $('#mail-audit-filter').on('change', function(){ page = 1; load(); });
