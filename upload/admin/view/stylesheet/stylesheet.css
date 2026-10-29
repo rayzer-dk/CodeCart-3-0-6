@@ -2295,3 +2295,36 @@ html.ccp-admin-dark #footer .ccp-footer-runtime{color:#a8b8cb}
 #footer .ccp-footer-runtime-details,
 #footer .ccp-footer-runtime-detail-list { display:none !important; }
 #footer .ccp-footer-runtime { max-width:100%; overflow-wrap:anywhere; }
+
+/* Mail settings: the DNS button stretches to the real DKIM field height.
+ * Keep these rules strictly inside the Mail Audit settings block; do not
+ * override the globally configured control height (38px / theme-dependent). */
+#tab-mail #mail-audit-panel .ccp-mail-dkim-control {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+#tab-mail #mail-audit-panel .ccp-mail-dkim-control > .form-control {
+    flex: 1 1 auto;
+    float: none;
+    width: 1%;
+    min-width: 0;
+}
+#tab-mail #mail-audit-panel .ccp-mail-dkim-control > .input-group-btn {
+    display: flex;
+    align-items: stretch;
+    flex: 0 0 auto;
+    width: auto;
+}
+#tab-mail #mail-audit-panel .ccp-mail-dkim-control > .input-group-btn > #mail-dns-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    align-self: stretch;
+    height: auto;
+    min-height: 0;
+    box-sizing: border-box;
+    margin: 0;
+    white-space: nowrap;
+}
