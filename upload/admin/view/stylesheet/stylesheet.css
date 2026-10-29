@@ -2092,10 +2092,9 @@ html.ccp-admin-dark hr{border-top-color:#354252!important}
 
 
 /* CodeCart PRO form-control geometry fix: prevent descenders clipping and center labels. */
-.form-control:not(textarea):not(.input-sm):not(.input-lg){height:38px!important;min-height:38px!important;line-height:22px!important;padding-top:7px!important;padding-bottom:7px!important;overflow:visible!important}
-select.form-control:not(.input-sm):not(.input-lg){height:38px!important;min-height:38px!important;line-height:normal!important;padding-top:6px!important;padding-bottom:6px!important}
-textarea.form-control{height:auto!important;min-height:74px;line-height:1.45!important;overflow:auto!important;resize:none!important}
-@media(min-width:768px){.form-horizontal .form-group>.control-label{min-height:38px;display:flex;align-items:center;justify-content:flex-end;padding-top:0!important;padding-bottom:0!important;line-height:1.35!important;overflow:visible!important}}
+/* Use Bootstrap/native control geometry by default. Avoid overriding third-party module fields globally. */
+#content.ccp-native-form-controls .form-control:not(textarea):not(.input-sm):not(.input-lg){height:38px;min-height:38px;line-height:22px;padding-top:7px;padding-bottom:7px}
+#content.ccp-native-form-controls select.form-control:not(.input-sm):not(.input-lg){height:38px;min-height:38px;line-height:normal;padding-top:6px;padding-bottom:6px}
 /* CodeCart PRO canonical default-theme editor viewport guard. */
 #content.ccp-theme-admin{box-sizing:border-box!important;min-width:0!important;overflow-x:hidden!important}
 #content.ccp-theme-admin>.page-header,#content.ccp-theme-admin>.container-fluid,#content.ccp-theme-admin>.page-header>.container-fluid,#content.ccp-theme-admin .panel,#content.ccp-theme-admin .panel-body,#content.ccp-theme-admin form,#content.ccp-theme-admin fieldset,#content.ccp-theme-admin .form-horizontal{box-sizing:border-box!important;width:auto!important;min-width:0!important;max-width:100%!important}
