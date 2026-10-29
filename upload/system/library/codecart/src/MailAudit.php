@@ -36,6 +36,23 @@ final class MailAudit {
             KEY idx_store_date (store_id, date_added),
             UNIQUE KEY idx_event_bucket (event_key)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        // Upgrade existing audit tables created before blocked-attempt aggregation.
+        // CREATE TABLE IF NOT EXISTS does not change existing tables.
+        // Each addition is idempotent and preserves all recorded messages.
+        $table = '`' . DB_PREFIX . 'codecart_mail_audit`';
+        $attempts = $db->query("SHOW COLUMNS FROM " . $table . " LIKE 'attempts'");
+        if (!$attempts->num_rows) {
+            $db->query("ALTER TABLE " . $table . " ADD COLUMN attempts INT UNSIGNED NOT NULL DEFAULT 1");
+        }
+        $eventKey = $db->query("SHOW COLUMNS FROM " . $table . " LIKE 'event_key'");
+        if (!$eventKey->num_rows) {
+            $db->query("ALTER TABLE " . $table . " ADD COLUMN event_key CHAR(64) NULL DEFAULT NULL");
+        }
+        $index = $db->query("SHOW INDEX FROM " . $table . " WHERE Key_name = 'idx_event_bucket'");
+        if (!$index->num_rows) {
+            $db->query("ALTER TABLE " . $table . " ADD UNIQUE KEY idx_event_bucket (event_key)");
+        }
     }
 
     public static function transport($mail, $accepted, $errorType = '') {
