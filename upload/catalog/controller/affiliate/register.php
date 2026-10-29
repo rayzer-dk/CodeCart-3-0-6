@@ -314,6 +314,7 @@ class ControllerAffiliateRegister extends Controller {
 		$guard = (new \CodeCart\Core\SpamService($this->registry))->consume('affiliate_register', 8, 3600, 3);
 		if (empty($guard['allowed'])) {
 			$this->error['warning'] = $this->language->get('error_rate');
+			\CodeCart\Core\MailAudit::blocked('affiliate_register', 'rate_limit', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
 			return false;
 		}
 		if (!empty($this->request->post['firstname'])) {
@@ -417,6 +418,9 @@ class ControllerAffiliateRegister extends Controller {
 			}
 		}
 
+		if (isset($this->error['captcha'])) {
+			\CodeCart\Core\MailAudit::blocked('affiliate_register', 'captcha', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
+		}
 		return !$this->error;
 	}
 }
