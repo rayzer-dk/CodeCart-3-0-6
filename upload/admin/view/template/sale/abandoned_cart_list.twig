@@ -69,7 +69,7 @@
           </tr></thead>
           <tbody>{% if carts %}{% for cart in carts %}<tr>
             {% if cart_can_modify and cart_source == 'standard' %}<td class="ccp-cart-check"><input type="checkbox" form="ccp-cart-bulk-form" name="selected[]" class="ccp-cart-select" value="{{ cart.customer_id }}|{{ cart.session_id|e('html_attr') }}" aria-label="{{ text_choose_rows }}"></td>{% endif %}
-            <td class="ccp-cart-contact"><strong>{% if cart.customer_href %}<a href="{{ cart.customer_href }}">{{ cart.customer|e }}</a>{% else %}{{ cart.customer|e }}{% endif %}</strong>{% if cart.email %}<small class="ccp-cart-contact-email" title="{{ cart.email|e('html_attr') }}">{{ cart.email|e }}</small>{% else %}<small class="ccp-cart-contact-noemail">{{ text_no_email }}</small>{% endif %}{% if cart.telephone %}<small class="ccp-cart-contact-phone" title="{{ cart.telephone|e('html_attr') }}">{{ cart.telephone|e }}</small>{% endif %}</td>
+            <td class="ccp-cart-contact"><strong>{% if cart.customer_href %}<a href="{{ cart.customer_href }}">{{ cart.customer|e }}</a>{% else %}{{ cart.customer|e }}{% endif %}</strong>{% if cart.email %}<small class="ccp-cart-contact-email" title="{{ cart.email|e('html_attr') }}">{{ cart.email|e }}</small>{% else %}<small class="ccp-cart-contact-noemail" title="{{ text_guest_contact_missing_explanation|e('html_attr') }}">{{ text_no_email }}</small>{% endif %}{% if cart.telephone %}<small class="ccp-cart-contact-phone" title="{{ cart.telephone|e('html_attr') }}">{{ cart.telephone|e }}</small>{% endif %}</td>
             <td>{% for product in cart.products %}<div class="ccp-abandoned-product">{% if product.thumb %}<a class="ccp-product-image-link" href="{{ product.href|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ text_product_storefront }}"><img class="ccp-product-thumb" src="{{ product.thumb|e('html_attr') }}" width="40" height="40" alt="" loading="lazy"></a>{% else %}<span class="ccp-product-thumb-placeholder"><i class="fa fa-image"></i></span>{% endif %}<a href="{{ product.href|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ product.name|e('html_attr') }} — {{ text_product_storefront }}">{{ product.name|e }}</a><span>× {{ product.quantity }}</span></div>{% endfor %}</td>
             <td class="text-right">{{ cart.quantity }}</td><td class="text-right"><strong>{{ cart.total }}</strong></td>
             <td>{{ cart.last_activity|e }}<small class="ccp-cart-muted">{{ cart.inactive|e }}</small></td>
@@ -129,9 +129,9 @@
                 <option value="external" {{ cart_form_source == 'external' ? 'selected' : '' }}>{{ text_source_external }}</option>
               </select></div>
             <div class="col-md-3"><label for="abandoned-idle">{{ entry_cart_idle_minutes }}</label>
-              <input type="number" name="cart_idle_minutes" id="abandoned-idle" class="form-control" min="5" max="10080" value="{{ cart_fields.idle_minutes }}"></div>
+              <input type="number" name="cart_idle_minutes" id="abandoned-idle" class="form-control" min="1" max="10080" value="{{ cart_fields.idle_minutes }}"></div>
             <div class="col-md-3"><label for="abandoned-days">{{ entry_cart_days }}</label>
-              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="7" value="{{ cart_fields.days }}"></div>
+              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="30" value="{{ cart_fields.days }}"></div>
           </div>
           <p class="help-block">{{ text_cart_source_help }}</p>
           <div class="ccp-checkout-link-setting">
@@ -152,11 +152,15 @@
             <p class="help-block">{{ text_checkout_url_help }}</p>
           </div>
           <h4 class="ccp-settings-section-heading"><i class="fa fa-envelope-o"></i> {{ text_reminders_section }}</h4>
+          <div class="ccp-mail-control"><label for="abandoned-reminder-delay"><i class="fa fa-clock-o"></i> {{ entry_reminder_delay_minutes }}</label>
+            <input type="number" name="cart_reminder_delay_minutes" id="abandoned-reminder-delay" class="form-control" min="5" max="10080" step="1" value="{{ cart_fields.reminder_delay_minutes }}">
+            <p class="help-block">{{ text_reminder_delay_help }}</p></div>
           <div class="ccp-mail-control"><label for="abandoned-mail-auto"><i class="fa fa-envelope-o"></i> {{ entry_mail_auto }}</label>
             <select id="abandoned-mail-auto" name="cart_mail_auto" class="form-control">
               <option value="0" {{ not cart_fields.mail_auto ? 'selected' : '' }}>{{ text_disabled }}</option>
               <option value="1" {{ cart_fields.mail_auto ? 'selected' : '' }}>{{ text_enabled }}</option>
-            </select><p class="help-block">{{ text_mail_auto_help }}</p></div>
+            </select><p class="help-block">{{ text_mail_auto_help }}</p>
+          <p class="help-block">{{ text_guest_contact_missing_explanation }}</p></div>
           <div class="ccp-mail-control"><label for="abandoned-guest-capture"><i class="fa fa-user-plus"></i> {{ text_guest_capture_label }}</label>
             <select id="abandoned-guest-capture" name="cart_guest_capture" class="form-control">
               <option value="0" {{ not cart_fields.guest_capture ? 'selected' : '' }}>{{ text_disabled }}</option>
