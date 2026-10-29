@@ -1,5 +1,8 @@
 <?php
 // Mail Audit and DNS diagnostics
+$_['mail_error_audit_schema_outdated'] = 'Mail Audit database is missing a table or column. Save mail settings again to initialize the audit schema.';
+$_['mail_error_audit_summary_unavailable'] = 'Mail history loaded, but statistics could not be calculated.';
+$_['mail_error_audit_db_code'] = 'Database error code';
 $_['text_mail_audit_last30'] = 'Last 30 days';
 $_['text_mail_audit_source_counts'] = 'By source (accepted / failed / blocked)';
 $_['text_mail_audit_attempts'] = 'attempts';
