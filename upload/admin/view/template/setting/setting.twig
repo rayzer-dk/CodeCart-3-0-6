@@ -2129,7 +2129,7 @@ $('select[name=\'config_country_id\']').trigger('change');
             var $rows = $('#mail-audit-rows').empty();
             $.each(data.rows || [], function(_, item) {
                 var $tr = $('<tr/>').appendTo($rows);
-                cell($tr, item.date_added); cell($tr, item.store_id); cell($tr, item.sender_email); cell($tr, item.recipient_email);
+                cell($tr, item.date_added); cell($tr, item.store_name ? item.store_name + ' (#' + item.store_id + ')' : '#' + item.store_id); cell($tr, item.sender_email); cell($tr, item.recipient_email);
                 cell($tr, item.subject); cell($tr, item.source + (item.error_type ? ' / ' + item.error_type : '') + (Number(item.attempts) > 1 ? ' ×' + item.attempts : ''));
                 cell($tr, item.engine);
                 $('<td/>').append($('<span/>').addClass('label ' + (item.status === 'failed' ? 'label-danger' : item.status === 'blocked' ? 'label-warning' : 'label-success')).text(item.status)).appendTo($tr);
