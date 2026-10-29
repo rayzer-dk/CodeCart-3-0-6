@@ -1,5 +1,9 @@
 <?php
 // Mail Audit and DNS diagnostics
+$_['text_mail_test_mail'] = 'Test PHP Mail';
+$_['text_mail_test_smtp'] = 'Test SMTP';
+$_['text_mail_test_ok'] = 'Mail transport accepted the test to';
+$_['text_mail_test_failed'] = 'Mail test failed';
 $_['text_mail_audit_title'] = 'Mail Audit';
 $_['entry_mail_audit_status'] = 'Record outgoing mail';
 $_['help_mail_audit'] = 'Off by default. Stores recipient, sender, subject, source, IP and transport result for 30 days. Does not store message content. PHP scripts using mail() directly bypass the OpenCart audit.';
