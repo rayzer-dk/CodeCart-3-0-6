@@ -18,6 +18,44 @@ class ModelSettingMailAudit extends Model {
         return array('total' => (int)$count->row['total'], 'rows' => $rows->rows);
     }
 
+
+    /**
+     * Aggregate last 30 days of transport results and blocked form events.
+     * Duplicate blocks are stored as one row with attempts > 1.
+     */
+    public function getSummary() {
+        $table = DB_PREFIX . 'codecart_mail_audit';
+        $totals = $this->db->query("SELECT
+            COALESCE(SUM(CASE WHEN status = 'accepted' THEN attempts ELSE 0 END), 0) AS accepted,
+            COALESCE(SUM(CASE WHEN status = 'failed' THEN attempts ELSE 0 END), 0) AS failed,
+            COALESCE(SUM(CASE WHEN status = 'blocked' THEN attempts ELSE 0 END), 0) AS blocked
+            FROM " . $table . " WHERE date_added >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+        $groups = $this->db->query("SELECT
+            SUBSTRING_INDEX(SUBSTRING_INDEX(source, ' @ ', 1), ':', 1) AS source_key,
+            COALESCE(SUM(CASE WHEN status = 'accepted' THEN attempts ELSE 0 END), 0) AS accepted,
+            COALESCE(SUM(CASE WHEN status = 'failed' THEN attempts ELSE 0 END), 0) AS failed,
+            COALESCE(SUM(CASE WHEN status = 'blocked' THEN attempts ELSE 0 END), 0) AS blocked
+            FROM " . $table . "
+            WHERE date_added >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY source_key
+            ORDER BY (accepted + failed + blocked) DESC LIMIT 20");
+        $sources = array();
+        foreach ($groups->rows as $row) {
+            $sources[] = array(
+                'source' => (string)$row['source_key'],
+                'accepted' => (int)$row['accepted'],
+                'failed' => (int)$row['failed'],
+                'blocked' => (int)$row['blocked']
+            );
+        }
+        return array(
+            'accepted' => (int)$totals->row['accepted'],
+            'failed' => (int)$totals->row['failed'],
+            'blocked' => (int)$totals->row['blocked'],
+            'sources' => $sources
+        );
+    }
+
     public function purgeExpired() {
         $this->db->query("DELETE FROM " . DB_PREFIX . "codecart_mail_audit WHERE date_added < DATE_SUB(NOW(), INTERVAL 30 DAY)");
     }
