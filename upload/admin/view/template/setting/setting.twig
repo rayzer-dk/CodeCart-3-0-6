@@ -1237,7 +1237,10 @@
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-mail-smtp-password"><span data-toggle="tooltip" title="{{ help_mail_smtp_password }}">{{ entry_mail_smtp_password }}</span></label>
                   <div class="col-sm-10">
-                    <input type="text" name="config_mail_smtp_password" value="{{ config_mail_smtp_password }}" placeholder="{{ entry_mail_smtp_password }}" id="input-mail-smtp-password" class="form-control" />
+                    <div class="input-group">
+                      <input type="password" name="config_mail_smtp_password" value="{{ config_mail_smtp_password }}" placeholder="{{ entry_mail_smtp_password }}" id="input-mail-smtp-password" class="form-control" autocomplete="new-password" />
+                      <span class="input-group-btn"><button type="button" class="btn btn-default" id="mail-smtp-eye" title="{{ text_mail_audit_show_password }}"><i class="fa fa-eye"></i></button></span>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group">
@@ -1278,9 +1281,72 @@
                   </div>
                 </div>
               </fieldset>
+
+              <fieldset id="mail-audit-panel" style="margin-top:18px">
+                <legend><i class="fa fa-history"></i> {{ text_mail_audit_title }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="mail-audit-status">{{ entry_mail_audit_status }}</label>
+                  <div class="col-sm-10">
+                    <select class="form-control" id="mail-audit-status" name="config_mail_audit_status">
+                      <option value="0" {% if not config_mail_audit_status %}selected="selected"{% endif %}>{{ text_disabled }}</option>
+                      <option value="1" {% if config_mail_audit_status %}selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    </select>
+                    <p class="help-block">{{ help_mail_audit }}</p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="mail-dkim-selector">{{ entry_mail_dkim_selector }}</label>
+                  <div class="col-sm-10">
+                    <div class="input-group">
+                      <input type="text" id="mail-dkim-selector" name="config_mail_dkim_selector" value="{{ config_mail_dkim_selector }}" class="form-control" maxlength="63" placeholder="default" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,62}" />
+                      <span class="input-group-btn"><button type="button" id="mail-dns-check" class="btn btn-default" title="{{ text_mail_dns_check }}"><i class="fa fa-shield"></i> {{ text_mail_dns_check }}</button></span>
+                    </div>
+                    <p class="help-block">{{ help_mail_dkim }}</p>
+                    <div id="mail-dns-result" class="small text-muted" role="status" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label">{{ text_mail_audit_title }}</label>
+                  <div class="col-sm-10">
+                    <div id="mail-audit-widget" data-list-url="{{ mail_audit_list_url }}" data-clear-url="{{ mail_audit_clear_url }}" data-dns-url="{{ mail_audit_dns_url }}"
+                         data-empty="{{ text_mail_audit_empty }}" data-error="{{ text_mail_audit_load_error }}"
+                         data-confirm="{{ text_mail_audit_confirm }}" data-dns-warning="{{ text_mail_dns_warning }}">
+                      <div class="row" style="margin-bottom:8px">
+                        <div class="col-sm-5"><input type="text" class="form-control input-sm" id="mail-audit-email" placeholder="{{ text_mail_audit_search }}" maxlength="120" /></div>
+                        <div class="col-sm-3"><select class="form-control input-sm" id="mail-audit-filter">
+                          <option value="">{{ text_mail_audit_all }}</option>
+                          <option value="accepted">{{ text_mail_audit_accepted }}</option>
+                          <option value="failed">{{ text_mail_audit_failed }}</option>
+                          <option value="blocked">{{ text_mail_audit_blocked }}</option>
+                        </select></div>
+                        <div class="col-sm-4 text-right">
+                          <button type="button" class="btn btn-default btn-sm" id="mail-audit-refresh" title="{{ text_mail_audit_refresh }}"><i class="fa fa-refresh"></i> {{ text_mail_audit_refresh }}</button>
+                          <button type="button" class="btn btn-danger btn-sm" id="mail-audit-clear" title="{{ text_mail_audit_clear }}"><i class="fa fa-trash"></i></button>
+                        </div>
+                      </div>
+                      <div class="table-responsive"><table class="table table-striped table-condensed table-bordered" style="font-size:12px">
+                        <thead><tr>
+                          <th>{{ text_mail_audit_date }}</th><th>{{ text_mail_audit_from }}</th><th>{{ text_mail_audit_to }}</th>
+                          <th>{{ text_mail_audit_subject }}</th><th>{{ text_mail_audit_source }}</th>
+                          <th>{{ text_mail_audit_engine }}</th><th>{{ text_mail_audit_status_col }}</th><th>IP</th>
+                        </tr></thead>
+                        <tbody id="mail-audit-rows"><tr><td colspan="8" class="text-muted">{{ text_mail_audit_empty }}</td></tr></tbody>
+                      </table></div>
+                      <div class="clearfix"><span id="mail-audit-count" class="text-muted small"></span>
+                        <span class="pull-right">
+                          <button type="button" class="btn btn-default btn-xs" id="mail-audit-prev" title="{{ text_mail_audit_prev }}"><i class="fa fa-chevron-left"></i></button>
+                          <span id="mail-audit-page" class="small">1</span>
+                          <button type="button" class="btn btn-default btn-xs" id="mail-audit-next" title="{{ text_mail_audit_next }}"><i class="fa fa-chevron-right"></i></button>
+                        </span>
+                      </div>
+                      <p class="help-block">{{ text_mail_audit_transport_notice }}</p>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
             </div>
 
-            <div class="tab-pane" id="tab-appearance">
+            <div class="tab-pane" id="tab-appearance"
               <fieldset>
                 <legend>{{ text_admin_appearance }}</legend>
                 <div class="form-group">
@@ -2039,6 +2105,60 @@ $('select[name=\'config_country_id\']').trigger('change');
       if (el.scrollIntoView) { el.scrollIntoView({behavior:'smooth', block:'center'}); }
     }, 120);
   }
+})(jQuery);
+</script>
+
+<script type="text/javascript">
+(function($) {
+    'use strict';
+    var $box = $('#mail-audit-widget'), page = 1, total = 0, limit = 25;
+    if (!$box.length) { return; }
+    function cell($tr, value) { $('<td/>').text(value == null ? '' : String(value)).appendTo($tr); }
+    function error(value) { $('#mail-audit-rows').empty().append($('<tr/>').append($('<td/>').attr('colspan', 8).addClass('text-danger').text(value))); }
+    function load() {
+        $('#mail-audit-refresh').prop('disabled', true);
+        $.getJSON($box.attr('data-list-url'), {page:page, email:$('#mail-audit-email').val(), status:$('#mail-audit-filter').val()})
+        .done(function(data) {
+            if (data.error) { error(data.error); return; }
+            total = Number(data.total) || 0;
+            var $rows = $('#mail-audit-rows').empty();
+            $.each(data.rows || [], function(_, item) {
+                var $tr = $('<tr/>').appendTo($rows);
+                cell($tr, item.date_added); cell($tr, item.sender_email); cell($tr, item.recipient_email);
+                cell($tr, item.subject); cell($tr, item.source + (item.error_type ? ' / ' + item.error_type : ''));
+                cell($tr, item.engine);
+                $('<td/>').append($('<span/>').addClass('label ' + (item.status === 'failed' ? 'label-danger' : item.status === 'blocked' ? 'label-warning' : 'label-success')).text(item.status)).appendTo($tr);
+                cell($tr, item.remote_ip);
+            });
+            if (!data.rows || !data.rows.length) { $('<tr/>').append($('<td/>').attr('colspan', 8).text($box.attr('data-empty'))).appendTo($rows); }
+            $('#mail-audit-count').text(total); $('#mail-audit-page').text(page);
+            $('#mail-audit-prev').prop('disabled', page <= 1);
+            $('#mail-audit-next').prop('disabled', page * limit >= total);
+        }).fail(function(){ error($box.attr('data-error')); }).always(function(){ $('#mail-audit-refresh').prop('disabled', false); });
+    }
+    $('#mail-audit-refresh').on('click', function(){ page = 1; load(); });
+    $('#mail-audit-filter').on('change', function(){ page = 1; load(); });
+    $('#mail-audit-email').on('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); page = 1; load(); } });
+    $('#mail-audit-prev').on('click', function(){ if(page > 1){ page--; load(); } });
+    $('#mail-audit-next').on('click', function(){ if(page * limit < total){ page++; load(); } });
+    $('#mail-audit-clear').on('click', function(){
+        if(!window.confirm($box.attr('data-confirm'))){ return; }
+        $.post($box.attr('data-clear-url'), {confirm:'1'}, null, 'json').done(function(data){ if(data.success){page=1;load();}else{error(data.error||$box.attr('data-error'));} }).fail(function(){error($box.attr('data-error'));});
+    });
+    $('#mail-dns-check').on('click', function(){
+        var $result=$('#mail-dns-result');
+        $.getJSON($box.attr('data-dns-url'), {selector:$('#mail-dkim-selector').val()}).done(function(data){
+            if(data.error){$result.text(data.error);return;}
+            $result.text(data.domain+' · '+data.selector+' · SPF: '+data.records.spf+' · DMARC: '+data.records.dmarc+' · DKIM: '+data.records.dkim+'. '+$box.attr('data-dns-warning'));
+        }).fail(function(){$result.text($box.attr('data-error'));});
+    });
+    $('#mail-smtp-eye').on('click', function(){
+        var $input=$('#input-mail-smtp-password'), visible=$input.attr('type')==='password';
+        $input.attr('type',visible?'text':'password');
+        $(this).find('i').toggleClass('fa-eye',!visible).toggleClass('fa-eye-slash',visible);
+    });
+    if($('#tab-mail').hasClass('active')){load();}
+    $('a[href="#tab-mail"]').on('shown.bs.tab',function(){load();});
 })(jQuery);
 </script>
 {{ footer }} 
