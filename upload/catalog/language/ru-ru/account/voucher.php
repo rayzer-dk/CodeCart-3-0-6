@@ -1,4 +1,5 @@
 <?php
+$_['error_rate_limit'] = 'Слишком много запросов. Повторите попытку позже.';
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Подарочный сертификат';
 $_['text_account'] = 'Личный кабинет';
