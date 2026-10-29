@@ -109,7 +109,7 @@ class ModelSaleAbandonedCart extends Model {
         $email = $this->sourceColumn($f, 'email', 'cu.email');
         $phone = $this->sourceColumn($f, 'phone', 'cu.telephone');
         $idle = max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
-        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $from = ' FROM ' . chr(96) . $source['table'] . chr(96) . ' c LEFT JOIN '
             . chr(96) . DB_PREFIX . 'customer' . chr(96) . ' cu ON cu.customer_id=' . $cid;
         $where = ' WHERE ' . $dt . ' >= DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)'
@@ -185,8 +185,8 @@ class ModelSaleAbandonedCart extends Model {
     }
 
     private function standardGroupedSql(array $filters = array()): string {
-        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
-        $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $idle = max(1, min(10080, (int)($this->config->get('codecart_abandoned_cart_idle_minutes') ?? 5)));
         $guest = (bool)$this->config->get('codecart_abandoned_cart_guest_capture');
         // Group contact records first. One cart line must never be multiplied by
         // consent records from multiple storefronts sharing a session id.
@@ -245,8 +245,8 @@ class ModelSaleAbandonedCart extends Model {
         // Current base product prices, without option, tax and historical discounts.
         // The seven-day limit and grouping prevent counting old lines of active carts.
         if ((string)$this->config->get('codecart_abandoned_cart_source') === 'external') { return 0.0; }
-        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
-        $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $idle = max(1, min(10080, (int)($this->config->get('codecart_abandoned_cart_idle_minutes') ?? 5)));
         $sql = "SELECT SUM(c.quantity*COALESCE(p.price,0)) AS total FROM `" . DB_PREFIX . "cart` c INNER JOIN (SELECT customer_id,session_id FROM `" . DB_PREFIX . "cart` WHERE api_id=0 AND date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY customer_id,session_id HAVING MAX(date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE)) cart_scope ON cart_scope.customer_id=c.customer_id AND cart_scope.session_id=c.session_id LEFT JOIN `" . DB_PREFIX . "product` p ON p.product_id=c.product_id WHERE c.api_id=0 AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)";
         return (float)($this->db->query($sql)->row['total'] ?? 0);
     }
@@ -262,8 +262,8 @@ class ModelSaleAbandonedCart extends Model {
         if ($session_id === '') { return; }
         $table = chr(96) . DB_PREFIX . 'cart' . chr(96);
         $where = "api_id='0' AND customer_id='" . $customer_id . "' AND session_id='" . $this->db->escape($session_id) . "'";
-        $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
-        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $idle = max(1, min(10080, (int)($this->config->get('codecart_abandoned_cart_idle_minutes') ?? 5)));
+        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $eligible = $this->db->query('SELECT MAX(date_added) AS last_activity FROM ' . $table . ' WHERE ' . $where .
             ' HAVING MAX(date_added) < DATE_SUB(NOW(),INTERVAL ' . $idle . ' MINUTE) AND MAX(date_added)>=DATE_SUB(NOW(),INTERVAL ' . $days . ' DAY)');
         if (!$eligible->num_rows) { return; }
@@ -275,8 +275,8 @@ class ModelSaleAbandonedCart extends Model {
 
     public function clearAbandonedCarts() {
         $table = chr(96) . DB_PREFIX . 'cart' . chr(96);
-        $idle = max(5, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
-        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $idle = max(1, min(10080, (int)($this->config->get('codecart_abandoned_cart_idle_minutes') ?? 5)));
+        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         // A nested derived table prevents a MySQL update-target table conflict.
         // Only whole abandoned carts in the selected history are removed.
         $sql = 'DELETE FROM ' . $table . " WHERE api_id='0' AND cart_id IN ("
