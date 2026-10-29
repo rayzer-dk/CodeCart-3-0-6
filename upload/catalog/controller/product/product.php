@@ -983,12 +983,13 @@ class ControllerProductProduct extends Controller {
 			$json['error'] = $this->language->get('error_product');
 		} else {
 			$guard = new \CodeCart\Core\FormGuard($this->registry);
-			$rate = $guard->consume('product_review', 40, 600, 2);
+			$rate = $guard->consume('product_review', 10, 600, 2);
 
 			if (!$rate['allowed']) {
 				$json['error'] = $this->language->get('error_rate_limit');
 				$this->response->setStatusCode(429);
 				$this->response->addHeader('Retry-After: ' . (int)$rate['retry_after']);
+				\CodeCart\Core\MailAudit::blocked('product_review', 'rate_limit');
 			}
 
 			$this->load->model('catalog/product');
@@ -1017,6 +1018,7 @@ class ControllerProductProduct extends Controller {
 				if ($captcha) {
 					$json['error'] = $captcha;
 					$json['captcha_error'] = $captcha;
+					\CodeCart\Core\MailAudit::blocked('product_review', 'captcha');
 				}
 			}
 
@@ -1112,7 +1114,7 @@ class ControllerProductProduct extends Controller {
 		$options=isset($this->request->post['option']) && is_array($this->request->post['option']) ? $this->request->post['option'] : array();
 		$guard = new \CodeCart\Core\FormGuard($this->registry);
 		$rate = $guard->consume('stock_notify', 12, 600, 2);
-		if (!$rate['allowed']) { $json['error']=$this->language->get('error_rate_limit'); $this->response->setStatusCode(429); $this->response->addHeader('Retry-After: '.(int)$rate['retry_after']); }
+		if (!$rate['allowed']) { $json['error']=$this->language->get('error_rate_limit'); $this->response->setStatusCode(429); $this->response->addHeader('Retry-After: '.(int)$rate['retry_after']); \CodeCart\Core\MailAudit::blocked('stock_notify', 'rate_limit', $email); }
 		if ($this->request->server['REQUEST_METHOD'] !== 'POST') { $this->response->setStatusCode(405); $json['error']=$this->language->get('error_stock_notify'); }
 		if (!$product_id || !filter_var($email,FILTER_VALIDATE_EMAIL)) { $json['error']=$this->language->get('error_stock_notify_email'); }
 		$this->load->model('catalog/product');
