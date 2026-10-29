@@ -1,0 +1,76 @@
+name: Cron and Notifications Replacement Files
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cron-notifications-replacement.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Validate and package exact modified files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate PHP syntax
+        run: |
+          set -e
+          php -l upload/system/library/codecart/src/AbandonedCartReminder.php
+          php -l upload/system/library/codecart/src/Scheduler.php
+          for lang in en-gb ru-ru uk-ua; do
+            php -l "upload/admin/language/$lang/tool/scheduler.php"
+          done
+      - name: Verify expected fixes and create ZIP with installation paths
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+          import re
+          paths = [
+              'upload/system/library/codecart/src/AbandonedCartReminder.php',
+              'upload/system/library/codecart/src/Scheduler.php',
+              'upload/admin/language/uk-ua/tool/scheduler.php',
+              'upload/admin/language/ru-ru/tool/scheduler.php',
+              'upload/admin/language/en-gb/tool/scheduler.php',
+              'documentation/SCHEDULER.md',
+              'documentation/SCHEDULER.uk.md',
+          ]
+          contents = {p: Path(p).read_text(encoding='utf-8') for p in paths}
+          reminder = contents[paths[0]]
+          scheduler = contents[paths[1]]
+          assert 'Cart reminder registered consent query failed:' in reminder
+          assert 'Cart reminder guest consent query failed:' in reminder
+          assert '(new RegisteredCartConsent($this->registry))->install()' in reminder
+          assert "'core.cart.cleanup' => 'cron/cart'" in scheduler
+          for p in paths:
+              assert 'Mirohost' not in contents[p], p
+              assert not contents[p].startswith('\ufeff'), p
+          keys = []
+          for p in paths[2:5]:
+              matches = re.findall(r"\$_\['([^']+)'\]\s*=", contents[p])
+              assert len(matches) == len(set(matches)), p
+              keys.append(set(matches))
+          assert keys[0] == keys[1] == keys[2]
+          name = 'CodeCart_3_0_6_Cron_Notifications_2026-10-29.zip'
+          with ZipFile(name, 'w', ZIP_DEFLATED, compresslevel=9) as z:
+              for p in paths:
+                  z.write(p, p)
+              z.writestr('README-REPLACEMENT.txt',
+                  'CodeCart 3.0.6 - replacement files from main.\n'
+                  'Back up all site files and the database before updating.\n'
+                  'Keep the upload/ paths when copying files into the store root.\n'
+                  'There are seven complete updated source/documentation files.\n'
+                  'Clear PHP OPcache after deployment if configured.\n')
+          print('Archive:', name)
+          print('Files:', len(paths))
+          PY
+      - name: Upload replacement ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart-Cron-Notifications-Replacement
+          path: CodeCart_3_0_6_Cron_Notifications_2026-10-29.zip
+          if-no-files-found: error
+          retention-days: 14
