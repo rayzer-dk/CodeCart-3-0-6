@@ -2156,18 +2156,19 @@ $('select[name=\'config_country_id\']').trigger('change');
         $.getJSON($box.attr('data-list-url'), {page:page, email:$('#mail-audit-email').val(), status:$('#mail-audit-filter').val()})
         .done(function(data) {
             if (data.error) { error(data.error); return; }
+            renderSummary(data.summary);
             total = Number(data.total) || 0;
             var $rows = $('#mail-audit-rows').empty();
             $.each(data.rows || [], function(_, item) {
                 var $tr = $('<tr/>').appendTo($rows);
                 cell($tr, item.date_added); cell($tr, item.store_name ? item.store_name + ' (#' + item.store_id + ')' : '#' + item.store_id); cell($tr, item.sender_email); cell($tr, item.recipient_email);
-                cell($tr, item.subject); cell($tr, item.source + (item.error_type ? ' / ' + item.error_type : '') + (Number(item.attempts) > 1 ? ' ×' + item.attempts : ''));
+                cell($tr, item.subject); var $origin=$('<td/>').attr('title',item.source||'').appendTo($tr); $origin.text(sourceName(item.source)+(item.error_type ? ' / '+reasonName(item.error_type):'')+(Number(item.attempts)>1 ? ' ×'+Number(item.attempts):''));
                 cell($tr, item.engine);
-                $('<td/>').append($('<span/>').addClass('label ' + (item.status === 'failed' ? 'label-danger' : item.status === 'blocked' ? 'label-warning' : 'label-success')).text(item.status)).appendTo($tr);
+                $('<td/>').append($('<span/>').addClass('label ' + (item.status === 'failed' ? 'label-danger' : item.status === 'blocked' ? 'label-warning' : 'label-success')).text(labels[item.status]||item.status)).appendTo($tr);
                 cell($tr, item.remote_ip);
             });
             if (!data.rows || !data.rows.length) { $('<tr/>').append($('<td/>').attr('colspan', 9).text($box.attr('data-empty'))).appendTo($rows); }
-            $('#mail-audit-count').text(total); $('#mail-audit-page').text(page);
+            $('#mail-audit-count').text(total+' {{ text_mail_audit_records|escape('js') }}'); $('#mail-audit-page').text(page);
             $('#mail-audit-prev').prop('disabled', page <= 1);
             $('#mail-audit-next').prop('disabled', page * limit >= total);
         }).fail(function(){ error($box.attr('data-error')); }).always(function(){ $('#mail-audit-refresh').prop('disabled', false); });
@@ -2185,7 +2186,7 @@ $('select[name=\'config_country_id\']').trigger('change');
         var $result=$('#mail-dns-result');
         $.getJSON($box.attr('data-dns-url'), {selector:$('#mail-dkim-selector').val()}).done(function(data){
             if(data.error){$result.text(data.error);return;}
-            $result.text(data.domain+' · '+data.selector+' · SPF: '+data.records.spf+' · DMARC: '+data.records.dmarc+' · DKIM: '+data.records.dkim+'. '+$box.attr('data-dns-warning'));
+            $result.text(data.domain+' · '+data.selector+' · SPF: '+dnsName(data.records.spf)+' · DMARC: '+dnsName(data.records.dmarc)+' · DKIM: '+dnsName(data.records.dkim)+'. '+$box.attr('data-dns-warning'));
         }).fail(function(){$result.text($box.attr('data-error'));});
     });
     $('#mail-test-group [data-mail-engine]').on('click',function(){
