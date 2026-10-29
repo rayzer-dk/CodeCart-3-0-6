@@ -7,6 +7,8 @@ $config = new Config();
 $config->load('default');
 $config->load($application_config);
 $registry->set('config', $config);
+// Share the request registry with the opt-in mail transport auditor.
+\CodeCart\Core\MailAudit::bind($registry);
 
 // Log
 $log = new Log($config->get('error_filename'));
