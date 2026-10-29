@@ -141,8 +141,9 @@ class ControllerSaleAbandonedCart extends Controller {
                 $settings = array(
                     'codecart_abandoned_cart_status' => !empty($this->request->post['cart_status']) ? 1 : 0,
                     'codecart_abandoned_cart_source' => ($this->request->post['cart_source'] ?? '') === 'external' ? 'external' : 'standard',
-                    'codecart_abandoned_cart_idle_minutes' => max(5, min(10080, (int)($this->request->post['cart_idle_minutes'] ?? 60))),
-                    'codecart_abandoned_cart_days' => max(1, min(7, (int)($this->request->post['cart_days'] ?? 7))),
+                    'codecart_abandoned_cart_idle_minutes' => max(1, min(10080, (int)($this->request->post['cart_idle_minutes'] ?? 5))),
+                    'codecart_abandoned_cart_days' => max(1, min(30, (int)($this->request->post['cart_days'] ?? 7))),
+                    'codecart_abandoned_cart_reminder_delay_minutes' => max(5, min(10080, (int)($this->request->post['cart_reminder_delay_minutes'] ?? 60))),
                     'codecart_abandoned_cart_mail_auto' => !empty($this->request->post['cart_mail_auto']) ? 1 : 0,
                     'codecart_abandoned_cart_guest_capture' => !empty($this->request->post['cart_guest_capture']) ? 1 : 0
                 );
@@ -246,8 +247,9 @@ class ControllerSaleAbandonedCart extends Controller {
                     $old[$key] = substr(trim((string)($this->request->post['cart_' . $key] ?? '')), 0, $key === 'checkout_url' ? 512 : 64);
                 }
                 foreach (array('status','mail_auto','guest_capture') as $key) { $old[$key] = !empty($this->request->post['cart_' . $key]) ? 1 : 0; }
-                $old['idle_minutes'] = (int)($this->request->post['cart_idle_minutes'] ?? 60);
+                $old['idle_minutes'] = (int)($this->request->post['cart_idle_minutes'] ?? 5);
                 $old['days'] = (int)($this->request->post['cart_days'] ?? 7);
+                $old['reminder_delay_minutes'] = (int)($this->request->post['cart_reminder_delay_minutes'] ?? 60);
                 $this->session->data['ccp_cart_settings_form_old'] = $old;
             }
             $this->response->redirect($this->url->link('sale/abandoned_cart', 'user_token=' . $sessionToken, true) . ($error !== '' ? '#ccp-tab-settings' : ''));
@@ -279,7 +281,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'button_customer','button_product','button_delete','button_clear',
             'text_settings','text_disabled_note','text_source_standard','text_source_external','text_cart_mapping_info',
             'text_cart_source_help','text_cart_amount_estimate','text_cart_storefront_note','text_settings_saved','error_cart_mapping',
-            'entry_cart_status','entry_cart_source','entry_cart_table','entry_cart_idle_minutes','entry_cart_days',
+            'entry_cart_status','entry_cart_source','entry_cart_table','entry_cart_idle_minutes','entry_cart_days','entry_reminder_delay_minutes','text_reminder_delay_help',
             'entry_col_session','entry_col_product','entry_col_quantity','entry_col_date',
             'entry_col_customer','entry_col_email','entry_col_phone','button_save','text_quick_guide','button_compose_email','text_no_email','text_mail_subject',
             'entry_mail_auto','text_mail_auto_help','button_send_now','text_send_confirm','text_mail_sent','text_mail_not_sent','text_mail_optin_required',
@@ -290,7 +292,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'text_summary_sent','text_summary_failed','text_summary_value','text_summary_value_note',
             'text_history_tab','text_carts_tab','text_settings_tab','text_settings_summary','text_mail_cron_ok',
             'text_mail_cron_off','text_mail_cron_missing','text_mail_cron_error','text_mail_cron_idle',
-            'text_guest_capture_label','text_guest_capture_help','error_guest_requires_standard','text_guest_no_email',
+            'text_guest_capture_label','text_guest_capture_help','text_guest_contact_missing_explanation','error_guest_requires_standard','text_guest_no_email',
             'text_history_status','text_history_attempts','text_history_date','text_history_origin','text_history_email',
             'text_history_empty','text_guest_cart_restored','text_restored_count','text_restored_note','text_search_button',
             'text_reset_filter','text_selected_count','text_recent_history','text_date_range_notice','text_clear_danger',
@@ -311,8 +313,9 @@ class ControllerSaleAbandonedCart extends Controller {
         $data['cart_source'] = $source;
         $data['cart_can_modify'] = $this->user->hasPermission('modify', 'sale/abandoned_cart');
         $data['cart_fields'] = array('status' => $enabled ? 1 : 0, 'source' => $source,
-            'idle_minutes' => (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60,
-            'days' => max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)),
+            'idle_minutes' => max(1, min(10080, (int)($this->config->get('codecart_abandoned_cart_idle_minutes') ?? 5))),
+            'days' => max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)),
+            'reminder_delay_minutes' => max(5, min(10080, (int)($this->config->get('codecart_abandoned_cart_reminder_delay_minutes') ?? 60))),
             'mail_auto' => (int)$this->config->get('codecart_abandoned_cart_mail_auto'),
             'guest_capture' => (int)$this->config->get('codecart_abandoned_cart_guest_capture'));
         foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
@@ -333,7 +336,7 @@ class ControllerSaleAbandonedCart extends Controller {
                 // Preserve manual mapping for unmatched optional columns.
                 if ($column !== '') { $data['cart_fields'][$name] = $column; }
             }
-            foreach (array('status'=>'cart_status','idle_minutes'=>'cart_idle_minutes','days'=>'cart_days','mail_auto'=>'cart_mail_auto','guest_capture'=>'cart_guest_capture') as $name=>$post) {
+            foreach (array('status'=>'cart_status','idle_minutes'=>'cart_idle_minutes','days'=>'cart_days','mail_auto'=>'cart_mail_auto','guest_capture'=>'cart_guest_capture','reminder_delay_minutes'=>'cart_reminder_delay_minutes') as $name=>$post) {
                 if (isset($this->request->post[$post])) { $data['cart_fields'][$name] = (int)$this->request->post[$post]; }
             }
             if (isset($this->request->post['cart_checkout_mode'])) {
@@ -348,7 +351,7 @@ class ControllerSaleAbandonedCart extends Controller {
         if (isset($this->session->data['ccp_cart_settings_form_old']) && is_array($this->session->data['ccp_cart_settings_form_old'])) {
             $old = $this->session->data['ccp_cart_settings_form_old'];
             unset($this->session->data['ccp_cart_settings_form_old']);
-            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','status','idle_minutes','days','mail_auto','guest_capture','checkout_url') as $field) {
+            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','status','idle_minutes','days','reminder_delay_minutes','mail_auto','guest_capture','checkout_url') as $field) {
                 if (isset($old[$field])) { $data['cart_fields'][$field] = $old[$field]; }
             }
             if (isset($old['source'])) { $data['cart_form_source'] = $old['source']; }
