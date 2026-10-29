@@ -51,4 +51,30 @@ $reminder=new \CodeCart\Core\AbandonedCartReminder(new FakeRegistry($db,$on));
 $first=$reminder->fingerprint(['customer_id'=>12,'store_id'=>1,'session_id'=>'sid','last_activity'=>'2026-10-28','quantity'=>1,'max_cart_id'=>9]);
 $second=$reminder->fingerprint(['customer_id'=>12,'store_id'=>2,'session_id'=>'sid','last_activity'=>'2026-10-28','quantity'=>1,'max_cart_id'=>9]);
 ck($first!==$second,'Idempotency key must include origin store');
+// Admin display cutoff and automatic reminder cutoff are deliberately independent.
+$bounds=new FakeConfig([
+    'codecart_abandoned_cart_status'=>1,
+    'codecart_abandoned_cart_source'=>'standard',
+    'config_store_id'=>0,
+    'config_language_id'=>1,
+    'codecart_abandoned_cart_idle_minutes'=>1,
+    'codecart_abandoned_cart_reminder_delay_minutes'=>60,
+    'codecart_abandoned_cart_days'=>30
+]);
+$boundsModel=new ModelSaleAbandonedCart($db,$bounds);
+$boundsModel->getAbandonedCarts(0,10);
+$boundSql=end($db->sql);
+ck(strpos($boundSql,'INTERVAL 1 MINUTE')!==false,'1 minute inactivity threshold is supported');
+ck(strpos($boundSql,'INTERVAL 30 DAY')!==false,'30 day cart history is supported');
+$boundsReminder=new \CodeCart\Core\AbandonedCartReminder(new FakeRegistry($db,$bounds));
+$reflect=new ReflectionMethod($boundsReminder,'sendAfter');
+ck($reflect->invoke($boundsReminder)===60,'Reminder timing must not follow early analytics threshold');
+$wait=new FakeConfig([
+    'codecart_abandoned_cart_status'=>1,
+    'codecart_abandoned_cart_source'=>'standard',
+    'codecart_abandoned_cart_idle_minutes'=>90,
+    'codecart_abandoned_cart_reminder_delay_minutes'=>5
+]);
+$waitReminder=new \CodeCart\Core\AbandonedCartReminder(new FakeRegistry($db,$wait));
+ck($reflect->invoke($waitReminder)===90,'Reminders must not precede abandoned status');
 print "PASS registered consent OFF, scoped upsert/revoke, multistore fingerprint, SQL consent\n";
