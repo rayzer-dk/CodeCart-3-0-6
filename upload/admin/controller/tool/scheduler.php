@@ -4,6 +4,7 @@ class ControllerToolScheduler extends Controller {
         $this->load->language('tool/scheduler');
         $this->load->language('tool/diagnostics');
         $this->document->setTitle($this->language->get('heading_title'));
+        $this->document->addStyle('view/stylesheet/codecart_scheduler.css?v=3.0.6.7');
 
         $scheduler = new \CodeCart\Core\Scheduler($this->registry);
 
