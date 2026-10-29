@@ -225,6 +225,7 @@ class ControllerAccountRegister extends Controller {
         $guard = (new \CodeCart\Core\SpamService($this->registry))->consume('account_register', 8, 3600, 3);
         if (empty($guard['allowed'])) {
             $this->error['warning'] = $this->language->get('error_rate');
+            \CodeCart\Core\MailAudit::blocked('account_register', 'rate_limit', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
             return false;
         }
 
@@ -326,6 +327,9 @@ class ControllerAccountRegister extends Controller {
 			}
 		}
 		
+		if (isset($this->error['captcha'])) {
+			\CodeCart\Core\MailAudit::blocked('account_register', 'captcha', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
+		}
 		return !$this->error;
 	}
 
