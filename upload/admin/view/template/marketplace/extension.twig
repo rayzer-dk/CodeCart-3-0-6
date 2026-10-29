@@ -7,6 +7,16 @@
 #extension, #extension fieldset, #extension .table-responsive {min-width:0;max-width:100%;box-sizing:border-box;}
 #extension .table-responsive {display:block;width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;}
 #extension .ccp-extension-table {width:100%;min-width:960px;margin:0;table-layout:fixed;border-collapse:collapse;}
+#extension .ccp-extension-cols-4 {min-width:720px;}
+#extension .ccp-extension-cols-4 th:nth-child(1) {width:54%;}
+#extension .ccp-extension-cols-4 th:nth-child(2) {width:14%;}
+#extension .ccp-extension-cols-4 th:nth-child(3) {width:20%;}
+#extension .ccp-extension-cols-4 th:nth-child(4) {width:12%;}
+#extension .ccp-extension-status{display:inline-block;min-width:94px;padding:5px 10px;border-radius:5px;font-weight:600;font-size:12px;text-align:center;}
+#extension .ccp-extension-status-on{color:#126434;background:#d9f5e3;border:1px solid #a9e7bb;}
+#extension .ccp-extension-status-off{color:#8c3430;background:#fce5e3;border:1px solid #f1c5c2;}
+html.ccp-admin-dark #extension .ccp-extension-status-on{color:#a5e6b8;background:#19402a;border-color:#28613c;}
+html.ccp-admin-dark #extension .ccp-extension-status-off{color:#ffb5b1;background:#502b2d;border-color:#773e3f;}
 #extension .ccp-extension-cols-7 {min-width:1050px;}
 #extension .ccp-extension-cols-8 {min-width:1140px;}
 #extension .ccp-extension-table thead {border-top:3px solid #0057d9;}
