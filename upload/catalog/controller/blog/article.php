@@ -636,11 +636,12 @@ class ControllerBlogArticle extends Controller {
 			$json['error'] = $this->language->get('text_error');
 		} else {
 			$guard = new \CodeCart\Core\FormGuard($this->registry);
-			$rate = $guard->consume('blog_review', 40, 600, 2);
+			$rate = $guard->consume('blog_review', 10, 600, 2);
 			if (!$rate['allowed']) {
 				$json['error'] = $this->language->get('error_rate_limit');
 				$this->response->setStatusCode(429);
 				$this->response->addHeader('Retry-After: ' . (int)$rate['retry_after']);
+				\CodeCart\Core\MailAudit::blocked('blog_review', 'rate_limit');
 			}
 
 			$this->load->model('blog/article');
@@ -667,6 +668,7 @@ class ControllerBlogArticle extends Controller {
 				if ($captcha) {
 					$json['error'] = $captcha;
 					$json['captcha_error'] = $captcha;
+					\CodeCart\Core\MailAudit::blocked('blog_review', 'captcha');
 				}
 			}
 
