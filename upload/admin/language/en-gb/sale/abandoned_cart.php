@@ -149,7 +149,7 @@ $_['text_external_detect_warning'] = 'Could not automatically detect required co
 // Storefront and source identification.
 $_['entry_checkout_url'] = 'Checkout page URL';
 $_['text_checkout_url_help'] = 'This is the storefront checkout URL, not a database table name. Use automatic detection for popular templates; for a different checkout select Custom URL. The alternative uni_checkout route is preserved for compatibility.';
-$_['text_external_source_explanation'] = 'Use an external table only when an extension actually stores cart items in a separate SQL table. checkout/uni_checkout is a page route, not a table.';
+$_['text_external_source_explanation'] = 'Only use an external SQL source if the checkout actually stores cart products in a separate table. A checkout route is a page address, not a database table.';
 $_['text_external_table_candidates'] = 'Find possible tables';
 $_['text_external_no_candidates'] = 'No additional cart/basket tables were found. Standard OpenCart is usually correct.';
 $_['text_external_choose_table'] = 'Choose SQL table (not checkout URL)';
@@ -174,5 +174,5 @@ $_['text_detect_no_write'] = 'Detection reads database metadata only; it does no
 $_['text_bulk_send_limit'] = 'Select no more than 10 carts per send operation.';
 $_['text_cart_consent_notice'] = 'A separate cart-specific reminder consent is required. Newsletter opt-in alone is not sufficient.';
 
-$_['text_source_only_explanation'] = 'Cart source controls where item records are read from: the standard OpenCart cart table or an external SQL table. UniShop2 checkout normally still uses the standard table.';
+$_['text_source_only_explanation'] = 'Most themes and checkout extensions use the standard OpenCart cart table; changing the checkout page does not require an external table. Only configure external mode for a verified separate SQL cart table.';
 $_['text_checkout_only_explanation'] = 'Checkout page only controls where the recovery link takes the customer. It does not change the cart data source.';
