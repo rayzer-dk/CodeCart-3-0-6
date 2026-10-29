@@ -1,4 +1,34 @@
 <?php
+// Mail Audit and DNS diagnostics
+$_['text_mail_audit_title'] = 'Mail Audit';
+$_['entry_mail_audit_status'] = 'Record outgoing mail';
+$_['help_mail_audit'] = 'Off by default. Stores recipient, sender, subject, source, IP and transport result for 30 days. Does not store message content. PHP scripts using mail() directly bypass the OpenCart audit.';
+$_['entry_mail_dkim_selector'] = 'DKIM selector';
+$_['text_mail_dns_check'] = 'Check DNS';
+$_['help_mail_dkim'] = 'Checks SPF, DMARC and selector._domainkey TXT for the store sender email domain. DNS presence does not prove outgoing DKIM signatures. Use the selector from your mail provider.';
+$_['text_mail_audit_empty'] = 'No records';
+$_['text_mail_audit_load_error'] = 'Unable to load mail log.';
+$_['text_mail_audit_confirm'] = 'Permanently delete all mail audit records?';
+$_['text_mail_dns_warning'] = 'DNS records are not proof that outgoing messages are signed or delivered.';
+$_['text_mail_audit_search'] = 'Search sender or recipient';
+$_['text_mail_audit_all'] = 'All statuses';
+$_['text_mail_audit_accepted'] = 'Accepted by transport';
+$_['text_mail_audit_failed'] = 'Failed';
+$_['text_mail_audit_blocked'] = 'Blocked form attempt';
+$_['text_mail_audit_refresh'] = 'Refresh';
+$_['text_mail_audit_clear'] = 'Clear audit';
+$_['text_mail_audit_date'] = 'Date';
+$_['text_mail_audit_from'] = 'From';
+$_['text_mail_audit_to'] = 'To';
+$_['text_mail_audit_subject'] = 'Subject';
+$_['text_mail_audit_source'] = 'Source / reason';
+$_['text_mail_audit_engine'] = 'Transport';
+$_['text_mail_audit_status_col'] = 'Status';
+$_['text_mail_audit_prev'] = 'Previous page';
+$_['text_mail_audit_next'] = 'Next page';
+$_['text_mail_audit_transport_notice'] = 'Accepted only means PHP Mail/SMTP accepted the message. It does not confirm inbox delivery. Third-party scripts invoking PHP mail() directly require server logs.';
+$_['text_mail_audit_show_password'] = 'Show or hide stored SMTP password';
+
 // *	@source		See SOURCE.txt for source and other copyright.
 // *	@license	GNU General Public License version 3; see LICENSE.txt
 
