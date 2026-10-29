@@ -44,12 +44,13 @@ final class MailAudit {
             $meta = method_exists($mail, 'auditMetadata') ? $mail->auditMetadata() : array();
             if (!$meta) { return; }
             $context = isset($mail->audit_context) ? (string)$mail->audit_context : '';
+            $origin = self::origin();
             self::write(array(
                 'engine' => isset($meta['engine']) ? $meta['engine'] : '',
                 'sender_email' => isset($meta['from']) ? $meta['from'] : '',
                 'recipient_email' => isset($meta['to']) ? $meta['to'] : '',
                 'subject' => isset($meta['subject']) ? $meta['subject'] : '',
-                'source' => $context !== '' ? $context : self::route(),
+                'source' => substr(($context !== '' ? $context : self::route()) . ($origin !== '' ? ' @ ' . $origin : ''), 0, 128),
                 'store_id' => isset($meta['store_id']) ? (int)$meta['store_id'] : null,
                 'status' => $accepted ? 'accepted' : 'failed',
                 'error_type' => $accepted ? '' : $errorType
@@ -72,6 +73,25 @@ final class MailAudit {
                 'error_type' => $reason
             ));
         } catch (\Throwable $ignored) {}
+    }
+
+
+    /** Identify a first-party or extension controller without exposing server paths. */
+    private static function origin() {
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 14);
+        foreach ($trace as $frame) {
+            if (empty($frame['file'])) { continue; }
+            $file = str_replace('\\', '/', (string)$frame['file']);
+            foreach (array('/catalog/controller/', '/admin/controller/') as $prefix) {
+                $pos = strpos($file, $prefix);
+                if ($pos !== false) {
+                    $relative = substr($file, $pos + 1);
+                    if (strpos($relative, 'catalog/controller/cron/mail_delivery.php') === 0) { continue; }
+                    return preg_replace('/[^a-z0-9_\/.-]/i', '', $relative);
+                }
+            }
+        }
+        return '';
     }
 
     private static function route() {
