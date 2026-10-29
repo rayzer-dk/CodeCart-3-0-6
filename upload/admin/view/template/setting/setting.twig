@@ -1298,7 +1298,7 @@
                   <label class="col-sm-2 control-label" for="mail-dkim-selector">{{ entry_mail_dkim_selector }}</label>
                   <div class="col-sm-10">
                     <div class="input-group">
-                      <input type="text" id="mail-dkim-selector" name="config_mail_dkim_selector" value="{{ config_mail_dkim_selector }}" class="form-control" maxlength="63" placeholder="default" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,62}" />
+                      <input type="text" id="mail-dkim-selector" name="config_mail_dkim_selector" value="{{ config_mail_dkim_selector }}" class="form-control" maxlength="320" placeholder="default, mail, selector1" />
                       <span class="input-group-btn"><button type="button" id="mail-dns-check" class="btn btn-default" title="{{ text_mail_dns_check }}"><i class="fa fa-shield"></i> {{ text_mail_dns_check }}</button></span>
                     </div>
                     <p class="help-block">{{ help_mail_dkim }}</p>
@@ -2213,7 +2213,15 @@ $('select[name=\'config_country_id\']').trigger('change');
         var $result=$('#mail-dns-result');
         $.getJSON($box.attr('data-dns-url'), {selector:$('#mail-dkim-selector').val()}).done(function(data){
             if(data.error){$result.text(errorName(data.error));return;}
-            $result.text(data.domain+' · '+data.selector+' · SPF: '+dnsName(data.records.spf)+' · DMARC: '+dnsName(data.records.dmarc)+' · DKIM: '+dnsName(data.records.dkim)+'. '+$box.attr('data-dns-warning'));
+                        var dkim = [];
+            if (data.dkim_checks) {
+                $.each(data.dkim_checks, function(selector, state) {
+                    dkim.push(selector+': '+dnsName(state));
+                });
+            }
+            if (!dkim.length) { dkim.push(dnsName(data.records.dkim)); }
+            $result.text(data.domain+' · SPF: '+dnsName(data.records.spf)+' · DMARC: '+dnsName(data.records.dmarc)
+                +' · DKIM: '+dkim.join('; ')+'. '+$box.attr('data-dns-warning'));
         }).fail(function(){$result.text($box.attr('data-error'));});
     });
     $('#mail-test-group [data-mail-engine]').on('click',function(){
