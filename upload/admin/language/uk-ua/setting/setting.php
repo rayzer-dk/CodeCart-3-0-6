@@ -1,5 +1,8 @@
 <?php
 // Mail Audit and DNS diagnostics
+$_['mail_error_audit_schema_outdated'] = 'Таблиця Mail Audit або її стовпці відсутні. Збережіть налаштування пошти для створення або оновлення структури.';
+$_['mail_error_audit_summary_unavailable'] = 'Журнал завантажено, але статистику обчислити не вдалося.';
+$_['mail_error_audit_db_code'] = 'Код помилки бази даних';
 $_['text_mail_audit_last30'] = 'За останні 30 днів';
 $_['text_mail_audit_source_counts'] = 'За формами (прийнято / помилки / блокування)';
 $_['text_mail_audit_attempts'] = 'спроб';
