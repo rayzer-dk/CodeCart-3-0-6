@@ -114,7 +114,7 @@ $_['error_duplicate_route'] = 'This handler is already scheduled. Use the pencil
 
 $_['text_existing_codes_info'] = 'Task codes appear under task names in the list below (e.g. core.mail.campaign). Use the pencil to edit a task. Create a new unique code only for a new installed handler. core.mail.campaign sends marketing campaigns, not abandoned-cart reminders.';
 
-$_['text_choose_available_handler'] = 'Available installed handler';
+$_['text_choose_available_handler'] = 'Available handler for a new task';
 $_['text_advanced_options'] = 'Advanced options / show token';
 $_['text_scheduler_health'] = 'Last task execution';
 $_['text_scheduler_health_ok'] = 'within the last 10 minutes';
@@ -132,7 +132,7 @@ $_['text_task_core_cart_guest_purge_description'] = 'Deletes opt-in guest contac
 
 $_['error_duplicate_code'] = 'This task code already exists. Edit the task in the table instead of adding another.';
 $_['text_ready_handlers_count'] = 'Available unscheduled handlers';
-$_['text_no_free_handler'] = 'No free cron handlers are available. Installed handlers are already registered or reserved. New tasks require an installed PHP handler; use the pencil in the list to change an existing schedule.';
+$_['text_no_free_handler'] = 'No unregistered handlers are available. Installed handlers are already scheduled or reserved. Use the pencil to edit an existing task, or open External Cron for a separate HTTPS command.';
 $_['text_save_failed'] = 'Task was not saved. Correct the fields.';
 $_['text_interval_preset'] = 'Frequency';
 $_['text_interval_custom'] = 'Custom seconds';
