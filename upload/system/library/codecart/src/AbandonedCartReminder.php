@@ -248,11 +248,36 @@ final class AbandonedCartReminder {
         $limit = max(1,min(20,$limit));
         $idle = $this->sendAfter();
         $days = max(1,min(7,(int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
-        try { $results = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) WHERE c.api_id=0 AND c.customer_id>0 AND cu.email<>'' AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT rc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 4)); }
-        catch (\Throwable $e) { return array('success'=>false,'message'=>'Cart reminder consent storage is unavailable.','sent'=>0,'failed'=>1,'skipped'=>0); }
+        $registeredSql = "SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) WHERE c.api_id=0 AND c.customer_id>0 AND cu.email<>'' AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT rc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 4);
+        try {
+            $results = $this->db->query($registeredSql);
+        } catch (\Throwable $e) {
+            // A partially upgraded store may be missing the new consent table.
+            // Create only its empty schema, then retry. Never manufacture consent.
+            $logger = $this->registry->get('log');
+            if ($logger) { $logger->write('Cart reminder registered consent query failed: ' . $e->getMessage()); }
+            $missingConsentTable = (stripos($e->getMessage(), DB_PREFIX . 'codecart_cart_registered_consent') !== false)
+                && (preg_match('/\\b1146\\b|does.?not exist|doesn.t exist/i', $e->getMessage()) === 1);
+            if (!$missingConsentTable) {
+                return array('success'=>false,'message'=>'Cart reminder consent query failed; check the error log.','sent'=>0,'failed'=>1,'skipped'=>0);
+            }
+            try {
+                (new RegisteredCartConsent($this->registry))->install();
+                $results = $this->db->query($registeredSql);
+            } catch (\Throwable $repairError) {
+                if ($logger) { $logger->write('Cart reminder consent schema repair failed: ' . $repairError->getMessage()); }
+                return array('success'=>false,'message'=>'Cart reminder consent storage is unavailable; check migration and database permissions.','sent'=>0,'failed'=>1,'skipped'=>0);
+            }
+        }
         if ($this->config->get('codecart_abandoned_cart_guest_capture')) {
-            $guest = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL WHERE c.api_id=0 AND c.customer_id=0 AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT gc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 2));
-            $results->rows = array_merge($results->rows, $guest->rows);
+            try {
+                $guest = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL WHERE c.api_id=0 AND c.customer_id=0 AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT gc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 2));
+                $results->rows = array_merge($results->rows, $guest->rows);
+            } catch (\Throwable $e) {
+                $logger = $this->registry->get('log');
+                if ($logger) { $logger->write('Cart reminder guest consent query failed: ' . $e->getMessage()); }
+                return array('success'=>false,'message'=>'Cart reminder guest consent query failed; check the error log.','sent'=>0,'failed'=>1,'skipped'=>0);
+            }
         }
         $sent = 0; $failed=0; $skipped=0;
         foreach ($results->rows as $row) {
