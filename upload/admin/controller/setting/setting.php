@@ -1591,7 +1591,7 @@ class ControllerSettingSetting extends Controller {
             $result['summary'] = $this->model_setting_mail_audit->getSummary();
             $this->auditJson($result);
         } catch (\Throwable $e) {
-            $this->log->write('Mail Audit listing failed: ' . get_class($e));
+            $this->log->write('Mail Audit listing failed: ' . get_class($e) . ' code=' . (int)$e->getCode() . ' trace=' . substr(hash('sha256', (string)$e->getFile() . ':' . (int)$e->getLine()), 0, 12));
             $this->response->setStatusCode(500);
             $this->auditJson(array('error' => 'audit_storage_unavailable'));
         }
