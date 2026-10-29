@@ -145,7 +145,12 @@ final class Scheduler {
                     'core.stock.notify' => 'cron/stock_notify',
                     'core.queue.worker' => 'cron/queue_worker',
                     'core.mail.campaign' => 'cron/mail_campaign',
-                    'core.cart.reminder' => 'cron/cart_reminder'
+                    'core.cart.reminder' => 'cron/cart_reminder',
+                    'core.cart.cleanup' => 'cron/cart',
+                    'core.cart.guest_purge' => 'cron/cart_guest_purge',
+                    'core.currency.refresh' => 'cron/currency',
+                    'core.health.check' => 'cron/health',
+                    'core.security.cleanup' => 'cron/security'
                 );
                 $code = (string)$job['code'];
                 if (!isset($builtin_routes[$code])) {
