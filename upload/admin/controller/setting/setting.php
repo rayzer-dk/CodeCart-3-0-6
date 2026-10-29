@@ -1579,7 +1579,9 @@ class ControllerSettingSetting extends Controller {
                 'status' => isset($this->request->get['status']) ? (string)$this->request->get['status'] : ''
             );
             $page = isset($this->request->get['page']) ? max(1, min(100000, (int)$this->request->get['page'])) : 1;
-            $this->auditJson($this->model_setting_mail_audit->getRows($filter, $page));
+            $result = $this->model_setting_mail_audit->getRows($filter, $page);
+            $result['summary'] = $this->model_setting_mail_audit->getSummary();
+            $this->auditJson($result);
         } catch (\Throwable $e) {
             $this->log->write('Mail Audit listing failed: ' . get_class($e));
             $this->response->setStatusCode(500);
