@@ -28,10 +28,13 @@ final class MailAudit {
             status VARCHAR(16) NOT NULL DEFAULT '',
             error_type VARCHAR(48) NOT NULL DEFAULT '',
             remote_ip VARCHAR(45) NOT NULL DEFAULT '',
+            event_key CHAR(64) NULL DEFAULT NULL,
+            attempts INT UNSIGNED NOT NULL DEFAULT 1,
             PRIMARY KEY (audit_id),
             KEY idx_date (date_added),
             KEY idx_status_date (status, date_added),
-            KEY idx_store_date (store_id, date_added)
+            KEY idx_store_date (store_id, date_added),
+            UNIQUE KEY idx_event_bucket (event_key)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }
 
@@ -47,6 +50,7 @@ final class MailAudit {
                 'recipient_email' => isset($meta['to']) ? $meta['to'] : '',
                 'subject' => isset($meta['subject']) ? $meta['subject'] : '',
                 'source' => $context !== '' ? $context : self::route(),
+                'store_id' => isset($meta['store_id']) ? (int)$meta['store_id'] : null,
                 'status' => $accepted ? 'accepted' : 'failed',
                 'error_type' => $accepted ? '' : $errorType
             ));
@@ -91,11 +95,16 @@ final class MailAudit {
             $value = function_exists('mb_substr') ? mb_substr($value, 0, $max, 'UTF-8') : substr($value, 0, $max);
             $sql[] = $field . " = '" . $db->escape($value) . "'";
         }
-        $ip = isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '';
+        $ip = function_exists('codecart_client_ip') ? (string)codecart_client_ip((array)$_SERVER) : (isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '');
         $ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
         $sql[] = "remote_ip = '" . $db->escape($ip) . "'";
-        $sql[] = "store_id = '" . (int)$config->get('config_store_id') . "'";
-        $db->query("INSERT INTO " . DB_PREFIX . "codecart_mail_audit SET date_added = NOW(), " . implode(', ', $sql));
+        $storeId = isset($values['store_id']) && $values['store_id'] !== null ? (int)$values['store_id'] : (int)$config->get('config_store_id');
+        $sql[] = "store_id = '" . max(0, $storeId) . "'";
+        // Blocked attempts are aggregated per source/IP/reason every five minutes.
+        $blocked = isset($values['status']) && $values['status'] === 'blocked';
+        $eventKey = $blocked ? hash('sha256', $ip . '|' . $values['source'] . '|' . $values['error_type'] . '|' . floor(time() / 300)) : '';
+        $sql[] = 'event_key = ' . ($blocked ? "'" . $db->escape($eventKey) . "'" : 'NULL');
+        $db->query("INSERT INTO " . DB_PREFIX . "codecart_mail_audit SET date_added = NOW(), " . implode(', ', $sql) . " ON DUPLICATE KEY UPDATE attempts = LEAST(attempts + 1, 4294967295), date_added = NOW()");
         if (mt_rand(1, 100) === 1) {
             $db->query("DELETE FROM " . DB_PREFIX . "codecart_mail_audit WHERE date_added < DATE_SUB(NOW(), INTERVAL 30 DAY)");
         }
