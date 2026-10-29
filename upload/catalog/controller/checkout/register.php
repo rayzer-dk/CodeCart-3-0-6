@@ -85,6 +85,14 @@ class ControllerCheckoutRegister extends Controller {
 		$this->load->language('checkout/checkout');
 
 		$json = array();
+		// Checkout account creation is also a public registration endpoint.
+		$guard = (new \CodeCart\Core\SpamService($this->registry))->consume('checkout_register', 12, 3600, 2);
+		if (empty($guard['allowed'])) {
+			$this->response->setStatusCode(429);
+			$this->response->addHeader('Retry-After: ' . (int)$guard['retry_after']);
+			$json['error']['warning'] = $this->language->get('error_warning');
+			\CodeCart\Core\MailAudit::blocked('checkout_register', 'rate_limit', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
+		}
 
 		// CodeCart: normalize optional/malformed checkout POST so PHP 8.x does not emit undefined-key warnings.
 		$this->request->post = array_merge(array('firstname' => '', 'lastname' => '', 'email' => '', 'telephone' => '', 'company' => '', 'address_1' => '', 'address_2' => '', 'city' => '', 'postcode' => '', 'country_id' => '', 'zone_id' => '', 'password' => '', 'confirm' => ''), is_array($this->request->post) ? $this->request->post : array());
@@ -230,6 +238,7 @@ class ControllerCheckoutRegister extends Controller {
 
 				if ($captcha) {
 					$json['error']['captcha'] = $captcha;
+					\CodeCart\Core\MailAudit::blocked('checkout_register', 'captcha', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
 				}
 			}
 		}
