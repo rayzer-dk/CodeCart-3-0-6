@@ -54,7 +54,6 @@ $_['text_runtime_ioncube'] = 'ionCube';
 $_['text_runtime_not_installed'] = 'Not installed';
 $_['text_runtime_server_time'] = 'Server time';
 $_['text_runtime_time_hint'] = 'PHP server time at page load; the database timezone may differ.';
-$_['text_runtime_more'] = 'System details';
 $_['text_runtime_memory'] = 'PHP memory limit';
 $_['text_runtime_execution'] = 'Execution time limit';
 $_['text_runtime_unlimited'] = 'Unlimited';
