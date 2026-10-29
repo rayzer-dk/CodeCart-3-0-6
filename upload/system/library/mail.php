@@ -22,6 +22,7 @@ class Mail extends \stdClass {
 	protected $inline_images = array();
 	public $parameter;
 	public $audit_context = '';
+	public $audit_store_id = null;
 	protected static $sentFingerprints = array();
 
 	/**
