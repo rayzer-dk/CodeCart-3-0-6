@@ -21,6 +21,7 @@ class Mail extends \stdClass {
 	protected $attachments = array();
 	protected $inline_images = array();
 	public $parameter;
+	public $audit_context = '';
 	protected static $sentFingerprints = array();
 
 	/**
@@ -250,6 +251,16 @@ class Mail extends \stdClass {
 		);
 	}
 
+	/** Minimal data only; never expose message contents or SMTP credentials to audit. */
+	public function auditMetadata() {
+		return array(
+			'engine' => isset($this->adaptor) && is_object($this->adaptor) && stripos(get_class($this->adaptor), 'smtp') !== false ? 'smtp' : 'mail',
+			'from' => (string)$this->from,
+			'to' => is_array($this->to) ? implode(', ', $this->to) : (string)$this->to,
+			'subject' => (string)$this->subject
+		);
+	}
+
 	public function send() {
 		$this->assertSafeHeaders();
 
@@ -282,7 +293,13 @@ class Mail extends \stdClass {
 			$this->adaptor->$key = $value;
 		}
 
-		$result = $this->adaptor->send();
+		try {
+			$result = $this->adaptor->send();
+		} catch (\Throwable $e) {
+			\CodeCart\Core\MailAudit::transport($this, false, get_class($e));
+			throw $e;
+		}
+		\CodeCart\Core\MailAudit::transport($this, $result !== false, $result === false ? 'transport_false' : '');
 		if ($result !== false) {
 			self::$sentFingerprints[$fingerprint] = true;
 		}
