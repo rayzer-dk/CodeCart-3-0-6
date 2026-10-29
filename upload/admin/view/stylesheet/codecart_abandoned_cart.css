@@ -23,16 +23,9 @@
 .ccp-carts-page .ccp-cart-bulk select{max-width:200px}
 .ccp-carts-page .ccp-cart-bulk small{flex:1;text-align:right;font-size:11px}
 .ccp-carts-page .ccp-abandoned-cart-table,.ccp-carts-page .ccp-cart-history-table{border-top:3px solid #0057d9;font-size:12px;margin-bottom:8px}
-.ccp-carts-page .ccp-abandoned-cart-table{table-layout:fixed;min-width:940px}
 .ccp-carts-page .ccp-abandoned-cart-table thead th,.ccp-carts-page .ccp-cart-history-table thead th{font-weight:600;background:#f6f8fb;color:#223e5d;vertical-align:middle;padding:9px 8px;border-right:1px solid #d4deea}
 .ccp-carts-page .ccp-abandoned-cart-table thead th a{color:inherit;text-decoration:none}
 .ccp-carts-page .ccp-abandoned-cart-table td,.ccp-carts-page .ccp-cart-history-table td{vertical-align:middle;padding:8px;overflow-wrap:anywhere}
-.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(1){width:98px}
-.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(2){width:103px}
-.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(3){width:132px}
-.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(4){width:105px}
-.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(5){width:65px}
-.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(6){width:195px}
 .ccp-carts-page .ccp-cart-check{text-align:center;width:35px!important}
 .ccp-carts-page .ccp-cart-row-actions{white-space:nowrap}
 .ccp-carts-page .ccp-cart-inline{display:inline-block;margin-left:3px}
@@ -60,10 +53,10 @@
 @media(max-width:1100px){.ccp-carts-page .ccp-cart-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){.ccp-carts-page .ccp-cart-kpis{gap:7px}.ccp-carts-page .ccp-cart-kpi{padding:10px;gap:7px}.ccp-carts-page .ccp-cart-kpi strong{font-size:18px}.ccp-carts-page .ccp-cart-kpi i{font-size:16px;width:16px}.ccp-carts-page .ccp-cart-kpi span{font-size:11px}.ccp-carts-page .ccp-cart-tabs>li>a{padding:9px 8px;font-size:12px}.ccp-carts-page .ccp-cart-content{padding:9px}.ccp-carts-page .ccp-mail-control{display:block}.ccp-carts-page .ccp-mail-control select{margin:8px 0}.ccp-carts-page .ccp-cart-bulk small{flex-basis:100%;text-align:left}}
 
-.ccp-external-advanced{margin-top:9px;padding:10px 12px;border:1px solid #d9e3ee;background:#fafcfe;border-radius:4px}
-.ccp-external-advanced > summary{cursor:pointer;font-weight:600;color:#20517e}
-.ccp-external-advanced[open] > summary{margin-bottom:12px}
-#ccp-external-detect-result{margin:8px 0 0}
+.ccp-carts-page .ccp-external-advanced{margin-top:9px;padding:10px 12px;border:1px solid #d9e3ee;background:#fafcfe;border-radius:4px}
+.ccp-carts-page .ccp-external-advanced > summary{cursor:pointer;font-weight:600;color:#20517e}
+.ccp-carts-page .ccp-external-advanced[open] > summary{margin-bottom:12px}
+.ccp-carts-page #ccp-external-detect-result{margin:8px 0 0}
 
 /* Compact storefront preview and separate checkout URL. */
 .ccp-carts-page .ccp-abandoned-product{align-items:center;min-height:40px;gap:8px}
@@ -75,18 +68,6 @@
 .ccp-carts-page .ccp-table-chooser{display:flex;gap:9px;align-items:center;margin:5px 0 12px;flex-wrap:wrap}
 .ccp-carts-page .ccp-table-chooser select{max-width:380px;flex:1 1 250px}
 
-/* Balanced columns on desktop, with horizontal overflow only when genuinely narrow. */
-.ccp-carts-page .ccp-abandoned-cart-table{min-width:1060px;table-layout:fixed;width:100%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-select{width:3%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-customer{width:14%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-email{width:16%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-products{width:27%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-quantity{width:5%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-total{width:9%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-activity{width:11%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-status{width:7%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-actions{width:8%}
-.ccp-carts-page .ccp-abandoned-cart-table th:nth-last-child(-n+6){width:auto}
 .ccp-carts-page .ccp-abandoned-cart-table td{overflow-wrap:break-word;word-break:normal}
 .ccp-carts-page .ccp-abandoned-cart-table td:nth-last-child(2){overflow-wrap:anywhere}
 .ccp-carts-page .ccp-settings-section-heading{font-size:14px;font-weight:700;margin:12px 0 11px;padding:0 0 7px;border-bottom:1px solid #e4eaf1;color:#254663}
@@ -95,7 +76,6 @@
 .ccp-carts-page .ccp-checkout-url-box{max-width:950px;margin:9px 0}
 .ccp-carts-page .ccp-data-hint{font-size:12px;padding:9px 11px;background:#fff;border-left:3px solid #0057d9;border-radius:3px;color:#385675}
 .ccp-carts-page #ccp-external-detect-result{margin:8px 0;font-size:12px}
-@media(max-width:1100px){.ccp-carts-page .ccp-abandoned-cart-table{min-width:1100px}}
 .ccp-carts-page .ccp-cart-history-table{table-layout:fixed;min-width:800px}
 .ccp-carts-page .ccp-cart-history-table th:nth-child(1){width:17%}
 .ccp-carts-page .ccp-cart-history-table th:nth-child(2){width:22%}
@@ -121,16 +101,6 @@ html.ccp-admin-dark .ccp-carts-page .ccp-external-advanced{background:#253246;bo
 html.ccp-admin-dark .ccp-carts-page .ccp-abandoned-cart-table thead th,
 html.ccp-admin-dark .ccp-carts-page .ccp-cart-history-table thead th{background:#263448;color:#d7e7f8;border-color:#40526b}
 html.ccp-admin-dark .ccp-carts-page .ccp-cart-tabs>li.active>a{background:#202b39;border-color:#40526b;color:#83baff}
-.ccp-carts-page .ccp-abandoned-cart-table{min-width:980px}
-@media(min-width:1101px){.ccp-carts-page .ccp-abandoned-cart-table{min-width:980px}}
-@media(max-width:1100px){.ccp-carts-page .ccp-abandoned-cart-table{min-width:980px}}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-products{width:29%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-actions{width:8%}
-
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-customer{width:13%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-products{width:27%}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-status{width:8%}
-
 /* Unified contacts and balanced compact table, without sacrificing product space. */
 .ccp-carts-page .ccp-abandoned-cart-table{min-width:960px;table-layout:fixed;width:100%}
 .ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-select{width:3%}
@@ -153,4 +123,3 @@ html.ccp-admin-dark .ccp-carts-page .ccp-cart-tabs>li.active>a{background:#202b3
 .ccp-carts-page .ccp-cart-row-actions .btn{width:30px;height:30px;padding:5px 7px}
 .ccp-carts-page .ccp-settings-distinction{font-size:12px;line-height:1.55;color:#44627d;background:#f4f8fc;border-left:3px solid #0057d9;border-radius:3px;padding:8px 11px;margin:1px 0 14px}
 html.ccp-admin-dark .ccp-carts-page .ccp-settings-distinction{background:#25364c;color:#d3e0ef}
-@media(max-width:1100px){.ccp-carts-page .ccp-abandoned-cart-table{min-width:960px}}
