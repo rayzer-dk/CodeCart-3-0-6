@@ -1,4 +1,7 @@
 <?php
+$_['entry_reminder_delay_minutes'] = 'Send reminder after, minutes';
+$_['text_reminder_delay_help'] = 'Minimum 5 minutes after the last cart change; never earlier than the abandonment threshold. Cron runs in batches (normally every 5 minutes). Requires a separate, explicit consent and a valid email. Reminders are sent only for carts up to 7 days old.';
+$_['text_guest_contact_missing_explanation'] = 'Guest name and email appear only when the visitor enters checkout contact details and explicitly opts in to cart reminders. A cart without these details cannot be identified retrospectively; no email is sent without consent.';
 $_['heading_title']='Abandoned carts';
 $_['text_home']='Home';
 $_['text_sale']='Sales';
@@ -40,7 +43,7 @@ $_['entry_cart_status'] = 'Abandoned-cart analytics';
 $_['entry_cart_source'] = 'Data source';
 $_['entry_cart_table'] = 'Database table';
 $_['entry_cart_idle_minutes'] = 'Abandoned after, minutes';
-$_['entry_cart_days'] = 'History, days (up to 7)';
+$_['entry_cart_days'] = 'History, days (up to 30)';
 $_['entry_col_session'] = 'Session ID column';
 $_['entry_col_product'] = 'Product ID column';
 $_['entry_col_quantity'] = 'Quantity column';
@@ -122,7 +125,7 @@ $_['text_guest_cart_restored'] = 'Cart restored';
 $_['text_restored_count'] = 'Restored carts';
 $_['text_restored_note'] = 'Counts confirmed guest cart restores from single-use links, not paid orders.';
 $_['text_recent_history'] = 'Email attempt history, 25 records per page.';
-$_['text_date_range_notice'] = 'Carts: up to the last 7 days. Filtering does not delete older records.';
+$_['text_date_range_notice'] = 'Abandoned carts: show the last 1–30 days as configured. This filter does not delete older records.';
 $_['text_clear_danger'] = 'Danger zone: delete carts';
 $_['text_send_only_optin'] = 'Each reminder requires explicit cart-specific consent.';
 $_['text_history_error'] = 'Error';
@@ -145,7 +148,7 @@ $_['text_external_detect_warning'] = 'Could not automatically detect required co
 
 // Storefront and source identification.
 $_['entry_checkout_url'] = 'Checkout page URL';
-$_['text_checkout_url_help'] = 'This is the storefront checkout URL, not a database table name. UniShop2 usually uses checkout/uni_checkout and the standard OpenCart cart table. Only HTTPS URLs on this store are accepted.';
+$_['text_checkout_url_help'] = 'This is the storefront checkout URL, not a database table name. Use automatic detection for popular templates; for a different checkout select Custom URL. The alternative uni_checkout route is preserved for compatibility.';
 $_['text_external_source_explanation'] = 'Use an external table only when an extension actually stores cart items in a separate SQL table. checkout/uni_checkout is a page route, not a table.';
 $_['text_external_table_candidates'] = 'Find possible tables';
 $_['text_external_no_candidates'] = 'No additional cart/basket tables were found. Standard OpenCart is usually correct.';
@@ -155,11 +158,11 @@ $_['error_checkout_url'] = 'Enter an HTTPS checkout URL on the same store, not a
 
 // Cart source selection and robust metadata discovery.
 $_['entry_checkout_mode'] = 'Checkout page type';
-$_['text_checkout_auto'] = 'Detect automatically (recommended)';
+$_['text_checkout_auto'] = 'Popular checkout templates (automatic detection)';
 $_['text_checkout_standard'] = 'Standard CodeCart / OpenCart';
-$_['text_checkout_unishop2'] = 'UniShop2 — uni_checkout';
+$_['text_checkout_unishop2'] = 'Alternative checkout: uni_checkout route';
 $_['text_checkout_custom'] = 'Different page (custom URL)';
-$_['text_checkout_mode_help'] = 'This is where a checkout link opens, not the shopping-cart database table. CodeCart quick checkout uses the standard cart.';
+$_['text_checkout_mode_help'] = 'Automatic detection works for supported checkout routes, including popular templates. If a theme has its own route, use Custom URL. The checkout choice does not change the cart database source.';
 $_['text_cart_data_help'] = 'Start with the standard OpenCart cart. Only choose an SQL table if an extension stores the cart items separately.';
 $_['text_detect_tables_ready'] = 'Potential tables found. Select one and click Detect columns. No settings were changed.';
 $_['error_table_route'] = 'This is a checkout route, not a database table. Enter a table (e.g. oc_theme_cart) or select the standard source.';
