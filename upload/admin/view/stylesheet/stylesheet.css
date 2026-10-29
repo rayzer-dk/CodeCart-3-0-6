@@ -2274,27 +2274,50 @@ html.ccp-admin-dark #header .ccp-admin-profile-fallback{background:#273443;borde
 html.ccp-admin-dark .ccp-notification-statuses>.btn.active{background:#173350;color:#9dcdff;border-color:#3971ac}
 @media(max-width:767px){.ccp-notification-statuses{width:100%;overflow-x:auto;flex-wrap:nowrap}.ccp-notification-page-toolbar{gap:10px}.ccp-notification-page-toolbar #button-clear-read{width:100%}}
 
-/* CodeCart PRO: concise administration environment summary in the footer. */
-#footer{height:auto;min-height:100px;padding:10px 12px 16px;box-sizing:border-box;line-height:1.5}
-#footer .ccp-footer-runtime{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 13px;margin:7px auto 0;max-width:100%;font-size:12px;color:#64748b}
-#footer .ccp-footer-runtime-item{display:inline-flex;gap:4px;align-items:center;white-space:nowrap}
-#footer .ccp-footer-runtime-item+ .ccp-footer-runtime-item:before{content:'|';margin-right:9px;color:#9aa7b5}
-#footer .ccp-footer-runtime-item strong{font-weight:600;color:#334155}
-html.ccp-admin-dark #footer .ccp-footer-runtime{color:#a8b8cb}
-@media(max-width:767px){#footer{min-height:0;padding:12px 8px 18px}#footer .ccp-footer-runtime{gap:3px 10px;font-size:11px}#footer .ccp-footer-runtime-item+ .ccp-footer-runtime-item:before{margin-right:5px}}
-
-/* Compact footer: separate, breathable brand and environment lines. */
-#footer{line-height:1.8}
-#footer .ccp-footer-runtime{margin-top:9px;row-gap:6px;column-gap:19px;line-height:1.8}
-#footer .ccp-footer-runtime-item+ .ccp-footer-runtime-item:before{display:none}
-#footer .ccp-footer-runtime-item{gap:5px}
-@media(max-width:767px){#footer{line-height:1.8}#footer .ccp-footer-runtime{margin-top:8px;gap:5px 12px}}
-
-/* No legacy runtime-details disclosure in the compact footer. Older compiled Twig
-   can remain in the cache after updating files; hide its obsolete markup safely. */
+/* CodeCart PRO: two-row admin footer. Specific to the footer; no global control overrides. */
+#footer {
+    height: auto;
+    min-height: 0;
+    padding: 12px 12px 18px;
+    box-sizing: border-box;
+    text-align: center;
+    line-height: 1.65;
+}
+#footer .ccp-footer-main {
+    display: block;
+    line-height: 1.65;
+}
+#footer .ccp-footer-sep { margin: 0 5px; }
+#footer .ccp-footer-runtime {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    column-gap: 18px;
+    row-gap: 7px;
+    max-width: 100%;
+    margin: 14px auto 0;
+    line-height: 1.7;
+    font-size: 12px;
+    color: #64748b;
+}
+#footer .ccp-footer-runtime-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+#footer .ccp-footer-runtime-item + .ccp-footer-runtime-item::before { display: none; }
+#footer .ccp-footer-runtime-item strong { font-weight: 600; color: #334155; }
+html.ccp-admin-dark #footer .ccp-footer-runtime { color: #a8b8cb; }
+/* Old compiled Twig may still contain the retired system-details disclosure.
+   The new footer template omits it; keep it hidden until caches are refreshed. */
 #footer .ccp-footer-runtime-details,
-#footer .ccp-footer-runtime-detail-list { display:none !important; }
-#footer .ccp-footer-runtime { max-width:100%; overflow-wrap:anywhere; }
+#footer .ccp-footer-runtime-detail-list { display: none !important; }
+@media (max-width: 767px) {
+    #footer { padding: 12px 8px 16px; }
+    #footer .ccp-footer-runtime { margin-top: 12px; column-gap: 12px; row-gap: 6px; }
+}
 
 /* Mail settings: the DNS button stretches to the real DKIM field height.
  * Keep these rules strictly inside the Mail Audit settings block; do not
