@@ -14,7 +14,7 @@ class ModelSettingMailAudit extends Model {
         }
         $sqlWhere = $where ? ' WHERE ' . implode(' AND ', $where) : '';
         $count = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "codecart_mail_audit" . $sqlWhere);
-        $rows = $this->db->query("SELECT audit_id, store_id, date_added, engine, sender_email, recipient_email, subject, source, status, error_type, remote_ip FROM " . DB_PREFIX . "codecart_mail_audit" . $sqlWhere . " ORDER BY audit_id DESC LIMIT " . $offset . ", " . $limit);
+        $rows = $this->db->query("SELECT audit_id, store_id, date_added, engine, sender_email, recipient_email, subject, source, status, error_type, remote_ip, attempts FROM " . DB_PREFIX . "codecart_mail_audit" . $sqlWhere . " ORDER BY audit_id DESC LIMIT " . $offset . ", " . $limit);
         return array('total' => (int)$count->row['total'], 'rows' => $rows->rows);
     }
 
