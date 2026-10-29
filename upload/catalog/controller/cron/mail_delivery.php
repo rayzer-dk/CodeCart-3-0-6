@@ -12,6 +12,7 @@ class ControllerCronMailDelivery extends Controller {
         $engine = isset($settings['config_mail_engine']) && $settings['config_mail_engine'] !== '' ? (string)$settings['config_mail_engine'] : 'mail';
 
         $mail = new Mail($engine);
+        $mail->audit_store_id = $store_id;
         $mail->parameter = isset($message['parameter']) && (string)$message['parameter'] !== '' ? (string)$message['parameter'] : (string)$this->setting($settings, 'config_mail_parameter', '');
         $mail->smtp_hostname = (string)$this->setting($settings, 'config_mail_smtp_hostname', '');
         $mail->smtp_username = (string)$this->setting($settings, 'config_mail_smtp_username', '');
