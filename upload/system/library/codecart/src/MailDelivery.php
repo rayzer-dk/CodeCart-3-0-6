@@ -72,6 +72,9 @@ final class MailDelivery {
     public static function sendNow($registry, $mail, $context = '') {
         $context = self::context($context);
         try {
+            if (is_object($mail) && property_exists($mail, 'audit_context')) {
+                $mail->audit_context = $context;
+            }
             $result = $mail->send();
             if ($result === false) {
                 self::write($registry, 'Mail delivery failed [' . $context . ']: transport returned false; engine=' . self::engine($registry));
