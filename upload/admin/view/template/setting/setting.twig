@@ -2158,7 +2158,9 @@ $('select[name=\'config_country_id\']').trigger('change');
         transport_failed: '{{ mail_error_transport_failed|escape('js') }}',
         dns_unavailable: '{{ mail_error_dns_unavailable|escape('js') }}',
         invalid_selector: '{{ mail_error_invalid_selector|escape('js') }}',
-        audit_storage_unavailable: '{{ mail_error_audit_storage_unavailable|escape('js') }}'
+        audit_storage_unavailable: '{{ mail_error_audit_storage_unavailable|escape('js') }}',
+        audit_schema_outdated: '{{ mail_error_audit_schema_outdated|escape('js') }}',
+        audit_summary_unavailable: '{{ mail_error_audit_summary_unavailable|escape('js') }}'
     };
     function errorName(code) { return errors[code]||code||$box.attr('data-error'); }
     function renderSummary(summary) {
@@ -2184,6 +2186,10 @@ $('select[name=\'config_country_id\']').trigger('change');
         .done(function(data) {
             if (data.error) { error(errorName(data.error)); return; }
             renderSummary(data.summary);
+            $('#mail-audit-stats-warning').remove();
+            if (data.warning) {
+                $('<div/>').attr('id','mail-audit-stats-warning').addClass('text-warning').text(errorName(data.warning)).insertAfter('#mail-audit-stats');
+            }
             total = Number(data.total) || 0;
             var $rows = $('#mail-audit-rows').empty();
             $.each(data.rows || [], function(_, item) {
@@ -2200,7 +2206,9 @@ $('select[name=\'config_country_id\']').trigger('change');
             $('#mail-audit-next').prop('disabled', page * limit >= total);
         }).fail(function(xhr){
             var code=xhr&&xhr.responseJSON&&xhr.responseJSON.error ? xhr.responseJSON.error : 'audit_storage_unavailable';
-            error(errorName(code)+(xhr&&xhr.status ? ' (HTTP '+xhr.status+')' : ''));
+            var dbCode = xhr && xhr.responseJSON && xhr.responseJSON.db_code ? String(xhr.responseJSON.db_code) : '';
+            error(errorName(code) + (dbCode ? ' ({{ mail_error_audit_db_code|escape('js') }}: ' + dbCode + ')' : '')
+                + (xhr && xhr.status ? ' (HTTP ' + xhr.status + ')' : ''));
         }).always(function(){ $('#mail-audit-refresh').prop('disabled', false); });
     }
     $('#mail-audit-refresh').on('click', function(){ page = 1; load(); });
