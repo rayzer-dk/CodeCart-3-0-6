@@ -1,4 +1,33 @@
 <?php
+// Mail Audit and DNS diagnostics
+$_['text_mail_audit_title'] = 'Журнал надсилання пошти';
+$_['entry_mail_audit_status'] = 'Записувати вихідну пошту';
+$_['help_mail_audit'] = 'Типово вимкнено. Зберігає відправника, одержувача, тему, джерело, IP і результат передачі до 30 днів без вмісту листа. Прямі виклики mail() іншими PHP-скриптами не відстежуються.';
+$_['entry_mail_dkim_selector'] = 'Селектор DKIM';
+$_['text_mail_dns_check'] = 'Перевірити DNS';
+$_['help_mail_dkim'] = 'Перевіряє SPF, DMARC і TXT-запис селектора DKIM домену відправника. Наявність запису не доводить підпис вихідних листів. Укажіть селектор поштового провайдера.';
+$_['text_mail_audit_empty'] = 'Записів немає';
+$_['text_mail_audit_load_error'] = 'Не вдалося завантажити журнал пошти.';
+$_['text_mail_audit_confirm'] = 'Безповоротно видалити всі записи журналу пошти?';
+$_['text_mail_dns_warning'] = 'DNS-записи не підтверджують фактичний підпис або доставку листів.';
+$_['text_mail_audit_search'] = 'Пошук за відправником або одержувачем';
+$_['text_mail_audit_all'] = 'Усі статуси';
+$_['text_mail_audit_accepted'] = 'Прийнято транспортом';
+$_['text_mail_audit_failed'] = 'Помилка';
+$_['text_mail_audit_blocked'] = 'Заблокована спроба форми';
+$_['text_mail_audit_refresh'] = 'Оновити';
+$_['text_mail_audit_clear'] = 'Очистити журнал';
+$_['text_mail_audit_date'] = 'Дата';
+$_['text_mail_audit_from'] = 'Від кого';
+$_['text_mail_audit_to'] = 'Кому';
+$_['text_mail_audit_subject'] = 'Тема';
+$_['text_mail_audit_source'] = 'Джерело / причина';
+$_['text_mail_audit_engine'] = 'Спосіб';
+$_['text_mail_audit_status_col'] = 'Статус';
+$_['text_mail_audit_prev'] = 'Попередня сторінка';
+$_['text_mail_audit_next'] = 'Наступна сторінка';
+$_['text_mail_audit_transport_notice'] = '«Прийнято» означає передачу в PHP Mail/SMTP, але не доставку у скриньку. Для скриптів із прямим PHP mail() потрібні серверні журнали.';
+$_['text_mail_audit_show_password'] = 'Показати або приховати збережений SMTP-пароль';
 
 // Heading
 $_['heading_title']                    = 'Налаштування';
