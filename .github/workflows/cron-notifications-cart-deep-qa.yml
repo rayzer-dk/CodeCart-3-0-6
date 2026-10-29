@@ -1,0 +1,100 @@
+name: Cron Notifications Cart Deep QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cron-notifications-cart-deep-qa.yml'
+      - 'upload/system/library/codecart/src/Scheduler.php'
+      - 'upload/system/library/codecart/src/SystemNotification.php'
+      - 'upload/system/library/codecart/src/AbandonedCartReminder.php'
+      - 'upload/admin/controller/tool/scheduler.php'
+      - 'upload/admin/controller/tool/notification.php'
+      - 'upload/admin/controller/sale/abandoned_cart.php'
+      - 'upload/admin/model/sale/abandoned_cart.php'
+      - 'upload/admin/view/stylesheet/codecart_scheduler.css'
+      - 'upload/admin/view/stylesheet/codecart_abandoned_cart.css'
+      - 'upload/admin/view/template/tool/scheduler.twig'
+      - 'upload/admin/view/template/tool/notification.twig'
+      - 'upload/admin/view/template/sale/abandoned_cart_list.twig'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare source snapshot for three-area review
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+          root = Path('upload')
+          files = []
+          directories = [
+            root/'admin/controller/tool',
+            root/'admin/controller/sale',
+            root/'admin/model/sale',
+            root/'admin/language/en-gb/tool',
+            root/'admin/language/ru-ru/tool',
+            root/'admin/language/uk-ua/tool',
+            root/'admin/language/en-gb/sale',
+            root/'admin/language/ru-ru/sale',
+            root/'admin/language/uk-ua/sale',
+            root/'admin/view/template/tool',
+            root/'admin/view/template/sale',
+            root/'admin/view/stylesheet',
+            root/'admin/view/javascript',
+            root/'catalog/controller/cron',
+            root/'system/library/codecart/src',
+            Path('tests'),
+            Path('tools'),
+            Path('documentation'),
+          ]
+          target_names = ('scheduler', 'notification', 'abandoned_cart', 'cart_reminder', 'cart_guest', 'consent', 'queue', 'cron', 'mail_campaign', 'stock_notify')
+          for d in directories:
+            for p in d.glob('*'):
+              if p.is_file() and any(t in p.name.lower() for t in target_names): files.append(p)
+          files.extend([
+            root/'system/library/codecart/migration.php',
+            root/'system/library/codecart/src/RegisteredCartConsent.php',
+            root/'system/library/codecart/src/AbandonedCartReminder.php',
+            root/'system/library/codecart/src/Queue.php',
+            root/'system/library/codecart/src/MailDelivery.php',
+            root/'system/library/codecart/src/SystemNotification.php',
+            root/'system/library/codecart/src/Scheduler.php',
+            root/'admin/view/template/tool/scheduler.twig',
+            root/'admin/view/template/tool/notification.twig',
+            root/'admin/view/template/sale/abandoned_cart_list.twig',
+            root/'admin/view/stylesheet/codecart_scheduler.css',
+            root/'admin/view/stylesheet/codecart_abandoned_cart.css',
+            root/'admin/view/javascript/codecart-scheduler.js',
+            root/'system/engine/action.php',
+            root/'system/engine/loader.php',
+            root/'system/framework.php',
+            root/'cron.php',
+            root/'cli.php',
+          ])
+          files = sorted(set(p for p in files if p.is_file()))
+          with ZipFile('three-area-audit-source.zip', 'w', ZIP_DEFLATED, compresslevel=6) as z:
+            for p in files: z.write(p, str(p))
+          print('Included', len(files), 'sources.')
+          PY
+      - name: Validate PHP, JS and core smoke tests
+        shell: bash
+        run: |
+          set -e
+          for php_file in upload/system/library/codecart/src/{Scheduler,SystemNotification,AbandonedCartReminder,RegisteredCartConsent}.php upload/admin/controller/tool/{scheduler,notification}.php upload/admin/controller/sale/abandoned_cart.php; do php -l "$php_file"; done
+          node --check upload/admin/view/javascript/codecart-scheduler.js
+          php tests/scheduler_runtime_smoke.php
+          php tests/cart_reminder_consent_multistore_smoke.php
+          php tools/qa_notification_diagnostics.php
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Cron-Notifications-Cart-Audit-Source
+          path: three-area-audit-source.zip
+          retention-days: 7
