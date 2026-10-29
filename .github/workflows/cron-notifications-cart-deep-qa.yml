@@ -92,9 +92,52 @@ jobs:
           php tests/scheduler_runtime_smoke.php
           php tests/cart_reminder_consent_multistore_smoke.php
           php tools/qa_notification_diagnostics.php
+      - name: Verify CSS invariants and source-of-truth loading
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s = Path('upload/admin/view/stylesheet/codecart_scheduler.css').read_text()
+          c = Path('upload/admin/view/stylesheet/codecart_abandoned_cart.css').read_text()
+          template = Path('upload/admin/view/template/tool/scheduler.twig').read_text()
+          controller = Path('upload/admin/controller/tool/scheduler.php').read_text()
+          assert '<style>' not in template and '<link rel="stylesheet"' not in template
+          assert "document->addStyle('view/stylesheet/codecart_scheduler.css?v=3.0.6.7')" in controller
+          assert len(re.findall(r'\\.codecart-scheduler-table \\.ccp-scheduler-action-group \\.btn\\s*\\{',s)) == 1
+          assert 'flex: 0 0 29px' in s and 'flex: 0 0 36px' not in s
+          widths = re.findall(r'\\.ccp-carts-page \\.ccp-abandoned-cart-table\\{[^}]*min-width:(\\d+)px', c)
+          assert widths == ['960'], widths
+          for prefix in ('.ccp-external-advanced',):
+            assert not re.search(r'^' + re.escape(prefix), c, re.M)
+          assert 'border-top:3px solid #0057d9' in s
+          assert 'border-top:3px solid #0057d9' in c
+          print('PASS: one consistent source for Cron and Cart styling.')
+          PY
+      - name: Package tested replacement files
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile,ZIP_DEFLATED
+          paths = [
+            'upload/admin/controller/tool/scheduler.php',
+            'upload/admin/view/template/tool/scheduler.twig',
+            'upload/admin/view/stylesheet/codecart_scheduler.css',
+            'upload/admin/view/stylesheet/codecart_abandoned_cart.css',
+          ]
+          with ZipFile('CodeCart_3_0_6_Scheduler_Cart_CSS_Refactor.zip','w',ZIP_DEFLATED,compresslevel=9) as z:
+            for p in paths: z.write(p)
+            z.writestr('README.txt','CodeCart 3.0.6 – Cron and Cart UI fixes.\\nBack up website files and the database before replacing files.\\nCopy the full upload/ paths to the store root.\\nClear caches / OPcache as applicable.\\n')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Cron-Notifications-Cart-Audit-Source
           path: three-area-audit-source.zip
           retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart-Cron-Cart-Styles-Replacement
+          path: CodeCart_3_0_6_Scheduler_Cart_CSS_Refactor.zip
+          retention-days: 14
