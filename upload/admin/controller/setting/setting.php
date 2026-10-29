@@ -106,8 +106,16 @@ class ControllerSettingSetting extends Controller {
 
             // Audit is opt-in. Create its table before storing the enabled flag.
             $this->request->post['config_mail_audit_status'] = !empty($this->request->post['config_mail_audit_status']) ? 1 : 0;
-            $selector = strtolower(trim((string)($this->request->post['config_mail_dkim_selector'] ?? 'default')));
-            $this->request->post['config_mail_dkim_selector'] = preg_match('/^[a-z0-9][a-z0-9_-]{0,62}$/', $selector) ? $selector : 'default';
+            $selectorInput = strtolower(trim((string)($this->request->post['config_mail_dkim_selector'] ?? 'default')));
+            $selectors = preg_split('/[\s,;]+/', $selectorInput, -1, PREG_SPLIT_NO_EMPTY);
+            $cleanSelectors = array();
+            foreach ((array)$selectors as $selector) {
+                if (preg_match('/^[a-z0-9][a-z0-9_-]{0,62}$/', $selector)) {
+                    $cleanSelectors[$selector] = $selector;
+                }
+                if (count($cleanSelectors) >= 5) { break; }
+            }
+            $this->request->post['config_mail_dkim_selector'] = $cleanSelectors ? implode(', ', $cleanSelectors) : 'default';
             if ($this->request->post['config_mail_audit_status']) {
                 \CodeCart\Core\MailAudit::install($this->db);
             }
@@ -1662,32 +1670,50 @@ class ControllerSettingSetting extends Controller {
             || !function_exists('dns_get_record')) {
             return $this->auditJson(array('error' => 'dns_unavailable'));
         }
-        $selector = strtolower(trim((string)($this->request->get['selector'] ?? 'default')));
-        if (!preg_match('/^[a-z0-9][a-z0-9_-]{0,62}$/', $selector)) {
+        $selectorInput = strtolower(trim((string)($this->request->get['selector'] ?? 'default')));
+        $selectors = preg_split('/[\s,;]+/', $selectorInput, -1, PREG_SPLIT_NO_EMPTY);
+        $selectors = array_values(array_unique((array)$selectors));
+        if (!$selectors || count($selectors) > 5) {
             return $this->auditJson(array('error' => 'invalid_selector'));
         }
+        foreach ($selectors as $selector) {
+            if (!preg_match('/^[a-z0-9][a-z0-9_-]{0,62}$/', $selector)) {
+                return $this->auditJson(array('error' => 'invalid_selector'));
+            }
+        }
+        $hosts = array('spf' => $domain, 'dmarc' => '_dmarc.' . $domain);
+        foreach ($selectors as $selector) {
+            $hosts['dkim:' . $selector] = $selector . '._domainkey.' . $domain;
+        }
         $records = array();
-        foreach (array('spf' => $domain, 'dmarc' => '_dmarc.' . $domain, 'dkim' => $selector . '._domainkey.' . $domain) as $kind => $host) {
+        foreach ($hosts as $kind => $host) {
+            $type = strpos($kind, 'dkim:') === 0 ? 'dkim' : $kind;
             $data = @dns_get_record($host, DNS_TXT);
             if ($data === false) { $records[$kind] = 'unavailable'; continue; }
             $found = false;
             $revoked = false;
             foreach ($data as $entry) {
                 $txt = isset($entry['txt']) ? (string)$entry['txt'] : implode('', isset($entry['entries']) ? (array)$entry['entries'] : array());
-                if (($kind === 'spf' && stripos($txt, 'v=spf1') === 0)
-                    || ($kind === 'dmarc' && stripos($txt, 'v=DMARC1') === 0)
-                    || ($kind === 'dkim' && stripos($txt, 'v=DKIM1') !== false)) {
+                if ($type === 'spf' && stripos($txt, 'v=spf1') === 0) { $found = true; }
+                if ($type === 'dmarc' && stripos($txt, 'v=DMARC1') === 0) { $found = true; }
+                if ($type === 'dkim' && preg_match('/(?:^|;)\s*p\s*=\s*([^;]*)/i', $txt, $match)) {
                     $found = true;
-                    if ($kind === 'dkim' && preg_match('/(?:^|;)\s*p\s*=\s*(?:;|$)/i', $txt)) { $revoked = true; }
+                    $revoked = trim((string)$match[1]) === '';
                 }
             }
-            if ($kind === 'dkim' && !$found && defined('DNS_CNAME')) {
+            if ($type === 'dkim' && !$found && defined('DNS_CNAME')) {
                 $delegation = @dns_get_record($host, DNS_CNAME);
                 if (is_array($delegation) && $delegation) { $records[$kind] = 'delegated'; continue; }
             }
             $records[$kind] = $revoked ? 'revoked' : ($found ? 'found' : 'missing');
         }
-        $this->auditJson(array('domain' => $domain, 'selector' => $selector, 'records' => $records));
+        $dkimChecks = array();
+        foreach ($selectors as $selector) {
+            $dkimChecks[$selector] = $records['dkim:' . $selector];
+        }
+        $this->auditJson(array('domain' => $domain, 'selectors' => $selectors,
+            'records' => array('spf' => $records['spf'], 'dmarc' => $records['dmarc'],
+                'dkim' => $dkimChecks[$selectors[0]]), 'dkim_checks' => $dkimChecks));
     }
 
 	public function theme() {
