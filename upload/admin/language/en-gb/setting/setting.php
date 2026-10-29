@@ -1,5 +1,6 @@
 <?php
 // Mail Audit and DNS diagnostics
+$_['text_mail_audit_store'] = 'Store ID';
 $_['text_mail_test_mail'] = 'Test PHP Mail';
 $_['text_mail_test_smtp'] = 'Test SMTP';
 $_['text_mail_test_ok'] = 'Mail transport accepted the test to';
