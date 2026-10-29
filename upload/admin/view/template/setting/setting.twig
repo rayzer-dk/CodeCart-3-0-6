@@ -1303,6 +1303,11 @@
                     </div>
                     <p class="help-block">{{ help_mail_dkim }}</p>
                     <div id="mail-dns-result" class="small text-muted" role="status" aria-live="polite"></div>
+                    <div style="margin-top:8px" id="mail-test-group" data-test-url="{{ mail_audit_test_url }}" data-ok="{{ text_mail_test_ok }}" data-error="{{ text_mail_audit_load_error }}" data-test-failed="{{ text_mail_test_failed }}">
+                      <button type="button" class="btn btn-default btn-sm" data-mail-engine="mail" title="{{ text_mail_test_mail }}"><i class="fa fa-paper-plane"></i> {{ text_mail_test_mail }}</button>
+                      <button type="button" class="btn btn-default btn-sm" data-mail-engine="smtp" title="{{ text_mail_test_smtp }}"><i class="fa fa-paper-plane"></i> {{ text_mail_test_smtp }}</button>
+                      <span id="mail-test-result" class="small text-muted" role="status" aria-live="polite"></span>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group">
@@ -2151,6 +2156,15 @@ $('select[name=\'config_country_id\']').trigger('change');
             if(data.error){$result.text(data.error);return;}
             $result.text(data.domain+' · '+data.selector+' · SPF: '+data.records.spf+' · DMARC: '+data.records.dmarc+' · DKIM: '+data.records.dkim+'. '+$box.attr('data-dns-warning'));
         }).fail(function(){$result.text($box.attr('data-error'));});
+    });
+    $('#mail-test-group [data-mail-engine]').on('click',function(){
+        var engine=$(this).attr('data-mail-engine'), $buttons=$('#mail-test-group [data-mail-engine]');
+        $buttons.prop('disabled',true);
+        $.post($('#mail-test-group').attr('data-test-url'),{engine:engine},null,'json')
+        .done(function(data){
+            $('#mail-test-result').text(data.success ? ($('#mail-test-group').attr('data-ok')+' '+data.recipient) : (data.error || $('#mail-test-group').attr('data-test-failed')));
+        }).fail(function(){ $('#mail-test-result').text($('#mail-test-group').attr('data-error')); })
+        .always(function(){ $buttons.prop('disabled',false); });
     });
     $('#mail-smtp-eye').on('click', function(){
         var $input=$('#input-mail-smtp-password'), visible=$input.attr('type')==='password';
