@@ -1,4 +1,34 @@
 <?php
+// Mail Audit and DNS diagnostics
+$_['text_mail_audit_title'] = 'Журнал отправки почты';
+$_['entry_mail_audit_status'] = 'Записывать исходящую почту';
+$_['help_mail_audit'] = 'По умолчанию выключено. Хранит отправителя, получателя, тему, источник, IP и результат передачи до 30 дней без текста письма. Прямые вызовы mail() другими PHP-скриптами не отслеживаются.';
+$_['entry_mail_dkim_selector'] = 'Селектор DKIM';
+$_['text_mail_dns_check'] = 'Проверить DNS';
+$_['help_mail_dkim'] = 'Проверяет SPF, DMARC и TXT-запись селектора DKIM домена отправителя. Наличие записи не доказывает подпись исходящих писем. Укажите селектор от почтового провайдера.';
+$_['text_mail_audit_empty'] = 'Записей нет';
+$_['text_mail_audit_load_error'] = 'Не удалось загрузить журнал почты.';
+$_['text_mail_audit_confirm'] = 'Безвозвратно удалить все записи журнала почты?';
+$_['text_mail_dns_warning'] = 'DNS-записи не подтверждают фактическую подпись или доставку писем.';
+$_['text_mail_audit_search'] = 'Поиск по отправителю или получателю';
+$_['text_mail_audit_all'] = 'Все статусы';
+$_['text_mail_audit_accepted'] = 'Принято транспортом';
+$_['text_mail_audit_failed'] = 'Ошибка';
+$_['text_mail_audit_blocked'] = 'Заблокирована попытка формы';
+$_['text_mail_audit_refresh'] = 'Обновить';
+$_['text_mail_audit_clear'] = 'Очистить журнал';
+$_['text_mail_audit_date'] = 'Дата';
+$_['text_mail_audit_from'] = 'От кого';
+$_['text_mail_audit_to'] = 'Кому';
+$_['text_mail_audit_subject'] = 'Тема';
+$_['text_mail_audit_source'] = 'Источник / причина';
+$_['text_mail_audit_engine'] = 'Способ';
+$_['text_mail_audit_status_col'] = 'Статус';
+$_['text_mail_audit_prev'] = 'Предыдущая страница';
+$_['text_mail_audit_next'] = 'Следующая страница';
+$_['text_mail_audit_transport_notice'] = '«Принято» означает передачу в PHP Mail/SMTP, но не доставку в ящик. Для скриптов с прямым PHP mail() нужны серверные логи.';
+$_['text_mail_audit_show_password'] = 'Показать или скрыть сохранённый SMTP-пароль';
+
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Настройки';
 $_['text_stores'] = 'Магазины';
