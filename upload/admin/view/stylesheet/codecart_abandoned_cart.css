@@ -151,3 +151,10 @@ html.ccp-admin-dark .ccp-carts-page .ccp-source-advanced>summary,html.ccp-admin-
 .ccp-carts-page .ccp-capture-state i{margin-right:6px}
 .ccp-carts-page .ccp-capture-state-on{border-left-color:#27835a;background:#f2faf6;color:#20553e}
 html.ccp-admin-dark .ccp-carts-page .ccp-capture-state{background:#28384b;color:#d6e4ef}
+
+.ccp-carts-page .ccp-cart-capture-diagnostics{margin:10px 0 12px;padding:10px 12px;background:#f6f9fc;border:1px solid #dae6f2;border-radius:4px}
+.ccp-carts-page .ccp-cart-capture-diagnostics .help-block{margin:6px 0 0;font-size:11px}
+.ccp-carts-page .ccp-capture-diagnostics-result{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:5px 14px;margin-top:8px;font-size:12px}
+.ccp-carts-page .ccp-capture-diagnostic-line{line-height:1.5}
+.ccp-carts-page .ccp-capture-diagnostic-failed{color:#aa3434}
+html.ccp-admin-dark .ccp-carts-page .ccp-cart-capture-diagnostics{background:#253246;border-color:#40526b}
