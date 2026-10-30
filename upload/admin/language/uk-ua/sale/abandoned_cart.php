@@ -143,7 +143,7 @@ $_['text_external_auto_detect'] = 'Знайти поля';
 $_['text_external_detect_success'] = 'Колонки знайдено. Перевірте дані та збережіть налаштування.';
 $_['text_external_detect_failed'] = 'Таблицю не знайдено або бракує прав на її читання. Перевірте назву.';
 $_['text_external_required'] = 'Обов’язкові: ID сесії, ID товару, кількість і дата/час.';
-$_['text_external_optional'] = 'ID покупця, email і телефон необов’язкові; якщо немає email чи згоди, нагадування неможливе.';
+$_['text_external_optional'] = 'ID покупця, ім’я, прізвище, email і телефон необов’язкові. Зовнішнє джерело доступне лише для перегляду, без розсилання нагадувань.';
 $_['text_external_detect_warning'] = 'Не вдалося знайти обов’язкові колонки автоматично';
 
 // Storefront and source identification.
