@@ -143,7 +143,7 @@ $_['text_external_auto_detect'] = 'Detect columns';
 $_['text_external_detect_success'] = 'Columns detected. Review and save the settings.';
 $_['text_external_detect_failed'] = 'Table not found or no read access. Check its name.';
 $_['text_external_required'] = 'Required: session ID, product ID, quantity and timestamp.';
-$_['text_external_optional'] = 'Customer ID, email and phone are optional. Reminders require email and consent.';
+$_['text_external_optional'] = 'Customer ID, first name, last name, email and phone are optional. External sources are read-only; reminders are disabled.';
 $_['text_external_detect_warning'] = 'Could not automatically detect required columns';
 
 // Storefront and source identification.
