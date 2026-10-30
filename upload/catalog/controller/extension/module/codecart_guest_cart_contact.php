@@ -80,8 +80,13 @@ class ControllerExtensionModuleCodecartGuestCartContact extends Controller {
             $guest = new \CodeCart\Core\GuestCartContact($this->registry);
             // A stale session fingerprint must never masquerade as a saved consent.
             if ($agree && $fingerprint === (string)($this->session->data['ccp_guest_contact_fingerprint'] ?? '')) {
-                if ($guest->hasPersistedConsent((string)$this->session->getId(), $data['email'])) {
-                    $this->respond(array('success'=>true, 'stored'=>true)); return;
+                try {
+                    if ($guest->hasPersistedConsent((string)$this->session->getId(), $data['email'])) {
+                        $this->respond(array('success'=>true, 'stored'=>true)); return;
+                    }
+                } catch (\Throwable $lookupError) {
+                    // Allow the write below to handle a missing legacy consent table.
+                    unset($this->session->data['ccp_guest_contact_fingerprint']);
                 }
             }
             try {
