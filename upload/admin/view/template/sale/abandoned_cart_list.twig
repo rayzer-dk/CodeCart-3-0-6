@@ -55,12 +55,13 @@
         <div class="table-responsive"><table class="table table-hover table-bordered ccp-abandoned-cart-table">
           <colgroup>
             {% if cart_can_modify and cart_source == 'standard' %}<col class="ccp-width-select">{% endif %}
-            <col class="ccp-width-customer"><col class="ccp-width-email"><col class="ccp-width-image"><col class="ccp-width-products"><col class="ccp-width-quantity"><col class="ccp-width-total"><col class="ccp-width-activity"><col class="ccp-width-status"><col class="ccp-width-actions">
+            <col class="ccp-width-customer"><col class="ccp-width-email"><col class="ccp-width-phone"><col class="ccp-width-image"><col class="ccp-width-products"><col class="ccp-width-quantity"><col class="ccp-width-total"><col class="ccp-width-activity"><col class="ccp-width-status"><col class="ccp-width-actions">
           </colgroup>
           <thead><tr>
             {% if cart_can_modify and cart_source == 'standard' %}<th class="ccp-cart-check"><input type="checkbox" id="ccp-cart-select-all" aria-label="{{ text_choose_rows }}"></th>{% endif %}
             <th><a href="{{ sort_customer }}" class="{{ sort == 'customer' ? order|lower : '' }}">{{ column_customer }}</a></th>
             <th><a href="{{ sort_email }}" class="{{ sort == 'email' ? order|lower : '' }}">{{ column_email }}</a></th>
+            <th><a href="{{ sort_telephone }}" class="{{ sort == 'telephone' ? order|lower : '' }}">{{ column_phone }}</a></th>
             <th class="ccp-cart-image-head">{{ text_cart_image }}</th>
             <th>{{ column_products }}</th>
             <th class="text-right"><a href="{{ sort_quantity }}" class="{{ sort == 'quantity' ? order|lower : '' }}">{{ column_quantity }}</a></th>
@@ -71,10 +72,11 @@
           </tr></thead>
           <tbody>{% if carts %}{% for cart in carts %}<tr>
             {% if cart_can_modify and cart_source == 'standard' %}<td class="ccp-cart-check"><input type="checkbox" form="ccp-cart-bulk-form" name="selected[]" class="ccp-cart-select" value="{{ cart.customer_id }}|{{ cart.session_id|e('html_attr') }}" aria-label="{{ text_choose_rows }}"></td>{% endif %}
-            <td class="ccp-cart-contact"><strong>{% if cart.customer_href %}<a href="{{ cart.customer_href }}">{{ cart.customer|e }}</a>{% else %}{{ cart.customer|e }}{% endif %}</strong>{% if cart.telephone %}<small class="ccp-cart-contact-phone" title="{{ cart.telephone|e('html_attr') }}">{{ cart.telephone|e }}</small>{% endif %}</td>
+            <td class="ccp-cart-contact"><strong>{% if cart.customer_href %}<a href="{{ cart.customer_href }}">{{ cart.customer|e }}</a>{% else %}{{ cart.customer|e }}{% endif %}</strong></td>
             <td class="ccp-cart-email">{% if cart.email %}<span class="ccp-cart-contact-email" title="{{ cart.email|e('html_attr') }}">{{ cart.email|e }}</span>{% else %}<small class="ccp-cart-contact-noemail" title="{{ text_guest_contact_missing_explanation|e('html_attr') }}">{{ text_no_email }}</small>{% endif %}</td>
+            <td class="ccp-cart-phone">{% if cart.telephone %}<span title="{{ cart.telephone|e('html_attr') }}">{{ cart.telephone|e }}</span>{% else %}<span class="ccp-cart-phone-empty" title="{{ text_phone_missing|e('html_attr') }}">—</span>{% endif %}</td>
             <td class="ccp-cart-image">{% for product in cart.products %}<div class="ccp-cart-image-row">{% if product.thumb %}<a href="{{ product.href|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ product.name|e('html_attr') }}"><img class="ccp-product-thumb" src="{{ product.thumb|e('html_attr') }}" alt="" width="38" height="38" loading="lazy"></a>{% else %}<span class="ccp-product-thumb-placeholder"><i class="fa fa-image"></i></span>{% endif %}</div>{% endfor %}</td>
-            <td class="ccp-cart-products">{% for product in cart.products %}<div class="ccp-abandoned-product"><a href="{{ product.href|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ product.name|e('html_attr') }} — {{ text_product_storefront }}">{{ product.name|e }}</a><span>× {{ product.quantity }}</span></div>{% endfor %}</td>
+            <td class="ccp-cart-products">{% for product in cart.products %}<div class="ccp-abandoned-product"><a href="{{ product.href|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ product.name|e('html_attr') }} — {{ text_product_storefront }}">{{ product.name|e }}</a></div>{% endfor %}</td>
             <td class="text-right">{{ cart.quantity }}</td><td class="text-right"><strong>{{ cart.total }}</strong></td>
             <td>{{ cart.last_activity|e }}<small class="ccp-cart-muted">{{ cart.inactive|e }}</small></td>
             <td>
@@ -95,7 +97,7 @@
               {% endif %}
               {% if cart_source == 'standard' and cart_can_modify %}<form method="post" action="{{ delete_url }}" class="ccp-cart-inline" data-confirm="{{ text_confirm_delete }}"><input type="hidden" name="customer_id" value="{{ cart.customer_id }}"><input type="hidden" name="session_id" value="{{ cart.session_id|e('html_attr') }}"><button type="submit" class="btn btn-danger btn-sm" title="{{ button_delete }}" data-toggle="tooltip"><i class="fa fa-trash"></i></button></form>{% endif %}
             </td>
-          </tr>{% endfor %}{% else %}<tr><td colspan="{{ cart_can_modify and cart_source == 'standard' ? 10 : 9 }}" class="text-center ccp-cart-empty">{{ text_no_results }}</td></tr>{% endif %}</tbody>
+          </tr>{% endfor %}{% else %}<tr><td colspan="{{ cart_can_modify and cart_source == 'standard' ? 11 : 10 }}" class="text-center ccp-cart-empty">{{ text_no_results }}</td></tr>{% endif %}</tbody>
         </table></div>
         <div class="row ccp-cart-pagination"><div class="col-sm-6">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
         {% endif %}
@@ -128,17 +130,19 @@
                 <option value="1" {{ cart_fields.status ? 'selected' : '' }}>{{ text_enabled }}</option>
                 <option value="0" {{ not cart_fields.status ? 'selected' : '' }}>{{ text_disabled }}</option>
               </select></div>
-            <div class="col-md-3"><label for="abandoned-source">{{ entry_cart_source }}</label>
-              <select name="cart_source" class="form-control" id="abandoned-source">
-                <option value="standard" {{ cart_form_source == 'standard' ? 'selected' : '' }}>{{ text_source_standard }}</option>
-                <option value="external" {{ cart_form_source == 'external' ? 'selected' : '' }}>{{ text_source_external }}</option>
-              </select></div>
             <div class="col-md-3"><label for="abandoned-idle">{{ entry_cart_idle_minutes }}</label>
               <input type="number" name="cart_idle_minutes" id="abandoned-idle" class="form-control" min="1" max="10080" value="{{ cart_fields.idle_minutes }}"></div>
             <div class="col-md-3"><label for="abandoned-days">{{ entry_cart_days }}</label>
               <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="30" value="{{ cart_fields.days }}"></div>
           </div>
-          <p class="help-block">{{ text_cart_source_help }}</p>
+          <details class="ccp-source-advanced" id="ccp-source-advanced" {{ cart_form_source == 'external' or detect_message ? 'open' : '' }}>
+            <summary><i class="fa fa-database"></i> {{ text_advanced_source_settings }}</summary>
+            <p class="help-block">{{ text_cart_source_help }}</p>
+            <div class="row"><div class="col-sm-6 col-md-4"><label for="abandoned-source">{{ entry_cart_source }}</label>
+              <select name="cart_source" class="form-control" id="abandoned-source">
+                <option value="standard" {{ cart_form_source == 'standard' ? 'selected' : '' }}>{{ text_source_standard }}</option>
+                <option value="external" {{ cart_form_source == 'external' ? 'selected' : '' }}>{{ text_source_external }}</option>
+              </select><p class="help-block">{{ text_source_readonly_notice }}</p></div></div>
             <div class="ccp-checkout-link-setting" data-checkout-auto-url="{{ checkout_auto_url|e('html_attr') }}" data-checkout-standard-url="{{ checkout_standard_url|e('html_attr') }}">
               <h4 class="ccp-settings-section-heading"><i class="fa fa-external-link"></i> {{ text_checkout_section }}</h4>
               <p class="ccp-settings-distinction">{{ text_checkout_only_explanation }}</p>
@@ -197,9 +201,9 @@
             <details class="ccp-external-advanced" {{ detect_message and cart_fields.table ? 'open' : '' }}><summary><i class="fa fa-wrench"></i> {{ text_external_advanced }}</summary>
               <p class="help-block">{{ text_cart_mapping_info }}</p><div class="row">
               {% set mapping = {'col_session': entry_col_session, 'col_product': entry_col_product, 'col_quantity': entry_col_quantity,
-                'col_date': entry_col_date, 'col_customer': entry_col_customer,'col_email': entry_col_email, 'col_phone': entry_col_phone} %}
+                'col_date': entry_col_date, 'col_customer': entry_col_customer,'col_email': entry_col_email, 'col_phone': entry_col_phone,'col_firstname': entry_col_firstname,'col_lastname': entry_col_lastname} %}
               {% set placeholders = {'col_session':'session_id','col_product':'product_id', 'col_quantity':'quantity',
-                'col_date':'date_added','col_customer':'customer_id','col_email':'email','col_phone':'telephone'} %}
+                'col_date':'date_added','col_customer':'customer_id','col_email':'email','col_phone':'telephone','col_firstname':'firstname','col_lastname':'lastname'} %}
               {% for key, label in mapping %}
                 <div class="col-sm-6 col-md-3 ccp-map-field"><label for="map-{{ key }}">{{ label }}{% if key in ['col_session','col_product','col_quantity','col_date'] %} <span class="text-danger">*</span>{% endif %}</label>
                 <input type="text" name="cart_{{ key }}" id="map-{{ key }}" class="form-control" value="{{ attribute(cart_fields, key)|e('html_attr') }}" placeholder="{{ attribute(placeholders,key) }}" autocomplete="off" maxlength="64"></div>
@@ -207,6 +211,7 @@
               </div><p class="help-block">{{ text_external_required }} {{ text_external_optional }}</p></details>
             {% if cart_source == 'external' and cart_enabled and not cart_mapping_valid %}<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ error_cart_mapping }}</div>{% endif %}
           </div>
+          </details>
 
           {% if cart_can_modify %}<div class="text-right ccp-cart-settings-actions"><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div>{% endif %}
         </form>
