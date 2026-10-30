@@ -158,6 +158,17 @@ class ControllerSaleAbandonedCart extends Controller {
                     'codecart_abandoned_cart_mail_auto' => !empty($this->request->post['cart_mail_auto']) ? 1 : 0,
                     'codecart_abandoned_cart_guest_capture' => !empty($this->request->post['cart_guest_capture']) ? 1 : 0
                 );
+                // Optional CSS selectors for third-party AJAX checkout forms.
+                // Empty selectors keep the safe built-in auto-detection.
+                foreach (array('form','firstname','lastname','email','telephone') as $field) {
+                    $key = 'codecart_abandoned_cart_selector_' . $field;
+                    $selector = trim((string)($this->request->post['cart_selector_' . $field] ?? $this->config->get($key)));
+                    if (strlen($selector) > 160 || preg_match('/[\\x00-\\x1F\\x7F]/', $selector)) {
+                        $error = $this->language->get('error_checkout_selectors');
+                        break;
+                    }
+                    $settings[$key] = $selector;
+                }
                 $checkoutMode = (string)($this->request->post['cart_checkout_mode'] ?? 'auto');
                 if (!in_array($checkoutMode, array('auto', 'standard', 'unishop2', 'custom'), true)) { $checkoutMode = 'auto'; }
                 $settings['codecart_abandoned_cart_checkout_mode'] = $checkoutMode;
@@ -260,6 +271,9 @@ class ControllerSaleAbandonedCart extends Controller {
                     $old[$key] = substr(trim((string)($this->request->post['cart_' . $key] ?? '')), 0, $key === 'checkout_url' ? 512 : 64);
                 }
                 foreach (array('status','mail_auto','guest_capture') as $key) { $old[$key] = !empty($this->request->post['cart_' . $key]) ? 1 : 0; }
+                foreach (array('form','firstname','lastname','email','telephone') as $field) {
+                    $old['selector_' . $field] = substr(trim((string)($this->request->post['cart_selector_' . $field] ?? '')), 0, 160);
+                }
                 $old['idle_minutes'] = (int)($this->request->post['cart_idle_minutes'] ?? 5);
                 $old['days'] = (int)($this->request->post['cart_days'] ?? 7);
                 $old['reminder_delay_hours'] = substr(trim((string)($this->request->post['cart_reminder_delay_hours'] ?? '1')), 0, 16);
@@ -291,7 +305,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $data = array();
         foreach (array(
             'heading_title','text_home','text_sale','text_no_results','text_enabled','text_disabled','text_scope_help','text_confirm_delete','text_confirm_clear','text_success_delete','text_success_clear',
-            'column_customer','column_email','text_cart_image','column_phone','text_phone_missing','text_advanced_source_settings','text_source_readonly_notice','entry_col_firstname','entry_col_lastname','column_products','column_quantity','column_total','column_last_activity','column_inactive','column_action','text_guest',
+            'column_customer','column_email','text_cart_image','column_phone','text_phone_missing','text_advanced_source_settings','text_source_readonly_notice','entry_col_firstname','entry_col_lastname','text_checkout_field_mapping','text_checkout_field_help','entry_selector_form','entry_selector_firstname','entry_selector_lastname','entry_selector_email','entry_selector_telephone','error_checkout_selectors','column_products','column_quantity','column_total','column_last_activity','column_inactive','column_action','text_guest',
             'button_customer','button_product','button_delete','button_clear',
             'text_settings','text_disabled_note','text_source_standard','text_source_external','text_cart_mapping_info',
             'text_cart_source_help','text_cart_amount_estimate','text_cart_storefront_note','text_settings_saved','error_cart_mapping',
@@ -336,6 +350,9 @@ class ControllerSaleAbandonedCart extends Controller {
         foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname') as $name) {
             $data['cart_fields'][$name] = (string)$this->config->get('codecart_abandoned_cart_' . $name);
         }
+        foreach (array('form','firstname','lastname','email','telephone') as $field) {
+            $data['cart_fields']['selector_' . $field] = (string)$this->config->get('codecart_abandoned_cart_selector_' . $field);
+        }
         // Discovery is a preview only. Keep all current form inputs after a detection POST.
         $data['cart_form_source'] = $source;
         $data['cart_checkout_mode'] = $this->checkoutMode() === 'unishop2' ? 'custom' : $this->checkoutMode();
@@ -356,6 +373,11 @@ class ControllerSaleAbandonedCart extends Controller {
             foreach (array('status'=>'cart_status','idle_minutes'=>'cart_idle_minutes','days'=>'cart_days','mail_auto'=>'cart_mail_auto','guest_capture'=>'cart_guest_capture') as $name=>$post) {
                 if (isset($this->request->post[$post])) { $data['cart_fields'][$name] = (int)$this->request->post[$post]; }
             }
+            foreach (array('form','firstname','lastname','email','telephone') as $field) {
+                if (isset($this->request->post['cart_selector_' . $field])) {
+                    $data['cart_fields']['selector_' . $field] = substr(trim((string)$this->request->post['cart_selector_' . $field]),0,160);
+                }
+            }
             if (isset($this->request->post['cart_reminder_delay_hours'])) {
                 $data['cart_fields']['reminder_delay_hours'] = substr(trim((string)$this->request->post['cart_reminder_delay_hours']), 0, 16);
             }
@@ -375,6 +397,9 @@ class ControllerSaleAbandonedCart extends Controller {
             unset($this->session->data['ccp_cart_settings_form_old']);
             foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname','status','idle_minutes','days','reminder_delay_minutes','reminder_delay_hours','mail_auto','guest_capture','checkout_url') as $field) {
                 if (isset($old[$field])) { $data['cart_fields'][$field] = $old[$field]; }
+            }
+            foreach (array('form','firstname','lastname','email','telephone') as $field) {
+                if (isset($old['selector_' . $field])) { $data['cart_fields']['selector_' . $field] = $old['selector_' . $field]; }
             }
             if (isset($old['source'])) { $data['cart_form_source'] = $old['source']; }
             if (isset($old['checkout_mode'])) { $data['cart_checkout_mode'] = $old['checkout_mode'] === 'unishop2' ? 'custom' : $old['checkout_mode']; }
