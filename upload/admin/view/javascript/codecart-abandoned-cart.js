@@ -8,7 +8,7 @@
             $root.find('.ccp-external-fields').toggleClass('is-visible', external);
             // External mode is read-only and cannot send reminders or capture guest checkout contacts.
             var $mail = $('#abandoned-mail-auto'), $guest = $('#abandoned-guest-capture');
-            if (external) { $mail.val('0'); $guest.val('0'); }
+            // Switching modes must not overwrite unsaved mail/consent choices.
             $mail.prop('disabled', external);
             $guest.prop('disabled', external);
         }
