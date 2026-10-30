@@ -64,6 +64,22 @@ final class GuestCartContact {
         if (!$schemaChecked) { $this->ensureSurnameColumn(); $schemaChecked = true; }
         $this->db->query("INSERT INTO " . $this->table() . " SET session_id='" . $sessionId . "',store_id='" . (int)$this->config->get('config_store_id') . "', email='" . $this->db->escape($email) . "',firstname='" . $this->db->escape($firstname) . "',lastname='" . $this->db->escape($lastname) . "',telephone='" . $this->db->escape($phone) . "',consent=1,date_added=NOW(),date_modified=NOW() ON DUPLICATE KEY UPDATE store_id=VALUES(store_id),email=VALUES(email),firstname=VALUES(firstname),lastname=VALUES(lastname),telephone=VALUES(telephone),consent=1,token_hash=NULL,token_expires=NULL,token_used=NULL,recovered_at=NULL,date_modified=NOW()");
     }
+    /**
+     * Confirm that an explicit guest opt-in was persisted for this store and
+     * current session before reporting successful consent to the checkout.
+     * Never returns or exposes the stored personal data.
+     */
+    public function hasPersistedConsent(string $sessionId, string $email): bool {
+        if (!$this->enabled() || $sessionId === '' || strlen($sessionId) > 128
+            || !filter_var($email, FILTER_VALIDATE_EMAIL)) { return false; }
+        $query = $this->db->query("SELECT consent FROM " . $this->table()
+            . " WHERE session_id='" . $this->db->escape($sessionId) . "'"
+            . " AND store_id='" . (int)$this->config->get('config_store_id') . "'"
+            . " AND email='" . $this->db->escape($email) . "'"
+            . " AND consent=1 AND date_modified>=DATE_SUB(NOW(), INTERVAL 7 DAY) LIMIT 1");
+        return $query->num_rows > 0 && (int)$query->row['consent'] === 1;
+    }
+
     public function issueToken(string $sessionId): string {
         if (!$this->enabled() || $sessionId === '' || strlen($sessionId) > 128) { return ''; }
         $token = bin2hex(random_bytes(32));
