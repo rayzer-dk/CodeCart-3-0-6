@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/abandoned-cart-root-cause-qa.yml'
+      - 'tests/cart_reminder_consent_multistore_smoke.php'
       - 'upload/admin/controller/sale/abandoned_cart.php'
       - 'upload/admin/view/template/sale/abandoned_cart_list.twig'
       - 'upload/admin/view/javascript/codecart-abandoned-cart.js'
