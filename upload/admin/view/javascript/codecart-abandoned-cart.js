@@ -64,6 +64,38 @@
             var question = action === 'send' ? $form.attr('data-confirm-send') : $form.attr('data-confirm-delete');
             return window.confirm(question);
         });
+        // Explicit, read-only capture diagnostics. No customer data or secrets.
+        $('#ccp-check-guest-capture').on('click', function () {
+            var $button = $(this), $box = $root.find('.ccp-cart-capture-diagnostics');
+            var $out = $('#ccp-guest-capture-result'), url = $box.attr('data-check-url');
+            if (!url) { $out.text($box.attr('data-error') || 'Unavailable'); return; }
+            $button.prop('disabled', true);
+            $out.text('...');
+            $.getJSON(url).done(function (r) {
+                if (!r || !r.success) { $out.text($box.attr('data-error') || 'Unavailable'); return; }
+                var checks = [
+                    ['module', 'module_enabled'], ['guest','guest_capture_enabled'],
+                    ['source','standard_source'], ['file','bridge_file_exists'],
+                    ['table','table_exists'], ['schema','schema_valid']
+                ];
+                $out.empty();
+                checks.forEach(function (pair) {
+                    var line = $('<div class="ccp-capture-diagnostic-line"></div>');
+                    $('<span></span>').text(($box.attr('data-' + pair[0]) || pair[0]) + ': ').appendTo(line);
+                    $('<strong></strong>').text(r[pair[1]] ? ($box.attr('data-yes') || 'Yes') : ($box.attr('data-no') || 'No'))
+                        .toggleClass('ccp-capture-diagnostic-failed', !r[pair[1]]).appendTo(line);
+                    $out.append(line);
+                });
+                [['optins','consented_sessions'],['matched','matched_cart_sessions']].forEach(function (pair) {
+                    var line = $('<div class="ccp-capture-diagnostic-line"></div>');
+                    $('<span></span>').text(($box.attr('data-' + pair[0]) || pair[0]) + ': ').appendTo(line);
+                    $('<strong></strong>').text(String(Number(r[pair[1]] || 0))).appendTo(line);
+                    $out.append(line);
+                });
+                if (r.error) { $('<div class="text-danger"></div>').text($box.attr('data-error') || 'Unavailable').appendTo($out); }
+            }).fail(function () { $out.text($box.attr('data-error') || 'Unavailable'); })
+              .always(function () { $button.prop('disabled', false); });
+        });
         // Preserve the active tab only in this page's hash. No background saves.
         var hash = window.location.hash;
         if (!hash && /[?&]history_(status|search|page)=/.test(window.location.search)) { hash = '#ccp-tab-history'; }
