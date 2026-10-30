@@ -1,58 +1,148 @@
-/* Optional UniShop2 checkout contact recovery. Loaded only when enabled on that route. */
+/* Consent-only guest contact bridge for AJAX checkout forms.
+ * No contact collection or persistence without unchecked-by-default explicit opt-in.
+ * Loaded only on eligible checkout routes when abandoned-cart guest capture is enabled.
+ */
 (function () {
   'use strict';
-  function ready(fn) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+  function ready(fn) {
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', fn); }
+    else { fn(); }
+  }
   ready(function () {
-    var form = document.querySelector('form[name="unicheckout-customer-form"]');
-    if (!form || !window.jQuery) return;
-    var base = document.querySelector('base');
-    var root = base ? base.href : location.origin + '/';
-    var settingsUrl = new URL('index.php?route=extension/module/codecart_guest_cart_contact/settings', root);
-    if (settingsUrl.origin !== location.origin) return;
-    var settings = null, tick = null, pending = null, stamp = 0;
+    if (!window.jQuery) { return; }
     var $ = window.jQuery;
-    var container = document.createElement('div');
-    container.className = 'ccp-cart-recovery-consent';
-    container.style.cssText = 'margin:12px 0;padding:10px 12px;border:1px solid #dce5ef;border-radius:5px;';
-    var label = document.createElement('label');
-    label.style.cssText = 'display:flex;gap:8px;align-items:flex-start;font-weight:400;cursor:pointer;';
-    tick = document.createElement('input');
-    tick.type = 'checkbox'; tick.name = 'ccp_cart_recovery_consent'; tick.value = '1';
-    tick.style.marginTop = '3px';
-    var caption = document.createElement('span');
-    label.appendChild(tick); label.appendChild(caption); container.appendChild(label);
-    // Attach to customer form only, not to newsletter subscription in the footer.
-    $.getJSON(settingsUrl.toString()).done(function (cfg) {
-      if (!cfg || !cfg.enabled || !/^[a-f0-9]{48}$/.test(cfg.nonce)) return;
-      settings = cfg; caption.textContent = cfg.label || '';
-      if (!form.isConnected) return;
-      form.appendChild(container);
-    });
-    function send(revoke) {
-      if (!settings || !tick) return;
-      if (!tick.checked && !revoke) return;
-      var input = function (name) { var el = form.querySelector('[name="' + name + '"]'); return el ? el.value.trim() : ''; };
-      var data = {nonce:settings.nonce,ccp_cart_recovery_consent:revoke?'0':'1'};
-      if (!revoke) {
-        data.firstname = input('firstname'); data.lastname = input('lastname');
-        data.telephone = input('telephone'); data.email = input('email');
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return;
+    var base = document.querySelector('base');
+    var root = base ? base.href : window.location.origin + '/';
+    var settingsUrl;
+    try {
+      settingsUrl = new URL('index.php?route=extension/module/codecart_guest_cart_contact/settings', root);
+      if (settingsUrl.origin !== window.location.origin) { return; }
+    } catch (ignore) { return; }
+    var settings = null, container = null, checkbox = null, timer = 0, pending = null;
+    var observer = null, scanTimer = 0;
+
+    function select(parent, selector) {
+      if (!selector || !parent) { return null; }
+      try { return parent.querySelector(selector); } catch (ignore) { return null; }
+    }
+    function selectAll(parent, selector) {
+      if (!selector || !parent) { return []; }
+      try { return Array.prototype.slice.call(parent.querySelectorAll(selector)); }
+      catch (ignore) { return []; }
+    }
+    function field(box, key) {
+      var configured = settings && settings.selectors && settings.selectors[key];
+      var fallback = {
+        firstname: '[name="firstname"],[name="customer[firstname]"],[name="payment_firstname"],[name$="[firstname]"]',
+        lastname: '[name="lastname"],[name="customer[lastname]"],[name="payment_lastname"],[name$="[lastname]"]',
+        email: '[name="email"],[name="customer[email]"],[name="payment_email"],[name$="[email]"]',
+        telephone: '[name="telephone"],[name="phone"],[name="customer[telephone]"],[name="payment_telephone"],[name$="[telephone]"]'
+      };
+      return select(box, configured) || select(box, fallback[key]);
+    }
+    function choices() {
+      if (!settings) { return []; }
+      var custom = (settings.selectors && settings.selectors.form) || '';
+      if (custom) { return selectAll(document, custom); }
+      return selectAll(document, 'form[name="unicheckout-customer-form"], form#unicheckout-customer-form, #unicheckout form, #checkout-checkout form, #collapse-payment-address form, form#checkout-form, form[name="checkout"]');
+    }
+    function findContainer() {
+      var all = choices();
+      for (var i = 0; i < all.length; i++) {
+        if (field(all[i], 'email')) { return all[i]; }
       }
-      if (pending) pending.abort();
-      pending = $.ajax({url:settings.save_url,type:'POST',data:data,dataType:'json'});
-      pending.always(function(){ pending=null; });
+      // Some AJAX themes render customer inputs in a container without a form tag.
+      // Restrict fallback to a checkout area; never attach to newsletter in the footer.
+      if (!settings.selectors || !settings.selectors.form) {
+        var areas = selectAll(document, '#checkout-checkout, #unicheckout, #unicheckout-customer, .unicheckout-customer-form');
+        for (var j = 0; j < areas.length; j++) {
+          if (field(areas[j], 'email')) { return areas[j]; }
+        }
+      }
+      return null;
+    }
+    function value(key) {
+      var input = field(container, key);
+      return input ? String(input.value || '').trim() : '';
+    }
+    function save(revoke) {
+      if (!settings || !checkbox || !container || !container.isConnected) { return; }
+      if (!revoke && !checkbox.checked) { return; }
+      var data = {nonce:settings.nonce, ccp_cart_recovery_consent:revoke ? '0' : '1'};
+      if (!revoke) {
+        data.email = value('email');
+        data.firstname = value('firstname');
+        data.lastname = value('lastname');
+        data.telephone = value('telephone');
+        if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(data.email)) { return; }
+      }
+      if (pending && pending.readyState !== 4) { pending.abort(); }
+      var request = $.ajax({url:settings.save_url, type:'POST', data:data, dataType:'json', cache:false});
+      pending = request;
+      request.always(function () { if (pending === request) { pending = null; } });
     }
     function schedule() {
-      if (!settings || !tick.checked) return;
-      clearTimeout(stamp);
-      stamp = setTimeout(function(){send(false);}, 1100);
+      if (!checkbox || !checkbox.checked) { return; }
+      window.clearTimeout(timer);
+      timer = window.setTimeout(function () { save(false); }, 1100);
     }
-    tick.addEventListener('change', function () { if (tick.checked) schedule(); else {clearTimeout(stamp);send(true);} });
-    form.addEventListener('input', schedule);
-    form.addEventListener('change', function(event) { if (event.target !== tick) schedule(); });
-    // Flush on button interaction before UniShop2 starts its own AJAX validation.
-    document.addEventListener('click',function(event){
-      if (tick && tick.checked && event.target && event.target.closest && event.target.closest('#confirm-button, #button-confirm, .unicheckout__confirm, .unicheckout__button-confirm')) send(false);
-    },true);
+    function bind(box) {
+      if (!box || !box.isConnected || !field(box, 'email')) { return; }
+      if (select(box, 'input[name="ccp_cart_recovery_consent"]')) { return; }
+      container = box;
+      var wrapper = document.createElement('div');
+      wrapper.className = 'ccp-cart-recovery-consent';
+      wrapper.style.cssText = 'margin:12px 0;padding:10px 12px;border:1px solid #dce5ef;border-radius:5px;';
+      var label = document.createElement('label');
+      label.style.cssText = 'display:flex;gap:8px;align-items:flex-start;font-weight:400;cursor:pointer;';
+      checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.name = 'ccp_cart_recovery_consent';
+      checkbox.value = '1';
+      checkbox.checked = false;
+      checkbox.style.marginTop = '3px';
+      var caption = document.createElement('span');
+      caption.textContent = settings.label || '';
+      label.appendChild(checkbox);
+      label.appendChild(caption);
+      wrapper.appendChild(label);
+      box.appendChild(wrapper);
+      checkbox.addEventListener('change', function () {
+        if (checkbox.checked) { schedule(); }
+        else { window.clearTimeout(timer); save(true); }
+      });
+      box.addEventListener('input', schedule);
+      box.addEventListener('change', function (e) { if (e.target !== checkbox) { schedule(); } });
+    }
+    function scan() {
+      scanTimer = 0;
+      if (!settings) { return; }
+      if (container && container.isConnected && checkbox && checkbox.isConnected) { return; }
+      container = null;
+      checkbox = null;
+      bind(findContainer());
+    }
+    function queueScan() {
+      if (scanTimer) { return; }
+      scanTimer = window.setTimeout(scan, 120);
+    }
+    $.getJSON(settingsUrl.toString()).done(function (cfg) {
+      if (!cfg || !cfg.enabled || !/^[a-f0-9]{48}$/.test(cfg.nonce)) { return; }
+      try {
+        var saveUrl = new URL(cfg.save_url, root);
+        if (saveUrl.origin !== window.location.origin || saveUrl.protocol !== 'https:') { return; }
+      } catch (ignore) { return; }
+      settings = cfg;
+      scan();
+      // AJAX checkout forms can appear or be replaced after DOMContentLoaded.
+      observer = new MutationObserver(queueScan);
+      observer.observe(document.body || document.documentElement, {childList:true, subtree:true});
+    });
+    document.addEventListener('click', function (event) {
+      if (!checkbox || !checkbox.checked || !event.target || !event.target.closest) { return; }
+      if (event.target.closest('#confirm-button, #button-confirm, #button-guest, .unicheckout__confirm, .unicheckout__button-confirm')) {
+        save(false);
+      }
+    }, true);
   });
 })();
