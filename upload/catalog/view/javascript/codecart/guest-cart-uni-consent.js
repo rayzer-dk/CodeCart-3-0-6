@@ -68,6 +68,7 @@
     function showError() {
       if (feedback && feedback.isConnected) {
         feedback.textContent = (settings && settings.error_label) || '';
+        feedback.style.color = '#ac3030';
         feedback.style.display = 'block';
       }
     }
@@ -86,8 +87,12 @@
       var request = $.ajax({url:settings.save_url, type:'POST', data:data, dataType:'json', cache:false});
       pending = request;
       request.done(function (result) {
-        if (!result || !result.success) { showError(); }
-        else if (feedback) { feedback.style.display = 'none'; feedback.textContent = ''; }
+        if (!result || !result.success || (!revoke && result.stored !== true)) { showError(); }
+        else if (feedback) {
+          feedback.textContent = revoke ? '' : (settings.saved_label || '');
+          feedback.style.display = revoke ? 'none' : 'block';
+          feedback.style.color = '#21734b';
+        }
       });
       request.fail(function (xhr, status) { if (status !== 'abort') { showError(); } });
       request.always(function () { if (pending === request) { pending = null; } });
