@@ -18,7 +18,7 @@
       settingsUrl = new URL('index.php?route=extension/module/codecart_guest_cart_contact/settings', root);
       if (settingsUrl.origin !== window.location.origin) { return; }
     } catch (ignore) { return; }
-    var settings = null, container = null, checkbox = null, timer = 0, pending = null;
+    var settings = null, container = null, checkbox = null, feedback = null, timer = 0, pending = null;
     var observer = null, scanTimer = 0;
 
     function select(parent, selector) {
@@ -65,6 +65,12 @@
       var input = field(container, key);
       return input ? String(input.value || '').trim() : '';
     }
+    function showError() {
+      if (feedback && feedback.isConnected) {
+        feedback.textContent = (settings && settings.error_label) || '';
+        feedback.style.display = 'block';
+      }
+    }
     function save(revoke) {
       if (!settings || !checkbox || !container || !container.isConnected) { return; }
       if (!revoke && !checkbox.checked) { return; }
@@ -74,11 +80,16 @@
         data.firstname = value('firstname');
         data.lastname = value('lastname');
         data.telephone = value('telephone');
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { showError(); return; }
       }
       if (pending && pending.readyState !== 4) { pending.abort(); }
       var request = $.ajax({url:settings.save_url, type:'POST', data:data, dataType:'json', cache:false});
       pending = request;
+      request.done(function (result) {
+        if (!result || !result.success) { showError(); }
+        else if (feedback) { feedback.style.display = 'none'; feedback.textContent = ''; }
+      });
+      request.fail(function (xhr, status) { if (status !== 'abort') { showError(); } });
       request.always(function () { if (pending === request) { pending = null; } });
     }
     function schedule() {
@@ -106,6 +117,11 @@
       label.appendChild(checkbox);
       label.appendChild(caption);
       wrapper.appendChild(label);
+      feedback = document.createElement('small');
+      feedback.className = 'ccp-cart-recovery-error';
+      feedback.setAttribute('role', 'alert');
+      feedback.style.cssText = 'display:none;color:#ac3030;margin-top:5px;line-height:1.45;';
+      wrapper.appendChild(feedback);
       box.appendChild(wrapper);
       checkbox.addEventListener('change', function () {
         if (checkbox.checked) { schedule(); }
@@ -120,6 +136,7 @@
       if (container && container.isConnected && checkbox && checkbox.isConnected) { return; }
       container = null;
       checkbox = null;
+      feedback = null;
       bind(findContainer());
     }
     function queueScan() {
