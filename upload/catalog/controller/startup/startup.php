@@ -284,7 +284,7 @@ class ControllerStartupStartup extends Controller {
             } elseif ((bool)$this->config->get('codecart_abandoned_cart_guest_capture')) {
                 // Native OpenCart checkout persists its own consent: no second guest checkbox.
                 if ($cartCheckoutRoute === 'checkout/uni_checkout' || ($cartCustomRoute && $cartCheckoutRoute !== 'checkout/checkout')) {
-                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.2');
+                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.3');
                 }
             }
         }
