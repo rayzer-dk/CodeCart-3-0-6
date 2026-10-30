@@ -144,7 +144,7 @@ $_['text_external_auto_detect'] = 'Найти поля';
 $_['text_external_detect_success'] = 'Столбцы найдены. Проверьте и сохраните настройки.';
 $_['text_external_detect_failed'] = 'Таблица не найдена или нет прав чтения. Проверьте название.';
 $_['text_external_required'] = 'Обязательны: ID сессии, ID товара, количество и дата/время.';
-$_['text_external_optional'] = 'ID клиента, email и телефон необязательны; без email и согласия напоминания невозможны.';
+$_['text_external_optional'] = 'ID покупателя, имя, фамилия, email и телефон необязательны. Внешний источник доступен только для просмотра, без рассылки напоминаний.';
 $_['text_external_detect_warning'] = 'Не удалось автоматически определить обязательные столбцы';
 
 // Storefront and source identification.
