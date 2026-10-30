@@ -85,7 +85,7 @@ class ControllerSaleAbandonedCart extends Controller {
     public function index() {
         $this->load->language('sale/abandoned_cart');
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->document->addStyle('view/stylesheet/codecart_abandoned_cart.css?v=3.0.6.9');
+        $this->document->addStyle('view/stylesheet/codecart_abandoned_cart.css?v=3.0.6.10');
         $this->document->addScript('view/javascript/codecart-abandoned-cart.js?v=3.0.6.9');
         // OFF: do not query carts or run cart actions. Core shopping cart unaffected.
         $enabled = (bool)$this->config->get('codecart_abandoned_cart_status');
@@ -320,7 +320,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'text_summary_sent','text_summary_failed','text_summary_value','text_summary_value_note',
             'text_history_tab','text_carts_tab','text_settings_tab','text_settings_summary','text_mail_cron_ok',
             'text_mail_cron_off','text_mail_cron_missing','text_mail_cron_error','text_mail_cron_idle',
-            'text_guest_capture_label','text_guest_capture_help','text_guest_contact_missing_explanation','error_guest_requires_standard','text_guest_no_email',
+            'text_guest_capture_label','text_guest_capture_help','text_capture_module_off','text_capture_external_off','text_capture_off','text_capture_on','text_selector_auto_placeholder','text_guest_contact_missing_explanation','error_guest_requires_standard','text_guest_no_email',
             'text_history_status','text_history_attempts','text_history_date','text_history_origin','text_history_email',
             'text_history_empty','text_guest_cart_restored','text_restored_count','text_restored_note','text_search_button',
             'text_reset_filter','text_selected_count','text_recent_history','text_date_range_notice','text_clear_danger',
