@@ -171,6 +171,22 @@
               <option value="0" {{ not cart_fields.guest_capture ? 'selected' : '' }}>{{ text_disabled }}</option>
               <option value="1" {{ cart_fields.guest_capture ? 'selected' : '' }}>{{ text_enabled }}</option>
             </select><p class="help-block">{{ text_guest_capture_help }}</p></div>
+          <details class="ccp-checkout-field-mapping">
+            <summary><i class="fa fa-sliders"></i> {{ text_checkout_field_mapping }}</summary>
+            <p class="help-block">{{ text_checkout_field_help }}</p>
+            <div class="row">
+              <div class="col-sm-12 col-md-6"><label for="ccp-selector-form">{{ entry_selector_form }}</label>
+                <input type="text" name="cart_selector_form" id="ccp-selector-form" class="form-control" value="{{ cart_fields.selector_form|e('html_attr') }}" maxlength="160" placeholder="form[name=&quot;unicheckout-customer-form&quot;]" autocomplete="off"></div>
+              <div class="col-sm-6 col-md-3"><label for="ccp-selector-firstname">{{ entry_selector_firstname }}</label>
+                <input type="text" name="cart_selector_firstname" id="ccp-selector-firstname" class="form-control" value="{{ cart_fields.selector_firstname|e('html_attr') }}" maxlength="160" placeholder="[name=&quot;firstname&quot;]" autocomplete="off"></div>
+              <div class="col-sm-6 col-md-3"><label for="ccp-selector-lastname">{{ entry_selector_lastname }}</label>
+                <input type="text" name="cart_selector_lastname" id="ccp-selector-lastname" class="form-control" value="{{ cart_fields.selector_lastname|e('html_attr') }}" maxlength="160" placeholder="[name=&quot;lastname&quot;]" autocomplete="off"></div>
+              <div class="col-sm-6 col-md-3"><label for="ccp-selector-email">{{ entry_selector_email }}</label>
+                <input type="text" name="cart_selector_email" id="ccp-selector-email" class="form-control" value="{{ cart_fields.selector_email|e('html_attr') }}" maxlength="160" placeholder="[name=&quot;email&quot;]" autocomplete="off"></div>
+              <div class="col-sm-6 col-md-3"><label for="ccp-selector-telephone">{{ entry_selector_telephone }}</label>
+                <input type="text" name="cart_selector_telephone" id="ccp-selector-telephone" class="form-control" value="{{ cart_fields.selector_telephone|e('html_attr') }}" maxlength="160" placeholder="[name=&quot;telephone&quot;]" autocomplete="off"></div>
+            </div>
+          </details>
           <details class="ccp-source-advanced" id="ccp-source-advanced" {{ cart_form_source == 'external' or detect_message ? 'open' : '' }}>
             <summary><i class="fa fa-database"></i> {{ text_advanced_source_settings }}</summary>
             <p class="help-block">{{ text_cart_source_help }}</p>
