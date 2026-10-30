@@ -1,0 +1,158 @@
+name: Abandoned Cart Settings and Checkout Integration QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/abandoned-cart-settings-audit-qa.yml'
+      - 'upload/admin/controller/sale/abandoned_cart.php'
+      - 'upload/admin/model/sale/abandoned_cart.php'
+      - 'upload/admin/view/template/sale/abandoned_cart_list.twig'
+      - 'upload/admin/view/stylesheet/codecart_abandoned_cart.css'
+      - 'upload/admin/view/javascript/codecart-abandoned-cart.js'
+      - 'upload/catalog/controller/startup/startup.php'
+      - 'upload/catalog/controller/common/header.php'
+      - 'upload/catalog/controller/extension/module/codecart_guest_cart_contact.php'
+      - 'upload/catalog/view/javascript/codecart/guest-cart-uni-consent.js'
+      - 'upload/admin/language/**/sale/abandoned_cart.php'
+      - 'tests/checkout_contact_bridge_smoke.php'
+      - 'tests/scheduler_cart_admin_ui_smoke.php'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  php-compat:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: none
+          coverage: none
+      - name: PHP syntax check
+        shell: bash
+        run: |
+          set -eu
+          for file in \
+            upload/admin/controller/sale/abandoned_cart.php \
+            upload/admin/model/sale/abandoned_cart.php \
+            upload/catalog/controller/startup/startup.php \
+            upload/catalog/controller/common/header.php \
+            upload/catalog/controller/extension/module/codecart_guest_cart_contact.php; do
+            php -l "$file"
+          done
+          for lang in uk-ua ru-ru en-gb; do php -l "upload/admin/language/$lang/sale/abandoned_cart.php"; done
+
+  functional-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate admin and storefront JavaScript
+        run: |
+          node --check upload/admin/view/javascript/codecart-abandoned-cart.js
+          node --check upload/catalog/view/javascript/codecart/guest-cart-uni-consent.js
+          node --check upload/catalog/view/javascript/codecart/registered-cart-consent.js
+      - name: Source and UX invariant checks
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('upload')
+          t=(root/'admin/view/template/sale/abandoned_cart_list.twig').read_text()
+          c=(root/'admin/view/stylesheet/codecart_abandoned_cart.css').read_text()
+          j=(root/'catalog/view/javascript/codecart/guest-cart-uni-consent.js').read_text()
+          startup=(root/'catalog/controller/startup/startup.php').read_text()
+          header=(root/'catalog/controller/common/header.php').read_text()
+          admin=(root/'admin/controller/sale/abandoned_cart.php').read_text()
+          model=(root/'admin/model/sale/abandoned_cart.php').read_text()
+          assert '<col class="ccp-width-phone">' in t and 'sort_telephone' in t
+          assert 'cart.telephone' in t
+          assert '× {{ product.quantity }}' not in t
+          assert "cart_can_modify and cart_source == 'standard' ? 11 : 10" in t
+          assert 'col.ccp-width-phone{width:126px}' in c
+          assert 'min-width:1320px' in c and 'col.ccp-width-image{width:58px}' in c
+          assert 'text-overflow:ellipsis' in c
+          assert t.count('<details') == t.count('</details>')
+          assert t.index('ccp-checkout-link-setting') < t.index('ccp-checkout-field-mapping') < t.index('ccp-source-advanced')
+          assert 'cart_source' in t and 'cart_selector_form' in t and 'cart_selector_email' in t
+          assert 'entry_col_firstname' in t and 'entry_col_lastname' in t
+          assert 'col_firstname' in model and 'col_lastname' in model
+          assert "MAX(" in model and 'NULLIF(cu.firstname' in model
+          assert "reminderDelayMinutes" in admin
+          assert "hasPermission('modify', 'sale/abandoned_cart')" in admin
+          assert 'MutationObserver' in j and 'checkbox.checked = false' in j
+          assert "ccp_cart_recovery_consent:revoke" in j
+          assert "codecart_abandoned_cart_status" in startup
+          assert "codecart_abandoned_cart_guest_capture" in startup
+          assert "registered-cart-consent.js" in startup
+          assert "registered-cart-consent.js" not in header
+          assert "guest-cart-uni-consent.js" in startup
+          assert 'guest-cart-uni-consent.js' not in header
+          print('PASS: compact table, opt-in, mapping, disabled mode and theme independence')
+          PY
+      - name: Functional smoke tests
+        run: |
+          set -eu
+          php tests/cart_external_schema_smoke.php
+          php tests/cart_source_discovery_smoke.php
+          php tests/cart_workflow_smoke.php
+          php tests/cart_reminder_consent_multistore_smoke.php
+          php tests/checkout_contact_bridge_smoke.php
+          php tests/scheduler_cart_admin_ui_smoke.php
+          php tests/scheduler_runtime_smoke.php
+
+  package:
+    needs: [php-compat, functional-smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create full-path replacement ZIP
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile,ZIP_DEFLATED
+          files=[
+            'upload/admin/controller/sale/abandoned_cart.php',
+            'upload/admin/model/sale/abandoned_cart.php',
+            'upload/admin/view/template/sale/abandoned_cart_list.twig',
+            'upload/admin/view/stylesheet/codecart_abandoned_cart.css',
+            'upload/admin/view/javascript/codecart-abandoned-cart.js',
+            'upload/catalog/controller/startup/startup.php',
+            'upload/catalog/controller/common/header.php',
+            'upload/catalog/controller/extension/module/codecart_guest_cart_contact.php',
+            'upload/catalog/view/javascript/codecart/guest-cart-uni-consent.js'
+          ]
+          for lang in ('uk-ua','ru-ru','en-gb'):
+            files.append('upload/admin/language/'+lang+'/sale/abandoned_cart.php')
+          fn='CodeCart_3_0_6_Abandoned_Cart_Audit_2026-10-30.zip'
+          readme=(
+            'CodeCart 3.0.6 abandoned carts: phone column, SQL source adapter, guest contact field mapping.\n'
+            'Back up the entire site and database before updating. Copy upload/ to your store root.\n'
+            'Clear modifications cache, Twig cache and PHP OPcache if configured.\n'
+            'The default OpenCart cart source works for most themes and checkout modules.\n'
+            'External SQL source is read-only and cannot send reminder emails.\n'
+            'Guest contact collection requires explicit checkbox consent, valid email and an enabled module.\n'
+            'Custom checkout routes with AJAX form inputs can be mapped using CSS selectors.\n'
+            'This ZIP is a file replacement, not a complete production build.\n'
+          )
+          with ZipFile(fn,'w',ZIP_DEFLATED,compresslevel=9) as z:
+            for p in files:
+              assert Path(p).is_file(),p
+              z.write(p,p)
+            z.writestr('README-REPLACEMENT.txt',readme)
+          with ZipFile(fn) as z:
+            assert z.testzip() is None
+          print(fn, len(files),'source files')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Abandoned-Cart-Audit-Replacement
+          path: CodeCart_3_0_6_Abandoned_Cart_Audit_2026-10-30.zip
+          retention-days: 14
+          if-no-files-found: error
