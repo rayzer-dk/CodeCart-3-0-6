@@ -86,7 +86,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $this->load->language('sale/abandoned_cart');
         $this->document->setTitle($this->language->get('heading_title'));
         $this->document->addStyle('view/stylesheet/codecart_abandoned_cart.css?v=3.0.6.9');
-        $this->document->addScript('view/javascript/codecart-abandoned-cart.js?v=3.0.6.8');
+        $this->document->addScript('view/javascript/codecart-abandoned-cart.js?v=3.0.6.9');
         // OFF: do not query carts or run cart actions. Core shopping cart unaffected.
         $enabled = (bool)$this->config->get('codecart_abandoned_cart_status');
         $source = (string)$this->config->get('codecart_abandoned_cart_source') === 'external' ? 'external' : 'standard';
