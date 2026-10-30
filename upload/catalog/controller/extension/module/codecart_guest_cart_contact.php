@@ -27,6 +27,7 @@ class ControllerExtensionModuleCodecartGuestCartContact extends Controller {
             'enabled'=>true, 'nonce'=>$nonce,
             'label'=>$this->language->get('text_ccp_cart_recovery_consent'),
             'error_label'=>$this->language->get('text_ccp_cart_recovery_save_failed'),
+            'saved_label'=>$this->language->get('text_ccp_cart_recovery_saved'),
             'selectors'=>array(
                 'form'=>(string)$this->config->get('codecart_abandoned_cart_selector_form'),
                 'firstname'=>(string)$this->config->get('codecart_abandoned_cart_selector_firstname'),
