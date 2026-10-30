@@ -116,6 +116,6 @@ $_['button_quick_order'] = 'Place order';
 // CodeCart PRO: aligned locale keys
 $_['entry_fax'] = 'Fax';
 
-$_['text_ccp_cart_recovery_consent'] = 'I agree to receive one reminder email with a link to restore my unfinished cart. Optional.';
+$_['text_ccp_cart_recovery_consent'] = 'I agree to receive one reminder email with a link to restore my unfinished cart.';
 
-$_['text_ccp_registered_cart_consent'] = 'I agree to receive one reminder about my unfinished order. Optional.';
+$_['text_ccp_registered_cart_consent'] = 'I agree to receive one reminder about my unfinished order.';

@@ -18,12 +18,30 @@
         $('#ccp-cart-table-chooser').on('change', function () {
             if (this.value) { $('#map-table').val(this.value); }
         });
+        // Preview the return URL in every mode; this setting does not change storefront checkout.
         function checkoutMode() {
-            var custom = $('#ccp-cart-checkout-mode').val() === 'custom';
+            var $setting = $root.find('.ccp-checkout-link-setting');
+            var mode = $('#ccp-cart-checkout-mode').val();
+            var custom = mode === 'custom';
+            var url = custom ? $.trim($('#ccp-cart-checkout-url').val()) : $setting.attr(mode === 'standard' ? 'data-checkout-standard-url' : 'data-checkout-auto-url');
+            var $link = $('#ccp-checkout-preview-link');
+            var $info = $('#ccp-checkout-mode-description');
             $('#ccp-checkout-custom-url').toggle(custom);
             $('#ccp-cart-checkout-url').prop('required', custom);
+            // Preview only trusted same-origin HTTPS URLs, never arbitrary external links.
+            var valid = false;
+            try {
+                var parsed = new URL(url, window.location.href);
+                valid = parsed.protocol === 'https:' && parsed.hostname === window.location.hostname && !parsed.username && !parsed.password;
+            } catch (ignore) { valid = false; }
+            $link.text(url || '—').attr('title', url || '');
+            if (valid) { $link.attr('href', url).removeClass('disabled'); }
+            else { $link.removeAttr('href').addClass('disabled'); }
+            $info.text($info.attr('data-' + mode) || '');
         }
-        $('#ccp-cart-checkout-mode').on('change', checkoutMode); checkoutMode();
+        $('#ccp-cart-checkout-mode').on('change', checkoutMode);
+        $('#ccp-cart-checkout-url').on('input change', checkoutMode);
+        checkoutMode();
         var $boxes = $root.find('.ccp-cart-select');
         var $all = $('#ccp-cart-select-all');
         function selected() {

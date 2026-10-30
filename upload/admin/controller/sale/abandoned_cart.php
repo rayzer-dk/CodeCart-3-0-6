@@ -55,6 +55,17 @@ class ControllerSaleAbandonedCart extends Controller {
         return $saved !== '' ? $saved : $this->defaultCheckoutUrl();
     }
 
+    /** Accept decimal hours in either locale without altering the stored minutes format. */
+    private function reminderDelayMinutes($hours): int {
+        $value = str_replace(',', '.', trim((string)$hours));
+        if (!preg_match('/^\\d{1,4}(?:\\.\\d{1,2})?$/D', $value)) { return 60; }
+        return max(5, min(10080, (int)round((float)$value * 60)));
+    }
+
+    private function reminderDelayHours(int $minutes): string {
+        return rtrim(rtrim(number_format(max(5, min(10080, $minutes)) / 60, 2, '.', ''), '0'), '.');
+    }
+
     public function externalTables() {
         $this->load->language('sale/abandoned_cart');
         $token = (string)($this->request->get['user_token'] ?? '');
@@ -74,8 +85,8 @@ class ControllerSaleAbandonedCart extends Controller {
     public function index() {
         $this->load->language('sale/abandoned_cart');
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->document->addStyle('view/stylesheet/codecart_abandoned_cart.css');
-        $this->document->addScript('view/javascript/codecart-abandoned-cart.js');
+        $this->document->addStyle('view/stylesheet/codecart_abandoned_cart.css?v=3.0.6.8');
+        $this->document->addScript('view/javascript/codecart-abandoned-cart.js?v=3.0.6.8');
         // OFF: do not query carts or run cart actions. Core shopping cart unaffected.
         $enabled = (bool)$this->config->get('codecart_abandoned_cart_status');
         $source = (string)$this->config->get('codecart_abandoned_cart_source') === 'external' ? 'external' : 'standard';
@@ -143,13 +154,15 @@ class ControllerSaleAbandonedCart extends Controller {
                     'codecart_abandoned_cart_source' => ($this->request->post['cart_source'] ?? '') === 'external' ? 'external' : 'standard',
                     'codecart_abandoned_cart_idle_minutes' => max(1, min(10080, (int)($this->request->post['cart_idle_minutes'] ?? 5))),
                     'codecart_abandoned_cart_days' => max(1, min(30, (int)($this->request->post['cart_days'] ?? 7))),
-                    'codecart_abandoned_cart_reminder_delay_minutes' => max(5, min(10080, (int)($this->request->post['cart_reminder_delay_minutes'] ?? 60))),
+                    'codecart_abandoned_cart_reminder_delay_minutes' => $this->reminderDelayMinutes($this->request->post['cart_reminder_delay_hours'] ?? '1'),
                     'codecart_abandoned_cart_mail_auto' => !empty($this->request->post['cart_mail_auto']) ? 1 : 0,
                     'codecart_abandoned_cart_guest_capture' => !empty($this->request->post['cart_guest_capture']) ? 1 : 0
                 );
                 $checkoutMode = (string)($this->request->post['cart_checkout_mode'] ?? 'auto');
                 if (!in_array($checkoutMode, array('auto', 'standard', 'unishop2', 'custom'), true)) { $checkoutMode = 'auto'; }
                 $settings['codecart_abandoned_cart_checkout_mode'] = $checkoutMode;
+                // Preserve manually entered checkout URL across auto/standard selections.
+                $settings['codecart_abandoned_cart_checkout_url'] = trim((string)$this->config->get('codecart_abandoned_cart_checkout_url'));
                 if ($checkoutMode === 'standard') { $checkoutUrl = $this->catalogBaseUrl() . 'index.php?route=checkout/checkout'; }
                 elseif ($checkoutMode === 'unishop2') { $checkoutUrl = $this->catalogBaseUrl() . 'index.php?route=checkout/uni_checkout'; }
                 elseif ($checkoutMode === 'auto') { $checkoutUrl = $this->defaultCheckoutUrl(); }
@@ -163,7 +176,7 @@ class ControllerSaleAbandonedCart extends Controller {
                     || !preg_match('#^/[^\x00-\x1F]*$#', (string)$given['path'])) {
                     $error = $this->language->get('error_checkout_url');
                 } else {
-                    $settings['codecart_abandoned_cart_checkout_url'] = $checkoutUrl;
+                    if ($checkoutMode === 'custom') { $settings['codecart_abandoned_cart_checkout_url'] = $checkoutUrl; }
                 }
                 foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
                     $value = trim((string)($this->request->post['cart_' . $name] ?? ''));
@@ -249,7 +262,8 @@ class ControllerSaleAbandonedCart extends Controller {
                 foreach (array('status','mail_auto','guest_capture') as $key) { $old[$key] = !empty($this->request->post['cart_' . $key]) ? 1 : 0; }
                 $old['idle_minutes'] = (int)($this->request->post['cart_idle_minutes'] ?? 5);
                 $old['days'] = (int)($this->request->post['cart_days'] ?? 7);
-                $old['reminder_delay_minutes'] = (int)($this->request->post['cart_reminder_delay_minutes'] ?? 60);
+                $old['reminder_delay_hours'] = substr(trim((string)($this->request->post['cart_reminder_delay_hours'] ?? '1')), 0, 16);
+                $old['reminder_delay_minutes'] = $this->reminderDelayMinutes($old['reminder_delay_hours']);
                 $this->session->data['ccp_cart_settings_form_old'] = $old;
             }
             $this->response->redirect($this->url->link('sale/abandoned_cart', 'user_token=' . $sessionToken, true) . ($error !== '' ? '#ccp-tab-settings' : ''));
@@ -277,7 +291,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $data = array();
         foreach (array(
             'heading_title','text_home','text_sale','text_no_results','text_enabled','text_disabled','text_scope_help','text_confirm_delete','text_confirm_clear','text_success_delete','text_success_clear',
-            'column_customer','column_email','column_phone','column_products','column_quantity','column_total','column_last_activity','column_inactive','column_action','text_guest',
+            'column_customer','column_email','text_cart_image','column_phone','column_products','column_quantity','column_total','column_last_activity','column_inactive','column_action','text_guest',
             'button_customer','button_product','button_delete','button_clear',
             'text_settings','text_disabled_note','text_source_standard','text_source_external','text_cart_mapping_info',
             'text_cart_source_help','text_cart_amount_estimate','text_cart_storefront_note','text_settings_saved','error_cart_mapping',
@@ -299,7 +313,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'text_send_only_optin',            'text_history_error','text_history_manual','text_history_auto',
             'entry_checkout_url','text_checkout_url_help','text_external_source_explanation',
             'text_external_table_candidates','text_external_no_candidates','text_external_choose_table',
-            'text_product_storefront','error_checkout_url','entry_checkout_mode','text_checkout_auto','text_checkout_standard','text_checkout_unishop2','text_checkout_custom','text_checkout_mode_help','text_cart_data_help','text_detect_tables_ready','error_table_route','text_source_section','text_source_only_explanation','text_checkout_only_explanation','text_checkout_section','text_reminders_section','text_detect_no_write','text_bulk_send_limit'
+            'text_product_storefront','text_checkout_resolved','text_checkout_preview_only','text_checkout_auto_info','text_checkout_standard_info','text_checkout_custom_info','text_mail_status_no_email','error_checkout_url','entry_checkout_mode','text_checkout_auto','text_checkout_standard','text_checkout_unishop2','text_checkout_custom','text_checkout_mode_help','text_cart_data_help','text_detect_tables_ready','error_table_route','text_source_section','text_source_only_explanation','text_checkout_only_explanation','text_checkout_section','text_reminders_section','text_detect_no_write','text_bulk_send_limit'
         ) as $key) { $data[$key] = $this->language->get($key); }
 
         if (!empty($this->session->data['success'])) {
@@ -316,6 +330,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'idle_minutes' => max(1, min(10080, (int)($this->config->get('codecart_abandoned_cart_idle_minutes') ?? 5))),
             'days' => max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)),
             'reminder_delay_minutes' => max(5, min(10080, (int)($this->config->get('codecart_abandoned_cart_reminder_delay_minutes') ?? 60))),
+            'reminder_delay_hours' => $this->reminderDelayHours((int)($this->config->get('codecart_abandoned_cart_reminder_delay_minutes') ?? 60)),
             'mail_auto' => (int)$this->config->get('codecart_abandoned_cart_mail_auto'),
             'guest_capture' => (int)$this->config->get('codecart_abandoned_cart_guest_capture'));
         foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
@@ -323,7 +338,9 @@ class ControllerSaleAbandonedCart extends Controller {
         }
         // Discovery is a preview only. Keep all current form inputs after a detection POST.
         $data['cart_form_source'] = $source;
-        $data['cart_checkout_mode'] = $this->checkoutMode();
+        $data['cart_checkout_mode'] = $this->checkoutMode() === 'unishop2' ? 'custom' : $this->checkoutMode();
+        $data['checkout_auto_url'] = $this->defaultCheckoutUrl();
+        $data['checkout_standard_url'] = $this->catalogBaseUrl() . 'index.php?route=checkout/checkout';
         if ($detectRequest) {
             $data['cart_form_source'] = 'external';
             foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
@@ -336,26 +353,31 @@ class ControllerSaleAbandonedCart extends Controller {
                 // Preserve manual mapping for unmatched optional columns.
                 if ($column !== '') { $data['cart_fields'][$name] = $column; }
             }
-            foreach (array('status'=>'cart_status','idle_minutes'=>'cart_idle_minutes','days'=>'cart_days','mail_auto'=>'cart_mail_auto','guest_capture'=>'cart_guest_capture','reminder_delay_minutes'=>'cart_reminder_delay_minutes') as $name=>$post) {
+            foreach (array('status'=>'cart_status','idle_minutes'=>'cart_idle_minutes','days'=>'cart_days','mail_auto'=>'cart_mail_auto','guest_capture'=>'cart_guest_capture') as $name=>$post) {
                 if (isset($this->request->post[$post])) { $data['cart_fields'][$name] = (int)$this->request->post[$post]; }
+            }
+            if (isset($this->request->post['cart_reminder_delay_hours'])) {
+                $data['cart_fields']['reminder_delay_hours'] = substr(trim((string)$this->request->post['cart_reminder_delay_hours']), 0, 16);
             }
             if (isset($this->request->post['cart_checkout_mode'])) {
                 $postedMode = (string)$this->request->post['cart_checkout_mode'];
-                if (in_array($postedMode, array('auto','standard','unishop2','custom'), true)) { $data['cart_checkout_mode'] = $postedMode; }
+                if (in_array($postedMode, array('auto','standard','custom'), true)) { $data['cart_checkout_mode'] = $postedMode; }
             }
         }
         $data['detected_tables'] = $detectedTables;
         $data['detect_message'] = $detectMessage;
         $data['detect_error'] = $detectError;
-        $data['cart_fields']['checkout_url'] = $this->checkoutUrl();
+        $data['cart_fields']['checkout_url'] = trim((string)$this->config->get('codecart_abandoned_cart_checkout_url'));
+        if ($this->checkoutMode() === 'unishop2') { $data['cart_fields']['checkout_url'] = $this->checkoutUrl(); }
+        if ($data['cart_fields']['checkout_url'] === '') { $data['cart_fields']['checkout_url'] = $this->defaultCheckoutUrl(); }
         if (isset($this->session->data['ccp_cart_settings_form_old']) && is_array($this->session->data['ccp_cart_settings_form_old'])) {
             $old = $this->session->data['ccp_cart_settings_form_old'];
             unset($this->session->data['ccp_cart_settings_form_old']);
-            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','status','idle_minutes','days','reminder_delay_minutes','mail_auto','guest_capture','checkout_url') as $field) {
+            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','status','idle_minutes','days','reminder_delay_minutes','reminder_delay_hours','mail_auto','guest_capture','checkout_url') as $field) {
                 if (isset($old[$field])) { $data['cart_fields'][$field] = $old[$field]; }
             }
             if (isset($old['source'])) { $data['cart_form_source'] = $old['source']; }
-            if (isset($old['checkout_mode'])) { $data['cart_checkout_mode'] = $old['checkout_mode']; }
+            if (isset($old['checkout_mode'])) { $data['cart_checkout_mode'] = $old['checkout_mode'] === 'unishop2' ? 'custom' : $old['checkout_mode']; }
             $data['settings_error_tab'] = true;
         } else { $data['settings_error_tab'] = false; }
         if ($detectRequest && isset($this->request->post['cart_checkout_url'])) { $data['cart_fields']['checkout_url'] = substr(trim((string)$this->request->post['cart_checkout_url']), 0, 512); }

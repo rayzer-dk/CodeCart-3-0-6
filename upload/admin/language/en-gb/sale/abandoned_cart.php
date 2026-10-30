@@ -1,6 +1,6 @@
 <?php
-$_['entry_reminder_delay_minutes'] = 'Send reminder after, minutes';
-$_['text_reminder_delay_help'] = 'Minimum 5 minutes after the last cart change; never earlier than the abandonment threshold. Cron runs in batches (normally every 5 minutes). Requires a separate, explicit consent and a valid email. Reminders are sent only for carts up to 7 days old.';
+$_['entry_reminder_delay_minutes'] = 'Send reminder after, hours';
+$_['text_reminder_delay_help'] = 'Delay in hours: for example 1.5 or 5.2. Stored as minutes; sending also requires Cron, separate consent and a valid email.';
 $_['text_guest_contact_missing_explanation'] = 'Guest name and email appear only when the visitor enters checkout contact details and explicitly opts in to cart reminders. A cart without these details cannot be identified retrospectively; no email is sent without consent.';
 $_['heading_title']='Abandoned carts';
 $_['text_home']='Home';
@@ -15,8 +15,8 @@ $_['text_confirm_delete']='Delete this abandoned cart?';
 $_['text_confirm_clear'] = 'Delete all fully inactive carts in the selected time window? Active carts are not deleted.';
 $_['text_success_delete']='Abandoned cart deleted.';
 $_['text_success_clear']='Abandoned carts cleared.';
-$_['column_customer']='Customer';
-$_['column_email']='E-Mail';
+$_['column_customer']='Customer name';
+$_['column_email']='Customer email';
 $_['column_phone']='Phone';
 $_['column_products']='Products';
 $_['column_quantity']='Quantity';
@@ -148,7 +148,7 @@ $_['text_external_detect_warning'] = 'Could not automatically detect required co
 
 // Storefront and source identification.
 $_['entry_checkout_url'] = 'Checkout page URL';
-$_['text_checkout_url_help'] = 'This is the storefront checkout URL, not a database table name. Use automatic detection for popular templates; for a different checkout select Custom URL. The alternative uni_checkout route is preserved for compatibility.';
+$_['text_checkout_url_help'] = 'Preview only. Save settings to apply the selected mode.';
 $_['text_external_source_explanation'] = 'Only use an external SQL source if the checkout actually stores cart products in a separate table. A checkout route is a page address, not a database table.';
 $_['text_external_table_candidates'] = 'Find possible tables';
 $_['text_external_no_candidates'] = 'No additional cart/basket tables were found. Standard OpenCart is usually correct.';
@@ -160,7 +160,7 @@ $_['error_checkout_url'] = 'Enter an HTTPS checkout URL on the same store, not a
 $_['entry_checkout_mode'] = 'Checkout page type';
 $_['text_checkout_auto'] = 'Popular checkout templates (automatic detection)';
 $_['text_checkout_standard'] = 'Standard CodeCart / OpenCart';
-$_['text_checkout_unishop2'] = 'Alternative checkout: uni_checkout route';
+$_['text_checkout_unishop2'] = 'Alternative checkout page';
 $_['text_checkout_custom'] = 'Different page (custom URL)';
 $_['text_checkout_mode_help'] = 'Automatic detection works for supported checkout routes, including popular templates. If a theme has its own route, use Custom URL. The checkout choice does not change the cart database source.';
 $_['text_cart_data_help'] = 'Start with the standard OpenCart cart. Only choose an SQL table if an extension stores the cart items separately.';
@@ -175,4 +175,12 @@ $_['text_bulk_send_limit'] = 'Select no more than 10 carts per send operation.';
 $_['text_cart_consent_notice'] = 'A separate cart-specific reminder consent is required. Newsletter opt-in alone is not sufficient.';
 
 $_['text_source_only_explanation'] = 'Most themes and checkout extensions use the standard OpenCart cart table; changing the checkout page does not require an external table. Only configure external mode for a verified separate SQL cart table.';
-$_['text_checkout_only_explanation'] = 'Checkout page only controls where the recovery link takes the customer. It does not change the cart data source.';
+$_['text_checkout_only_explanation'] = 'This choice only controls the return link in reminder emails. It does not change the store checkout, cart database source or guest contact capture.';
+
+$_['text_cart_image'] = 'Image';
+$_['text_mail_status_no_email'] = 'No email';
+$_['text_checkout_resolved'] = 'Checkout return-link URL:';
+$_['text_checkout_preview_only'] = 'Preview only. Save settings to apply the selected mode.';
+$_['text_checkout_auto_info'] = 'Uses the supported route for the current theme. If it matches the standard route the URL will not change. Save settings.';
+$_['text_checkout_standard_info'] = 'Always uses the standard OpenCart checkout route. Save settings.';
+$_['text_checkout_custom_info'] = 'Custom return-link URL. Enter an HTTPS URL on this store and save settings.';
