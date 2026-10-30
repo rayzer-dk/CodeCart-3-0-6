@@ -12,9 +12,9 @@ class ModelSaleAbandonedCart extends Model {
         if (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $table)) { return null; }
         if (strpos($table, DB_PREFIX) !== 0) { $table = DB_PREFIX . $table; }
         $fields = array();
-        foreach (array('session','product','quantity','date','customer','email','phone') as $key) {
+        foreach (array('session','product','quantity','date','customer','email','phone','firstname','lastname') as $key) {
             $value = trim((string)$this->config->get('codecart_abandoned_cart_col_' . $key));
-            if ($value === '' && in_array($key, array('customer','email','phone'), true)) { $fields[$key] = ''; continue; }
+            if ($value === '' && in_array($key, array('customer','email','phone','firstname','lastname'), true)) { $fields[$key] = ''; continue; }
             if (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $value)) { return null; }
             $fields[$key] = $value;
         }
@@ -49,7 +49,9 @@ class ModelSaleAbandonedCart extends Model {
             'col_date' => array('date_added', 'date_modified', 'updated_at', 'created_at', 'date_create'),
             'col_customer' => array('customer_id', 'id_customer', 'customer'),
             'col_email' => array('email', 'customer_email'),
-            'col_phone' => array('telephone', 'phone', 'customer_phone')
+            'col_phone' => array('telephone', 'phone', 'customer_phone'),
+            'col_firstname' => array('firstname','first_name','customer_firstname'),
+            'col_lastname' => array('lastname','last_name','customer_lastname')
         );
         $fields = array();
         $missing = array();
@@ -108,6 +110,9 @@ class ModelSaleAbandonedCart extends Model {
         $cid = $this->sourceColumn($f, 'customer', '0');
         $email = $this->sourceColumn($f, 'email', 'cu.email');
         $phone = $this->sourceColumn($f, 'phone', 'cu.telephone');
+        $first = $this->sourceColumn($f, 'firstname', "''");
+        $last = $this->sourceColumn($f, 'lastname', "''");
+        $name = "TRIM(CONCAT(COALESCE(NULLIF(cu.firstname,'')," . $first . "), ' ', COALESCE(NULLIF(cu.lastname,'')," . $last . ")))";
         $idle = max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
         $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $from = ' FROM ' . chr(96) . $source['table'] . chr(96) . ' c LEFT JOIN '
@@ -120,7 +125,7 @@ class ModelSaleAbandonedCart extends Model {
         }
         return 'SELECT ' . $cid . ' AS customer_id, ' . $sid . ' AS session_id, '
             . 'COUNT(*) AS line_count, SUM(' . $qty . ') AS quantity, MAX(' . $dt . ') AS last_activity,'
-            . " MAX(COALESCE(CONCAT(cu.firstname,' ',cu.lastname),'')) AS customer,"
+            . " MAX(" . $name . ") AS customer,"
             . ' MAX(COALESCE(' . $email . ",'')) AS email, MAX(COALESCE(" . $phone . ",'')) AS telephone,"
             . ' TIMESTAMPDIFF(MINUTE,MAX(' . $dt . '),NOW()) AS idle_minutes '
             . $from . $where . ' GROUP BY ' . $cid . ', ' . $sid . ' HAVING MAX(' . $dt . ') < DATE_SUB(NOW(), INTERVAL ' . $idle . ' MINUTE)';
