@@ -74,7 +74,7 @@
         data.firstname = value('firstname');
         data.lastname = value('lastname');
         data.telephone = value('telephone');
-        if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(data.email)) { return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { return; }
       }
       if (pending && pending.readyState !== 4) { pending.abort(); }
       var request = $.ajax({url:settings.save_url, type:'POST', data:data, dataType:'json', cache:false});
