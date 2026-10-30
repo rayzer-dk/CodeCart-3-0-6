@@ -56,30 +56,6 @@ class ControllerStartupStartup extends Controller {
 			}
 		}
 
-        // OFF is inert: no checkout scripts, Ajax or extra queries for disabled carts.
-        if ((bool)$this->config->get('codecart_abandoned_cart_status')
-            && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
-            $cartCheckoutRoute = (string)($this->request->get['route'] ?? '');
-            $cartCustomRoute = false;
-            if ($cartCheckoutRoute !== '' && (string)$this->config->get('codecart_abandoned_cart_checkout_mode') === 'custom') {
-                $cartCustomQuery = parse_url((string)$this->config->get('codecart_abandoned_cart_checkout_url'), PHP_URL_QUERY);
-                $cartCustomArgs = array();
-                if (is_string($cartCustomQuery)) { parse_str($cartCustomQuery, $cartCustomArgs); }
-                $cartCustomRoute = (string)($cartCustomArgs['route'] ?? '') === $cartCheckoutRoute;
-            }
-            // Register once, before any third-party theme header, to support alternate checkouts.
-            if ($this->customer->isLogged()) {
-                if ($cartCheckoutRoute === 'checkout/checkout' || $cartCheckoutRoute === 'checkout/uni_checkout' || $cartCustomRoute) {
-                    $this->document->addScript('catalog/view/javascript/codecart/registered-cart-consent.js?v=3.0.6.2');
-                }
-            } elseif ((bool)$this->config->get('codecart_abandoned_cart_guest_capture')) {
-                // Native OpenCart checkout persists its own consent: no second guest checkbox.
-                if ($cartCheckoutRoute === 'checkout/uni_checkout' || ($cartCustomRoute && $cartCheckoutRoute !== 'checkout/checkout')) {
-                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.2');
-                }
-            }
-        }
-
 		// Storefront image URLs may vary between original format and WebP/AVIF based on Accept.
 		// Tell HTTP/proxy caches about that negotiation; CLI/cron never enters this path.
 		if (((int)$this->config->get('config_image_webp') && function_exists('imagewebp'))
@@ -288,6 +264,31 @@ class ControllerStartupStartup extends Controller {
 		// Customer
 		$customer = new Cart\Customer($this->registry);
 		$this->registry->set('customer', $customer);
+
+        // OFF is inert: no checkout scripts, Ajax or extra queries for disabled carts.
+        if ((bool)$this->config->get('codecart_abandoned_cart_status')
+            && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
+            $cartCheckoutRoute = (string)($this->request->get['route'] ?? '');
+            $cartCustomRoute = false;
+            if ($cartCheckoutRoute !== '' && (string)$this->config->get('codecart_abandoned_cart_checkout_mode') === 'custom') {
+                $cartCustomQuery = parse_url((string)$this->config->get('codecart_abandoned_cart_checkout_url'), PHP_URL_QUERY);
+                $cartCustomArgs = array();
+                if (is_string($cartCustomQuery)) { parse_str($cartCustomQuery, $cartCustomArgs); }
+                $cartCustomRoute = (string)($cartCustomArgs['route'] ?? '') === $cartCheckoutRoute;
+            }
+            // Register once, before any third-party theme header, to support alternate checkouts.
+            if ($this->customer->isLogged()) {
+                if ($cartCheckoutRoute === 'checkout/checkout' || $cartCheckoutRoute === 'checkout/uni_checkout' || $cartCustomRoute) {
+                    $this->document->addScript('catalog/view/javascript/codecart/registered-cart-consent.js?v=3.0.6.2');
+                }
+            } elseif ((bool)$this->config->get('codecart_abandoned_cart_guest_capture')) {
+                // Native OpenCart checkout persists its own consent: no second guest checkbox.
+                if ($cartCheckoutRoute === 'checkout/uni_checkout' || ($cartCustomRoute && $cartCheckoutRoute !== 'checkout/checkout')) {
+                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.2');
+                }
+            }
+        }
+
 		
 		// Customer Group
 		if (isset($this->session->data['customer']) && isset($this->session->data['customer']['customer_group_id'])) {
