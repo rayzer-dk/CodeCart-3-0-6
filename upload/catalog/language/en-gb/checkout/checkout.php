@@ -118,5 +118,6 @@ $_['entry_fax'] = 'Fax';
 
 $_['text_ccp_cart_recovery_consent'] = 'I agree to receive one reminder email with a link to restore my unfinished cart.';
 $_['text_ccp_cart_recovery_save_failed'] = 'Could not save reminder consent. Check the email address and try again.';
+$_['text_ccp_cart_recovery_saved'] = 'Reminder consent and contact details have been saved.';
 
 $_['text_ccp_registered_cart_consent'] = 'I agree to receive one reminder about my unfinished order.';
