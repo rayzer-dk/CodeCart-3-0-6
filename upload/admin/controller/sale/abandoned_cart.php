@@ -85,7 +85,7 @@ class ControllerSaleAbandonedCart extends Controller {
     public function index() {
         $this->load->language('sale/abandoned_cart');
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->document->addStyle('view/stylesheet/codecart_abandoned_cart.css?v=3.0.6.8');
+        $this->document->addStyle('view/stylesheet/codecart_abandoned_cart.css?v=3.0.6.9');
         $this->document->addScript('view/javascript/codecart-abandoned-cart.js?v=3.0.6.8');
         // OFF: do not query carts or run cart actions. Core shopping cart unaffected.
         $enabled = (bool)$this->config->get('codecart_abandoned_cart_status');
@@ -178,7 +178,7 @@ class ControllerSaleAbandonedCart extends Controller {
                 } else {
                     if ($checkoutMode === 'custom') { $settings['codecart_abandoned_cart_checkout_url'] = $checkoutUrl; }
                 }
-                foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
+                foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname') as $name) {
                     $value = trim((string)($this->request->post['cart_' . $name] ?? ''));
                     if ($value !== '' && !preg_match('/^[a-zA-Z0-9_]{1,64}$/', $value)) {
                         $error = $this->language->get('error_cart_mapping');
@@ -256,7 +256,7 @@ class ControllerSaleAbandonedCart extends Controller {
             if ($error !== '') {
                 $this->session->data['error_warning'] = $error;
                 $old = array('source'=>(string)($this->request->post['cart_source'] ?? 'standard'), 'checkout_mode'=>(string)($this->request->post['cart_checkout_mode'] ?? 'auto'));
-                foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','checkout_url') as $key) {
+                foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname','checkout_url') as $key) {
                     $old[$key] = substr(trim((string)($this->request->post['cart_' . $key] ?? '')), 0, $key === 'checkout_url' ? 512 : 64);
                 }
                 foreach (array('status','mail_auto','guest_capture') as $key) { $old[$key] = !empty($this->request->post['cart_' . $key]) ? 1 : 0; }
@@ -291,7 +291,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $data = array();
         foreach (array(
             'heading_title','text_home','text_sale','text_no_results','text_enabled','text_disabled','text_scope_help','text_confirm_delete','text_confirm_clear','text_success_delete','text_success_clear',
-            'column_customer','column_email','text_cart_image','column_phone','column_products','column_quantity','column_total','column_last_activity','column_inactive','column_action','text_guest',
+            'column_customer','column_email','text_cart_image','column_phone','text_phone_missing','text_advanced_source_settings','text_source_readonly_notice','entry_col_firstname','entry_col_lastname','column_products','column_quantity','column_total','column_last_activity','column_inactive','column_action','text_guest',
             'button_customer','button_product','button_delete','button_clear',
             'text_settings','text_disabled_note','text_source_standard','text_source_external','text_cart_mapping_info',
             'text_cart_source_help','text_cart_amount_estimate','text_cart_storefront_note','text_settings_saved','error_cart_mapping',
@@ -333,7 +333,7 @@ class ControllerSaleAbandonedCart extends Controller {
             'reminder_delay_hours' => $this->reminderDelayHours((int)($this->config->get('codecart_abandoned_cart_reminder_delay_minutes') ?? 60)),
             'mail_auto' => (int)$this->config->get('codecart_abandoned_cart_mail_auto'),
             'guest_capture' => (int)$this->config->get('codecart_abandoned_cart_guest_capture'));
-        foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
+        foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname') as $name) {
             $data['cart_fields'][$name] = (string)$this->config->get('codecart_abandoned_cart_' . $name);
         }
         // Discovery is a preview only. Keep all current form inputs after a detection POST.
@@ -343,7 +343,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $data['checkout_standard_url'] = $this->catalogBaseUrl() . 'index.php?route=checkout/checkout';
         if ($detectRequest) {
             $data['cart_form_source'] = 'external';
-            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone') as $name) {
+            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname') as $name) {
                 if (isset($this->request->post['cart_' . $name])) {
                     $data['cart_fields'][$name] = substr(trim((string)$this->request->post['cart_' . $name]), 0, 64);
                 }
@@ -373,7 +373,7 @@ class ControllerSaleAbandonedCart extends Controller {
         if (isset($this->session->data['ccp_cart_settings_form_old']) && is_array($this->session->data['ccp_cart_settings_form_old'])) {
             $old = $this->session->data['ccp_cart_settings_form_old'];
             unset($this->session->data['ccp_cart_settings_form_old']);
-            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','status','idle_minutes','days','reminder_delay_minutes','reminder_delay_hours','mail_auto','guest_capture','checkout_url') as $field) {
+            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname','status','idle_minutes','days','reminder_delay_minutes','reminder_delay_hours','mail_auto','guest_capture','checkout_url') as $field) {
                 if (isset($old[$field])) { $data['cart_fields'][$field] = $old[$field]; }
             }
             if (isset($old['source'])) { $data['cart_form_source'] = $old['source']; }
