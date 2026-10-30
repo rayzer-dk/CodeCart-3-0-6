@@ -90,16 +90,17 @@ html.ccp-admin-dark .ccp-carts-page .ccp-cart-history-table thead th{background:
 html.ccp-admin-dark .ccp-carts-page .ccp-cart-tabs>li.active>a{background:#202b39;border-color:#40526b;color:#83baff}
 
 /* Single column-width definition. Photo and controls use fixed pixels; products receive all remaining room. */
-.ccp-carts-page .ccp-abandoned-cart-table{min-width:1220px;width:100%;table-layout:fixed}
+.ccp-carts-page .ccp-abandoned-cart-table{min-width:1320px;width:100%;table-layout:fixed}
 .ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-select{width:36px}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-customer{width:170px}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-email{width:158px}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-image{width:60px}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-quantity{width:76px}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-total{width:112px}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-activity{width:148px}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-status{width:138px}
-.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-actions{width:60px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-customer{width:140px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-email{width:150px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-phone{width:126px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-image{width:58px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-quantity{width:72px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-total{width:108px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-activity{width:146px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-status{width:130px}
+.ccp-carts-page .ccp-abandoned-cart-table col.ccp-width-actions{width:56px}
 .ccp-carts-page .ccp-abandoned-cart-table th{vertical-align:middle}
 .ccp-carts-page .ccp-abandoned-cart-table td{padding:9px 8px;vertical-align:middle;line-height:1.45;overflow-wrap:normal;word-break:normal}
 .ccp-carts-page .ccp-cart-check{text-align:center}
@@ -108,7 +109,9 @@ html.ccp-admin-dark .ccp-carts-page .ccp-cart-tabs>li.active>a{background:#202b3
 .ccp-carts-page .ccp-cart-row-actions .btn{width:30px;height:30px;padding:5px 7px}
 .ccp-carts-page .ccp-cart-contact{overflow:hidden}
 .ccp-carts-page .ccp-cart-contact strong{display:block;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.ccp-carts-page .ccp-cart-contact-phone{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;line-height:1.6;color:#526c80}
+.ccp-carts-page .ccp-cart-phone{overflow:hidden;max-width:0}
+.ccp-carts-page .ccp-cart-phone span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#526c80}
+.ccp-carts-page .ccp-cart-phone-empty{color:#8b99a7}
 .ccp-carts-page td.ccp-cart-email{overflow:hidden;max-width:0}
 .ccp-carts-page .ccp-cart-email .ccp-cart-contact-email,.ccp-carts-page .ccp-cart-email .ccp-cart-contact-noemail{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;line-height:1.6;color:#526c80}
 .ccp-carts-page .ccp-cart-email .ccp-cart-contact-noemail{color:#7b8997}
@@ -131,3 +134,11 @@ html.ccp-admin-dark .ccp-carts-page .ccp-cart-tabs>li.active>a{background:#202b3
 .ccp-carts-page .ccp-checkout-preview .help-block{margin:6px 0 0;line-height:1.5}
 html.ccp-admin-dark .ccp-carts-page .ccp-checkout-preview{background:#253246;border-color:#40526b;color:#c5d5e7}
 html.ccp-admin-dark .ccp-carts-page .ccp-checkout-preview strong{color:#e5edf8}
+
+/* One advanced SQL source section; keep the default checkout settings uncluttered. */
+.ccp-carts-page .ccp-source-advanced{margin:8px 0 14px;border:1px solid #dce6f0;border-radius:5px;background:#fafcff;padding:10px 12px}
+.ccp-carts-page .ccp-source-advanced>summary{cursor:pointer;font-size:12px;font-weight:600;color:#284b70}
+.ccp-carts-page .ccp-source-advanced[open]>summary{margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid #e2ebf4}
+.ccp-carts-page .ccp-source-advanced .ccp-external-fields{margin:10px 0 2px}
+html.ccp-admin-dark .ccp-carts-page .ccp-source-advanced{background:#253246;border-color:#40526b}
+html.ccp-admin-dark .ccp-carts-page .ccp-source-advanced>summary{color:#d2e3f6}
