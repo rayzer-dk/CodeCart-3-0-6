@@ -51,7 +51,7 @@ jobs:
           assert 'value="unishop2"' not in template
           assert 'min-width:1220px' in css
           assert 'width:60px' in css and 'width:158px' in css
-          assert len(re.findall(r'col\.ccp-width-image\\{',css))==1
+          assert css.count('col.ccp-width-image{width:60px}')==1
           assert 'text-overflow:ellipsis' in css and 'ccp-cart-contact-email' in css
           assert 'codecart_abandoned_cart_status' in controller and 'hasPermission' in controller
           for loc in ('uk-ua','ru-ru','en-gb'):
