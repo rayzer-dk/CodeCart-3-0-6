@@ -1,0 +1,106 @@
+name: Abandoned Cart Root Cause QA and Replacement
+
+on:
+  push:
+    paths:
+      - '.github/workflows/abandoned-cart-root-cause-qa.yml'
+      - 'upload/admin/controller/sale/abandoned_cart.php'
+      - 'upload/admin/view/template/sale/abandoned_cart_list.twig'
+      - 'upload/admin/view/javascript/codecart-abandoned-cart.js'
+      - 'upload/admin/view/stylesheet/codecart_abandoned_cart.css'
+      - 'upload/admin/language/**/sale/abandoned_cart.php'
+      - 'upload/catalog/language/**/checkout/checkout.php'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax and JS syntax
+        shell: bash
+        run: |
+          set -eu
+          php -l upload/admin/controller/sale/abandoned_cart.php
+          php -l upload/admin/model/sale/abandoned_cart.php
+          for locale in uk-ua ru-ru en-gb; do
+            php -l "upload/admin/language/$locale/sale/abandoned_cart.php"
+            php -l "upload/catalog/language/$locale/checkout/checkout.php"
+          done
+          node --check upload/admin/view/javascript/codecart-abandoned-cart.js
+      - name: Structural and regression assertions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          template=Path('upload/admin/view/template/sale/abandoned_cart_list.twig').read_text()
+          controller=Path('upload/admin/controller/sale/abandoned_cart.php').read_text()
+          css=Path('upload/admin/view/stylesheet/codecart_abandoned_cart.css').read_text()
+          js=Path('upload/admin/view/javascript/codecart-abandoned-cart.js').read_text()
+          assert 'ccp-width-image' in template and '<th class="ccp-cart-image-head">' in template
+          assert 'ccp-width-email' in template and 'ccp-width-products' in template
+          assert "cart_reminder_delay_hours" in controller and "cart_reminder_delay_hours" in template
+          assert "reminderDelayMinutes" in controller and 'codecart_abandoned_cart_reminder_delay_minutes' in controller
+          assert "if ($checkoutMode === 'custom') { $settings['codecart_abandoned_cart_checkout_url'] = $checkoutUrl; }" in controller
+          assert 'ccp-checkout-preview-link' in template and 'ccp-checkout-preview-link' in js
+          assert 'data-checkout-auto-url' in template and 'data-checkout-standard-url' in template
+          assert 'text_mail_status_no_email' in template
+          assert 'value="unishop2"' not in template
+          assert 'min-width:1220px' in css
+          assert 'width:60px' in css and 'width:158px' in css
+          assert len(re.findall(r'col\.ccp-width-image\\{',css))==1
+          assert 'text-overflow:ellipsis' in css and 'ccp-cart-contact-email' in css
+          assert 'codecart_abandoned_cart_status' in controller and 'hasPermission' in controller
+          for loc in ('uk-ua','ru-ru','en-gb'):
+            t=Path(f'upload/catalog/language/{loc}/checkout/checkout.php').read_text()
+            for line in t.splitlines():
+              if 'text_ccp_cart_recovery_consent' in line or 'text_ccp_registered_cart_consent' in line:
+                assert all(word not in line for word in ('Необов’язково','Необязательно','Optional.'))
+          print('PASS: table sizing, links, mail status, form state, consent and multilingual wording.')
+          PY
+      - name: Existing cart and scheduler smoke tests
+        run: |
+          set -eu
+          php tests/cart_reminder_consent_multistore_smoke.php
+          php tests/cart_source_discovery_smoke.php
+          php tests/cart_workflow_smoke.php
+          php tests/scheduler_runtime_smoke.php
+      - name: Package complete replacement files
+        if: success()
+        run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile, ZIP_DEFLATED
+          from pathlib import Path
+          files = [
+            'upload/admin/controller/sale/abandoned_cart.php',
+            'upload/admin/view/template/sale/abandoned_cart_list.twig',
+            'upload/admin/view/stylesheet/codecart_abandoned_cart.css',
+            'upload/admin/view/javascript/codecart-abandoned-cart.js',
+          ]
+          for lang in ('uk-ua','ru-ru','en-gb'):
+            files += [f'upload/admin/language/{lang}/sale/abandoned_cart.php',
+                      f'upload/catalog/language/{lang}/checkout/checkout.php']
+          name='CodeCart_3_0_6_Abandoned_Cart_Refinement_2026-10-30.zip'
+          with ZipFile(name,'w',ZIP_DEFLATED,compresslevel=9) as z:
+            for f in files: z.write(f, f)
+            z.writestr('README-REPLACEMENT.txt',
+              'CodeCart 3.0.6: Root-cause cart UI refinement.\\n'
+              'Back up your website files and entire database before updating.\\n'
+              'Copy the upload/ tree into your store root, preserving paths.\\n'
+              'Clear template/OCMOD cache and PHP OPcache when applicable.\\n'
+              'Changing the checkout mode changes reminder return links, NOT the checkout implementation.\\n'
+              'Emails still require separate, explicit consent and a valid address.\\n'
+              'Existing guest carts without captured contacts cannot be reconstructed.\\n')
+          assert ZipFile(name).testzip() is None
+          print('Packaged',len(files),'files:',name)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: CodeCart-Abandoned-Cart-Refinement
+          path: CodeCart_3_0_6_Abandoned_Cart_Refinement_2026-10-30.zip
+          if-no-files-found: error
+          retention-days: 14
