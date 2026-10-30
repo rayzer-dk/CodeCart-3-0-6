@@ -75,11 +75,14 @@ class ControllerExtensionModuleCodecartGuestCartContact extends Controller {
         }
         // Avoid duplicate writes, but always persist a changed contact immediately.
         $fingerprint = $agree ? hash('sha256', implode('|', array($data['email'], $data['firstname'], $data['lastname'], $data['telephone']))) : '';
-        if ($agree && $fingerprint === (string)($this->session->data['ccp_guest_contact_fingerprint'] ?? '')) {
-            $this->respond(array('success'=>true)); return;
-        }
         try {
             $guest = new \CodeCart\Core\GuestCartContact($this->registry);
+            // A stale session fingerprint must never masquerade as a saved consent.
+            if ($agree && $fingerprint === (string)($this->session->data['ccp_guest_contact_fingerprint'] ?? '')) {
+                if ($guest->hasPersistedConsent((string)$this->session->getId(), $data['email'])) {
+                    $this->respond(array('success'=>true, 'stored'=>true)); return;
+                }
+            }
             try {
                 $guest->saveFromCheckout((string)$this->session->getId(), $data);
             } catch (\Throwable $storageError) {
@@ -91,9 +94,14 @@ class ControllerExtensionModuleCodecartGuestCartContact extends Controller {
                 $guest->install();
                 $guest->saveFromCheckout((string)$this->session->getId(), $data);
             }
+            if ($agree && !$guest->hasPersistedConsent((string)$this->session->getId(), $data['email'])) {
+                unset($this->session->data['ccp_guest_contact_fingerprint']);
+                $this->log->write('Guest cart consent persistence verification failed for store ' . (int)$this->config->get('config_store_id') . '; no personal data logged');
+                $this->respond(array('success'=>false, 'error'=>'not_persisted'), 500); return;
+            }
             if ($agree) { $this->session->data['ccp_guest_contact_fingerprint'] = $fingerprint; }
             else { unset($this->session->data['ccp_guest_contact_fingerprint']); }
-            $this->respond(array('success'=>true));
+            $this->respond(array('success'=>true,'stored'=>$agree));
         } catch (\Throwable $e) {
             $this->log->write('Guest cart contact bridge failed: ' . get_class($e));
             $this->respond(array('success'=>false, 'error'=>'save_failed'), 500);
