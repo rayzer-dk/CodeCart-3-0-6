@@ -145,3 +145,9 @@ html.ccp-admin-dark .ccp-carts-page .ccp-source-advanced>summary,html.ccp-admin-
 
 .ccp-carts-page .ccp-checkout-field-mapping .row>div{margin-bottom:11px}
 .ccp-carts-page .ccp-checkout-field-mapping .help-block{line-height:1.5}
+
+/* Localized state explanation; does not enable contact capture. */
+.ccp-carts-page .ccp-capture-state{font-size:12px;line-height:1.45;padding:7px 10px;margin:7px 0 4px;border-left:3px solid #a1b4c7;background:#f5f8fc;color:#44546a;border-radius:2px}
+.ccp-carts-page .ccp-capture-state i{margin-right:6px}
+.ccp-carts-page .ccp-capture-state-on{border-left-color:#27835a;background:#f2faf6;color:#20553e}
+html.ccp-admin-dark .ccp-carts-page .ccp-capture-state{background:#28384b;color:#d6e4ef}
