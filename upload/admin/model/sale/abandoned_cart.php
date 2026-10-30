@@ -108,8 +108,8 @@ class ModelSaleAbandonedCart extends Model {
         $qty = $this->sourceColumn($f, 'quantity', '0');
         $dt = $this->sourceColumn($f, 'date', 'NOW()');
         $cid = $this->sourceColumn($f, 'customer', '0');
-        $email = $this->sourceColumn($f, 'email', 'cu.email');
-        $phone = $this->sourceColumn($f, 'phone', 'cu.telephone');
+        $email = 'COALESCE(NULLIF(' . $this->sourceColumn($f, 'email', "''") . ",''),cu.email,'')";
+        $phone = 'COALESCE(NULLIF(' . $this->sourceColumn($f, 'phone', "''") . ",''),cu.telephone,'')";
         $first = $this->sourceColumn($f, 'firstname', "''");
         $last = $this->sourceColumn($f, 'lastname', "''");
         $name = "TRIM(CONCAT(COALESCE(NULLIF(cu.firstname,'')," . $first . "), ' ', COALESCE(NULLIF(cu.lastname,'')," . $last . ")))";
