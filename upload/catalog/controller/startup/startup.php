@@ -282,9 +282,13 @@ class ControllerStartupStartup extends Controller {
                     $this->document->addScript('catalog/view/javascript/codecart/registered-cart-consent.js?v=3.0.6.2');
                 }
             } elseif ((bool)$this->config->get('codecart_abandoned_cart_guest_capture')) {
-                // Native OpenCart checkout persists its own consent: no second guest checkbox.
-                if ($cartCheckoutRoute === 'checkout/uni_checkout' || ($cartCustomRoute && $cartCheckoutRoute !== 'checkout/checkout')) {
-                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.4');
+                // Load on the actual checkout route, independent of the active template.
+                // Native guest forms already containing a reminder-consent checkbox
+                // are detected by the bridge and must not receive a duplicate.
+                if ($cartCheckoutRoute === 'checkout/checkout'
+                    || $cartCheckoutRoute === 'checkout/uni_checkout'
+                    || $cartCustomRoute) {
+                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.5');
                 }
             }
         }
