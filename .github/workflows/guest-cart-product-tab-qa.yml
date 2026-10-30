@@ -1,0 +1,84 @@
+name: Guest Cart Capture and Product Tab QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/guest-cart-product-tab-qa.yml'
+      - 'upload/catalog/controller/startup/startup.php'
+      - 'upload/catalog/controller/common/header.php'
+      - 'upload/admin/view/template/catalog/product_form.twig'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate PHP and product tab layout
+        run: |
+          set -eu
+          php -l upload/catalog/controller/startup/startup.php
+          php -l upload/catalog/controller/common/header.php
+          python3 - <<'PY'
+          from pathlib import Path
+          startup=Path('upload/catalog/controller/startup/startup.php').read_text()
+          header=Path('upload/catalog/controller/common/header.php').read_text()
+          form=Path('upload/admin/view/template/catalog/product_form.twig').read_text()
+          assert startup.index("config->get('codecart_abandoned_cart_status')") > startup.index('foreach ($query->rows as $result)')
+          assert "($this->request->get['route'] ?? '') === 'checkout/uni_checkout'" in startup
+          assert "(bool)$this->config->get('codecart_abandoned_cart_guest_capture')" in startup
+          assert "'external'" in startup
+          assert "document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.1')" in startup
+          assert 'guest-cart-uni-consent.js' not in header
+          assert form.index('href="#tab-purchase-blocks"') < form.index('href="#tab-extra"') < form.index('href="#tab-recurring"')
+          assert form.index('id="tab-purchase-blocks"') < form.index('id="tab-extra"') < form.index('id="tab-recurring"')
+          assert form.count('href="#tab-extra"') == 1
+          assert form.count('id="tab-extra"') == 1
+          assert form.count('id="tab-purchase-blocks"') == 1
+          assert '{{ purchase_blocks_html }}' in form
+          assert 'name="product_extra_tab_mode"' in form
+          assert 'name="product_extra_tab[' in form
+          print('PASS: theme-independent consent bridge and product tab ordering')
+          PY
+      - name: Test guest capture and registered reminder contracts
+        run: |
+          set -eu
+          php -l upload/catalog/controller/extension/module/codecart_guest_cart_contact.php
+          php -l upload/system/library/codecart/src/GuestCartContact.php
+          node --check upload/catalog/view/javascript/codecart/guest-cart-uni-consent.js
+          php tests/cart_workflow_smoke.php
+          php tests/cart_reminder_consent_multistore_smoke.php
+          php tests/cart_source_discovery_smoke.php
+      - name: Create replacement ZIP
+        run: |
+          python3 - <<'PY'
+          from zipfile import ZipFile,ZIP_DEFLATED
+          p='CodeCart_3_0_6_Guest_Cart_and_Product_Tabs_2026-10-30.zip'
+          paths=[
+            'upload/catalog/controller/startup/startup.php',
+            'upload/catalog/controller/common/header.php',
+            'upload/admin/view/template/catalog/product_form.twig'
+          ]
+          with ZipFile(p,'w',ZIP_DEFLATED,compresslevel=9) as z:
+            for path in paths: z.write(path)
+            z.writestr('README.txt',
+              'CodeCart 3.0.6 – guest cart contact script loading and product tab ordering.\n'
+              'Create a full backup of website files and database before installing.\n'
+              'Copy the upload/ folder to store root, preserving complete paths.\n'
+              'Clear OCMOD, Twig and OPcache where used.\n'
+              'Guest capture requires the abandoned cart feature and guest capture enabled, the standard cart source, valid email and explicit unchecked-by-default opt-in.\n'
+              'No consent means no collected contact and no abandoned-cart reminder.\n'
+              'The provided HTML sample is from rayzer.dk; barzus.com.ua is a separate installation.\n')
+          assert ZipFile(p).testzip() is None
+          print(p)
+          PY
+      - name: Publish replacement files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Guest-Cart-Product-Tabs-Replacement
+          path: CodeCart_3_0_6_Guest_Cart_and_Product_Tabs_2026-10-30.zip
+          if-no-files-found: error
+          retention-days: 14
