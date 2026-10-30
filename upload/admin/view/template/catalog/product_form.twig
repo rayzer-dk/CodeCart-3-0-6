@@ -26,12 +26,12 @@
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-product" class="form-horizontal">
           <ul class="nav nav-tabs">
             <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
-            <li><a href="#tab-extra" data-toggle="tab">{{ tab_extra }}</a></li>
             <li><a href="#tab-data" data-toggle="tab">{{ tab_data }}</a></li>
             <li><a href="#tab-links" data-toggle="tab">{{ tab_links }}</a></li>
             <li><a href="#tab-attribute" data-toggle="tab">{{ tab_attribute }}</a></li>
             <li><a href="#tab-option" data-toggle="tab">{{ tab_option }}</a></li>
             <li><a href="#tab-purchase-blocks" data-toggle="tab">{{ tab_purchase_blocks }}</a></li>
+            <li><a href="#tab-extra" data-toggle="tab">{{ tab_extra }}</a></li>
             <li><a href="#tab-recurring" data-toggle="tab">{{ tab_recurring }}</a></li>
             <li><a href="#tab-discount" data-toggle="tab">{{ tab_discount }}</a></li>
             <li><a href="#tab-special" data-toggle="tab">{{ tab_special }}</a></li>
@@ -95,23 +95,6 @@
                   </div>
                 </div>
                 {% endfor %}</div>
-            </div>
-            <div class="tab-pane" id="tab-extra">
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-extra-tab-mode"><span data-toggle="tooltip" title="{{ help_extra_tab_mode }}">{{ entry_extra_tab_mode }}</span></label>
-                <div class="col-sm-10"><select name="product_extra_tab_mode" id="input-extra-tab-mode" class="form-control">
-                  <option value="0"{% if product_extra_tab_mode == 0 %} selected="selected"{% endif %}>{{ text_extra_tab_global }}</option>
-                  <option value="1"{% if product_extra_tab_mode == 1 %} selected="selected"{% endif %}>{{ text_extra_tab_custom }}</option>
-                  <option value="2"{% if product_extra_tab_mode == 2 %} selected="selected"{% endif %}>{{ text_extra_tab_disabled }}</option>
-                </select></div>
-              </div>
-              <div id="product-extra-tab-custom">
-                <ul class="nav nav-tabs" id="extra-tab-language">{% for language in languages %}<li><a href="#extra-tab-language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</a></li>{% endfor %}</ul>
-                <div class="tab-content">{% for language in languages %}<div class="tab-pane" id="extra-tab-language{{ language.language_id }}">
-                  <div class="form-group"><label class="col-sm-2 control-label" for="input-extra-tab-title{{ language.language_id }}">{{ entry_extra_tab_title }}</label><div class="col-sm-10"><input type="text" maxlength="128" name="product_extra_tab[{{ language.language_id }}][title]" value="{{ product_extra_tab[language.language_id] ? product_extra_tab[language.language_id].title }}" id="input-extra-tab-title{{ language.language_id }}" class="form-control" /></div></div>
-                  <div class="form-group"><label class="col-sm-2 control-label" for="input-extra-tab-content{{ language.language_id }}">{{ entry_extra_tab_content }}</label><div class="col-sm-10"><textarea name="product_extra_tab[{{ language.language_id }}][content]" id="input-extra-tab-content{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ product_extra_tab[language.language_id] ? product_extra_tab[language.language_id].content }}</textarea></div></div>
-                </div>{% endfor %}</div>
-              </div>
             </div>
             <div class="tab-pane" id="tab-data">
               <div class="form-group required">
@@ -884,6 +867,23 @@
             </div>
             <div class="tab-pane" id="tab-purchase-blocks">
               {{ purchase_blocks_html }}
+            </div>
+            <div class="tab-pane" id="tab-extra">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-extra-tab-mode"><span data-toggle="tooltip" title="{{ help_extra_tab_mode }}">{{ entry_extra_tab_mode }}</span></label>
+                <div class="col-sm-10"><select name="product_extra_tab_mode" id="input-extra-tab-mode" class="form-control">
+                  <option value="0"{% if product_extra_tab_mode == 0 %} selected="selected"{% endif %}>{{ text_extra_tab_global }}</option>
+                  <option value="1"{% if product_extra_tab_mode == 1 %} selected="selected"{% endif %}>{{ text_extra_tab_custom }}</option>
+                  <option value="2"{% if product_extra_tab_mode == 2 %} selected="selected"{% endif %}>{{ text_extra_tab_disabled }}</option>
+                </select></div>
+              </div>
+              <div id="product-extra-tab-custom">
+                <ul class="nav nav-tabs" id="extra-tab-language">{% for language in languages %}<li><a href="#extra-tab-language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</a></li>{% endfor %}</ul>
+                <div class="tab-content">{% for language in languages %}<div class="tab-pane" id="extra-tab-language{{ language.language_id }}">
+                  <div class="form-group"><label class="col-sm-2 control-label" for="input-extra-tab-title{{ language.language_id }}">{{ entry_extra_tab_title }}</label><div class="col-sm-10"><input type="text" maxlength="128" name="product_extra_tab[{{ language.language_id }}][title]" value="{{ product_extra_tab[language.language_id] ? product_extra_tab[language.language_id].title }}" id="input-extra-tab-title{{ language.language_id }}" class="form-control" /></div></div>
+                  <div class="form-group"><label class="col-sm-2 control-label" for="input-extra-tab-content{{ language.language_id }}">{{ entry_extra_tab_content }}</label><div class="col-sm-10"><textarea name="product_extra_tab[{{ language.language_id }}][content]" id="input-extra-tab-content{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ product_extra_tab[language.language_id] ? product_extra_tab[language.language_id].content }}</textarea></div></div>
+                </div>{% endfor %}</div>
+              </div>
             </div>
             <div class="tab-pane" id="tab-recurring">
               <div class="table-responsive">

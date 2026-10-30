@@ -56,6 +56,16 @@ class ControllerStartupStartup extends Controller {
 			}
 		}
 
+        // Load the opt-in guest-contact bridge after store settings, before the
+        // active theme's header. Third-party checkout themes may replace common/header.
+        // Disabled mode is inert: no extra queries, stylesheet, script or AJAX.
+        if ((string)($this->request->get['route'] ?? '') === 'checkout/uni_checkout'
+            && (bool)$this->config->get('codecart_abandoned_cart_status')
+            && (bool)$this->config->get('codecart_abandoned_cart_guest_capture')
+            && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
+            $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.1');
+        }
+
 		// Storefront image URLs may vary between original format and WebP/AVIF based on Accept.
 		// Tell HTTP/proxy caches about that negotiation; CLI/cron never enters this path.
 		if (((int)$this->config->get('config_image_webp') && function_exists('imagewebp'))

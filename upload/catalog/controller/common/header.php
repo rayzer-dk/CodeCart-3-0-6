@@ -4,14 +4,6 @@
 
 class ControllerCommonHeader extends Controller {
 	public function index() {
-        // Consent-only contact bridge for UniShop2's independent checkout handler.
-        // No assets or extra queries when abandoned carts or guest capture are disabled.
-        if ((string)($this->request->get['route'] ?? '') === 'checkout/uni_checkout'
-            && $this->config->get('codecart_abandoned_cart_status')
-            && $this->config->get('codecart_abandoned_cart_guest_capture')
-            && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
-            $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js');
-        }
         // Registered checkouts require explicit cart-specific consent; newsletter is not sufficient.
         $checkoutRoute = (string)($this->request->get['route'] ?? '');
         if ($this->customer->isLogged() && $this->config->get('codecart_abandoned_cart_status')
