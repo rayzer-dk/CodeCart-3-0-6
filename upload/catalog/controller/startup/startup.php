@@ -56,14 +56,23 @@ class ControllerStartupStartup extends Controller {
 			}
 		}
 
-        // Load the opt-in guest-contact bridge after store settings, before the
-        // active theme's header. Third-party checkout themes may replace common/header.
-        // Disabled mode is inert: no extra queries, stylesheet, script or AJAX.
-        if ((string)($this->request->get['route'] ?? '') === 'checkout/uni_checkout'
+        // Load guest opt-in bridge after store settings, before any theme header.
+        // Native OpenCart checkout saves its own consent: do not duplicate it.
+        $cartCheckoutRoute = (string)($this->request->get['route'] ?? '');
+        $cartBridgeCheckout = ($cartCheckoutRoute === 'checkout/uni_checkout');
+        if (!$cartBridgeCheckout && $cartCheckoutRoute !== '' && $cartCheckoutRoute !== 'checkout/checkout'
+            && (string)$this->config->get('codecart_abandoned_cart_checkout_mode') === 'custom') {
+            $cartCustomUrl = (string)$this->config->get('codecart_abandoned_cart_checkout_url');
+            $cartCustomQuery = parse_url($cartCustomUrl, PHP_URL_QUERY);
+            $cartCustomArgs = array();
+            if (is_string($cartCustomQuery)) { parse_str($cartCustomQuery, $cartCustomArgs); }
+            $cartBridgeCheckout = (string)($cartCustomArgs['route'] ?? '') === $cartCheckoutRoute;
+        }
+        if ($cartBridgeCheckout
             && (bool)$this->config->get('codecart_abandoned_cart_status')
             && (bool)$this->config->get('codecart_abandoned_cart_guest_capture')
             && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
-            $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.1');
+            $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.2');
         }
 
 		// Storefront image URLs may vary between original format and WebP/AVIF based on Accept.
