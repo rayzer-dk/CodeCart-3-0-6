@@ -16,8 +16,12 @@ $assert(strpos($cron, 'ccp-host-technical-fields') !== false, 'raw cron fields m
 $assert(strpos($cron, "'value':'*/5'") !== false, 'valid five-minute cron expression preserved');
 $assert(strpos($cron, 'Mirohost') === false, 'host-specific branding absent from scheduler UI');
 $cart = $read('upload/admin/view/template/sale/abandoned_cart_list.twig');
-$assert(strpos($cart, '<col class="ccp-width-email">') === false, 'extra email column removed');
-$assert(strpos($cart, 'ccp-cart-contact-email') !== false, 'email retained in customer cell');
+$assert(strpos($cart, '<col class="ccp-width-email">') !== false, 'compact email column present');
+$assert(strpos($cart, '<col class="ccp-width-phone">') !== false, 'dedicated telephone column present');
+$assert(strpos($cart, 'sort_telephone') !== false, 'telephone column supports sorting');
+$assert(strpos($cart, '× {{ product.quantity }}') === false, 'product titles no longer repeat quantity');
+$assert(strpos($cart, 'ccp-source-advanced') !== false, 'external SQL source tucked into advanced settings');
+$assert(strpos($cart, 'ccp-cart-contact-email') !== false, 'email remains visible in separate truncated cell');
 $assert(strpos($cart, 'sort_email') !== false, 'email sorting preserved');
 $assert(strpos($cart, 'text_source_only_explanation') !== false && strpos($cart, 'text_checkout_only_explanation') !== false, 'data source / checkout are clarified');
 foreach (array('en-gb', 'ru-ru', 'uk-ua') as $locale) {
