@@ -180,6 +180,23 @@
             {% else %}
               <p class="ccp-capture-state ccp-capture-state-on"><i class="fa fa-check-circle"></i> {{ text_capture_on }}</p>
             {% endif %}</div>
+          <div class="ccp-cart-capture-diagnostics" data-check-url="{{ guest_capture_diagnostics_url|e('html_attr') }}"
+               data-error="{{ text_capture_diag_error|e('html_attr') }}"
+               data-yes="{{ text_enabled|e('html_attr') }}" data-no="{{ text_disabled|e('html_attr') }}"
+               data-module="{{ text_capture_diag_module|e('html_attr') }}"
+               data-guest="{{ text_capture_diag_guest|e('html_attr') }}"
+               data-source="{{ text_capture_diag_source|e('html_attr') }}"
+               data-file="{{ text_capture_diag_file|e('html_attr') }}"
+               data-table="{{ text_capture_diag_table|e('html_attr') }}"
+               data-schema="{{ text_capture_diag_schema|e('html_attr') }}"
+               data-optins="{{ text_capture_diag_optins|e('html_attr') }}"
+               data-matched="{{ text_capture_diag_matched|e('html_attr') }}">
+            <button type="button" id="ccp-check-guest-capture" class="btn btn-default btn-sm">
+              <i class="fa fa-stethoscope"></i> {{ text_capture_diag_button }}
+            </button>
+            <div id="ccp-guest-capture-result" class="ccp-capture-diagnostics-result" role="status" aria-live="polite"></div>
+            <p class="help-block">{{ text_capture_diag_explanation }}</p>
+          </div>
           <details class="ccp-checkout-field-mapping">
             <summary><i class="fa fa-sliders"></i> {{ text_checkout_field_mapping }}</summary>
             <p class="help-block">{{ text_checkout_field_help }}</p>
