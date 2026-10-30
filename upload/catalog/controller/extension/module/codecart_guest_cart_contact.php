@@ -90,7 +90,7 @@ class ControllerExtensionModuleCodecartGuestCartContact extends Controller {
                 // File-only upgrades may leave the consent table uninstalled. Repair
                 // only a confirmed missing table, after explicit valid opt-in/revocation.
                 $missingTable = strpos((string)$storageError->getMessage(), DB_PREFIX . 'codecart_cart_guest_contact') !== false
-                    && preg_match('/(?:\\b1146\\b|does not exist|doesn.t exist)/i', (string)$storageError->getMessage());
+                    && preg_match('/(?:\b1146\b|does not exist|doesn.t exist)/i', (string)$storageError->getMessage());
                 if (!$missingTable) { throw $storageError; }
                 $guest->install();
                 $guest->saveFromCheckout((string)$this->session->getId(), $data);
