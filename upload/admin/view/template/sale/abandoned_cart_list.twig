@@ -135,14 +135,6 @@
             <div class="col-md-3"><label for="abandoned-days">{{ entry_cart_days }}</label>
               <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="30" value="{{ cart_fields.days }}"></div>
           </div>
-          <details class="ccp-source-advanced" id="ccp-source-advanced" {{ cart_form_source == 'external' or detect_message ? 'open' : '' }}>
-            <summary><i class="fa fa-database"></i> {{ text_advanced_source_settings }}</summary>
-            <p class="help-block">{{ text_cart_source_help }}</p>
-            <div class="row"><div class="col-sm-6 col-md-4"><label for="abandoned-source">{{ entry_cart_source }}</label>
-              <select name="cart_source" class="form-control" id="abandoned-source">
-                <option value="standard" {{ cart_form_source == 'standard' ? 'selected' : '' }}>{{ text_source_standard }}</option>
-                <option value="external" {{ cart_form_source == 'external' ? 'selected' : '' }}>{{ text_source_external }}</option>
-              </select><p class="help-block">{{ text_source_readonly_notice }}</p></div></div>
             <div class="ccp-checkout-link-setting" data-checkout-auto-url="{{ checkout_auto_url|e('html_attr') }}" data-checkout-standard-url="{{ checkout_standard_url|e('html_attr') }}">
               <h4 class="ccp-settings-section-heading"><i class="fa fa-external-link"></i> {{ text_checkout_section }}</h4>
               <p class="ccp-settings-distinction">{{ text_checkout_only_explanation }}</p>
@@ -179,6 +171,14 @@
               <option value="0" {{ not cart_fields.guest_capture ? 'selected' : '' }}>{{ text_disabled }}</option>
               <option value="1" {{ cart_fields.guest_capture ? 'selected' : '' }}>{{ text_enabled }}</option>
             </select><p class="help-block">{{ text_guest_capture_help }}</p></div>
+          <details class="ccp-source-advanced" id="ccp-source-advanced" {{ cart_form_source == 'external' or detect_message ? 'open' : '' }}>
+            <summary><i class="fa fa-database"></i> {{ text_advanced_source_settings }}</summary>
+            <p class="help-block">{{ text_cart_source_help }}</p>
+            <div class="row"><div class="col-sm-6 col-md-4"><label for="abandoned-source">{{ entry_cart_source }}</label>
+              <select name="cart_source" class="form-control" id="abandoned-source">
+                <option value="standard" {{ cart_form_source == 'standard' ? 'selected' : '' }}>{{ text_source_standard }}</option>
+                <option value="external" {{ cart_form_source == 'external' ? 'selected' : '' }}>{{ text_source_external }}</option>
+              </select><p class="help-block">{{ text_source_readonly_notice }}</p></div></div>
           <div class="ccp-external-fields" id="ccp-external-mapping" data-schema-url="{{ external_schema_url|e('html_attr') }}"
                data-detect-ok="{{ text_external_detect_success|e('html_attr') }}" data-detect-failed="{{ text_external_detect_failed|e('html_attr') }}"
                data-missing="{{ text_external_detect_warning|e('html_attr') }}">
