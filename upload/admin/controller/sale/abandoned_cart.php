@@ -66,6 +66,65 @@ class ControllerSaleAbandonedCart extends Controller {
         return rtrim(rtrim(number_format(max(5, min(10080, $minutes)) / 60, 2, '.', ''), '0'), '.');
     }
 
+    /**
+     * Read-only diagnostics for guest abandoned-cart capture.
+     * Returns aggregate counts only; never returns or logs customer PII.
+     */
+    public function guestCaptureDiagnostics() {
+        $this->load->language('sale/abandoned_cart');
+        $json = array('success'=>false);
+        $token = (string)($this->request->get['user_token'] ?? '');
+        $expected = (string)($this->session->data['user_token'] ?? '');
+        if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'GET'
+            || $token === '' || $expected === '' || !hash_equals($expected, $token)
+            || !$this->user->hasPermission('access', 'sale/abandoned_cart')
+            || !$this->user->hasPermission('modify', 'sale/abandoned_cart')) {
+            $json['error'] = 'permission_denied';
+        } else {
+            $json = array(
+                'success'=>true,
+                'module_enabled'=>(bool)$this->config->get('codecart_abandoned_cart_status'),
+                'guest_capture_enabled'=>(bool)$this->config->get('codecart_abandoned_cart_guest_capture'),
+                'standard_source'=>(string)$this->config->get('codecart_abandoned_cart_source') !== 'external',
+                'bridge_file_exists'=>is_file(DIR_CATALOG . 'view/javascript/codecart/guest-cart-uni-consent.js'),
+                'table_exists'=>false,
+                'schema_valid'=>false,
+                'consented_sessions'=>0,
+                'matched_cart_sessions'=>0
+            );
+            try {
+                $table = DB_PREFIX . 'codecart_cart_guest_contact';
+                $exists = $this->db->query("SHOW TABLES LIKE '" . $this->db->escape($table) . "'");
+                if ($exists->num_rows) {
+                    $json['table_exists'] = true;
+                    $columns = $this->db->query("SHOW COLUMNS FROM `" . $table . "`");
+                    $names = array_column($columns->rows, 'Field');
+                    $json['schema_valid'] = !array_diff(
+                        array('session_id','store_id','firstname','lastname','email','telephone','consent','date_modified'), $names);
+                    if ($json['schema_valid']) {
+                        // This shop uses the global cart table; store ID scopes consent records.
+                        $store = (int)$this->config->get('config_store_id');
+                        $query = $this->db->query("SELECT COUNT(*) AS total,
+                            SUM(CASE WHEN EXISTS (SELECT 1 FROM `" . DB_PREFIX . "cart` c
+                                WHERE c.session_id=g.session_id AND c.api_id=0 AND c.customer_id=0) THEN 1 ELSE 0 END) AS matched
+                            FROM `" . $table . "` g
+                            WHERE g.store_id='" . $store . "'
+                                AND g.consent=1 AND g.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)");
+                        $json['consented_sessions'] = (int)($query->row['total'] ?? 0);
+                        $json['matched_cart_sessions'] = (int)($query->row['matched'] ?? 0);
+                    }
+                }
+            } catch (\Throwable $e) {
+                $json['error'] = 'database_diagnostics_failed';
+                $this->log->write('Guest cart diagnostics failed: ' . get_class($e));
+            }
+        }
+        $this->response->addHeader('Content-Type: application/json; charset=utf-8');
+        $this->response->addHeader('Cache-Control: no-store, private');
+        $this->response->addHeader('X-Content-Type-Options: nosniff');
+        $this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE));
+    }
+
     public function externalTables() {
         $this->load->language('sale/abandoned_cart');
         $token = (string)($this->request->get['user_token'] ?? '');
@@ -406,6 +465,7 @@ class ControllerSaleAbandonedCart extends Controller {
             $data['settings_error_tab'] = true;
         } else { $data['settings_error_tab'] = false; }
         if ($detectRequest && isset($this->request->post['cart_checkout_url'])) { $data['cart_fields']['checkout_url'] = substr(trim((string)$this->request->post['cart_checkout_url']), 0, 512); }
+        $data['guest_capture_diagnostics_url'] = html_entity_decode($this->url->link('sale/abandoned_cart/guestCaptureDiagnostics', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
         $data['external_tables_url'] = html_entity_decode($this->url->link('sale/abandoned_cart/externalTables', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
         $data['catalog_checkout_url'] = $this->checkoutUrl();
         $data['text_external_source_explanation'] = $this->language->get('text_external_source_explanation');
