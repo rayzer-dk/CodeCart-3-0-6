@@ -26,6 +26,13 @@ class ControllerExtensionModuleCodecartGuestCartContact extends Controller {
         $this->respond(array(
             'enabled'=>true, 'nonce'=>$nonce,
             'label'=>$this->language->get('text_ccp_cart_recovery_consent'),
+            'selectors'=>array(
+                'form'=>(string)$this->config->get('codecart_abandoned_cart_selector_form'),
+                'firstname'=>(string)$this->config->get('codecart_abandoned_cart_selector_firstname'),
+                'lastname'=>(string)$this->config->get('codecart_abandoned_cart_selector_lastname'),
+                'email'=>(string)$this->config->get('codecart_abandoned_cart_selector_email'),
+                'telephone'=>(string)$this->config->get('codecart_abandoned_cart_selector_telephone')
+            ),
             'save_url'=>$this->url->link('extension/module/codecart_guest_cart_contact/save', '', true)
         ));
     }
