@@ -80,3 +80,5 @@ $_['text_sql_sensitive_warning'] = 'SQL-копия может содержать
 $_['text_catalog_xml_help'] = 'XML не дублирует перенос каталога: для Google Merchant и внешних интеграций используйте отдельные XML-фиды для каждого активного языка.';
 $_['button_xml_feeds'] = 'Открыть XML-фиды';
 $_['error_restore_query'] = 'Ошибка SQL при восстановлении таблицы';
+$_['error_restore_snapshot'] = 'Не удалось создать защитную копию базы перед восстановлением. Восстановление отменено без изменения данных.';
+$_['text_restore_snapshot_saved'] = ' Защитная копия: storage/backup/%s.';
