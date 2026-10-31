@@ -42,7 +42,14 @@ class ControllerToolCatalogTransfer extends Controller {
 
         try {
             $transfer = new \CodeCart\Core\CatalogTransfer($this->registry);
-            $transfer->export($entities, $path, $portable);
+            $progress = $this->operationWriter();
+            $progress(array('stage'=>'preparing','total'=>0,'processed'=>0,'success'=>0,'skipped'=>0,'issues'=>array(),'percent'=>2));
+            $exportResult = $transfer->onProgress($progress)->export($entities, $path, $portable);
+            $progress(array('stage'=>'done','percent'=>100,'total'=>(int)(isset($exportResult['products']['total'])?$exportResult['products']['total']:0),
+                'processed'=>(int)(isset($exportResult['products']['processed'])?$exportResult['products']['processed']:0),
+                'success'=>(int)(isset($exportResult['products']['success'])?$exportResult['products']['success']:0),
+                'skipped'=>(int)(isset($exportResult['products']['skipped'])?$exportResult['products']['skipped']:0),
+                'issues'=>isset($exportResult['issues'])?$exportResult['issues']:array()));
 
             if (!is_file($path) || (int)filesize($path) < 32) {
                 throw new \RuntimeException($this->language->get('error_catalog_export'));
@@ -73,6 +80,7 @@ class ControllerToolCatalogTransfer extends Controller {
             $path = ''; // Response owns cleanup after streaming.
         } catch (\Throwable $e) {
             $this->log->write('CodeCart PRO catalog transfer export failed: ' . $e->getMessage());
+            try { $this->operationWriter()(array('stage'=>'error','error'=>$e->getMessage(),'percent'=>0)); } catch (\Throwable $ignored) {}
             $this->sendExportError($e->getMessage(), 500);
         } finally {
             if ($display_errors !== false) {
@@ -120,7 +128,14 @@ class ControllerToolCatalogTransfer extends Controller {
             $overwrite = !empty($this->request->post['overwrite_images']);
             try {
                 $transfer = new \CodeCart\Core\CatalogTransfer($this->registry);
-                $json['result'] = $transfer->importToken($token, $overwrite);
+                $writer = $this->operationWriter();
+                $writer(array('stage'=>'preparing','percent'=>2,'total'=>0,'processed'=>0,'success'=>0,'skipped'=>0,'issues'=>array()));
+                $json['result'] = $transfer->onProgress($writer)->importToken($token, $overwrite);
+                $writer(array('stage'=>'done','percent'=>100,'total'=>(int)(isset($json['result']['total_products'])?$json['result']['total_products']:0),
+                    'processed'=>(int)(isset($json['result']['processed_products'])?$json['result']['processed_products']:0),
+                    'success'=>(int)(isset($json['result']['successful_products'])?$json['result']['successful_products']:0),
+                    'skipped'=>(int)(isset($json['result']['skipped_products'])?$json['result']['skipped_products']:0),
+                    'issues'=>isset($json['result']['product_errors'])?$json['result']['product_errors']:array()));
                 $json['success'] = $this->language->get('text_catalog_import_success');
                 $this->cache->delete('*');
             } catch (\Throwable $e) {
@@ -130,6 +145,68 @@ class ControllerToolCatalogTransfer extends Controller {
 
         $this->response->addHeader('Content-Type: application/json; charset=UTF-8');
         $this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    public function progress() {
+        $this->load->language('tool/backup');
+        $json = array();
+        if ($this->request->server['REQUEST_METHOD'] !== 'POST'
+            || !$this->user->hasPermission('modify', 'tool/backup')
+            || !$this->validProgressToken()) {
+            $json['error'] = $this->language->get('error_permission');
+        } else {
+            $file = $this->progressFile();
+            $json = is_file($file) ? json_decode((string)file_get_contents($file), true) : array();
+            if (!is_array($json)) { $json = array(); }
+        }
+        $this->response->addHeader('Content-Type: application/json; charset=UTF-8');
+        $this->response->addHeader('Cache-Control: no-store');
+        $this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    private function validProgressToken() {
+        $expected = isset($this->session->data['codecart_catalog_progress_token'])
+            ? (string)$this->session->data['codecart_catalog_progress_token'] : '';
+        $actual = isset($this->request->post['progress_token'])
+            ? (string)$this->request->post['progress_token'] : '';
+        return strlen($expected) === 32 && preg_match('/^[a-f0-9]{32}$/', $expected)
+            && hash_equals($expected, $actual);
+    }
+
+    private function progressFile() {
+        $base = defined('DIR_STORAGE') ? DIR_STORAGE : DIR_UPLOAD;
+        $dir = rtrim($base, '/\\') . '/codecart_transfer/';
+        if (!is_dir($dir) && !mkdir($dir, 0750, true) && !is_dir($dir)) {
+            throw new \RuntimeException('Catalog progress storage is not writable.');
+        }
+        $token = isset($this->session->data['codecart_catalog_progress_token'])
+            ? (string)$this->session->data['codecart_catalog_progress_token'] : '';
+        if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
+            throw new \RuntimeException('Invalid catalog progress token.');
+        }
+        return $dir . 'progress_' . $token . '.json';
+    }
+
+    private function operationWriter() {
+        if (!$this->validProgressToken()) {
+            // Old clients without a progress token retain the original export/import.
+            return function(array $payload) {};
+        }
+        $path = $this->progressFile();
+        return function(array $payload) use ($path) {
+            $payload['updated'] = time();
+            if (isset($payload['issues'])) {
+                $payload['issues'] = array_slice((array)$payload['issues'], 0, 200);
+            }
+            $temp = tempnam(dirname($path), 'ccp_');
+            if (!$temp) { return; }
+            $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            if ($json === false || file_put_contents($temp, $json, LOCK_EX) === false || !rename($temp, $path)) {
+                @unlink($temp);
+                return;
+            }
+            @chmod($path, 0600);
+        };
     }
 
     private function sendExportError($message, $status = 400) {
