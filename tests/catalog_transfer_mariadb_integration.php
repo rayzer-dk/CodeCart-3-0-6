@@ -48,6 +48,11 @@ class IntegrationRegistry {
 function assertion($ok, $message) { if(!$ok)throw new RuntimeException($message); }
 require_once __DIR__ . '/../upload/system/library/codecart/src/SimpleXlsx.php';
 require_once __DIR__ . '/../upload/system/library/codecart/src/CatalogTransfer.php';
+class Model {
+    public $db;
+    public function __construct($db = null) { $this->db = $db; }
+}
+require_once __DIR__ . '/../upload/admin/model/tool/backup.php';
 $connection = new mysqli(getenv('QA_DB_HOST') ?: '127.0.0.1', getenv('QA_DB_USER') ?: 'root', getenv('QA_DB_PASS') ?: 'root', DB_DATABASE);
 $connection->set_charset('utf8mb4');
 $db = new IntegrationDb($connection);
@@ -108,7 +113,29 @@ try {
     assertion(is_file(DIR_IMAGE . 'catalog/товар.png'), 'Product image was not imported');
     assertion(file_get_contents(DIR_DOWNLOAD . 'manual.pdf.abc123')==='test digital content', 'Digital file was not imported');
     assertion(count($db->query('SELECT * FROM oc_seo_url WHERE `query`="product_id=15"')->rows) === 1, 'SEO URL missing');
-    echo "PASS MariaDB catalog export/import with primary+extra category, SEO, image and download\n";
+    // A schema-aware SQL backup must restore a physically dropped table,
+    // not only rows in an already installed schema.
+    $sqlPath = DIR_UPLOAD . 'roundtrip.sql';
+    $backup = new ModelToolBackup($db);
+    $backup->backupToFile(array('oc_download','oc_product_to_download','oc_product','oc_category','oc_product_to_category'), $sqlPath);
+    $sqlText = (string)file_get_contents($sqlPath);
+    assertion(strpos($sqlText, 'CREATE TABLE IF NOT EXISTS') !== false, 'Missing CREATE TABLE in SQL backup');
+    $db->query('DROP TABLE oc_product_to_download');
+    $db->query('TRUNCATE TABLE oc_product');
+    $pending = '';
+    foreach (file($sqlPath, FILE_IGNORE_NEW_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || strpos($line, '--') === 0) { continue; }
+        $pending .= $line . "\n";
+        if (substr(rtrim($pending), -1) !== ';') { continue; }
+        $stmt = rtrim(trim($pending), ';');
+        $pending = '';
+        assertion(preg_match('/^(?:CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS|TRUNCATE\\s+TABLE|INSERT\\s+INTO)\\s+/i', $stmt) === 1, 'Unexpected SQL command');
+        $db->query($stmt);
+    }
+    assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product_to_download')->row['n'] === 1, 'SQL restore lost digital relation');
+    assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product')->row['n'] === 1, 'SQL restore lost product');
+    echo "PASS MariaDB catalog and SQL schema+data round-trips\n";
 } finally {
     foreach (array_reverse($schema) as $sql) { /* Tables remain only in disposable QA database. */ }
     $walk = function($path) use (&$walk) {
