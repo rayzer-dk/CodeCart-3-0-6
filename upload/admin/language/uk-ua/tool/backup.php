@@ -99,3 +99,4 @@ $_['text_product_errors'] = 'Товари з помилками';
 $_['column_product_name'] = 'Назва товару';
 $_['column_error_reason'] = 'Причина помилки';
 $_['text_error_preview_limit'] = 'Показано перші 200 помилок. Повний список доступний у журналі обробки.';
+$_['button_download_product_errors'] = 'Завантажити повний список помилок CSV';
