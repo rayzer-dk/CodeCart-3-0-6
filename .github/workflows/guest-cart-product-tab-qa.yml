@@ -28,10 +28,10 @@ jobs:
           header=Path('upload/catalog/controller/common/header.php').read_text()
           form=Path('upload/admin/view/template/catalog/product_form.twig').read_text()
           assert startup.index("config->get('codecart_abandoned_cart_status')") > startup.index('foreach ($query->rows as $result)')
-          assert "($this->request->get['route'] ?? '') === 'checkout/uni_checkout'" in startup
+          assert "$cartCheckoutRoute === 'checkout/uni_checkout'" in startup
           assert "(bool)$this->config->get('codecart_abandoned_cart_guest_capture')" in startup
           assert "'external'" in startup
-          assert "document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.1')" in startup
+          assert "document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.6')" in startup
           assert 'guest-cart-uni-consent.js' not in header
           assert form.index('href="#tab-purchase-blocks"') < form.index('href="#tab-extra"') < form.index('href="#tab-recurring"')
           assert form.index('id="tab-purchase-blocks"') < form.index('id="tab-extra"') < form.index('id="tab-recurring"')
