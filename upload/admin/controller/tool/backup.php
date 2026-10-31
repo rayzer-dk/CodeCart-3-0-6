@@ -42,6 +42,7 @@ class ControllerToolBackup extends Controller {
         }
         $data['catalog_progress_token'] = $this->session->data['codecart_catalog_progress_token'];
         $data['catalog_progress_url'] = $this->url->link('tool/catalog_transfer/progress', 'user_token=' . $this->session->data['user_token'], true);
+        $data['catalog_report_url'] = $this->url->link('tool/catalog_transfer/report', 'user_token=' . $this->session->data['user_token'], true);
 		$data['merchant_feed_settings'] = $this->url->link('extension/feed/google_base', 'user_token=' . $this->session->data['user_token'], true);
 		$data['catalog_entities'] = array('products','categories','manufacturers','options','attributes','filters');
 		// XLSX capability is a PHP runtime property and must not be hidden by an
