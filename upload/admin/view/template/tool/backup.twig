@@ -127,9 +127,25 @@ function drawTransferReport(info){
   issues.slice(0,200).forEach(function(item){table+='<tr><td>'+esc(item.product_id)+'</td><td>'+esc(item.sku)+'</td><td>'+esc(item.name)+'</td><td>'+esc(item.reason)+'</td></tr>';});
   table+='</tbody></table></div>';
   if((info.skipped||0)>issues.length){table+='<p class="text-muted">{{ text_error_preview_limit|e('js') }}</p>';}
-  table+='</details>';
+  table+='<button type="button" class="btn btn-default btn-sm" id="catalog-download-errors"><i class="fa fa-download"></i> {{ button_download_product_errors|e('js') }}</button></details>';
   $('#catalog-transfer-report').html(table).prop('hidden',false);
 }
+$(document).off('click.ccpCatalogIssues','#catalog-download-errors').on('click.ccpCatalogIssues','#catalog-download-errors',function(){
+  var $button=$(this);$button.prop('disabled',true);
+  var req=new XMLHttpRequest();
+  req.open('POST','{{ catalog_report_url|replace({'&amp;':'&'}) }}',true);
+  req.responseType='blob';
+  req.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
+  req.onload=function(){
+    $button.prop('disabled',false);
+    if(req.status!==200){alertBox('danger','{{ error_catalog_export|e('js') }}');return;}
+    var url=window.URL.createObjectURL(req.response),a=document.createElement('a');
+    a.href=url;a.download='catalog-product-errors.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+    window.setTimeout(function(){window.URL.revokeObjectURL(url);},1200);
+  };
+  req.onerror=function(){$button.prop('disabled',false);alertBox('danger','{{ error_catalog_export|e('js') }}');};
+  req.send('progress_token='+encodeURIComponent('{{ catalog_progress_token|e('js') }}'));
+});
 function stopCatalogPolling(){catalogProgressRunning=false;if(catalogProgressTimer){window.clearInterval(catalogProgressTimer);catalogProgressTimer=null;}}
 function catalogProgressFetch(target){
   return $.ajax({url:'{{ catalog_progress_url|replace({'&amp;':'&'}) }}',type:'POST',dataType:'json',
