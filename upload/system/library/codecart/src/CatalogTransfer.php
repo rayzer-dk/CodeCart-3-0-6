@@ -511,7 +511,6 @@ final class CatalogTransfer {
         $storeMap = $this->targetStoreMap(isset($meta['stores']) ? $meta['stores'] : array());
         $result = array('ok'=>true,'errors'=>array(),'warnings'=>array(),'sheets'=>array(),'languages'=>$languageMap,'stores'=>$storeMap);
         $this->validatePreviewImportOptions($result);
-        $this->validatePreviewImportOptions($result);
         foreach ($languageMap as $sourceId => $targetId) {
             if ($targetId === null) {
                 $result['errors'][] = 'Source language ID ' . (int)$sourceId . ' is missing on target. Install or map the source language before importing.';
@@ -821,6 +820,7 @@ final class CatalogTransfer {
         $languageMap = $this->targetLanguageMap(isset($meta['languages']) ? $meta['languages'] : array());
         $storeMap = $this->targetStoreMap(isset($meta['stores']) ? $meta['stores'] : array());
         $result = array('ok'=>true,'errors'=>array(),'warnings'=>array(),'sheets'=>array(),'languages'=>$languageMap,'stores'=>$storeMap);
+        $this->validatePreviewImportOptions($result);
         foreach ($languageMap as $sourceId => $targetId) {
             if ($targetId === null) {
                 $result['errors'][] = 'Source language ID ' . (int)$sourceId . ' is missing on target. Install or map the source language before importing.';
