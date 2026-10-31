@@ -127,7 +127,10 @@ final class CatalogTransfer {
         foreach (array_keys($imagePaths) as $relative) {
             if (!$this->safeImagePath($relative)) { continue; }
             $full = rtrim(DIR_IMAGE, '/\\') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
-            if (!is_file($full)) { continue; }
+            if (!is_file($full)) {
+                @unlink($tmpXlsx);
+                throw new \RuntimeException('Image referenced by catalog is missing: ' . $relative);
+            }
             $size = (int)filesize($full);
             if ($size <= 0) { continue; }
             if ($size > self::MAX_SINGLE_IMAGE_BYTES) {
@@ -330,7 +333,7 @@ final class CatalogTransfer {
                 if (is_file($full) || isset($packageImages[$relative])) { continue; }
                 if (count($missing) < 20) { $missing[] = $relative; }
             }
-            if ($missing) { $result['warnings'][] = 'Missing image files: ' . implode(', ', $missing) . (count($missing) >= 20 ? ' ...' : ''); }
+            if ($missing) { $result['errors'][] = 'Missing required image files: ' . implode(', ', $missing) . (count($missing) >= 20 ? ' ...' : '') . '. Use the portable ZIP or transfer the images first.'; }
         }
         $result['ok'] = !$result['errors'];
         return $result;
@@ -539,7 +542,7 @@ final class CatalogTransfer {
         $this->checkDownloadAvailability($downloadFiles,$package,$result);
         $result['warnings'][]='ID policy: catalog primary IDs are preserved and are not remapped. Existing target rows with the same IDs will be updated. This is intended for backup/restore or migration of the same catalog lineage; review ID collisions before merging unrelated stores.';
         $result['warnings'][]='Relation policy: merge/update only. Existing product-category and other catalog relations that are absent from the workbook are preserved; import never deletes them.';
-        if($imagePaths){$packageImages=$package&&is_file($package)?$this->packageImageIndex($package):array();$missing=array();foreach(array_keys($imagePaths) as $relative){$full=rtrim(DIR_IMAGE,'/\\').DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$relative);if(is_file($full)||isset($packageImages[$relative]))continue;if(count($missing)<20)$missing[]=$relative;}if($missing){$result['warnings'][]='Missing image files: '.implode(', ',$missing).(count($missing)>=20?' ...':'');}}
+        if($imagePaths){$packageImages=$package&&is_file($package)?$this->packageImageIndex($package):array();$missing=array();foreach(array_keys($imagePaths) as $relative){$full=rtrim(DIR_IMAGE,'/\\').DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$relative);if(is_file($full)||isset($packageImages[$relative]))continue;if(count($missing)<20)$missing[]=$relative;}if($missing){$result['errors'][]='Missing required image files: '.implode(', ',$missing).(count($missing)>=20?' ...':'').'. Use the portable ZIP or transfer the images first.';}}
         $result['ok']=!$result['errors']; return $result;
     }
 
@@ -1014,18 +1017,59 @@ final class CatalogTransfer {
         $columns=array();if(in_array($logical,array('product','category','manufacturer','option_value'),true))$columns[]='image';if($logical==='product_image')$columns[]='image';
         foreach($columns as $c){if(empty($row[$c]))continue;$p=ltrim(str_replace('\\','/',(string)$row[$c]),'/');if($this->safeImagePath($p))$paths[$p]=true;}
     }
-    private function safeImagePath($path){$path=str_replace('\\','/',(string)$path);if($path===''||strpos($path,'..')!==false||$path[0]==='/'||strpos($path,'catalog/')!==0||!preg_match('~^[\\pL\\pN_\\-/ .()@+]+\\.(?:jpe?g|png|gif|webp|avif)$~iu',$path))return false;return true;}
+    private function safeImagePath($path){$path=str_replace('\\','/',(string)$path);if($path===''||strpos($path,'..')!==false||$path[0]==='/'||strpos($path,'catalog/')!==0||!preg_match('~^[\\pL\\pN_\\-/ .()@+]+\\.(?:jpe?g|png|gif|webp|avif|svg)$~iu',$path))return false;return true;}
 
     private function packageImageIndex($package) {
-        $out = array(); $zip = new \ZipArchive();
-        if ($zip->open($package) !== true) { return $out; }
+        $out = array();
+        $zip = new \ZipArchive();
+        if ($zip->open($package) !== true) {
+            throw new \RuntimeException('Cannot inspect portable image archive.');
+        }
+        $count = 0;
+        $bytes = 0;
         try {
-            for ($i=0; $i<$zip->numFiles; $i++) {
-                $s = $zip->statIndex($i); if (!$s) { continue; }
-                $name = str_replace('\\','/',(string)$s['name']);
-                if (strpos($name,'image/') !== 0) { continue; }
-                $rel = substr($name,6);
-                if (strpos($rel, 'catalog/') === 0 && $this->safeImagePath($rel)) { $out[$rel] = true; }
+            $finfo = class_exists('finfo') ? new \finfo(FILEINFO_MIME_TYPE) : null;
+            foreach (range(0, $zip->numFiles - 1) as $i) {
+                $entry = $zip->statIndex($i);
+                if (!$entry) { throw new \RuntimeException('Invalid portable ZIP entry.'); }
+                $name = str_replace('\\', '/', (string)$entry['name']);
+                if (strpos($name, 'image/') !== 0) { continue; }
+                $rel = substr($name, 6);
+                if (!$this->safeImagePath($rel)) {
+                    throw new \RuntimeException('Portable ZIP contains an unsafe image path.');
+                }
+                if (isset($out[$rel])) { throw new \RuntimeException('Portable ZIP contains duplicate image paths.'); }
+                $size = (int)$entry['size'];
+                $bytes += $size;
+                if (++$count > self::MAX_PACKAGE_IMAGES || $size <= 0 ||
+                    $size > self::MAX_SINGLE_IMAGE_BYTES || $bytes > self::MAX_PACKAGE_IMAGE_BYTES) {
+                    throw new \RuntimeException('Portable ZIP exceeds safe image extraction limits.');
+                }
+                $raw = $zip->getFromIndex($i);
+                if (!is_string($raw) || strlen($raw) !== $size) {
+                    throw new \RuntimeException('Portable ZIP contains an incomplete image.');
+                }
+                $extension = strtolower((string)pathinfo($rel, PATHINFO_EXTENSION));
+                $expected = array('jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png',
+                    'gif'=>'image/gif','webp'=>'image/webp','avif'=>'image/avif','svg'=>'image/svg+xml');
+                $actual = $finfo ? (string)$finfo->buffer($raw) : '';
+                if (!isset($expected[$extension]) || ($actual !== '' && $actual !== $expected[$extension]
+                    && !($extension === 'svg' && in_array($actual, array('application/xml','text/xml','text/plain'), true)))) {
+                    throw new \RuntimeException('Portable ZIP image content does not match its extension: ' . $rel);
+                }
+                if ($extension === 'svg') {
+                    // SVG is validated again immediately before installation.
+                    $error = '';
+                    $tmp = tempnam(DIR_UPLOAD, 'ccpsvg_');
+                    if (!$tmp) { throw new \RuntimeException('SVG validation staging failed.'); }
+                    try {
+                        file_put_contents($tmp, $raw);
+                        if (SvgSanitizer::sanitizeFile($tmp, $error) === false) {
+                            throw new \RuntimeException('Unsafe SVG in portable catalog: ' . $rel);
+                        }
+                    } finally { @unlink($tmp); }
+                }
+                $out[$rel] = true;
             }
         } finally { $zip->close(); }
         return $out;
@@ -1034,7 +1078,7 @@ final class CatalogTransfer {
     private function importPackageImages($package,$overwrite) {
         $zip=new \ZipArchive(); if($zip->open($package)!==true)return 0;
         $count=0; $bytes=0; $written=0;
-        $allowedMimes=array('image/jpeg'=>true,'image/png'=>true,'image/gif'=>true,'image/webp'=>true,'image/avif'=>true);
+        $allowedMimes=array('image/jpeg'=>true,'image/png'=>true,'image/gif'=>true,'image/webp'=>true,'image/avif'=>true,'image/svg+xml'=>true);
         try {
             for($i=0;$i<$zip->numFiles;$i++){
                 $s=$zip->statIndex($i); if(!$s)continue;
@@ -1059,7 +1103,15 @@ final class CatalogTransfer {
                 $mime='';
                 if(function_exists('finfo_open')){$fi=finfo_open(FILEINFO_MIME_TYPE);if($fi){$mime=(string)finfo_file($fi,$tmp);finfo_close($fi);}}
                 if($mime===''&&function_exists('getimagesize')){$info=@getimagesize($tmp);if(is_array($info)&&isset($info['mime']))$mime=(string)$info['mime'];}
-                if(!isset($allowedMimes[strtolower($mime)])){@unlink($tmp);continue;}
+                if (!isset($allowedMimes[strtolower($mime)])) { @unlink($tmp); continue; }
+                if (strtolower(pathinfo($rel, PATHINFO_EXTENSION)) === 'svg') {
+                    $error = '';
+                    $sanitized = SvgSanitizer::sanitizeFile($tmp, $error);
+                    if ($sanitized === false || file_put_contents($tmp, $sanitized, LOCK_EX) === false) {
+                        @unlink($tmp);
+                        throw new \RuntimeException('Unsafe or unwritable SVG in portable catalog: ' . $rel);
+                    }
+                }
                 if(!@rename($tmp,$target)){if(!@copy($tmp,$target)){@unlink($tmp);continue;}@unlink($tmp);}
                 @chmod($target,0644); $written++;
             }
