@@ -25,6 +25,7 @@ final class CatalogTransfer {
     private $progressCounts = array();
     private $productNames = array();
     private $productSkus = array();
+    private $validDownloadIds = array();
 
     public function onProgress(callable $callback = null) {
         $this->progressCallback = $callback;
@@ -114,6 +115,48 @@ final class CatalogTransfer {
                                 break;
                             }
                         }
+                    }
+                }
+                $n = count($rows);
+                $offset += $limit;
+            } while ($n === $limit);
+        }
+        // A broken digital download belongs to its product, not to the whole store.
+        $this->validDownloadIds = array();
+        if (in_array('product_to_download', $tables, true) && $this->tableExists('download')
+            && $this->tableExists('product_to_download')) {
+            $offset = 0; $limit = 500;
+            do {
+                $records = $this->db->query("SELECT pd.product_id,pd.download_id,d.filename
+                    FROM `".$this->table('product_to_download')."` pd
+                    LEFT JOIN `".$this->table('download')."` d ON d.download_id=pd.download_id
+                    ORDER BY pd.product_id,pd.download_id LIMIT ".$offset.",".$limit)->rows;
+                foreach ($records as $record) {
+                    $id = (int)$record['product_id'];
+                    if ($id <= 0 || isset($this->badProductIds[$id])) { continue; }
+                    $name = isset($record['filename']) ? (string)$record['filename'] : '';
+                    if (!$this->safeDownloadFilename($name)) {
+                        $this->rejectProduct($id,'Invalid digital download filename');
+                    } elseif ($portable) {
+                        $path = rtrim(DIR_DOWNLOAD,'/\\').DIRECTORY_SEPARATOR.$name;
+                        if (!is_file($path) || !is_readable($path)) {
+                            $this->rejectProduct($id,'Digital file unavailable: '.$name);
+                        } elseif ((int)filesize($path) > self::MAX_SINGLE_DOWNLOAD_BYTES) {
+                            $this->rejectProduct($id,'Digital file exceeds 64 MB package limit: '.$name);
+                        }
+                    }
+                }
+                $n = count($records);
+                $offset += $limit;
+            } while ($n === $limit);
+            // Resolve download IDs only after all product failures are known.
+            $offset = 0;
+            do {
+                $rows = $this->db->query("SELECT product_id,download_id FROM `".$this->table('product_to_download')."`
+                    ORDER BY product_id,download_id LIMIT ".$offset.",".$limit)->rows;
+                foreach ($rows as $row) {
+                    if (!isset($this->badProductIds[(int)$row['product_id']])) {
+                        $this->validDownloadIds[(int)$row['download_id']] = true;
                     }
                 }
                 $n = count($rows);
@@ -265,9 +308,10 @@ final class CatalogTransfer {
         $packageDownloads = array();
         $downloadBytes = 0;
         if (in_array('products', $entities, true) && $this->tableExists('download') && $this->tableExists('product_to_download')) {
-            $sql = "SELECT DISTINCT d.filename FROM `" . $this->table('download') . "` d INNER JOIN `"
+            $sql = "SELECT DISTINCT d.download_id,d.filename FROM `" . $this->table('download') . "` d INNER JOIN `"
                 . $this->table('product_to_download') . "` p ON p.download_id=d.download_id";
             foreach ($this->db->query($sql)->rows as $item) {
+                if (!isset($this->validDownloadIds[(int)$item['download_id']])) { continue; }
                 $name = (string)$item['filename'];
                 if (!$this->safeDownloadFilename($name)) {
                     @unlink($tmpXlsx);
@@ -905,6 +949,10 @@ final class CatalogTransfer {
             if (!$query->rows) { break; }
             foreach ($query->rows as $row) {
                 $productId = isset($row['product_id']) ? (int)$row['product_id'] : 0;
+                if (($logical === 'download' || $logical === 'download_description')
+                    && isset($row['download_id']) && !isset($this->validDownloadIds[(int)$row['download_id']])) {
+                    continue;
+                }
                 if ($productId > 0 && isset($this->badProductIds[$productId])) {
                     if ($logical === 'product') {
                         $this->progressCounts['processed']++;
