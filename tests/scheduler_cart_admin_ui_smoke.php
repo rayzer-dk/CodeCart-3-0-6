@@ -19,7 +19,7 @@ $cart = $read('upload/admin/view/template/sale/abandoned_cart_list.twig');
 $assert(strpos($cart, '<col class="ccp-width-email">') !== false, 'compact email column present');
 $assert(strpos($cart, '<col class="ccp-width-phone">') !== false, 'dedicated telephone column present');
 $assert(strpos($cart, 'sort_telephone') !== false, 'telephone column supports sorting');
-$assert(strpos($cart, '× {{ product.quantity }}') === false, 'product titles no longer repeat quantity');
+$assert(strpos($cart, '× {{ product.quantity }}') !== false, 'each product must display its individual quantity');
 $assert(strpos($cart, 'ccp-source-advanced') !== false, 'external SQL source tucked into advanced settings');
 $assert(strpos($cart, 'ccp-cart-contact-email') !== false, 'email remains visible in separate truncated cell');
 $assert(strpos($cart, 'sort_email') !== false, 'email sorting preserved');
