@@ -13,6 +13,8 @@ final class RegisteredCartConsent {
         $this->config = $registry->get('config');
     }
 
+    private function retentionDays(): int { return max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)); }
+
     public function enabled(): bool {
         return (bool)$this->config->get('codecart_abandoned_cart_status')
             && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external';
@@ -45,14 +47,14 @@ final class RegisteredCartConsent {
     public function hasConsent(int $customerId, string $sessionId): bool {
         if (!$this->enabled() || $customerId < 1 || $sessionId === '') { return false; }
         try {
-            $check = $this->db->query("SELECT consent FROM `" . DB_PREFIX . "codecart_cart_registered_consent` WHERE store_id='" . (int)$this->config->get('config_store_id') . "' AND customer_id='" . $customerId . "' AND session_id='" . $this->db->escape($sessionId) . "' AND date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) LIMIT 1");
+            $check = $this->db->query("SELECT consent FROM `" . DB_PREFIX . "codecart_cart_registered_consent` WHERE store_id='" . (int)$this->config->get('config_store_id') . "' AND customer_id='" . $customerId . "' AND session_id='" . $this->db->escape($sessionId) . "' AND date_modified>=DATE_SUB(NOW(),INTERVAL " . $this->retentionDays() . " DAY) LIMIT 1");
             return $check->num_rows > 0 && (int)$check->row['consent'] === 1;
         } catch (\Throwable $e) { return false; }
     }
 
     public function purge(): void {
         if ($this->enabled()) {
-            $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_cart_registered_consent` WHERE date_modified<DATE_SUB(NOW(),INTERVAL 7 DAY)");
+            $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_cart_registered_consent` WHERE date_modified<DATE_SUB(NOW(),INTERVAL " . $this->retentionDays() . " DAY)");
         }
     }
 }
