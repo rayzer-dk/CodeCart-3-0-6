@@ -178,6 +178,7 @@ class ControllerToolCatalogTransfer extends Controller {
     }
 
     private function saveIssuesCsv(array $issues) {
+        try {
         $path = $this->reportFile();
         if (!$issues) { if (is_file($path)) { @unlink($path); } return; }
         $tmp = tempnam(dirname($path), 'ccpcsv_');
@@ -202,6 +203,11 @@ class ControllerToolCatalogTransfer extends Controller {
         } finally { fclose($handle); }
         if (!rename($tmp, $path)) { @unlink($tmp); throw new \RuntimeException('Cannot finalize catalog error report.'); }
         @chmod($path, 0600);
+        } catch (\Throwable $e) {
+            // An optional CSV report must not make an otherwise correct XLSX
+            // or catalog import fail after the main data operation succeeded.
+            if ($this->log) { $this->log->write('Catalog error report could not be saved.'); }
+        }
     }
 
     public function progress() {
@@ -249,7 +255,12 @@ class ControllerToolCatalogTransfer extends Controller {
             // Old clients without a progress token retain the original export/import.
             return function(array $payload) {};
         }
-        $path = $this->progressFile();
+        try {
+            $path = $this->progressFile();
+        } catch (\Throwable $e) {
+            if ($this->log) { $this->log->write('Catalog progress storage unavailable.'); }
+            return function(array $payload) {};
+        }
         return function(array $payload) use ($path) {
             $payload['updated'] = time();
             if (isset($payload['issues'])) {
