@@ -376,7 +376,12 @@ final class CatalogTransfer {
                 $result['errors'][] = 'Source store ID ' . (int)$sourceId . ' has no matching target store. Map stores before importing to avoid silent data loss.';
             }
         }
+        $this->badProductIds = array();
+        $this->productProblems = array();
+        $this->productSkus = array();
+        $this->productNames = array();
         $imagePaths = array();
+        $productImagePaths = array();
         $downloadFiles = array();
 
         foreach ($workbook as $sourceLogical => $sheet) {
@@ -427,6 +432,16 @@ final class CatalogTransfer {
             if ($ignored) { $result['warnings'][] = DB_PREFIX . $targetLogical . ': unsupported source columns will be ignored: ' . implode(', ', $ignored); }
             foreach (isset($sheet['rows']) ? $sheet['rows'] : array() as $row) {
                 $this->collectImages($sourceLogical, $row, $imagePaths);
+                if (isset($row['product_id']) && (int)$row['product_id']>0) {
+                    $images = array(); $this->collectImages($sourceLogical, $row, $images);
+                    foreach (array_keys($images) as $img) { $productImagePaths[$img][(int)$row['product_id']] = true; }
+                }
+                if ($sourceLogical === 'product' && isset($row['product_id'])) {
+                    $this->productSkus[(int)$row['product_id']] = isset($row['sku']) ? (string)$row['sku'] : '';
+                }
+                if ($sourceLogical === 'product_description' && isset($row['product_id'],$row['name'])) {
+                    $this->productNames[(int)$row['product_id']] = (string)$row['name'];
+                }
                 if ($sourceLogical === 'download' && isset($row['filename'])) {
                     $downloadFiles[(string)$row['filename']] = true;
                 }
@@ -450,10 +465,22 @@ final class CatalogTransfer {
             foreach (array_keys($imagePaths) as $relative) {
                 $full = rtrim(DIR_IMAGE, '/\\') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
                 if (is_file($full) || isset($packageImages[$relative])) { continue; }
-                if (count($missing) < 20) { $missing[] = $relative; }
+                if ($this->progressCallback && isset($productImagePaths[$relative])) {
+                    foreach (array_keys($productImagePaths[$relative]) as $id) { $this->rejectProduct($id,'Missing image: '.$relative); }
+                } elseif (count($missing) < 20) { $missing[] = $relative; }
             }
             if ($missing) { $result['errors'][] = 'Missing required image files: ' . implode(', ', $missing) . (count($missing) >= 20 ? ' ...' : '') . '. Use the portable ZIP or transfer the images first.'; }
         }
+        foreach ($this->productProblems as $id => &$item) {
+            if ($item['name']==='' && isset($this->productNames[$id])) { $item['name']=$this->productNames[$id]; }
+        }
+        unset($item);
+        $total = isset($workbook['product']['rows']) ? count($workbook['product']['rows']) : 0;
+        $result['total_products']=$total;
+        $result['skipped_products']=count($this->badProductIds);
+        $result['product_errors']=array_values($this->productProblems);
+        $this->progressCounts=array('total'=>$total,'processed'=>0,'success'=>0,
+            'skipped'=>count($this->badProductIds),'fixed'=>0);
         $result['ok'] = !$result['errors'];
         return $result;
     }
@@ -493,7 +520,12 @@ final class CatalogTransfer {
             if ($this->tableExists('product_to_category')) { $backupTables['product_to_category'] = true; }
         }
         $backup = $this->createSqlSnapshot(array_keys($backupTables));
-        $stats = array('inserted_or_updated'=>0,'skipped_rows'=>0,'tables'=>array(),'images'=>0,'main_categories'=>0,'backup'=>$backup,'warnings'=>$preview['warnings']);
+        $stats = array('inserted_or_updated'=>0,'skipped_rows'=>0,'tables'=>array(),'images'=>0,
+            'main_categories'=>0,'backup'=>$backup,'warnings'=>$preview['warnings'],
+            'total_products'=>(int)$preview['total_products'],'processed_products'=>0,
+            'successful_products'=>0,'skipped_products'=>count($this->badProductIds),
+            'product_errors'=>array_values($this->productProblems));
+        $this->publishProgress('importing', true);
         $this->db->query('START TRANSACTION');
         try {
             foreach ($plans as $sourceLogical=>$targetLogical) {
@@ -502,6 +534,19 @@ final class CatalogTransfer {
                 $schema = $this->schema($targetLogical);
                 $count = 0; $skipped = 0;
                 foreach ($sheet['rows'] as $row) {
+                    if ($this->ignoreRejectedProductRow($sourceLogical, $row)) {
+                        if ($sourceLogical === 'product') {
+                            $this->progressCounts['processed']++;
+                            $this->publishProgress('importing');
+                        }
+                        $skipped++;
+                        continue;
+                    }
+                    if ($sourceLogical === 'product') {
+                        $this->progressCounts['processed']++;
+                        $this->progressCounts['success']++;
+                        $this->publishProgress('importing');
+                    }
                     if ($this->isSeoLogical($sourceLogical) && $this->isSeoLogical($targetLogical)) {
                         $mapped = $this->mapSeoRow($sourceLogical, $targetLogical, $row, $languageMap, $storeMap);
                         if ($mapped === null) { $skipped++; continue; }
@@ -518,13 +563,19 @@ final class CatalogTransfer {
                 $stats['inserted_or_updated'] += $count;
                 $stats['skipped_rows'] += $skipped;
             }
-            if ($mainCategoryMap) { $stats['main_categories'] = $this->applyMainCategoryMap($mainCategoryMap); }
+            if ($mainCategoryMap) {
+                foreach (array_keys($this->badProductIds) as $id) { unset($mainCategoryMap[$id]); }
+                $stats['main_categories'] = $this->applyMainCategoryMap($mainCategoryMap);
+            }
             $this->db->query('COMMIT');
         } catch (\Throwable $e) {
             try { $this->db->query('ROLLBACK'); } catch (\Throwable $ignored) {}
             throw $e;
         }
         if ($package) { $stats['images'] = $this->importPackageImages($package, (bool)$overwriteImages); $stats['downloads'] = $this->importPackageDownloads($package); }
+        $stats['processed_products']=(int)$this->progressCounts['processed'];
+        $stats['successful_products']=(int)$this->progressCounts['success'];
+        $this->publishProgress('complete', true);
         $this->cleanupToken($token);
         return $stats;
     }
@@ -733,6 +784,10 @@ final class CatalogTransfer {
             }
             if($missing){$result['errors'][]='Missing required images outside product cards: '.implode(', ',$missing).'.';}
         }
+        foreach ($this->productProblems as $id => &$item) {
+            if ($item['name']==='' && isset($this->productNames[$id])) { $item['name']=$this->productNames[$id]; }
+        }
+        unset($item);
         $result['total_products'] = $totalProducts;
         $result['skipped_products'] = count($this->badProductIds);
         $result['product_errors'] = array_values($this->productProblems);
@@ -781,7 +836,11 @@ final class CatalogTransfer {
                 });
                 $stats['tables'][$source]=$count;$stats['inserted_or_updated']+=$count;$stats['skipped_rows']+=$skipped;
             }
-            if($mainCategoryMap){$stats['main_categories']=$this->applyMainCategoryMap($mainCategoryMap);} $this->db->query('COMMIT');
+            if($mainCategoryMap){
+                foreach(array_keys($this->badProductIds) as $id){unset($mainCategoryMap[$id]);}
+                $stats['main_categories']=$this->applyMainCategoryMap($mainCategoryMap);
+            }
+            $this->db->query('COMMIT');
         }catch(\Throwable $e){try{$this->db->query('ROLLBACK');}catch(\Throwable $ignored){}throw $e;}
         if($package){$stats['images']=$this->importPackageImages($package,(bool)$overwriteImages);$stats['downloads']=$this->importPackageDownloads($package);}
         $stats['processed_products'] = (int)$this->progressCounts['processed'];
