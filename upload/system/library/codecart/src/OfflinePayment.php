@@ -58,9 +58,29 @@ final class OfflinePayment {
             $customer = $this->registry->get('customer');
             $customerId = $customer && $customer->isLogged() ? (int)$customer->getId() : 0;
             if (!$order || (int)$order['store_id'] !== (int)$this->config->get('config_store_id') || (int)$order['customer_id'] !== $customerId || (string)$order['payment_code'] !== $code) { throw new \RuntimeException('order'); }
-            if ($code === 'free_checkout' && Money::compare((string)$order['total'], '0') > 0) { throw new \RuntimeException('nonzero_total'); }
             $status = (int)$this->config->get('payment_' . $code . '_order_status_id');
             if ($status < 1) { throw new \RuntimeException('status'); }
+            if ($code === 'free_checkout') {
+                // A previously selected payment method is not proof of the current total.
+                // Recheck the pending order against the cart and enabled Total extensions.
+                // Keep COD, bank transfers and their existing confirmation flow untouched.
+                if (Money::compare((string)$order['total'], '0') !== 0) {
+                    throw new \RuntimeException('nonzero_total');
+                }
+                if ((int)$order['order_status_id'] === 0) {
+                    (new FreeCheckoutGuard($this->registry))->assertCurrentOrder($order, $model);
+                } elseif ((int)$order['order_status_id'] !== $status) {
+                    // A completed order can have advanced to a processing/completed status.
+                    // A rejected or fraud-flagged order must never redirect to success.
+                    $accepted = array_map('intval', array_merge(
+                        (array)$this->config->get('config_processing_status'),
+                        (array)$this->config->get('config_complete_status')
+                    ));
+                    if (!in_array((int)$order['order_status_id'], $accepted, true)) {
+                        throw new \RuntimeException('order_not_confirmed');
+                    }
+                }
+            }
             if ((int)$order['order_status_id'] === 0) {
                 $comment = '';
                 if ($code === 'bank_transfer') {
@@ -70,6 +90,10 @@ final class OfflinePayment {
                 $model->addOrderHistory($orderId, $status, $comment, $code === 'bank_transfer', false, array('scope' => 'payment.' . $code . '.confirm', 'key' => (string)$orderId, 'fingerprint' => $orderId . '|' . $code . '|' . $status, 'ttl' => 604800));
                 $confirmed = $model->getOrder($orderId);
                 if (!$confirmed || !(int)$confirmed['order_status_id']) { throw new \RuntimeException('processing'); }
+                if ($code === 'free_checkout' && (int)$confirmed['order_status_id'] !== $status) {
+                    // Fraud/Total extensions can override the requested status.
+                    throw new \RuntimeException('free_checkout_not_approved');
+                }
             }
             $response->setOutput(json_encode(array('redirect' => $this->registry->get('url')->link('checkout/success', '', true))));
         } catch (\Throwable $e) {
