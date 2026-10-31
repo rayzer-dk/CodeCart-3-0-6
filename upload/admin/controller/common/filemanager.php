@@ -41,7 +41,14 @@ class ControllerCommonFileManager extends Controller {
 
 		$this->load->model('tool/image');
 
-		if (substr(str_replace('\\', '/', realpath($directory) . '/' . $filter_name), 0, strlen(DIR_IMAGE . 'catalog')) == str_replace('\\', '/', DIR_IMAGE . 'catalog')) {
+		// Compare canonical directory boundaries, not string prefixes:
+		// image/catalog-backup must not be treated as image/catalog.
+		$catalog_root = realpath(DIR_IMAGE . 'catalog');
+		$directory_real = realpath($directory);
+		$catalog_root = $catalog_root !== false ? rtrim(str_replace('\\', '/', $catalog_root), '/') : '';
+		$directory_real = $directory_real !== false ? rtrim(str_replace('\\', '/', $directory_real), '/') : '';
+		if ($catalog_root !== '' && $directory_real !== '' &&
+			($directory_real === $catalog_root || strpos($directory_real, $catalog_root . '/') === 0)) {
 			// Get directories
 			$directories = glob($directory . '/' . $filter_name . '*', GLOB_ONLYDIR);
 
