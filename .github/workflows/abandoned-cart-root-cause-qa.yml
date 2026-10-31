@@ -43,7 +43,9 @@ jobs:
           js=Path('upload/admin/view/javascript/codecart-abandoned-cart.js').read_text()
           assert 'ccp-width-image' in template and '<th class="ccp-cart-image-head">' in template
           assert 'ccp-width-email' in template and 'ccp-width-products' in template
-          assert "cart_reminder_delay_minutes" in controller and "cart_reminder_delay_minutes" in template
+          assert "cart_reminder_delay_hours" in template and "cart_reminder_delay_hours" in controller
+          assert 'ccp-settings-core-grid' in template and 'ccp-settings-reminder-list' in template
+          assert 'ccp-capture-diagnostics-toggle' in template and 'ccp-check-guest-capture' in template
           assert "reminderDelayMinutes" in controller and 'codecart_abandoned_cart_reminder_delay_minutes' in controller
           assert "if ($checkoutMode === 'custom') { $settings['codecart_abandoned_cart_checkout_url'] = $checkoutUrl; }" in controller
           assert 'ccp-checkout-preview-link' in template and 'ccp-checkout-preview-link' in js
