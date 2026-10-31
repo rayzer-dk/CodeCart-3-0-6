@@ -104,8 +104,23 @@
     }
     function bind(box) {
       if (!box || !box.isConnected || !field(box, 'email')) { return; }
-      if (select(box, 'input[name="ccp_cart_recovery_consent"]')) { return; }
+      var nativeCheckbox = select(box, 'input[name="ccp_cart_recovery_consent"]');
       container = box;
+      // Native CodeCart checkout already displays the explicit opt-in. Bind its
+      // existing checkbox instead of adding another one; otherwise abandoning
+      // checkout before the Continue button loses the entered contact details.
+      if (nativeCheckbox) {
+        checkbox = nativeCheckbox;
+        feedback = select(box, '.ccp-cart-recovery-error');
+        if (!feedback) {
+          feedback = document.createElement('small');
+          feedback.className = 'ccp-cart-recovery-error';
+          feedback.setAttribute('role', 'status');
+          feedback.style.cssText = 'display:none;color:#ac3030;margin-top:5px;line-height:1.45;';
+          var nativeBlock = checkbox.closest('.ccp-cart-consent') || checkbox.parentElement;
+          if (nativeBlock) { nativeBlock.appendChild(feedback); }
+        }
+      } else {
       var wrapper = document.createElement('div');
       wrapper.className = 'ccp-cart-recovery-consent';
       wrapper.style.cssText = 'margin:12px 0;padding:10px 12px;border:1px solid #dce5ef;border-radius:5px;';
@@ -128,6 +143,7 @@
       feedback.style.cssText = 'display:none;color:#ac3030;margin-top:5px;line-height:1.45;';
       wrapper.appendChild(feedback);
       box.appendChild(wrapper);
+      }
       checkbox.addEventListener('change', function () {
         if (checkbox.checked) { schedule(); }
         else { window.clearTimeout(timer); save(true); }
