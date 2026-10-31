@@ -28,6 +28,97 @@ final class CatalogTransfer {
     private $validDownloadIds = array();
     private $incomingDownloadNames = array();
     private $incomingDownloadLinks = array();
+    private $importOptions = array('status'=>'preserve','fields'=>array());
+
+    /**
+     * Per-operation rules. No persistent setting and no implicit changes to
+     * existing product fields unless the administrator explicitly selects it.
+     */
+    public function setImportOptions(array $options) {
+        $mode = isset($options['status']) ? (string)$options['status'] : 'preserve';
+        if (!in_array($mode, array('preserve','enabled','disabled'), true)) {
+            throw new \InvalidArgumentException('Invalid imported product status rule.');
+        }
+        $types = array(
+            'model'=>64,'sku'=>64,'mpn'=>64,'upc'=>12,'ean'=>14,'jan'=>13,
+            'isbn'=>17,'location'=>128,'quantity'=>0,'price'=>0
+        );
+        $normalized = array('status'=>$mode,'fields'=>array());
+        $rules = isset($options['fields']) && is_array($options['fields']) ? $options['fields'] : array();
+        foreach ($rules as $field=>$rule) {
+            if (!array_key_exists($field, $types) || !is_array($rule)) {
+                throw new \InvalidArgumentException('Unknown product import fallback field.');
+            }
+            $policy = isset($rule['mode']) ? (string)$rule['mode'] : 'preserve';
+            if (!in_array($policy, array('preserve','empty','custom'), true)) {
+                throw new \InvalidArgumentException('Invalid import fallback mode for ' . $field);
+            }
+            if ($policy === 'preserve') { continue; }
+            $value = '';
+            if ($policy === 'custom') {
+                $value = isset($rule['value']) && is_scalar($rule['value']) ? trim((string)$rule['value']) : '';
+                if ($value === '') {
+                    throw new \InvalidArgumentException('Custom fallback is empty for ' . $field);
+                }
+                if (preg_match('//u', $value) !== 1) {
+                    throw new \InvalidArgumentException('Custom fallback is not valid UTF-8: ' . $field);
+                }
+            }
+            if ($field === 'quantity') {
+                if ($policy === 'custom' && (!preg_match('/^[0-9]{1,9}$/D', $value) || (float)$value > 999999999)) {
+                    throw new \InvalidArgumentException('Quantity must be a non-negative whole number.');
+                }
+                $value = $policy === 'empty' ? '0' : (string)(int)$value;
+            } elseif ($field === 'price') {
+                if ($policy === 'custom' && (!preg_match('/^(?:[0-9]{1,10})(?:\\.[0-9]{1,4})?$/D', $value) || (float)$value > 9999999999)) {
+                    throw new \InvalidArgumentException('Price must be a non-negative decimal using a dot.');
+                }
+                $value = $policy === 'empty' ? '0' : $value;
+            } elseif ($policy === 'custom' && strlen($value) > $types[$field]) {
+                throw new \InvalidArgumentException('Custom value is too long for ' . $field);
+            }
+            $normalized['fields'][$field] = array('mode'=>$policy,'value'=>$value);
+        }
+        $this->importOptions = $normalized;
+        return $this;
+    }
+
+    private function applyProductImportOptions(array $row, array $schema) {
+        $available = isset($schema['columns']) ? $schema['columns'] : array();
+        foreach ($this->importOptions['fields'] as $field=>$rule) {
+            if (!isset($available[$field])) { continue; }
+            if (!array_key_exists($field, $row) || $row[$field] === null || trim((string)$row[$field]) === '') {
+                $row[$field] = $rule['value'];
+            }
+        }
+        if ($this->importOptions['status'] !== 'preserve' && isset($available['status'])) {
+            $row['status'] = $this->importOptions['status'] === 'enabled' ? '1' : '0';
+        }
+        return $row;
+    }
+
+    private function requiredColumnHasFallback($sourceLogical, $column) {
+        return $sourceLogical === 'product' &&
+            (isset($this->importOptions['fields'][$column]) ||
+            ($column === 'status' && $this->importOptions['status'] !== 'preserve'));
+    }
+
+    private function validatePreviewImportOptions(array &$result) {
+        $result['import_options'] = $this->importOptions;
+        if ($this->importOptions['status'] !== 'preserve' && !$this->tableExists('product')) {
+            $result['errors'][] = 'Cannot set imported product status: target product table is missing.';
+        }
+        $schema = $this->tableExists('product') ? $this->schema('product') : array('columns'=>array());
+        if ($this->importOptions['status'] !== 'preserve' && !isset($schema['columns']['status'])) {
+            $result['errors'][] = 'Target product table does not contain the status field.';
+        }
+        foreach ($this->importOptions['fields'] as $field=>$rule) {
+            if (!isset($schema['columns'][$field])) {
+                $result['errors'][] = 'Target product table does not contain the field ' . $field . '.';
+            }
+        }
+    }
+
 
     public function onProgress(callable $callback = null) {
         $this->progressCallback = $callback;
@@ -404,7 +495,8 @@ final class CatalogTransfer {
             } finally { $zip->close(); }
         }
         $preview = $this->preflight($xlsx, $package);
-        file_put_contents($base . '.json', json_encode(array('xlsx'=>$xlsx,'package'=>$package,'created'=>time()), JSON_UNESCAPED_SLASHES));
+        file_put_contents($base . '.json', json_encode(array('xlsx'=>$xlsx,'package'=>$package,
+            'created'=>time(),'options'=>$this->importOptions), JSON_UNESCAPED_SLASHES));
         @chmod($base . '.json', 0600);
         $preview['token'] = $token;
         return $preview;
@@ -418,6 +510,8 @@ final class CatalogTransfer {
         $languageMap = $this->targetLanguageMap(isset($meta['languages']) ? $meta['languages'] : array());
         $storeMap = $this->targetStoreMap(isset($meta['stores']) ? $meta['stores'] : array());
         $result = array('ok'=>true,'errors'=>array(),'warnings'=>array(),'sheets'=>array(),'languages'=>$languageMap,'stores'=>$storeMap);
+        $this->validatePreviewImportOptions($result);
+        $this->validatePreviewImportOptions($result);
         foreach ($languageMap as $sourceId => $targetId) {
             if ($targetId === null) {
                 $result['errors'][] = 'Source language ID ' . (int)$sourceId . ' is missing on target. Install or map the source language before importing.';
@@ -466,7 +560,7 @@ final class CatalogTransfer {
                 $missingRequired = array();
                 foreach ($schema['columns'] as $name=>$column) {
                     if (in_array($name, $intersection, true)) { continue; }
-                    if ($column['required']) { $missingRequired[] = $name; }
+                    if ($column['required'] && !$this->requiredColumnHasFallback($sourceLogical, $name)) { $missingRequired[] = $name; }
                 }
                 if ($missingRequired) {
                     $result['errors'][] = DB_PREFIX . $targetLogical . ': required target columns are absent: ' . implode(', ', $missingRequired);
@@ -555,6 +649,9 @@ final class CatalogTransfer {
         if (!is_array($state) || empty($state['xlsx']) || !is_file($state['xlsx']) || (time() - (int)$state['created']) > 3600) {
             $this->cleanupToken($token); throw new \RuntimeException('Import session expired.');
         }
+        if (isset($state['options']) && $state['options'] !== $this->importOptions) {
+            throw new \RuntimeException('Import rules changed after preview. Select the catalog file again to recheck with the new rules.');
+        }
         $xlsx = $state['xlsx'];
         $package = !empty($state['package']) && is_file($state['package']) ? $state['package'] : '';
         $preview = $this->preflight($xlsx, $package);
@@ -615,6 +712,9 @@ final class CatalogTransfer {
                         $columns = array_values(array_intersect($sheet['columns'], array_keys($schema['columns'])));
                         $mapped = $this->mapRow($sourceLogical, $row, $columns, $languageMap, $storeMap);
                         if ($mapped === null) { $skipped++; continue; }
+                        if ($sourceLogical === 'product') {
+                            $mapped = $this->applyProductImportOptions($mapped, $schema);
+                        }
                         $this->upsert($targetLogical, $mapped, $schema);
                     }
                     $count++;
@@ -804,7 +904,7 @@ final class CatalogTransfer {
                 if($sourceLogical!==$targetLogical){$result['warnings'][]='SEO compatibility conversion: '.$sourceLogical.' -> '.$targetLogical.'.';if($sourceLogical==='url_alias'&&$targetLogical==='seo_url'){$result['warnings'][]='Legacy url_alias has no language/store fields; imported SEO rows will use the primary target language and main store.';}}
             } else {
                 $intersection=array_values(array_intersect($sourceColumns,array_keys($schema['columns'])));$missingRequired=array();
-                foreach($schema['columns'] as $name=>$column){if(!in_array($name,$intersection,true)&&$column['required']){$missingRequired[]=$name;}}
+                foreach($schema['columns'] as $name=>$column){if(!in_array($name,$intersection,true)&&$column['required']&&!$this->requiredColumnHasFallback($sourceLogical,$name)){$missingRequired[]=$name;}}
                 if($missingRequired){$result['errors'][]=DB_PREFIX.$targetLogical.': required target columns are absent: '.implode(', ',$missingRequired);}
                 if(!$schema['primary']){$result['warnings'][]=DB_PREFIX.$targetLogical.': table has no PRIMARY KEY and will be skipped to avoid duplicates.';}else{foreach($schema['primary'] as $pk){if(!in_array($pk,$intersection,true)){$result['errors'][]=DB_PREFIX.$targetLogical.': primary key column is absent: '.$pk.'. CodeCart PRO does not guess or remap catalog IDs during a safe import.';}}}
             }
@@ -870,6 +970,9 @@ final class CatalogTransfer {
         if(!preg_match('/^[a-f0-9]{32}$/',(string)$token)){throw new \RuntimeException('Invalid import token.');}
         $base=DIR_UPLOAD.'codecart_catalog_'.$token;$stateFile=$base.'.json';if(!is_file($stateFile)){throw new \RuntimeException('Import session expired or not found.');}
         $state=json_decode((string)file_get_contents($stateFile),true);if(!is_array($state)||empty($state['xlsx'])||!is_file($state['xlsx'])||(time()-(int)$state['created'])>3600){$this->cleanupToken($token);throw new \RuntimeException('Import session expired.');}
+        if(isset($state['options']) && $state['options'] !== $this->importOptions){
+            throw new \RuntimeException('Import rules changed after preview. Select the file again.');
+        }
         $xlsx=$state['xlsx'];$package=!empty($state['package'])&&is_file($state['package'])?$state['package']:'';$preview=$this->preflightStreaming($xlsx,$package);if(!$preview['ok']){throw new \RuntimeException(implode('; ',$preview['errors']));}
         $meta=$this->readStreamingMetadata($xlsx);$languageMap=$this->targetLanguageMap(isset($meta['languages'])?$meta['languages']:array());$storeMap=$this->targetStoreMap(isset($meta['stores'])?$meta['stores']:array());
         $plans=array();$backupTables=array();foreach($preview['sheets'] as $sheet){$source=$sheet['table'];$target=$sheet['target_table'];if(!$this->isTransferTable($source)||$target===null)continue;$schema=$this->schema($target);if(!$schema['primary']&&!$this->isSeoLogical($target))continue;$plans[$source]=$target;$backupTables[$target]=true;}
@@ -902,7 +1005,9 @@ final class CatalogTransfer {
                     }
                     if($source==='product_to_category'&&!empty($row['main_category'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=isset($row['category_id'])?(int)$row['category_id']:0;if($pid>0&&$cid>0)$mainCategoryMap[$pid]=$cid;}
                     if($source==='product'&&isset($row['main_category_id'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=(int)$row['main_category_id'];if($pid>0&&$cid>0&&!isset($mainCategoryMap[$pid]))$mainCategoryMap[$pid]=$cid;}
-                    if($this->isSeoLogical($source)&&$this->isSeoLogical($target)){$mapped=$this->mapSeoRow($source,$target,$row,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsertSeo($target,$mapped);}else{$allowed=array_values(array_intersect(array_keys($row),array_keys($schema['columns'])));$mapped=$this->mapRow($source,$row,$allowed,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsert($target,$mapped,$schema);} $count++;
+                    if($this->isSeoLogical($source)&&$this->isSeoLogical($target)){$mapped=$this->mapSeoRow($source,$target,$row,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsertSeo($target,$mapped);}else{$allowed=array_values(array_intersect(array_keys($row),array_keys($schema['columns'])));$mapped=$this->mapRow($source,$row,$allowed,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}
+                    if($source==='product'){$mapped=$this->applyProductImportOptions($mapped,$schema);}
+                    $this->upsert($target,$mapped,$schema);} $count++;
                 });
                 $stats['tables'][$source]=$count;$stats['inserted_or_updated']+=$count;$stats['skipped_rows']+=$skipped;
             }
