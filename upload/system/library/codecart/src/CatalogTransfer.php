@@ -26,6 +26,8 @@ final class CatalogTransfer {
     private $productNames = array();
     private $productSkus = array();
     private $validDownloadIds = array();
+    private $incomingDownloadNames = array();
+    private $incomingDownloadLinks = array();
 
     public function onProgress(callable $callback = null) {
         $this->progressCallback = $callback;
@@ -424,6 +426,8 @@ final class CatalogTransfer {
         $this->productProblems = array();
         $this->productSkus = array();
         $this->productNames = array();
+        $this->incomingDownloadNames = array();
+        $this->incomingDownloadLinks = array();
         $imagePaths = array();
         $productImagePaths = array();
         $downloadFiles = array();
@@ -488,6 +492,12 @@ final class CatalogTransfer {
                 }
                 if ($sourceLogical === 'download' && isset($row['filename'])) {
                     $downloadFiles[(string)$row['filename']] = true;
+                    if (isset($row['download_id'])) {
+                        $this->incomingDownloadNames[(int)$row['download_id']] = (string)$row['filename'];
+                    }
+                }
+                if ($sourceLogical === 'product_to_download' && isset($row['download_id'],$row['product_id'])) {
+                    $this->incomingDownloadLinks[(int)$row['download_id']][(int)$row['product_id']] = true;
                 }
             }
             $result['sheets'][] = array('table'=>$sourceLogical,'target_table'=>$targetLogical,'rows'=>count(isset($sheet['rows'])?$sheet['rows']:array()),'columns'=>count($intersection),'ignored'=>$ignored,'primary'=>$schema['primary']);
@@ -719,6 +729,8 @@ final class CatalogTransfer {
         $this->productProblems = array();
         $this->productSkus = array();
         $this->productNames = array();
+        $this->incomingDownloadNames = array();
+        $this->incomingDownloadLinks = array();
         $imagePaths = array();
         $productImagePaths = array();
         $downloadFiles = array();
@@ -747,7 +759,15 @@ final class CatalogTransfer {
                     && !isset($this->productNames[(int)$row['product_id']])) {
                     $this->productNames[(int)$row['product_id']] = (string)$row['name'];
                 }
-                if ($sourceLogical === 'download' && isset($row['filename'])) { $downloadFiles[(string)$row['filename']] = true; }
+                if ($sourceLogical === 'download' && isset($row['filename'])) {
+                    $downloadFiles[(string)$row['filename']] = true;
+                    if (isset($row['download_id'])) {
+                        $this->incomingDownloadNames[(int)$row['download_id']] = (string)$row['filename'];
+                    }
+                }
+                if ($sourceLogical === 'product_to_download' && isset($row['download_id'],$row['product_id'])) {
+                    $this->incomingDownloadLinks[(int)$row['download_id']][(int)$row['product_id']] = true;
+                }
                 if ($sourceLogical === 'product') {
                     $totalProducts++;
                     if (isset($row['product_id'])) {
@@ -1196,11 +1216,16 @@ final class CatalogTransfer {
             if (!isset($workbook[$check['sheet']]['rows'])) { continue; }
             if (isset($check['when_table']) && !$this->tableExists($check['when_table'])) { continue; }
             $ids = array();
+            $owners = array();
             foreach ($workbook[$check['sheet']]['rows'] as $row) {
                 if (!isset($row[$check['column']]) || $row[$check['column']] === '' || $row[$check['column']] === null) { continue; }
                 $id = (int)$row[$check['column']];
                 if ($id === 0 && $check['allow_zero']) { continue; }
-                if ($id > 0) { $ids[$id] = true; }
+                if ($id > 0) {
+                    $ids[$id] = true;
+                    $pid = isset($row['product_id']) ? (int)$row['product_id'] : 0;
+                    $owners[$id][$pid] = true;
+                }
             }
             if (!$ids) { continue; }
 
@@ -1224,8 +1249,18 @@ final class CatalogTransfer {
             }
             $missing = array_values(array_diff(array_keys($ids), array_keys($available)));
             if ($missing) {
-                $sample = array_slice($missing, 0, 20);
-                $result['errors'][] = 'Missing referenced ' . $check['label'] . ' IDs on target: ' . implode(', ', $sample) . (count($missing) > 20 ? ' ...' : '') . '. Import is blocked to prevent broken catalog relations.';
+                $systemMissing = array();
+                foreach ($missing as $missingId) {
+                    foreach (array_keys(isset($owners[$missingId]) ? $owners[$missingId] : array(0=>true)) as $pid) {
+                        if ($this->progressCallback && $pid > 0 && isset($this->productSkus[$pid])) {
+                            $this->rejectProduct($pid, 'Missing ' . $check['label'] . ' ID ' . $missingId);
+                        } else { $systemMissing[$missingId] = true; }
+                    }
+                }
+                if ($systemMissing) {
+                    $sample = array_slice(array_keys($systemMissing), 0, 20);
+                    $result['errors'][] = 'Missing referenced '.$check['label'].' IDs on target: '.implode(', ',$sample).'. Import is blocked to prevent broken catalog relations.';
+                }
             }
         }
     }
@@ -1490,6 +1525,21 @@ final class CatalogTransfer {
             && strpos($name, '..') === false;
     }
 
+    private function rejectMissingProductDownload($name, $message) {
+        if (!$this->progressCallback) { return false; }
+        $found = false;
+        foreach ($this->incomingDownloadNames as $downloadId => $filename) {
+            if ($filename !== $name || !isset($this->incomingDownloadLinks[$downloadId])) { continue; }
+            foreach (array_keys($this->incomingDownloadLinks[$downloadId]) as $productId) {
+                if (isset($this->productSkus[$productId])) {
+                    $this->rejectProduct($productId, $message . ': ' . $name);
+                    $found = true;
+                }
+            }
+        }
+        return $found;
+    }
+
     private function checkDownloadAvailability(array $downloadFiles, $package, array &$result) {
         if (!$downloadFiles) { return; }
         $zip = null;
@@ -1503,18 +1553,24 @@ final class CatalogTransfer {
         try {
             foreach (array_keys($downloadFiles) as $name) {
                 if (!$this->safeDownloadFilename($name)) {
-                    $result['errors'][] = 'Invalid digital download filename in catalog.';
+                    if (!$this->rejectMissingProductDownload($name, 'Invalid digital download filename')) {
+                        $result['errors'][] = 'Invalid digital download filename in catalog.';
+                    }
                     continue;
                 }
                 $local = rtrim(DIR_DOWNLOAD, '/\\') . DIRECTORY_SEPARATOR . $name;
                 if (is_file($local)) { continue; }
                 $found = $zip ? $zip->locateName('download/' . $name) : false;
                 if ($found === false) {
-                    $result['errors'][] = 'Digital product file is not present on target or in package: ' . $name;
+                    if (!$this->rejectMissingProductDownload($name, 'Digital product file missing')) {
+                        $result['errors'][] = 'Digital product file is not present on target or in package: ' . $name;
+                    }
                 } else {
                     $stat = $zip->statIndex($found);
                     if (!$stat || (int)$stat['size'] > self::MAX_SINGLE_DOWNLOAD_BYTES) {
-                        $result['errors'][] = 'Digital product file exceeds the allowed package size: ' . $name;
+                        if (!$this->rejectMissingProductDownload($name, 'Digital product file exceeds package size limit')) {
+                            $result['errors'][] = 'Digital product file exceeds the allowed package size: ' . $name;
+                        }
                     }
                 }
             }
