@@ -199,8 +199,7 @@
               </div>
             </div>
           </div>
-          <details class="ccp-capture-diagnostics-toggle">
-            <summary><i class="fa fa-stethoscope"></i> {{ text_capture_diag_button }}</summary>
+          <div class="ccp-capture-diagnostics-toggle">
           <div class="ccp-cart-capture-diagnostics" data-check-url="{{ guest_capture_diagnostics_url|e('html_attr') }}"
                data-error="{{ text_capture_diag_error|e('html_attr') }}"
                data-yes="{{ text_enabled|e('html_attr') }}" data-no="{{ text_disabled|e('html_attr') }}"
@@ -218,9 +217,9 @@
             <div id="ccp-guest-capture-result" class="ccp-capture-diagnostics-result" role="status" aria-live="polite"></div>
             <p class="help-block">{{ text_capture_diag_explanation }}</p>
           </div>
-          </details>
-          <details class="ccp-checkout-field-mapping">
-            <summary><i class="fa fa-sliders"></i> {{ text_checkout_field_mapping }}</summary>
+          </div>
+          <section class="ccp-checkout-field-mapping">
+            <h4 class="ccp-extra-section-heading"><i class="fa fa-sliders"></i> {{ text_checkout_field_mapping }}</h4>
             <p class="help-block">{{ text_checkout_field_help }}</p>
             <div class="row">
               <div class="col-sm-12 col-md-6"><label for="ccp-selector-form">{{ entry_selector_form }}</label>
@@ -234,9 +233,9 @@
               <div class="col-sm-6 col-md-3"><label for="ccp-selector-telephone">{{ entry_selector_telephone }}</label>
                 <input type="text" name="cart_selector_telephone" id="ccp-selector-telephone" class="form-control" value="{{ cart_fields.selector_telephone|e('html_attr') }}" maxlength="160" placeholder="{{ text_selector_auto_placeholder|e('html_attr') }}" autocomplete="off"></div>
             </div>
-          </details>
-          <details class="ccp-source-advanced" id="ccp-source-advanced" {{ cart_form_source == 'external' or detect_message ? 'open' : '' }}>
-            <summary><i class="fa fa-database"></i> {{ text_advanced_source_settings }}</summary>
+          </section>
+          <section class="ccp-source-advanced" id="ccp-source-advanced">
+            <h4 class="ccp-extra-section-heading"><i class="fa fa-database"></i> {{ text_advanced_source_settings }}</h4>
             <p class="help-block">{{ text_cart_source_help }}</p>
             <div class="row"><div class="col-sm-6 col-md-4"><label for="abandoned-source">{{ entry_cart_source }}</label>
               <select name="cart_source" class="form-control" id="abandoned-source">
@@ -262,7 +261,7 @@
             {% if detect_message %}<div id="ccp-external-detect-result" class="alert {{ detect_error ? 'alert-warning' : 'alert-info' }}" role="status">{{ detect_message|e }}</div>
             {% else %}<div id="ccp-external-detect-result" class="help-block" role="status" aria-live="polite"></div>{% endif %}
             <p class="help-block">{{ text_detect_no_write }}</p>
-            <details class="ccp-external-advanced" {{ detect_message and cart_fields.table ? 'open' : '' }}><summary><i class="fa fa-wrench"></i> {{ text_external_advanced }}</summary>
+            <div class="ccp-external-advanced"><h4 class="ccp-extra-section-heading"><i class="fa fa-wrench"></i> {{ text_external_advanced }}</h4>
               <p class="help-block">{{ text_cart_mapping_info }}</p><div class="row">
               {% set mapping = {'col_session': entry_col_session, 'col_product': entry_col_product, 'col_quantity': entry_col_quantity,
                 'col_date': entry_col_date, 'col_customer': entry_col_customer,'col_email': entry_col_email, 'col_phone': entry_col_phone,'col_firstname': entry_col_firstname,'col_lastname': entry_col_lastname} %}
@@ -272,10 +271,10 @@
                 <div class="col-sm-6 col-md-3 ccp-map-field"><label for="map-{{ key }}">{{ label }}{% if key in ['col_session','col_product','col_quantity','col_date'] %} <span class="text-danger">*</span>{% endif %}</label>
                 <input type="text" name="cart_{{ key }}" id="map-{{ key }}" class="form-control" value="{{ attribute(cart_fields, key)|e('html_attr') }}" placeholder="{{ attribute(placeholders,key) }}" autocomplete="off" maxlength="64"></div>
               {% endfor %}
-              </div><p class="help-block">{{ text_external_required }} {{ text_external_optional }}</p></details>
+              </div><p class="help-block">{{ text_external_required }} {{ text_external_optional }}</p></div>
             {% if cart_source == 'external' and cart_enabled and not cart_mapping_valid %}<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ error_cart_mapping }}</div>{% endif %}
           </div>
-          </details>
+          </section>
 
           {% if cart_can_modify %}<div class="text-right ccp-cart-settings-actions"><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button></div>{% endif %}
         </form>

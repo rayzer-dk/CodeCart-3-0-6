@@ -25,7 +25,9 @@ $assert(strpos($cart, 'ccp-cart-contact-email') !== false, 'email remains visibl
 $assert(strpos($cart, 'sort_email') !== false, 'email sorting preserved');
 $assert(strpos($cart, 'ccp-source-advanced') !== false && strpos($cart, 'text_cart_source_help') !== false && strpos($cart, 'text_checkout_only_explanation') !== false, 'data source / checkout remain distinct');
 $assert(strpos($cart, 'ccp-settings-core-grid') !== false && strpos($cart, 'ccp-settings-reminder-list') !== false, 'compact responsive settings groups present');
-$assert(strpos($cart, 'ccp-capture-diagnostics-toggle') !== false && strpos($cart, 'ccp-check-guest-capture') !== false, 'diagnostics remain available when collapsed');
+$form = explode('</form>', explode('class="ccp-cart-settings-form"', $cart, 2)[1] ?? '', 2)[0];
+$assert(strpos($form, '<details') === false && strpos($form, '<summary') === false, 'all cart settings visible without collapsing');
+$assert(strpos($cart, 'ccp-capture-diagnostics-toggle') !== false && strpos($cart, 'ccp-check-guest-capture') !== false, 'diagnostics visible and actionable');
 foreach (array('en-gb', 'ru-ru', 'uk-ua') as $locale) {
     $l = $read('upload/admin/language/' . $locale . '/tool/scheduler.php');
     $assert(strpos($l, 'Mirohost') === false, $locale . ' hosting neutral');
