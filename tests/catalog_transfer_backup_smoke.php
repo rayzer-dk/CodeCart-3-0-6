@@ -70,6 +70,56 @@ try {
     $args=array(array(array('product_id'=>15,'sku'=>'DIFFERENT','model'=>'Y')),&$preview);
     privateCall($transfer,'checkProductIdentityBatch',$args);
     check(count($preview['errors'])===1,'ID collision blocked');
+    // Import rules must be explicit, not alter nonempty source cells, and
+    // must never allow arbitrary SQL column names from a POST request.
+    $fieldSchema=array('columns'=>array('model'=>array(),'sku'=>array(),'mpn'=>array(),
+        'quantity'=>array(),'price'=>array(),'status'=>array()));
+    $transfer->setImportOptions(array('status'=>'disabled','fields'=>array(
+        'model'=>array('mode'=>'custom','value'=>'DEFAULT-MODEL'),
+        'sku'=>array('mode'=>'empty','value'=>''),
+        'quantity'=>array('mode'=>'custom','value'=>'25'),
+        'price'=>array('mode'=>'custom','value'=>'123.45')
+    )));
+    $filled=privateCall($transfer,'applyProductImportOptions',array(
+        array('product_id'=>15,'model'=>'','sku'=>null,'quantity'=>'','price'=>'0','status'=>'1'),$fieldSchema
+    ));
+    check($filled['model']==='DEFAULT-MODEL' && $filled['sku']==='' && $filled['quantity']==='25',
+        'Import rules must fill empty model, SKU and quantity');
+    check($filled['price']==='0', 'Original valid zero price must be preserved');
+    check($filled['status']==='0','Status override must disable imported product');
+    $existing=privateCall($transfer,'applyProductImportOptions',array(
+        array('model'=>'EXISTING','sku'=>'SKU-OK','quantity'=>'8','status'=>'0'),$fieldSchema
+    ));
+    check($existing['model']==='EXISTING'&&$existing['sku']==='SKU-OK'
+        &&$existing['quantity']==='8','Import rules overwrote nonempty product values');
+    check($existing['status']==='0','Product status was not applied');
+    $absent=privateCall($transfer,'applyProductImportOptions',array(
+        array('product_id'=>18),$fieldSchema
+    ));
+    check($absent['model']==='DEFAULT-MODEL' && $absent['quantity']==='25'
+        && $absent['status']==='0','Missing source columns did not receive configured fallback');
+    $transfer->setImportOptions(array('status'=>'enabled'));
+    $enabled=privateCall($transfer,'applyProductImportOptions',array(
+        array('status'=>'0'),$fieldSchema
+    ));
+    check($enabled['status']==='1','Status override must enable imported product');
+    $transfer->setImportOptions(array());
+    $untouched=privateCall($transfer,'applyProductImportOptions',array(
+        array('status'=>'0'),$fieldSchema
+    ));
+    check($untouched['status']==='0','Default must preserve original product status');
+    foreach(array(
+        array('status'=>'danger'),
+        array('fields'=>array('admin_password'=>array('mode'=>'custom','value'=>'X'))),
+        array('fields'=>array('quantity'=>array('mode'=>'custom','value'=>'-7'))),
+        array('fields'=>array('price'=>array('mode'=>'custom','value'=>'1,99')))
+    ) as $bad) {
+        $rejected=false;
+        try { $transfer->setImportOptions($bad); } catch (InvalidArgumentException $e) { $rejected=true; }
+        check($rejected,'Invalid import rule was accepted: '.json_encode($bad));
+    }
+    $transfer->setImportOptions(array());
+
     if(class_exists('ZipArchive')) {
         $package=$downloadDir.'/package.zip';
         $zip=new ZipArchive();
