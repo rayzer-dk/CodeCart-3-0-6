@@ -63,9 +63,19 @@ class ModelAccountCustomer extends Model {
 	}
 
 	public function getCustomerByToken($token) {
+		if (!is_string($token) || $token === '') {
+			return array();
+		}
+
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "customer WHERE token = '" . $this->db->escape($token) . "' AND token != ''");
 
-		$this->db->query("UPDATE " . DB_PREFIX . "customer SET token = '' WHERE customer_id = '" . (int)$query->row['customer_id'] . "'");
+		if (!$query->num_rows) {
+			return array();
+		}
+
+		// Impersonation links are one-time; do not query or mutate customer #0
+		// when a missing/expired token is supplied.
+		$this->db->query("UPDATE " . DB_PREFIX . "customer SET token = '' WHERE customer_id = '" . (int)$query->row['customer_id'] . "' AND token = '" . $this->db->escape($token) . "'");
 
 		return $query->row;
 	}
