@@ -64,6 +64,33 @@
               <button type="button" id="button-catalog-file" class="btn btn-default" {% if not catalog_xlsx_import_available %}disabled="disabled"{% endif %}><i class="fa fa-folder-open"></i> {{ button_catalog_select }}</button>
               <span id="catalog-file-name" class="text-muted">{{ text_no_file }}</span>
             </div>
+            <div class="ccp-import-rules">
+              <label for="catalog-import-status"><strong>{{ label_import_status }}</strong></label>
+              <select id="catalog-import-status" class="form-control">
+                <option value="preserve">{{ option_import_status_preserve }}</option>
+                <option value="enabled">{{ option_import_status_enable }}</option>
+                <option value="disabled">{{ option_import_status_disable }}</option>
+              </select>
+              <small class="text-muted">{{ help_import_status }}</small>
+              <details class="ccp-import-fallbacks">
+                <summary><i class="fa fa-sliders"></i> {{ label_import_fallbacks }}</summary>
+                <p class="text-muted">{{ help_import_fallbacks }}</p>
+                <div class="ccp-import-field-grid">
+                  {% for field in import_fallback_fields %}
+                  <div class="ccp-import-field" data-import-field="{{ field }}">
+                    <label for="catalog-default-mode-{{ field }}">{{ attribute(_context, 'import_field_' ~ field) }}</label>
+                    <select id="catalog-default-mode-{{ field }}" class="form-control ccp-import-field-mode">
+                      <option value="preserve">{{ option_import_field_preserve }}</option>
+                      <option value="empty">{{ option_import_field_empty }}</option>
+                      <option value="custom">{{ option_import_field_custom }}</option>
+                    </select>
+                    <input type="text" class="form-control ccp-import-field-value" maxlength="128"
+                           placeholder="{{ placeholder_import_custom }}" aria-label="{{ attribute(_context, 'import_field_' ~ field) }}" hidden />
+                  </div>
+                  {% endfor %}
+                </div>
+              </details>
+            </div>
             <div id="catalog-preview" class="ccp-preview" hidden></div>
             <div id="catalog-import-actions" class="ccp-import-actions" hidden>
               <label><input type="checkbox" id="catalog-overwrite-images" /> {{ entry_overwrite_images }}</label>
@@ -108,11 +135,32 @@
 <style>
 .ccp-data-center .panel>.panel-body{padding:18px}.ccp-data-tabs{white-space:nowrap;overflow-x:auto;overflow-y:hidden}.ccp-info-strip{display:flex;gap:12px;align-items:flex-start;margin:4px 0 18px;padding:13px 15px;border:1px solid #dce7f3;border-radius:7px;background:#f7fbff}.ccp-info-strip>i{margin-top:2px;color:#0b6fd3}.ccp-info-strip strong{display:block;margin-bottom:3px}.ccp-entity-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.ccp-entity-card{display:flex;align-items:center;gap:11px;min-height:82px;margin:0;padding:12px 14px;border:1px solid #dfe5ec;border-radius:8px;background:#fff;cursor:pointer}.ccp-entity-card:hover{border-color:#8bbdec}.ccp-entity-card>input{margin:0}.ccp-entity-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:7px;background:#eef6ff;color:#0b6fd3}.ccp-entity-main{display:flex;flex:1;min-width:0;flex-direction:column}.ccp-entity-main small{margin-top:3px;color:#687587;font-weight:400}.ccp-entity-count{min-width:32px;padding:3px 8px;border-radius:12px;background:#eef2f6;text-align:center;font-weight:600}.ccp-xml-feed-link{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:10px 12px;border:1px solid #dce7f3;border-radius:7px;background:#fbfdff}.ccp-xml-feed-link>span{min-width:0}.ccp-xml-feed-link .btn{flex:0 0 auto}html.ccp-admin-dark .ccp-xml-feed-link{background:#1b2530;border-color:#344454}.ccp-export-actions,.ccp-import-actions,.ccp-import-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}.ccp-catalog-export-cta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:520px}.ccp-export-format-note{display:block;color:#526173;text-align:right;line-height:1.35}.ccp-export-format-note .label{margin-right:5px}html.ccp-admin-dark .ccp-export-format-note{color:#aeb9c6}.ccp-portable{display:flex;align-items:flex-start;gap:8px;margin:0}.ccp-portable small{display:block;color:#687587;font-weight:400}.ccp-preview{margin-top:16px;border:1px solid #dfe5ec;border-radius:8px;overflow:hidden}.ccp-preview table{margin:0;border-top:3px solid #0b6fd3}.ccp-preview-summary{padding:12px 14px;background:#f7f9fb;border-bottom:1px solid #dfe5ec}.ccp-table-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-height:300px;overflow:auto}.ccp-table-check{margin:0!important;padding:6px 8px 6px 28px!important;overflow:hidden;text-overflow:ellipsis}.ccp-import-actions{justify-content:flex-end}.ccp-import-actions label{margin-right:auto;font-weight:400}.ccp-data-center .progress{margin-bottom:0}.ccp-operation-progress{margin-top:14px;padding:10px 12px;border:1px solid #dfe5ec;border-radius:7px;background:#f8fafc}.ccp-operation-progress__meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px;font-size:12px}.ccp-progress-label{font-weight:600}.ccp-progress-percent{font-variant-numeric:tabular-nums;color:#687587}.ccp-operation-progress .progress{height:14px}.ccp-relation-note{margin:16px 0 0}html.ccp-admin-dark .ccp-entity-card,html.ccp-admin-dark .ccp-info-strip,html.ccp-admin-dark .ccp-preview-summary{background:#1b2530;border-color:#344454}html.ccp-admin-dark .ccp-entity-count,html.ccp-admin-dark .ccp-entity-icon{background:#243342}html.ccp-admin-dark .ccp-operation-progress{background:#1b2530;border-color:#344454}html.ccp-admin-dark .ccp-progress-percent{color:#aeb8c5}@media(max-width:991px){.ccp-entity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ccp-table-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.ccp-entity-grid,.ccp-table-picker{grid-template-columns:1fr}.ccp-xml-feed-link,.ccp-export-actions,.ccp-import-actions{align-items:stretch;flex-direction:column}.ccp-export-actions .btn,.ccp-import-actions .btn{width:100%}.ccp-import-actions label{margin-right:0}.ccp-data-center .panel>.panel-body{padding:12px}}
  .ccp-transfer-stats{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}.ccp-transfer-stat{border:1px solid #dfe5ec;border-radius:6px;padding:8px 12px;min-width:115px;font-size:12px}.ccp-transfer-stat strong{display:block;font-size:19px;font-variant-numeric:tabular-nums}.ccp-transfer-report{margin:12px 0;border:1px solid #dfe5ec;border-radius:7px;padding:12px}.ccp-transfer-report summary{cursor:pointer;font-weight:600}.ccp-transfer-report table{margin-top:12px;border-top:3px solid #0057d9}.ccp-transfer-report td{max-width:280px;overflow-wrap:anywhere}.ccp-transfer-report .table-responsive{max-height:380px;overflow-y:auto}html.ccp-admin-dark .ccp-transfer-stat,html.ccp-admin-dark .ccp-transfer-report{border-color:#344454}
+.ccp-import-rules{margin:14px 0;padding:12px 14px;border:1px solid #dfe5ec;border-radius:7px;background:#f8fafc}.ccp-import-rules>label{display:block;margin-bottom:6px}.ccp-import-rules>#catalog-import-status{max-width:330px}.ccp-import-rules>.text-muted{display:block;margin-top:5px}.ccp-import-fallbacks{margin-top:12px;border-top:1px solid #dfe5ec;padding-top:10px}.ccp-import-fallbacks summary{font-weight:600;cursor:pointer}.ccp-import-fallbacks>p{margin:9px 0}.ccp-import-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ccp-import-field{display:grid;grid-template-columns:minmax(95px,.7fr) minmax(130px,1fr) minmax(110px,1fr);gap:8px;align-items:center}.ccp-import-field label{margin:0;font-weight:500}.ccp-import-field .ccp-import-field-value[hidden]{display:none}.ccp-import-field .ccp-import-field-value{min-width:0}html.ccp-admin-dark .ccp-import-rules{background:#1b2530;border-color:#344454}@media(max-width:600px){.ccp-import-field-grid{grid-template-columns:1fr}.ccp-import-field{grid-template-columns:90px 1fr 1fr}}
 </style>
 <script type="text/javascript"><!--
 (function($){
 'use strict';
 var catalogToken='',catalogProgressTimer=null,catalogProgressRunning=false;
+function importRules(){
+  var out={status:$('#catalog-import-status').val()||'preserve',fields:{}};
+  $('.ccp-import-field').each(function(){
+    var key=$(this).attr('data-import-field'),mode=$(this).find('.ccp-import-field-mode').val();
+    if(mode!=='preserve'){out.fields[key]={mode:mode,value:$(this).find('.ccp-import-field-value').val()||''};}
+  });
+  return out;
+}
+function appendRulesToUpload(fd){
+  var rules=importRules();fd.append('import_rules[status]',rules.status);
+  $.each(rules.fields,function(field,rule){fd.append('import_rules[fields]['+field+'][mode]',rule.mode);fd.append('import_rules[fields]['+field+'][value]',rule.value);});
+}
+$('.ccp-import-rules').on('change input','select,input',function(){
+  var $field=$(this).closest('.ccp-import-field');
+  if($(this).hasClass('ccp-import-field-mode')){$field.find('.ccp-import-field-value').prop('hidden',$(this).val()!=='custom');}
+  if(catalogToken){
+    catalogToken='';$('#catalog-preview,#catalog-import-actions').prop('hidden',true);
+    $('#catalog-file-name').text('{{ text_import_rules_recheck|e('js') }}');
+  }
+});
 var ccpProgressLabels={total:'{{ text_products_found|e('js') }}',processed:'{{ text_products_processed|e('js') }}',success:'{{ text_products_success|e('js') }}',skipped:'{{ text_products_skipped|e('js') }}'};
 function drawTransferReport(info){
   if(!info||typeof info.total==='undefined'){return;}
@@ -200,7 +248,7 @@ $('#button-catalog-export').off('click.ccpCatalogExport').on('click.ccpCatalogEx
 $('#button-catalog-file').on('click',function(){
   $('#form-catalog-upload').remove();$('body').append('<form id="form-catalog-upload" enctype="multipart/form-data" style="display:none"><input type="file" name="catalog_import" accept=".xlsx,.zip" /></form>');
   var $input=$('#form-catalog-upload input');$input.on('change',function(){
-    if(!this.files||!this.files.length){return;}$('#catalog-file-name').text(this.files[0].name);var fd=new FormData($('#form-catalog-upload')[0]);fd.append('progress_token','{{ catalog_progress_token|e('js') }}');$('#button-catalog-file').button('loading');setProgress('catalog-import-progress',0,'{{ text_progress_uploading|e('js') }}',false);
+    if(!this.files||!this.files.length){return;}$('#catalog-file-name').text(this.files[0].name);var fd=new FormData($('#form-catalog-upload')[0]);appendRulesToUpload(fd);fd.append('progress_token','{{ catalog_progress_token|e('js') }}');$('#button-catalog-file').button('loading');setProgress('catalog-import-progress',0,'{{ text_progress_uploading|e('js') }}',false);
     $.ajax({url:'{{ catalog_preview|replace({'&amp;':'&'}) }}',type:'post',data:fd,dataType:'json',processData:false,contentType:false,cache:false,xhr:function(){var x=$.ajaxSettings.xhr();if(x.upload){x.upload.addEventListener('progress',function(e){if(e.lengthComputable&&e.total>0){var pct=Math.min(60,Math.round((e.loaded/e.total)*60));setProgress('catalog-import-progress',pct,'{{ text_progress_uploading|e('js') }}',false);}},false);}return x;},beforeSend:function(){setProgress('catalog-import-progress',3,'{{ text_progress_uploading|e('js') }}',false);}}).done(function(json){
       setProgress('catalog-import-progress',75,'{{ text_progress_checking|e('js') }}',true);
       if(json.error){catalogToken='';$('#catalog-preview,#catalog-import-actions').prop('hidden',true);alertBox('danger',json.error);hideProgress('catalog-import-progress',800);return;}
@@ -215,7 +263,7 @@ $('#button-catalog-file').on('click',function(){
 
 $('#button-catalog-import').on('click',function(){
   if(!catalogToken){return;}if(!window.confirm('{{ text_catalog_confirm|e('js') }}')){return;}var $btn=$(this);$btn.button('loading');startCatalogPolling('catalog-import-progress');setProgress('catalog-import-progress',5,'{{ text_progress_importing|e('js') }}',true);
-  $.ajax({url:'{{ catalog_import|replace({'&amp;':'&'}) }}',type:'post',dataType:'json',data:{token:catalogToken,overwrite_images:$('#catalog-overwrite-images').prop('checked')?1:0,progress_token:'{{ catalog_progress_token|e('js') }}'},beforeSend:function(){setProgress('catalog-import-progress',15,'{{ text_progress_importing|e('js') }}',true);}}).done(function(json){stopCatalogPolling();if(json.error){alertBox('danger',json.error);catalogProgressFetch('catalog-import-progress');return;}var r=json.result||{};drawTransferReport({total:r.total_products||0,processed:r.processed_products||0,success:r.successful_products||0,skipped:r.skipped_products||0,issues:r.product_errors||[]});setProgress('catalog-import-progress',100,'{{ text_progress_done|e('js') }}',false);alertBox('success',(json.success||'')+' '+('{{ text_catalog_result|e('js') }}').replace('%s',r.inserted_or_updated||0).replace('%b',r.backup||''));catalogToken='';$('#catalog-preview,#catalog-import-actions').prop('hidden',true);}).fail(function(xhr){stopCatalogPolling();alertBox('danger',xhr.statusText||'HTTP error');catalogProgressFetch('catalog-import-progress');}).always(function(){$btn.button('reset');});
+  $.ajax({url:'{{ catalog_import|replace({'&amp;':'&'}) }}',type:'post',dataType:'json',data:$.extend(true,{token:catalogToken,overwrite_images:$('#catalog-overwrite-images').prop('checked')?1:0,progress_token:'{{ catalog_progress_token|e('js') }}'},{import_rules:importRules()}),beforeSend:function(){setProgress('catalog-import-progress',15,'{{ text_progress_importing|e('js') }}',true);}}).done(function(json){stopCatalogPolling();if(json.error){alertBox('danger',json.error);catalogProgressFetch('catalog-import-progress');return;}var r=json.result||{};drawTransferReport({total:r.total_products||0,processed:r.processed_products||0,success:r.successful_products||0,skipped:r.skipped_products||0,issues:r.product_errors||[]});setProgress('catalog-import-progress',100,'{{ text_progress_done|e('js') }}',false);alertBox('success',(json.success||'')+' '+('{{ text_catalog_result|e('js') }}').replace('%s',r.inserted_or_updated||0).replace('%b',r.backup||''));catalogToken='';$('#catalog-preview,#catalog-import-actions').prop('hidden',true);}).fail(function(xhr){stopCatalogPolling();alertBox('danger',xhr.statusText||'HTTP error');catalogProgressFetch('catalog-import-progress');}).always(function(){$btn.button('reset');});
 });
 
 $('#button-import').on('click',function(){if(!window.confirm('{{ text_restore_confirm|e('js') }}')){return;}$('#form-upload').remove();$('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display:none"><input type="file" name="import" accept=".sql" /></form>');var $input=$('#form-upload input[name="import"]');$input.on('change',function(){if(!this.files||!this.files.length){return;}$('#progress-import .progress-bar').attr('aria-valuenow',0).css('width','0%');var fd=new FormData($('#form-upload')[0]);$('#button-import').button('loading');$.ajax({url:'index.php?route=tool/backup/import&user_token={{ user_token }}',type:'post',dataType:'json',data:fd,cache:false,contentType:false,processData:false}).done(handleSql).fail(function(xhr){alertBox('danger',xhr.statusText||'HTTP error');}).always(function(){$('#button-import').button('reset');});});$input.trigger('click');});
