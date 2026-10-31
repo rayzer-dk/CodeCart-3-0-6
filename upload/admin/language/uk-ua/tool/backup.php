@@ -89,3 +89,5 @@ $_['text_catalog_xml_help'] = 'XML не дублює перенос катало
 $_['button_xml_feeds'] = 'Відкрити XML-фіди';
 
 $_['error_restore_query'] = 'Помилка SQL під час відновлення таблиці';
+$_['error_restore_snapshot'] = 'Не вдалося створити захисну копію БД перед відновленням. Операцію скасовано без зміни даних.';
+$_['text_restore_snapshot_saved'] = ' Захисна копія: storage/backup/%s.';
