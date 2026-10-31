@@ -69,7 +69,7 @@ $schema = array(
 "CREATE TABLE `oc_category` (category_id int PRIMARY KEY,image varchar(255) NOT NULL DEFAULT '')",
 "CREATE TABLE `oc_category_description` (category_id int,language_id int,name varchar(255),PRIMARY KEY(category_id,language_id))",
 "CREATE TABLE `oc_category_path` (category_id int,path_id int,level int,PRIMARY KEY(category_id,path_id))",
-"CREATE TABLE `oc_product` (product_id int PRIMARY KEY,sku varchar(64),model varchar(64),manufacturer_id int DEFAULT 0,image varchar(255),main_category_id int DEFAULT 0)",
+"CREATE TABLE `oc_product` (product_id int PRIMARY KEY,sku varchar(64),model varchar(64),manufacturer_id int DEFAULT 0,image varchar(255),main_category_id int DEFAULT 0,status tinyint NOT NULL DEFAULT 1,quantity int NOT NULL DEFAULT 0,mpn varchar(64) NOT NULL DEFAULT '')",
 "CREATE TABLE `oc_product_image` (product_image_id int PRIMARY KEY,product_id int,image varchar(255),sort_order int DEFAULT 0)",
 "CREATE TABLE `oc_product_to_category` (product_id int,category_id int,main_category int NOT NULL DEFAULT 0,PRIMARY KEY(product_id,category_id))",
 "CREATE TABLE `oc_download` (download_id int PRIMARY KEY,filename varchar(255) NOT NULL,mask varchar(255) NOT NULL)",
@@ -82,10 +82,10 @@ try {
     $db->query("INSERT INTO oc_category VALUES (7,''),(9,'')");
     $db->query("INSERT INTO oc_category_description VALUES (7,1,'Основна'),(9,1,'Додаткова')");
     $db->query("INSERT INTO oc_category_path VALUES (7,7,0),(9,9,0)");
-    $db->query("INSERT INTO oc_product VALUES (15,'SKU-15','MODEL-15',0,'catalog/товар.png',7)");
+    $db->query("INSERT INTO oc_product (product_id,sku,model,manufacturer_id,image,main_category_id,status,quantity,mpn) VALUES (15,'SKU-15','MODEL-15',0,'catalog/товар.png',7,1,0,'')");
     // A single product with a missing image must not prevent the good product
     // and its category/SEO/digital-file dependencies from being exported.
-    $db->query("INSERT INTO oc_product VALUES (16,'BAD-16','MODEL-16',0,'catalog/missing.png',7)");
+    $db->query("INSERT INTO oc_product (product_id,sku,model,manufacturer_id,image,main_category_id,status,quantity,mpn) VALUES (16,'BAD-16','MODEL-16',0,'catalog/missing.png',7,1,0,'')");
     $db->query("INSERT INTO oc_product_image VALUES (51,15,'catalog/товар.png',0)");
     $db->query("INSERT INTO oc_product_to_category VALUES (15,7,0),(15,9,1),(16,7,1)");
     $db->query("INSERT INTO oc_download VALUES (31,'manual.pdf.abc123','manual.pdf')");
@@ -118,10 +118,17 @@ try {
     $prefix = DIR_UPLOAD . 'codecart_catalog_' . $token;
     file_put_contents($prefix . '.xlsx', $xlsx);
     file_put_contents($prefix . '.json', json_encode(array('xlsx'=>$prefix.'.xlsx','package'=>$package,'created'=>time())));
+    $service->setImportOptions(array('status'=>'disabled','fields'=>array(
+        'mpn'=>array('mode'=>'custom','value'=>'NEW-MPN'),
+        'quantity'=>array('mode'=>'custom','value'=>'17')
+    )));
     $result = $service->importToken($token, false);
     assertion($result['main_categories'] === 1, 'Main category count');
     $product = $db->query('SELECT * FROM oc_product WHERE product_id=15')->row;
     assertion((int)$product['main_category_id'] === 9, 'Main category precedence');
+    assertion((int)$product['status'] === 0, 'Force-disable imported product did not work');
+    assertion($product['mpn'] === 'NEW-MPN', 'Custom fallback not applied to empty MPN');
+    assertion((int)$product['quantity'] === 0, 'Custom fallback must not override source zero quantity');
     $categories = $db->query('SELECT category_id,main_category FROM oc_product_to_category WHERE product_id=15 ORDER BY category_id')->rows;
     assertion(count($categories)===2 && (int)$categories[0]['category_id']===7 && (int)$categories[1]['category_id']===9, 'Additional category lost');
     assertion((int)$categories[1]['main_category']===1, 'Main relation flag lost');
