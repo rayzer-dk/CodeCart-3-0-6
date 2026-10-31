@@ -158,7 +158,7 @@
             </div>
           <h4 class="ccp-settings-section-heading"><i class="fa fa-envelope-o"></i> {{ text_reminders_section }}</h4>
           <div class="ccp-mail-control"><label for="abandoned-reminder-delay"><i class="fa fa-clock-o"></i> {{ entry_reminder_delay_minutes }}</label>
-            <input type="text" name="cart_reminder_delay_hours" id="abandoned-reminder-delay" class="form-control" inputmode="decimal" maxlength="16" value="{{ cart_fields.reminder_delay_hours|e('html_attr') }}" placeholder="1,5">
+            <input type="number" name="cart_reminder_delay_minutes" id="abandoned-reminder-delay" class="form-control" min="5" max="10080" step="1" value="{{ cart_fields.reminder_delay_minutes }}" placeholder="60">
             <p class="help-block">{{ text_reminder_delay_help }}</p></div>
           <div class="ccp-mail-control"><label for="abandoned-mail-auto"><i class="fa fa-envelope-o"></i> {{ entry_mail_auto }}</label>
             <select id="abandoned-mail-auto" name="cart_mail_auto" class="form-control">
