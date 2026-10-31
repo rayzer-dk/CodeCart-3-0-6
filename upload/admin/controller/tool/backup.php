@@ -138,9 +138,8 @@ class ControllerToolBackup extends Controller {
                 $this->log->write('CodeCart SQL pre-restore snapshot failed: ' . get_class($e));
             }
         }
-        if (!$json && !empty($this->session->data['codecart_sql_restore']['snapshot'])) {
-            $json['recovery_backup'] = $this->session->data['codecart_sql_restore']['snapshot'];
-        }
+        $recoveryBackup = isset($this->session->data['codecart_sql_restore']['snapshot'])
+            ? (string)$this->session->data['codecart_sql_restore']['snapshot'] : '';
 
 		if (!$json) {
 			// Restore in small batches. Generated backups are intentionally limited to
@@ -287,6 +286,9 @@ class ControllerToolBackup extends Controller {
 			}
 		}
 
+        if ($recoveryBackup !== '') {
+            $json['recovery_backup'] = $recoveryBackup;
+        }
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
