@@ -188,7 +188,7 @@ try {
     $resilient = new \CodeCart\Core\CatalogTransfer(new IntegrationRegistry($db));
     $resilient->onProgress(function($state) {});
     $check = $resilient->preflight($retryBase . '.xlsx', $package);
-    assertion($check['ok'] === true && $check['skipped_products'] === 1, 'Product collision should be isolated in resilient preview');
+    assertion($check['ok'] === true && $check['skipped_products'] === 1, 'Product collision should be isolated in resilient preview: ' . json_encode(array('ok'=>$check['ok'],'errors'=>$check['errors'],'skipped_products'=>$check['skipped_products'],'product_errors'=>$check['product_errors'])));
     $second = $resilient->importToken($retryToken, false);
     assertion($second['successful_products'] === 0 && $second['skipped_products'] === 1, 'Import must report one skipped product');
     assertion($db->query('SELECT sku FROM oc_product WHERE product_id=15')->row['sku'] === 'UNRELATED-15', 'Conflicting existing product was overwritten');
