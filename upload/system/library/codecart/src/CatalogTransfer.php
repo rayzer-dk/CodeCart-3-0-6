@@ -12,6 +12,8 @@ final class CatalogTransfer {
     const MAX_PACKAGE_IMAGES = 20000;
     const MAX_PACKAGE_IMAGE_BYTES = 201326592; // 192 MB total uncompressed image budget
     const MAX_SINGLE_IMAGE_BYTES = 20971520; // 20 MB per image
+    const MAX_PACKAGE_DOWNLOAD_BYTES = 268435456; // 256 MB for digital files
+    const MAX_SINGLE_DOWNLOAD_BYTES = 67108864; // 64 MB per digital file
 
     private $registry;
     private $db;
@@ -140,6 +142,37 @@ final class CatalogTransfer {
             throw new \RuntimeException('Portable package is too large. Export XLSX without images or reduce the selected catalog scope.');
         }
 
+        // A digital-product export is incomplete without the actual file, not only
+        // product_to_download and download database records.
+        $packageDownloads = array();
+        $downloadBytes = 0;
+        if (in_array('products', $entities, true) && $this->tableExists('download') && $this->tableExists('product_to_download')) {
+            $sql = "SELECT DISTINCT d.filename FROM `" . $this->table('download') . "` d INNER JOIN `"
+                . $this->table('product_to_download') . "` p ON p.download_id=d.download_id";
+            foreach ($this->db->query($sql)->rows as $item) {
+                $name = (string)$item['filename'];
+                if (!$this->safeDownloadFilename($name)) {
+                    @unlink($tmpXlsx);
+                    throw new \RuntimeException('Unsafe digital download filename encountered during export.');
+                }
+                $source = rtrim(DIR_DOWNLOAD, '/\\') . DIRECTORY_SEPARATOR . $name;
+                if (!is_file($source) || !is_readable($source)) {
+                    @unlink($tmpXlsx);
+                    throw new \RuntimeException('Missing digital product file: ' . $name);
+                }
+                $size = (int)filesize($source);
+                if ($size > self::MAX_SINGLE_DOWNLOAD_BYTES || $size < 0) {
+                    @unlink($tmpXlsx);
+                    throw new \RuntimeException('Digital product file exceeds the portable limit: ' . $name);
+                }
+                $downloadBytes += $size;
+                if ($downloadBytes > self::MAX_PACKAGE_DOWNLOAD_BYTES) {
+                    @unlink($tmpXlsx);
+                    throw new \RuntimeException('Portable download archive limit exceeded; use a server-level backup for large digital files.');
+                }
+                $packageDownloads[$name] = $source;
+            }
+        }
         $zip = new \ZipArchive();
         if ($zip->open($filename, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
             @unlink($tmpXlsx);
@@ -151,11 +184,17 @@ final class CatalogTransfer {
             if (!$zip->addFile($info['file'], 'image/' . $relative)) { $zip->close(); @unlink($tmpXlsx); throw new \RuntimeException('Unable to add image to portable package: ' . $relative); }
             $count++; $bytes += (int)$info['size'];
         }
-        $manifest = array('format'=>'codecart-catalog-package','version'=>self::FORMAT_VERSION,'created'=>gmdate('c'),'images'=>$count,'bytes'=>$bytes);
+        foreach ($packageDownloads as $name => $source) {
+            if (!$zip->addFile($source, 'download/' . $name)) {
+                $zip->close(); @unlink($tmpXlsx);
+                throw new \RuntimeException('Unable to include digital product file: ' . $name);
+            }
+        }
+        $manifest = array('format'=>'codecart-catalog-package','version'=>self::FORMAT_VERSION,'created'=>gmdate('c'),'images'=>$count,'bytes'=>$bytes,'downloads'=>count($packageDownloads),'download_bytes'=>$downloadBytes);
         if (!$zip->addFromString('manifest.json', json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))) { $zip->close(); @unlink($tmpXlsx); throw new \RuntimeException('Unable to add package manifest.'); }
         if (!$zip->close()) { @unlink($tmpXlsx); throw new \RuntimeException('Unable to finalize portable catalog package.'); }
         @unlink($tmpXlsx);
-        return array('file'=>$filename,'tables'=>array_keys($sheets),'images'=>$count,'image_bytes'=>$bytes);
+        return array('file'=>$filename,'tables'=>array_keys($sheets),'images'=>$count,'image_bytes'=>$bytes,'downloads'=>count($packageDownloads),'download_bytes'=>$downloadBytes);
     }
 
     public function prepareUpload(array $file) {
@@ -217,6 +256,7 @@ final class CatalogTransfer {
             }
         }
         $imagePaths = array();
+        $downloadFiles = array();
 
         foreach ($workbook as $sourceLogical => $sheet) {
             if ($sourceLogical === '_CodeCart') { continue; }
@@ -263,10 +303,16 @@ final class CatalogTransfer {
             $ignored = array_values(array_diff($sourceColumns, array_keys($schema['columns'])));
             if ($seoSheet) { $ignored = array_values(array_diff($ignored, array('seo_url_id','url_alias_id','store_id','language_id'))); }
             if ($ignored) { $result['warnings'][] = DB_PREFIX . $targetLogical . ': unsupported source columns will be ignored: ' . implode(', ', $ignored); }
-            foreach (isset($sheet['rows']) ? $sheet['rows'] : array() as $row) { $this->collectImages($sourceLogical, $row, $imagePaths); }
+            foreach (isset($sheet['rows']) ? $sheet['rows'] : array() as $row) {
+                $this->collectImages($sourceLogical, $row, $imagePaths);
+                if ($sourceLogical === 'download' && isset($row['filename'])) {
+                    $downloadFiles[(string)$row['filename']] = true;
+                }
+            }
             $result['sheets'][] = array('table'=>$sourceLogical,'target_table'=>$targetLogical,'rows'=>count(isset($sheet['rows'])?$sheet['rows']:array()),'columns'=>count($intersection),'ignored'=>$ignored,'primary'=>$schema['primary']);
         }
 
+        $this->checkDownloadAvailability($downloadFiles, $package, $result);
         $this->validateCatalogReferences($workbook, $result);
         $result['warnings'][] = 'ID policy: catalog primary IDs are preserved and are not remapped. Existing target rows with the same IDs will be updated. This is intended for backup/restore or migration of the same catalog lineage; review ID collisions before merging unrelated stores.';
         $result['warnings'][] = 'Relation policy: merge/update only. Existing product-category and other catalog relations that are absent from the workbook are preserved; import never deletes them.';
@@ -351,7 +397,7 @@ final class CatalogTransfer {
             try { $this->db->query('ROLLBACK'); } catch (\Throwable $ignored) {}
             throw $e;
         }
-        if ($package) { $stats['images'] = $this->importPackageImages($package, (bool)$overwriteImages); }
+        if ($package) { $stats['images'] = $this->importPackageImages($package, (bool)$overwriteImages); $stats['downloads'] = $this->importPackageDownloads($package); }
         $this->cleanupToken($token);
         return $stats;
     }
@@ -405,6 +451,7 @@ final class CatalogTransfer {
             }
         }
         $imagePaths = array();
+        $downloadFiles = array();
         $checks = $this->transferReferenceChecks();
         $requiredRefs = array(); $availableRefs = array();
         foreach ($sheetNames as $sourceLogical) {
@@ -414,9 +461,10 @@ final class CatalogTransfer {
             if ($targetLogical===null) { $result['warnings'][]='Target table is missing and will be skipped: '.DB_PREFIX.$sourceLogical; continue; }
             $schema=$this->schema($targetLogical);
             $rowCount=0;
-            $info=SimpleXlsx::streamSheet($xlsx,$sourceLogical,function($row) use ($sourceLogical,&$imagePaths,&$requiredRefs,&$availableRefs,$checks,&$rowCount){
+            $info=SimpleXlsx::streamSheet($xlsx,$sourceLogical,function($row) use ($sourceLogical,&$imagePaths,&$downloadFiles,&$requiredRefs,&$availableRefs,$checks,&$rowCount){
                 $rowCount++;
                 $this->collectImages($sourceLogical,$row,$imagePaths);
+                if ($sourceLogical === 'download' && isset($row['filename'])) { $downloadFiles[(string)$row['filename']] = true; }
                 foreach($checks as $idx=>$check){
                     if($check['sheet']===$sourceLogical && isset($row[$check['column']]) && $row[$check['column']]!=='' && $row[$check['column']]!==null){$id=(int)$row[$check['column']];if(!($id===0 && $check['allow_zero']) && $id>0){$requiredRefs[$idx][$id]=true;}}
                     if($check['target']===$sourceLogical && isset($row[$check['target_key']]) && (int)$row[$check['target_key']]>0){$availableRefs[$idx][(int)$row[$check['target_key']]]=true;}
@@ -445,6 +493,7 @@ final class CatalogTransfer {
             if($this->tableExists($check['target'])){foreach(array_chunk(array_values(array_diff($ids,array_keys($available))),500) as $chunk){if(!$chunk)continue;$q=$this->db->query("SELECT `".$check['target_key']."` FROM `".$this->table($check['target'])."` WHERE `".$check['target_key']."` IN (".implode(',',array_map('intval',$chunk)).")");foreach($q->rows as $row){$available[(int)$row[$check['target_key']]]=true;}}}
             $missing=array_values(array_diff($ids,array_keys($available)));if($missing){$sample=array_slice($missing,0,20);$result['errors'][]='Missing referenced '.$check['label'].' IDs on target: '.implode(', ',$sample).(count($missing)>20?' ...':'').'. Import is blocked to prevent broken catalog relations.';}
         }
+        $this->checkDownloadAvailability($downloadFiles,$package,$result);
         $result['warnings'][]='ID policy: catalog primary IDs are preserved and are not remapped. Existing target rows with the same IDs will be updated. This is intended for backup/restore or migration of the same catalog lineage; review ID collisions before merging unrelated stores.';
         $result['warnings'][]='Relation policy: merge/update only. Existing product-category and other catalog relations that are absent from the workbook are preserved; import never deletes them.';
         if($imagePaths){$packageImages=$package&&is_file($package)?$this->packageImageIndex($package):array();$missing=array();foreach(array_keys($imagePaths) as $relative){$full=rtrim(DIR_IMAGE,'/\\').DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$relative);if(is_file($full)||isset($packageImages[$relative]))continue;if(count($missing)<20)$missing[]=$relative;}if($missing){$result['warnings'][]='Missing image files: '.implode(', ',$missing).(count($missing)>=20?' ...':'');}}
@@ -474,7 +523,7 @@ final class CatalogTransfer {
             }
             if($mainCategoryMap){$stats['main_categories']=$this->applyMainCategoryMap($mainCategoryMap);} $this->db->query('COMMIT');
         }catch(\Throwable $e){try{$this->db->query('ROLLBACK');}catch(\Throwable $ignored){}throw $e;}
-        if($package){$stats['images']=$this->importPackageImages($package,(bool)$overwriteImages);} $this->cleanupToken($token);return $stats;
+        if($package){$stats['images']=$this->importPackageImages($package,(bool)$overwriteImages);$stats['downloads']=$this->importPackageDownloads($package);} $this->cleanupToken($token);return $stats;
     }
 
     /**
@@ -972,6 +1021,89 @@ final class CatalogTransfer {
                 @chmod($target,0644); $written++;
             }
         } finally {$zip->close();}
+        return $written;
+    }
+
+    private function safeDownloadFilename($name) {
+        return is_string($name) && strlen($name) >= 3 && strlen($name) <= 255
+            && preg_match('/^[A-Za-z0-9][A-Za-z0-9_.-]*$/D', $name)
+            && strpos($name, '..') === false;
+    }
+
+    private function checkDownloadAvailability(array $downloadFiles, $package, array &$result) {
+        if (!$downloadFiles) { return; }
+        $zip = null;
+        if ($package && is_file($package)) {
+            $zip = new \ZipArchive();
+            if ($zip->open($package) !== true) {
+                $result['errors'][] = 'Portable package cannot be opened to check digital files.';
+                return;
+            }
+        }
+        try {
+            foreach (array_keys($downloadFiles) as $name) {
+                if (!$this->safeDownloadFilename($name)) {
+                    $result['errors'][] = 'Invalid digital download filename in catalog.';
+                    continue;
+                }
+                $local = rtrim(DIR_DOWNLOAD, '/\\') . DIRECTORY_SEPARATOR . $name;
+                if (is_file($local)) { continue; }
+                $found = $zip ? $zip->locateName('download/' . $name) : false;
+                if ($found === false) {
+                    $result['errors'][] = 'Digital product file is not present on target or in package: ' . $name;
+                } else {
+                    $stat = $zip->statIndex($found);
+                    if (!$stat || (int)$stat['size'] > self::MAX_SINGLE_DOWNLOAD_BYTES) {
+                        $result['errors'][] = 'Digital product file exceeds the allowed package size: ' . $name;
+                    }
+                }
+            }
+        } finally {
+            if ($zip) { $zip->close(); }
+        }
+    }
+
+    private function importPackageDownloads($package) {
+        $zip = new \ZipArchive();
+        if ($zip->open($package) !== true) {
+            throw new \RuntimeException('Unable to read digital product package.');
+        }
+        $written = 0;
+        $bytes = 0;
+        try {
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $stat = $zip->statIndex($i);
+                if (!$stat) { continue; }
+                $entry = str_replace('\\', '/', (string)$stat['name']);
+                if (strpos($entry, 'download/') !== 0) { continue; }
+                $name = substr($entry, 9);
+                if (!$this->safeDownloadFilename($name)) {
+                    throw new \RuntimeException('Unsafe digital download archive path.');
+                }
+                $size = (int)$stat['size'];
+                $bytes += $size;
+                if ($size < 0 || $size > self::MAX_SINGLE_DOWNLOAD_BYTES || $bytes > self::MAX_PACKAGE_DOWNLOAD_BYTES) {
+                    throw new \RuntimeException('Digital download archive exceeds safe extraction limits.');
+                }
+                $target = rtrim(DIR_DOWNLOAD, '/\\') . DIRECTORY_SEPARATOR . $name;
+                if (is_file($target)) { continue; }
+                $tmp = tempnam(DIR_DOWNLOAD, 'ccpd_');
+                if (!$tmp) { throw new \RuntimeException('Digital download staging failed.'); }
+                try {
+                    $in = $zip->getStream($stat['name']);
+                    $out = $in ? fopen($tmp, 'wb') : false;
+                    if (!$in || !$out) { throw new \RuntimeException('Digital download extraction failed.'); }
+                    $copied = stream_copy_to_stream($in, $out, $size + 1);
+                    fclose($in); fclose($out);
+                    if ($copied !== $size) { throw new \RuntimeException('Digital product file length mismatch.'); }
+                    if (!rename($tmp, $target)) { throw new \RuntimeException('Digital product file cannot be installed.'); }
+                    @chmod($target, 0600);
+                    $written++;
+                } finally {
+                    if (is_file($tmp)) { @unlink($tmp); }
+                }
+            }
+        } finally { $zip->close(); }
         return $written;
     }
 
