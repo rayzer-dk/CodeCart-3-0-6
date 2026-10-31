@@ -45,6 +45,7 @@ class ControllerToolBackup extends Controller {
         $data['catalog_report_url'] = $this->url->link('tool/catalog_transfer/report', 'user_token=' . $this->session->data['user_token'], true);
 		$data['merchant_feed_settings'] = $this->url->link('extension/feed/google_base', 'user_token=' . $this->session->data['user_token'], true);
 		$data['catalog_entities'] = array('products','categories','manufacturers','options','attributes','filters');
+        $data['import_fallback_fields'] = array('model','sku','mpn','upc','ean','jan','isbn','location','quantity','price');
 		// XLSX capability is a PHP runtime property and must not be hidden by an
 		// unrelated catalog-count/database error. Detect it independently.
 		$data['catalog_xlsx_export_available'] = \CodeCart\Core\SimpleXlsx::writeAvailable();
