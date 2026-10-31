@@ -12,6 +12,7 @@ on:
       - 'upload/admin/controller/tool/catalog_transfer.php'
       - 'upload/admin/view/template/tool/backup.twig'
       - 'tests/catalog_transfer_backup_smoke.php'
+      - 'tests/catalog_transfer_mariadb_integration.php'
       - '.github/workflows/catalog-transfer-qa.yml'
   pull_request:
     paths:
@@ -22,6 +23,7 @@ on:
       - 'upload/admin/controller/tool/catalog_transfer.php'
       - 'upload/admin/view/template/tool/backup.twig'
       - 'tests/catalog_transfer_backup_smoke.php'
+      - 'tests/catalog_transfer_mariadb_integration.php'
       - '.github/workflows/catalog-transfer-qa.yml'
 
 permissions:
@@ -55,3 +57,37 @@ jobs:
           php -l tests/catalog_transfer_backup_smoke.php
       - name: Catalog transfer and database backup contract
         run: php tests/catalog_transfer_backup_smoke.php
+
+  mariadb-roundtrip:
+    name: MariaDB catalog ZIP export/import round-trip
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      database:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: codecart_catalog_qa
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      QA_DB_HOST: 127.0.0.1
+      QA_DB_USER: root
+      QA_DB_PASS: root
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: zip, simplexml, xml, xmlreader, mysqli, fileinfo, mbstring
+          coverage: none
+      - name: Syntax check
+        run: php -l tests/catalog_transfer_mariadb_integration.php
+      - name: Run isolated database round-trip
+        run: php tests/catalog_transfer_mariadb_integration.php
