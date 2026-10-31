@@ -95,7 +95,9 @@ class ControllerToolBackup extends Controller {
             $fileKey = basename((string)$this->request->get['import']);
             if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !is_array($resume)
                 || !isset($resume['file'], $resume['created']) || $resume['file'] !== $fileKey
-                || time() - (int)$resume['created'] > 3600) {
+                || time() - (int)$resume['created'] > 3600
+                || (int)(isset($resume['position']) ? $resume['position'] : -1)
+                    !== max(0, (int)(isset($this->request->get['position']) ? $this->request->get['position'] : -1))) {
                 $json['error'] = $this->language->get('error_permission');
             } else {
                 $filename = DIR_UPLOAD . $fileKey;
@@ -103,7 +105,7 @@ class ControllerToolBackup extends Controller {
 		}
 
         if (!$json && !isset($this->request->get['import']) && $filename !== '') {
-            $this->session->data['codecart_sql_restore'] = array('file' => basename($filename), 'created' => time());
+            $this->session->data['codecart_sql_restore'] = array('file' => basename($filename), 'created' => time(), 'position' => 0);
         }
 		if (!$json && !is_file($filename)) {
 			$json['error'] = $this->language->get('error_file');
@@ -113,7 +115,33 @@ class ControllerToolBackup extends Controller {
 
 		$this->load->model('tool/backup');
 		$allowed_restore_tables = array_flip($this->model_tool_backup->getTables());
-	
+
+        // Before any destructive TRUNCATE, preserve a recoverable snapshot.
+        // Failure to create it stops the restore without changing the database.
+        if (!$json && !isset($this->request->get['import'])) {
+            $snapshotFile = '';
+            try {
+                $backupDir = rtrim(DIR_STORAGE, '/\\') . '/backup/';
+                if (!is_dir($backupDir) && !mkdir($backupDir, 0750, true) && !is_dir($backupDir)) {
+                    throw new \RuntimeException('Backup storage is not writable.');
+                }
+                $snapshotFile = $backupDir . 'codecart_pre_restore_' . gmdate('Ymd_His') . '_'
+                    . bin2hex(random_bytes(5)) . '.sql';
+                $this->model_tool_backup->backupToFile(array_keys($allowed_restore_tables), $snapshotFile);
+                @chmod($snapshotFile, 0600);
+                $this->session->data['codecart_sql_restore']['snapshot'] = basename($snapshotFile);
+            } catch (\Throwable $e) {
+                if ($snapshotFile !== '' && is_file($snapshotFile)) { @unlink($snapshotFile); }
+                if ($filename !== '' && is_file($filename)) { @unlink($filename); }
+                unset($this->session->data['codecart_sql_restore']);
+                $json['error'] = $this->language->get('error_restore_snapshot');
+                $this->log->write('CodeCart SQL pre-restore snapshot failed: ' . get_class($e));
+            }
+        }
+        if (!$json && !empty($this->session->data['codecart_sql_restore']['snapshot'])) {
+            $json['recovery_backup'] = $this->session->data['codecart_sql_restore']['snapshot'];
+        }
+
 		if (!$json) {
 			// Restore in small batches. Generated backups are intentionally limited to
 			// TRUNCATE/INSERT and values use hex literals, so they are independent from
@@ -243,6 +271,7 @@ class ControllerToolBackup extends Controller {
 					$json['total'] = min(100, round(($position / $size) * 100));
 
 					if ($position < $size && !feof($handle)) {
+                        $this->session->data['codecart_sql_restore']['position'] = (int)$position;
 						$json['next'] = str_replace('&amp;', '&', $this->url->link('tool/backup/import', 'user_token=' . $this->session->data['user_token'] . '&import=' . basename($filename) . '&position=' . $position, true));
 						fclose($handle);
 					} else {
