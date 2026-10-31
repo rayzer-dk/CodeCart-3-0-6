@@ -19,6 +19,115 @@ final class CatalogTransfer {
     private $db;
     private $config;
     private $log;
+    private $progressCallback;
+    private $badProductIds = array();
+    private $productProblems = array();
+    private $progressCounts = array();
+    private $productNames = array();
+    private $productSkus = array();
+
+    public function onProgress(callable $callback = null) {
+        $this->progressCallback = $callback;
+        return $this;
+    }
+
+    private function publishProgress($stage, $force = false) {
+        if (!$this->progressCallback) { return; }
+        $counts = $this->progressCounts;
+        $processed = isset($counts['processed']) ? (int)$counts['processed'] : 0;
+        if (!$force && $processed % 50 !== 0) { return; }
+        $total = isset($counts['total']) ? (int)$counts['total'] : 0;
+        $counts['stage'] = $stage;
+        $counts['percent'] = $total ? min(95, (int)round($processed * 90 / $total) + 5) : 5;
+        $counts['issues'] = array_values($this->productProblems);
+        call_user_func($this->progressCallback, $counts);
+    }
+
+    private function rejectProduct($id, $reason, $row = array()) {
+        $id = (int)$id;
+        if ($id < 1 || isset($this->badProductIds[$id])) { return; }
+        $this->badProductIds[$id] = true;
+        $this->productProblems[$id] = array(
+            'product_id' => $id,
+            'sku' => isset($row['sku']) ? (string)$row['sku'] : (isset($this->productSkus[$id]) ? $this->productSkus[$id] : ''),
+            'name' => isset($this->productNames[$id]) ? $this->productNames[$id] : '',
+            'reason' => (string)$reason
+        );
+    }
+
+    private function invalidTextColumn(array $row) {
+        foreach ($row as $column => $value) {
+            if ($value !== null && is_string($value) && preg_match('//u', $value) !== 1) {
+                return (string)$column;
+            }
+        }
+        return '';
+    }
+
+    private function diagnoseExportProducts(array $tables, $portable) {
+        $this->badProductIds = array();
+        $this->productProblems = array();
+        $this->productSkus = array();
+        $this->productNames = array();
+        if (!in_array('product', $tables, true) || !$this->tableExists('product')) { return; }
+        $all = $this->db->query('SELECT COUNT(*) AS total FROM `' . $this->table('product') . '`');
+        $total = isset($all->row['total']) ? (int)$all->row['total'] : 0;
+        $this->progressCounts = array('total'=>$total,'processed'=>0,'success'=>0,'skipped'=>0,'fixed'=>0);
+        $this->publishProgress('checking', true);
+        $scan = array('product');
+        foreach ($tables as $t) {
+            if ($t !== 'product' && ($t === 'product_description' || strpos($t, 'product_') === 0) && $this->tableExists($t)) {
+                $scan[] = $t;
+            }
+        }
+        foreach ($scan as $logical) {
+            $schema = $this->schema($logical);
+            if (!isset($schema['columns']['product_id'])) { continue; }
+            $order = $schema['primary']
+                ? ' ORDER BY ' . implode(',', array_map(function($c){return '`'.$c.'`';}, $schema['primary'])) : '';
+            $offset = 0; $limit = 500;
+            do {
+                $rows = $this->db->query('SELECT * FROM `'.$this->table($logical).'`'.$order.' LIMIT '.$offset.','.$limit)->rows;
+                foreach ($rows as $row) {
+                    $id = isset($row['product_id']) ? (int)$row['product_id'] : 0;
+                    if ($id <= 0) { continue; }
+                    if ($logical === 'product') {
+                        $this->productSkus[$id] = isset($row['sku']) ? (string)$row['sku'] : '';
+                        $this->progressCounts['processed']++;
+                        $this->publishProgress('checking');
+                    }
+                    if ($logical === 'product_description' && !isset($this->productNames[$id]) && isset($row['name']) && preg_match('//u',(string)$row['name']) === 1) {
+                        $this->productNames[$id] = (string)$row['name'];
+                    }
+                    $badColumn = $this->invalidTextColumn($row);
+                    if ($badColumn !== '') {
+                        $this->rejectProduct($id, 'Invalid UTF-8: '.$logical.'.'.$badColumn, $row);
+                        continue;
+                    }
+                    if ($portable) {
+                        $images = array();
+                        $this->collectImages($logical, $row, $images);
+                        foreach (array_keys($images) as $relative) {
+                            $full = rtrim(DIR_IMAGE,'/\\').DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$relative);
+                            if (!is_file($full) || !is_readable($full)) {
+                                $this->rejectProduct($id, 'Image file unavailable: '.$relative, $row);
+                                break;
+                            }
+                        }
+                    }
+                }
+                $n = count($rows);
+                $offset += $limit;
+            } while ($n === $limit);
+        }
+        foreach ($this->productProblems as $id => &$issue) {
+            if ($issue['name'] === '' && isset($this->productNames[$id])) { $issue['name'] = $this->productNames[$id]; }
+        }
+        unset($issue);
+        $this->progressCounts['processed'] = 0;
+        $this->progressCounts['skipped'] = count($this->badProductIds);
+        $this->publishProgress('exporting', true);
+    }
 
     public function __construct($registry) {
         $this->registry = $registry;
@@ -80,6 +189,8 @@ final class CatalogTransfer {
         } catch (\Throwable $e) {
             throw new \RuntimeException('Catalog export failed while reading metadata. ' . $e->getMessage(), 0, $e);
         }
+        $this->diagnoseExportProducts($tables, (bool)$portable);
+        $metadataRows[] = array('type'=>'transfer','key'=>'skipped_product_count','value'=>(string)count($this->badProductIds));
         $sheets['_CodeCart'] = array('columns'=>array('type','key','value'), 'rows'=>$metadataRows);
         $imagePaths = array();
 
@@ -121,7 +232,11 @@ final class CatalogTransfer {
                 $sheetNo++;
             }
         } finally { $verifyZip->close(); }
-        if (!$portable) { return array('file'=>$filename,'tables'=>array_keys($sheets),'images'=>count($imagePaths)); }
+        if (!$portable) {
+            $this->publishProgress('complete', true);
+            return array('file'=>$filename,'tables'=>array_keys($sheets),'images'=>count($imagePaths),
+                'products'=>$this->progressCounts,'issues'=>array_values($this->productProblems));
+        }
 
         $packageImages = array(); $packageBytes = 0;
         foreach (array_keys($imagePaths) as $relative) {
@@ -197,7 +312,10 @@ final class CatalogTransfer {
         if (!$zip->addFromString('manifest.json', json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))) { $zip->close(); @unlink($tmpXlsx); throw new \RuntimeException('Unable to add package manifest.'); }
         if (!$zip->close()) { @unlink($tmpXlsx); throw new \RuntimeException('Unable to finalize portable catalog package.'); }
         @unlink($tmpXlsx);
-        return array('file'=>$filename,'tables'=>array_keys($sheets),'images'=>$count,'image_bytes'=>$bytes,'downloads'=>count($packageDownloads),'download_bytes'=>$downloadBytes);
+        $this->publishProgress('complete', true);
+        return array('file'=>$filename,'tables'=>array_keys($sheets),'images'=>$count,'image_bytes'=>$bytes,
+            'downloads'=>count($packageDownloads),'download_bytes'=>$downloadBytes,
+            'products'=>$this->progressCounts,'issues'=>array_values($this->productProblems));
     }
 
     public function prepareUpload(array $file) {
@@ -625,6 +743,27 @@ final class CatalogTransfer {
             $query = $this->db->query("SELECT * FROM `" . $table . "`" . $where . $order . " LIMIT " . $offset . "," . $limit);
             if (!$query->rows) { break; }
             foreach ($query->rows as $row) {
+                $productId = isset($row['product_id']) ? (int)$row['product_id'] : 0;
+                if ($productId > 0 && isset($this->badProductIds[$productId])) {
+                    if ($logical === 'product') {
+                        $this->progressCounts['processed']++;
+                        $this->publishProgress('exporting');
+                    }
+                    continue;
+                }
+                if ($logical === 'product_related' && isset($row['related_id']) && isset($this->badProductIds[(int)$row['related_id']])) {
+                    continue;
+                }
+                if ($logical === 'seo_url' || $logical === 'url_alias') {
+                    if (isset($row['query']) && preg_match('/^product_id=([0-9]+)$/',(string)$row['query'],$m) && isset($this->badProductIds[(int)$m[1]])) {
+                        continue;
+                    }
+                }
+                if ($logical === 'product') {
+                    $this->progressCounts['processed']++;
+                    $this->progressCounts['success']++;
+                    $this->publishProgress('exporting');
+                }
                 $this->collectImages($logical, $row, $imagePaths);
                 yield $row;
             }
