@@ -68,3 +68,4 @@ $_['text_product_errors'] = 'Products with errors';
 $_['column_product_name'] = 'Product name';
 $_['column_error_reason'] = 'Error reason';
 $_['text_error_preview_limit'] = 'The first 200 errors are displayed. The complete list is available in the operation log.';
+$_['button_download_product_errors'] = 'Download full error list CSV';
