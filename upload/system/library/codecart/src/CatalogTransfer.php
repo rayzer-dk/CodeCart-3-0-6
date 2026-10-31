@@ -30,7 +30,7 @@ final class CatalogTransfer {
             'products' => array(
                 'product','product_description','product_extra_tab','product_to_category','product_image','product_option','product_option_value',
                 'product_attribute','product_discount','product_special','product_reward','product_to_store','product_to_layout',
-                'product_filter','product_to_download','product_recurring','product_related','product_related_article','product_related_wb','product_related_mn'
+                'product_filter','product_to_download','download','download_description','product_recurring','product_related','product_related_article','product_related_wb','product_related_mn'
             ),
             'categories' => array(
                 'category','category_description','category_path','category_to_store','category_to_layout','category_filter','product_related_wb'
@@ -206,6 +206,16 @@ final class CatalogTransfer {
         $languageMap = $this->targetLanguageMap(isset($meta['languages']) ? $meta['languages'] : array());
         $storeMap = $this->targetStoreMap(isset($meta['stores']) ? $meta['stores'] : array());
         $result = array('ok'=>true,'errors'=>array(),'warnings'=>array(),'sheets'=>array(),'languages'=>$languageMap,'stores'=>$storeMap);
+        foreach ($languageMap as $sourceId => $targetId) {
+            if ($targetId === null) {
+                $result['errors'][] = 'Source language ID ' . (int)$sourceId . ' is missing on target. Install or map the source language before importing.';
+            }
+        }
+        foreach ($storeMap as $sourceId => $targetId) {
+            if ($targetId === null) {
+                $result['errors'][] = 'Source store ID ' . (int)$sourceId . ' has no matching target store. Map stores before importing to avoid silent data loss.';
+            }
+        }
         $imagePaths = array();
 
         foreach ($workbook as $sourceLogical => $sheet) {
@@ -303,6 +313,7 @@ final class CatalogTransfer {
             $plans[$sourceLogical] = $targetLogical;
             $backupTables[$targetLogical] = true;
         }
+        $plans = $this->orderedPlans($plans);
         $mainCategoryMap = $this->extractMainCategoryMap($workbook);
         if ($mainCategoryMap) {
             if ($this->tableExists('product')) { $backupTables['product'] = true; }
@@ -312,8 +323,8 @@ final class CatalogTransfer {
         $stats = array('inserted_or_updated'=>0,'skipped_rows'=>0,'tables'=>array(),'images'=>0,'main_categories'=>0,'backup'=>$backup,'warnings'=>$preview['warnings']);
         $this->db->query('START TRANSACTION');
         try {
-            foreach ($workbook as $sourceLogical=>$sheet) {
-                if ($sourceLogical === '_CodeCart' || !isset($plans[$sourceLogical])) { continue; }
+            foreach ($plans as $sourceLogical=>$targetLogical) {
+                $sheet = $workbook[$sourceLogical];
                 $targetLogical = $plans[$sourceLogical];
                 $schema = $this->schema($targetLogical);
                 $count = 0; $skipped = 0;
@@ -350,6 +361,8 @@ final class CatalogTransfer {
         return array(
             array('sheet'=>'product_to_category','column'=>'category_id','target'=>'category','target_key'=>'category_id','allow_zero'=>false,'label'=>'product category'),
             array('sheet'=>'product','column'=>'manufacturer_id','target'=>'manufacturer','target_key'=>'manufacturer_id','allow_zero'=>true,'label'=>'manufacturer'),
+            array('sheet'=>'product_to_download','column'=>'download_id','target'=>'download','target_key'=>'download_id','allow_zero'=>false,'label'=>'download'),
+            array('sheet'=>'product_to_download','column'=>'download_id','target'=>'download','target_key'=>'download_id','allow_zero'=>false,'label'=>'download'),
             array('sheet'=>'product_option','column'=>'option_id','target'=>'option','target_key'=>'option_id','allow_zero'=>false,'label'=>'product option'),
             array('sheet'=>'product_option_value','column'=>'option_value_id','target'=>'option_value','target_key'=>'option_value_id','allow_zero'=>false,'label'=>'option value'),
             array('sheet'=>'product_attribute','column'=>'attribute_id','target'=>'attribute','target_key'=>'attribute_id','allow_zero'=>false,'label'=>'attribute'),
@@ -381,6 +394,16 @@ final class CatalogTransfer {
         $languageMap = $this->targetLanguageMap(isset($meta['languages']) ? $meta['languages'] : array());
         $storeMap = $this->targetStoreMap(isset($meta['stores']) ? $meta['stores'] : array());
         $result = array('ok'=>true,'errors'=>array(),'warnings'=>array(),'sheets'=>array(),'languages'=>$languageMap,'stores'=>$storeMap);
+        foreach ($languageMap as $sourceId => $targetId) {
+            if ($targetId === null) {
+                $result['errors'][] = 'Source language ID ' . (int)$sourceId . ' is missing on target. Install or map the source language before importing.';
+            }
+        }
+        foreach ($storeMap as $sourceId => $targetId) {
+            if ($targetId === null) {
+                $result['errors'][] = 'Source store ID ' . (int)$sourceId . ' has no matching target store. Map stores before importing to avoid silent data loss.';
+            }
+        }
         $imagePaths = array();
         $checks = $this->transferReferenceChecks();
         $requiredRefs = array(); $availableRefs = array();
@@ -435,6 +458,7 @@ final class CatalogTransfer {
         $xlsx=$state['xlsx'];$package=!empty($state['package'])&&is_file($state['package'])?$state['package']:'';$preview=$this->preflightStreaming($xlsx,$package);if(!$preview['ok']){throw new \RuntimeException(implode('; ',$preview['errors']));}
         $meta=$this->readStreamingMetadata($xlsx);$languageMap=$this->targetLanguageMap(isset($meta['languages'])?$meta['languages']:array());$storeMap=$this->targetStoreMap(isset($meta['stores'])?$meta['stores']:array());
         $plans=array();$backupTables=array();foreach($preview['sheets'] as $sheet){$source=$sheet['table'];$target=$sheet['target_table'];if(!$this->isTransferTable($source)||$target===null)continue;$schema=$this->schema($target);if(!$schema['primary']&&!$this->isSeoLogical($target))continue;$plans[$source]=$target;$backupTables[$target]=true;}
+        $plans=$this->orderedPlans($plans);
         $mainCategoryMap=array();if(isset($plans['product_to_category'])||isset($plans['product'])){if($this->tableExists('product'))$backupTables['product']=true;if($this->tableExists('product_to_category'))$backupTables['product_to_category']=true;}
         $backup=$this->createSqlSnapshot(array_keys($backupTables));$stats=array('inserted_or_updated'=>0,'skipped_rows'=>0,'tables'=>array(),'images'=>0,'main_categories'=>0,'backup'=>$backup,'warnings'=>$preview['warnings']);
         $this->db->query('START TRANSACTION');
@@ -442,7 +466,7 @@ final class CatalogTransfer {
             foreach($plans as $source=>$target){$schema=$this->schema($target);$count=0;$skipped=0;$columns=null;
                 $info=SimpleXlsx::streamSheet($xlsx,$source,function($row) use ($source,$target,$schema,$languageMap,$storeMap,&$count,&$skipped,&$columns,&$mainCategoryMap){
                     if($columns===null){$columns=array_keys($row);} // actual header is supplied below after stream; row keys are equivalent for mapped data
-                    if($source==='product_to_category'&&!empty($row['main_category'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=isset($row['category_id'])?(int)$row['category_id']:0;if($pid>0&&$cid>0&&!isset($mainCategoryMap[$pid]))$mainCategoryMap[$pid]=$cid;}
+                    if($source==='product_to_category'&&!empty($row['main_category'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=isset($row['category_id'])?(int)$row['category_id']:0;if($pid>0&&$cid>0)$mainCategoryMap[$pid]=$cid;}
                     if($source==='product'&&isset($row['main_category_id'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=(int)$row['main_category_id'];if($pid>0&&$cid>0&&!isset($mainCategoryMap[$pid]))$mainCategoryMap[$pid]=$cid;}
                     if($this->isSeoLogical($source)&&$this->isSeoLogical($target)){$mapped=$this->mapSeoRow($source,$target,$row,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsertSeo($target,$mapped);}else{$allowed=array_values(array_intersect(array_keys($row),array_keys($schema['columns'])));$mapped=$this->mapRow($source,$row,$allowed,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsert($target,$mapped,$schema);} $count++;
                 });
@@ -453,9 +477,30 @@ final class CatalogTransfer {
         if($package){$stats['images']=$this->importPackageImages($package,(bool)$overwriteImages);} $this->cleanupToken($token);return $stats;
     }
 
+    /**
+     * Keep referenced catalog dependencies ahead of their relations.
+     * Export sheet ordering is intentionally independent from import ordering.
+     */
+    private function orderedPlans(array $plans) {
+        $first = array(
+            'category', 'manufacturer', 'option', 'option_value', 'attribute_group',
+            'attribute', 'filter_group', 'filter', 'download', 'product'
+        );
+        $order = array_flip($first);
+        uksort($plans, function($a, $b) use ($order) {
+            $pa = isset($order[$a]) ? $order[$a] : 100;
+            $pb = isset($order[$b]) ? $order[$b] : 100;
+            return $pa === $pb ? strcmp($a, $b) : ($pa <=> $pb);
+        });
+        return $plans;
+    }
+
     private function exportRowsIterator($logical, array $entities, array &$imagePaths) {
         $table = $this->table($logical);
         $where = '';
+        if (($logical === 'download' || $logical === 'download_description') && $this->tableExists('product_to_download')) {
+            $where = ' WHERE `download_id` IN (SELECT DISTINCT `download_id` FROM `' . $this->table('product_to_download') . '`)';
+        }
         if ($logical === 'seo_url' || $logical === 'url_alias') {
             $parts = array();
             if (in_array('products', $entities, true)) { $parts[] = "`query` LIKE 'product_id=%'"; }
@@ -877,7 +922,7 @@ final class CatalogTransfer {
         $columns=array();if(in_array($logical,array('product','category','manufacturer','option_value'),true))$columns[]='image';if($logical==='product_image')$columns[]='image';
         foreach($columns as $c){if(empty($row[$c]))continue;$p=ltrim(str_replace('\\','/',(string)$row[$c]),'/');if($this->safeImagePath($p))$paths[$p]=true;}
     }
-    private function safeImagePath($path){$path=str_replace('\\','/',(string)$path);if($path===''||strpos($path,'..')!==false||$path[0]==='/'||!preg_match('#^[A-Za-z0-9_\-/ .()@+]+\.(?:jpe?g|png|gif|webp|avif)$#i',$path))return false;return true;}
+    private function safeImagePath($path){$path=str_replace('\\','/',(string)$path);if($path===''||strpos($path,'..')!==false||$path[0]==='/'||strpos($path,'catalog/')!==0||!preg_match('~^[\\pL\\pN_\\-/ .()@+]+\\.(?:jpe?g|png|gif|webp|avif)$~iu',$path))return false;return true;}
 
     private function packageImageIndex($package) {
         $out = array(); $zip = new \ZipArchive();
