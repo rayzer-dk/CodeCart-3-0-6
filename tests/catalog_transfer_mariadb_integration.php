@@ -191,6 +191,14 @@ try {
     \CodeCart\Core\SimpleXlsx::streamSheet($retryBase . '.xlsx', 'product', function($row) use (&$sourceProduct) { $sourceProduct = $row; });
     $destinationProduct = $db->query('SELECT sku,model FROM oc_product WHERE product_id=15')->row;
     assertion($destinationProduct['sku'] !== $sourceProduct['sku'], 'SKU mismatch test fixture invalid: ' . json_encode(array($sourceProduct,$destinationProduct)));
+    $probe = array('errors'=>array());
+    $probeMethod = new ReflectionMethod($resilient, 'checkProductIdentityBatch');
+    $probeMethod->setAccessible(true);
+    $probeArgs = array(array($sourceProduct), &$probe);
+    $probeMethod->invokeArgs($resilient, $probeArgs);
+    $probeProp = new ReflectionProperty($resilient, 'badProductIds');
+    $probeProp->setAccessible(true);
+    assertion(count($probeProp->getValue($resilient)) === 1, 'Collision detector did not flag source product: ' . json_encode(array('source'=>$sourceProduct,'target'=>$destinationProduct,'result'=>$probe)));
     $check = $resilient->preflight($retryBase . '.xlsx', $package);
     assertion($check['ok'] === true && $check['skipped_products'] === 1, 'Product collision should be isolated in resilient preview: ' . json_encode(array('ok'=>$check['ok'],'errors'=>$check['errors'],'skipped_products'=>$check['skipped_products'],'product_errors'=>$check['product_errors'])));
     $second = $resilient->importToken($retryToken, false);
