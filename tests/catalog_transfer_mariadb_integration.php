@@ -83,8 +83,11 @@ try {
     $db->query("INSERT INTO oc_category_description VALUES (7,1,'Основна'),(9,1,'Додаткова')");
     $db->query("INSERT INTO oc_category_path VALUES (7,7,0),(9,9,0)");
     $db->query("INSERT INTO oc_product VALUES (15,'SKU-15','MODEL-15',0,'catalog/товар.png',7)");
+    // A single product with a missing image must not prevent the good product
+    // and its category/SEO/digital-file dependencies from being exported.
+    $db->query("INSERT INTO oc_product VALUES (16,'BAD-16','MODEL-16',0,'catalog/missing.png',7)");
     $db->query("INSERT INTO oc_product_image VALUES (51,15,'catalog/товар.png',0)");
-    $db->query("INSERT INTO oc_product_to_category VALUES (15,7,0),(15,9,1)");
+    $db->query("INSERT INTO oc_product_to_category VALUES (15,7,0),(15,9,1),(16,7,1)");
     $db->query("INSERT INTO oc_download VALUES (31,'manual.pdf.abc123','manual.pdf')");
     $db->query("INSERT INTO oc_product_to_download VALUES (15,31)");
     $db->query("INSERT INTO oc_seo_url (store_id,language_id,`query`,keyword) VALUES (0,1,'product_id=15','sku-15')");
@@ -95,6 +98,10 @@ try {
     $package = $base . '/upload/portable.zip';
     $report = $service->export(array('products','categories'), $package, true);
     assertion(is_file($package), 'No portable ZIP export');
+    assertion($report['products']['total'] === 2, 'Detected product total');
+    assertion($report['products']['success'] === 1, 'Good product should export');
+    assertion($report['products']['skipped'] === 1, 'Missing-image product should be skipped');
+    assertion((int)$report['issues'][0]['product_id'] === 16, 'Skipped report must contain bad product ID');
     assertion($report['downloads'] === 1, 'Digital file not packaged');
     assertion($report['images'] >= 1, 'Product image not packaged');
     foreach (array('oc_product_to_download','oc_product_to_category','oc_product_image','oc_category_path','oc_category_description','oc_seo_url','oc_download','oc_product','oc_category') as $table) {
@@ -171,6 +178,20 @@ try {
     assertion(is_array($restore) && !isset($restore['error']) && isset($restore['success']), 'Native SQL restore controller did not complete: '.json_encode($restore));
     assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product_to_download')->row['n'] === 1, 'SQL restore lost digital relation');
     assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product')->row['n'] === 1, 'SQL restore lost product');
+    // When target ID belongs to a different SKU, do not overwrite it:
+    // skip that product and all source relations while allowing import.
+    $db->query("UPDATE oc_product SET sku='UNRELATED-15' WHERE product_id=15");
+    $retryToken = bin2hex(random_bytes(16));
+    $retryBase = DIR_UPLOAD . 'codecart_catalog_' . $retryToken;
+    file_put_contents($retryBase . '.xlsx', $xlsx);
+    file_put_contents($retryBase . '.json', json_encode(array('xlsx'=>$retryBase.'.xlsx','package'=>$package,'created'=>time())));
+    $resilient = new \CodeCart\Core\CatalogTransfer(new IntegrationRegistry($db));
+    $resilient->onProgress(function($state) {});
+    $check = $resilient->preflight($retryBase . '.xlsx', $package);
+    assertion($check['ok'] === true && $check['skipped_products'] === 1, 'Product collision should be isolated in resilient preview');
+    $second = $resilient->importToken($retryToken, false);
+    assertion($second['successful_products'] === 0 && $second['skipped_products'] === 1, 'Import must report one skipped product');
+    assertion($db->query('SELECT sku FROM oc_product WHERE product_id=15')->row['sku'] === 'UNRELATED-15', 'Conflicting existing product was overwritten');
     echo "PASS MariaDB catalog and SQL schema+data round-trips\n";
 } finally {
     foreach (array_reverse($schema) as $sql) { /* Tables remain only in disposable QA database. */ }
