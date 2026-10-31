@@ -90,9 +90,21 @@ class ControllerToolBackup extends Controller {
 				}
 			}
 		} elseif (!$json && isset($this->request->get['import'])) {
-			$filename = DIR_UPLOAD . basename(html_entity_decode($this->request->get['import'], ENT_QUOTES, 'UTF-8'));
+            // Continuation is bound to the administrator's current session.
+            $resume = isset($this->session->data['codecart_sql_restore']) ? $this->session->data['codecart_sql_restore'] : array();
+            $fileKey = basename((string)$this->request->get['import']);
+            if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !is_array($resume)
+                || !isset($resume['file'], $resume['created']) || $resume['file'] !== $fileKey
+                || time() - (int)$resume['created'] > 3600) {
+                $json['error'] = $this->language->get('error_permission');
+            } else {
+                $filename = DIR_UPLOAD . $fileKey;
+            }
 		}
 
+        if (!$json && !isset($this->request->get['import']) && $filename !== '') {
+            $this->session->data['codecart_sql_restore'] = array('file' => basename($filename), 'created' => time());
+        }
 		if (!$json && !is_file($filename)) {
 			$json['error'] = $this->language->get('error_file');
 		}
@@ -142,7 +154,7 @@ class ControllerToolBackup extends Controller {
 						$line = substr($line, 3);
 					}
 
-					if (!$start && preg_match('/^\s*(TRUNCATE\s+TABLE|INSERT\s+INTO)\b/i', $line)) {
+					if (!$start && preg_match('/^\s*(CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS|TRUNCATE\s+TABLE|INSERT\s+INTO)\b/i', $line)) {
 						$sql = '';
 						$start = true;
 						$position = $line_position;
@@ -162,13 +174,26 @@ class ControllerToolBackup extends Controller {
 					$start = false;
 					$sql = '';
 
-					if (!preg_match('/^\s*(TRUNCATE\s+TABLE|INSERT\s+INTO)\s+`([^`]+)`/i', $statement, $restore_match) || !isset($allowed_restore_tables[$restore_match[2]])) {
+					if (!preg_match('/^\s*(CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS|TRUNCATE\s+TABLE|INSERT\s+INTO)\s+`([A-Za-z0-9_]+)`/i', $statement, $restore_match)) {
+                        $json['error'] = $this->language->get('error_restore_table');
+                        break;
+                    }
+                    $tableName = $restore_match[2];
+                    $isCreate = stripos($restore_match[1], 'CREATE') === 0;
+                    // New tables must belong to this store's DB_PREFIX; existing
+                    // tables must already be part of the enumerated schema.
+                    if ($isCreate) {
+                        if (strpos($tableName, DB_PREFIX) !== 0 || strlen($tableName) <= strlen(DB_PREFIX)) {
+                            $json['error'] = $this->language->get('error_restore_table');
+                            break;
+                        }
+                    } elseif (!isset($allowed_restore_tables[$tableName])) {
 						$json['error'] = $this->language->get('error_restore_table');
 						break;
 					}
 
 					$table = (string)$restore_match[2];
-					$verb = stripos($restore_match[1], 'TRUNCATE') === 0 ? 'TRUNCATE' : 'INSERT';
+					$verb = $isCreate ? 'CREATE' : (stripos($restore_match[1], 'TRUNCATE') === 0 ? 'TRUNCATE' : 'INSERT');
 
 					// Never overwrite administrator identities during an in-session restore.
 					// The old implementation stopped at these tables and could loop forever;
@@ -187,7 +212,8 @@ class ControllerToolBackup extends Controller {
 					}, $statement);
 
 					try {
-						$this->db->query($statement);
+                        $this->db->query($statement);
+                        if ($isCreate) { $allowed_restore_tables[$table] = true; }
 					} catch (\Throwable $e) {
 						$excerpt = preg_replace('/\s+/', ' ', $statement);
 						$excerpt = utf8_substr((string)$excerpt, 0, 600);
@@ -212,6 +238,7 @@ class ControllerToolBackup extends Controller {
 					$json['error'] = $this->language->get('error_file');
 					fclose($handle);
 					@unlink($filename);
+                    unset($this->session->data['codecart_sql_restore']);
 				} elseif (!$json) {
 					$json['total'] = min(100, round(($position / $size) * 100));
 
@@ -221,6 +248,7 @@ class ControllerToolBackup extends Controller {
 					} else {
 						fclose($handle);
 						@unlink($filename);
+                        unset($this->session->data['codecart_sql_restore']);
 						$json['success'] = $this->language->get('text_success');
 						$this->cache->delete('*');
 					}
