@@ -268,6 +268,7 @@ final class CatalogTransfer {
             if ($targetLogical === null) { $result['warnings'][] = 'Target table is missing and will be skipped: ' . DB_PREFIX . $sourceLogical; continue; }
             $schema = $this->schema($targetLogical);
             $sourceColumns = isset($sheet['columns']) ? $sheet['columns'] : array();
+            $this->warnMainCategoryCapability($sourceLogical, $sourceColumns, $result);
             $seoSheet = $this->isSeoLogical($sourceLogical) && $this->isSeoLogical($targetLogical);
             if ($seoSheet) {
                 if (!in_array('query', $sourceColumns, true) || !in_array('keyword', $sourceColumns, true)) {
@@ -411,6 +412,18 @@ final class CatalogTransfer {
     }
 
 
+    private function warnMainCategoryCapability($sourceLogical, array $sourceColumns, array &$result) {
+        $hasSourceFlag = ($sourceLogical === 'product_to_category' && in_array('main_category', $sourceColumns, true))
+            || ($sourceLogical === 'product' && in_array('main_category_id', $sourceColumns, true));
+        if (!$hasSourceFlag) { return; }
+        $productColumns = $this->tableExists('product') ? $this->schema('product')['columns'] : array();
+        $relationColumns = $this->tableExists('product_to_category') ? $this->schema('product_to_category')['columns'] : array();
+        if (!isset($productColumns['main_category_id']) && !isset($relationColumns['main_category'])) {
+            $notice = 'Target OpenCart schema has no main-category field. All product-category memberships can be imported, but the primary-category designation cannot be preserved.';
+            if (!in_array($notice, $result['warnings'], true)) { $result['warnings'][] = $notice; }
+        }
+    }
+
     private function checkProductIdentityBatch(array $rows, array &$result) {
         if (!$rows || !$this->tableExists('product')) { return; }
         $incoming = array();
@@ -517,6 +530,7 @@ final class CatalogTransfer {
                 $identityBatch = array();
             }
             $sourceColumns=$info['columns'];
+            $this->warnMainCategoryCapability($sourceLogical, $sourceColumns, $result);
             $seoSheet=$this->isSeoLogical($sourceLogical)&&$this->isSeoLogical($targetLogical);
             if($seoSheet){
                 if(!in_array('query',$sourceColumns,true)||!in_array('keyword',$sourceColumns,true)){$result['errors'][]=DB_PREFIX.$targetLogical.': SEO sheet must contain query and keyword columns.';}
