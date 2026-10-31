@@ -43,7 +43,13 @@ final class CatalogTransfer {
         $counts['stage'] = $stage;
         $counts['percent'] = $total ? min(95, (int)round($processed * 90 / $total) + 5) : 5;
         $counts['issues'] = array_values($this->productProblems);
-        call_user_func($this->progressCallback, $counts);
+        try {
+            call_user_func($this->progressCallback, $counts);
+        } catch (\Throwable $e) {
+            // Status reporting is auxiliary: failure must not corrupt or stop
+            // an otherwise valid catalog transfer.
+            if ($this->log) { try { $this->log->write('Catalog progress update failed.'); } catch (\Throwable $ignored) {} }
+        }
     }
 
     private function rejectProduct($id, $reason, $row = array()) {
