@@ -107,6 +107,8 @@ class ControllerToolCatalogTransfer extends Controller {
             try {
                 $transfer = new \CodeCart\Core\CatalogTransfer($this->registry);
                 $writer = $this->operationWriter();
+                $transfer->setImportOptions(isset($this->request->post['import_rules']) && is_array($this->request->post['import_rules'])
+                    ? $this->request->post['import_rules'] : array());
                 $json['preview'] = $transfer->onProgress($writer)->prepareUpload($this->request->files['catalog_import']);
                 $this->saveIssuesCsv(isset($json['preview']['product_errors']) ? $json['preview']['product_errors'] : array());
             } catch (\Throwable $e) {
@@ -133,6 +135,8 @@ class ControllerToolCatalogTransfer extends Controller {
                 $transfer = new \CodeCart\Core\CatalogTransfer($this->registry);
                 $writer = $this->operationWriter();
                 $writer(array('stage'=>'preparing','percent'=>2,'total'=>0,'processed'=>0,'success'=>0,'skipped'=>0,'issues'=>array()));
+                $transfer->setImportOptions(isset($this->request->post['import_rules']) && is_array($this->request->post['import_rules'])
+                    ? $this->request->post['import_rules'] : array());
                 $json['result'] = $transfer->onProgress($writer)->importToken($token, $overwrite);
                 $this->saveIssuesCsv(isset($json['result']['product_errors']) ? $json['result']['product_errors'] : array());
                 $writer(array('stage'=>'done','percent'=>100,'total'=>(int)(isset($json['result']['total_products'])?$json['result']['total_products']:0),
