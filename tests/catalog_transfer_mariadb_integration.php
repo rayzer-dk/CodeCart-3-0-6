@@ -178,6 +178,7 @@ try {
     assertion(is_array($restore) && !isset($restore['error']) && isset($restore['success']), 'Native SQL restore controller did not complete: '.json_encode($restore));
     assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product_to_download')->row['n'] === 1, 'SQL restore lost digital relation');
     assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product')->row['n'] === 1, 'SQL restore lost product');
+    assertion((int)$db->query('SELECT product_id FROM oc_product')->row['product_id'] === 15, 'SQL restore changed numeric product ID');
     // When target ID belongs to a different SKU, do not overwrite it:
     // skip that product and all source relations while allowing import.
     $db->query("UPDATE oc_product SET sku='UNRELATED-15' WHERE product_id=15");
