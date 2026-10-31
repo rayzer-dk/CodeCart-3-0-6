@@ -35,9 +35,23 @@ class ModelToolBackup extends Model {
 		if (!$handle) { throw new \RuntimeException('Unable to create database backup file.'); }
 
 		try {
+            // Read all InnoDB rows from one consistent snapshot, rather than
+            // mixing records from different instants during a long backup.
+            $this->db->query('START TRANSACTION WITH CONSISTENT SNAPSHOT');
+            try {
 			foreach ($tables as $table) {
 				$table = (string)$table;
 				if (!isset($available[$table]) || !preg_match('/^[A-Za-z0-9_]+$/', $table)) { continue; }
+                // Include table structure so a fresh compatible database can
+                // be prepared by this same restore tool. Never DROP a table.
+                $schema = $this->db->query('SHOW CREATE TABLE `' . $table . '`');
+                $create = isset($schema->row['Create Table']) ? $schema->row['Create Table'] : '';
+                if (!is_string($create) || strpos($create, 'CREATE TABLE ') !== 0) {
+                    throw new \RuntimeException('Cannot export table structure: ' . $table);
+                }
+                $create = preg_replace('/^CREATE TABLE\\s+/i', 'CREATE TABLE IF NOT EXISTS ', $create, 1);
+                fwrite($handle, '-- CodeCart SQL backup: table definition and contents' . "\n");
+                fwrite($handle, $create . ';' . "\n");
 				fwrite($handle, 'TRUNCATE TABLE `' . $table . '`;' . "\n\n");
 				$offset = 0;
 				do {
@@ -58,6 +72,10 @@ class ModelToolBackup extends Model {
 				} while ($count === $batch_size);
 				fwrite($handle, "\n\n");
 			}
+            } finally {
+                // Closing the snapshot is essential even if a table read fails.
+                $this->db->query('ROLLBACK');
+            }
 		} finally { fclose($handle); }
 		return $path;
 	}
