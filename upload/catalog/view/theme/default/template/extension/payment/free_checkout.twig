@@ -21,7 +21,23 @@ $('#button-confirm').on('click', function() {
             if (json.redirect) { location = json.redirect; }
         },
         error: function(xhr, ajaxOptions, thrownError) {
-            if (window.CodeCartUI) { window.CodeCartUI.error(xhr, thrownError); }
+            // A rejected/stale checkout must explain the problem instead of silently
+            // leaving the customer on a frozen confirmation button.
+            if (window.CodeCartUI) {
+                window.CodeCartUI.error(xhr, thrownError);
+            } else {
+                var message = xhr.responseJSON && xhr.responseJSON.error
+                    ? xhr.responseJSON.error : (xhr.statusText || thrownError);
+                $('#codecart-free-checkout-warning').remove();
+                $('#button-confirm').closest('.buttons').before(
+                    $('<div/>', {
+                        id: 'codecart-free-checkout-warning',
+                        'class': 'alert alert-danger',
+                        role: 'alert',
+                        text: message
+                    })
+                );
+            }
         }
 	});
 });
