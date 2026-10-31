@@ -73,7 +73,7 @@ jobs:
           model=(root/'admin/model/sale/abandoned_cart.php').read_text()
           assert '<col class="ccp-width-phone">' in t and 'sort_telephone' in t
           assert 'cart.telephone' in t
-          assert '× {{ product.quantity }}' not in t
+          assert '× {{ product.quantity }}' in t  # Per-product quantities must remain visible
           assert "cart_can_modify and cart_source == 'standard' ? 11 : 10" in t
           assert 'col.ccp-width-phone{width:126px}' in c
           assert 'min-width:1320px' in c and 'col.ccp-width-image{width:58px}' in c
