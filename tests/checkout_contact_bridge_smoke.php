@@ -17,6 +17,7 @@ foreach (array(
     'separate_checkout_form' => strpos($asset, 'form[name="unicheckout-customer-form"]') !== false,
     'async_forms_supported' => strpos($asset, 'MutationObserver') !== false,
     'explicit_consent' => strpos($asset, 'checkbox.checked = false') !== false,
+    'native_checkout_optin_bound' => strpos($asset, 'var nativeCheckbox = select(box,') !== false && strpos($asset, 'checkbox = nativeCheckbox') !== false,
     'form_selector_mapping' => strpos($bridge, "'selectors'=>array(") !== false,
 ) as $test => $ok) {
     if (!$ok) { fwrite(STDERR, "FAIL $test\n"); exit(1); }
