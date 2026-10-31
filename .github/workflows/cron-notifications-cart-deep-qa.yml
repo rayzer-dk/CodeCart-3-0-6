@@ -107,7 +107,7 @@ jobs:
           assert len(re.findall(r'\.codecart-scheduler-table \.ccp-scheduler-action-group \.btn\s*\{',s)) == 1
           assert 'flex: 0 0 29px' in s and 'flex: 0 0 36px' not in s
           widths = re.findall(r'\.ccp-carts-page \.ccp-abandoned-cart-table\{[^}]*min-width:(\d+)px', c)
-          assert widths == ['960'], widths
+          assert widths == ['1320'], widths  # Current wide admin table with explicit customer/contact/product columns
           for prefix in ('.ccp-external-advanced',):
             assert not re.search(r'^' + re.escape(prefix), c, re.M)
           assert 'border-top:3px solid #0057d9' in s
