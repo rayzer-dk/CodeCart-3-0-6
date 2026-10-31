@@ -109,7 +109,7 @@ class ControllerSaleAbandonedCart extends Controller {
                                 WHERE c.session_id=g.session_id AND c.api_id=0 AND c.customer_id=0) THEN 1 ELSE 0 END) AS matched
                             FROM `" . $table . "` g
                             WHERE g.store_id='" . $store . "'
-                                AND g.consent=1 AND g.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)");
+                                AND g.consent=1 AND g.date_modified>=DATE_SUB(NOW(),INTERVAL " . max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)) . " DAY)");
                         $json['consented_sessions'] = (int)($query->row['total'] ?? 0);
                         $json['matched_cart_sessions'] = (int)($query->row['matched'] ?? 0);
                     }
@@ -213,7 +213,9 @@ class ControllerSaleAbandonedCart extends Controller {
                     'codecart_abandoned_cart_source' => ($this->request->post['cart_source'] ?? '') === 'external' ? 'external' : 'standard',
                     'codecart_abandoned_cart_idle_minutes' => max(1, min(10080, (int)($this->request->post['cart_idle_minutes'] ?? 5))),
                     'codecart_abandoned_cart_days' => max(1, min(30, (int)($this->request->post['cart_days'] ?? 7))),
-                    'codecart_abandoned_cart_reminder_delay_minutes' => $this->reminderDelayMinutes($this->request->post['cart_reminder_delay_hours'] ?? '1'),
+                    'codecart_abandoned_cart_reminder_delay_minutes' => isset($this->request->post['cart_reminder_delay_minutes'])
+                        ? max(5, min(10080, (int)$this->request->post['cart_reminder_delay_minutes']))
+                        : $this->reminderDelayMinutes($this->request->post['cart_reminder_delay_hours'] ?? '1'),
                     'codecart_abandoned_cart_mail_auto' => !empty($this->request->post['cart_mail_auto']) ? 1 : 0,
                     'codecart_abandoned_cart_guest_capture' => !empty($this->request->post['cart_guest_capture']) ? 1 : 0
                 );
@@ -335,8 +337,9 @@ class ControllerSaleAbandonedCart extends Controller {
                 }
                 $old['idle_minutes'] = (int)($this->request->post['cart_idle_minutes'] ?? 5);
                 $old['days'] = (int)($this->request->post['cart_days'] ?? 7);
-                $old['reminder_delay_hours'] = substr(trim((string)($this->request->post['cart_reminder_delay_hours'] ?? '1')), 0, 16);
-                $old['reminder_delay_minutes'] = $this->reminderDelayMinutes($old['reminder_delay_hours']);
+                $old['reminder_delay_minutes'] = isset($this->request->post['cart_reminder_delay_minutes'])
+                    ? max(5, min(10080, (int)$this->request->post['cart_reminder_delay_minutes']))
+                    : $this->reminderDelayMinutes($this->request->post['cart_reminder_delay_hours'] ?? '1');
                 $this->session->data['ccp_cart_settings_form_old'] = $old;
             }
             $this->response->redirect($this->url->link('sale/abandoned_cart', 'user_token=' . $sessionToken, true) . ($error !== '' ? '#ccp-tab-settings' : ''));
@@ -403,7 +406,6 @@ class ControllerSaleAbandonedCart extends Controller {
             'idle_minutes' => max(1, min(10080, (int)($this->config->get('codecart_abandoned_cart_idle_minutes') ?? 5))),
             'days' => max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7)),
             'reminder_delay_minutes' => max(5, min(10080, (int)($this->config->get('codecart_abandoned_cart_reminder_delay_minutes') ?? 60))),
-            'reminder_delay_hours' => $this->reminderDelayHours((int)($this->config->get('codecart_abandoned_cart_reminder_delay_minutes') ?? 60)),
             'mail_auto' => (int)$this->config->get('codecart_abandoned_cart_mail_auto'),
             'guest_capture' => (int)$this->config->get('codecart_abandoned_cart_guest_capture'));
         foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname') as $name) {
@@ -437,8 +439,8 @@ class ControllerSaleAbandonedCart extends Controller {
                     $data['cart_fields']['selector_' . $field] = substr(trim((string)$this->request->post['cart_selector_' . $field]),0,160);
                 }
             }
-            if (isset($this->request->post['cart_reminder_delay_hours'])) {
-                $data['cart_fields']['reminder_delay_hours'] = substr(trim((string)$this->request->post['cart_reminder_delay_hours']), 0, 16);
+            if (isset($this->request->post['cart_reminder_delay_minutes'])) {
+                $data['cart_fields']['reminder_delay_minutes'] = max(5, min(10080, (int)$this->request->post['cart_reminder_delay_minutes']));
             }
             if (isset($this->request->post['cart_checkout_mode'])) {
                 $postedMode = (string)$this->request->post['cart_checkout_mode'];
@@ -454,7 +456,7 @@ class ControllerSaleAbandonedCart extends Controller {
         if (isset($this->session->data['ccp_cart_settings_form_old']) && is_array($this->session->data['ccp_cart_settings_form_old'])) {
             $old = $this->session->data['ccp_cart_settings_form_old'];
             unset($this->session->data['ccp_cart_settings_form_old']);
-            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname','status','idle_minutes','days','reminder_delay_minutes','reminder_delay_hours','mail_auto','guest_capture','checkout_url') as $field) {
+            foreach (array('table','col_session','col_product','col_quantity','col_date','col_customer','col_email','col_phone','col_firstname','col_lastname','status','idle_minutes','days','reminder_delay_minutes','mail_auto','guest_capture','checkout_url') as $field) {
                 if (isset($old[$field])) { $data['cart_fields'][$field] = $old[$field]; }
             }
             foreach (array('form','firstname','lastname','email','telephone') as $field) {
