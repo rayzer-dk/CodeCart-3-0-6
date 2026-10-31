@@ -66,6 +66,7 @@ $boundsModel->getAbandonedCarts(0,10);
 $boundSql=end($db->sql);
 ck(strpos($boundSql,'INTERVAL 1 MINUTE')!==false,'1 minute inactivity threshold is supported');
 ck(strpos($boundSql,'INTERVAL 30 DAY')!==false,'30 day cart history is supported');
+ck(substr_count($boundSql,'INTERVAL 30 DAY') >= 2,'Guest and registered consent joins use the same 30-day history');
 $boundsReminder=new \CodeCart\Core\AbandonedCartReminder(new FakeRegistry($db,$bounds));
 $reflect=new ReflectionMethod($boundsReminder,'sendAfter');
 ck($reflect->invoke($boundsReminder)===60,'Reminder timing must not follow early analytics threshold');
@@ -81,7 +82,7 @@ $cron = file_get_contents(__DIR__ . '/../upload/catalog/controller/cron/cart.php
 ck(strpos($cron, "max(1, min(30,")!==false, 'Guest cart Cron must respect 30-day history setting');
 ck(strpos($cron, "codecart_abandoned_cart_status")!==false, 'Guest retention must be gated by enabled analytics');
 $view = file_get_contents(__DIR__ . '/../upload/admin/view/template/sale/abandoned_cart_list.twig');
-ck(strpos($view, 'name="cart_reminder_delay_hours"')!==false, 'Reminder delay control must be editable');
+ck(strpos($view, 'name="cart_reminder_delay_minutes"')!==false && strpos($view, 'min="5"')!==false, 'Reminder delay control must be editable in minutes');
 ck(strpos($view, 'name="cart_idle_minutes"')!==false && strpos($view, 'min="1"')!==false, '1-minute idle setting must be editable');
 ck(strpos($view, 'max="30"')!==false, '30-day history setting must be editable');
 print "PASS registered consent OFF, scoped upsert/revoke, multistore fingerprint, SQL consent\n";
