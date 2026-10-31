@@ -60,14 +60,14 @@ final class AbandonedCartReminder {
     public function getCart(int $customerId, string $sessionId): array {
         if (!$this->active() || $customerId < 0 || $sessionId === '') { return array(); }
         $idle = $this->sendAfter();
-        $days = max(1, min(7, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         if ($customerId === 0) {
             if (!(bool)$this->config->get('codecart_abandoned_cart_guest_capture')) { return array(); }
             $sql = "SELECT c.customer_id,c.session_id,MAX(c.date_added) AS last_activity,
                     MAX(c.cart_id) AS max_cart_id,SUM(c.quantity) AS quantity,
                     MAX(gc.firstname) AS firstname,MAX(gc.email) AS email,MAX(gc.consent) AS newsletter, MAX(gc.store_id) AS store_id
                 FROM `" . DB_PREFIX . "cart` c
-                INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)
+                INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
                 WHERE c.api_id=0 AND c.customer_id=0 AND c.session_id='" . $this->db->escape($sessionId) . "'
                     AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
                 GROUP BY c.customer_id,c.session_id
@@ -80,7 +80,7 @@ final class AbandonedCartReminder {
                     MAX(cu.firstname) AS firstname,MAX(cu.email) AS email, MAX(rc.consent) AS newsletter, MAX(rc.store_id) AS store_id
                 FROM `" . DB_PREFIX . "cart` c
                 INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id
-                INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)
+                INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
                 WHERE c.api_id=0 AND c.customer_id='" . $customerId . "'
                     AND c.session_id='" . $this->db->escape($sessionId) . "'
                     AND c.date_added >= DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
@@ -247,8 +247,8 @@ final class AbandonedCartReminder {
         }
         $limit = max(1,min(20,$limit));
         $idle = $this->sendAfter();
-        $days = max(1,min(7,(int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
-        $registeredSql = "SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) WHERE c.api_id=0 AND c.customer_id>0 AND cu.email<>'' AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT rc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 4);
+        $days = max(1,min(30,(int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
+        $registeredSql = "SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) WHERE c.api_id=0 AND c.customer_id>0 AND cu.email<>'' AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT rc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 4);
         try {
             $results = $this->db->query($registeredSql);
         } catch (\Throwable $e) {
@@ -271,7 +271,7 @@ final class AbandonedCartReminder {
         }
         if ($this->config->get('codecart_abandoned_cart_guest_capture')) {
             try {
-                $guest = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL WHERE c.api_id=0 AND c.customer_id=0 AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY) AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT gc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 2));
+                $guest = $this->db->query("SELECT c.customer_id,c.session_id FROM `" . DB_PREFIX . "cart` c INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL WHERE c.api_id=0 AND c.customer_id=0 AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) AND c.date_added>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY) GROUP BY c.customer_id,c.session_id HAVING MAX(c.date_added)<DATE_SUB(NOW(),INTERVAL " . $idle . " MINUTE) AND COUNT(DISTINCT gc.store_id)=1 ORDER BY MAX(c.date_added) DESC LIMIT " . ($limit * 2));
                 $results->rows = array_merge($results->rows, $guest->rows);
             } catch (\Throwable $e) {
                 $logger = $this->registry->get('log');
