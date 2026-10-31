@@ -58,3 +58,5 @@ $_['text_catalog_xml_help'] = 'XML does not duplicate catalog transfer: use the 
 $_['button_xml_feeds'] = 'Open XML feeds';
 
 $_['error_restore_query'] = 'SQL error while restoring table';
+$_['error_restore_snapshot'] = 'Cannot create a safe pre-restore database snapshot. Restore was cancelled before changing data.';
+$_['text_restore_snapshot_saved'] = ' Recovery snapshot: storage/backup/%s.';
