@@ -288,7 +288,7 @@ class ControllerStartupStartup extends Controller {
                 if ($cartCheckoutRoute === 'checkout/checkout'
                     || $cartCheckoutRoute === 'checkout/uni_checkout'
                     || $cartCustomRoute) {
-                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.5');
+                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.6');
                 }
             }
         }
