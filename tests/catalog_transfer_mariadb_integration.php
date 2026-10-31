@@ -187,6 +187,10 @@ try {
     file_put_contents($retryBase . '.json', json_encode(array('xlsx'=>$retryBase.'.xlsx','package'=>$package,'created'=>time())));
     $resilient = new \CodeCart\Core\CatalogTransfer(new IntegrationRegistry($db));
     $resilient->onProgress(function($state) {});
+    $sourceProduct = array();
+    \CodeCart\Core\SimpleXlsx::streamSheet($retryBase . '.xlsx', 'product', function($row) use (&$sourceProduct) { $sourceProduct = $row; });
+    $destinationProduct = $db->query('SELECT sku,model FROM oc_product WHERE product_id=15')->row;
+    assertion($destinationProduct['sku'] !== $sourceProduct['sku'], 'SKU mismatch test fixture invalid: ' . json_encode(array($sourceProduct,$destinationProduct)));
     $check = $resilient->preflight($retryBase . '.xlsx', $package);
     assertion($check['ok'] === true && $check['skipped_products'] === 1, 'Product collision should be isolated in resilient preview: ' . json_encode(array('ok'=>$check['ok'],'errors'=>$check['errors'],'skipped_products'=>$check['skipped_products'],'product_errors'=>$check['product_errors'])));
     $second = $resilient->importToken($retryToken, false);
