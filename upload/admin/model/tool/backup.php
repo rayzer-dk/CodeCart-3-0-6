@@ -50,6 +50,13 @@ class ModelToolBackup extends Model {
                     throw new \RuntimeException('Cannot export table structure: ' . $table);
                 }
                 $create = preg_replace('/^CREATE TABLE\\s+/i', 'CREATE TABLE IF NOT EXISTS ', $create, 1);
+                $types = array();
+                $columns = $this->db->query('SHOW FULL COLUMNS FROM `' . $table . '`');
+                foreach ($columns->rows as $column) {
+                    if (isset($column['Field'],$column['Type'])) {
+                        $types[(string)$column['Field']] = strtolower((string)$column['Type']);
+                    }
+                }
                 fwrite($handle, '-- CodeCart SQL backup: table definition and contents' . "\n");
                 fwrite($handle, $create . ';' . "\n");
 				fwrite($handle, 'TRUNCATE TABLE `' . $table . '`;' . "\n\n");
@@ -63,7 +70,19 @@ class ModelToolBackup extends Model {
 							$fields[] = '`' . str_replace('`', '``', $field) . '`';
 							if ($value === null) { $values[] = 'NULL'; } else {
 								$binary = (string)$value;
-								$values[] = $binary === '' ? "''" : '0x' . bin2hex($binary);
+								if ($binary === '') {
+                                    $values[] = "''";
+                                } else {
+                                    $hex = '0x' . bin2hex($binary);
+                                    $type = isset($types[$field]) ? $types[$field] : '';
+                                    $binaryColumn = preg_match('/^(?:tinyblob|blob|mediumblob|longblob|binary|varbinary|bit|geometry|point|linestring|polygon|multipoint|multilinestring|multipolygon|geometrycollection)\\b/i', $type) === 1;
+                                    // Bare MySQL 0x... is a NUMBER in numeric-column
+                                    // context. e.g. a product_id of "15" (0x3135)
+                                    // would be restored as 12597 instead of 15.
+                                    // CONVERT forces a text value before MySQL applies
+                                    // the target column's declared numeric/date type.
+                                    $values[] = $binaryColumn ? $hex : 'CONVERT(' . $hex . ' USING utf8mb4)';
+                                }
 							}
 						}
 						fwrite($handle, 'INSERT INTO `' . $table . '` (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $values) . ');' . "\n");
