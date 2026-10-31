@@ -105,7 +105,8 @@ class ControllerToolCatalogTransfer extends Controller {
         } else {
             try {
                 $transfer = new \CodeCart\Core\CatalogTransfer($this->registry);
-                $json['preview'] = $transfer->prepareUpload($this->request->files['catalog_import']);
+                $writer = $this->operationWriter();
+                $json['preview'] = $transfer->onProgress($writer)->prepareUpload($this->request->files['catalog_import']);
             } catch (\Throwable $e) {
                 $json['error'] = $e->getMessage();
             }
