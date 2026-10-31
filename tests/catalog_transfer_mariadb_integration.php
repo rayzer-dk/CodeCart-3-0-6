@@ -48,6 +48,9 @@ class IntegrationRegistry {
 function assertion($ok, $message) { if(!$ok)throw new RuntimeException($message); }
 require_once __DIR__ . '/../upload/system/library/codecart/src/SimpleXlsx.php';
 require_once __DIR__ . '/../upload/system/library/codecart/src/CatalogTransfer.php';
+function utf8_substr($v, $start, $length = null) {
+    return $length === null ? substr($v, $start) : substr($v, $start, $length);
+}
 class Model {
     public $db;
     public function __construct($db = null) { $this->db = $db; }
