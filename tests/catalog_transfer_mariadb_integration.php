@@ -186,6 +186,36 @@ try {
     assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product_to_download')->row['n'] === 1, 'SQL restore lost digital relation');
     assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product')->row['n'] === 1, 'SQL restore lost product');
     assertion((int)$db->query('SELECT product_id FROM oc_product')->row['product_id'] === 15, 'SQL restore changed numeric product ID');
+    // Re-exported workbook with entirely missing source columns must use
+    // explicit operator defaults, without clobbering existing good SKU.
+    $minimalFile = DIR_UPLOAD . 'missing-columns.xlsx';
+    $sourceBytesFile = DIR_UPLOAD . 'unmodified-source.xlsx';
+    file_put_contents($sourceBytesFile, $xlsx);
+    $workbook = \CodeCart\Core\SimpleXlsx::read($sourceBytesFile);
+    assertion(isset($workbook['product']['columns']), 'Unable to read catalog for import rule round-trip');
+    $workbook['product']['columns'] = array_values(array_diff(
+        $workbook['product']['columns'], array('model','status','quantity','mpn')
+    ));
+    \CodeCart\Core\SimpleXlsx::write($minimalFile, $workbook);
+    $minimalToken = bin2hex(random_bytes(16));
+    $minimalBase = DIR_UPLOAD . 'codecart_catalog_' . $minimalToken;
+    copy($minimalFile, $minimalBase . '.xlsx');
+    file_put_contents($minimalBase . '.json', json_encode(array('xlsx'=>$minimalBase.'.xlsx','package'=>$package,'created'=>time())));
+    $minimalImport = new \CodeCart\Core\CatalogTransfer(new IntegrationRegistry($db));
+    $minimalImport->setImportOptions(array('status'=>'enabled','fields'=>array(
+        'model'=>array('mode'=>'custom','value'=>'MODEL-FALLBACK'),
+        'quantity'=>array('mode'=>'custom','value'=>'11'),
+        'mpn'=>array('mode'=>'custom','value'=>'PART-FALLBACK')
+    )));
+    $minimalImport->onProgress(function($state) {});
+    $minimalResult = $minimalImport->importToken($minimalToken, false);
+    assertion($minimalResult['successful_products'] === 1, 'Missing-column import should successfully update product');
+    $minimalProduct = $db->query('SELECT * FROM oc_product WHERE product_id=15')->row;
+    assertion($minimalProduct['sku'] === 'SKU-15', 'Import defaults unexpectedly changed existing SKU');
+    assertion($minimalProduct['model'] === 'MODEL-FALLBACK', 'Missing MODEL column fallback was ignored');
+    assertion((int)$minimalProduct['quantity'] === 11, 'Missing quantity column fallback was ignored');
+    assertion($minimalProduct['mpn'] === 'PART-FALLBACK', 'Missing MPN column fallback was ignored');
+    assertion((int)$minimalProduct['status'] === 1, 'Force-enable status failed when source status column is absent');
     // When target ID belongs to a different SKU, do not overwrite it:
     // skip that product and all source relations while allowing import.
     $db->query("UPDATE oc_product SET sku='UNRELATED-15' WHERE product_id=15");
