@@ -45,6 +45,7 @@ class ControllerToolCatalogTransfer extends Controller {
             $progress = $this->operationWriter();
             $progress(array('stage'=>'preparing','total'=>0,'processed'=>0,'success'=>0,'skipped'=>0,'issues'=>array(),'percent'=>2));
             $exportResult = $transfer->onProgress($progress)->export($entities, $path, $portable);
+            $this->saveIssuesCsv(isset($exportResult['issues']) ? $exportResult['issues'] : array());
             $progress(array('stage'=>'done','percent'=>100,'total'=>(int)(isset($exportResult['products']['total'])?$exportResult['products']['total']:0),
                 'processed'=>(int)(isset($exportResult['products']['processed'])?$exportResult['products']['processed']:0),
                 'success'=>(int)(isset($exportResult['products']['success'])?$exportResult['products']['success']:0),
@@ -107,6 +108,7 @@ class ControllerToolCatalogTransfer extends Controller {
                 $transfer = new \CodeCart\Core\CatalogTransfer($this->registry);
                 $writer = $this->operationWriter();
                 $json['preview'] = $transfer->onProgress($writer)->prepareUpload($this->request->files['catalog_import']);
+                $this->saveIssuesCsv(isset($json['preview']['product_errors']) ? $json['preview']['product_errors'] : array());
             } catch (\Throwable $e) {
                 $json['error'] = $e->getMessage();
             }
@@ -132,6 +134,7 @@ class ControllerToolCatalogTransfer extends Controller {
                 $writer = $this->operationWriter();
                 $writer(array('stage'=>'preparing','percent'=>2,'total'=>0,'processed'=>0,'success'=>0,'skipped'=>0,'issues'=>array()));
                 $json['result'] = $transfer->onProgress($writer)->importToken($token, $overwrite);
+                $this->saveIssuesCsv(isset($json['result']['product_errors']) ? $json['result']['product_errors'] : array());
                 $writer(array('stage'=>'done','percent'=>100,'total'=>(int)(isset($json['result']['total_products'])?$json['result']['total_products']:0),
                     'processed'=>(int)(isset($json['result']['processed_products'])?$json['result']['processed_products']:0),
                     'success'=>(int)(isset($json['result']['successful_products'])?$json['result']['successful_products']:0),
@@ -146,6 +149,59 @@ class ControllerToolCatalogTransfer extends Controller {
 
         $this->response->addHeader('Content-Type: application/json; charset=UTF-8');
         $this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    public function report() {
+        $this->load->language('tool/backup');
+        if ($this->request->server['REQUEST_METHOD'] !== 'POST'
+            || !$this->user->hasPermission('modify', 'tool/backup')
+            || !$this->validProgressToken()) {
+            $this->sendExportError($this->language->get('error_permission'), 403);
+            return;
+        }
+        $file = $this->reportFile();
+        if (!is_file($file)) {
+            $this->sendExportError('No product error report for this operation.', 404);
+            return;
+        }
+        $this->response->addHeader('Content-Type: text/csv; charset=UTF-8');
+        $this->response->addHeader('Content-Disposition: attachment; filename="catalog-product-errors.csv"');
+        $this->response->addHeader('Content-Length: ' . (int)filesize($file));
+        $this->response->addHeader('Cache-Control: no-store');
+        $this->response->addHeader('X-Content-Type-Options: nosniff');
+        $this->response->setFile($file, false);
+    }
+
+    private function reportFile() {
+        return dirname($this->progressFile()) . DIRECTORY_SEPARATOR . 'report_'
+            . $this->session->data['codecart_catalog_progress_token'] . '.csv';
+    }
+
+    private function saveIssuesCsv(array $issues) {
+        $path = $this->reportFile();
+        if (!$issues) { if (is_file($path)) { @unlink($path); } return; }
+        $tmp = tempnam(dirname($path), 'ccpcsv_');
+        if (!$tmp) { throw new \RuntimeException('Cannot create catalog error report.'); }
+        $handle = fopen($tmp, 'wb');
+        try {
+            // UTF-8 BOM helps Excel import multilingual product titles correctly.
+            fwrite($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, array('Product ID', 'SKU', 'Product name', 'Error reason'));
+            foreach ($issues as $issue) {
+                $fields = array((int)(isset($issue['product_id']) ? $issue['product_id'] : 0));
+                foreach (array('sku','name','reason') as $column) {
+                    $value = isset($issue[$column]) ? (string)$issue[$column] : '';
+                    // Avoid CSV formula execution if a merchant opens the report.
+                    if (preg_match('/^[\x00-\x20]*[=+\-@]/', $value)) { $value = "'" . $value; }
+                    $fields[] = $value;
+                }
+                if (fputcsv($handle, $fields) === false) {
+                    throw new \RuntimeException('Cannot write catalog error report.');
+                }
+            }
+        } finally { fclose($handle); }
+        if (!rename($tmp, $path)) { @unlink($tmp); throw new \RuntimeException('Cannot finalize catalog error report.'); }
+        @chmod($path, 0600);
     }
 
     public function progress() {
