@@ -563,7 +563,12 @@ final class CatalogTransfer {
                 || ($sourceSku === '' && $targetSku === '' && $sourceModel !== ''
                     && $targetModel !== '' && $sourceModel !== $targetModel);
             if ($mismatch) {
-                $result['errors'][] = 'Product ID collision ' . $id . ': existing SKU/model does not match the imported item. Import is blocked to prevent overwriting a different product.';
+                $reason = 'Product ID collision: target SKU/model differs from source.';
+                if ($this->progressCallback) {
+                    $this->rejectProduct($id, $reason, $source);
+                } else {
+                    $result['errors'][] = 'Product ID collision ' . $id . ': existing SKU/model does not match the imported item. Import is blocked to prevent overwriting a different product.';
+                }
             }
         }
     }
@@ -615,11 +620,17 @@ final class CatalogTransfer {
                 $result['errors'][] = 'Source store ID ' . (int)$sourceId . ' has no matching target store. Map stores before importing to avoid silent data loss.';
             }
         }
+        $this->badProductIds = array();
+        $this->productProblems = array();
+        $this->productSkus = array();
+        $this->productNames = array();
         $imagePaths = array();
+        $productImagePaths = array();
         $downloadFiles = array();
         $identityBatch = array();
         $checks = $this->transferReferenceChecks();
         $requiredRefs = array(); $availableRefs = array();
+        $totalProducts = 0;
         foreach ($sheetNames as $sourceLogical) {
             if ($sourceLogical === '_CodeCart') { continue; }
             if (!$this->isTransferTable($sourceLogical)) { $result['warnings'][]='Skipped unsupported sheet: '.$sourceLogical; continue; }
@@ -627,11 +638,26 @@ final class CatalogTransfer {
             if ($targetLogical===null) { $result['warnings'][]='Target table is missing and will be skipped: '.DB_PREFIX.$sourceLogical; continue; }
             $schema=$this->schema($targetLogical);
             $rowCount=0;
-            $info=SimpleXlsx::streamSheet($xlsx,$sourceLogical,function($row) use ($sourceLogical,&$imagePaths,&$downloadFiles,&$identityBatch,&$result,&$requiredRefs,&$availableRefs,$checks,&$rowCount){
+            $info=SimpleXlsx::streamSheet($xlsx,$sourceLogical,function($row) use ($sourceLogical,&$imagePaths,&$productImagePaths,&$downloadFiles,&$identityBatch,&$result,&$requiredRefs,&$availableRefs,$checks,&$rowCount,&$totalProducts){
                 $rowCount++;
                 $this->collectImages($sourceLogical,$row,$imagePaths);
+                if (isset($row['product_id']) && (int)$row['product_id']>0) {
+                    $relatedImages = array();
+                    $this->collectImages($sourceLogical,$row,$relatedImages);
+                    foreach (array_keys($relatedImages) as $img) {
+                        $productImagePaths[$img][(int)$row['product_id']] = true;
+                    }
+                }
+                if ($sourceLogical === 'product_description' && isset($row['product_id'],$row['name'])
+                    && !isset($this->productNames[(int)$row['product_id']])) {
+                    $this->productNames[(int)$row['product_id']] = (string)$row['name'];
+                }
                 if ($sourceLogical === 'download' && isset($row['filename'])) { $downloadFiles[(string)$row['filename']] = true; }
                 if ($sourceLogical === 'product') {
+                    $totalProducts++;
+                    if (isset($row['product_id'])) {
+                        $this->productSkus[(int)$row['product_id']] = isset($row['sku']) ? (string)$row['sku'] : '';
+                    }
                     $identityBatch[] = $row;
                     if (count($identityBatch) >= 500) {
                         $this->checkProductIdentityBatch($identityBatch, $result);
@@ -639,7 +665,7 @@ final class CatalogTransfer {
                     }
                 }
                 foreach($checks as $idx=>$check){
-                    if($check['sheet']===$sourceLogical && isset($row[$check['column']]) && $row[$check['column']]!=='' && $row[$check['column']]!==null){$id=(int)$row[$check['column']];if(!($id===0 && $check['allow_zero']) && $id>0){$requiredRefs[$idx][$id]=true;}}
+                    if($check['sheet']===$sourceLogical && isset($row[$check['column']]) && $row[$check['column']]!=='' && $row[$check['column']]!==null){$id=(int)$row[$check['column']];if(!($id===0 && $check['allow_zero']) && $id>0){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$requiredRefs[$idx][$id][$pid]=true;}}
                     if($check['target']===$sourceLogical && isset($row[$check['target_key']]) && (int)$row[$check['target_key']]>0){$availableRefs[$idx][(int)$row[$check['target_key']]]=true;}
                 }
             });
@@ -669,12 +695,49 @@ final class CatalogTransfer {
             $ids=isset($requiredRefs[$idx])?array_keys($requiredRefs[$idx]):array(); if(!$ids)continue;
             $available=isset($availableRefs[$idx])?$availableRefs[$idx]:array();
             if($this->tableExists($check['target'])){foreach(array_chunk(array_values(array_diff($ids,array_keys($available))),500) as $chunk){if(!$chunk)continue;$q=$this->db->query("SELECT `".$check['target_key']."` FROM `".$this->table($check['target'])."` WHERE `".$check['target_key']."` IN (".implode(',',array_map('intval',$chunk)).")");foreach($q->rows as $row){$available[(int)$row[$check['target_key']]]=true;}}}
-            $missing=array_values(array_diff($ids,array_keys($available)));if($missing){$sample=array_slice($missing,0,20);$result['errors'][]='Missing referenced '.$check['label'].' IDs on target: '.implode(', ',$sample).(count($missing)>20?' ...':'').'. Import is blocked to prevent broken catalog relations.';}
+            $missing=array_values(array_diff($ids,array_keys($available)));
+            if ($missing) {
+                $systemMissing = array();
+                foreach ($missing as $id) {
+                    $owners = isset($requiredRefs[$idx][$id]) ? array_keys($requiredRefs[$idx][$id]) : array(0);
+                    foreach ($owners as $owner) {
+                        if ($this->progressCallback && $owner > 0 && isset($this->productSkus[$owner])) {
+                            $this->rejectProduct($owner, 'Missing '.$check['label'].' ID '.$id);
+                        } else {
+                            $systemMissing[$id] = true;
+                        }
+                    }
+                }
+                if ($systemMissing) {
+                    $sample = array_slice(array_keys($systemMissing), 0, 20);
+                    $result['errors'][] = 'Missing referenced '.$check['label'].' IDs on target: '.implode(', ', $sample).'. Import is blocked to prevent broken catalog relations.';
+                }
+            }
         }
         $this->checkDownloadAvailability($downloadFiles,$package,$result);
         $result['warnings'][]='ID policy: catalog primary IDs are preserved and are not remapped. Existing target rows with the same IDs will be updated. This is intended for backup/restore or migration of the same catalog lineage; review ID collisions before merging unrelated stores.';
         $result['warnings'][]='Relation policy: merge/update only. Existing product-category and other catalog relations that are absent from the workbook are preserved; import never deletes them.';
-        if($imagePaths){$packageImages=$package&&is_file($package)?$this->packageImageIndex($package):array();$missing=array();foreach(array_keys($imagePaths) as $relative){$full=rtrim(DIR_IMAGE,'/\\').DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$relative);if(is_file($full)||isset($packageImages[$relative]))continue;if(count($missing)<20)$missing[]=$relative;}if($missing){$result['errors'][]='Missing required image files: '.implode(', ',$missing).(count($missing)>=20?' ...':'').'. Use the portable ZIP or transfer the images first.';}}
+        if($imagePaths){
+            $packageImages=$package&&is_file($package)?$this->packageImageIndex($package):array();
+            $missing=array();
+            foreach(array_keys($imagePaths) as $relative) {
+                $full=rtrim(DIR_IMAGE,'/\\').DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$relative);
+                if(is_file($full)||isset($packageImages[$relative]))continue;
+                if ($this->progressCallback && isset($productImagePaths[$relative])) {
+                    foreach(array_keys($productImagePaths[$relative]) as $id) {
+                        $this->rejectProduct($id, 'Missing image: '.$relative);
+                    }
+                } elseif(count($missing)<20) {
+                    $missing[]=$relative;
+                }
+            }
+            if($missing){$result['errors'][]='Missing required images outside product cards: '.implode(', ',$missing).'.';}
+        }
+        $result['total_products'] = $totalProducts;
+        $result['skipped_products'] = count($this->badProductIds);
+        $result['product_errors'] = array_values($this->productProblems);
+        $this->progressCounts = array('total'=>$totalProducts,'processed'=>0,
+            'success'=>0,'skipped'=>count($this->badProductIds),'fixed'=>0);
         $result['ok']=!$result['errors']; return $result;
     }
 
@@ -687,12 +750,31 @@ final class CatalogTransfer {
         $plans=array();$backupTables=array();foreach($preview['sheets'] as $sheet){$source=$sheet['table'];$target=$sheet['target_table'];if(!$this->isTransferTable($source)||$target===null)continue;$schema=$this->schema($target);if(!$schema['primary']&&!$this->isSeoLogical($target))continue;$plans[$source]=$target;$backupTables[$target]=true;}
         $plans=$this->orderedPlans($plans);
         $mainCategoryMap=array();if(isset($plans['product_to_category'])||isset($plans['product'])){if($this->tableExists('product'))$backupTables['product']=true;if($this->tableExists('product_to_category'))$backupTables['product_to_category']=true;}
-        $backup=$this->createSqlSnapshot(array_keys($backupTables));$stats=array('inserted_or_updated'=>0,'skipped_rows'=>0,'tables'=>array(),'images'=>0,'main_categories'=>0,'backup'=>$backup,'warnings'=>$preview['warnings']);
+        $backup=$this->createSqlSnapshot(array_keys($backupTables));
+        $stats=array('inserted_or_updated'=>0,'skipped_rows'=>0,'tables'=>array(),'images'=>0,
+            'main_categories'=>0,'backup'=>$backup,'warnings'=>$preview['warnings'],
+            'total_products'=>(int)$preview['total_products'],'processed_products'=>0,
+            'successful_products'=>0,'skipped_products'=>count($this->badProductIds),
+            'product_errors'=>array_values($this->productProblems));
+        $this->publishProgress('importing', true);
         $this->db->query('START TRANSACTION');
         try{
             foreach($plans as $source=>$target){$schema=$this->schema($target);$count=0;$skipped=0;$columns=null;
                 $info=SimpleXlsx::streamSheet($xlsx,$source,function($row) use ($source,$target,$schema,$languageMap,$storeMap,&$count,&$skipped,&$columns,&$mainCategoryMap){
                     if($columns===null){$columns=array_keys($row);} // actual header is supplied below after stream; row keys are equivalent for mapped data
+                    if ($this->ignoreRejectedProductRow($source, $row)) {
+                        if ($source === 'product') {
+                            $this->progressCounts['processed']++;
+                            $this->publishProgress('importing');
+                        }
+                        $skipped++;
+                        return;
+                    }
+                    if ($source === 'product') {
+                        $this->progressCounts['processed']++;
+                        $this->progressCounts['success']++;
+                        $this->publishProgress('importing');
+                    }
                     if($source==='product_to_category'&&!empty($row['main_category'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=isset($row['category_id'])?(int)$row['category_id']:0;if($pid>0&&$cid>0)$mainCategoryMap[$pid]=$cid;}
                     if($source==='product'&&isset($row['main_category_id'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=(int)$row['main_category_id'];if($pid>0&&$cid>0&&!isset($mainCategoryMap[$pid]))$mainCategoryMap[$pid]=$cid;}
                     if($this->isSeoLogical($source)&&$this->isSeoLogical($target)){$mapped=$this->mapSeoRow($source,$target,$row,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsertSeo($target,$mapped);}else{$allowed=array_values(array_intersect(array_keys($row),array_keys($schema['columns'])));$mapped=$this->mapRow($source,$row,$allowed,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsert($target,$mapped,$schema);} $count++;
@@ -701,7 +783,27 @@ final class CatalogTransfer {
             }
             if($mainCategoryMap){$stats['main_categories']=$this->applyMainCategoryMap($mainCategoryMap);} $this->db->query('COMMIT');
         }catch(\Throwable $e){try{$this->db->query('ROLLBACK');}catch(\Throwable $ignored){}throw $e;}
-        if($package){$stats['images']=$this->importPackageImages($package,(bool)$overwriteImages);$stats['downloads']=$this->importPackageDownloads($package);} $this->cleanupToken($token);return $stats;
+        if($package){$stats['images']=$this->importPackageImages($package,(bool)$overwriteImages);$stats['downloads']=$this->importPackageDownloads($package);}
+        $stats['processed_products'] = (int)$this->progressCounts['processed'];
+        $stats['successful_products'] = (int)$this->progressCounts['success'];
+        $this->publishProgress('complete', true);
+        $this->cleanupToken($token);
+        return $stats;
+    }
+
+    private function ignoreRejectedProductRow($source, array $row) {
+        if (isset($row['product_id']) && isset($this->badProductIds[(int)$row['product_id']])) {
+            return true;
+        }
+        if ($source === 'product_related' && isset($row['related_id']) && isset($this->badProductIds[(int)$row['related_id']])) {
+            return true;
+        }
+        if ($this->isSeoLogical($source) && isset($row['query'])
+            && preg_match('/^product_id=([0-9]+)$/', (string)$row['query'], $match)
+            && isset($this->badProductIds[(int)$match[1]])) {
+            return true;
+        }
+        return false;
     }
 
     /**
