@@ -915,6 +915,16 @@ final class CatalogTransfer {
     }
 
     private function ignoreRejectedProductRow($source, array $row) {
+        if (($source === 'download' || $source === 'download_description') && isset($row['download_id'])) {
+            $downloadId = (int)$row['download_id'];
+            if (isset($this->incomingDownloadLinks[$downloadId])) {
+                $allRejected = true;
+                foreach (array_keys($this->incomingDownloadLinks[$downloadId]) as $productId) {
+                    if (!isset($this->badProductIds[$productId])) { $allRejected = false; break; }
+                }
+                if ($allRejected) { return true; }
+            }
+        }
         if (isset($row['product_id']) && isset($this->badProductIds[(int)$row['product_id']])) {
             return true;
         }
