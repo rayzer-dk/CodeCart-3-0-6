@@ -85,19 +85,19 @@ final class GuestCartContact {
         if (!$this->enabled() || $sessionId === '' || strlen($sessionId) > 128) { return ''; }
         $token = bin2hex(random_bytes(32));
         $hash = hash('sha256', $token);
-        $this->db->query("UPDATE " . $this->table() . " SET token_hash='" . $hash . "',token_expires=DATE_ADD(NOW(), INTERVAL 7 DAY),token_used=NULL WHERE session_id='" . $this->db->escape($sessionId) . "' AND store_id='" . (int)$this->config->get('config_store_id') . "' AND consent=1 AND recovered_at IS NULL AND date_modified>=DATE_SUB(NOW(),INTERVAL 7 DAY)");
+        $this->db->query("UPDATE " . $this->table() . " SET token_hash='" . $hash . "',token_expires=DATE_ADD(NOW(), INTERVAL 7 DAY),token_used=NULL WHERE session_id='" . $this->db->escape($sessionId) . "' AND store_id='" . (int)$this->config->get('config_store_id') . "' AND consent=1 AND recovered_at IS NULL AND date_modified>=DATE_SUB(NOW(),INTERVAL " . $this->retentionDays() . " DAY)");
         return $this->db->countAffected() > 0 ? $token : '';
     }
     public function restore(string $token, $cart): bool {
         if (!$this->enabled() || !preg_match('/^[a-f0-9]{64}$/D', $token)) { return false; }
         $hash = hash('sha256', $token);
-        $query = $this->db->query("SELECT session_id FROM " . $this->table() . " WHERE token_hash='" . $hash . "' AND store_id='" . (int)$this->config->get('config_store_id') . "' AND consent=1 AND token_used IS NULL AND recovered_at IS NULL AND token_expires>NOW() AND date_modified>=DATE_SUB(NOW(), INTERVAL 7 DAY) LIMIT 1");
+        $query = $this->db->query("SELECT session_id FROM " . $this->table() . " WHERE token_hash='" . $hash . "' AND store_id='" . (int)$this->config->get('config_store_id') . "' AND consent=1 AND token_used IS NULL AND recovered_at IS NULL AND token_expires>NOW() AND date_modified>=DATE_SUB(NOW(), INTERVAL " . $this->retentionDays() . " DAY) LIMIT 1");
         if (!$query->num_rows) { return false; }
         $session = (string)$query->row['session_id'];
         // Claim the single-use token atomically before changing the visitor cart.
         $this->db->query("UPDATE " . $this->table() . " SET token_used=NOW() WHERE session_id='" . $this->db->escape($session) . "' AND store_id='" . (int)$this->config->get('config_store_id') . "' AND token_hash='" . $hash . "' AND token_used IS NULL AND recovered_at IS NULL AND token_expires>NOW()");
         if (!$this->db->countAffected()) { return false; }
-        $items = $this->db->query("SELECT product_id,quantity,`option` FROM `" . DB_PREFIX . "cart` WHERE api_id=0 AND customer_id=0 AND session_id='" . $this->db->escape($session) . "' AND date_added>=DATE_SUB(NOW(),INTERVAL 7 DAY) ORDER BY cart_id LIMIT 100");
+        $items = $this->db->query("SELECT product_id,quantity,`option` FROM `" . DB_PREFIX . "cart` WHERE api_id=0 AND customer_id=0 AND session_id='" . $this->db->escape($session) . "' AND date_added>=DATE_SUB(NOW(),INTERVAL " . $this->retentionDays() . " DAY) ORDER BY cart_id LIMIT 100");
         $restored = 0;
         foreach ($items->rows as $item) {
             $options = json_decode((string)$item['option'], true);
