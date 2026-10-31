@@ -313,6 +313,11 @@ final class CatalogTransfer {
         }
 
         $this->checkDownloadAvailability($downloadFiles, $package, $result);
+        if (isset($workbook['product']['rows'])) {
+            foreach (array_chunk($workbook['product']['rows'], 500) as $batch) {
+                $this->checkProductIdentityBatch($batch, $result);
+            }
+        }
         $this->validateCatalogReferences($workbook, $result);
         $result['warnings'][] = 'ID policy: catalog primary IDs are preserved and are not remapped. Existing target rows with the same IDs will be updated. This is intended for backup/restore or migration of the same catalog lineage; review ID collisions before merging unrelated stores.';
         $result['warnings'][] = 'Relation policy: merge/update only. Existing product-category and other catalog relations that are absent from the workbook are preserved; import never deletes them.';
@@ -403,6 +408,32 @@ final class CatalogTransfer {
     }
 
 
+    private function checkProductIdentityBatch(array $rows, array &$result) {
+        if (!$rows || !$this->tableExists('product')) { return; }
+        $incoming = array();
+        foreach ($rows as $row) {
+            $id = isset($row['product_id']) ? (int)$row['product_id'] : 0;
+            if ($id > 0) { $incoming[$id] = $row; }
+        }
+        if (!$incoming) { return; }
+        $ids = array_keys($incoming);
+        $sql = "SELECT product_id, sku, model FROM `" . $this->table('product') . "` WHERE product_id IN (" . implode(',', array_map('intval', $ids)) . ")";
+        foreach ($this->db->query($sql)->rows as $target) {
+            $id = (int)$target['product_id'];
+            $source = $incoming[$id];
+            $sourceSku = trim((string)(isset($source['sku']) ? $source['sku'] : ''));
+            $targetSku = trim((string)$target['sku']);
+            $sourceModel = trim((string)(isset($source['model']) ? $source['model'] : ''));
+            $targetModel = trim((string)$target['model']);
+            $mismatch = ($sourceSku !== '' && $targetSku !== '' && $sourceSku !== $targetSku)
+                || ($sourceSku === '' && $targetSku === '' && $sourceModel !== ''
+                    && $targetModel !== '' && $sourceModel !== $targetModel);
+            if ($mismatch) {
+                $result['errors'][] = 'Product ID collision ' . $id . ': existing SKU/model does not match the imported item. Import is blocked to prevent overwriting a different product.';
+            }
+        }
+    }
+
     private function transferReferenceChecks() {
         return array(
             array('sheet'=>'product_to_category','column'=>'category_id','target'=>'category','target_key'=>'category_id','allow_zero'=>false,'label'=>'product category'),
@@ -452,6 +483,7 @@ final class CatalogTransfer {
         }
         $imagePaths = array();
         $downloadFiles = array();
+        $identityBatch = array();
         $checks = $this->transferReferenceChecks();
         $requiredRefs = array(); $availableRefs = array();
         foreach ($sheetNames as $sourceLogical) {
@@ -461,15 +493,26 @@ final class CatalogTransfer {
             if ($targetLogical===null) { $result['warnings'][]='Target table is missing and will be skipped: '.DB_PREFIX.$sourceLogical; continue; }
             $schema=$this->schema($targetLogical);
             $rowCount=0;
-            $info=SimpleXlsx::streamSheet($xlsx,$sourceLogical,function($row) use ($sourceLogical,&$imagePaths,&$downloadFiles,&$requiredRefs,&$availableRefs,$checks,&$rowCount){
+            $info=SimpleXlsx::streamSheet($xlsx,$sourceLogical,function($row) use ($sourceLogical,&$imagePaths,&$downloadFiles,&$identityBatch,&$result,&$requiredRefs,&$availableRefs,$checks,&$rowCount){
                 $rowCount++;
                 $this->collectImages($sourceLogical,$row,$imagePaths);
                 if ($sourceLogical === 'download' && isset($row['filename'])) { $downloadFiles[(string)$row['filename']] = true; }
+                if ($sourceLogical === 'product') {
+                    $identityBatch[] = $row;
+                    if (count($identityBatch) >= 500) {
+                        $this->checkProductIdentityBatch($identityBatch, $result);
+                        $identityBatch = array();
+                    }
+                }
                 foreach($checks as $idx=>$check){
                     if($check['sheet']===$sourceLogical && isset($row[$check['column']]) && $row[$check['column']]!=='' && $row[$check['column']]!==null){$id=(int)$row[$check['column']];if(!($id===0 && $check['allow_zero']) && $id>0){$requiredRefs[$idx][$id]=true;}}
                     if($check['target']===$sourceLogical && isset($row[$check['target_key']]) && (int)$row[$check['target_key']]>0){$availableRefs[$idx][(int)$row[$check['target_key']]]=true;}
                 }
             });
+            if ($sourceLogical === 'product' && $identityBatch) {
+                $this->checkProductIdentityBatch($identityBatch, $result);
+                $identityBatch = array();
+            }
             $sourceColumns=$info['columns'];
             $seoSheet=$this->isSeoLogical($sourceLogical)&&$this->isSeoLogical($targetLogical);
             if($seoSheet){
