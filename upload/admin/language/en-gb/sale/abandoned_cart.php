@@ -1,6 +1,6 @@
 <?php
-$_['entry_reminder_delay_minutes'] = 'Send reminder after, hours';
-$_['text_reminder_delay_help'] = 'Delay in hours: for example 1.5 or 5.2. Stored as minutes; sending also requires Cron, separate consent and a valid email.';
+$_['entry_reminder_delay_minutes'] = 'Send reminder after, minutes';
+$_['text_reminder_delay_help'] = 'Delay after the last cart change: 5–10080 minutes (default 60). Reminders need a valid email, separate consent and enabled Cron (checks every 5 minutes).';
 $_['text_guest_contact_missing_explanation'] = 'Guest name and email appear only when the visitor enters checkout contact details and explicitly opts in to cart reminders. A cart without these details cannot be identified retrospectively; no email is sent without consent.';
 $_['heading_title']='Abandoned carts';
 $_['text_home']='Home';
