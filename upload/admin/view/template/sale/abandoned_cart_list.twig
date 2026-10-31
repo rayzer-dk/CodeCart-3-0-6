@@ -122,64 +122,85 @@
         <div class="ccp-cart-settings-head"><h3><i class="fa fa-cog"></i> {{ text_settings }}</h3><p>{{ text_settings_summary }}</p></div>
         <form method="post" action="{{ settings_url }}#ccp-tab-settings" class="ccp-cart-settings-form">
           <input type="hidden" name="save_cart_settings" value="1">
-          <h4 class="ccp-settings-section-heading"><i class="fa fa-database"></i> {{ text_source_section }}</h4>
-          <p class="ccp-settings-distinction">{{ text_source_only_explanation }}</p>
-          <div class="row">
-            <div class="col-md-3"><label for="abandoned-status">{{ entry_cart_status }}</label>
+          <h4 class="ccp-settings-section-heading"><i class="fa fa-sliders"></i> {{ text_source_section }}</h4>
+          <div class="ccp-settings-core-grid">
+            <div class="ccp-settings-core-field">
+              <label for="abandoned-status">{{ entry_cart_status }}</label>
               <select name="cart_status" class="form-control" id="abandoned-status">
                 <option value="1" {{ cart_fields.status ? 'selected' : '' }}>{{ text_enabled }}</option>
                 <option value="0" {{ not cart_fields.status ? 'selected' : '' }}>{{ text_disabled }}</option>
-              </select></div>
-            <div class="col-md-3"><label for="abandoned-idle">{{ entry_cart_idle_minutes }}</label>
-              <input type="number" name="cart_idle_minutes" id="abandoned-idle" class="form-control" min="1" max="10080" value="{{ cart_fields.idle_minutes }}"></div>
-            <div class="col-md-3"><label for="abandoned-days">{{ entry_cart_days }}</label>
-              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="30" value="{{ cart_fields.days }}"></div>
+              </select>
+            </div>
+            <div class="ccp-settings-core-field">
+              <label for="abandoned-idle">{{ entry_cart_idle_minutes }}</label>
+              <input type="number" name="cart_idle_minutes" id="abandoned-idle" class="form-control" min="1" max="10080" value="{{ cart_fields.idle_minutes }}">
+            </div>
+            <div class="ccp-settings-core-field">
+              <label for="abandoned-days">{{ entry_cart_days }}</label>
+              <input type="number" name="cart_days" id="abandoned-days" class="form-control" min="1" max="30" value="{{ cart_fields.days }}">
+            </div>
           </div>
-            <div class="ccp-checkout-link-setting" data-checkout-auto-url="{{ checkout_auto_url|e('html_attr') }}" data-checkout-standard-url="{{ checkout_standard_url|e('html_attr') }}">
-              <h4 class="ccp-settings-section-heading"><i class="fa fa-external-link"></i> {{ text_checkout_section }}</h4>
-              <p class="ccp-settings-distinction">{{ text_checkout_only_explanation }}</p>
+
+          <div class="ccp-checkout-link-setting" data-checkout-auto-url="{{ checkout_auto_url|e('html_attr') }}" data-checkout-standard-url="{{ checkout_standard_url|e('html_attr') }}">
+            <h4 class="ccp-settings-section-heading"><i class="fa fa-external-link"></i> {{ text_checkout_section }}</h4>
+            <div class="ccp-compact-setting-row">
               <label for="ccp-cart-checkout-mode">{{ entry_checkout_mode }}</label>
               <select name="cart_checkout_mode" id="ccp-cart-checkout-mode" class="form-control">
                 <option value="auto" {{ cart_checkout_mode == 'auto' ? 'selected' : '' }}>{{ text_checkout_auto }}</option>
                 <option value="standard" {{ cart_checkout_mode == 'standard' ? 'selected' : '' }}>{{ text_checkout_standard }}</option>
                 <option value="custom" {{ cart_checkout_mode == 'custom' ? 'selected' : '' }}>{{ text_checkout_custom }}</option>
               </select>
-              <p class="help-block">{{ text_checkout_mode_help }}</p>
-              <div id="ccp-checkout-custom-url" class="ccp-checkout-url-box">
-                <label for="ccp-cart-checkout-url">{{ entry_checkout_url }}</label>
-                <input type="url" name="cart_checkout_url" id="ccp-cart-checkout-url" class="form-control" maxlength="512" value="{{ cart_fields.checkout_url|e('html_attr') }}" placeholder="https://store.example/checkout/" autocomplete="url">
-              </div>
-              <div class="ccp-checkout-preview">
-                <strong>{{ text_checkout_resolved }}</strong>
-                <a id="ccp-checkout-preview-link" href="{{ catalog_checkout_url|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ catalog_checkout_url|e('html_attr') }}">{{ catalog_checkout_url|e }}</a>
-                <p id="ccp-checkout-mode-description" class="help-block" data-auto="{{ text_checkout_auto_info|e('html_attr') }}" data-standard="{{ text_checkout_standard_info|e('html_attr') }}" data-custom="{{ text_checkout_custom_info|e('html_attr') }}">{{ text_checkout_preview_only }}</p>
-              </div>
-              <p class="help-block">{{ text_checkout_url_help }}</p>
+              <p class="ccp-setting-note" title="{{ text_checkout_only_explanation|e('html_attr') }}">{{ text_checkout_only_explanation }}</p>
             </div>
+            <div id="ccp-checkout-custom-url" class="ccp-compact-setting-row ccp-checkout-url-box">
+              <label for="ccp-cart-checkout-url">{{ entry_checkout_url }}</label>
+              <input type="url" name="cart_checkout_url" id="ccp-cart-checkout-url" class="form-control" maxlength="512" value="{{ cart_fields.checkout_url|e('html_attr') }}" placeholder="https://store.example/checkout/" autocomplete="url">
+              <p class="ccp-setting-note">{{ text_checkout_custom_info }}</p>
+            </div>
+            <div class="ccp-checkout-preview">
+              <span class="ccp-checkout-preview-label">{{ text_checkout_resolved }}</span>
+              <a id="ccp-checkout-preview-link" href="{{ catalog_checkout_url|e('html_attr') }}" target="_blank" rel="noopener noreferrer" title="{{ catalog_checkout_url|e('html_attr') }}">{{ catalog_checkout_url|e }}</a>
+              <p id="ccp-checkout-mode-description" class="ccp-checkout-mode-note" data-auto="{{ text_checkout_auto_info|e('html_attr') }}" data-standard="{{ text_checkout_standard_info|e('html_attr') }}" data-custom="{{ text_checkout_custom_info|e('html_attr') }}">{{ text_checkout_preview_only }}</p>
+            </div>
+          </div>
+
           <h4 class="ccp-settings-section-heading"><i class="fa fa-envelope-o"></i> {{ text_reminders_section }}</h4>
-          <div class="ccp-mail-control"><label for="abandoned-reminder-delay"><i class="fa fa-clock-o"></i> {{ entry_reminder_delay_minutes }}</label>
-            <input type="number" name="cart_reminder_delay_minutes" id="abandoned-reminder-delay" class="form-control" min="5" max="10080" step="1" value="{{ cart_fields.reminder_delay_minutes }}" placeholder="60">
-            <p class="help-block">{{ text_reminder_delay_help }}</p></div>
-          <div class="ccp-mail-control"><label for="abandoned-mail-auto"><i class="fa fa-envelope-o"></i> {{ entry_mail_auto }}</label>
-            <select id="abandoned-mail-auto" name="cart_mail_auto" class="form-control">
-              <option value="0" {{ not cart_fields.mail_auto ? 'selected' : '' }}>{{ text_disabled }}</option>
-              <option value="1" {{ cart_fields.mail_auto ? 'selected' : '' }}>{{ text_enabled }}</option>
-            </select><p class="help-block">{{ text_mail_auto_help }}</p>
-          <p class="help-block">{{ text_guest_contact_missing_explanation }}</p></div>
-          <div class="ccp-mail-control"><label for="abandoned-guest-capture"><i class="fa fa-user-plus"></i> {{ text_guest_capture_label }}</label>
-            <select id="abandoned-guest-capture" name="cart_guest_capture" class="form-control">
-              <option value="0" {{ not cart_fields.guest_capture ? 'selected' : '' }}>{{ text_disabled }}</option>
-              <option value="1" {{ cart_fields.guest_capture ? 'selected' : '' }}>{{ text_enabled }}</option>
-            </select><p class="help-block">{{ text_guest_capture_help }}</p>
-            {% if not cart_fields.status %}
-              <p class="ccp-capture-state ccp-capture-state-off"><i class="fa fa-power-off"></i> {{ text_capture_module_off }}</p>
-            {% elseif cart_form_source == 'external' %}
-              <p class="ccp-capture-state ccp-capture-state-off"><i class="fa fa-database"></i> {{ text_capture_external_off }}</p>
-            {% elseif not cart_fields.guest_capture %}
-              <p class="ccp-capture-state ccp-capture-state-off"><i class="fa fa-eye-slash"></i> {{ text_capture_off }}</p>
-            {% else %}
-              <p class="ccp-capture-state ccp-capture-state-on"><i class="fa fa-check-circle"></i> {{ text_capture_on }}</p>
-            {% endif %}</div>
+          <div class="ccp-settings-reminder-list">
+            <div class="ccp-mail-control">
+              <label for="abandoned-reminder-delay"><i class="fa fa-clock-o"></i> {{ entry_reminder_delay_minutes }}</label>
+              <input type="text" inputmode="decimal" name="cart_reminder_delay_hours" id="abandoned-reminder-delay" class="form-control" maxlength="16" value="{{ cart_fields.reminder_delay_hours|e('html_attr') }}" placeholder="1,5">
+              <p class="ccp-setting-note" title="{{ text_reminder_delay_help|e('html_attr') }}">{{ text_reminder_delay_help }}</p>
+            </div>
+            <div class="ccp-mail-control">
+              <label for="abandoned-mail-auto"><i class="fa fa-envelope-o"></i> {{ entry_mail_auto }}</label>
+              <select id="abandoned-mail-auto" name="cart_mail_auto" class="form-control">
+                <option value="0" {{ not cart_fields.mail_auto ? 'selected' : '' }}>{{ text_disabled }}</option>
+                <option value="1" {{ cart_fields.mail_auto ? 'selected' : '' }}>{{ text_enabled }}</option>
+              </select>
+              <p class="ccp-setting-note" title="{{ text_mail_auto_help|e('html_attr') }}">{{ text_mail_auto_help }}</p>
+            </div>
+            <div class="ccp-mail-control">
+              <label for="abandoned-guest-capture"><i class="fa fa-user-plus"></i> {{ text_guest_capture_label }}</label>
+              <select id="abandoned-guest-capture" name="cart_guest_capture" class="form-control">
+                <option value="0" {{ not cart_fields.guest_capture ? 'selected' : '' }}>{{ text_disabled }}</option>
+                <option value="1" {{ cart_fields.guest_capture ? 'selected' : '' }}>{{ text_enabled }}</option>
+              </select>
+              <div class="ccp-setting-note">
+                <span title="{{ text_guest_capture_help|e('html_attr') }}">{{ text_guest_capture_help }}</span>
+                {% if not cart_fields.status %}
+                  <span class="ccp-capture-state ccp-capture-state-off"><i class="fa fa-power-off"></i> {{ text_capture_module_off }}</span>
+                {% elseif cart_form_source == 'external' %}
+                  <span class="ccp-capture-state ccp-capture-state-off"><i class="fa fa-database"></i> {{ text_capture_external_off }}</span>
+                {% elseif not cart_fields.guest_capture %}
+                  <span class="ccp-capture-state ccp-capture-state-off"><i class="fa fa-eye-slash"></i> {{ text_capture_off }}</span>
+                {% else %}
+                  <span class="ccp-capture-state ccp-capture-state-on"><i class="fa fa-check-circle"></i> {{ text_capture_on }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <details class="ccp-capture-diagnostics-toggle">
+            <summary><i class="fa fa-stethoscope"></i> {{ text_capture_diag_button }}</summary>
           <div class="ccp-cart-capture-diagnostics" data-check-url="{{ guest_capture_diagnostics_url|e('html_attr') }}"
                data-error="{{ text_capture_diag_error|e('html_attr') }}"
                data-yes="{{ text_enabled|e('html_attr') }}" data-no="{{ text_disabled|e('html_attr') }}"
@@ -197,6 +218,7 @@
             <div id="ccp-guest-capture-result" class="ccp-capture-diagnostics-result" role="status" aria-live="polite"></div>
             <p class="help-block">{{ text_capture_diag_explanation }}</p>
           </div>
+          </details>
           <details class="ccp-checkout-field-mapping">
             <summary><i class="fa fa-sliders"></i> {{ text_checkout_field_mapping }}</summary>
             <p class="help-block">{{ text_checkout_field_help }}</p>
