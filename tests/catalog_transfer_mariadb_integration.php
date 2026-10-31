@@ -56,6 +56,11 @@ class Model {
     public function __construct($db = null) { $this->db = $db; }
 }
 require_once __DIR__ . '/../upload/admin/model/tool/backup.php';
+class Controller {
+    public $user, $load, $request, $session, $language, $db;
+    public $model_tool_backup, $response, $cache, $log, $url;
+}
+require_once __DIR__ . '/../upload/admin/controller/tool/backup.php';
 $connection = new mysqli(getenv('QA_DB_HOST') ?: '127.0.0.1', getenv('QA_DB_USER') ?: 'root', getenv('QA_DB_PASS') ?: 'root', DB_DATABASE);
 $connection->set_charset('utf8mb4');
 $db = new IntegrationDb($connection);
@@ -125,17 +130,45 @@ try {
     assertion(strpos($sqlText, 'CREATE TABLE IF NOT EXISTS') !== false, 'Missing CREATE TABLE in SQL backup');
     $db->query('DROP TABLE oc_product_to_download');
     $db->query('TRUNCATE TABLE oc_product');
-    $pending = '';
-    foreach (file($sqlPath, FILE_IGNORE_NEW_LINES) as $line) {
-        $line = trim($line);
-        if ($line === '' || strpos($line, '--') === 0) { continue; }
-        $pending .= $line . "\n";
-        if (substr(rtrim($pending), -1) !== ';') { continue; }
-        $stmt = rtrim(trim($pending), ';');
-        $pending = '';
-        assertion(preg_match('/^(?:CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS|TRUNCATE\\s+TABLE|INSERT\\s+INTO)\\s+/i', $stmt) === 1, 'Unexpected SQL command');
-        $db->query($stmt);
-    }
+    // Exercise the actual OpenCart controller's resumable POST restore path.
+    // This is an authenticated in-session continuation, not a simulated SQL
+    // interpreter; it verifies parser, allowlist and CREATE TABLE behavior.
+    $controller = new ControllerToolBackup();
+    $controller->db = $db;
+    $controller->user = new class {
+        public function hasPermission($action, $route) { return $action === 'modify' && $route === 'tool/backup'; }
+    };
+    $controller->request = (object) array(
+        'server' => array('REQUEST_METHOD'=>'POST'),
+        'files' => array(),
+        'get' => array('import'=>basename($sqlPath),'position'=>0)
+    );
+    $controller->session = (object) array('data'=>array(
+        'user_token'=>'test_admin_token',
+        'codecart_sql_restore'=>array('file'=>basename($sqlPath),'created'=>time(),'position'=>0,'snapshot'=>'test-snapshot.sql')
+    ));
+    $controller->language = new class {
+        public function get($key) { return $key; }
+    };
+    $controller->load = new class($controller, $db) {
+        private $controller, $db;
+        public function __construct($controller, $db) { $this->controller=$controller; $this->db=$db; }
+        public function language($route) {}
+        public function model($route) {
+            if ($route === 'tool/backup') { $this->controller->model_tool_backup = new ModelToolBackup($this->db); }
+        }
+    };
+    $controller->response = new class {
+        public $output = '';
+        public function addHeader($header) {}
+        public function setOutput($output) { $this->output = $output; }
+    };
+    $controller->cache = new class { public function delete($key) {} };
+    $controller->log = new class { public function write($message) { throw new RuntimeException($message); } };
+    $controller->url = new class { public function link($route, $args, $ssl=true) { return 'index.php?route='.$route.'&'.$args; } };
+    $controller->import();
+    $restore = json_decode($controller->response->output, true);
+    assertion(is_array($restore) && !isset($restore['error']) && isset($restore['success']), 'Native SQL restore controller did not complete: '.json_encode($restore));
     assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product_to_download')->row['n'] === 1, 'SQL restore lost digital relation');
     assertion((int)$db->query('SELECT COUNT(*) AS n FROM oc_product')->row['n'] === 1, 'SQL restore lost product');
     echo "PASS MariaDB catalog and SQL schema+data round-trips\n";
