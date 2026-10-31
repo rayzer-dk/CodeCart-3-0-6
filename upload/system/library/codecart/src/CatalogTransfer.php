@@ -1103,7 +1103,10 @@ final class CatalogTransfer {
                 $mime='';
                 if(function_exists('finfo_open')){$fi=finfo_open(FILEINFO_MIME_TYPE);if($fi){$mime=(string)finfo_file($fi,$tmp);finfo_close($fi);}}
                 if($mime===''&&function_exists('getimagesize')){$info=@getimagesize($tmp);if(is_array($info)&&isset($info['mime']))$mime=(string)$info['mime'];}
-                if (!isset($allowedMimes[strtolower($mime)])) { @unlink($tmp); continue; }
+                $imageType = strtolower(pathinfo($rel, PATHINFO_EXTENSION));
+                $mimeOk = isset($allowedMimes[strtolower($mime)])
+                    || ($imageType === 'svg' && in_array(strtolower($mime), array('application/xml','text/xml','text/plain'), true));
+                if (!$mimeOk) { @unlink($tmp); continue; }
                 if (strtolower(pathinfo($rel, PATHINFO_EXTENSION)) === 'svg') {
                     $error = '';
                     $sanitized = SvgSanitizer::sanitizeFile($tmp, $error);
