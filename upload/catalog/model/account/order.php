@@ -126,6 +126,20 @@ class ModelAccountOrder extends Model {
 		return $query->rows;
 	}
 
+	/**
+	 * All options of an order grouped by order_product_id, in one query.
+	 */
+	public function getOrderOptionsByOrderId($order_id) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_option WHERE order_id = '" . (int)$order_id . "' ORDER BY order_option_id ASC");
+
+		$options = array();
+		foreach ($query->rows as $row) {
+			$options[(int)$row['order_product_id']][] = $row;
+		}
+
+		return $options;
+	}
+
 	public function getOrderOptions($order_id, $order_product_id) {
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_option WHERE order_id = '" . (int)$order_id . "' AND order_product_id = '" . (int)$order_product_id . "'");
 

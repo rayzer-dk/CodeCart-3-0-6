@@ -149,8 +149,10 @@ class ControllerExtensionModuleFeatured extends Controller {
 			$products = array();
 		}
 
+		$product_info_rows = $this->model_catalog_product->getProductsByIds((array)$products);
+
 		foreach ($products as $product_id) {
-			$product_info = $this->model_catalog_product->getProduct($product_id);
+			$product_info = isset($product_info_rows[(int)$product_id]) ? $product_info_rows[(int)$product_id] : array();
 
 			if ($product_info) {
 				$data['products'][] = array(

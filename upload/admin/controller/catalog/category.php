@@ -435,8 +435,10 @@ class ControllerCatalogCategory extends Controller {
 
 		$data['category_filters'] = array();
 
+		$filter_info_rows = $this->model_catalog_filter->getFiltersByIds((array)$filters);
+
 		foreach ($filters as $filter_id) {
-			$filter_info = $this->model_catalog_filter->getFilter($filter_id);
+			$filter_info = isset($filter_info_rows[(int)$filter_id]) ? $filter_info_rows[(int)$filter_id] : array();
 
 			if ($filter_info) {
 				$data['category_filters'][] = array(
@@ -536,8 +538,10 @@ class ControllerCatalogCategory extends Controller {
 
 		$this->load->model('catalog/product');
 
+		$related_info_rows = $this->model_catalog_product->getProductsByIds((array)$products);
+
 		foreach ($products as $product_id) {
-			$related_info = $this->model_catalog_product->getProduct($product_id);
+			$related_info = isset($related_info_rows[(int)$product_id]) ? $related_info_rows[(int)$product_id] : array();
 
 			if ($related_info) {
 				$data['product_related'][] = array(
@@ -559,8 +563,10 @@ class ControllerCatalogCategory extends Controller {
 
 		$this->load->model('blog/article');
 
+		$related_info_rows = $this->model_blog_article->getArticlesByIds((array)$articles);
+
 		foreach ($articles as $article_id) {
-			$related_info = $this->model_blog_article->getArticle($article_id);
+			$related_info = isset($related_info_rows[(int)$article_id]) ? $related_info_rows[(int)$article_id] : array();
 
 			if ($related_info) {
 				$data['article_related'][] = array(

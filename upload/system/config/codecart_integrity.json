@@ -524,5 +524,5 @@
         "admin/view/template/extension/extension/currency.twig": "129153b88e3b9c8f8e946a0ab7f863c45f6303771e77f97c909fa8dbe08e524d"
     },
     "version": "3.0.6.0",
-    "package_build": "2.1.3"
+    "package_build": "2.1.4"
 }

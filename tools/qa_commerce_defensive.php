@@ -94,6 +94,15 @@ if ($case === 'stock') {
                 $this->optionChecks++;
                 return commerceRows(array(array('total' => 1, 'ready' => str_contains($sql, '(900)') ? 1 : 0)));
             }
+            if (str_starts_with($sql, 'SELECT product_option_value_id, subtract, quantity')) {
+                $this->optionChecks++;
+                preg_match('/IN \(([\d,]+)\)/', $sql, $m);
+                return commerceRows(array_map(static fn($id) => array('product_option_value_id' => (int)$id, 'subtract' => '1', 'quantity' => (int)$id === 900 ? 1 : 0), explode(',', $m[1])));
+            }
+            if (preg_match('/WHERE stock_notify_id IN \(([\d,]+)\)/', $sql, $m) && str_contains($sql, 'SET date_modified=')) {
+                foreach (explode(',', $m[1]) as $id) { if ($this->rows[(int)$id]['status'] === 'waiting') { $this->rows[(int)$id]['date_modified'] = 2; } }
+                return commerceRows(array());
+            }
             if (preg_match("/WHERE stock_notify_id='(\d+)'/", $sql, $m)) {
                 $id = (int)$m[1];
                 if (str_contains($sql, "SET status='processing'")) {
@@ -268,6 +277,7 @@ if ($case === 'image') {
 if (str_starts_with($case, 'category-')) {
     require $root . '/upload/system/helper/utf8.php';
     require $root . '/upload/system/library/codecart/src/CompatibilityLayer.php';
+    require $root . '/upload/system/library/codecart/src/SeoUrlIndex.php';
     require $root . '/upload/system/library/codecart/src/InternalLinking.php';
     require $root . '/upload/catalog/model/extension/feed/google_base.php';
     require $root . '/upload/system/library/seopro.php';
@@ -325,6 +335,18 @@ if (str_starts_with($case, 'category-')) {
                 preg_match("/query = '([^']+)'/", $sql, $match);
                 return commerceRows(array(array('keyword' => str_replace(array('_id=', '='), '', $match[1]))));
             }
+            // Batched SEO keyword reads: fixed fixture aliases for both categories and the product.
+            $aliases = array('category_id=10', 'category_id=20', 'product_id=1');
+            $aliasRows = static fn(array $queries): array => array_map(static fn($query) => array('query' => $query, 'keyword' => str_replace(array('_id=', '='), '', $query), 'store_id' => 0, 'language_id' => 1), $queries);
+            if (str_starts_with($sql, 'SELECT MAX(seo_url_id)')) { return commerceRows(array(array('seo_url_id' => count($aliases)))); }
+            if (str_starts_with($sql, 'SELECT keyword, query, store_id, language_id FROM qa_seo_url')) { return commerceRows($aliasRows($aliases)); }
+            if (str_starts_with($sql, 'SELECT `query`, keyword FROM `qa_seo_url`')) {
+                if (preg_match('/`query` IN \(([^)]*)\)/', $sql, $match)) {
+                    $requested = array_map(static fn($value) => trim($value, "' "), explode(',', $match[1]));
+                    return commerceRows($aliasRows(array_values(array_intersect($aliases, $requested))));
+                }
+                return commerceRows($aliasRows(array_values(array_filter($aliases, static fn($query) => str_starts_with($query, 'category_id=')))));
+            }
             if (str_starts_with($sql, 'SELECT cp.path_id')) {
                 preg_match("/cp.category_id='(\d+)'/", $sql, $match);
                 $id = (int)$match[1];
@@ -333,6 +355,10 @@ if (str_starts_with($case, 'category-')) {
             if (str_starts_with($sql, 'DELETE FROM qa_product_to_category')) {
                 if (preg_match("/AND category_id = '(\d+)'/", $sql, $match)) { unset($this->relations[(int)$match[1]]); }
                 else { $this->relations = array(); }
+            } elseif (str_starts_with($sql, 'INSERT INTO qa_product_to_category (product_id, category_id) VALUES')) {
+                preg_match_all("/\('\d+', '(\d+)'\)/", $sql, $matches);
+                foreach ($matches[1] as $categoryId) { $this->relations[(int)$categoryId] = 0; }
+                ksort($this->relations);
             } elseif (str_starts_with($sql, 'INSERT INTO qa_product_to_category')) {
                 if (str_contains($sql, 'main_category') && !$this->relationFlag) { throw new RuntimeException('Unknown column main_category in product category write'); }
                 preg_match("/category_id = '(\d+)'/", $sql, $match);

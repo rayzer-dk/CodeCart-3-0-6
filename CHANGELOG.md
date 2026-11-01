@@ -1,3 +1,13 @@
+# CodeCart 3.0.6.0 — Build 2.1.4 (2026-11-01)
+
+- Generate storefront SEO links from a request-scoped index: taxonomy aliases load once per store/language, product and article aliases are prefetched by listing models, misses are remembered. Applies to native SEO URLs and SeoPro.
+- SeoPro cache: the cached keyword map is authoritative while the highest seo_url_id is unchanged, product category paths survive between requests and cache files are rewritten only when changed.
+- Batch per-item lookups in compare, header product links, product attributes, category filters, breadcrumbs, blog subcategory counts, blog article lists, account addresses and order options; share layout and module lookups between the four layout positions.
+- Lock checkout stock with one ordered statement per table; restock and reprocessing read order options once per order.
+- Administration: batch product autocomplete options, customer list login attempts, customer autocomplete addresses, IP totals, form selections, bulk invoice/shipping printing and related/link-table writes; rebuild category paths in memory.
+- Cron and import: mail campaigns and stock notifications read suppression, settings and option stock once per batch; catalog import writes main categories per chunk; the SEO alias upgrade backfill preloads existing aliases.
+- Keep schema 3.0.6.0 and public model methods; see documentation/RELEASE_2.1.4.md for verification scope.
+
 # CodeCart 3.0.6.0 — Build 2.1.3 (2026-10-23)
 
 - Add explicit contain/cover product image processing, configurable enlargement limits and separate CSS backgrounds for catalog cards, galleries and thumbnails; retain legacy resize contracts.

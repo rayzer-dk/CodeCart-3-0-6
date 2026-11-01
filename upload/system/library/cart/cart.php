@@ -25,9 +25,11 @@ class Cart {
 			// Once the customer is logged in we want to update the customers cart
 			$cart_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "cart WHERE api_id = '0' AND customer_id = '0' AND session_id = '" . $this->db->escape($this->session->getId()) . "'");
 
-			foreach ($cart_query->rows as $cart) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "cart WHERE cart_id = '" . (int)$cart['cart_id'] . "'");
+			if ($cart_query->rows) {
+				$this->db->query("DELETE FROM " . DB_PREFIX . "cart WHERE cart_id IN (" . implode(',', array_map('intval', array_column($cart_query->rows, 'cart_id'))) . ")");
+			}
 
+			foreach ($cart_query->rows as $cart) {
 				// The advantage of using $this->add is that it will check if the products already exist and increaser the quantity if necessary.
 				$this->add($cart['product_id'], $cart['quantity'], $this->decodeOptions($cart['option']), $cart['recurring_id']);
 			}

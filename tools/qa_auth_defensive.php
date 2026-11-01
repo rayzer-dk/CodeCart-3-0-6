@@ -117,8 +117,10 @@ final class DefensiveCartDb {
         if (strpos($sql, 'qa_cart') === false) { throw new RuntimeException('Unexpected cart SQL: ' . $sql); }
         $where = explode(' WHERE ', $sql, 2)[1] ?? '';
         preg_match_all("/`?(api_id|customer_id|session_id|cart_id|product_id|recurring_id|option)`? = '((?:\\\\.|[^'])*)'/", $where, $matches, PREG_SET_ORDER);
-        $filtered = array_filter($this->rows, function ($row) use ($matches) {
+        preg_match_all('/`?(cart_id)`? IN \(([\d,\s]+)\)/', $where, $lists, PREG_SET_ORDER);
+        $filtered = array_filter($this->rows, function ($row) use ($matches, $lists) {
             foreach ($matches as $match) { if ((string)$row[$match[1]] !== stripslashes($match[2])) { return false; } }
+            foreach ($lists as $list) { if (!in_array((string)$row[$list[1]], array_map('trim', explode(',', $list[2])), true)) { return false; } }
             return true;
         });
         if (strpos($sql, 'SELECT COUNT') === 0) { return result(array(array('total' => count($filtered)))); }

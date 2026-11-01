@@ -25,6 +25,11 @@ class ControllerProductProduct extends Controller {
 
 			$category_id = (int)array_pop($parts);
 
+			$path_categories = array();
+			foreach ($this->model_catalog_category->getCategoriesByIds(array_merge($parts, array($category_id))) as $path_category) {
+				$path_categories[(int)$path_category['category_id']] = $path_category;
+			}
+
 			foreach ($parts as $path_id) {
 				if (!$path) {
 					$path = $path_id;
@@ -32,7 +37,7 @@ class ControllerProductProduct extends Controller {
 					$path .= '_' . $path_id;
 				}
 
-				$category_info = $this->model_catalog_category->getCategory($path_id);
+				$category_info = isset($path_categories[(int)$path_id]) ? $path_categories[(int)$path_id] : array();
 
 				if ($category_info) {
 					$data['breadcrumbs'][] = array(
@@ -43,7 +48,7 @@ class ControllerProductProduct extends Controller {
 			}
 
 			// Set the last category breadcrumb
-			$category_info = $this->model_catalog_category->getCategory($category_id);
+			$category_info = isset($path_categories[$category_id]) ? $path_categories[$category_id] : array();
 
 			if ($category_info) {
 				$url = '';

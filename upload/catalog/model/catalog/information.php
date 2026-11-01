@@ -12,14 +12,19 @@ class ModelCatalogInformation extends Model {
 		return $query->rows;
 	}
 
-	public function getInformationLayoutId($information_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "information_to_layout WHERE information_id = '" . (int)$information_id . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
+	// The four layout positions ask for the same entity layout in one request.
+	private $layout_ids = array();
 
-		if ($query->num_rows) {
-			return (int)$query->row['layout_id'];
-		} else {
-			return 0;
+	public function getInformationLayoutId($information_id) {
+		$key = (int)$this->config->get('config_store_id') . ':' . (int)$information_id;
+
+		if (!array_key_exists($key, $this->layout_ids)) {
+			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "information_to_layout WHERE information_id = '" . (int)$information_id . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
+
+			$this->layout_ids[$key] = $query->num_rows ? (int)$query->row['layout_id'] : 0;
 		}
+
+		return $this->layout_ids[$key];
 	}
 	public function getInformationsForSitemap($start = 0, $limit = 10000) {
 		$start = max(0, (int)$start);

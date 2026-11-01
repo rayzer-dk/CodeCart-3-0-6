@@ -172,9 +172,10 @@ class ModelCheckoutOrder extends Model {
 		$processing = array_values(array_unique(array_map('intval', array_merge((array)$this->config->get('config_processing_status'), (array)$this->config->get('config_complete_status')))));
 		if (in_array($old_status, $processing, true)) {
 			$order_products = $this->getOrderProducts($order_id);
+			$options_by_product = $this->getOrderOptionsByOrderId($order_id);
 			foreach ($order_products as $order_product) {
 				$this->db->query("UPDATE `" . DB_PREFIX . "product` SET quantity=(quantity + " . (int)$order_product['quantity'] . ") WHERE product_id='" . (int)$order_product['product_id'] . "' AND subtract='1'");
-				foreach ($this->getOrderOptions($order_id, $order_product['order_product_id']) as $order_option) {
+				foreach (isset($options_by_product[(int)$order_product['order_product_id']]) ? $options_by_product[(int)$order_product['order_product_id']] : array() as $order_option) {
 					$this->db->query("UPDATE `" . DB_PREFIX . "product_option_value` SET quantity=(quantity + " . (int)$order_product['quantity'] . ") WHERE product_option_value_id='" . (int)$order_option['product_option_value_id'] . "' AND subtract='1'");
 				}
 			}
@@ -355,6 +356,20 @@ class ModelCheckoutOrder extends Model {
 		return $query->rows;
 	}
 	
+	/**
+	 * All options of an order grouped by order_product_id, in one query.
+	 */
+	public function getOrderOptionsByOrderId($order_id) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_option WHERE order_id = '" . (int)$order_id . "' ORDER BY order_option_id ASC");
+
+		$options = array();
+		foreach ($query->rows as $row) {
+			$options[(int)$row['order_product_id']][] = $row;
+		}
+
+		return $options;
+	}
+
 	public function getOrderOptions($order_id, $order_product_id) {
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_option WHERE order_id = '" . (int)$order_id . "' AND order_product_id = '" . (int)$order_product_id . "'");
 		
@@ -489,10 +504,11 @@ class ModelCheckoutOrder extends Model {
 						$this->unconfirmOrderTotals($order_id, $confirmed_totals);
 					} else {
 						$order_products = $this->getOrderProducts($order_id);
+						$options_by_product = $this->getOrderOptionsByOrderId($order_id);
 
 						foreach ($order_products as $order_product) {
 							$this->db->query("UPDATE `" . DB_PREFIX . "product` SET quantity = (quantity - " . (int)$order_product['quantity'] . ") WHERE product_id = '" . (int)$order_product['product_id'] . "' AND subtract = '1'");
-							$order_options = $this->getOrderOptions($order_id, $order_product['order_product_id']);
+							$order_options = isset($options_by_product[(int)$order_product['order_product_id']]) ? $options_by_product[(int)$order_product['order_product_id']] : array();
 
 							foreach ($order_options as $order_option) {
 								$this->db->query("UPDATE `" . DB_PREFIX . "product_option_value` SET quantity = (quantity - " . (int)$order_product['quantity'] . ") WHERE product_option_value_id = '" . (int)$order_option['product_option_value_id'] . "' AND subtract = '1'");
@@ -517,10 +533,11 @@ class ModelCheckoutOrder extends Model {
 
 			if ($was_processing && !$will_process) {
 				$order_products = $this->getOrderProducts($order_id);
+				$options_by_product = $this->getOrderOptionsByOrderId($order_id);
 
 				foreach ($order_products as $order_product) {
 					$this->db->query("UPDATE `" . DB_PREFIX . "product` SET quantity = (quantity + " . (int)$order_product['quantity'] . ") WHERE product_id = '" . (int)$order_product['product_id'] . "' AND subtract = '1'");
-					$order_options = $this->getOrderOptions($order_id, $order_product['order_product_id']);
+					$order_options = isset($options_by_product[(int)$order_product['order_product_id']]) ? $options_by_product[(int)$order_product['order_product_id']] : array();
 
 					foreach ($order_options as $order_option) {
 						$this->db->query("UPDATE `" . DB_PREFIX . "product_option_value` SET quantity = (quantity + " . (int)$order_product['quantity'] . ") WHERE product_option_value_id = '" . (int)$order_option['product_option_value_id'] . "' AND subtract = '1'");
@@ -590,13 +607,14 @@ class ModelCheckoutOrder extends Model {
 		$product_requirements = array();
 		$option_requirements = array();
 		$order_products = $this->getOrderProducts($order_id);
+		$options_by_product = $this->getOrderOptionsByOrderId($order_id);
 
 		foreach ($order_products as $order_product) {
 			$product_id = (int)$order_product['product_id'];
 			$quantity = (int)$order_product['quantity'];
 			$product_requirements[$product_id] = isset($product_requirements[$product_id]) ? $product_requirements[$product_id] + $quantity : $quantity;
 
-			$order_options = $this->getOrderOptions($order_id, $order_product['order_product_id']);
+			$order_options = isset($options_by_product[(int)$order_product['order_product_id']]) ? $options_by_product[(int)$order_product['order_product_id']] : array();
 			foreach ($order_options as $order_option) {
 				$option_value_id = (int)$order_option['product_option_value_id'];
 				if ($option_value_id > 0) {
@@ -605,19 +623,31 @@ class ModelCheckoutOrder extends Model {
 			}
 		}
 
-		ksort($product_requirements);
-		ksort($option_requirements);
-
-		foreach ($product_requirements as $product_id => $required) {
-			$query = $this->db->query("SELECT quantity, subtract FROM `" . DB_PREFIX . "product` WHERE product_id = '" . (int)$product_id . "' FOR UPDATE");
-			if (!$query->num_rows || ((int)$query->row['subtract'] === 1 && (int)$query->row['quantity'] < (int)$required)) {
-				return false;
-			}
+		// Rows are locked in primary-key order (one statement per table) so
+		// concurrent checkouts acquire the same locks in the same sequence.
+		if ($product_requirements && !$this->lockedStockSatisfies('product', 'product_id', $product_requirements)) {
+			return false;
 		}
 
-		foreach ($option_requirements as $option_value_id => $required) {
-			$query = $this->db->query("SELECT quantity, subtract FROM `" . DB_PREFIX . "product_option_value` WHERE product_option_value_id = '" . (int)$option_value_id . "' FOR UPDATE");
-			if (!$query->num_rows || ((int)$query->row['subtract'] === 1 && (int)$query->row['quantity'] < (int)$required)) {
+		if ($option_requirements && !$this->lockedStockSatisfies('product_option_value', 'product_option_value_id', $option_requirements)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private function lockedStockSatisfies($table, $key, array $requirements) {
+		ksort($requirements);
+
+		$query = $this->db->query("SELECT `" . $key . "` AS id, quantity, subtract FROM `" . DB_PREFIX . $table . "` WHERE `" . $key . "` IN (" . implode(',', array_map('intval', array_keys($requirements))) . ") ORDER BY `" . $key . "` ASC FOR UPDATE");
+
+		$rows = array();
+		foreach ($query->rows as $row) {
+			$rows[(int)$row['id']] = $row;
+		}
+
+		foreach ($requirements as $id => $required) {
+			if (!isset($rows[(int)$id]) || ((int)$rows[(int)$id]['subtract'] === 1 && (int)$rows[(int)$id]['quantity'] < (int)$required)) {
 				return false;
 			}
 		}

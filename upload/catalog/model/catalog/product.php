@@ -69,6 +69,8 @@ class ModelCatalogProduct extends Model {
 			return array();
 		}
 
+		\CodeCart\Core\SeoUrlIndex::fromRegistry($this->registry)->prefetch('product_id', $ids);
+
 		$id_list = implode(',', $ids);
 		$query = $this->db->query("SELECT DISTINCT p.*, pd.name AS name, pd.description, pd.meta_title, pd.meta_h1, pd.meta_description, pd.meta_keyword, pd.tag, m.name AS manufacturer, (SELECT price FROM " . DB_PREFIX . "product_discount pd2 WHERE pd2.product_id = p.product_id AND pd2.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' AND pd2.quantity = '1' AND ((pd2.date_start < NOW()) AND (pd2.date_end < '1000-01-01' OR pd2.date_end > NOW())) ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS discount, (SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' AND ((ps.date_start < NOW()) AND (ps.date_end < '1000-01-01' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special, (SELECT points FROM " . DB_PREFIX . "product_reward pr WHERE pr.product_id = p.product_id AND pr.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "') AS reward, (SELECT ss.name FROM " . DB_PREFIX . "stock_status ss WHERE ss.stock_status_id = p.stock_status_id AND ss.language_id = '" . (int)$this->config->get('config_language_id') . "') AS stock_status, (SELECT AVG(r.rating) FROM " . DB_PREFIX . "review r WHERE r.product_id = p.product_id AND r.status = '1') AS rating, (SELECT COUNT(*) FROM " . DB_PREFIX . "review r2 WHERE r2.product_id = p.product_id AND r2.status = '1') AS reviews FROM " . DB_PREFIX . "product p INNER JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) INNER JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id) LEFT JOIN " . DB_PREFIX . "manufacturer m ON (p.manufacturer_id = m.manufacturer_id) WHERE p.product_id IN (" . $id_list . ") AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "' ORDER BY FIELD(p.product_id," . $id_list . ")");
 		$out = array();
@@ -403,8 +405,12 @@ class ModelCatalogProduct extends Model {
 			$product_data = array();
 			$query = $this->db->query("SELECT p.product_id FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id) WHERE p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "' ORDER BY p.date_added DESC LIMIT " . (int)$limit);
 
+			$product_ids = array();
 			foreach ($query->rows as $result) {
-				$product_data[$result['product_id']] = $this->getProduct($result['product_id']);
+				$product_ids[] = (int)$result['product_id'];
+			}
+			foreach ($this->getProductCardsByIds($product_ids) as $product) {
+				$product_data[(int)$product['product_id']] = $product;
 			}
 
 			$this->cache->set('product.latest.' . (int)$this->config->get('config_language_id') . '.' . (int)$this->config->get('config_store_id') . '.' . $this->config->get('config_customer_group_id') . '.' . (int)$limit, $product_data);
@@ -420,8 +426,12 @@ class ModelCatalogProduct extends Model {
 			$product_data = array();
 			$query = $this->db->query("SELECT p.product_id FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id) WHERE p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "' ORDER BY p.viewed DESC, p.date_added DESC LIMIT " . (int)$limit);
 	
+			$product_ids = array();
 			foreach ($query->rows as $result) {
-				$product_data[$result['product_id']] = $this->getProduct($result['product_id']);
+				$product_ids[] = (int)$result['product_id'];
+			}
+			foreach ($this->getProductCardsByIds($product_ids) as $product) {
+				$product_data[(int)$product['product_id']] = $product;
 			}
 			
 			$this->cache->set('product.popular.' . (int)$this->config->get('config_language_id') . '.' . (int)$this->config->get('config_store_id') . '.' . $this->config->get('config_customer_group_id') . '.' . (int)$limit, $product_data);
@@ -438,8 +448,12 @@ class ModelCatalogProduct extends Model {
 
 			$query = $this->db->query("SELECT op.product_id, SUM(op.quantity) AS total FROM " . DB_PREFIX . "order_product op LEFT JOIN `" . DB_PREFIX . "order` o ON (op.order_id = o.order_id) LEFT JOIN `" . DB_PREFIX . "product` p ON (op.product_id = p.product_id) LEFT JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id) WHERE o.order_status_id > '0' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "' GROUP BY op.product_id ORDER BY total DESC LIMIT " . (int)$limit);
 
+			$product_ids = array();
 			foreach ($query->rows as $result) {
-				$product_data[$result['product_id']] = $this->getProduct($result['product_id']);
+				$product_ids[] = (int)$result['product_id'];
+			}
+			foreach ($this->getProductCardsByIds($product_ids) as $product) {
+				$product_data[(int)$product['product_id']] = $product;
 			}
 
 			$this->cache->set('product.bestseller.' . (int)$this->config->get('config_language_id') . '.' . (int)$this->config->get('config_store_id') . '.' . $this->config->get('config_customer_group_id') . '.' . (int)$limit, $product_data);
@@ -477,31 +491,49 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProductAttributes($product_id) {
-		$product_attribute_group_data = array();
+		$attributes = $this->getProductAttributesByProductIds(array((int)$product_id));
 
-		$product_attribute_group_query = $this->db->query("SELECT ag.attribute_group_id, agd.name FROM " . DB_PREFIX . "product_attribute pa LEFT JOIN " . DB_PREFIX . "attribute a ON (pa.attribute_id = a.attribute_id) LEFT JOIN " . DB_PREFIX . "attribute_group ag ON (a.attribute_group_id = ag.attribute_group_id) LEFT JOIN " . DB_PREFIX . "attribute_group_description agd ON (ag.attribute_group_id = agd.attribute_group_id) WHERE pa.product_id = '" . (int)$product_id . "' AND agd.language_id = '" . (int)$this->config->get('config_language_id') . "' GROUP BY ag.attribute_group_id ORDER BY ag.sort_order, agd.name");
+		return isset($attributes[(int)$product_id]) ? $attributes[(int)$product_id] : array();
+	}
 
-		foreach ($product_attribute_group_query->rows as $product_attribute_group) {
-			$product_attribute_data = array();
+	/**
+	 * Attribute groups for several products in two queries, keyed by product id.
+	 * Groups keep the former per-product selection (any language row) and order.
+	 */
+	public function getProductAttributesByProductIds(array $product_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $product_ids))));
+		if (!$ids) {
+			return array();
+		}
 
-			$product_attribute_query = $this->db->query("SELECT a.attribute_id, ad.name, pa.text FROM " . DB_PREFIX . "product_attribute pa LEFT JOIN " . DB_PREFIX . "attribute a ON (pa.attribute_id = a.attribute_id) LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE pa.product_id = '" . (int)$product_id . "' AND a.attribute_group_id = '" . (int)$product_attribute_group['attribute_group_id'] . "' AND ad.language_id = '" . (int)$this->config->get('config_language_id') . "' AND pa.language_id = '" . (int)$this->config->get('config_language_id') . "' ORDER BY a.sort_order, ad.name");
+		$id_list = implode(',', $ids);
+		$language_id = (int)$this->config->get('config_language_id');
 
-			foreach ($product_attribute_query->rows as $product_attribute) {
-				$product_attribute_data[] = array(
-					'attribute_id' => $product_attribute['attribute_id'],
-					'name'         => $product_attribute['name'],
-					'text'         => $product_attribute['text']
-				);
-			}
+		$product_attribute_group_query = $this->db->query("SELECT pa.product_id, ag.attribute_group_id, agd.name FROM " . DB_PREFIX . "product_attribute pa LEFT JOIN " . DB_PREFIX . "attribute a ON (pa.attribute_id = a.attribute_id) LEFT JOIN " . DB_PREFIX . "attribute_group ag ON (a.attribute_group_id = ag.attribute_group_id) LEFT JOIN " . DB_PREFIX . "attribute_group_description agd ON (ag.attribute_group_id = agd.attribute_group_id) WHERE pa.product_id IN (" . $id_list . ") AND agd.language_id = '" . $language_id . "' GROUP BY pa.product_id, ag.attribute_group_id ORDER BY ag.sort_order, agd.name");
 
-			$product_attribute_group_data[] = array(
-				'attribute_group_id' => $product_attribute_group['attribute_group_id'],
-				'name'               => $product_attribute_group['name'],
-				'attribute'          => $product_attribute_data
+		$product_attribute_query = $this->db->query("SELECT pa.product_id, a.attribute_group_id, a.attribute_id, ad.name, pa.text FROM " . DB_PREFIX . "product_attribute pa LEFT JOIN " . DB_PREFIX . "attribute a ON (pa.attribute_id = a.attribute_id) LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE pa.product_id IN (" . $id_list . ") AND ad.language_id = '" . $language_id . "' AND pa.language_id = '" . $language_id . "' ORDER BY a.sort_order, ad.name");
+
+		$attributes_by_group = array();
+		foreach ($product_attribute_query->rows as $product_attribute) {
+			$attributes_by_group[(int)$product_attribute['product_id']][(int)$product_attribute['attribute_group_id']][] = array(
+				'attribute_id' => $product_attribute['attribute_id'],
+				'name'         => $product_attribute['name'],
+				'text'         => $product_attribute['text']
 			);
 		}
 
-		return $product_attribute_group_data;
+		$product_attribute_data = array();
+		foreach ($product_attribute_group_query->rows as $product_attribute_group) {
+			$product_id = (int)$product_attribute_group['product_id'];
+			$attribute_group_id = (int)$product_attribute_group['attribute_group_id'];
+			$product_attribute_data[$product_id][] = array(
+				'attribute_group_id' => $product_attribute_group['attribute_group_id'],
+				'name'               => $product_attribute_group['name'],
+				'attribute'          => isset($attributes_by_group[$product_id][$attribute_group_id]) ? $attributes_by_group[$product_id][$attribute_group_id] : array()
+			);
+		}
+
+		return $product_attribute_data;
 	}
 
 	public function getProductOptions($product_id) {
@@ -684,14 +716,19 @@ class ModelCatalogProduct extends Model {
 		return $product_data;
 	}
 
-	public function getProductLayoutId($product_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_layout WHERE product_id = '" . (int)$product_id . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
+	// The four layout positions ask for the same entity layout in one request.
+	private $layout_ids = array();
 
-		if ($query->num_rows) {
-			return (int)$query->row['layout_id'];
-		} else {
-			return 0;
+	public function getProductLayoutId($product_id) {
+		$key = (int)$this->config->get('config_store_id') . ':' . (int)$product_id;
+
+		if (!array_key_exists($key, $this->layout_ids)) {
+			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_layout WHERE product_id = '" . (int)$product_id . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
+
+			$this->layout_ids[$key] = $query->num_rows ? (int)$query->row['layout_id'] : 0;
 		}
+
+		return $this->layout_ids[$key];
 	}
 
 	public function getCategories($product_id) {

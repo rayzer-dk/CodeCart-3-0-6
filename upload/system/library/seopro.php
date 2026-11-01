@@ -22,7 +22,13 @@ class SeoPro {
     private $keywords = [];
     private $queries = [];
     private $product_categories = [];
+    private $blog_paths = [];
     private $valide_get_param = [];
+    // Cached maps changed during this request; only these are written back.
+    private $dirty = [];
+    // True when the keyword map reflects the current seo_url table, so a miss
+    // means that no keyword exists and needs no database lookup.
+    private $keywords_complete = false;
 
     public function __construct($registry) {
         $this->registry = $registry;
@@ -395,6 +401,7 @@ class SeoPro {
 
             };
 
+            $this->dirty['seopro.cat_tree'] = true;
         }
         //end_category_tree
 
@@ -404,30 +411,46 @@ class SeoPro {
             $this->keywords = $this->cache->get('seopro.keywords');
             $this->queries = $this->cache->get('seopro.queries');
 
-            if ((!$this->keywords || empty($this->keywords) || !$this->queries || empty($this->queries))) {
+            // Rows written outside the admin models (imports, migrations,
+            // extensions) do not clear the SeoPro cache. The highest seo_url_id
+            // detects added rows with a primary-key lookup, so a cached map can
+            // be trusted for misses instead of querying every unknown link.
+            $max_query = $this->db->query("SELECT MAX(seo_url_id) AS seo_url_id FROM " . DB_PREFIX . "seo_url");
+            $signature = (int)($max_query->row['seo_url_id'] ?? 0) . ':' . ($this->config->get('config_seopro_lowercase') ? 1 : 0);
 
-                // Initialising arrays if they are false or null for PHP 8.1+ 
-                if (!is_array($this->keywords)) {
-                    $this->keywords = [];
-                }
-                if (!is_array($this->queries)) {
-                    $this->queries = [];
-                }
+            if (!is_array($this->keywords) || !$this->keywords || !is_array($this->queries) || !$this->queries
+                || (string)$this->cache->get('seopro.signature') !== $signature) {
+
+                $this->keywords = [];
+                $this->queries = [];
 
                 $sql_keyword = 'keyword';
                 if ($this->config->get('config_seopro_lowercase'))
                     $sql_keyword = 'LCASE(keyword) as '. $sql_keyword;
 
-                $sql = "SELECT " . $sql_keyword . ", query, store_id, language_id FROM " . DB_PREFIX . "seo_url WHERE 1";
+                $sql = "SELECT " . $sql_keyword . ", query, store_id, language_id FROM " . DB_PREFIX . "seo_url ORDER BY seo_url_id ASC";
 
                 $query = $this->db->query($sql);
-                if($query->num_rows) {
-                    foreach($query->rows as $row) {
-                        $this->keywords[$row['query']][$row['store_id']][$row['language_id']] = $row['keyword'];
-                        $this->queries[$row['keyword']][$row['store_id']][$row['language_id']] = $row['query'];
+                foreach($query->rows as $row) {
+                    if ((string)$row['keyword'] === '') {
+                        continue;
                     }
+                    $this->keywords[$row['query']][$row['store_id']][$row['language_id']] = $row['keyword'];
+                    $this->queries[$row['keyword']][$row['store_id']][$row['language_id']] = $row['query'];
                 }
+
+                $this->cache->set('seopro.signature', $signature);
+                $this->dirty['seopro.keywords'] = true;
+                $this->dirty['seopro.queries'] = true;
             }
+
+            $this->keywords_complete = true;
+
+            $product_categories = $this->cache->get('seopro.product_categories.canonical');
+            $this->product_categories = is_array($product_categories) ? $product_categories : [];
+
+            $blog_paths = $this->cache->get('seopro.blog_category.seopath');
+            $this->blog_paths = is_array($blog_paths) ? $blog_paths : [];
         }
         //end_keyword_data
     }
@@ -530,6 +553,9 @@ class SeoPro {
                 if (!isset($this->queries[$lookup_keyword])) $this->queries[$lookup_keyword] = array();
                 if (!isset($this->queries[$lookup_keyword][$store_id])) $this->queries[$lookup_keyword][$store_id] = array();
                 $this->queries[$lookup_keyword][$store_id][$language_id] = $query;
+                if ($this->config->get('config_seo_url_cache')) {
+                    $this->dirty['seopro.queries'] = true;
+                }
             }
         }
 
@@ -537,34 +563,24 @@ class SeoPro {
     }
 
     private function getKeywordByQuery($query, $language_id = null) {
-        $keyword = null;
         $store_id = (int)$this->config->get('config_store_id');
 
         if (!$language_id)
             $language_id = $this->config->get('config_language_id');
+        $language_id = (int)$language_id;
 
-        if ($this->config->get('config_seo_url_cache')) {
-            if (isset($this->keywords[$query]) && is_array($this->keywords[$query])
-                && isset($this->keywords[$query][$store_id]) && is_array($this->keywords[$query][$store_id])
-                && isset($this->keywords[$query][$store_id][$language_id])
-                && is_string($this->keywords[$query][$store_id][$language_id])) {
-                $keyword = $this->keywords[$query][$store_id][$language_id];
+        if ($this->keywords_complete) {
+            if (isset($this->keywords[$query][$store_id][$language_id])
+                && is_string($this->keywords[$query][$store_id][$language_id])
+                && $this->keywords[$query][$store_id][$language_id] !== '') {
+                return $this->keywords[$query][$store_id][$language_id];
             }
+            return null;
         }
 
-        if ($keyword === null || $keyword === '') {
-            $sql_keyword = 'keyword';
-            if ($this->config->get('config_seopro_lowercase'))
-                $sql_keyword = 'LCASE(keyword) as ' . $sql_keyword;
-
-            $_query = $this->db->query("SELECT " . $sql_keyword . " FROM " . DB_PREFIX . "seo_url WHERE query = '" . $this->db->escape($query) . "' AND store_id = '" . $store_id . "' AND language_id = '" . (int)$language_id . "' ORDER BY seo_url_id DESC LIMIT 1");
-            $keyword = !empty($_query->row) ? (string)$_query->row['keyword'] : null;
-
-            if ($keyword !== null && $keyword !== '') {
-                if (!isset($this->keywords[$query])) $this->keywords[$query] = array();
-                if (!isset($this->keywords[$query][$store_id])) $this->keywords[$query][$store_id] = array();
-                $this->keywords[$query][$store_id][$language_id] = $keyword;
-            }
+        $keyword = \CodeCart\Core\SeoUrlIndex::fromRegistry($this->registry)->keyword((string)$query, $store_id, $language_id);
+        if ($keyword !== null && $this->config->get('config_seopro_lowercase')) {
+            $keyword = utf8_strtolower($keyword);
         }
 
         return $keyword;
@@ -731,27 +747,16 @@ class SeoPro {
         if ((int)$product_id < 1)
             return false;
 
-        if ($this->config->get('config_seo_url_cache')) {
-            $this->product_categories = $this->cache->get('seopro.product_categories.canonical');
-            if (!is_array($this->product_categories)) {
-                $this->product_categories = [];
-            }
-            if(isset($this->product_categories[$product_id]))
-                return $this->product_categories[$product_id];
-        }
+        $product_id = (int)$product_id;
+        if (array_key_exists($product_id, $this->product_categories))
+            return $this->product_categories[$product_id];
 
-        $compat = $this->registry->get('codecart_compat');
-        if (!$compat instanceof \CodeCart\Core\CompatibilityLayer) {
-            $compat = new \CodeCart\Core\CompatibilityLayer($this->registry);
-        }
-        $main_category_id = $compat->getMainCategoryId((int)$product_id);
+        $main_category_id = \CodeCart\Core\SeoUrlIndex::fromRegistry($this->registry)->mainCategoryId($product_id);
         $category_id = $this->getPathByCategory($main_category_id);
 
+        $this->product_categories[$product_id] = $category_id;
         if ($this->config->get('config_seo_url_cache')) {
-            if (!is_array($this->product_categories)) {
-                $this->product_categories = [];
-            }
-            $this->product_categories[$product_id] = $category_id;
+            $this->dirty['seopro.product_categories.canonical'] = true;
         }
 
         return $category_id;
@@ -777,10 +782,9 @@ class SeoPro {
         if ($article_id < 1)
             return false;
 
-        $query = $this->db->query("SELECT blog_category_id FROM " . DB_PREFIX . "article_to_blog_category WHERE article_id = '" . (int)$article_id . "' ORDER BY main_blog_category DESC LIMIT 1");
-        $blog_category_path = $this->getBlogPathByCategory($query->num_rows ? (int)$query->row['blog_category_id'] : 0);
+        $blog_category_id = \CodeCart\Core\SeoUrlIndex::fromRegistry($this->registry)->mainBlogCategoryId((int)$article_id);
 
-        return $blog_category_path;
+        return $this->getBlogPathByCategory($blog_category_id);
     }
 
     private function getBlogPathByCategory($blog_category_id) {
@@ -788,17 +792,7 @@ class SeoPro {
         if ($blog_category_id < 1)
             return false;
 
-        static $blog_path = [];
-        $cache = 'seopro.blog_category.seopath';
-
-        if (!is_array($blog_path)) {
-            if ($this->config->get('config_seo_url_cache'))
-                $blog_path = $this->cache->get($cache);
-            if (!is_array($blog_path))
-                $blog_path = [];
-        }
-
-        if (!isset($blog_path[$blog_category_id])) {
+        if (!array_key_exists($blog_category_id, $this->blog_paths)) {
             $max_level = 10;
             $sql = "SELECT CONCAT_WS('_'";
             for ($i = $max_level-1; $i >= 0; --$i) {
@@ -810,13 +804,13 @@ class SeoPro {
             }
             $sql .= " WHERE t0.blog_category_id = '" . $blog_category_id . "'";
             $query = $this->db->query($sql);
-            $blog_path[$blog_category_id] = $query->num_rows ? $query->row['path'] : false;
+            $this->blog_paths[$blog_category_id] = $query->num_rows ? $query->row['path'] : false;
 
             if ($this->config->get('config_seo_url_cache'))
-                $this->cache->set($cache, $blog_path);
+                $this->dirty['seopro.blog_category.seopath'] = true;
         }
 
-        return $blog_path[$blog_category_id];
+        return $this->blog_paths[$blog_category_id];
     }
 
     private function getQueryString($exclude = []) {
@@ -833,11 +827,18 @@ class SeoPro {
         if (!$this->config->get('config_seo_url') || !$this->config->get('config_seo_pro'))
             return;
 
-        if ($this->config->get('config_seo_url_cache')){
-            $this->cache->set('seopro.keywords', $this->keywords);
-            $this->cache->set('seopro.queries', $this->queries);
-            $this->cache->set('seopro.cat_tree', $this->cat_tree);
-            $this->cache->set('seopro.product_categories.canonical', $this->product_categories);
+        if (!$this->config->get('config_seo_url_cache'))
+            return;
+
+        $values = [
+            'seopro.keywords' => $this->keywords,
+            'seopro.queries' => $this->queries,
+            'seopro.cat_tree' => $this->cat_tree,
+            'seopro.product_categories.canonical' => $this->product_categories,
+            'seopro.blog_category.seopath' => $this->blog_paths,
+        ];
+        foreach (array_keys($this->dirty) as $key) {
+            $this->cache->set($key, $values[$key]);
         }
     }
 }

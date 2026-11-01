@@ -5,12 +5,12 @@ class ControllerCronMailCampaign extends Controller {
         // Recover rows claimed by a worker that terminated before completion.
         $this->db->query("UPDATE `" . DB_PREFIX . "mail_campaign_queue` SET status='waiting', date_modified=NOW(), last_error=IF(last_error='', 'recovered_stale_processing', last_error) WHERE status='processing' AND date_modified < DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND attempts < 5");
         $this->db->query("UPDATE `" . DB_PREFIX . "mail_campaign_queue` SET status='failed', date_modified=NOW(), last_error=IF(last_error='', 'stale_processing_attempt_limit', last_error) WHERE status='processing' AND date_modified < DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND attempts >= 5");
-        $q = $this->db->query("SELECT q.*, c.store_id, c.subject, c.message FROM `" . DB_PREFIX . "mail_campaign_queue` q INNER JOIN `" . DB_PREFIX . "mail_campaign` c ON (c.campaign_id=q.campaign_id) LEFT JOIN `" . DB_PREFIX . "mail_suppression` ms ON (LOWER(ms.email)=LOWER(q.email)) WHERE q.status='waiting' AND c.status IN ('queued','sending') ORDER BY q.mail_queue_id ASC LIMIT " . $limit);
-        $sent=0; $failed=0; $suppressed=0; $campaigns=array();
+        $q = $this->db->query("SELECT q.*, c.store_id, c.subject, c.message, ms.email AS suppressed_email FROM `" . DB_PREFIX . "mail_campaign_queue` q INNER JOIN `" . DB_PREFIX . "mail_campaign` c ON (c.campaign_id=q.campaign_id) LEFT JOIN `" . DB_PREFIX . "mail_suppression` ms ON (ms.email=q.email) WHERE q.status='waiting' AND c.status IN ('queued','sending') ORDER BY q.mail_queue_id ASC LIMIT " . $limit);
+        $sent=0; $failed=0; $suppressed=0; $campaigns=array(); $started=array(); $store_settings=array();
         foreach ($q->rows as $row) {
             $campaign_id=(int)$row['campaign_id']; $campaigns[$campaign_id]=true;
-            $supp = $this->db->query("SELECT email FROM `" . DB_PREFIX . "mail_suppression` WHERE email='" . $this->db->escape(utf8_strtolower((string)$row['email'])) . "' LIMIT 1");
-            if ($supp->num_rows) {
+            // The suppression table uses a case-insensitive primary key, joined above.
+            if ($row['suppressed_email'] !== null) {
                 $this->db->query("UPDATE `" . DB_PREFIX . "mail_campaign_queue` SET status='suppressed', date_modified=NOW() WHERE mail_queue_id='" . (int)$row['mail_queue_id'] . "' AND status='waiting'");
                 $suppressed++; continue;
             }
@@ -20,10 +20,17 @@ class ControllerCronMailCampaign extends Controller {
             if ($token === '') { $token = bin2hex(random_bytes(32)); }
             $this->db->query("UPDATE `" . DB_PREFIX . "mail_campaign_queue` SET status='processing', attempts=attempts+1, unsubscribe_token='" . $this->db->escape($token) . "', date_modified=NOW() WHERE mail_queue_id='" . (int)$row['mail_queue_id'] . "' AND status='waiting'");
             if (!$this->db->countAffected()) { continue; }
-            $this->db->query("UPDATE `" . DB_PREFIX . "mail_campaign` SET status='sending', date_started=COALESCE(date_started,NOW()), date_modified=NOW() WHERE campaign_id='" . $campaign_id . "'");
+            if (!isset($started[$campaign_id])) {
+                $this->db->query("UPDATE `" . DB_PREFIX . "mail_campaign` SET status='sending', date_started=COALESCE(date_started,NOW()), date_modified=NOW() WHERE campaign_id='" . $campaign_id . "'");
+                $started[$campaign_id] = true;
+            }
 
-            $sq=$this->db->query("SELECT `key`,`value` FROM `".DB_PREFIX."setting` WHERE store_id='".(int)$row['store_id']."' AND `key` IN ('config_url','config_ssl','config_name','config_email','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout')");
-            $sc=array(); foreach($sq->rows as $sr){$sc[$sr['key']]=$sr['value'];}
+            $store_id=(int)$row['store_id'];
+            if (!isset($store_settings[$store_id])) {
+                $sq=$this->db->query("SELECT `key`,`value` FROM `".DB_PREFIX."setting` WHERE store_id='".$store_id."' AND `key` IN ('config_url','config_ssl','config_name','config_email','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout')");
+                $store_settings[$store_id]=array(); foreach($sq->rows as $sr){$store_settings[$store_id][$sr['key']]=$sr['value'];}
+            }
+            $sc=$store_settings[$store_id];
             $base=!empty($sc['config_ssl'])?rtrim((string)$sc['config_ssl'],'/'):(!empty($sc['config_url'])?rtrim((string)$sc['config_url'],'/'):(defined('HTTP_CATALOG')?rtrim(HTTP_CATALOG,'/'):''));
             $store_name=isset($sc['config_name'])?(string)$sc['config_name']:(string)$this->config->get('config_name');
             $unsubscribe=$base.'/index.php?route=account/newsletter/unsubscribe&token='.rawurlencode($token);

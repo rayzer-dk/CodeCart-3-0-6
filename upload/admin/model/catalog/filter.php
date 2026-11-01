@@ -116,9 +116,28 @@ class ModelCatalogFilter extends Model {
 	}
 
 	public function getFilter($filter_id) {
-		$query = $this->db->query("SELECT *, (SELECT name FROM " . DB_PREFIX . "filter_group_description fgd WHERE f.filter_group_id = fgd.filter_group_id AND fgd.language_id = '" . (int)$this->config->get('config_language_id') . "') AS `group` FROM " . DB_PREFIX . "filter f LEFT JOIN " . DB_PREFIX . "filter_description fd ON (f.filter_id = fd.filter_id) WHERE f.filter_id = '" . (int)$filter_id . "' AND fd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$rows = $this->getFiltersByIds(array((int)$filter_id));
 
-		return $query->row;
+		return isset($rows[(int)$filter_id]) ? $rows[(int)$filter_id] : array();
+	}
+
+	/**
+	 * getFilter() rows for several ids in one query, keyed by id.
+	 */
+	public function getFiltersByIds(array $filter_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $filter_ids))));
+		if (!$ids) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT *, (SELECT name FROM " . DB_PREFIX . "filter_group_description fgd WHERE f.filter_group_id = fgd.filter_group_id AND fgd.language_id = '" . (int)$this->config->get('config_language_id') . "') AS `group` FROM " . DB_PREFIX . "filter f LEFT JOIN " . DB_PREFIX . "filter_description fd ON (f.filter_id = fd.filter_id) WHERE f.filter_id IN (" . implode(',', $ids) . ") AND fd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+
+		$rows = array();
+		foreach ($query->rows as $row) {
+			$rows[(int)$row['filter_id']] = $row;
+		}
+
+		return $rows;
 	}
 
 	public function getFilters($data) {

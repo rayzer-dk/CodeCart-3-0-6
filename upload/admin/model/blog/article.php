@@ -255,9 +255,28 @@ class ModelBlogArticle extends Model {
 	}
 
 	public function getArticle($article_id) {
-		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "article p LEFT JOIN " . DB_PREFIX . "article_description pd ON (p.article_id = pd.article_id) WHERE p.article_id = '" . (int)$article_id . "' AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$rows = $this->getArticlesByIds(array((int)$article_id));
 
-		return $query->row;
+		return isset($rows[(int)$article_id]) ? $rows[(int)$article_id] : array();
+	}
+
+	/**
+	 * getArticle() rows for several ids in one query, keyed by id.
+	 */
+	public function getArticlesByIds(array $article_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $article_ids))));
+		if (!$ids) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "article p LEFT JOIN " . DB_PREFIX . "article_description pd ON (p.article_id = pd.article_id) WHERE p.article_id IN (" . implode(',', $ids) . ") AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+
+		$rows = array();
+		foreach ($query->rows as $row) {
+			$rows[(int)$row['article_id']] = $row;
+		}
+
+		return $rows;
 	}
 
 	public function getArticles($data = array()) {

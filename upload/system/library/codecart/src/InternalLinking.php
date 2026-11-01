@@ -65,14 +65,20 @@ final class InternalLinking {
     }
 
     private function productCategoryId(int $productId): int {
+        return $this->compat()->getMainCategoryId($productId);
+    }
+
+    private function compat(): CompatibilityLayer {
         $compat = $this->registry->get('codecart_compat');
         if (!$compat instanceof CompatibilityLayer) {
             $compat = new CompatibilityLayer($this->registry);
+            $this->registry->set('codecart_compat', $compat);
         }
-        return $compat->getMainCategoryId($productId);
+        return $compat;
     }
 
     private function push(array &$items,string $key,string $title,string $href,string $type): void { $title=trim(strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'))); if($title===''||$href===''){return;} $items[$key]=array('title'=>$title,'href'=>$href,'type'=>$type); }
-    private function tableExists(string $table): bool { try{$q=$this->db->query("SHOW TABLES LIKE '".$this->db->escape(DB_PREFIX.$table)."'");return (bool)$q->num_rows;}catch(\Throwable $e){return false;} }
+    // The shared compatibility layer reads the table list once per request.
+    private function tableExists(string $table): bool { return $this->compat()->tableExists($table); }
     private function safeQuery(string $sql){try{return $this->db->query($sql);}catch(\Throwable $e){return null;}}
 }

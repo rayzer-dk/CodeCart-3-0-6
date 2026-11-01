@@ -28,9 +28,28 @@ class ModelCatalogAttribute extends Model {
 	}
 
 	public function getAttribute($attribute_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute a LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE a.attribute_id = '" . (int)$attribute_id . "' AND ad.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$rows = $this->getAttributesByIds(array((int)$attribute_id));
 
-		return $query->row;
+		return isset($rows[(int)$attribute_id]) ? $rows[(int)$attribute_id] : array();
+	}
+
+	/**
+	 * getAttribute() rows for several ids in one query, keyed by id.
+	 */
+	public function getAttributesByIds(array $attribute_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $attribute_ids))));
+		if (!$ids) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute a LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE a.attribute_id IN (" . implode(',', $ids) . ") AND ad.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+
+		$rows = array();
+		foreach ($query->rows as $row) {
+			$rows[(int)$row['attribute_id']] = $row;
+		}
+
+		return $rows;
 	}
 
 	public function getAttributes($data = array()) {

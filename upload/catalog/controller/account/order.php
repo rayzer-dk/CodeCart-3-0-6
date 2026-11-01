@@ -249,11 +249,16 @@ class ControllerAccountOrder extends Controller {
 			$data['products'] = array();
 
 			$products = $this->model_account_order->getOrderProducts($this->request->get['order_id']);
+			$options_by_product = $this->model_account_order->getOrderOptionsByOrderId($this->request->get['order_id']);
+			$available_products = array();
+			foreach ($this->model_catalog_product->getProductCardsByIds(array_column($products, 'product_id')) as $available_product) {
+				$available_products[(int)$available_product['product_id']] = true;
+			}
 
 			foreach ($products as $product) {
 				$option_data = array();
 
-				$options = $this->model_account_order->getOrderOptions($this->request->get['order_id'], $product['order_product_id']);
+				$options = isset($options_by_product[(int)$product['order_product_id']]) ? $options_by_product[(int)$product['order_product_id']] : array();
 
 				foreach ($options as $option) {
 					if ($option['type'] != 'file') {
@@ -274,9 +279,7 @@ class ControllerAccountOrder extends Controller {
 					);
 				}
 
-				$product_info = $this->model_catalog_product->getProduct($product['product_id']);
-
-				if ($product_info) {
+				if (isset($available_products[(int)$product['product_id']])) {
 					$reorder = $this->url->link('account/order/reorder', 'order_id=' . $order_id . '&order_product_id=' . $product['order_product_id'], true);
 				} else {
 					$reorder = '';

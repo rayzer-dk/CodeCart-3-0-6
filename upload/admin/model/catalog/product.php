@@ -20,9 +20,7 @@ class ModelCatalogProduct extends Model {
 		}
 
 		if (isset($data['product_store'])) {
-			foreach ($data['product_store'] as $store_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_store SET product_id = '" . (int)$product_id . "', store_id = '" . (int)$store_id . "'");
-			}
+			$this->insertProductLinks('product_to_store', 'store_id', $product_id, $data['product_store']);
 		}
 
 		if (isset($data['product_attribute'])) {
@@ -89,38 +87,28 @@ class ModelCatalogProduct extends Model {
 		}
 
 		if (isset($data['product_download'])) {
-			foreach ($data['product_download'] as $download_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_download SET product_id = '" . (int)$product_id . "', download_id = '" . (int)$download_id . "'");
-			}
+			$this->insertProductLinks('product_to_download', 'download_id', $product_id, $data['product_download']);
 		}
 
 		if (isset($data['product_category'])) {
-			foreach ($data['product_category'] as $category_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$category_id . "'");
-			}
+			$this->insertProductLinks('product_to_category', 'category_id', $product_id, $data['product_category']);
 		}
 		
 		$this->saveProductMainCategory($product_id, $data);
 
 		if (isset($data['product_filter'])) {
-			foreach ($data['product_filter'] as $filter_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_filter SET product_id = '" . (int)$product_id . "', filter_id = '" . (int)$filter_id . "'");
-			}
+			$this->insertProductLinks('product_filter', 'filter_id', $product_id, $data['product_filter']);
 		}
 
 		if (isset($data['product_related'])) {
-			foreach ($data['product_related'] as $related_id) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "' AND related_id = '" . (int)$related_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related SET product_id = '" . (int)$product_id . "', related_id = '" . (int)$related_id . "'");
-				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$related_id . "' AND related_id = '" . (int)$product_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related SET product_id = '" . (int)$related_id . "', related_id = '" . (int)$product_id . "'");
-			}
+			$this->saveProductRelated($product_id, $data['product_related']);
 		}
 		
 		if (isset($data['product_related_article'])) {
-			foreach ($data['product_related_article'] as $article_id) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_article WHERE product_id = '" . (int)$product_id . "' AND article_id = '" . (int)$article_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_article SET product_id = '" . (int)$product_id . "', article_id = '" . (int)$article_id . "'");
+			$article_ids = array_values(array_unique(array_filter(array_map('intval', (array)$data['product_related_article']))));
+			if ($article_ids) {
+				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_article WHERE product_id = '" . (int)$product_id . "' AND article_id IN (" . implode(',', $article_ids) . ")");
+				$this->insertProductLinks('product_related_article', 'article_id', $product_id, $article_ids);
 			}
 		}
 
@@ -197,9 +185,7 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_store WHERE product_id = '" . (int)$product_id . "'");
 
 		if (isset($data['product_store'])) {
-			foreach ($data['product_store'] as $store_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_store SET product_id = '" . (int)$product_id . "', store_id = '" . (int)$store_id . "'");
-			}
+			$this->insertProductLinks('product_to_store', 'store_id', $product_id, $data['product_store']);
 		}
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_attribute WHERE product_id = '" . (int)$product_id . "'");
@@ -278,17 +264,13 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_download WHERE product_id = '" . (int)$product_id . "'");
 
 		if (isset($data['product_download'])) {
-			foreach ($data['product_download'] as $download_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_download SET product_id = '" . (int)$product_id . "', download_id = '" . (int)$download_id . "'");
-			}
+			$this->insertProductLinks('product_to_download', 'download_id', $product_id, $data['product_download']);
 		}
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
 
 		if (isset($data['product_category'])) {
-			foreach ($data['product_category'] as $category_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int)$product_id . "', category_id = '" . (int)$category_id . "'");
-			}
+			$this->insertProductLinks('product_to_category', 'category_id', $product_id, $data['product_category']);
 		}
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
@@ -296,29 +278,23 @@ class ModelCatalogProduct extends Model {
 		$this->saveProductMainCategory($product_id, $data);
 		
 		if (isset($data['product_filter'])) {
-			foreach ($data['product_filter'] as $filter_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_filter SET product_id = '" . (int)$product_id . "', filter_id = '" . (int)$filter_id . "'");
-			}
+			$this->insertProductLinks('product_filter', 'filter_id', $product_id, $data['product_filter']);
 		}
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE related_id = '" . (int)$product_id . "'");
 
 		if (isset($data['product_related'])) {
-			foreach ($data['product_related'] as $related_id) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "' AND related_id = '" . (int)$related_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related SET product_id = '" . (int)$product_id . "', related_id = '" . (int)$related_id . "'");
-				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$related_id . "' AND related_id = '" . (int)$product_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related SET product_id = '" . (int)$related_id . "', related_id = '" . (int)$product_id . "'");
-			}
+			$this->saveProductRelated($product_id, $data['product_related']);
 		}
 		
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_article WHERE product_id = '" . (int)$product_id . "'");
 		
 		if (isset($data['product_related_article'])) {
-			foreach ($data['product_related_article'] as $article_id) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_article WHERE product_id = '" . (int)$product_id . "' AND article_id = '" . (int)$article_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_article SET product_id = '" . (int)$product_id . "', article_id = '" . (int)$article_id . "'");
+			$article_ids = array_values(array_unique(array_filter(array_map('intval', (array)$data['product_related_article']))));
+			if ($article_ids) {
+				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_article WHERE product_id = '" . (int)$product_id . "' AND article_id IN (" . implode(',', $article_ids) . ")");
+				$this->insertProductLinks('product_related_article', 'article_id', $product_id, $article_ids);
 			}
 		}
 
@@ -492,10 +468,49 @@ class ModelCatalogProduct extends Model {
         return $result;
     }
 
-	public function getProduct($product_id) {
-		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE p.product_id = '" . (int)$product_id . "' AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+	/**
+	 * One multi-row INSERT for a product link table instead of one query per linked id.
+	 */
+	private function insertProductLinks($table, $column, $product_id, $ids) {
+		$ids = array_values(array_unique(array_map('intval', (array)$ids)));
+		if (!$ids) {
+			return;
+		}
 
-		return $query->row;
+		$values = array();
+		foreach ($ids as $id) {
+			$values[] = "('" . (int)$product_id . "', '" . $id . "')";
+		}
+
+		$this->db->query("INSERT INTO " . DB_PREFIX . $table . " (product_id, " . $column . ") VALUES " . implode(', ', $values));
+	}
+
+	/**
+	 * Stores related products in both directions with one DELETE and one INSERT.
+	 */
+	private function saveProductRelated($product_id, $related_ids) {
+		$product_id = (int)$product_id;
+		$related_ids = array_values(array_unique(array_map('intval', (array)$related_ids)));
+		if (!$related_ids) {
+			return;
+		}
+
+		$id_list = implode(',', $related_ids);
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE (product_id = '" . $product_id . "' AND related_id IN (" . $id_list . ")) OR (related_id = '" . $product_id . "' AND product_id IN (" . $id_list . "))");
+
+		$pairs = array();
+		foreach ($related_ids as $related_id) {
+			$pairs[$product_id . ':' . $related_id] = "('" . $product_id . "', '" . $related_id . "')";
+			$pairs[$related_id . ':' . $product_id] = "('" . $related_id . "', '" . $product_id . "')";
+		}
+
+		$this->db->query("INSERT INTO " . DB_PREFIX . "product_related (product_id, related_id) VALUES " . implode(', ', $pairs));
+	}
+
+	public function getProduct($product_id) {
+		$products = $this->getProductsByIds(array((int)$product_id));
+
+		return isset($products[(int)$product_id]) ? $products[(int)$product_id] : array();
 	}
 
 	/**
@@ -687,19 +702,35 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProductOptions($product_id) {
-		$product_option_data = array();
+		$product_options = $this->getProductOptionsByProductIds(array((int)$product_id));
 
-		$product_option_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "product_option` po LEFT JOIN `" . DB_PREFIX . "option` o ON (po.option_id = o.option_id) LEFT JOIN `" . DB_PREFIX . "option_description` od ON (o.option_id = od.option_id) WHERE po.product_id = '" . (int)$product_id . "' AND od.language_id = '" . (int)$this->config->get('config_language_id') . "' ORDER BY o.sort_order ASC");
+		return isset($product_options[(int)$product_id]) ? $product_options[(int)$product_id] : array();
+	}
 
-		foreach ($product_option_query->rows as $product_option) {
-			$product_option_value_data = array();
+	/**
+	 * getProductOptions() for several products in two queries, keyed by product id.
+	 * Values also carry the option value 'name' in the admin language (null when untranslated).
+	 */
+	public function getProductOptionsByProductIds(array $product_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $product_ids))));
+		if (!$ids) {
+			return array();
+		}
 
-			$product_option_value_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON(pov.option_value_id = ov.option_value_id) WHERE pov.product_option_id = '" . (int)$product_option['product_option_id'] . "' ORDER BY ov.sort_order ASC");
+		$language_id = (int)$this->config->get('config_language_id');
+
+		$product_option_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "product_option` po LEFT JOIN `" . DB_PREFIX . "option` o ON (po.option_id = o.option_id) LEFT JOIN `" . DB_PREFIX . "option_description` od ON (o.option_id = od.option_id) WHERE po.product_id IN (" . implode(',', $ids) . ") AND od.language_id = '" . $language_id . "' ORDER BY o.sort_order ASC");
+
+		$values = array();
+		$product_option_ids = array_map('intval', array_column($product_option_query->rows, 'product_option_id'));
+		if ($product_option_ids) {
+			$product_option_value_query = $this->db->query("SELECT pov.*, ovd.name FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (pov.option_value_id = ovd.option_value_id AND ovd.language_id = '" . $language_id . "') WHERE pov.product_option_id IN (" . implode(',', $product_option_ids) . ") ORDER BY ov.sort_order ASC");
 
 			foreach ($product_option_value_query->rows as $product_option_value) {
-				$product_option_value_data[] = array(
+				$values[(int)$product_option_value['product_option_id']][] = array(
 					'product_option_value_id' => $product_option_value['product_option_value_id'],
 					'option_value_id'         => $product_option_value['option_value_id'],
+					'name'                    => $product_option_value['name'],
 					'quantity'                => $product_option_value['quantity'],
 					'subtract'                => $product_option_value['subtract'],
 					'price'                   => $product_option_value['price'],
@@ -710,10 +741,13 @@ class ModelCatalogProduct extends Model {
 					'weight_prefix'           => $product_option_value['weight_prefix']
 				);
 			}
+		}
 
-			$product_option_data[] = array(
+		$product_option_data = array();
+		foreach ($product_option_query->rows as $product_option) {
+			$product_option_data[(int)$product_option['product_id']][] = array(
 				'product_option_id'    => $product_option['product_option_id'],
-				'product_option_value' => $product_option_value_data,
+				'product_option_value' => isset($values[(int)$product_option['product_option_id']]) ? $values[(int)$product_option['product_option_id']] : array(),
 				'option_id'            => $product_option['option_id'],
 				'name'                 => $product_option['name'],
 				'type'                 => $product_option['type'],
@@ -723,6 +757,44 @@ class ModelCatalogProduct extends Model {
 		}
 
 		return $product_option_data;
+	}
+
+	/**
+	 * getProduct() rows for several products in one query, keyed by product id.
+	 */
+	public function getProductsByIds(array $product_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $product_ids))));
+		if (!$ids) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE p.product_id IN (" . implode(',', $ids) . ") AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+
+		$products = array();
+		foreach ($query->rows as $row) {
+			$products[(int)$row['product_id']] = $row;
+		}
+
+		return $products;
+	}
+
+	/**
+	 * getProductOptionValue() rows for several product option values, keyed by product_option_value_id.
+	 */
+	public function getProductOptionValuesByIds(array $product_option_value_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $product_option_value_ids))));
+		if (!$ids) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT pov.product_option_value_id, pov.product_id, pov.option_value_id, ovd.name, pov.quantity, pov.subtract, pov.price, pov.price_prefix, pov.points, pov.points_prefix, pov.weight, pov.weight_prefix FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (ov.option_value_id = ovd.option_value_id) WHERE pov.product_option_value_id IN (" . implode(',', $ids) . ") AND ovd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+
+		$values = array();
+		foreach ($query->rows as $row) {
+			$values[(int)$row['product_option_value_id']] = $row;
+		}
+
+		return $values;
 	}
 
 	public function getProductOptionValue($product_id, $product_option_value_id) {

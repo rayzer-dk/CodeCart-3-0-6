@@ -603,13 +603,14 @@ class ControllerSaleOrder extends Controller {
 			$data['order_products'] = array();
 
 			$products = $this->model_sale_order->getOrderProducts($this->request->get['order_id']);
+			$order_options = $this->model_sale_order->getOrderOptionsByOrderId($this->request->get['order_id']);
 
 			foreach ($products as $product) {
 				$data['order_products'][] = array(
 					'product_id' => $product['product_id'],
 					'name'       => $product['name'],
 					'model'      => $product['model'],
-					'option'     => $this->model_sale_order->getOrderOptions($this->request->get['order_id'], $product['order_product_id']),
+					'option'     => isset($order_options[(int)$product['order_product_id']]) ? $order_options[(int)$product['order_product_id']] : array(),
 					'quantity'   => $product['quantity'],
 					'price'      => $product['price'],
 					'total'      => $product['total'],
@@ -1023,11 +1024,12 @@ class ControllerSaleOrder extends Controller {
 			$data['products'] = array();
 
 			$products = $this->model_sale_order->getOrderProducts($this->request->get['order_id']);
+			$order_options = $this->model_sale_order->getOrderOptionsByOrderId($this->request->get['order_id']);
 
 			foreach ($products as $product) {
 				$option_data = array();
 
-				$options = $this->model_sale_order->getOrderOptions($this->request->get['order_id'], $product['order_product_id']);
+				$options = isset($order_options[(int)$product['order_product_id']]) ? $order_options[(int)$product['order_product_id']] : array();
 
 				foreach ($options as $option) {
 					if ($option['type'] != 'file') {
@@ -1606,13 +1608,18 @@ class ControllerSaleOrder extends Controller {
 			$orders[] = $this->request->get['order_id'];
 		}
 
+		$store_settings = array();
+
 		foreach ($orders as $order_id) {
 			$order_info = $this->model_sale_order->getOrder($order_id);
 			
 			$text_order = sprintf($this->language->get('text_order'), $order_id);
 			
 			if ($order_info) {
-				$store_info = $this->model_setting_setting->getSetting('config', $order_info['store_id']);
+				if (!array_key_exists((int)$order_info['store_id'], $store_settings)) {
+					$store_settings[(int)$order_info['store_id']] = $this->model_setting_setting->getSetting('config', $order_info['store_id']);
+				}
+				$store_info = $store_settings[(int)$order_info['store_id']];
 
 				if ($store_info) {
 					$store_address = $store_info['config_address'];
@@ -1705,11 +1712,12 @@ class ControllerSaleOrder extends Controller {
 				$product_data = array();
 
 				$products = $this->model_sale_order->getOrderProducts($order_id);
+				$order_options = $this->model_sale_order->getOrderOptionsByOrderId($order_id);
 
 				foreach ($products as $product) {
 					$option_data = array();
 
-					$options = $this->model_sale_order->getOrderOptions($order_id, $product['order_product_id']);
+					$options = isset($order_options[(int)$product['order_product_id']]) ? $order_options[(int)$product['order_product_id']] : array();
 
 					foreach ($options as $option) {
 						if ($option['type'] != 'file') {
@@ -1820,12 +1828,17 @@ class ControllerSaleOrder extends Controller {
 			$orders[] = $this->request->get['order_id'];
 		}
 
+		$store_settings = array();
+
 		foreach ($orders as $order_id) {
 			$order_info = $this->model_sale_order->getOrder($order_id);
 
 			// Make sure there is a shipping method
 			if ($order_info && $order_info['shipping_code']) {
-				$store_info = $this->model_setting_setting->getSetting('config', $order_info['store_id']);
+				if (!array_key_exists((int)$order_info['store_id'], $store_settings)) {
+					$store_settings[(int)$order_info['store_id']] = $this->model_setting_setting->getSetting('config', $order_info['store_id']);
+				}
+				$store_info = $store_settings[(int)$order_info['store_id']];
 
 				if ($store_info) {
 					$store_address = $store_info['config_address'];
@@ -1882,16 +1895,25 @@ class ControllerSaleOrder extends Controller {
 				$product_data = array();
 
 				$products = $this->model_sale_order->getOrderProducts($order_id);
+				$order_options = $this->model_sale_order->getOrderOptionsByOrderId($order_id);
+				$products_info = $this->model_catalog_product->getProductsByIds(array_column($products, 'product_id'));
+				$option_value_ids = array();
+				foreach ($order_options as $product_options) {
+					foreach ($product_options as $product_option) {
+						$option_value_ids[] = (int)$product_option['product_option_value_id'];
+					}
+				}
+				$option_values = $this->model_catalog_product->getProductOptionValuesByIds($option_value_ids);
 
 				foreach ($products as $product) {
 					$option_weight = 0;
 
-					$product_info = $this->model_catalog_product->getProduct($product['product_id']);
+					$product_info = isset($products_info[(int)$product['product_id']]) ? $products_info[(int)$product['product_id']] : array();
 
 					if ($product_info) {
 						$option_data = array();
 
-						$options = $this->model_sale_order->getOrderOptions($order_id, $product['order_product_id']);
+						$options = isset($order_options[(int)$product['order_product_id']]) ? $order_options[(int)$product['order_product_id']] : array();
 
 						foreach ($options as $option) {
 							if ($option['type'] != 'file') {
@@ -1911,7 +1933,7 @@ class ControllerSaleOrder extends Controller {
 								'value' => $value
 							);
 
-							$product_option_value_info = $this->model_catalog_product->getProductOptionValue($product['product_id'], $option['product_option_value_id']);
+							$product_option_value_info = isset($option_values[(int)$option['product_option_value_id']]) && (int)$option_values[(int)$option['product_option_value_id']]['product_id'] === (int)$product['product_id'] ? $option_values[(int)$option['product_option_value_id']] : array();
 
 							if (!empty($product_option_value_info['weight'])) {
 								if ($product_option_value_info['weight_prefix'] == '+') {

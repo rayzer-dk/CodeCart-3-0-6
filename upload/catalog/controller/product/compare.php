@@ -51,8 +51,14 @@ class ControllerProductCompare extends Controller {
 
 		$data['attribute_groups'] = array();
 
+		$compare_products = array();
+		foreach ($this->model_catalog_product->getProductCardsByIds($this->session->data['compare']) as $compare_product) {
+			$compare_products[(int)$compare_product['product_id']] = $compare_product;
+		}
+		$compare_attributes = $this->model_catalog_product->getProductAttributesByProductIds(array_keys($compare_products));
+
 		foreach ($this->session->data['compare'] as $key => $product_id) {
-			$product_info = $this->model_catalog_product->getProduct($product_id);
+			$product_info = isset($compare_products[(int)$product_id]) ? $compare_products[(int)$product_id] : false;
 
 			if ($product_info) {
 				if ($product_info['image']) {
@@ -83,7 +89,7 @@ class ControllerProductCompare extends Controller {
 
 				$attribute_data = array();
 
-				$attribute_groups = $this->model_catalog_product->getProductAttributes($product_id);
+				$attribute_groups = isset($compare_attributes[(int)$product_id]) ? $compare_attributes[(int)$product_id] : array();
 
 				foreach ($attribute_groups as $attribute_group) {
 					foreach ($attribute_group['attribute'] as $attribute) {

@@ -400,8 +400,10 @@ class ControllerMarketingCoupon extends Controller {
 
 		$data['coupon_product'] = array();
 
+		$product_info_rows = $this->model_catalog_product->getProductsByIds((array)$products);
+
 		foreach ($products as $product_id) {
-			$product_info = $this->model_catalog_product->getProduct($product_id);
+			$product_info = isset($product_info_rows[(int)$product_id]) ? $product_info_rows[(int)$product_id] : array();
 
 			if ($product_info) {
 				$data['coupon_product'][] = array(
@@ -423,8 +425,10 @@ class ControllerMarketingCoupon extends Controller {
 
 		$data['coupon_category'] = array();
 
+		$category_info_rows = $this->model_catalog_category->getCategoriesByIds((array)$categories);
+
 		foreach ($categories as $category_id) {
-			$category_info = $this->model_catalog_category->getCategory($category_id);
+			$category_info = isset($category_info_rows[(int)$category_id]) ? $category_info_rows[(int)$category_id] : array();
 
 			if ($category_info) {
 				$data['coupon_category'][] = array(

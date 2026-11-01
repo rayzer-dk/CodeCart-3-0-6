@@ -368,9 +368,11 @@ class ControllerCustomerCustomer extends Controller {
 		$customer_total = $this->model_customer_customer->getTotalCustomers($filter_data);
 
 		$results = $this->model_customer_customer->getCustomers($filter_data);
+		$login_attempts = $this->model_customer_customer->getLoginAttemptsByEmails(array_column($results, 'email'));
 
 		foreach ($results as $result) {
-			$login_info = $this->model_customer_customer->getTotalLoginAttempts($result['email']);
+			$login_key = utf8_strtolower((string)$result['email']);
+			$login_info = isset($login_attempts[$login_key]) ? $login_attempts[$login_key] : array();
 
 			if ($login_info && $login_info['total'] >= $this->config->get('config_login_attempts')) {
 				$unlock = $this->url->link('customer/customer/unlock', 'user_token=' . $this->session->data['user_token'] . '&email=' . $result['email'] . $url, true);
@@ -1412,11 +1414,12 @@ class ControllerCustomerCustomer extends Controller {
 		$data['ips'] = array();
 
 		$results = $this->model_customer_customer->getIps($this->request->get['customer_id'], ($page - 1) * $limit, $limit);
+		$ip_totals = $this->model_customer_customer->getTotalCustomersByIps(array_column($results, 'ip'));
 
 		foreach ($results as $result) {
 			$data['ips'][] = array(
 				'ip'         => $result['ip'],
-				'total'      => $this->model_customer_customer->getTotalCustomersByIp($result['ip']),
+				'total'      => isset($ip_totals[(string)$result['ip']]) ? $ip_totals[(string)$result['ip']] : 0,
 				'date_added' => date('d/m/y', strtotime($result['date_added'])),
 				'filter_ip'  => $this->url->link('customer/customer', 'user_token=' . $this->session->data['user_token'] . '&filter_ip=' . $result['ip'], true)
 			);
@@ -1470,6 +1473,7 @@ class ControllerCustomerCustomer extends Controller {
 			);
 
 			$results = $this->model_customer_customer->getCustomers($filter_data);
+			$addresses = $this->model_customer_customer->getAddressesByCustomerIds(array_column($results, 'customer_id'));
 
 			foreach ($results as $result) {
 				$json[] = array(
@@ -1482,7 +1486,7 @@ class ControllerCustomerCustomer extends Controller {
 					'email'             => $result['email'],
 					'telephone'         => $result['telephone'],
 					'custom_field'      => json_decode($result['custom_field'], true),
-					'address'           => $this->model_customer_customer->getAddresses($result['customer_id'])
+					'address'           => isset($addresses[(int)$result['customer_id']]) ? $addresses[(int)$result['customer_id']] : array()
 				);
 			}
 		}

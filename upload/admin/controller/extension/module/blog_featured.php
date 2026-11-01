@@ -131,8 +131,10 @@ class ControllerExtensionModuleBlogFeatured extends Controller {
 			$articles = array();
 		}
 
+		$article_info_rows = $this->model_blog_article->getArticlesByIds((array)$articles);
+
 		foreach ($articles as $article_id) {
-			$article_info = $this->model_blog_article->getArticle($article_id);
+			$article_info = isset($article_info_rows[(int)$article_id]) ? $article_info_rows[(int)$article_id] : array();
 
 			if ($article_info) {
 				$data['articles'][] = array(

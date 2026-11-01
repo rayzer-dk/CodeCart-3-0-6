@@ -87,12 +87,9 @@ class ControllerCommonMenu extends Controller {
         }
 
         $productIds = $this->config->get('theme_default_header_product_ids');
-        if (is_array($productIds)) {
-            foreach (array_values(array_unique(array_filter(array_map('intval', $productIds)))) as $productId) {
-                $product = $this->model_catalog_product->getProduct($productId);
-                if ($product) {
-                    $data['product_links'][] = array('name' => $product['name'], 'href' => $this->url->link('product/product', 'product_id=' . $productId), 'kind' => 'product');
-                }
+        if (is_array($productIds) && $productIds) {
+            foreach ($this->model_catalog_product->getProductCardsByIds($productIds) as $product) {
+                $data['product_links'][] = array('name' => $product['name'], 'href' => $this->url->link('product/product', 'product_id=' . (int)$product['product_id']), 'kind' => 'product');
             }
         }
 

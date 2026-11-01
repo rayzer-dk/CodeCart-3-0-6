@@ -1289,27 +1289,51 @@ final class CatalogTransfer {
         $hasProductMain = isset($productSchema['columns']['main_category_id']);
         $hasRelationMain = isset($relationSchema['columns']['main_category']);
         if (!$hasProductMain && !$hasRelationMain) { return 0; }
-        $done = 0;
+        $pairs = array();
         foreach ($map as $productId=>$categoryId) {
             $productId = (int)$productId; $categoryId = (int)$categoryId;
-            if ($productId <= 0 || $categoryId <= 0) { continue; }
+            if ($productId > 0 && $categoryId > 0) { $pairs[$productId] = $categoryId; }
+        }
+        $done = 0;
+        // Imports can carry thousands of products: validate and write each chunk
+        // with a fixed number of statements instead of several per product.
+        foreach (array_chunk($pairs, 500, true) as $chunk) {
             if ($this->tableExists('category')) {
-                $categoryExists = $this->db->query("SELECT category_id FROM `".$this->table('category')."` WHERE category_id=".$categoryId." LIMIT 1");
-                if (!$categoryExists->num_rows) { continue; }
-            }
-            if ($hasProductMain) {
-                $this->db->query("UPDATE `".$this->table('product')."` SET main_category_id=".$categoryId." WHERE product_id=".$productId);
-            }
-            if ($hasRelationMain) {
-                $this->db->query("UPDATE `".$this->table('product_to_category')."` SET main_category=0 WHERE product_id=".$productId);
-                $exists = $this->db->query("SELECT product_id FROM `".$this->table('product_to_category')."` WHERE product_id=".$productId." AND category_id=".$categoryId." LIMIT 1");
-                if ($exists->num_rows) {
-                    $this->db->query("UPDATE `".$this->table('product_to_category')."` SET main_category=1 WHERE product_id=".$productId." AND category_id=".$categoryId);
-                } else {
-                    $this->db->query("INSERT INTO `".$this->table('product_to_category')."` SET product_id=".$productId.", category_id=".$categoryId.", main_category=1");
+                $existing = array();
+                $query = $this->db->query("SELECT category_id FROM `".$this->table('category')."` WHERE category_id IN (".implode(',', array_unique(array_values($chunk))).")");
+                foreach ($query->rows as $row) { $existing[(int)$row['category_id']] = true; }
+                foreach ($chunk as $productId=>$categoryId) {
+                    if (!isset($existing[$categoryId])) { unset($chunk[$productId]); }
                 }
             }
-            $done++;
+            if (!$chunk) { continue; }
+            $productIds = implode(',', array_keys($chunk));
+            if ($hasProductMain) {
+                $cases = array();
+                foreach ($chunk as $productId=>$categoryId) { $cases[] = "WHEN ".$productId." THEN ".$categoryId; }
+                $this->db->query("UPDATE `".$this->table('product')."` SET main_category_id = CASE product_id ".implode(' ', $cases)." END WHERE product_id IN (".$productIds.")");
+            }
+            if ($hasRelationMain) {
+                $this->db->query("UPDATE `".$this->table('product_to_category')."` SET main_category=0 WHERE product_id IN (".$productIds.")");
+                $linked = array();
+                $query = $this->db->query("SELECT product_id, category_id FROM `".$this->table('product_to_category')."` WHERE product_id IN (".$productIds.")");
+                foreach ($query->rows as $row) { $linked[(int)$row['product_id'].':'.(int)$row['category_id']] = true; }
+                $update = array(); $insert = array();
+                foreach ($chunk as $productId=>$categoryId) {
+                    if (isset($linked[$productId.':'.$categoryId])) {
+                        $update[] = "(product_id=".$productId." AND category_id=".$categoryId.")";
+                    } else {
+                        $insert[] = "(".$productId.", ".$categoryId.", 1)";
+                    }
+                }
+                if ($update) {
+                    $this->db->query("UPDATE `".$this->table('product_to_category')."` SET main_category=1 WHERE ".implode(' OR ', $update));
+                }
+                if ($insert) {
+                    $this->db->query("INSERT INTO `".$this->table('product_to_category')."` (product_id, category_id, main_category) VALUES ".implode(', ', $insert));
+                }
+            }
+            $done += count($chunk);
         }
         return $done;
     }

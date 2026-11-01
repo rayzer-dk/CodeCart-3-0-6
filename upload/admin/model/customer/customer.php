@@ -180,67 +180,85 @@ class ModelCustomerCustomer extends Model {
 		$address_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "address WHERE address_id = '" . (int)$address_id . "'");
 
 		if ($address_query->num_rows) {
-			$country_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE country_id = '" . (int)$address_query->row['country_id'] . "'");
+			$addresses = $this->buildAddresses($address_query->rows);
 
-			if ($country_query->num_rows) {
-				$country = $country_query->row['name'];
-				$iso_code_2 = $country_query->row['iso_code_2'];
-				$iso_code_3 = $country_query->row['iso_code_3'];
-				$address_format = $country_query->row['address_format'];
-			} else {
-				$country = '';
-				$iso_code_2 = '';
-				$iso_code_3 = '';
-				$address_format = '';
-			}
-
-			$zone_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE zone_id = '" . (int)$address_query->row['zone_id'] . "'");
-
-			if ($zone_query->num_rows) {
-				$zone = $zone_query->row['name'];
-				$zone_code = $zone_query->row['code'];
-			} else {
-				$zone = '';
-				$zone_code = '';
-			}
-
-			return array(
-				'address_id'     => $address_query->row['address_id'],
-				'customer_id'    => $address_query->row['customer_id'],
-				'firstname'      => $address_query->row['firstname'],
-				'lastname'       => $address_query->row['lastname'],
-				'company'        => $address_query->row['company'],
-				'address_1'      => $address_query->row['address_1'],
-				'address_2'      => $address_query->row['address_2'],
-				'postcode'       => $address_query->row['postcode'],
-				'city'           => $address_query->row['city'],
-				'zone_id'        => $address_query->row['zone_id'],
-				'zone'           => $zone,
-				'zone_code'      => $zone_code,
-				'country_id'     => $address_query->row['country_id'],
-				'country'        => $country,
-				'iso_code_2'     => $iso_code_2,
-				'iso_code_3'     => $iso_code_3,
-				'address_format' => $address_format,
-				'custom_field'   => json_decode($address_query->row['custom_field'], true)
-			);
+			return $addresses[(int)$address_query->row['address_id']];
 		}
 	}
 
 	public function getAddresses($customer_id) {
+		$addresses = $this->getAddressesByCustomerIds(array((int)$customer_id));
+
+		return isset($addresses[(int)$customer_id]) ? $addresses[(int)$customer_id] : array();
+	}
+
+	/**
+	 * getAddresses() for several customers in three queries, keyed by customer id, then address id.
+	 */
+	public function getAddressesByCustomerIds(array $customer_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $customer_ids))));
+		if (!$ids) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "address WHERE customer_id IN (" . implode(',', $ids) . ")");
+
 		$address_data = array();
-
-		$query = $this->db->query("SELECT address_id FROM " . DB_PREFIX . "address WHERE customer_id = '" . (int)$customer_id . "'");
-
-		foreach ($query->rows as $result) {
-			$address_info = $this->getAddress($result['address_id']);
-
-			if ($address_info) {
-				$address_data[$result['address_id']] = $address_info;
-			}
+		foreach ($this->buildAddresses($query->rows) as $address_id => $address) {
+			$address_data[(int)$address['customer_id']][$address_id] = $address;
 		}
 
 		return $address_data;
+	}
+
+	private function buildAddresses(array $rows) {
+		$countries = array();
+		$zones = array();
+
+		$country_ids = array_values(array_unique(array_filter(array_map('intval', array_column($rows, 'country_id')))));
+		if ($country_ids) {
+			$country_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE country_id IN (" . implode(',', $country_ids) . ")");
+			foreach ($country_query->rows as $country) {
+				$countries[(int)$country['country_id']] = $country;
+			}
+		}
+
+		$zone_ids = array_values(array_unique(array_filter(array_map('intval', array_column($rows, 'zone_id')))));
+		if ($zone_ids) {
+			$zone_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE zone_id IN (" . implode(',', $zone_ids) . ")");
+			foreach ($zone_query->rows as $zone) {
+				$zones[(int)$zone['zone_id']] = $zone;
+			}
+		}
+
+		$addresses = array();
+		foreach ($rows as $row) {
+			$country = isset($countries[(int)$row['country_id']]) ? $countries[(int)$row['country_id']] : array();
+			$zone = isset($zones[(int)$row['zone_id']]) ? $zones[(int)$row['zone_id']] : array();
+
+			$addresses[(int)$row['address_id']] = array(
+				'address_id'     => $row['address_id'],
+				'customer_id'    => $row['customer_id'],
+				'firstname'      => $row['firstname'],
+				'lastname'       => $row['lastname'],
+				'company'        => $row['company'],
+				'address_1'      => $row['address_1'],
+				'address_2'      => $row['address_2'],
+				'postcode'       => $row['postcode'],
+				'city'           => $row['city'],
+				'zone_id'        => $row['zone_id'],
+				'zone'           => $zone ? $zone['name'] : '',
+				'zone_code'      => $zone ? $zone['code'] : '',
+				'country_id'     => $row['country_id'],
+				'country'        => $country ? $country['name'] : '',
+				'iso_code_2'     => $country ? $country['iso_code_2'] : '',
+				'iso_code_3'     => $country ? $country['iso_code_3'] : '',
+				'address_format' => $country ? $country['address_format'] : '',
+				'custom_field'   => json_decode($row['custom_field'], true)
+			);
+		}
+
+		return $addresses;
 	}
 
 	public function getTotalCustomers($data = array()) {
@@ -488,6 +506,55 @@ class ModelCustomerCustomer extends Model {
 		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "customer_ip WHERE ip = '" . $this->db->escape($ip) . "'");
 
 		return $query->row['total'];
+	}
+
+	/**
+	 * Customer counts for several IP addresses in one query, keyed by IP.
+	 */
+	public function getTotalCustomersByIps(array $ips) {
+		$ips = array_values(array_unique(array_map('strval', $ips)));
+		if (!$ips) {
+			return array();
+		}
+
+		$escaped = array();
+		foreach ($ips as $ip) {
+			$escaped[] = "'" . $this->db->escape($ip) . "'";
+		}
+
+		$query = $this->db->query("SELECT ip, COUNT(*) AS total FROM " . DB_PREFIX . "customer_ip WHERE ip IN (" . implode(',', $escaped) . ") GROUP BY ip");
+
+		$totals = array_fill_keys($ips, 0);
+		foreach ($query->rows as $row) {
+			$totals[(string)$row['ip']] = (int)$row['total'];
+		}
+
+		return $totals;
+	}
+
+	/**
+	 * getTotalLoginAttempts() for several e-mails in one query, keyed by lower-case e-mail.
+	 */
+	public function getLoginAttemptsByEmails(array $emails) {
+		$keys = array();
+		foreach ($emails as $email) {
+			$keys[utf8_strtolower((string)$email)] = "'" . $this->db->escape((string)$email) . "'";
+		}
+		if (!$keys) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "customer_login` WHERE `email` IN (" . implode(',', $keys) . ") ORDER BY customer_login_id ASC");
+
+		$attempts = array();
+		foreach ($query->rows as $row) {
+			$key = utf8_strtolower((string)$row['email']);
+			if (!isset($attempts[$key])) {
+				$attempts[$key] = $row;
+			}
+		}
+
+		return $attempts;
 	}
 
 	public function getTotalLoginAttempts($email) {

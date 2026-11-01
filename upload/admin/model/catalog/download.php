@@ -28,9 +28,28 @@ class ModelCatalogDownload extends Model {
 	}
 
 	public function getDownload($download_id) {
-		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "download d LEFT JOIN " . DB_PREFIX . "download_description dd ON (d.download_id = dd.download_id) WHERE d.download_id = '" . (int)$download_id . "' AND dd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$rows = $this->getDownloadsByIds(array((int)$download_id));
 
-		return $query->row;
+		return isset($rows[(int)$download_id]) ? $rows[(int)$download_id] : array();
+	}
+
+	/**
+	 * getDownload() rows for several ids in one query, keyed by id.
+	 */
+	public function getDownloadsByIds(array $download_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $download_ids))));
+		if (!$ids) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "download d LEFT JOIN " . DB_PREFIX . "download_description dd ON (d.download_id = dd.download_id) WHERE d.download_id IN (" . implode(',', $ids) . ") AND dd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+
+		$rows = array();
+		foreach ($query->rows as $row) {
+			$rows[(int)$row['download_id']] = $row;
+		}
+
+		return $rows;
 	}
 
 	public function getDownloads($data = array()) {

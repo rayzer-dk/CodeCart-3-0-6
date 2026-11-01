@@ -27,7 +27,7 @@ class DB {public function escape($s){return addslashes($s);}public function quer
   if (strpos($sql,"code = 'ru-ru'")!==false) return new DataResult(array(array('language_id'=>2)));
   return new DataResult(array(array('code'=>'uk-ua'),array('code'=>'ru-ru')));
  }
- if (strpos($sql,' FROM oc_seo_url ')!==false) {
+ if (strpos($sql,' FROM oc_seo_url ')!==false || strpos($sql,' FROM `oc_seo_url` ')!==false) {
   $id=preg_match("/language_id = '(\\d+)'/",$sql,$m)?(int)$m[1]:0;
   $rows=array(
    array('query'=>'product_id=42','keyword'=>'uk-product','language_id'=>1,'store_id'=>0,'seo_url_id'=>1),
@@ -37,6 +37,8 @@ class DB {public function escape($s){return addslashes($s);}public function quer
   if (strpos($sql,'WHERE keyword IN (')!==false) return new DataResult(array());
   if (preg_match("/keyword = '([^']+)'/",$sql,$m)) $rows=array_values(array_filter($rows,function($r)use($m){return $r['keyword']===$m[1];}));
   if (preg_match("/query = '([^']+)'/",$sql,$m)) $rows=array_values(array_filter($rows,function($r)use($m){return $r['query']===$m[1];}));
+  if (preg_match("/`query` IN \\(([^)]*)\\)/",$sql,$m)) {$in=array_map(function($v){return trim($v,"' ");},explode(',',$m[1]));$rows=array_values(array_filter($rows,function($r)use($in){return in_array($r['query'],$in,true);}));}
+  if (preg_match_all("/`query` LIKE '([^']+)%'/",$sql,$m)) {$prefixes=array_map('stripslashes',$m[1]);$rows=array_values(array_filter($rows,function($r)use($prefixes){foreach($prefixes as $p){if(strpos($r['query'],$p)===0)return true;}return false;}));}
   if ($id) $rows=array_values(array_filter($rows,function($r)use($id){return $r['language_id']===$id;}));
   return new DataResult($rows);
  }

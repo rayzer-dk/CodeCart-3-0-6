@@ -1604,8 +1604,10 @@ class ControllerCatalogProduct extends Controller {
 
 		$data['product_categories'] = array();
 
+		$category_info_rows = $this->model_catalog_category->getCategoriesByIds((array)$categories);
+
 		foreach ($categories as $category_id) {
-			$category_info = $this->model_catalog_category->getCategory($category_id);
+			$category_info = isset($category_info_rows[(int)$category_id]) ? $category_info_rows[(int)$category_id] : array();
 
 			if ($category_info) {
 				$data['product_categories'][] = array(
@@ -1628,8 +1630,10 @@ class ControllerCatalogProduct extends Controller {
 
 		$data['product_filters'] = array();
 
+		$filter_info_rows = $this->model_catalog_filter->getFiltersByIds((array)$filters);
+
 		foreach ($filters as $filter_id) {
-			$filter_info = $this->model_catalog_filter->getFilter($filter_id);
+			$filter_info = isset($filter_info_rows[(int)$filter_id]) ? $filter_info_rows[(int)$filter_id] : array();
 
 			if ($filter_info) {
 				$data['product_filters'][] = array(
@@ -1652,8 +1656,10 @@ class ControllerCatalogProduct extends Controller {
 
 		$data['product_attributes'] = array();
 
+		$attribute_info_rows = $this->model_catalog_attribute->getAttributesByIds(array_column($product_attributes, 'attribute_id'));
+
 		foreach ($product_attributes as $product_attribute) {
-			$attribute_info = $this->model_catalog_attribute->getAttribute($product_attribute['attribute_id']);
+			$attribute_info = isset($attribute_info_rows[(int)$product_attribute['attribute_id']]) ? $attribute_info_rows[(int)$product_attribute['attribute_id']] : array();
 
 			if ($attribute_info) {
 				$data['product_attributes'][] = array(
@@ -1851,8 +1857,10 @@ class ControllerCatalogProduct extends Controller {
         }
 		$data['product_downloads'] = array();
 
+		$download_info_rows = $this->model_catalog_download->getDownloadsByIds((array)$product_downloads);
+
 		foreach ($product_downloads as $download_id) {
-			$download_info = $this->model_catalog_download->getDownload($download_id);
+			$download_info = isset($download_info_rows[(int)$download_id]) ? $download_info_rows[(int)$download_id] : array();
 
 			if ($download_info) {
 				$data['product_downloads'][] = array(
@@ -1872,8 +1880,10 @@ class ControllerCatalogProduct extends Controller {
 
 		$data['product_relateds'] = array();
 
+		$related_info_rows = $this->model_catalog_product->getProductsByIds((array)$products);
+
 		foreach ($products as $product_id) {
-			$related_info = $this->model_catalog_product->getProduct($product_id);
+			$related_info = isset($related_info_rows[(int)$product_id]) ? $related_info_rows[(int)$product_id] : array();
 
 			if ($related_info) {
 				$data['product_relateds'][] = array(
@@ -1894,8 +1904,10 @@ class ControllerCatalogProduct extends Controller {
 		$data['product_related_article'] = array();
 		$this->load->model('blog/article');
 		
+		$article_info_rows = $this->model_blog_article->getArticlesByIds((array)$articles);
+
 		foreach ($articles as $article_id) {
-			$article_info = $this->model_blog_article->getArticle($article_id);
+			$article_info = isset($article_info_rows[(int)$article_id]) ? $article_info_rows[(int)$article_id] : array();
 			
 			if ($article_info) {
 				$data['product_related_article'][] = array(
@@ -2326,42 +2338,37 @@ class ControllerCatalogProduct extends Controller {
 			);
 
 			$results = $this->model_catalog_product->getProducts($filter_data);
+			$options_by_product = $this->model_catalog_product->getProductOptionsByProductIds(array_column($results, 'product_id'));
 
 			foreach ($results as $result) {
 				$option_data = array();
 
-				$product_options = $this->model_catalog_product->getProductOptions($result['product_id']);
+				$product_options = isset($options_by_product[(int)$result['product_id']]) ? $options_by_product[(int)$result['product_id']] : array();
 
 				foreach ($product_options as $product_option) {
-					$option_info = $this->model_catalog_option->getOption($product_option['option_id']);
+					$product_option_value_data = array();
 
-					if ($option_info) {
-						$product_option_value_data = array();
-
-						foreach ($product_option['product_option_value'] as $product_option_value) {
-							$option_value_info = $this->model_catalog_option->getOptionValue($product_option_value['option_value_id']);
-
-							if ($option_value_info) {
-								$product_option_value_data[] = array(
-									'product_option_value_id' => $product_option_value['product_option_value_id'],
-									'option_value_id'         => $product_option_value['option_value_id'],
-									'name'                    => $option_value_info['name'],
-									'price'                   => (float)$product_option_value['price'] ? $this->currency->format($product_option_value['price'], $this->config->get('config_currency')) : false,
-									'price_prefix'            => $product_option_value['price_prefix']
-								);
-							}
+					foreach ($product_option['product_option_value'] as $product_option_value) {
+						if ($product_option_value['name'] !== null) {
+							$product_option_value_data[] = array(
+								'product_option_value_id' => $product_option_value['product_option_value_id'],
+								'option_value_id'         => $product_option_value['option_value_id'],
+								'name'                    => $product_option_value['name'],
+								'price'                   => (float)$product_option_value['price'] ? $this->currency->format($product_option_value['price'], $this->config->get('config_currency')) : false,
+								'price_prefix'            => $product_option_value['price_prefix']
+							);
 						}
-
-						$option_data[] = array(
-							'product_option_id'    => $product_option['product_option_id'],
-							'product_option_value' => $product_option_value_data,
-							'option_id'            => $product_option['option_id'],
-							'name'                 => $option_info['name'],
-							'type'                 => $option_info['type'],
-							'value'                => $product_option['value'],
-							'required'             => $product_option['required']
-						);
 					}
+
+					$option_data[] = array(
+						'product_option_id'    => $product_option['product_option_id'],
+						'product_option_value' => $product_option_value_data,
+						'option_id'            => $product_option['option_id'],
+						'name'                 => $product_option['name'],
+						'type'                 => $product_option['type'],
+						'value'                => $product_option['value'],
+						'required'             => $product_option['required']
+					);
 				}
 
 				$json[] = array(

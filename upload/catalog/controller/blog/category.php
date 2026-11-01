@@ -219,15 +219,14 @@ class ControllerBlogCategory extends Controller {
 
 			$results = $this->model_blog_category->getCategories($blog_category_id);
 
-			foreach ($results as $result) {
-				
-				$filter_data = array(
-					'filter_blog_category_id'  => $result['blog_category_id'],
-					'filter_sub_category' => true
-				);
+			$article_counts = array();
+			if ($this->config->get('configblog_article_count')) {
+				$article_counts = $this->model_blog_article->getBlogCategoryArticleCounts(array_column($results, 'blog_category_id'), true);
+			}
 
+			foreach ($results as $result) {
 				$data['categories'][] = array(
-					'name'  => $result['name'] . ($this->config->get('configblog_article_count') ? ' (' . $this->model_blog_article->getTotalArticles($filter_data) . ')' : ''),
+					'name'  => $result['name'] . ($this->config->get('configblog_article_count') ? ' (' . (isset($article_counts[(int)$result['blog_category_id']]) ? (int)$article_counts[(int)$result['blog_category_id']] : 0) . ')' : ''),
 					'href'  => $this->url->link('blog/category', 'blog_category_id=' . $this->request->get['blog_category_id'] . '_' . $result['blog_category_id'] . $url)
 				);
 			}

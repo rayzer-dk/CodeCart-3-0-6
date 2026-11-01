@@ -4,13 +4,19 @@
 
 class ModelCatalogManufacturer extends Model {
 	
+	// The four layout positions ask for the same entity layout in one request.
+	private $layout_ids = array();
+
 	public function getManufacturerLayoutId($manufacturer_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "manufacturer_to_layout WHERE manufacturer_id = '" . (int)$manufacturer_id . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
-		if ($query->num_rows) {
-			return $query->row['layout_id'];
-		} else {
-			return 0;
+		$key = (int)$this->config->get('config_store_id') . ':' . (int)$manufacturer_id;
+
+		if (!array_key_exists($key, $this->layout_ids)) {
+			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "manufacturer_to_layout WHERE manufacturer_id = '" . (int)$manufacturer_id . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
+
+			$this->layout_ids[$key] = $query->num_rows ? (int)$query->row['layout_id'] : 0;
 		}
+
+		return $this->layout_ids[$key];
 	}
 	
 	public function getManufacturer($manufacturer_id) {

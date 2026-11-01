@@ -357,13 +357,17 @@ class ControllerStartupSeoUrl extends Controller {
 		
 		//seo_pro baseRewrite
 
+		$seo_index = \CodeCart\Core\SeoUrlIndex::fromRegistry($this->registry);
+		$store_id = (int)$this->config->get('config_store_id');
+		$language_id = (int)$this->config->get('config_language_id');
+
 		foreach ($data as $key => $value) {
 			if (isset($data['route'])) {
 				if (($data['route'] == 'product/product' && $key == 'product_id') || (($data['route'] == 'product/manufacturer/info' || $data['route'] == 'product/product') && $key == 'manufacturer_id') || ($data['route'] == 'information/information' && $key == 'information_id') || ($data['route'] == 'blog/article' && $key == 'article_id') || ($data['route'] == 'blog/category' && $key == 'blog_category_id')) {
-					$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE `query` = '" . $this->db->escape($key . '=' . (int)$value) . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "' AND language_id = '" . (int)$this->config->get('config_language_id') . "'");
+					$keyword = $seo_index->keyword($key . '=' . (int)$value, $store_id, $language_id);
 
-					if ($query->num_rows && $query->row['keyword']) {
-						$url .= '/' . $query->row['keyword'];
+					if ($keyword !== null) {
+						$url .= '/' . $keyword;
 
 						unset($data[$key]);
 					}
@@ -371,10 +375,10 @@ class ControllerStartupSeoUrl extends Controller {
 					$categories = explode('_', $value);
 
 					foreach ($categories as $category) {
-						$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE `query` = 'category_id=" . (int)$category . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "' AND language_id = '" . (int)$this->config->get('config_language_id') . "'");
+						$keyword = $seo_index->keyword('category_id=' . (int)$category, $store_id, $language_id);
 
-						if ($query->num_rows && $query->row['keyword']) {
-							$url .= '/' . $query->row['keyword'];
+						if ($keyword !== null) {
+							$url .= '/' . $keyword;
 						} else {
 							$url = '';
 

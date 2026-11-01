@@ -199,10 +199,12 @@ class ControllerMailOrder extends Controller {
 			$this->load->model('tool/image');
 		}
 
+		$options_by_product = $this->model_checkout_order->getOrderOptionsByOrderId($order_info['order_id']);
+
 		foreach ($order_products as $order_product) {
 			$option_data = array();
 
-			$order_options = $this->model_checkout_order->getOrderOptions($order_info['order_id'], $order_product['order_product_id']);
+			$order_options = isset($options_by_product[(int)$order_product['order_product_id']]) ? $options_by_product[(int)$order_product['order_product_id']] : array();
 
 			foreach ($order_options as $order_option) {
 				if ($order_option['type'] != 'file') {
@@ -411,11 +413,12 @@ class ControllerMailOrder extends Controller {
 			$data['products'] = array();
 
 			$order_products = $this->model_checkout_order->getOrderProducts($order_id);
+			$options_by_product = $this->model_checkout_order->getOrderOptionsByOrderId($order_info['order_id']);
 
 			foreach ($order_products as $order_product) {
 				$option_data = array();
 				
-				$order_options = $this->model_checkout_order->getOrderOptions($order_info['order_id'], $order_product['order_product_id']);
+				$order_options = isset($options_by_product[(int)$order_product['order_product_id']]) ? $options_by_product[(int)$order_product['order_product_id']] : array();
 				
 				foreach ($order_options as $order_option) {
 					if ($order_option['type'] != 'file') {

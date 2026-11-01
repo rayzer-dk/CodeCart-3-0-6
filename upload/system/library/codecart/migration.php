@@ -1216,6 +1216,21 @@ class Migration {
 
         foreach ($sources as $source) {
             $rows = $this->db->query($source['sql']);
+
+            // Existing aliases of this entity type are read once; the former
+            // per-entity lookup dominated upgrades of large catalogs.
+            $existingAliases = array();
+            $aliasQuery = $this->db->query("SELECT seo_url_id, store_id, language_id, `query`, keyword FROM `" . DB_PREFIX . "seo_url` WHERE `query` LIKE '" . str_replace('_', '\\_', $source['prefix']) . "=%' ORDER BY seo_url_id ASC");
+            foreach ($aliasQuery->rows as $aliasRow) {
+                $aliasKey = (int)$aliasRow['store_id'] . ':' . (int)$aliasRow['language_id'] . ':' . (string)$aliasRow['query'];
+                if (!isset($existingAliases[$aliasKey])) { $existingAliases[$aliasKey] = array('keyword' => false, 'empty_id' => 0); }
+                if (trim((string)$aliasRow['keyword']) !== '') {
+                    $existingAliases[$aliasKey]['keyword'] = true;
+                } elseif (!$existingAliases[$aliasKey]['empty_id']) {
+                    $existingAliases[$aliasKey]['empty_id'] = (int)$aliasRow['seo_url_id'];
+                }
+            }
+
             foreach ($rows->rows as $row) {
                 $entityId = (int)$row['entity_id'];
                 $languageId = (int)$row['language_id'];
@@ -1224,14 +1239,11 @@ class Migration {
                 if ($entityId < 1 || $languageId < 1 || $title === '') { continue; }
 
                 $entityQuery = $source['prefix'] . '=' . $entityId;
-                $existing = $this->db->query("SELECT seo_url_id, keyword FROM `" . DB_PREFIX . "seo_url` WHERE store_id='" . $storeId . "' AND language_id='" . $languageId . "' AND `query`='" . $this->db->escape($entityQuery) . "' ORDER BY seo_url_id ASC");
-                $emptyId = 0;
-                $hasKeyword = false;
-                foreach ($existing->rows as $existingRow) {
-                    if (trim((string)$existingRow['keyword']) !== '') { $hasKeyword = true; break; }
-                    if (!$emptyId) { $emptyId = (int)$existingRow['seo_url_id']; }
-                }
+                $aliasKey = $storeId . ':' . $languageId . ':' . $entityQuery;
+                $emptyId = isset($existingAliases[$aliasKey]) ? (int)$existingAliases[$aliasKey]['empty_id'] : 0;
+                $hasKeyword = isset($existingAliases[$aliasKey]) && $existingAliases[$aliasKey]['keyword'];
                 if ($hasKeyword) { continue; }
+                $existingAliases[$aliasKey] = array('keyword' => true, 'empty_id' => 0);
 
                 $keyword = codecart_unique_seo_keyword($this->db, $title, $storeId, $languageId);
                 if ($emptyId > 0) {

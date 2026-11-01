@@ -29,14 +29,22 @@ class ModelCatalogManufacturer extends Model {
 		}
 		
 		if (isset($data['product_related'])) {
-			foreach ($data['product_related'] as $related_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_mn SET manufacturer_id = '" . (int)$manufacturer_id . "', product_id = '" . (int)$related_id . "'");
+			$related_values = array();
+			foreach (array_unique(array_map('intval', (array)$data['product_related'])) as $related_id) {
+				$related_values[] = "('" . (int)$manufacturer_id . "', '" . $related_id . "')";
+			}
+			if ($related_values) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_mn (manufacturer_id, product_id) VALUES " . implode(', ', $related_values));
 			}
 		}
 	
 		if (isset($data['article_related'])) {
-			foreach ($data['article_related'] as $related_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "article_related_mn SET manufacturer_id = '" . (int)$manufacturer_id . "', article_id = '" . (int)$related_id . "'");
+			$related_values = array();
+			foreach (array_unique(array_map('intval', (array)$data['article_related'])) as $related_id) {
+				$related_values[] = "('" . (int)$manufacturer_id . "', '" . $related_id . "')";
+			}
+			if ($related_values) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "article_related_mn (manufacturer_id, article_id) VALUES " . implode(', ', $related_values));
 			}
 		}
 				
@@ -98,22 +106,24 @@ class ModelCatalogManufacturer extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_mn WHERE manufacturer_id = '" . (int)$manufacturer_id . "'");
 	
 		if (isset($data['product_related'])) {
-			foreach ($data['product_related'] as $related_id) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_mn WHERE manufacturer_id = '" . (int)$manufacturer_id . "' AND product_id = '" . (int)$related_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_mn SET manufacturer_id = '" . (int)$manufacturer_id . "', product_id = '" . (int)$related_id . "'");
-				
-	
+			$related_values = array();
+			foreach (array_unique(array_map('intval', (array)$data['product_related'])) as $related_id) {
+				$related_values[] = "('" . (int)$manufacturer_id . "', '" . $related_id . "')";
+			}
+			if ($related_values) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_mn (manufacturer_id, product_id) VALUES " . implode(', ', $related_values));
 			}
 		}
 		
 		$this->db->query("DELETE FROM " . DB_PREFIX . "article_related_mn WHERE manufacturer_id = '" . (int)$manufacturer_id . "'");
 	
 		if (isset($data['article_related'])) {
-			foreach ($data['article_related'] as $related_id) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "article_related_mn WHERE manufacturer_id = '" . (int)$manufacturer_id . "' AND article_id = '" . (int)$related_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "article_related_mn SET manufacturer_id = '" . (int)$manufacturer_id . "', article_id = '" . (int)$related_id . "'");
-				
-	
+			$related_values = array();
+			foreach (array_unique(array_map('intval', (array)$data['article_related'])) as $related_id) {
+				$related_values[] = "('" . (int)$manufacturer_id . "', '" . $related_id . "')";
+			}
+			if ($related_values) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "article_related_mn (manufacturer_id, article_id) VALUES " . implode(', ', $related_values));
 			}
 		}
 

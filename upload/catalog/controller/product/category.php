@@ -93,6 +93,11 @@ class ControllerProductCategory extends Controller {
 
 			$category_id = (int)array_pop($parts);
 
+			$path_categories = array();
+			foreach ($this->model_catalog_category->getCategoriesByIds($parts) as $path_category) {
+				$path_categories[(int)$path_category['category_id']] = $path_category;
+			}
+
 			foreach ($parts as $path_id) {
 				if (!$path) {
 					$path = (int)$path_id;
@@ -100,7 +105,7 @@ class ControllerProductCategory extends Controller {
 					$path .= '_' . (int)$path_id;
 				}
 
-				$category_info = $this->model_catalog_category->getCategory($path_id);
+				$category_info = isset($path_categories[(int)$path_id]) ? $path_categories[(int)$path_id] : array();
 
 				if ($category_info) {
 					$data['breadcrumbs'][] = array(

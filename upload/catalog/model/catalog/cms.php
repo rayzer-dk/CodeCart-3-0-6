@@ -44,6 +44,7 @@ class ModelCatalogCms extends Model {
 	}
 	
 	public function getBestSeller($data = array()) {
+		$this->load->model('catalog/product');
 
 		$product_data = array();
 
@@ -86,8 +87,12 @@ class ModelCatalogCms extends Model {
 
 		$query = $this->db->query($sql);
 
+		$product_ids = array();
 		foreach ($query->rows as $result) {
-			$product_data[$result['product_id']] = $this->model_catalog_product->getProduct($result['product_id']);
+			$product_ids[] = (int)$result['product_id'];
+		}
+		foreach ($this->model_catalog_product->getProductCardsByIds($product_ids) as $product) {
+			$product_data[(int)$product['product_id']] = $product;
 		}
 
 		return $product_data;
@@ -157,8 +162,12 @@ class ModelCatalogCms extends Model {
 
 		$query = $this->db->query($sql);
 
+		$product_ids = array();
 		foreach ($query->rows as $result) {
-			$product_data[$result['product_id']] = $this->model_catalog_product->getProduct($result['product_id']);
+			$product_ids[] = (int)$result['product_id'];
+		}
+		foreach ($this->model_catalog_product->getProductCardsByIds($product_ids) as $product) {
+			$product_data[(int)$product['product_id']] = $product;
 		}
 
 		return $product_data;
@@ -256,8 +265,12 @@ class ModelCatalogCms extends Model {
 		
 	
 
-			foreach ($query->rows as $result) { 		
-				$product_data[$result['product_id']] = $this->model_catalog_product->getProduct($result['product_id']);
+			$product_ids = array();
+			foreach ($query->rows as $result) {
+				$product_ids[] = (int)$result['product_id'];
+			}
+			foreach ($this->model_catalog_product->getProductCardsByIds($product_ids) as $product) {
+				$product_data[(int)$product['product_id']] = $product;
 			}
 
 			$this->cache->set($cache_key, $product_data);

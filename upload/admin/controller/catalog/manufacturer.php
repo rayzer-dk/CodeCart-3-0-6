@@ -443,8 +443,10 @@ class ControllerCatalogManufacturer extends Controller {
 			
 		$this->load->model('catalog/product');
 		
+		$related_info_rows = $this->model_catalog_product->getProductsByIds((array)$products);
+
 		foreach ($products as $product_id) {
-			$related_info = $this->model_catalog_product->getProduct($product_id);
+			$related_info = isset($related_info_rows[(int)$product_id]) ? $related_info_rows[(int)$product_id] : array();
 			
 			if ($related_info) {
 				$data['product_related'][] = array(
@@ -466,8 +468,10 @@ class ControllerCatalogManufacturer extends Controller {
 			
 		$this->load->model('blog/article');
 		
+		$related_info_rows = $this->model_blog_article->getArticlesByIds((array)$articles);
+
 		foreach ($articles as $article_id) {
-			$related_info = $this->model_blog_article->getArticle($article_id);
+			$related_info = isset($related_info_rows[(int)$article_id]) ? $related_info_rows[(int)$article_id] : array();
 			
 			if ($related_info) {
 				$data['article_related'][] = array(

@@ -9,22 +9,33 @@ class ControllerCronStockNotify extends Controller {
         $scan_limit = max(100, $limit);
         $q=$this->db->query("SELECT sn.*, p.quantity, p.image, p.price, pd.name, l.code AS language_code FROM `".DB_PREFIX."stock_notify` sn JOIN `".DB_PREFIX."product` p ON p.product_id=sn.product_id JOIN `".DB_PREFIX."product_description` pd ON pd.product_id=sn.product_id AND pd.language_id=sn.language_id LEFT JOIN `".DB_PREFIX."language` l ON l.language_id=sn.language_id WHERE sn.status='waiting' AND p.status='1' AND p.quantity>0 ORDER BY sn.date_modified ASC, sn.stock_notify_id ASC LIMIT ".(int)$scan_limit);
         $sent=0;$failed=0; $this->db->query("DELETE FROM `".DB_PREFIX."stock_notify` WHERE status IN ('sent','failed') AND date_modified < DATE_SUB(NOW(), INTERVAL 180 DAY)");
+        // Option stock for the whole batch and store settings are read once, not per subscription.
+        $rowOptionIds=array(); $allOptionIds=array();
+        foreach($q->rows as $row){
+            $optionIds=array();
+            if(!empty($row['option_data'])){$decoded=json_decode((string)$row['option_data'],true);if(is_array($decoded)){$optionIds=array_values(array_unique(array_filter(array_map('intval',$decoded))));}}
+            $rowOptionIds[(int)$row['stock_notify_id']]=$optionIds;
+            if((int)$row['quantity']>0){foreach($optionIds as $optionId){$allOptionIds[$optionId]=$optionId;}}
+        }
+        $readyOptions=array();
+        if($allOptionIds){$oq=$this->db->query("SELECT product_option_value_id, subtract, quantity FROM `".DB_PREFIX."product_option_value` WHERE product_option_value_id IN (".implode(',',$allOptionIds).")");foreach($oq->rows as $or){$readyOptions[(int)$or['product_option_value_id']]=((string)$or['subtract']==='0' || (int)$or['quantity']>0);}}
+        $deferred=array(); $storeSettings=array();
         foreach($q->rows as $row){
             if ($sent + $failed >= $limit) { break; }
             $eligible=(int)$row['quantity']>0;
-            $optionIds=array();
-            if(!empty($row['option_data'])){$decoded=json_decode((string)$row['option_data'],true);if(is_array($decoded)){$optionIds=array_values(array_unique(array_filter(array_map('intval',$decoded))));}}
-            if($eligible && $optionIds){$oq=$this->db->query("SELECT COUNT(*) AS total, SUM(CASE WHEN subtract='0' OR quantity>0 THEN 1 ELSE 0 END) AS ready FROM `".DB_PREFIX."product_option_value` WHERE product_option_value_id IN (".implode(',',$optionIds).")");$eligible=$oq->num_rows && (int)$oq->row['total']===count($optionIds) && (int)$oq->row['ready']===count($optionIds);}
+            if($eligible){foreach($rowOptionIds[(int)$row['stock_notify_id']] as $optionId){if(empty($readyOptions[$optionId])){$eligible=false;break;}}}
             if(!$eligible){
                 // Preserve the subscription and delivery attempts while yielding to
                 // later rows, even when successive batches run in the same second.
-                $this->db->query("UPDATE `".DB_PREFIX."stock_notify` SET date_modified=DATE_ADD(NOW(), INTERVAL 1 SECOND) WHERE stock_notify_id='".(int)$row['stock_notify_id']."' AND status='waiting'");
+                $deferred[]=(int)$row['stock_notify_id'];
                 continue;
             }
             $this->db->query("UPDATE `".DB_PREFIX."stock_notify` SET status='processing', attempts=attempts+1, date_modified=NOW() WHERE stock_notify_id='".(int)$row['stock_notify_id']."' AND status='waiting'");
             if(!$this->db->countAffected()){continue;}
-            $sq=$this->db->query("SELECT `key`,`value` FROM `".DB_PREFIX."setting` WHERE store_id='".(int)$row['store_id']."' AND `key` IN ('config_url','config_ssl','config_name','config_email','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout')");
-            $sc=array(); foreach($sq->rows as $sr){$sc[$sr['key']]=$sr['value'];}
+            $storeId=(int)$row['store_id'];
+            if(!isset($storeSettings[$storeId])){$sq=$this->db->query("SELECT `key`,`value` FROM `".DB_PREFIX."setting` WHERE store_id='".$storeId."' AND `key` IN ('config_url','config_ssl','config_name','config_email','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout')");
+            $storeSettings[$storeId]=array(); foreach($sq->rows as $sr){$storeSettings[$storeId][$sr['key']]=$sr['value'];}}
+            $sc=$storeSettings[$storeId];
             $base=!empty($sc['config_ssl'])?rtrim((string)$sc['config_ssl'],'/'):(!empty($sc['config_url'])?rtrim((string)$sc['config_url'],'/'):rtrim(HTTP_SERVER,'/'));
             $url=$base.'/index.php?route=product/product&product_id='.(int)$row['product_id'];
             // Use a dedicated language resource for every subscriber, not hardcoded templates.
@@ -41,6 +52,7 @@ class ControllerCronStockNotify extends Controller {
             $mail=new Mail(isset($sc['config_mail_engine'])?$sc['config_mail_engine']:$this->config->get('config_mail_engine')); $mail->parameter=isset($sc['config_mail_parameter'])?$sc['config_mail_parameter']:$this->config->get('config_mail_parameter'); $mail->smtp_hostname=isset($sc['config_mail_smtp_hostname'])?$sc['config_mail_smtp_hostname']:$this->config->get('config_mail_smtp_hostname'); $mail->smtp_username=isset($sc['config_mail_smtp_username'])?$sc['config_mail_smtp_username']:$this->config->get('config_mail_smtp_username'); $mail->smtp_password=html_entity_decode(isset($sc['config_mail_smtp_password'])?$sc['config_mail_smtp_password']:$this->config->get('config_mail_smtp_password'),ENT_QUOTES,'UTF-8'); $mail->smtp_port=isset($sc['config_mail_smtp_port'])?$sc['config_mail_smtp_port']:$this->config->get('config_mail_smtp_port'); $mail->smtp_timeout=isset($sc['config_mail_smtp_timeout'])?$sc['config_mail_smtp_timeout']:$this->config->get('config_mail_smtp_timeout'); $mail->setTo($row['email']); $mail->setFrom(isset($sc['config_email'])?$sc['config_email']:$this->config->get('config_email')); $mail->setSender(html_entity_decode(isset($sc['config_name'])?$sc['config_name']:$this->config->get('config_name'),ENT_QUOTES,'UTF-8')); $mail->setSubject($subject); $mail->setHtml($html); $mail->setText(strip_tags(str_replace(array('<br>','<br/>','<br />'),"\n",$html)));
             try { $ok=\CodeCart\Core\MailDelivery::send($this->registry,$mail,'stock-notify:'.(int)$row['stock_notify_id']); } catch (\Throwable $e) { $ok=false; $log=$this->registry->get('log'); if ($log) { $log->write('Stock notify #' . (int)$row['stock_notify_id'] . ': ' . $e->getMessage()); } } if($ok){$this->db->query("UPDATE `".DB_PREFIX."stock_notify` SET status='sent', date_sent=NOW(), date_modified=NOW() WHERE stock_notify_id='".(int)$row['stock_notify_id']."'");$sent++;}else{$this->db->query("UPDATE `".DB_PREFIX."stock_notify` SET status=IF(attempts>=5,'failed','waiting'), date_modified=NOW() WHERE stock_notify_id='".(int)$row['stock_notify_id']."'");$failed++;}
         }
+        if($deferred){$this->db->query("UPDATE `".DB_PREFIX."stock_notify` SET date_modified=DATE_ADD(NOW(), INTERVAL 1 SECOND) WHERE stock_notify_id IN (".implode(',',$deferred).") AND status='waiting'");}
         return array('success'=>true,'message'=>'Stock notifications: sent '.$sent.', failed '.$failed,'sent'=>$sent,'failed'=>$failed);
     }
 }

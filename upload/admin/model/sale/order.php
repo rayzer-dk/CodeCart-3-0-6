@@ -1,56 +1,80 @@
 <?php
 class ModelSaleOrder extends Model {
+	// Bulk invoice/shipping printing loads many orders sharing the same countries,
+	// zones and languages; look each one up once per request.
+	private $countries = array();
+	private $zones = array();
+	private $languages = array();
+
+	private function getCountryRow($country_id) {
+		$country_id = (int)$country_id;
+		if (!array_key_exists($country_id, $this->countries)) {
+			$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE country_id = '" . $country_id . "'");
+			$this->countries[$country_id] = $query->num_rows ? $query->row : array();
+		}
+
+		return $this->countries[$country_id];
+	}
+
+	private function getZoneRow($zone_id) {
+		$zone_id = (int)$zone_id;
+		if (!array_key_exists($zone_id, $this->zones)) {
+			$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE zone_id = '" . $zone_id . "'");
+			$this->zones[$zone_id] = $query->num_rows ? $query->row : array();
+		}
+
+		return $this->zones[$zone_id];
+	}
+
 	public function getOrder($order_id) {
 		$order_query = $this->db->query("SELECT *, (SELECT CONCAT(c.firstname, ' ', c.lastname) FROM " . DB_PREFIX . "customer c WHERE c.customer_id = o.customer_id) AS customer, (SELECT os.name FROM " . DB_PREFIX . "order_status os WHERE os.order_status_id = o.order_status_id AND os.language_id = '" . (int)$this->config->get('config_language_id') . "') AS order_status FROM `" . DB_PREFIX . "order` o WHERE o.order_id = '" . (int)$order_id . "'");
 
 		if ($order_query->num_rows) {
-			$country_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE country_id = '" . (int)$order_query->row['payment_country_id'] . "'");
+			$country_info = $this->getCountryRow($order_query->row['payment_country_id']);
 
-			if ($country_query->num_rows) {
-				$payment_iso_code_2 = $country_query->row['iso_code_2'];
-				$payment_iso_code_3 = $country_query->row['iso_code_3'];
+			if ($country_info) {
+				$payment_iso_code_2 = $country_info['iso_code_2'];
+				$payment_iso_code_3 = $country_info['iso_code_3'];
 			} else {
 				$payment_iso_code_2 = '';
 				$payment_iso_code_3 = '';
 			}
 
-			$zone_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE zone_id = '" . (int)$order_query->row['payment_zone_id'] . "'");
+			$zone_info = $this->getZoneRow($order_query->row['payment_zone_id']);
 
-			if ($zone_query->num_rows) {
-				$payment_zone_code = $zone_query->row['code'];
+			if ($zone_info) {
+				$payment_zone_code = $zone_info['code'];
 			} else {
 				$payment_zone_code = '';
 			}
 
-			$country_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE country_id = '" . (int)$order_query->row['shipping_country_id'] . "'");
+			$country_info = $this->getCountryRow($order_query->row['shipping_country_id']);
 
-			if ($country_query->num_rows) {
-				$shipping_iso_code_2 = $country_query->row['iso_code_2'];
-				$shipping_iso_code_3 = $country_query->row['iso_code_3'];
+			if ($country_info) {
+				$shipping_iso_code_2 = $country_info['iso_code_2'];
+				$shipping_iso_code_3 = $country_info['iso_code_3'];
 			} else {
 				$shipping_iso_code_2 = '';
 				$shipping_iso_code_3 = '';
 			}
 
-			$zone_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE zone_id = '" . (int)$order_query->row['shipping_zone_id'] . "'");
+			$zone_info = $this->getZoneRow($order_query->row['shipping_zone_id']);
 
-			if ($zone_query->num_rows) {
-				$shipping_zone_code = $zone_query->row['code'];
+			if ($zone_info) {
+				$shipping_zone_code = $zone_info['code'];
 			} else {
 				$shipping_zone_code = '';
 			}
 
-			$reward = 0;
+			$reward_query = $this->db->query("SELECT COALESCE(SUM(reward), 0) AS reward FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
+			$reward = (int)$reward_query->row['reward'];
 
-			$order_product_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
+			$affiliate_info = array();
+			if ((int)$order_query->row['affiliate_id'] > 0) {
+				$this->load->model('customer/customer');
 
-			foreach ($order_product_query->rows as $product) {
-				$reward += $product['reward'];
+				$affiliate_info = $this->model_customer_customer->getCustomer($order_query->row['affiliate_id']);
 			}
-			
-			$this->load->model('customer/customer');
-
-			$affiliate_info = $this->model_customer_customer->getCustomer($order_query->row['affiliate_id']);
 
 			if ($affiliate_info) {
 				$affiliate_firstname = $affiliate_info['firstname'];
@@ -60,9 +84,13 @@ class ModelSaleOrder extends Model {
 				$affiliate_lastname = '';
 			}
 
-			$this->load->model('localisation/language');
+			$language_id = (int)$order_query->row['language_id'];
+			if (!array_key_exists($language_id, $this->languages)) {
+				$this->load->model('localisation/language');
 
-			$language_info = $this->model_localisation_language->getLanguage($order_query->row['language_id']);
+				$this->languages[$language_id] = $this->model_localisation_language->getLanguage($language_id);
+			}
+			$language_info = $this->languages[$language_id];
 
 			if ($language_info) {
 				$language_code = $language_info['code'];
@@ -289,6 +317,20 @@ class ModelSaleOrder extends Model {
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
 
 		return $query->rows;
+	}
+
+	/**
+	 * All options of an order grouped by order_product_id, in one query.
+	 */
+	public function getOrderOptionsByOrderId($order_id) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_option WHERE order_id = '" . (int)$order_id . "' ORDER BY order_option_id ASC");
+
+		$options = array();
+		foreach ($query->rows as $row) {
+			$options[(int)$row['order_product_id']][] = $row;
+		}
+
+		return $options;
 	}
 
 	public function getOrderOptions($order_id, $order_product_id) {

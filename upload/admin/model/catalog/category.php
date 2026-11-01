@@ -61,14 +61,22 @@ class ModelCatalogCategory extends Model {
 		}
 		
 		if (isset($data['product_related'])) {
-			foreach ($data['product_related'] as $related_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_wb SET category_id = '" . (int)$category_id . "', product_id = '" . (int)$related_id . "'");
+			$related_values = array();
+			foreach (array_unique(array_map('intval', (array)$data['product_related'])) as $related_id) {
+				$related_values[] = "('" . (int)$category_id . "', '" . $related_id . "')";
+			}
+			if ($related_values) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_wb (category_id, product_id) VALUES " . implode(', ', $related_values));
 			}
 		}
 	
 		if (isset($data['article_related'])) {
-			foreach ($data['article_related'] as $related_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "article_related_wb SET category_id = '" . (int)$category_id . "', article_id = '" . (int)$related_id . "'");
+			$related_values = array();
+			foreach (array_unique(array_map('intval', (array)$data['article_related'])) as $related_id) {
+				$related_values[] = "('" . (int)$category_id . "', '" . $related_id . "')";
+			}
+			if ($related_values) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "article_related_wb (category_id, article_id) VALUES " . implode(', ', $related_values));
 			}
 		}
 		
@@ -110,34 +118,35 @@ class ModelCatalogCategory extends Model {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "category_path` WHERE path_id = '" . (int)$category_id . "' ORDER BY level ASC");
 
 		if ($query->rows) {
+			// The new parents are the same for every node of the moved subtree.
+			$parent_path = array();
+			$parent_query = $this->db->query("SELECT path_id FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . (int)$data['parent_id'] . "' ORDER BY level ASC");
+
+			foreach ($parent_query->rows as $result) {
+				$parent_path[] = (int)$result['path_id'];
+			}
+
 			foreach ($query->rows as $category_path) {
 				// Delete the path below the current one
 				$this->db->query("DELETE FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . (int)$category_path['category_id'] . "' AND level < '" . (int)$category_path['level'] . "'");
 
-				$path = array();
-
-				// Get the nodes new parents
-				$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . (int)$data['parent_id'] . "' ORDER BY level ASC");
-
-				foreach ($query->rows as $result) {
-					$path[] = $result['path_id'];
-				}
+				$path = $parent_path;
 
 				// Get whats left of the nodes current path
-				$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . (int)$category_path['category_id'] . "' ORDER BY level ASC");
+				$remaining_query = $this->db->query("SELECT path_id FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . (int)$category_path['category_id'] . "' ORDER BY level ASC");
 
-				foreach ($query->rows as $result) {
-					$path[] = $result['path_id'];
+				foreach ($remaining_query->rows as $result) {
+					$path[] = (int)$result['path_id'];
 				}
 
 				// Combine the paths with a new level
-				$level = 0;
+				$values = array();
 
-				foreach ($path as $path_id) {
-					$this->db->query("REPLACE INTO `" . DB_PREFIX . "category_path` SET category_id = '" . (int)$category_path['category_id'] . "', `path_id` = '" . (int)$path_id . "', level = '" . (int)$level . "'");
-
-					$level++;
+				foreach ($path as $level => $path_id) {
+					$values[] = "('" . (int)$category_path['category_id'] . "', '" . (int)$path_id . "', '" . (int)$level . "')";
 				}
+
+				$this->db->query("REPLACE INTO `" . DB_PREFIX . "category_path` (category_id, path_id, level) VALUES " . implode(', ', $values));
 			}
 		} else {
 			// Delete the path below the current one
@@ -189,22 +198,24 @@ class ModelCatalogCategory extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_wb WHERE category_id = '" . (int)$category_id . "'");
 	
 		if (isset($data['product_related'])) {
-			foreach ($data['product_related'] as $related_id) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "product_related_wb WHERE category_id = '" . (int)$category_id . "' AND product_id = '" . (int)$related_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_wb SET category_id = '" . (int)$category_id . "', product_id = '" . (int)$related_id . "'");
-				
-	
+			$related_values = array();
+			foreach (array_unique(array_map('intval', (array)$data['product_related'])) as $related_id) {
+				$related_values[] = "('" . (int)$category_id . "', '" . $related_id . "')";
+			}
+			if ($related_values) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "product_related_wb (category_id, product_id) VALUES " . implode(', ', $related_values));
 			}
 		}
 		
 		$this->db->query("DELETE FROM " . DB_PREFIX . "article_related_wb WHERE category_id = '" . (int)$category_id . "'");
 	
 		if (isset($data['article_related'])) {
-			foreach ($data['article_related'] as $related_id) {
-				$this->db->query("DELETE FROM " . DB_PREFIX . "article_related_wb WHERE category_id = '" . (int)$category_id . "' AND article_id = '" . (int)$related_id . "'");
-				$this->db->query("INSERT INTO " . DB_PREFIX . "article_related_wb SET category_id = '" . (int)$category_id . "', article_id = '" . (int)$related_id . "'");
-				
-	
+			$related_values = array();
+			foreach (array_unique(array_map('intval', (array)$data['article_related'])) as $related_id) {
+				$related_values[] = "('" . (int)$category_id . "', '" . $related_id . "')";
+			}
+			if ($related_values) {
+				$this->db->query("INSERT INTO " . DB_PREFIX . "article_related_wb (category_id, article_id) VALUES " . implode(', ', $related_values));
 			}
 		}
 		
@@ -271,26 +282,62 @@ class ModelCatalogCategory extends Model {
 	}
 
 	public function repairCategories($parent_id = 0) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category WHERE parent_id = '" . (int)$parent_id . "'");
+		$parent_id = (int)$parent_id;
+
+		// Rebuild the subtree in memory: one read of the category tree and
+		// batched writes instead of several queries per category.
+		$children = array();
+		$query = $this->db->query("SELECT category_id, parent_id FROM " . DB_PREFIX . "category");
 
 		foreach ($query->rows as $category) {
-			// Delete the path below the current one
-			$this->db->query("DELETE FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . (int)$category['category_id'] . "'");
+			$children[(int)$category['parent_id']][] = (int)$category['category_id'];
+		}
 
-			// Fix for records with no paths
-			$level = 0;
+		$parent_path = array();
 
-			$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . (int)$parent_id . "' ORDER BY level ASC");
+		if ($parent_id) {
+			$query = $this->db->query("SELECT path_id FROM `" . DB_PREFIX . "category_path` WHERE category_id = '" . $parent_id . "' ORDER BY level ASC");
 
 			foreach ($query->rows as $result) {
-				$this->db->query("INSERT INTO `" . DB_PREFIX . "category_path` SET category_id = '" . (int)$category['category_id'] . "', `path_id` = '" . (int)$result['path_id'] . "', level = '" . (int)$level . "'");
+				$parent_path[] = (int)$result['path_id'];
+			}
+		}
 
-				$level++;
+		$paths = array();
+		$stack = array(array($parent_id, $parent_path));
+
+		while ($stack) {
+			list($node_id, $node_path) = array_pop($stack);
+
+			if (empty($children[$node_id])) {
+				continue;
 			}
 
-			$this->db->query("REPLACE INTO `" . DB_PREFIX . "category_path` SET category_id = '" . (int)$category['category_id'] . "', `path_id` = '" . (int)$category['category_id'] . "', level = '" . (int)$level . "'");
+			foreach ($children[$node_id] as $category_id) {
+				// A parent cycle in damaged data must not loop forever.
+				if (isset($paths[$category_id]) || $category_id === $parent_id) {
+					continue;
+				}
 
-			$this->repairCategories($category['category_id']);
+				$path = $node_path;
+				$path[] = $category_id;
+				$paths[$category_id] = $path;
+				$stack[] = array($category_id, $path);
+			}
+		}
+
+		foreach (array_chunk(array_keys($paths), 500) as $chunk) {
+			$this->db->query("DELETE FROM `" . DB_PREFIX . "category_path` WHERE category_id IN (" . implode(',', $chunk) . ")");
+
+			$values = array();
+
+			foreach ($chunk as $category_id) {
+				foreach ($paths[$category_id] as $level => $path_id) {
+					$values[] = "('" . $category_id . "', '" . $path_id . "', '" . $level . "')";
+				}
+			}
+
+			$this->db->query("REPLACE INTO `" . DB_PREFIX . "category_path` (category_id, path_id, level) VALUES " . implode(', ', $values));
 		}
 	}
 
@@ -349,9 +396,28 @@ class ModelCatalogCategory extends Model {
     }
 
 	public function getCategory($category_id) {
-		$query = $this->db->query("SELECT DISTINCT *, (SELECT GROUP_CONCAT(cd1.name ORDER BY level SEPARATOR '&nbsp;&nbsp;&gt;&nbsp;&nbsp;') FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "category_description cd1 ON (cp.path_id = cd1.category_id AND cp.category_id != cp.path_id) WHERE cp.category_id = c.category_id AND cd1.language_id = '" . (int)$this->config->get('config_language_id') . "' GROUP BY cp.category_id) AS path FROM " . DB_PREFIX . "category c LEFT JOIN " . DB_PREFIX . "category_description cd2 ON (c.category_id = cd2.category_id) WHERE c.category_id = '" . (int)$category_id . "' AND cd2.language_id = '" . (int)$this->config->get('config_language_id') . "'");
-		
-		return $query->row;
+		$rows = $this->getCategoriesByIds(array((int)$category_id));
+
+		return isset($rows[(int)$category_id]) ? $rows[(int)$category_id] : array();
+	}
+
+	/**
+	 * getCategory() rows for several ids in one query, keyed by id.
+	 */
+	public function getCategoriesByIds(array $category_ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $category_ids))));
+		if (!$ids) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT DISTINCT *, (SELECT GROUP_CONCAT(cd1.name ORDER BY level SEPARATOR '&nbsp;&nbsp;&gt;&nbsp;&nbsp;') FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "category_description cd1 ON (cp.path_id = cd1.category_id AND cp.category_id != cp.path_id) WHERE cp.category_id = c.category_id AND cd1.language_id = '" . (int)$this->config->get('config_language_id') . "' GROUP BY cp.category_id) AS path FROM " . DB_PREFIX . "category c LEFT JOIN " . DB_PREFIX . "category_description cd2 ON (c.category_id = cd2.category_id) WHERE c.category_id IN (" . implode(',', $ids) . ") AND cd2.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+
+		$rows = array();
+		foreach ($query->rows as $row) {
+			$rows[(int)$row['category_id']] = $row;
+		}
+
+		return $rows;
 	}
 	
 	public function getAllCategories() {

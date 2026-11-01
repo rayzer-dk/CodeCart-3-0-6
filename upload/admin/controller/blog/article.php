@@ -620,8 +620,10 @@ class ControllerBlogArticle extends Controller {
 
 		$data['article_categories'] = array();
 
+		$category_info_rows = $this->model_blog_category->getCategoriesByIds((array)$categories);
+
 		foreach ($categories as $blog_category_id) {
-			$category_info = $this->model_blog_category->getCategory($blog_category_id);
+			$category_info = isset($category_info_rows[(int)$blog_category_id]) ? $category_info_rows[(int)$blog_category_id] : array();
 
 			if ($category_info) {
 				$data['article_categories'][] = array(
@@ -675,8 +677,10 @@ class ControllerBlogArticle extends Controller {
 
 		$data['article_downloads'] = array();
 
+		$download_info_rows = $this->model_catalog_download->getDownloadsByIds((array)$article_downloads);
+
 		foreach ($article_downloads as $download_id) {
-			$download_info = $this->model_catalog_download->getDownload($download_id);
+			$download_info = isset($download_info_rows[(int)$download_id]) ? $download_info_rows[(int)$download_id] : array();
 
 			if ($download_info) {
 				$data['article_downloads'][] = array(
@@ -696,8 +700,10 @@ class ControllerBlogArticle extends Controller {
 
 		$data['article_relateds'] = array();
 
+		$related_info_rows = $this->model_blog_article->getArticlesByIds((array)$articles);
+
 		foreach ($articles as $article_id) {
-			$related_info = $this->model_blog_article->getArticle($article_id);
+			$related_info = isset($related_info_rows[(int)$article_id]) ? $related_info_rows[(int)$article_id] : array();
 
 			if ($related_info) {
 				$data['article_relateds'][] = array(
@@ -718,8 +724,10 @@ class ControllerBlogArticle extends Controller {
 		$data['product_relateds'] = array();
 		$this->load->model('catalog/product');
 
+		$product_info_rows = $this->model_catalog_product->getProductsByIds((array)$products);
+
 		foreach ($products as $product_id) {
-			$product_info = $this->model_catalog_product->getProduct($product_id);
+			$product_info = isset($product_info_rows[(int)$product_id]) ? $product_info_rows[(int)$product_id] : array();
 
 			if ($product_info) {
 				$data['product_relateds'][] = array(
