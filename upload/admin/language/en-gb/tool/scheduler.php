@@ -190,7 +190,7 @@ $_['text_host_source_web'] = 'Server HTTPS';
 $_['text_history_filter'] = 'Task';
 $_['text_host_failed'] = 'Failures';
 $_['text_history_source_manual'] = 'Manual';
-$_['text_history_source_visitor'] = 'Visitor / automatic heartbeat';
+$_['text_history_source_visitor'] = 'Site visit';
 
 $_['text_external_method_explanation'] = 'Saved HTTPS endpoints are run by CodeCart\'s scheduler; do not add the same endpoint to your hosting panel.';
 $_['text_host_method_explanation'] = 'For a module with its own shell/CLI Cron command, configure that command in your hosting control panel instead of importing it here.';

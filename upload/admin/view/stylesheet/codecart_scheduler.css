@@ -52,12 +52,12 @@
 
 /* One-line task names; technical identifiers are available in the tooltip. */
 .codecart-scheduler-table { table-layout:fixed; width:100%; margin-bottom:0; }
-.codecart-scheduler-table th:nth-child(1){width:24%}
+.codecart-scheduler-table th:nth-child(1){width:22%}
 .codecart-scheduler-table th:nth-child(2){width:15%}
-.codecart-scheduler-table th:nth-child(3){width:7%}
-.codecart-scheduler-table th:nth-child(4){width:9%}
+.codecart-scheduler-table th:nth-child(3){width:6%}
+.codecart-scheduler-table th:nth-child(4){width:8%}
 .codecart-scheduler-table th:nth-child(5),.codecart-scheduler-table th:nth-child(6){width:14%}
-.codecart-scheduler-table th:nth-child(7){width:8%}
+.codecart-scheduler-table th:nth-child(7){width:12%}
 .codecart-scheduler-table th:nth-child(8){width:9%;min-width:156px}
 .codecart-scheduler-table td { vertical-align:middle!important; padding:6px 8px!important }
 .codecart-scheduler-table .ccp-task-single-line {display:flex;align-items:center;gap:5px;flex-wrap:nowrap;min-width:0;white-space:nowrap}
@@ -91,7 +91,7 @@
 .ccp-scheduler-history-table th{border-right:1px solid #dce4ed}
 .ccp-scheduler-history-table th:nth-child(1){width:146px}
 .ccp-scheduler-history-table th:nth-child(2){width:21%}
-.ccp-scheduler-history-table th:nth-child(3){width:88px}
+.ccp-scheduler-history-table th:nth-child(3){width:150px}
 .ccp-scheduler-history-table th:nth-child(4){width:90px}
 .ccp-scheduler-history-table th:nth-child(5){width:95px}
 .ccp-scheduler-history-table td{padding:6px 8px!important;vertical-align:middle!important}
@@ -141,3 +141,4 @@ html.ccp-admin-dark .ccp-scheduler-host-details .ccp-host-task-helper{background
 /* Keep "Success 54 ms" on one line; the message stays available in the badge tooltip. */
 .codecart-scheduler-table .ccp-scheduler-result { white-space: nowrap; }
 .ccp-scheduler-status .ccp-scheduler-source { color: #526c80; margin-left: 4px; }
+.ccp-scheduler-history-table .label { display: inline-block; white-space: nowrap; }

@@ -190,7 +190,7 @@ $_['text_host_source_web'] = 'Серверний HTTPS';
 $_['text_history_filter'] = 'Завдання';
 $_['text_host_failed'] = 'Помилок';
 $_['text_history_source_manual'] = 'Вручну';
-$_['text_history_source_visitor'] = 'Відвідувач / автоматичний heartbeat';
+$_['text_history_source_visitor'] = 'Відвідування сайту';
 
 $_['text_external_method_explanation'] = 'HTTPS-запити цього блока виконує планувальник CodeCart. Не створюйте друге таке саме завдання в панелі хостингу.';
 $_['text_host_method_explanation'] = 'Якщо модуль надає власну CLI/команду Cron, налаштуйте її безпосередньо в панелі вашого хостингу, а не в переліку завдань CodeCart.';

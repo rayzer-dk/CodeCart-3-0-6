@@ -191,7 +191,7 @@ $_['text_host_source_web'] = 'Серверный HTTPS';
 $_['text_history_filter'] = 'Задание';
 $_['text_host_failed'] = 'Ошибок';
 $_['text_history_source_manual'] = 'Вручную';
-$_['text_history_source_visitor'] = 'Посетитель / автоматический heartbeat';
+$_['text_history_source_visitor'] = 'Посещение сайта';
 
 $_['text_external_method_explanation'] = 'HTTPS-запросы этого блока выполняет планировщик CodeCart. Не создавайте вторую такую же задачу в панели хостинга.';
 $_['text_host_method_explanation'] = 'Если модуль предоставляет собственную CLI/команду Cron, настройте её непосредственно в панели своего хостинга, а не в списке задач CodeCart.';

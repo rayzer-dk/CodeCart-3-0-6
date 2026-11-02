@@ -131,7 +131,7 @@
         <tbody>{% for history in history_rows %}<tr>
           <td class="text-nowrap">{{ history.date_added }}</td><td><span class="ccp-ellipsis" title="{{ history.task_code|e('html_attr') }}">{{ history.task_code }}</span></td>
           <td>{{ history.source == 'cli' ? text_host_source_cli : (history.source == 'web' ? text_host_source_web : (history.source == 'manual' ? text_history_source_manual : text_history_source_visitor)) }}</td>
-          <td><span class="label label-{{ history.result == 'success' ? 'success' : 'danger' }}">{{ history.result == 'success' ? text_success : text_result_error }}</span></td>
+          <td><span class="label label-{{ history.result == 'success' ? 'success' : 'danger' }}">{{ history.result == 'success' ? text_result_success : text_result_error }}</span></td>
           <td>{{ history.duration_ms }} ms</td><td><span class="ccp-ellipsis" title="{{ history.message|e('html_attr') }}">{{ history.message }}</span></td>
         </tr>{% else %}<tr><td colspan="6" class="text-center">{{ text_history_empty }}</td></tr>{% endfor %}</tbody>
       </table></div>

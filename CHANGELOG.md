@@ -1,3 +1,12 @@
+# CodeCart 3.0.6.0 — Build 2.1.5 (2026-11-02)
+
+- Cron: SeoPro no longer canonical-redirects `cron.php` and `route=cron/*` requests, so HTTPS Cron URLs and the administration "Run now" button stop failing with HTTP 301. A redirect configured on the hosting side is now reported with its HTTP code and target address.
+- Abandoned carts: the consent bridge for guest contacts is injected after SEO URL decoding (`startup/startup/cartRecovery`), so it also loads on `/checkout` and other SEO checkout addresses. Guest contacts store the storefront language; reminders are sent in that language with a language-prefixed one-time recovery link.
+- Missing tables are detected by MySQL error 1146 (`CodeCart\Core\DatabaseError`) and created on first use for guest contacts, reminder consent and the Cron run history/heartbeat; fresh installs create the Cron history and heartbeat tables.
+- Cron screen: server Cron status with its source, last site-visit run, localized short intervals, success results without the "Technical details" wrapper, "Success" labels and a "Site visit" source in the run history, columns that no longer wrap.
+- Abandoned carts screen: sticky action column for the wide table, "No contact left" / "No opt-in" wording.
+- Keep schema 3.0.6.0; see documentation/RELEASE_2.1.5.md for verification scope.
+
 # CodeCart 3.0.6.0 — Build 2.1.4 (2026-11-01)
 
 - Generate storefront SEO links from a request-scoped index: taxonomy aliases load once per store/language, product and article aliases are prefetched by listing models, misses are remembered. Applies to native SEO URLs and SeoPro.
