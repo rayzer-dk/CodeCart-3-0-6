@@ -4,7 +4,7 @@ class ControllerToolScheduler extends Controller {
         $this->load->language('tool/scheduler');
         $this->load->language('tool/diagnostics');
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->document->addStyle('view/stylesheet/codecart_scheduler.css?v=3.0.6.7');
+        $this->document->addStyle('view/stylesheet/codecart_scheduler.css?v=3.0.6.8');
 
         $scheduler = new \CodeCart\Core\Scheduler($this->registry);
 
@@ -70,7 +70,7 @@ class ControllerToolScheduler extends Controller {
         foreach (array('text_server_setup', 'text_server_interval', 'text_server_one_command', 'text_job_help', 'text_job_type', 'text_manual', 'text_choose_example', 'text_handler_warning',
           'text_session_cleanup', 'text_cache_note', 'text_extra_modules', 'text_json_example', 'text_job_code_help','text_existing_codes_info',
           'text_choose_available_handler','text_advanced_options','text_scheduler_health','text_scheduler_health_ok','text_scheduler_health_warn','text_scheduler_health_none',
-          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info','text_ready_handlers_count','text_no_free_handler','text_save_failed','text_interval_preset','text_interval_custom','text_scheduler_host_unverified','text_scheduler_intro','text_create_task_hint','text_task_paused','text_native_task_type','text_host_task_type','text_host_command_label','text_host_command_help','text_host_schedule_help','text_host_copy','text_host_security','text_handler_select_help','text_advanced_identifiers','text_task_no_handler','text_host_minute','text_host_hour','text_host_dom','text_host_month','text_host_dow','text_job_name_header','text_external_import_title','text_external_import_help','text_external_import_command','text_external_import_frequency','text_external_import_submit','text_external_import_safety','text_external_import_secret_note','text_external_import_success','text_external_import_failed','text_external_job_name') as $key) {
+          'text_last_execution_help','text_no_custom_handlers','text_scheduler_usage','text_scheduler_limit_info','text_ready_handlers_count','text_no_free_handler','text_save_failed','text_interval_preset','text_interval_custom','text_scheduler_host_unverified','text_scheduler_visitor_none','text_create_task_hint','text_task_paused','text_native_task_type','text_host_task_type','text_host_command_label','text_host_command_help','text_host_schedule_help','text_host_copy','text_host_security','text_handler_select_help','text_advanced_identifiers','text_task_no_handler','text_host_minute','text_host_hour','text_host_dom','text_host_month','text_host_dow','text_job_name_header','text_external_import_title','text_external_import_help','text_external_import_command','text_external_import_frequency','text_external_import_submit','text_external_import_safety','text_external_import_secret_note','text_external_import_success','text_external_import_failed','text_external_job_name') as $key) {
             $data[$key] = $this->language->get($key);
         }
         foreach (array('text_scheduled_tab','text_external_tab','text_queue_tab','text_run_history','text_history_empty','text_history_task','text_history_source','text_history_result','text_history_date','text_history_duration','text_history_message','text_manual_run_disabled','text_real_frequency_help','text_host_source_cli','text_host_source_web','text_history_filter','text_host_failed','text_history_source_manual','text_history_source_visitor') as $key) {
@@ -111,6 +111,7 @@ class ControllerToolScheduler extends Controller {
         $data['scheduler_health_date'] = '';
         $data['scheduler_health_source'] = '';
         $data['scheduler_health_errors'] = 0;
+        $data['scheduler_visitor_text'] = '';
         $data['history_pagination'] = '';
         $data['scheduler_form_error'] = (string)($this->session->data['scheduler_form_error'] ?? '');
         unset($this->session->data['scheduler_form_error']);
@@ -131,7 +132,7 @@ class ControllerToolScheduler extends Controller {
                 $localizedDesc = $this->language->get($codeDesc);
                 $job['description'] = $localizedDesc !== $codeDesc ? $localizedDesc : '';
                 $job['last_status_text'] = $job['last_status'] === 'success' ? $this->language->get('text_result_success') : ($job['last_status'] === 'error' ? $this->language->get('text_result_error') : '');
-                $job['last_message_localized'] = trim((string)$job['last_message']) !== '' ? $this->safeDiagnostic((string)$job['last_message']) : '';
+                $job['last_message_localized'] = trim((string)$job['last_message']) === '' ? '' : ($job['last_status'] === 'success' ? $this->successMessage((string)$job['last_message']) : $this->safeDiagnostic((string)$job['last_message']));
             }
             unset($job);
             $registered = array();
@@ -145,6 +146,10 @@ class ControllerToolScheduler extends Controller {
             $data['scheduler_health_date'] = $lastRun;
             $data['scheduler_health_source'] = (string)($heartbeat['source'] ?? '');
             $data['scheduler_health_errors'] = (int)($heartbeat['failed'] ?? 0);
+            $visitor = $scheduler->visitorHeartbeat();
+            $data['scheduler_visitor_text'] = !empty($visitor['date_last'])
+                ? sprintf($this->language->get('text_scheduler_visitor_last'), (string)$visitor['date_last'])
+                : $this->language->get('text_scheduler_visitor_none');
             $data['history_total'] = $scheduler->historyCount($data['history_filter_task']);
             $lastHistoryPage = max(1, (int)ceil($data['history_total'] / $data['history_limit']));
             $data['history_page'] = min($lastHistoryPage, $data['history_page']);
@@ -291,6 +296,7 @@ class ControllerToolScheduler extends Controller {
      */
     private function safeDiagnostic($message): string {
         $message = (string)$message;
+
         if (is_callable(array('\CodeCart\Core\SystemNotification', 'localizeDiagnostic'))) {
             try {
                 return \CodeCart\Core\SystemNotification::localizeDiagnostic($message, $this->language);
@@ -357,7 +363,7 @@ class ControllerToolScheduler extends Controller {
             if (!empty($result['success']) && (int)$result['failed'] === 0) {
                 $this->session->data['success'] = sprintf($this->language->get('text_queue_run_result'), (int)$result['processed'], (int)$result['failed']);
             } else {
-                $this->session->data['error_warning'] = sprintf($this->language->get('text_queue_run_result'), (int)$result['processed'], (int)$result['failed']) . ' ' . $this->safeDiagnostic((string)$result['message']);
+                $this->session->data['error_warning'] = sprintf($this->language->get('text_queue_run_result'), (int)$result['processed'], (int)$result['failed']) . ' ' . $this->resultMessage($result);
             }
             return;
         }
@@ -373,7 +379,7 @@ class ControllerToolScheduler extends Controller {
             if (!empty($result['success'])) {
                 $this->session->data['success'] = sprintf($this->language->get('text_queue_one_result'), $queueId, $queueStateLabel);
             } else {
-                $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message']);
+                $this->session->data['error_warning'] = $this->resultMessage($result);
             }
             return;
         }
@@ -503,9 +509,9 @@ class ControllerToolScheduler extends Controller {
         } elseif ($action === 'run') {
             $result = $this->runCatalogTask($schedulerId);
             if (!empty($result['success'])) {
-                $this->session->data['success'] = $this->language->get('text_run_result') . ': ' . $this->safeDiagnostic((string)$result['message']) . ', ' . (int)$result['duration_ms'] . ' ms';
+                $this->session->data['success'] = $this->language->get('text_run_result') . ': ' . $this->successMessage((string)$result['message']) . ', ' . (int)$result['duration_ms'] . ' ms';
             } else {
-                $this->session->data['error_warning'] = $this->safeDiagnostic((string)$result['message']);
+                $this->session->data['error_warning'] = $this->resultMessage($result);
             }
         } elseif ($action === 'delete') {
             $scheduler->deleteTask($schedulerId);
@@ -528,7 +534,7 @@ class ControllerToolScheduler extends Controller {
         }
 
         // CurlHandle is released automatically; curl_close() is deprecated in PHP 8.5.
-        if ($body===false || $status<200 || $status>=300) return array('success'=>false,'status'=>'error','message'=>$error!==''?$error:(in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP '.$status),'duration_ms'=>0);
+        if ($body===false || $status<200 || $status>=300) return array('success'=>false,'status'=>'error','message'=>$error!==''?$error:(in_array($status, array(301,302,303,307,308), true) ? $this->redirectFailure($ch, $status) : 'HTTP '.$status),'localized'=>$error==='' && in_array($status, array(301,302,303,307,308), true),'duration_ms'=>0);
         $body=trim((string)$body); $json=json_decode($body,true); if (!is_array($json) || !isset($json['scheduler_one']) || !is_array($json['scheduler_one'])) { $contentType=(string)curl_getinfo($ch,CURLINFO_CONTENT_TYPE); return array('success'=>false,'status'=>'error','message'=>'Invalid scheduler response (HTTP '.(int)$status.($contentType!==''?', '.$contentType:'').').','duration_ms'=>0); }
         return $json['scheduler_one'];
     }
@@ -551,7 +557,7 @@ class ControllerToolScheduler extends Controller {
         }
 
         if ($body === false || $status < 200 || $status >= 300) {
-            return array('success'=>false, 'processed'=>0, 'failed'=>0, 'message'=>$error !== '' ? $error : (in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP ' . $status));
+            return array('success'=>false, 'processed'=>0, 'failed'=>0, 'message'=>$error !== '' ? $error : (in_array($status, array(301,302,303,307,308), true) ? $this->redirectFailure($ch, $status) : 'HTTP ' . $status), 'localized'=>$error === '' && in_array($status, array(301,302,303,307,308), true));
         }
         $json = json_decode(trim((string)$body), true);
         if (!is_array($json) || !isset($json['queue']) || !is_array($json['queue'])) {
@@ -583,7 +589,7 @@ class ControllerToolScheduler extends Controller {
         }
 
         if ($body === false || $status < 200 || $status >= 300) {
-            return array('success'=>false, 'status'=>'error', 'message'=>$error !== '' ? $error : (in_array($status, array(301,302,303,307,308), true) ? $this->language->get('error_scheduler_redirect') : 'HTTP ' . $status));
+            return array('success'=>false, 'status'=>'error', 'message'=>$error !== '' ? $error : (in_array($status, array(301,302,303,307,308), true) ? $this->redirectFailure($ch, $status) : 'HTTP ' . $status), 'localized'=>$error === '' && in_array($status, array(301,302,303,307,308), true));
         }
         $json = json_decode(trim((string)$body), true);
         if (!is_array($json) || !isset($json['queue_one']) || !is_array($json['queue_one'])) {
@@ -606,7 +612,8 @@ class ControllerToolScheduler extends Controller {
         $location = (string)curl_getinfo($handle, CURLINFO_REDIRECT_URL);
         $source = parse_url($originalUrl);
         $target = $location !== '' && !preg_match('/[\x00-\x20\x7f]/', $location) ? parse_url($location) : false;
-        $fail = array(false, 'HTTP 301: redirect is not a trusted HTTPS Cron endpoint. Configure the canonical storefront URL.', 301);
+        // An empty error lets the caller report the localized redirect diagnosis.
+        $fail = array(false, '', (int)curl_getinfo($handle, CURLINFO_HTTP_CODE));
         if (!is_array($source) || !is_array($target)
             || strtolower((string)($source['scheme'] ?? '')) !== 'https'
             || strtolower((string)($target['scheme'] ?? '')) !== 'https'
@@ -640,11 +647,36 @@ class ControllerToolScheduler extends Controller {
         return array($body, $error, $status);
     }
 
+    /** A successful handler summary ("Cart reminders: sent 1 ...") is not an error diagnostic. */
+    private function successMessage(string $message): string {
+        $localized = $this->safeDiagnostic($message);
+        return $localized === sprintf($this->language->get('text_diag_technical_details'), trim($message)) ? trim($message) : $localized;
+    }
+
+    /** Messages already translated by this controller are not wrapped as raw technical details. */
+    private function resultMessage(array $result): string {
+        return !empty($result['localized']) ? (string)$result['message'] : $this->safeDiagnostic((string)$result['message']);
+    }
+
+    /**
+     * Localized redirect diagnosis with the target address. The query string is
+     * dropped: it may contain the Cron key echoed back by the redirecting server.
+     */
+    private function redirectFailure($handle, int $status): string {
+        $location = (string)curl_getinfo($handle, CURLINFO_REDIRECT_URL);
+        $parts = $location !== '' ? parse_url($location) : false;
+        $target = '';
+        if (is_array($parts) && !empty($parts['host'])) {
+            $target = strtolower((string)($parts['scheme'] ?? 'https')) . '://' . $parts['host'] . (isset($parts['port']) ? ':' . (int)$parts['port'] : '') . (string)($parts['path'] ?? '/');
+        }
+        return sprintf($this->language->get('error_scheduler_redirect'), $status, $target !== '' ? $target : '—');
+    }
+
     private function formatInterval(int $seconds): string {
-        if ($seconds % 86400 === 0) { return ($seconds / 86400) . ' d'; }
-        if ($seconds % 3600 === 0) { return ($seconds / 3600) . ' h'; }
-        if ($seconds % 60 === 0) { return ($seconds / 60) . ' min'; }
-        return $seconds . ' s';
+        if ($seconds > 0 && $seconds % 86400 === 0) { return sprintf($this->language->get('text_interval_short_day'), $seconds / 86400); }
+        if ($seconds > 0 && $seconds % 3600 === 0) { return sprintf($this->language->get('text_interval_unit_hour'), $seconds / 3600); }
+        if ($seconds > 0 && $seconds % 60 === 0) { return sprintf($this->language->get('text_interval_unit_minute'), $seconds / 60); }
+        return $seconds . ' ' . $this->language->get('text_seconds');
     }
 
     private function getCatalogBaseUrl(): string {

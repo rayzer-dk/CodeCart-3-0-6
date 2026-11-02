@@ -57,7 +57,7 @@ $_['text_disabled'] = 'Disabled';
 
 $_['text_quick_guide'] = 'Reminders require valid email and explicit consent for the specific cart. A newsletter subscription is insufficient.';
 $_['button_compose_email'] = 'Compose email in mail application (does not send automatically)';
-$_['text_no_email'] = 'Customer email unavailable';
+$_['text_no_email'] = 'No contact left';
 $_['text_mail_subject'] = 'Your unfinished checkout';
 
 $_['entry_mail_auto'] = 'Automatic abandoned-cart reminders';
@@ -178,7 +178,7 @@ $_['text_source_only_explanation'] = 'Most checkout themes use OpenCart\'s stand
 $_['text_checkout_only_explanation'] = 'Reminder link only. Does not change store checkout.';
 
 $_['text_cart_image'] = 'Image';
-$_['text_mail_status_no_email'] = 'No email';
+$_['text_mail_status_no_email'] = 'No opt-in';
 $_['text_checkout_resolved'] = 'Link:';
 $_['text_checkout_preview_only'] = 'Preview only. Save settings to apply the selected mode.';
 $_['text_checkout_auto_info'] = 'Checkout route detected automatically.';

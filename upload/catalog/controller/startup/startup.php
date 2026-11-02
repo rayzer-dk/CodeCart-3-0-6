@@ -265,34 +265,6 @@ class ControllerStartupStartup extends Controller {
 		$customer = new Cart\Customer($this->registry);
 		$this->registry->set('customer', $customer);
 
-        // OFF is inert: no checkout scripts, Ajax or extra queries for disabled carts.
-        if ((bool)$this->config->get('codecart_abandoned_cart_status')
-            && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
-            $cartCheckoutRoute = (string)($this->request->get['route'] ?? '');
-            $cartCustomRoute = false;
-            if ($cartCheckoutRoute !== '' && (string)$this->config->get('codecart_abandoned_cart_checkout_mode') === 'custom') {
-                $cartCustomQuery = parse_url((string)$this->config->get('codecart_abandoned_cart_checkout_url'), PHP_URL_QUERY);
-                $cartCustomArgs = array();
-                if (is_string($cartCustomQuery)) { parse_str($cartCustomQuery, $cartCustomArgs); }
-                $cartCustomRoute = (string)($cartCustomArgs['route'] ?? '') === $cartCheckoutRoute;
-            }
-            // Register once, before any third-party theme header, to support alternate checkouts.
-            if ($this->customer->isLogged()) {
-                if ($cartCheckoutRoute === 'checkout/checkout' || $cartCheckoutRoute === 'checkout/uni_checkout' || $cartCustomRoute) {
-                    $this->document->addScript('catalog/view/javascript/codecart/registered-cart-consent.js?v=3.0.6.2');
-                }
-            } elseif ((bool)$this->config->get('codecart_abandoned_cart_guest_capture')) {
-                // Load on the actual checkout route, independent of the active template.
-                // Native guest forms already containing a reminder-consent checkbox
-                // are detected by the bridge and must not receive a duplicate.
-                if ($cartCheckoutRoute === 'checkout/checkout'
-                    || $cartCheckoutRoute === 'checkout/uni_checkout'
-                    || $cartCustomRoute) {
-                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.6');
-                }
-            }
-        }
-
 		
 		// Customer Group
 		if (isset($this->session->data['customer']) && isset($this->session->data['customer']['customer_group_id'])) {
@@ -372,5 +344,50 @@ class ControllerStartupStartup extends Controller {
 		
 		// Encryption
 		$this->registry->set('encryption', new Encryption());
+	}
+
+	/**
+	 * Cart-recovery consent bridges for checkout pages.
+	 *
+	 * Runs as a separate pre-action after startup/seo_url: with SEO URLs the
+	 * checkout route (for example /checkout/) is only known after alias
+	 * decoding, so index() cannot decide which checkout page is being opened.
+	 * Still runs before any controller renders the theme header.
+	 */
+	public function cartRecovery() {
+        // OFF is inert: no checkout scripts, Ajax or extra queries for disabled carts.
+        if ((bool)$this->config->get('codecart_abandoned_cart_status')
+            && (string)$this->config->get('codecart_abandoned_cart_source') !== 'external') {
+            $cartCheckoutRoute = (string)($this->request->get['route'] ?? '');
+            $cartCustomRoute = false;
+            if ((string)$this->config->get('codecart_abandoned_cart_checkout_mode') === 'custom') {
+                $cartCustomUrl = parse_url((string)$this->config->get('codecart_abandoned_cart_checkout_url'));
+                $cartCustomArgs = array();
+                if (is_array($cartCustomUrl) && isset($cartCustomUrl['query'])) { parse_str((string)$cartCustomUrl['query'], $cartCustomArgs); }
+                $cartCustomTarget = (string)($cartCustomArgs['route'] ?? '');
+                if ($cartCustomTarget !== '') {
+                    $cartCustomRoute = $cartCheckoutRoute !== '' && $cartCustomTarget === $cartCheckoutRoute;
+                } elseif (is_array($cartCustomUrl) && isset($cartCustomUrl['path'])) {
+                    // A pretty custom checkout URL (/checkout-fast/) has no route parameter: match its path.
+                    $cartRequestPath = (string)parse_url((string)($this->request->server['REQUEST_URI'] ?? ''), PHP_URL_PATH);
+                    $cartCustomRoute = trim(rawurldecode($cartRequestPath), '/') !== ''
+                        && strcasecmp(trim(rawurldecode($cartRequestPath), '/'), trim(rawurldecode((string)$cartCustomUrl['path']), '/')) === 0;
+                }
+            }
+            if ($this->customer->isLogged()) {
+                if ($cartCheckoutRoute === 'checkout/checkout' || $cartCheckoutRoute === 'checkout/uni_checkout' || $cartCustomRoute) {
+                    $this->document->addScript('catalog/view/javascript/codecart/registered-cart-consent.js?v=3.0.6.2');
+                }
+            } elseif ((bool)$this->config->get('codecart_abandoned_cart_guest_capture')) {
+                // Load on the actual checkout route, independent of the active template.
+                // Native guest forms already containing a reminder-consent checkbox
+                // are detected by the bridge and must not receive a duplicate.
+                if ($cartCheckoutRoute === 'checkout/checkout'
+                    || $cartCheckoutRoute === 'checkout/uni_checkout'
+                    || $cartCustomRoute) {
+                    $this->document->addScript('catalog/view/javascript/codecart/guest-cart-uni-consent.js?v=3.0.6.6');
+                }
+            }
+        }
 	}
 }

@@ -3787,6 +3787,31 @@ INSERT INTO `oc_codecart_scheduler` (`code`,`route`,`args`,`interval_seconds`,`s
 ('core.mail.campaign','cron/mail_campaign','{}',60,1,NULL,NOW(),0,'','',NOW(),NOW()),
 ('core.queue.worker','cron/queue_worker','{}',60,1,NULL,NOW(),0,'','',NOW(),NOW());
 
+DROP TABLE IF EXISTS `oc_codecart_scheduler_history`;
+CREATE TABLE `oc_codecart_scheduler_history` (
+  `history_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `scheduler_id` int(11) NOT NULL,
+  `task_code` varchar(128) NOT NULL,
+  `source` varchar(16) NOT NULL,
+  `result` varchar(16) NOT NULL,
+  `duration_ms` int(10) unsigned NOT NULL DEFAULT '0',
+  `message` varchar(1000) NOT NULL DEFAULT '',
+  `date_added` datetime NOT NULL,
+  PRIMARY KEY (`history_id`),
+  KEY `task_recent` (`scheduler_id`,`history_id`),
+  KEY `date_added` (`date_added`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `oc_codecart_scheduler_heartbeat`;
+CREATE TABLE `oc_codecart_scheduler_heartbeat` (
+  `source` varchar(16) NOT NULL,
+  `date_last` datetime NOT NULL,
+  `last_status` varchar(16) NOT NULL,
+  `processed` int(10) unsigned NOT NULL DEFAULT '0',
+  `failed` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `oc_codecart_queue`;
 CREATE TABLE `oc_codecart_queue` (
   `queue_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,

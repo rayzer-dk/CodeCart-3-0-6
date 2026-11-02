@@ -192,3 +192,9 @@ html.ccp-admin-dark .ccp-carts-page .ccp-checkout-mode-note{color:#b3c5d6}
 .ccp-carts-page .ccp-cart-settings-form .form-control{min-height:34px}
 .ccp-carts-page .ccp-cart-settings-form .ccp-capture-diagnostics-toggle{display:block}
 .ccp-carts-page .ccp-cart-settings-form .ccp-external-advanced{padding:10px 12px}
+/* Below ~1600px the fixed-width table scrolls horizontally; keep row actions (send, delete) in view. */
+.ccp-carts-page .ccp-abandoned-cart-table .ccp-cart-actions-heading,.ccp-carts-page .ccp-abandoned-cart-table .ccp-cart-row-actions{position:sticky;right:0;z-index:1;background:#fff;box-shadow:-1px 0 0 #d4deea}
+.ccp-carts-page .ccp-abandoned-cart-table thead .ccp-cart-actions-heading{background:#f6f8fb}
+.ccp-carts-page .ccp-abandoned-cart-table tbody tr:hover .ccp-cart-row-actions{background:#f5f5f5}
+html.ccp-admin-dark .ccp-carts-page .ccp-abandoned-cart-table .ccp-cart-row-actions{background:#18212b;box-shadow:-1px 0 0 #435161}
+html.ccp-admin-dark .ccp-carts-page .ccp-abandoned-cart-table thead .ccp-cart-actions-heading{background:#263448}

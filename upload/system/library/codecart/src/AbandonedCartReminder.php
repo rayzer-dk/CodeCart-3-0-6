@@ -63,9 +63,10 @@ final class AbandonedCartReminder {
         $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         if ($customerId === 0) {
             if (!(bool)$this->config->get('codecart_abandoned_cart_guest_capture')) { return array(); }
+            $this->ensureGuestSchema();
             $sql = "SELECT c.customer_id,c.session_id,MAX(c.date_added) AS last_activity,
                     MAX(c.cart_id) AS max_cart_id,SUM(c.quantity) AS quantity,
-                    MAX(gc.firstname) AS firstname,MAX(gc.email) AS email,MAX(gc.consent) AS newsletter, MAX(gc.store_id) AS store_id
+                    MAX(gc.firstname) AS firstname,MAX(gc.email) AS email,MAX(gc.consent) AS newsletter, MAX(gc.store_id) AS store_id, MAX(gc.language_id) AS language_id
                 FROM `" . DB_PREFIX . "cart` c
                 INNER JOIN `" . DB_PREFIX . "codecart_cart_guest_contact` gc ON gc.session_id=c.session_id AND gc.consent=1 AND gc.recovered_at IS NULL AND gc.date_modified>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
                 WHERE c.api_id=0 AND c.customer_id=0 AND c.session_id='" . $this->db->escape($sessionId) . "'
@@ -77,7 +78,7 @@ final class AbandonedCartReminder {
         }
         $sql = "SELECT c.customer_id,c.session_id,MAX(c.date_added) AS last_activity,
                     MAX(c.cart_id) AS max_cart_id,SUM(c.quantity) AS quantity,
-                    MAX(cu.firstname) AS firstname,MAX(cu.email) AS email, MAX(rc.consent) AS newsletter, MAX(rc.store_id) AS store_id
+                    MAX(cu.firstname) AS firstname,MAX(cu.email) AS email, MAX(rc.consent) AS newsletter, MAX(rc.store_id) AS store_id, MAX(cu.language_id) AS language_id
                 FROM `" . DB_PREFIX . "cart` c
                 INNER JOIN `" . DB_PREFIX . "customer` cu ON cu.customer_id=c.customer_id
                 INNER JOIN `" . DB_PREFIX . "codecart_cart_registered_consent` rc ON rc.customer_id=c.customer_id AND rc.session_id=c.session_id AND rc.consent=1 AND rc.date_modified>=DATE_SUB(NOW(),INTERVAL " . $days . " DAY)
@@ -90,6 +91,55 @@ final class AbandonedCartReminder {
         try { $result = $this->db->query($sql); }
         catch (\Throwable $e) { return array(); }
         return $result->num_rows ? $result->row : array();
+    }
+
+    /** Guest contact columns added after the first release (language) must exist before reading them. */
+    private function ensureGuestSchema(): void {
+        static $checked = false;
+        if (!$checked) {
+            (new GuestCartContact($this->registry))->install();
+            $checked = true;
+        }
+    }
+
+    /**
+     * Language of the reminder: the one the shopper used (guest consent or customer
+     * account), if still active; otherwise the store default. Also returns that
+     * language's URL folder so the link opens the shop in the same language.
+     */
+    private function reminderLanguage(array $cart, string $default): array {
+        $prefix = '';
+        $languageId = (int)($cart['language_id'] ?? 0);
+        if ($languageId > 0) {
+            $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "language` WHERE language_id='" . $languageId . "' AND status='1' LIMIT 1");
+            if ($query->num_rows) {
+                $default = (string)$query->row['code'];
+                $prefix = preg_match('/^[a-z0-9-]{1,32}$/i', (string)($query->row['url_prefix'] ?? '')) ? (string)$query->row['url_prefix'] : '';
+            }
+        }
+        return array(strtolower(str_replace('_', '-', $default)), $prefix);
+    }
+
+    /** Plain-text reminder; guests get a one-time restore link, customers a sign-in link. */
+    private function message(string $locale, string $name, string $store, string $link, bool $guest): array {
+        if (strpos($locale, 'uk') === 0) {
+            return array('Незавершена покупка — ' . $store, 'Вітаємо' . ($name !== '' ? ', ' . $name : '') . "!\n\nУ вашому кошику залишилися товари. "
+                . ($guest ? 'Щоб повернути їх у кошик і завершити покупку, відкрийте посилання: ' : 'Щоб завершити покупку, увійдіть у свій обліковий запис: ')
+                . $link . ($guest ? "\nПосилання одноразове." : '') . "\n\nЯкщо ви вже оформили замовлення, не зважайте на цей лист.\n\n" . $store);
+        }
+        if (strpos($locale, 'ru') === 0) {
+            return array('Незавершённая покупка — ' . $store, 'Здравствуйте' . ($name !== '' ? ', ' . $name : '') . "!\n\nВ вашей корзине остались товары. "
+                . ($guest ? 'Чтобы вернуть их в корзину и завершить покупку, откройте ссылку: ' : 'Чтобы завершить покупку, войдите в свой аккаунт: ')
+                . $link . ($guest ? "\nСсылка одноразовая." : '') . "\n\nЕсли заказ уже оформлен, проигнорируйте письмо.\n\n" . $store);
+        }
+        if (strpos($locale, 'da') === 0) {
+            return array('Din uafsluttede bestilling hos ' . $store, 'Hej' . ($name !== '' ? ' ' . $name : '') . ",\n\nDer ligger stadig varer i din indkøbskurv. "
+                . ($guest ? 'Åbn linket for at hente dem tilbage i kurven og fuldføre bestillingen: ' : 'Log ind her for at fuldføre bestillingen: ')
+                . $link . ($guest ? "\nLinket kan kun bruges én gang." : '') . "\n\nHvis du allerede har bestilt, kan du se bort fra denne mail.\n\n" . $store);
+        }
+        return array('Your unfinished order at ' . $store, 'Hello' . ($name !== '' ? ' ' . $name : '') . ",\n\nYou left products in your shopping cart. "
+            . ($guest ? 'Open this link to put them back in your cart and complete your order: ' : 'To complete your order, sign in here: ')
+            . $link . ($guest ? "\nThe link can be used once." : '') . "\n\nIf you have already ordered, please ignore this message.\n\n" . $store);
     }
 
     public function history(array $carts): array {
@@ -197,27 +247,16 @@ final class AbandonedCartReminder {
             }
             $store = (string)$setting('config_name', 'Store');
             $name = trim((string)$cart['firstname']);
-            $link = rtrim($base, '/') . '/index.php?route=account/login';
+            list($locale, $languagePrefix) = $this->reminderLanguage($cart, (string)$setting('config_language', 'en-gb'));
+            $base = rtrim($base, '/') . ($languagePrefix !== '' ? '/' . rawurlencode($languagePrefix) : '');
+            $link = $base . '/index.php?route=account/login';
             if ($customerId === 0) {
                 $token = (new GuestCartContact($this->registry))->issueToken($sessionId);
                 if ($token === '') { throw new \RuntimeException('Guest cart recovery token not available.'); }
                 // URL stays on the originating storefront and contains a single-use random token.
-                $link = rtrim($base, '/') . '/index.php?route=extension/module/codecart_cart_recover&token=' . $token;
+                $link = $base . '/index.php?route=extension/module/codecart_cart_recover&token=' . $token;
             }
-            $locale = strtolower(str_replace('_', '-', (string)$setting('config_language','en-gb')));
-            if (strpos($locale,'uk') === 0) {
-                $subject = 'Незавершена покупка — ' . $store;
-                $body = 'Вітаємо' . ($name !== '' ? ', ' . $name : '') . "!\n\nУ вашому кошику залишилися товари. Якщо бажаєте завершити покупку, увійдіть у свій обліковий запис: " . $link . "\n\nЯкщо ви вже оформили замовлення, не зважайте на цей лист.\n\n" . $store;
-            } elseif (strpos($locale,'ru') === 0) {
-                $subject = 'Незавершённая покупка — ' . $store;
-                $body = 'Здравствуйте' . ($name !== '' ? ', ' . $name : '') . "!\n\nВ вашей корзине остались товары. Если хотите завершить покупку, войдите в свой аккаунт: " . $link . "\n\nЕсли заказ уже оформлен, проигнорируйте письмо.\n\n" . $store;
-            } elseif (strpos($locale,'da') === 0) {
-                $subject = 'Din uafsluttede bestilling hos ' . $store;
-                $body = 'Hej' . ($name !== '' ? ' ' . $name : '') . ",\n\nDer ligger stadig varer i din indkøbskurv. Hvis du ønsker at fuldføre bestillingen, kan du logge ind her: " . $link . "\n\nHvis du allerede har bestilt, kan du se bort fra denne mail.\n\n" . $store;
-            } else {
-                $subject = 'Your unfinished order at ' . $store;
-                $body = 'Hello' . ($name !== '' ? ' ' . $name : '') . ",\n\nYou left products in your shopping cart. To complete your order, sign in here: " . $link . "\n\nIf you have already ordered, please ignore this message.\n\n" . $store;
-            }
+            list($subject, $body) = $this->message($locale, $name, $store, $link, $customerId === 0);
             $mail = new \Mail((string)$setting('config_mail_engine','mail'));
             $mail->parameter = $setting('config_mail_parameter');
             $mail->smtp_hostname = $setting('config_mail_smtp_hostname');
@@ -256,8 +295,7 @@ final class AbandonedCartReminder {
             // Create only its empty schema, then retry. Never manufacture consent.
             $logger = $this->registry->get('log');
             if ($logger) { $logger->write('Cart reminder registered consent query failed: ' . $e->getMessage()); }
-            $missingConsentTable = (stripos($e->getMessage(), DB_PREFIX . 'codecart_cart_registered_consent') !== false)
-                && (preg_match('/\\b1146\\b|does.?not exist|doesn.t exist/i', $e->getMessage()) === 1);
+            $missingConsentTable = DatabaseError::isMissingTable($e);
             if (!$missingConsentTable) {
                 return array('success'=>false,'message'=>'Cart reminder consent query failed; check the error log.','sent'=>0,'failed'=>1,'skipped'=>0);
             }

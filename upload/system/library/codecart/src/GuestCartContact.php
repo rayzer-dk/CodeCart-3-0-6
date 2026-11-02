@@ -26,6 +26,7 @@ final class GuestCartContact {
             `firstname` VARCHAR(100) NOT NULL DEFAULT '',
             `lastname` VARCHAR(100) NOT NULL DEFAULT '',
             `telephone` VARCHAR(40) NOT NULL DEFAULT '',
+            `language_id` INT NOT NULL DEFAULT 0,
             `consent` TINYINT(1) NOT NULL DEFAULT 0,
             `token_hash` CHAR(64) DEFAULT NULL,
             `token_expires` DATETIME DEFAULT NULL,
@@ -38,12 +39,18 @@ final class GuestCartContact {
             KEY `guest_token` (`token_hash`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
         // Idempotent upgrade for installations that already use guest contacts.
-        $this->ensureSurnameColumn();
+        $this->ensureColumns();
     }
-    private function ensureSurnameColumn(): void {
-        $check = $this->db->query("SHOW COLUMNS FROM " . $this->table() . " LIKE 'lastname'");
-        if (!$check->num_rows) {
+    /** Adds columns introduced after the first release of the guest contact table. */
+    private function ensureColumns(): void {
+        $columns = array();
+        foreach ($this->db->query("SHOW COLUMNS FROM " . $this->table())->rows as $row) { $columns[(string)$row['Field']] = true; }
+        if (!isset($columns['lastname'])) {
             $this->db->query("ALTER TABLE " . $this->table() . " ADD `lastname` VARCHAR(100) NOT NULL DEFAULT '' AFTER `firstname`");
+        }
+        // The reminder is written in the language the visitor used when giving consent.
+        if (!isset($columns['language_id'])) {
+            $this->db->query("ALTER TABLE " . $this->table() . " ADD `language_id` INT NOT NULL DEFAULT 0 AFTER `telephone`");
         }
     }
     public function saveFromCheckout(string $sessionId, array $post): void {
@@ -60,10 +67,10 @@ final class GuestCartContact {
         $firstname = function_exists('utf8_substr') ? utf8_substr($rawFirstname, 0, 100) : substr($rawFirstname, 0, 100);
         $lastname = function_exists('utf8_substr') ? utf8_substr($rawLastname, 0, 100) : substr($rawLastname, 0, 100);
         $phone = substr(trim((string)($post['telephone'] ?? '')), 0, 40);
-        // Upgrade legacy schema if an earlier version created the table without lastname.
+        // Upgrade legacy schema if an earlier version created the table without newer columns.
         static $schemaChecked = false;
-        if (!$schemaChecked) { $this->ensureSurnameColumn(); $schemaChecked = true; }
-        $this->db->query("INSERT INTO " . $this->table() . " SET session_id='" . $sessionId . "',store_id='" . (int)$this->config->get('config_store_id') . "', email='" . $this->db->escape($email) . "',firstname='" . $this->db->escape($firstname) . "',lastname='" . $this->db->escape($lastname) . "',telephone='" . $this->db->escape($phone) . "',consent=1,date_added=NOW(),date_modified=NOW() ON DUPLICATE KEY UPDATE store_id=VALUES(store_id),email=VALUES(email),firstname=VALUES(firstname),lastname=VALUES(lastname),telephone=VALUES(telephone),consent=1,token_hash=NULL,token_expires=NULL,token_used=NULL,recovered_at=NULL,date_modified=NOW()");
+        if (!$schemaChecked) { $this->ensureColumns(); $schemaChecked = true; }
+        $this->db->query("INSERT INTO " . $this->table() . " SET session_id='" . $sessionId . "',store_id='" . (int)$this->config->get('config_store_id') . "', email='" . $this->db->escape($email) . "',firstname='" . $this->db->escape($firstname) . "',lastname='" . $this->db->escape($lastname) . "',telephone='" . $this->db->escape($phone) . "',language_id='" . (int)$this->config->get('config_language_id') . "',consent=1,date_added=NOW(),date_modified=NOW() ON DUPLICATE KEY UPDATE store_id=VALUES(store_id),email=VALUES(email),firstname=VALUES(firstname),lastname=VALUES(lastname),telephone=VALUES(telephone),language_id=VALUES(language_id),consent=1,token_hash=NULL,token_expires=NULL,token_used=NULL,recovered_at=NULL,date_modified=NOW()");
     }
     /**
      * Confirm that an explicit guest opt-in was persisted for this store and

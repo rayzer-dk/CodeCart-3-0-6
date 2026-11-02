@@ -211,10 +211,48 @@ final class Scheduler {
     }
 
     /** History and heartbeat are observational only; never turn a finished task into a retry. */
+    /**
+     * History and heartbeat tables were added by a later migration; installs that
+     * skipped it would otherwise never show Cron health or run history.
+     */
+    private function writeObservability(string $sql): void {
+        try {
+            $this->db->query($sql);
+        } catch (\Throwable $e) {
+            if (!DatabaseError::isMissingTable($e)) { throw $e; }
+            $this->installObservability();
+            $this->db->query($sql);
+        }
+    }
+
+    private function installObservability(): void {
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_scheduler_history` (
+            `history_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `scheduler_id` INT NOT NULL,
+            `task_code` VARCHAR(128) NOT NULL,
+            `source` VARCHAR(16) NOT NULL,
+            `result` VARCHAR(16) NOT NULL,
+            `duration_ms` INT UNSIGNED NOT NULL DEFAULT 0,
+            `message` VARCHAR(1000) NOT NULL DEFAULT '',
+            `date_added` DATETIME NOT NULL,
+            PRIMARY KEY (`history_id`),
+            KEY `task_recent` (`scheduler_id`,`history_id`),
+            KEY `date_added` (`date_added`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_scheduler_heartbeat` (
+            `source` VARCHAR(16) NOT NULL,
+            `date_last` DATETIME NOT NULL,
+            `last_status` VARCHAR(16) NOT NULL,
+            `processed` INT UNSIGNED NOT NULL DEFAULT 0,
+            `failed` INT UNSIGNED NOT NULL DEFAULT 0,
+            PRIMARY KEY (`source`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+
     private function recordHistory(array $job, string $source, bool $ok, int $duration, string $message): void {
         try {
             $safeMessage = $this->scrubDiagnostic($message);
-            $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler_history` SET scheduler_id = '" . (int)$job['scheduler_id'] . "', task_code = '" . $this->db->escape((string)$job['code']) . "', source = '" . $this->db->escape($source) . "', result = '" . ($ok ? 'success' : 'error') . "', duration_ms = '" . max(0, $duration) . "', message = '" . $this->db->escape($safeMessage) . "', date_added = NOW()");
+            $this->writeObservability("INSERT INTO `" . DB_PREFIX . "codecart_scheduler_history` SET scheduler_id = '" . (int)$job['scheduler_id'] . "', task_code = '" . $this->db->escape((string)$job['code']) . "', source = '" . $this->db->escape($source) . "', result = '" . ($ok ? 'success' : 'error') . "', duration_ms = '" . max(0, $duration) . "', message = '" . $this->db->escape($safeMessage) . "', date_added = NOW()");
             // Keep the history bounded without a maintenance job running on every page.
             if (random_int(1, 50) === 1) {
                 $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_scheduler_history` WHERE date_added < DATE_SUB(NOW(), INTERVAL 30 DAY)");
@@ -233,7 +271,7 @@ final class Scheduler {
     private function recordHeartbeat(string $source, array $result): void {
         try {
             $status = (string)($result['status'] ?? 'error');
-            $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler_heartbeat` SET source = '" . $this->db->escape($source) . "', date_last = NOW(), last_status = '" . $this->db->escape($status) . "', processed = '" . (int)($result['processed'] ?? 0) . "', failed = '" . (int)($result['failed'] ?? 0) . "' ON DUPLICATE KEY UPDATE date_last = NOW(), last_status = VALUES(last_status), processed = VALUES(processed), failed = VALUES(failed)");
+            $this->writeObservability("INSERT INTO `" . DB_PREFIX . "codecart_scheduler_heartbeat` SET source = '" . $this->db->escape($source) . "', date_last = NOW(), last_status = '" . $this->db->escape($status) . "', processed = '" . (int)($result['processed'] ?? 0) . "', failed = '" . (int)($result['failed'] ?? 0) . "' ON DUPLICATE KEY UPDATE date_last = NOW(), last_status = VALUES(last_status), processed = VALUES(processed), failed = VALUES(failed)");
         } catch (\Throwable $e) {
             // The scheduler is functional even before the observability migration.
         }
@@ -242,6 +280,14 @@ final class Scheduler {
     public function hostHeartbeat(): array {
         try {
             $q = $this->db->query("SELECT source, date_last, last_status, processed, failed, TIMESTAMPDIFF(MINUTE, date_last, NOW()) AS age_minutes FROM `" . DB_PREFIX . "codecart_scheduler_heartbeat` WHERE source IN ('cli', 'web') ORDER BY date_last DESC LIMIT 1");
+            return $q->num_rows ? $q->row : array();
+        } catch (\Throwable $e) { return array(); }
+    }
+
+    /** Last run started by a storefront visit (heartbeat), shown when no server Cron is connected. */
+    public function visitorHeartbeat(): array {
+        try {
+            $q = $this->db->query("SELECT date_last, last_status, failed FROM `" . DB_PREFIX . "codecart_scheduler_heartbeat` WHERE source = 'visitor' LIMIT 1");
             return $q->num_rows ? $q->row : array();
         } catch (\Throwable $e) { return array(); }
     }

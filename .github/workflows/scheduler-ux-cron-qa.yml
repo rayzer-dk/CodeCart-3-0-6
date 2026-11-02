@@ -57,7 +57,7 @@ jobs:
           assert "$panel.detach().hide().appendTo($holder).fadeIn(160)" in js
           assert "flex: 0 0 29px" in css and "width: 29px" in css
           assert "ccp-scheduler-task-code" in css
-          assert "document->addStyle('view/stylesheet/codecart_scheduler.css?v=3.0.6.7')" in controller
+          assert "document->addStyle('view/stylesheet/codecart_scheduler.css?v=3.0.6.8')" in controller
           assert '<style>' not in twig and '<link rel="stylesheet"' not in twig
           assert 'codecart-scheduler.js?v=3.0.6.6' in twig
           # Built-in technical codes are not translated or mutated in the DB.
