@@ -91,20 +91,10 @@ $_['entry_csp_report_only'] = 'CSP Report-Only';
 $_['entry_hsts'] = 'HSTS';
 $_['text_totp_enabled'] = 'TOTP enabled';
 $_['text_totp_disabled'] = 'TOTP disabled';
-$_['text_totp_setup'] = 'A new TOTP secret was generated. Add it to your authenticator and confirm with a current code.';
-$_['text_totp_secret'] = 'Secret';
-$_['text_totp_uri'] = 'Authenticator URI';
-$_['text_totp_code'] = 'Authenticator or recovery code';
-$_['text_totp_recovery'] = 'Recovery codes — save them now; they are shown only once';
 $_['text_security_audit'] = 'Security audit';
 $_['text_login_protection_help'] = 'Rate-limits failed administrator logins by username + IP and separately by source IP. It does not let another IP globally lock an administrator account.';
 $_['text_security_headers_help'] = 'Safe headers are managed in Core. CSP is Report-Only first; HSTS is sent only over HTTPS.';
 $_['text_hsts_help'] = 'Enable only after the whole domain and required subdomains are permanently HTTPS.';
-$_['button_totp_prepare'] = 'Set up TOTP';
-$_['button_totp_enable'] = 'Enable TOTP';
-$_['button_totp_disable'] = 'Disable TOTP';
-$_['button_copy'] = 'Copy';
-$_['error_totp_prepare'] = 'Start TOTP setup first.';
 
 $_['entry_nosniff'] = 'MIME sniffing protection';
 $_['entry_referrer_policy'] = 'Referrer-Policy';
@@ -278,7 +268,6 @@ $_['button_cleanup_old'] = 'Clean old records';
 $_['text_cleanup_done'] = 'Old records removed: %d';
 $_['text_cleanup_confirm'] = 'Clean records older than the configured retention period?';
 
-$_['text_totp_account'] = 'Account';
 
 // CodeCart PRO contextual field guidance
 $_['help_login_max_attempts'] = 'Failed attempts allowed before a temporary lock. 5–7 is recommended; lower can inconvenience admins, higher weakens protection.';
@@ -462,3 +451,8 @@ $_['text_extension_namespace'] = 'Namespace';
 $_['text_icon_style_solid'] = 'Solid';
 $_['text_icon_style_regular'] = 'Regular';
 $_['text_icon_style_brands'] = 'Brands';
+$_['text_totp_own'] = 'Your account';
+$_['button_totp_manage'] = 'Manage';
+$_['text_totp_policy'] = 'Mandatory for groups';
+$_['help_totp_policy'] = 'Members of the selected groups must set up two-factor verification at their next sign-in and cannot disable it. Leave shared demo or view-only groups unselected.';
+$_['text_totp_group_stats'] = '%d of %d active users protected';

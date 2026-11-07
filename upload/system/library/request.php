@@ -28,6 +28,11 @@ class Request {
 		$this->cookie = $this->clean($_COOKIE);
 		$this->files = $this->clean($_FILES);
 		$this->server = $this->clean($_SERVER);
+
+		// route[]=... would reach routers and permission checks as an array.
+		if (isset($this->get['route']) && !is_string($this->get['route'])) {
+			unset($this->get['route']);
+		}
 	}
 	
 	/**

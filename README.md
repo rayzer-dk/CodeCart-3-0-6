@@ -1,6 +1,6 @@
 # CodeCart 3.0.6
 
-Current package build: **2.1.5**. Core schema version remains **3.0.6.0**. This maintenance build fixes the Cron endpoint redirect, abandoned-cart contact capture on SEO checkout URLs and the Cron/Abandoned carts administration screens; see [release notes](documentation/RELEASE_2.1.5.md) for verification scope and deployment requirements.
+Current package build: **2.1.6**. Core schema version remains **3.0.6.0**. This security build enforces administrator two-factor verification, which earlier builds did not apply, and adds self-service management, mandatory group policy and administrator reset; see [release notes](documentation/RELEASE_2.1.6.md) for verification scope and deployment requirements.
 
 **CodeCart** is a free, open-source e-commerce content management system for creating and managing online stores. It builds on the familiar OpenCart/ocStore 3.x architecture while combining a modern responsive storefront, a comprehensive administration panel, multilingual SEO routing and a foundation for developing independent extensions.
 

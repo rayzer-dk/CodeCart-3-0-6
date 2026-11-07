@@ -75,6 +75,7 @@
       <li class="dropdown ccp-admin-profile"><a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ firstname }} {{ lastname }}">{% if image %}<img src="{{ image }}" alt="{{ firstname }} {{ lastname }}" title="{{ username }}" id="user-profile" class="img-circle" />{% else %}<span id="user-profile" class="ccp-admin-profile-fallback img-circle" title="{{ username }}" aria-hidden="true"><i class="fa fa-user"></i></span>{% endif %}<span class="ccp-admin-profile-name hidden-xs">{{ firstname }} {{ lastname }}</span> <i class="fa fa-caret-down fa-fw"></i></a>
         <ul class="dropdown-menu dropdown-menu-right">
           <li><a href="{{ profile }}"><i class="fa fa-user-circle-o fa-fw"></i> {{ text_profile }}</a></li>
+          <li><a href="{{ two_factor }}"><i class="fa fa-shield fa-fw"></i> {{ text_two_factor }}</a></li>
           <li role="separator" class="divider"></li>
           <li class="dropdown-header">{{ text_store }}</li>
           {% for store in stores %}

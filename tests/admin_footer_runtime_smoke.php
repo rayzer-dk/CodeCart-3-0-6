@@ -9,9 +9,10 @@ namespace CodeCart\Core {
 }
 namespace {
     define('VERSION', '3.0.6.0');
-    define('CODECART_PACKAGE_BUILD', '2.1.5');
+    define('CODECART_PACKAGE_BUILD', '2.1.6');
     define('DB_DRIVER', 'mysqli');
     class Controller {
+        public $registry;
         public $load;
         public $language;
         public $user;
@@ -29,6 +30,11 @@ namespace {
         private $active;
         public function __construct($active) { $this->active = $active; }
         public function isLogged() { return $this->active; }
+    }
+    class StubRegistry {
+        private $data;
+        public function __construct(array $data) { $this->data = $data; }
+        public function get($key) { return isset($this->data[$key]) ? $this->data[$key] : null; }
     }
     class StubDocument { public function getAssets($position) { return array(); } }
     class StubDB {
@@ -49,8 +55,9 @@ namespace {
     }
     require dirname(__DIR__) . '/upload/admin/controller/common/footer.php';
     function check($ok, $message) { if (!$ok) throw new \RuntimeException($message); }
-    function renderFooter($logged, $urlToken, $session, $db, $software = 'nginx/1.26.0') {
+    function renderFooter($logged, $urlToken, $session, $db, $software = 'nginx/1.26.0', $mfaPending = null) {
         $controller = new \ControllerCommonFooter();
+        $controller->registry = new StubRegistry(array('codecart_mfa_pending' => $mfaPending));
         $controller->load = new StubLoader();
         $controller->language = new StubLanguage();
         $controller->user = new StubUser($logged);
@@ -80,7 +87,7 @@ namespace {
     check(strpos($template, 'ccp-footer-main') !== false, 'Main footer row absent');
     check(strpos($template, 'text_runtime_web_server') !== false, 'Web server not rendered');
     check(strpos($template, 'text_runtime_more') === false && strpos($template, 'ccp-footer-runtime-details') === false, 'Legacy system details disclosure still rendered');
-    check($data['runtime_build'] === '2.1.5' && $data['runtime_db_driver'] === 'mysqli', 'Original runtime details regressed');
+    check($data['runtime_build'] === '2.1.6' && $data['runtime_db_driver'] === 'mysqli', 'Original runtime details regressed');
     check(isset($data['project_links']) && isset($data['project_support_methods']), 'Support links regressed');
     renderFooter(true, 'valid', $session, $db);
     check($db->calls === 1, 'DB read should be cached per session');
@@ -93,6 +100,8 @@ namespace {
         $guest = renderFooter($case[0], $case[1], $session, $db);
         check($guest['environment_visible'] === false && !isset($guest['runtime_php_version']), 'Sensitive detail leaked');
     }
+    $pending = renderFooter(true, 'valid', $session, $db, 'nginx/1.26.0', 'challenge');
+    check($pending['environment_visible'] === false && !isset($pending['runtime_php_version']), 'Environment shown before the second factor');
     check($db->calls === 2, 'Unauthorized visitor triggered DB read');
     $missingDb = new StubDB('');
     $missingDb->fail = true;

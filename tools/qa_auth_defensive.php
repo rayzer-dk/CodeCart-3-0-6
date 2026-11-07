@@ -44,13 +44,14 @@ final class DefensiveMfaDb {
     public $lockResult = 1;
     public bool $lockError = false;
     public string $failQuery = '';
+    public int $failCode = 0;
     private int $affected = 0;
     public function escape($value): string { return addslashes((string)$value); }
     public function countAffected(): int { return $this->affected; }
     public function query(string $sql): object {
         $this->queries[] = $sql;
         $this->affected = 0;
-        if ($this->failQuery !== '' && strpos($sql, $this->failQuery) === 0) { throw new RuntimeException('QA database failure'); }
+        if ($this->failQuery !== '' && strpos($sql, $this->failQuery) === 0) { throw new RuntimeException('QA database failure', $this->failCode); }
         if (strpos($sql, 'SELECT GET_LOCK(') === 0) {
             if ($this->lockError) { throw new RuntimeException('QA advisory lock unavailable'); }
             return result(array(array('acquired' => $this->lockResult)));
@@ -91,7 +92,7 @@ final class DefensiveMfaDb {
 }
 
 $case = $argv[1] ?? ($_GET['case'] ?? 'html');
-if (!in_array($case, array('html', 'totp', 'cart', 'device-admin', 'device-catalog'), true)) {
+if (!in_array($case, array('html', 'totp', 'totp-pipeline', 'cart', 'device-admin', 'device-catalog'), true)) {
     check(false, 'Unknown or empty test case: ' . $case);
     echo 'RESULT ' . $checks . ' checks, ' . $failures . ' failures' . PHP_EOL;
     exit(1);
@@ -466,6 +467,68 @@ if ($case === 'totp') {
     $db->queries = array();
     $manager->verify(8, 'invalid');
     check($db->queries[0] === "SELECT GET_LOCK('" . $otherLock . "', 2) AS acquired", 'different accounts on the same source share one advisory lock');
+}
+if ($case === 'totp-pipeline') {
+    // The admin startup gate itself, run as the framework runs it: Controller
+    // magic properties, registry services and the Action it returns.
+    define('DB_DATABASE', 'qa_auth');
+    require dirname(__DIR__) . '/upload/system/engine/action.php';
+    require dirname(__DIR__) . '/upload/admin/controller/startup/totp.php';
+    $user = new class {
+        public $id = 7; public $group = 1;
+        public function isLogged() { return $this->id; }
+        public function getId() { return $this->id; }
+        public function getGroupId() { return $this->group; }
+    };
+    $log = new class { public array $lines = array(); public function write($line) { $this->lines[] = $line; } };
+    $gate = function (string $route, DefensiveMfaDb $db, array $session = array(), array $settings = array(), string $method = 'GET') use ($user, $log) {
+        $registry = registry($db);
+        $registry->set('user', $user);
+        $registry->set('log', $log);
+        $registry->get('session')->data = $session;
+        $registry->get('request')->get = array('route' => $route, 'user_token' => 'qa-token', 'product_id' => '42');
+        $registry->get('request')->server['REQUEST_METHOD'] = $method;
+        foreach ($settings + array('config_encryption' => str_repeat('q', 40)) as $key => $value) { $registry->get('config')->set($key, $value); }
+        $result = (new ControllerStartupTotp($registry))->index();
+        return array('action' => $result instanceof Action ? $result->getId() : null, 'pending' => $registry->get('codecart_mfa_pending'), 'session' => $registry->get('session')->data);
+    };
+    $db = new DefensiveMfaDb();
+    $db->mfa = array('status' => 1, 'secret' => 'v1.qa', 'last_counter' => -1, 'recovery_codes' => '[]');
+
+    $run = $gate('catalog/product/edit', $db);
+    check($run['action'] === 'common/totp' && $run['pending'] === 'challenge', 'password-only session is sent to the second factor');
+    check(($run['session']['codecart_totp_redirect']['route'] ?? '') === 'catalog/product/edit' && !isset($run['session']['codecart_totp_redirect']['query']['user_token']), 'requested page is remembered without the admin token');
+    foreach (array('', 'common/dashboard', 'Common/Dashboard', 'common/totp/index', 'common/two_factor', 'common/device_authorize', 'common/filemanager', 'tool/codecart_core') as $route) {
+        check($gate($route, $db)['action'] === 'common/totp', 'route "' . $route . '" requires the second factor');
+    }
+    check($gate('catalog/product/edit', $db, array(), array(), 'POST')['session'] === array(), 'POST requests are not remembered as redirect targets');
+    $run = $gate('common/totp', $db);
+    check($run['action'] === null && $run['pending'] === 'challenge', 'verification page itself is reachable');
+    $run = $gate('error/permission', $db);
+    check($run['action'] === null && $run['pending'] === 'challenge', 'open error page keeps the session marked as pending');
+    $run = $gate('common/dashboard', $db, array('codecart_totp_verified_user_id' => 7));
+    check($run['action'] === null && $run['pending'] === null, 'verified session passes');
+    check($gate('common/dashboard', $db, array('codecart_totp_verified_user_id' => 8))['action'] === 'common/totp', 'verification of another account does not count');
+
+    $db->failQuery = 'SELECT * FROM `qa_codecart_user_mfa`';
+    $run = $gate('common/dashboard', $db);
+    check($run['action'] === 'common/totp' && $run['pending'] === 'unavailable', 'unreadable MFA state fails closed');
+    check($gate('common/dashboard', $db, array(), array('codecart_upgrade_required' => 1))['action'] === 'common/totp', 'pending Installer update does not open the gate on other database errors');
+    $db->failQuery = '';
+    $db->failQuery = 'SELECT * FROM `qa_codecart_user_mfa`'; $db->failCode = 1146;
+    check($gate('common/dashboard', $db, array(), array('codecart_upgrade_required' => 1))['action'] === null, 'store awaiting the Installer update without an MFA table is not locked out');
+    check($gate('common/dashboard', $db)['action'] === 'common/totp', 'missing MFA table on an up-to-date schema blocks access');
+    $db->failQuery = ''; $db->failCode = 0;
+
+    $db->mfa = array();
+    check($gate('common/dashboard', $db)['action'] === null, 'account without a second factor passes when no policy applies');
+    $run = $gate('common/dashboard', $db, array(), array('codecart_totp_required_groups' => '1,5'));
+    check($run['action'] === 'common/two_factor' && $run['pending'] === 'setup', 'mandatory group is sent to set up the second factor');
+    check($gate('common/two_factor', $db, array(), array('codecart_totp_required_groups' => '1'))['action'] === null, 'setup page is reachable during mandatory setup');
+    check($gate('common/dashboard', $db, array(), array('codecart_totp_required_groups' => '2'))['action'] === null, 'other groups (for example a view-only demo group) are not forced');
+
+    $empty = new Registry();
+    check((new ControllerStartupTotp($empty))->index() === null, 'request without a user service is ignored');
 }
 if ($checks === 0) { check(false, 'Unknown or empty test case: ' . $case); }
 echo 'RESULT ' . $checks . ' checks, ' . $failures . ' failures' . PHP_EOL;

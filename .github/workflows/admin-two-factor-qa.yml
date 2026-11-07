@@ -1,0 +1,54 @@
+name: Admin Two-Factor QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/admin-two-factor-qa.yml'
+      - 'tools/qa_auth_defensive.php'
+      - 'upload/system/library/codecart/src/TotpManager.php'
+      - 'upload/system/library/codecart/src/LoginProtection.php'
+      - 'upload/system/library/request.php'
+      - 'upload/system/config/admin.php'
+      - 'upload/admin/controller/startup/**'
+      - 'upload/admin/controller/common/**'
+      - 'upload/admin/controller/user/user.php'
+      - 'upload/admin/language/*/common/two_factor.php'
+      - 'upload/admin/language/*/common/totp.php'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: |
+          set -eu
+          for f in upload/system/library/codecart/src/TotpManager.php upload/system/library/codecart/src/LoginProtection.php upload/admin/controller/startup/totp.php upload/admin/controller/common/totp.php upload/admin/controller/common/two_factor.php upload/admin/controller/user/user.php upload/admin/language/*/common/two_factor.php upload/admin/language/*/common/totp.php; do php -l "$f"; done
+      - name: Second-factor gate and verification contracts
+        run: |
+          set -eu
+          php tools/qa_auth_defensive.php totp-pipeline
+          php tools/qa_auth_defensive.php totp
+      - name: Gate order and language parity
+        run: |
+          set -eu
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          config = Path('upload/system/config/admin.php').read_text()
+          order = re.search(r"action_pre_action'\]\s*=\s*array\((.*?)\);", config, re.S).group(1)
+          steps = re.findall(r"'([^']+)'", order)
+          assert steps.index('startup/login') < steps.index('startup/totp') < steps.index('startup/device_authorization') < steps.index('startup/permission'), steps
+          for name in ('common/two_factor', 'common/totp'):
+              keys = []
+              for lang in ('en-gb', 'ru-ru', 'uk-ua'):
+                  text = Path(f'upload/admin/language/{lang}/{name}.php').read_text(encoding='utf-8')
+                  found = re.findall(r"\$_\['([^']+)'\]\s*=", text)
+                  assert len(found) == len(set(found)), (lang, name, 'duplicate keys')
+                  keys.append(set(found))
+              assert keys[0] == keys[1] == keys[2], (name, keys[0] ^ keys[1], keys[0] ^ keys[2])
+          PY

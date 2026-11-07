@@ -41,3 +41,19 @@ $_['text_show_password'] = 'Show / hide password';
 
 // CodeCart PRO: aligned locale keys
 $_['error_exists'] = 'File does not exist!';
+$_['column_two_factor'] = 'Two-factor';
+$_['entry_two_factor'] = 'Two-factor verification';
+$_['text_two_factor_on'] = 'Enabled';
+$_['text_two_factor_off'] = 'Not set up';
+$_['entry_two_factor_password'] = 'Your password';
+$_['button_two_factor_reset'] = 'Reset two-factor';
+$_['text_two_factor_confirm'] = 'Remove this administrator\'s second factor? They will sign in with the password only until they set it up again.';
+$_['text_two_factor_reset_help'] = 'Use when the administrator lost the phone and the recovery codes. The administrator receives an e-mail about the reset.';
+$_['text_two_factor_reset'] = 'Two-factor verification was reset.';
+$_['error_two_factor_target'] = 'You cannot reset your own two-factor verification here; use the two-factor page.';
+$_['error_two_factor_password'] = 'Wrong password.';
+$_['error_two_factor_attempts'] = 'Too many wrong passwords. Try again later.';
+$_['mail_two_factor_reset_subject'] = 'Two-factor verification was reset';
+$_['mail_two_factor_reset_text'] = 'Two-factor verification for the administrator account "%s" was reset by "%s" (%s).
+
+Set it up again in the administration (profile menu → Two-factor verification). If you did not ask for this, contact the store owner.';

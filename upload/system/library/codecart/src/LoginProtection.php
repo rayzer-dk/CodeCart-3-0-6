@@ -57,6 +57,26 @@ final class LoginProtection {
         $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_admin_login_attempt` SET username = '" . $this->db->escape($username) . "', ip = '" . $this->db->escape($ip) . "', date_added = NOW()");
     }
 
+    /**
+     * Re-authentication of a signed-in administrator before a sensitive change.
+     * Returns 'ok', 'invalid' or 'blocked'; failures count like failed logins.
+     */
+    public function confirmPassword(int $userId, string $password): string {
+        $query = $this->db->query("SELECT username, password, salt FROM `" . DB_PREFIX . "user` WHERE user_id = '" . (int)$userId . "' AND status = '1' LIMIT 1");
+        if (!$query->num_rows) {
+            return 'invalid';
+        }
+        $username = (string)$query->row['username'];
+        if ($this->isBlocked($username)) {
+            return 'blocked';
+        }
+        if ($password !== '' && codecart_password_verify($password, $query->row['password'], $query->row['salt'])) {
+            return 'ok';
+        }
+        $this->recordFailure($username);
+        return 'invalid';
+    }
+
     public function recordSuccess(string $username): void {
         if (!$this->tableExists()) {
             return;

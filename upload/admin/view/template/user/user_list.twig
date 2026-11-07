@@ -45,6 +45,7 @@
                     {% else %}
                     <a href="{{ sort_status }}">{{ column_status }}</a>
                     {% endif %}</td>
+                  <td class="text-left">{{ column_two_factor }}</td>
                   <td class="text-left">{% if sort == 'date_added' %}
                     <a href="{{ sort_date_added }}" class="{{ order|lower }}">{{ column_date_added }}</a>
                     {% else %}
@@ -64,13 +65,14 @@
                     {% endif %}</td>
                   <td class="text-left">{{ user.username }}</td>
                   <td class="text-left">{{ user.status }}</td>
+                  <td class="text-left">{% if user.two_factor is null %}<span class="text-muted">—</span>{% elseif user.two_factor %}<span class="label label-success"><i class="fa fa-shield"></i> {{ text_two_factor_on }}</span>{% else %}<span class="label label-default">{{ text_two_factor_off }}</span>{% endif %}</td>
                   <td class="text-left">{{ user.date_added }}</td>
                   <td class="text-right"><a href="{{ user.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                 </tr>
                 {% endfor %}
                 {% else %}
                 <tr>
-                  <td class="text-center" colspan="5">{{ text_no_results }}</td>
+                  <td class="text-center" colspan="6">{{ text_no_results }}</td>
                 </tr>
                 {% endif %}
               </tbody>

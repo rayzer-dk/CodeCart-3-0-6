@@ -195,6 +195,7 @@ $gates = [
     ['check_paypal_financial_guards.php'],
     ['qa_auth_defensive.php', 'html'],
     ['qa_auth_defensive.php', 'totp'],
+    ['qa_auth_defensive.php', 'totp-pipeline'],
     ['qa_auth_defensive.php', 'cart'],
     ['qa_auth_defensive.php', 'device-admin'],
     ['qa_auth_defensive.php', 'device-catalog'],

@@ -12,7 +12,7 @@ class ControllerCommonFooter extends Controller {
 			$data[$key] = $this->language->get($key);
 		}
 
-		$logged = $this->user->isLogged() && isset($this->request->get['user_token']) && ($this->request->get['user_token'] == $this->session->data['user_token']);
+		$logged = !$this->registry->get('codecart_mfa_pending') && $this->user->isLogged() && isset($this->request->get['user_token']) && ($this->request->get['user_token'] == $this->session->data['user_token']);
 
 		$data['environment_visible'] = $logged;
 		$data['text_codecart_release'] = $logged ? 'CodeCart PRO ' . VERSION : '';

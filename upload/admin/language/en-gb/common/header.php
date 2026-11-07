@@ -77,3 +77,4 @@ $_['ui_anchor_on_page'] = 'Anchor on this page';
 $_['ui_anchor_choose'] = '— choose an anchor —';
 $_['ui_anchor_help'] = 'After selection the URL will be filled in automatically. Cyrillic, Latin characters and digits are supported.';
 $_['ui_video_help'] = 'Supported: YouTube (watch, youtu.be, Shorts, Live), Vimeo, Facebook Video (/videos/ID), Instagram posts/reels, Dailymotion, Google Drive /file/d/.../view and direct MP4/M4V/WebM/Ogg video URLs.';
+$_['text_two_factor'] = 'Two-factor verification';

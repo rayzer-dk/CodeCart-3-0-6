@@ -52,6 +52,7 @@ class ControllerStartupPermission extends Controller {
 				'common/forgotten',
 				'common/reset',
 				'common/totp',
+				'common/two_factor',
 				'common/device_authorize',
 				'error/not_found',
 				'error/permission'

@@ -32,7 +32,7 @@ class ControllerToolCodeCartCore extends Controller {
         foreach (array(
             'text_extension_code','text_extension_name','text_extension_version','text_extension_namespace','text_icon_style_solid','text_icon_style_regular','text_icon_style_brands','text_icon_packages','heading_title','text_home','text_status','text_runtime','text_security','text_privacy','text_schema','text_extensions','text_icons','text_icon_search','text_icon_help','text_modern_social_icons','text_icon_core_package','text_icon_full_package','text_icon_core_package_help','text_icon_full_package_help','text_icon_full_count','text_icon_styles','text_icon_scanner','text_icon_scanner_help','text_icon_mode_requested','text_icon_mode_effective','text_icon_mode_setting','text_icon_mode_setting_help','text_icon_auto','text_icon_core','text_icon_full','text_icon_core_count','text_icon_files_scanned','text_icon_last_scan','text_icon_unknown','text_icon_location','text_icon_line','text_icon_kind','text_icon_resolution','text_icon_resolution_full','text_icon_resolution_unresolved','text_icon_unresolved','text_icon_no_unknown','text_icon_fallback_full','text_icon_core_active','text_icon_scan_error','text_icon_manual_build_help','button_icon_rescan','entry_icon_extras','help_icon_extras','button_icon_add_found','button_icon_save_extras','text_icon_all','text_icon_social','text_icon_commerce','text_icon_payment','text_icon_shipping','text_icon_contact','text_icon_interface','text_icon_security','text_icon_media','text_icon_development','text_icon_other','text_icon_copied','text_icon_usage','text_icon_loading','text_icon_load_error','text_about','text_about_overview','text_about_requirements','text_about_changes','text_about_comparison','text_about_comparison_note','text_about_future','text_about_fixed','text_about_improved','text_about_security','text_required','text_recommended','text_current','text_supported','text_not_supported','text_added','text_updated','text_removed_runtime','text_legacy','text_builtin','text_server_profile','text_server_requirements_help','text_platform','text_component','text_benefit','text_codecart_website','text_about_legacy_title','text_about_legacy_value','text_about_legacy_help','text_about_security_value','text_about_security_help','text_about_server_value','text_about_server_help','text_about_modern_title','text_about_modern_value','text_about_modern_help','text_enabled','text_disabled','text_ok','text_missing','text_optional','text_schema_not_scanned','text_no_issues','text_no_extensions','text_gdpr_requests','text_confirm_delete','text_device_fail_open','text_schema_readonly','text_extension_help','text_runtime_help','text_spam_help','text_gdpr_help','text_cookie_help','text_notification_help','text_current_user_devices','text_revoke_devices','text_refresh_registry','text_scan_schema','text_save','text_processed','text_pending','text_confirmed','text_superseded','text_export','text_delete','text_unknown','text_system_notifications','text_scheduler','text_retention_auto','text_cleanup_done','text_cleanup_confirm','text_gdpr_retention_help',
             'text_performance','text_performance_help','text_minify_diagnostics','text_minify_available','text_minify_stale','text_minify_active','entry_storefront_minify_css','entry_storefront_minify_js','entry_admin_minify_css','entry_admin_minify_js','help_storefront_minify_css','help_storefront_minify_js','help_admin_minify_css','help_admin_minify_js','text_safe_minify_note','button_save_performance','text_architecture','text_architecture_help','text_compat_detected','text_active_languages','text_service_layer_help','text_event_layer_help','text_asset_manager_help','text_api_v1','text_api_v1_help','text_service_layer','text_compat_layer','text_event_layer','text_asset_manager','text_search_adapter','text_native_fallback','text_opt_in','text_read_only','entry_api_v1_status','button_save_architecture',
-            'entry_spam','entry_gdpr_retention','entry_admin_device','entry_customer_device','entry_login_protection','entry_login_max_attempts','entry_login_window','entry_security_audit_retention','entry_totp','entry_security_headers','entry_nosniff','entry_referrer_policy','entry_frame_options','entry_permissions_policy','entry_csp_report_only','entry_csp_policy','entry_hsts','entry_gdpr','entry_cookie','column_component','column_value','column_state','column_details','column_severity','column_type','column_table','column_column','column_message','column_request','column_customer','column_email','column_date','column_action','button_process_delete','button_cleanup_old','button_save','button_scan','button_refresh','button_revoke','button_cookie_settings','text_info','text_warning','text_error','text_external','text_core','text_schema_external_help','text_preflight_help','text_totp_enabled','text_totp_disabled','text_totp_setup','text_totp_secret','text_totp_uri','text_totp_code','text_totp_recovery','text_security_audit','text_login_protection_help','text_security_headers_help','text_csp_report_only_help','text_hsts_help','button_totp_prepare','button_totp_enable','button_totp_disable','button_copy','button_phpinfo','button_schema_safe_fix','text_schema_safe_fix_help','text_schema_backup_warning','text_schema_backup_confirm','text_schema_fixable','text_schema_manual','text_schema_external_ok','text_schema_fix_result','text_schema_fix_errors','column_meaning','column_next_action'
+            'entry_spam','entry_gdpr_retention','entry_admin_device','entry_customer_device','entry_login_protection','entry_login_max_attempts','entry_login_window','entry_security_audit_retention','entry_totp','entry_security_headers','entry_nosniff','entry_referrer_policy','entry_frame_options','entry_permissions_policy','entry_csp_report_only','entry_csp_policy','entry_hsts','entry_gdpr','entry_cookie','column_component','column_value','column_state','column_details','column_severity','column_type','column_table','column_column','column_message','column_request','column_customer','column_email','column_date','column_action','button_process_delete','button_cleanup_old','button_save','button_scan','button_refresh','button_revoke','button_cookie_settings','text_info','text_warning','text_error','text_external','text_core','text_schema_external_help','text_preflight_help','text_totp_enabled','text_totp_disabled','text_totp_own','text_totp_policy','help_totp_policy','button_totp_manage','text_security_audit','text_login_protection_help','text_security_headers_help','text_csp_report_only_help','text_hsts_help','button_phpinfo','button_schema_safe_fix','text_schema_safe_fix_help','text_schema_backup_warning','text_schema_backup_confirm','text_schema_fixable','text_schema_manual','text_schema_external_ok','text_schema_fix_result','text_schema_fix_errors','column_meaning','column_next_action'
         ) as $key) { $data[$key] = $this->language->get($key); }
 
         $data['breadcrumbs'] = array(
@@ -71,20 +71,20 @@ class ControllerToolCodeCartCore extends Controller {
         );
         foreach ($securityDefaults as $key=>$default) { $value=$this->config->get($key); $data[$key]=($value===null||$value==='')?$default:$value; }
         $data['totp_enabled'] = false;
-        $data['totp_recovery_count'] = 0;
-        $totp = null;
+        $data['totp_required_groups'] = array();
+        $data['totp_group_stats'] = array();
         try {
             $totp = new \CodeCart\Core\TotpManager($this->registry);
             $data['totp_enabled'] = $totp->isEnabled((int)$this->user->getId());
-            $data['totp_recovery_count'] = $totp->remainingRecoveryCodes((int)$this->user->getId());
+            $data['totp_required_groups'] = array_map('strval', $totp->requiredGroups());
+            $stats = $this->db->query("SELECT u.user_group_id, COUNT(*) AS users, SUM(CASE WHEN m.status = '1' THEN 1 ELSE 0 END) AS protected FROM `" . DB_PREFIX . "user` u LEFT JOIN `" . DB_PREFIX . "codecart_user_mfa` m ON (m.user_id = u.user_id) WHERE u.status = '1' GROUP BY u.user_group_id");
+            foreach ($stats->rows as $row) { $data['totp_group_stats'][(int)$row['user_group_id']] = sprintf($this->language->get('text_totp_group_stats'), (int)$row['protected'], (int)$row['users']); }
         } catch (\Throwable $e) {
             $data['totp_error'] = $e->getMessage();
         }
-        $data['totp_pending_secret'] = isset($this->session->data['codecart_totp_pending_secret']) ? (string)$this->session->data['codecart_totp_pending_secret'] : '';
-        $data['totp_pending_uri'] = ($data['totp_pending_secret'] !== '' && $totp) ? $totp->provisioningUri($data['totp_pending_secret'], $this->currentUsername()) : '';
-        $data['totp_pending_label'] = ($data['totp_pending_secret'] !== '' && $totp) ? $totp->provisioningLabel($this->currentUsername()) : '';
-        $data['totp_recovery_codes'] = isset($this->session->data['codecart_totp_recovery_codes']) && is_array($this->session->data['codecart_totp_recovery_codes']) ? $this->session->data['codecart_totp_recovery_codes'] : array();
-        unset($this->session->data['codecart_totp_recovery_codes']);
+        $this->load->model('user/user_group');
+        $data['user_groups'] = $this->model_user_user_group->getUserGroups(array('sort' => 'name'));
+        $data['two_factor_link'] = $this->url->link('common/two_factor', 'user_token=' . $this->session->data['user_token'], true);
         try { $data['security_audit'] = (new \CodeCart\Core\SecurityAudit($this->registry))->recent(50); } catch (\Throwable $e) { $data['security_audit'] = array(); $data['security_audit_error'] = $e->getMessage(); }
 
         try { $data['runtime'] = $this->localizeDiagnosticRows((new \CodeCart\Core\Preflight($this->registry))->rows()); } catch (\Throwable $e) { $data['runtime'] = array(array('component'=>'CodeCart Core','value'=>'partial','state'=>'warning','message'=>$e->getMessage())); }
@@ -226,6 +226,9 @@ class ControllerToolCodeCartCore extends Controller {
             $csp = isset($this->request->post['codecart_security_csp_report_only_policy']) ? trim(str_replace(array("\r","\n","\0"), '', (string)$this->request->post['codecart_security_csp_report_only_policy'])) : "default-src 'self'";
             $csp = substr($csp, 0, 4000);
             $this->upsertSetting('codecart_core','codecart_security_csp_report_only_policy',$csp); $this->config->set('codecart_security_csp_report_only_policy',$csp);
+            if ($action === 'save_security' && isset($this->request->post['codecart_totp_policy_present'])) {
+                $this->saveTwoFactorPolicy();
+            }
             $this->session->data['success'] = $this->language->get('text_settings_saved');
             return;
         }
@@ -255,37 +258,6 @@ class ControllerToolCodeCartCore extends Controller {
             $this->upsertSetting('codecart_core','codecart_gdpr_retention_days',(string)$days);
             $this->config->set('codecart_gdpr_retention_days',$days);
             $this->session->data['success'] = $this->language->get('text_settings_saved');
-            return;
-        }
-        if ($action === 'totp_prepare') {
-            $totp = new \CodeCart\Core\TotpManager($this->registry);
-            if ($totp->isEnabled((int)$this->user->getId())) { return; }
-            $secret = $totp->createSecret();
-            $this->session->data['codecart_totp_pending_secret'] = $secret;
-            unset($this->session->data['codecart_totp_recovery_codes']);
-            $this->session->data['success'] = $this->language->get('text_totp_setup');
-            return;
-        }
-        if ($action === 'totp_enable') {
-            $secret = isset($this->session->data['codecart_totp_pending_secret']) ? (string)$this->session->data['codecart_totp_pending_secret'] : '';
-            if ($secret === '') { throw new \RuntimeException($this->language->get('error_totp_prepare')); }
-            $code = isset($this->request->post['totp_code']) ? trim((string)$this->request->post['totp_code']) : '';
-            $totp = new \CodeCart\Core\TotpManager($this->registry);
-            $codes = $totp->enable((int)$this->user->getId(), $secret, $code);
-            unset($this->session->data['codecart_totp_pending_secret']);
-            $this->session->data['codecart_totp_recovery_codes'] = $codes;
-            $this->session->data['codecart_totp_verified_user_id'] = (int)$this->user->getId();
-            (new \CodeCart\Core\SecurityAudit($this->registry))->add('admin.totp.enable','success','info','admin',(int)$this->user->getId(),$this->currentUsername());
-            $this->session->data['success'] = $this->language->get('text_totp_enabled');
-            return;
-        }
-        if ($action === 'totp_disable') {
-            $code = isset($this->request->post['totp_code']) ? trim((string)$this->request->post['totp_code']) : '';
-            $totp = new \CodeCart\Core\TotpManager($this->registry);
-            $totp->disable((int)$this->user->getId(), $code);
-            unset($this->session->data['codecart_totp_pending_secret'], $this->session->data['codecart_totp_verified_user_id']);
-            (new \CodeCart\Core\SecurityAudit($this->registry))->add('admin.totp.disable','success','warning','admin',(int)$this->user->getId(),$this->currentUsername());
-            $this->session->data['success'] = $this->language->get('text_totp_disabled');
             return;
         }
         if ($action === 'icons_save_mode') {
@@ -391,6 +363,20 @@ class ControllerToolCodeCartCore extends Controller {
         } else {
             $this->db->query("INSERT INTO `".DB_PREFIX."setting` SET store_id='0', code='".$this->db->escape($code)."', `key`='".$this->db->escape($key)."', value='".$this->db->escape($value)."', serialized='0'");
         }
+    }
+
+    private function saveTwoFactorPolicy(): void {
+        $this->load->model('user/user_group');
+        $known = array();
+        foreach ($this->model_user_user_group->getUserGroups() as $group) { $known[(int)$group['user_group_id']] = true; }
+        $groups = array();
+        foreach ((array)($this->request->post['codecart_totp_required_groups'] ?? array()) as $id) {
+            if (isset($known[(int)$id])) { $groups[(int)$id] = (int)$id; }
+        }
+        $value = implode(',', array_values($groups));
+        $this->upsertSetting('codecart_core', 'codecart_totp_required_groups', $value);
+        $this->config->set('codecart_totp_required_groups', $value);
+        (new \CodeCart\Core\SecurityAudit($this->registry))->add('admin.totp.policy', 'success', 'info', 'admin', (int)$this->user->getId(), $this->currentUsername(), array('groups' => $value));
     }
 
     private function currentUsername() {

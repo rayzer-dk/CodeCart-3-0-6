@@ -1,0 +1,103 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        {% if forced %}<a href="{{ logout }}" class="btn btn-default"><i class="fa fa-sign-out"></i> {{ button_logout }}</a>{% else %}<a href="{{ back }}" class="btn btn-default"><i class="fa fa-reply"></i> {{ button_back }}</a>{% endif %}
+      </div>
+      <h1>{{ heading_title }}</h1>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>{% endif %}
+    {% if success %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}</div>{% endif %}
+    {% if forced %}<div class="alert alert-warning"><i class="fa fa-shield"></i> {{ text_setup_required }}</div>{% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-shield"></i> {{ heading_title }}</h3></div>
+      <div class="panel-body">
+        <p>
+          <strong>{{ text_status }}:</strong>
+          {% if enabled %}<span class="label label-success">{{ text_enabled }}</span> · {{ text_recovery_left }}: {{ recovery_left }}{% else %}<span class="label label-default">{{ text_disabled }}</span>{% endif %}
+          {% if required %} · <span class="label label-info">{{ text_required }}</span>{% endif %}
+        </p>
+
+        {% if recovery_codes %}
+        <div class="alert alert-warning">
+          <strong>{{ text_recovery_title }}</strong>
+          <p>{{ text_recovery_help }}</p>
+          <pre class="ccp-two-factor-codes">{% for code in recovery_codes %}{{ code }}{% if not loop.last %}
+{% endif %}{% endfor %}</pre>
+        </div>
+        {% endif %}
+
+        {% if read_only %}
+        <p class="help-block">{{ text_read_only }}</p>
+        {% elseif not enabled and not pending_secret %}
+        <p class="help-block">{{ text_intro }}</p>
+        <form action="{{ action }}" method="post">
+          <button type="submit" name="two_factor_action" value="start" class="btn btn-primary"><i class="fa fa-key"></i> {{ button_start }}</button>
+        </form>
+        {% endif %}
+
+        {% if pending_secret %}
+        <p>{{ text_step_app }}</p>
+        <dl class="dl-horizontal">
+          <dt>{{ text_secret }}</dt><dd><code>{{ pending_secret|e }}</code></dd>
+          <dt>{{ text_account }}</dt><dd>{{ pending_label|e }}</dd>
+          <dt>{{ text_uri }}</dt><dd><button type="button" class="btn btn-default btn-xs ccp-two-factor-copy" data-value="{{ pending_uri|e('html_attr') }}"><i class="fa fa-copy"></i> {{ button_copy }}</button></dd>
+        </dl>
+        <form action="{{ action }}" method="post" class="form-horizontal" autocomplete="off">
+          <div class="form-group">
+            <label class="col-sm-3 control-label" for="input-two-factor-code">{{ text_code }}</label>
+            <div class="col-sm-4"><input type="text" name="code" id="input-two-factor-code" class="form-control" inputmode="numeric" autocomplete="one-time-code" maxlength="16" required></div>
+          </div>
+          {% if email_code_required %}
+          <div class="form-group">
+            <label class="col-sm-3 control-label" for="input-two-factor-email-code">{{ text_email_code }}</label>
+            <div class="col-sm-4"><input type="text" name="email_code" id="input-two-factor-email-code" class="form-control" inputmode="numeric" maxlength="6" required><span class="help-block">{{ text_email_code_help }}</span></div>
+          </div>
+          {% endif %}
+          <div class="form-group">
+            <label class="col-sm-3 control-label" for="input-two-factor-password">{{ text_password }}</label>
+            <div class="col-sm-4"><input type="password" name="password" id="input-two-factor-password" class="form-control" autocomplete="current-password" required></div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-9 col-sm-offset-3">
+              <button type="submit" name="two_factor_action" value="enable" class="btn btn-success"><i class="fa fa-check"></i> {{ button_enable }}</button>
+              <button type="submit" name="two_factor_action" value="cancel" class="btn btn-default" formnovalidate>{{ button_cancel }}</button>
+            </div>
+          </div>
+        </form>
+        {% endif %}
+
+        {% if enabled %}
+        <p class="help-block">{{ text_manage_help }}</p>
+        <form action="{{ action }}" method="post" class="form-horizontal" autocomplete="off">
+          <div class="form-group">
+            <label class="col-sm-3 control-label" for="input-two-factor-code">{{ text_code }}</label>
+            <div class="col-sm-4"><input type="text" name="code" id="input-two-factor-code" class="form-control" autocomplete="one-time-code" maxlength="16" required></div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label" for="input-two-factor-password">{{ text_password }}</label>
+            <div class="col-sm-4"><input type="password" name="password" id="input-two-factor-password" class="form-control" autocomplete="current-password" required></div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-9 col-sm-offset-3">
+              <button type="submit" name="two_factor_action" value="regenerate" class="btn btn-default"><i class="fa fa-refresh"></i> {{ button_regenerate }}</button>
+              {% if required %}<span class="help-block">{{ text_disable_locked }}</span>{% else %}<button type="submit" name="two_factor_action" value="disable" class="btn btn-danger"><i class="fa fa-times"></i> {{ button_disable }}</button>{% endif %}
+            </div>
+          </div>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+$(document).on('click', '.ccp-two-factor-copy', function () {
+  var value = $(this).attr('data-value') || '';
+  var fallback = function () { var $t = $('<textarea readonly>').val(value).css({position: 'fixed', left: '-9999px'}).appendTo('body'); $t[0].select(); try { document.execCommand('copy'); } catch (e) {} $t.remove(); };
+  if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(value).catch(fallback); } else { fallback(); }
+});
+</script>
+{{ footer }}

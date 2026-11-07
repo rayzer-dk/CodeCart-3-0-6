@@ -91,20 +91,10 @@ $_['entry_csp_report_only'] = 'CSP Report-Only';
 $_['entry_hsts'] = 'HSTS';
 $_['text_totp_enabled'] = 'TOTP увімкнено';
 $_['text_totp_disabled'] = 'TOTP вимкнено';
-$_['text_totp_setup'] = 'Створено новий TOTP-секрет. Додайте його до застосунку-автентифікатора та підтвердьте поточним кодом.';
-$_['text_totp_secret'] = 'Секрет';
-$_['text_totp_uri'] = 'URI для автентифікатора';
-$_['text_totp_code'] = 'Код автентифікатора або резервний код';
-$_['text_totp_recovery'] = 'Резервні коди — збережіть їх зараз; вони показуються лише один раз';
 $_['text_security_audit'] = 'Аудит безпеки';
 $_['text_login_protection_help'] = 'Обмежує невдалі входи адміністратора за парою логін + IP і окремо за IP-джерелом. Інший IP не може глобально заблокувати обліковий запис адміністратора.';
 $_['text_security_headers_help'] = 'Безпечні HTTP-заголовки керуються ядром. CSP спочатку лише Report-Only; HSTS надсилається тільки через HTTPS.';
 $_['text_hsts_help'] = 'Вмикайте лише коли весь домен і потрібні піддомени постійно працюють через HTTPS.';
-$_['button_totp_prepare'] = 'Налаштувати TOTP';
-$_['button_totp_enable'] = 'Увімкнути TOTP';
-$_['button_totp_disable'] = 'Вимкнути TOTP';
-$_['button_copy'] = 'Копіювати';
-$_['error_totp_prepare'] = 'Спочатку почніть налаштування TOTP.';
 
 $_['entry_nosniff'] = 'Захист від MIME sniffing';
 $_['entry_referrer_policy'] = 'Referrer-Policy';
@@ -278,7 +268,6 @@ $_['button_cleanup_old'] = 'Очистити старі';
 $_['text_cleanup_done'] = 'Видалено старих записів: %d';
 $_['text_cleanup_confirm'] = 'Очистити записи, старші за встановлений строк зберігання?';
 
-$_['text_totp_account'] = 'Обліковий запис';
 
 // CodeCart PRO contextual field guidance
 $_['help_login_max_attempts'] = 'Скільки невдалих спроб дозволити до тимчасового блокування. Рекомендовано 5–7; менше може заважати адміністратору, більше послаблює захист.';
@@ -462,3 +451,8 @@ $_['text_extension_namespace'] = 'Простір імен';
 $_['text_icon_style_solid'] = 'Суцільні';
 $_['text_icon_style_regular'] = 'Контурні';
 $_['text_icon_style_brands'] = 'Бренди';
+$_['text_totp_own'] = 'Ваш обліковий запис';
+$_['button_totp_manage'] = 'Керувати';
+$_['text_totp_policy'] = 'Обов’язково для груп';
+$_['help_totp_policy'] = 'Учасники вибраних груп мають налаштувати двофакторну перевірку під час наступного входу й не зможуть її вимкнути. Спільні демо-групи та групи лише для перегляду не позначайте.';
+$_['text_totp_group_stats'] = 'захищено %d з %d активних користувачів';

@@ -7,6 +7,7 @@
           <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-shield"></i> {{ heading_title }}</h3></div>
           <div class="panel-body">
             {% if error_warning %}<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>{% endif %}
+            {% if available %}
             <p>{{ text_instruction }}</p>
             <form action="{{ action }}" method="post" autocomplete="off">
               <div class="form-group">
@@ -17,6 +18,7 @@
               <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-check"></i> {{ button_verify }}</button>
             </form>
             <hr>
+            {% endif %}
             <a href="{{ logout }}" class="btn btn-default btn-block"><i class="fa fa-sign-out"></i> {{ button_logout }}</a>
           </div>
         </div>

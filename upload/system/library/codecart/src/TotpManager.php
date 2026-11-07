@@ -2,9 +2,17 @@
 namespace CodeCart\Core;
 
 final class TotpManager {
+    // Failed codes per account: 5 per 15 minutes, 20 per 24 hours; per source: 15 per 15 minutes.
+    private const LIMITS = array(
+        array('account', 5, 900),
+        array('account', 20, 86400),
+        array('source', 15, 900),
+    );
+
     private $registry;
     private $db;
     private $config;
+    private $lockTriggered = false;
 
     public function __construct($registry) {
         $this->registry = $registry;
@@ -15,6 +23,19 @@ final class TotpManager {
     public function isEnabled(int $userId): bool {
         $row = $this->getRow($userId);
         return $row && (int)$row['status'] === 1 && trim((string)$row['secret']) !== '';
+    }
+
+    /** User group IDs for which two-factor verification is mandatory. */
+    public function requiredGroups(): array {
+        $groups = array();
+        foreach (explode(',', (string)$this->config->get('codecart_totp_required_groups')) as $id) {
+            if ((int)$id > 0) { $groups[(int)$id] = (int)$id; }
+        }
+        return array_values($groups);
+    }
+
+    public function isRequiredFor(int $userGroupId): bool {
+        return $userGroupId > 0 && in_array($userGroupId, $this->requiredGroups(), true);
     }
 
     public function createSecret(int $bytes = 20): string {
@@ -46,14 +67,7 @@ final class TotpManager {
 
         $encrypted = $this->encrypt($secret);
         $recoveryCodes = $this->generateRecoveryCodes();
-        $recoveryHashes = array();
-        foreach ($recoveryCodes as $recoveryCode) {
-            $recoveryHashes[] = password_hash($this->normalizeRecoveryCode($recoveryCode), PASSWORD_DEFAULT);
-        }
-        $encodedRecovery = json_encode($recoveryHashes, JSON_UNESCAPED_SLASHES);
-        if ($encodedRecovery === false) {
-            throw new \RuntimeException('Could not encode recovery codes.');
-        }
+        $encodedRecovery = $this->hashRecoveryCodes($recoveryCodes);
 
         $existing = $this->getRow($userId);
         if ($existing) {
@@ -73,10 +87,44 @@ final class TotpManager {
         if (!$this->verify($userId, $code, false)) {
             throw new \RuntimeException('Invalid authenticator or recovery code.');
         }
+        $this->reset($userId);
+    }
+
+    /** Removes the second factor without a code; callers must authorize the action. */
+    public function reset(int $userId): void {
         $this->db->query("UPDATE `" . DB_PREFIX . "codecart_user_mfa` SET secret = '', recovery_codes = '[]', status = '0', last_counter = '-1', date_modified = NOW() WHERE user_id = '" . (int)$userId . "'");
     }
 
+    /** Replaces all recovery codes after the caller has verified a current code. */
+    public function regenerateRecoveryCodes(int $userId): array {
+        if (!$this->isEnabled($userId)) {
+            throw new \RuntimeException('Two-factor verification is not enabled.');
+        }
+        $codes = $this->generateRecoveryCodes();
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_user_mfa` SET recovery_codes = '" . $this->db->escape($this->hashRecoveryCodes($codes)) . "', date_modified = NOW() WHERE user_id = '" . (int)$userId . "' AND status = '1'");
+        return $codes;
+    }
+
+    /**
+     * Marks the session as verified for $userId after a privilege change: new
+     * session ID and admin token, the old ones stop working. Returns the token.
+     */
+    public function elevateSession(int $userId): string {
+        $session = $this->registry->get('session');
+        $session->regenerate();
+        codecart_set_session_cookie($this->config->get('session_name'), $session->getId());
+        $session->data['user_token'] = token(32);
+        $session->data['codecart_totp_verified_user_id'] = $userId;
+        return $session->data['user_token'];
+    }
+
+    /** True when the last failed verify() started a lockout for the account. */
+    public function lockTriggered(): bool {
+        return $this->lockTriggered;
+    }
+
     public function verify(int $userId, string $code, bool $consumeRecovery = true): bool {
+        $this->lockTriggered = false;
         $lock = 'cctotp_' . substr(hash('sha256', DB_DATABASE . '|' . DB_PREFIX . '|' . $this->attemptSource()), 0, 56);
         try {
             $query = $this->db->query("SELECT GET_LOCK('" . $this->db->escape($lock) . "', 2) AS acquired");
@@ -102,14 +150,29 @@ final class TotpManager {
     }
 
     public function retryAfter(int $userId): int {
-        $account = "username = '@totp:" . (int)$userId . "'";
-        $source = "ip = '" . $this->db->escape($this->attemptSource()) . "' AND username LIKE '@totp:%'";
         $retry = 0;
-        foreach (array(array($account, 5), array($source, 15)) as $limit) {
-            $query = $this->db->query("SELECT COUNT(*) AS total, GREATEST(1, 900 - TIMESTAMPDIFF(SECOND, MIN(date_added), NOW())) AS retry_after FROM `" . DB_PREFIX . "codecart_admin_login_attempt` WHERE " . $limit[0] . " AND date_added >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
-            if ((int)$query->row['total'] >= $limit[1]) { $retry = max($retry, (int)$query->row['retry_after']); }
+        foreach (self::LIMITS as $limit) {
+            $row = $this->failures($userId, $limit[0], $limit[2]);
+            if ((int)$row['total'] >= $limit[1]) { $retry = max($retry, (int)$row['retry_after']); }
         }
         return $retry;
+    }
+
+    private function failures(int $userId, string $scope, int $window): array {
+        $where = $scope === 'account'
+            ? "username = '@totp:" . (int)$userId . "'"
+            : "ip = '" . $this->db->escape($this->attemptSource()) . "' AND username LIKE '@totp:%'";
+        $query = $this->db->query("SELECT COUNT(*) AS total, GREATEST(1, " . (int)$window . " - TIMESTAMPDIFF(SECOND, MIN(date_added), NOW())) AS retry_after FROM `" . DB_PREFIX . "codecart_admin_login_attempt` WHERE " . $where . " AND date_added >= DATE_SUB(NOW(), INTERVAL " . (int)$window . " SECOND)");
+        return $query->row;
+    }
+
+    private function recordFailure(int $userId): void {
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_admin_login_attempt` SET username = '@totp:" . (int)$userId . "', ip = '" . $this->db->escape($this->attemptSource()) . "', date_added = NOW()");
+        foreach (self::LIMITS as $limit) {
+            if ($limit[0] === 'account' && (int)$this->failures($userId, 'account', $limit[2])['total'] === $limit[1]) {
+                $this->lockTriggered = true;
+            }
+        }
     }
 
     private function attemptSource(): string {
@@ -128,8 +191,14 @@ final class TotpManager {
             return false;
         }
         if ($this->retryAfter($userId) > 0) { return false; }
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_admin_login_attempt` SET username = '@totp:" . (int)$userId . "', ip = '" . $this->db->escape($this->attemptSource()) . "', date_added = NOW()");
+        if ($this->matches($userId, $row, $code, $consumeRecovery)) {
+            return true;
+        }
+        $this->recordFailure($userId);
+        return false;
+    }
 
+    private function matches(int $userId, array $row, string $code, bool $consumeRecovery): bool {
         $secret = $this->decrypt((string)$row['secret']);
         $matchedCounter = $secret !== '' ? $this->matchingCounter($secret, $code) : null;
         if ($matchedCounter !== null) {
@@ -172,6 +241,18 @@ final class TotpManager {
         return false;
     }
 
+    /** Sends a security notice to the user's own e-mail address; delivery problems are logged only. */
+    public function notify(int $userId, string $subject, string $text): bool {
+        try {
+            $query = $this->db->query("SELECT email FROM `" . DB_PREFIX . "user` WHERE user_id = '" . (int)$userId . "' LIMIT 1");
+            $email = $query->num_rows ? (string)$query->row['email'] : '';
+            return $email !== '' && (new SystemMailer($this->registry))->sendText($email, $subject, $text);
+        } catch (\Throwable $e) {
+            if ($this->registry->has('log')) { $this->registry->get('log')->write('Two-factor notice not sent: ' . get_class($e)); }
+            return false;
+        }
+    }
+
     public function remainingRecoveryCodes(int $userId): int {
         $row = $this->getRow($userId);
         if (!$row) {
@@ -179,10 +260,6 @@ final class TotpManager {
         }
         $hashes = json_decode((string)$row['recovery_codes'], true);
         return is_array($hashes) ? count($hashes) : 0;
-    }
-
-    private function verifySecret(string $secret, string $code): bool {
-        return $this->matchingCounter($secret, $code) !== null;
     }
 
     private function matchingCounter(string $secret, string $code): ?int {
@@ -223,13 +300,22 @@ final class TotpManager {
         return str_pad((string)($binary % 1000000), 6, '0', STR_PAD_LEFT);
     }
 
+    // Database errors propagate: callers must not treat an unreadable MFA state as "not enabled".
     private function getRow(int $userId): array {
-        try {
-            $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_user_mfa` WHERE user_id = '" . (int)$userId . "' LIMIT 1");
-            return $query->num_rows ? $query->row : array();
-        } catch (\Throwable $e) {
-            return array();
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_user_mfa` WHERE user_id = '" . (int)$userId . "' LIMIT 1");
+        return $query->num_rows ? $query->row : array();
+    }
+
+    private function hashRecoveryCodes(array $codes): string {
+        $hashes = array();
+        foreach ($codes as $code) {
+            $hashes[] = password_hash($this->normalizeRecoveryCode($code), PASSWORD_DEFAULT);
         }
+        $encoded = json_encode($hashes, JSON_UNESCAPED_SLASHES);
+        if ($encoded === false) {
+            throw new \RuntimeException('Could not encode recovery codes.');
+        }
+        return $encoded;
     }
 
     private function encrypt(string $plain): string {

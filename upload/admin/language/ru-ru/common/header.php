@@ -68,3 +68,4 @@ $_['ui_toc_title'] = 'Оглавление';
 $_['ui_upload'] = 'Загрузить';
 $_['ui_video_help'] = 'Поддерживаются YouTube, Vimeo, Facebook Video, Instagram, Dailymotion, Google Drive и прямые ссылки на MP4/M4V/WebM/Ogg.';
 $_['ui_view'] = 'Просмотреть';
+$_['text_two_factor'] = 'Двухфакторная проверка';

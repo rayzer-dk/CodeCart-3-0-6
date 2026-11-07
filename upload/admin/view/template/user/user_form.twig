@@ -114,6 +114,27 @@
             </div>
           </div>
         </form>
+        {% if two_factor is not null %}
+        <form action="{{ two_factor_reset }}" method="post" class="form-horizontal" autocomplete="off">
+          <fieldset>
+            <legend><i class="fa fa-shield"></i> {{ entry_two_factor }}</legend>
+            {% if two_factor_error %}<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ two_factor_error }}</div>{% endif %}
+            {% if two_factor_success %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ two_factor_success }}</div>{% endif %}
+            <div class="form-group">
+              <label class="col-sm-2 control-label">{{ column_status }}</label>
+              <div class="col-sm-10"><p class="form-control-static">{% if two_factor %}<span class="label label-success">{{ text_two_factor_on }}</span>{% else %}<span class="label label-default">{{ text_two_factor_off }}</span>{% endif %}</p></div>
+            </div>
+            {% if two_factor_can_reset %}
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="input-two-factor-password">{{ entry_two_factor_password }}</label>
+              <div class="col-sm-4"><input type="password" name="two_factor_password" id="input-two-factor-password" class="form-control" autocomplete="current-password" required></div>
+              <div class="col-sm-6"><button type="submit" class="btn btn-warning" onclick="return confirm('{{ text_two_factor_confirm|e('js') }}');"><i class="fa fa-unlock-alt"></i> {{ button_two_factor_reset }}</button></div>
+            </div>
+            <p class="help-block col-sm-offset-2">{{ text_two_factor_reset_help }}</p>
+            {% endif %}
+          </fieldset>
+        </form>
+        {% endif %}
       </div>
     </div>
   </div>

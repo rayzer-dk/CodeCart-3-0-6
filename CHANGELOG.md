@@ -1,3 +1,17 @@
+# CodeCart 3.0.6.0 — Build 2.1.6 (2026-11-02)
+
+- Security: administrator two-factor verification is enforced. In earlier builds `startup/totp` tested `isset($this->user)`, which is always false on `Controller`, so the code was never requested and a password alone opened the administration.
+- Fail closed: an unreadable two-factor state blocks the administration instead of skipping the check. Only a store that still needs the Installer UPDATE and has no MFA table yet is let through.
+- While the second factor is pending, the header, menu, footer, notifications and search behave as signed out.
+- After a correct code the session ID and `user_token` are replaced and the originally requested page opens.
+- Only failed codes count: 5 per 15 minutes and 20 per 24 hours per account, 15 per 15 minutes per source. The account owner receives an e-mail when verification is locked.
+- New "Two-factor verification" page in the profile menu for every administrator: set up, disable, new recovery codes. Each action needs the account password, and the owner is notified by e-mail. View-only accounts (no modify rights, such as a shared demo login) cannot bind the account to a phone.
+- Mandatory two-factor per user group (CodeCart Core → Security). Members are sent to set it up at the next sign-in, confirm the setup with a code sent to the account e-mail and cannot disable it.
+- The verification form checks the admin token, so a foreign page cannot post wrong codes to lock an account. Missing-table detection also recognises PDO errors (SQLSTATE 42S02).
+- Users list shows the 2FA state. An administrator with modify rights on users and CodeCart Core can reset another administrator's second factor after entering their own password; the target is notified.
+- Requests with a non-string `route` parameter are normalized instead of failing with HTTP 500.
+- Keep schema 3.0.6.0; see documentation/RELEASE_2.1.6.md for verification scope.
+
 # CodeCart 3.0.6.0 — Build 2.1.5 (2026-11-02)
 
 - Cron: SeoPro no longer canonical-redirects `cron.php` and `route=cron/*` requests, so HTTPS Cron URLs and the administration "Run now" button stop failing with HTTP 301. A redirect configured on the hosting side is now reported with its HTTP code and target address.

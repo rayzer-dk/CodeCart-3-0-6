@@ -170,11 +170,13 @@ class ControllerUserUser extends Controller {
 		$user_total = $this->model_user_user->getTotalUsers();
 
 		$results = $this->model_user_user->getUsers($filter_data);
+		$protected = $this->twoFactorUsers(array_column($results, 'user_id'));
 
 		foreach ($results as $result) {
 			$data['users'][] = array(
 				'user_id'    => $result['user_id'],
 				'username'   => $result['username'],
+				'two_factor' => $protected === null ? null : isset($protected[(int)$result['user_id']]),
 				'status'     => ($result['status'] ? $this->language->get('text_enabled') : $this->language->get('text_disabled')),
 				'date_added' => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
 				'edit'       => $this->url->link('user/user/edit', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $result['user_id'] . $url, true)
@@ -414,11 +416,85 @@ class ControllerUserUser extends Controller {
 			$data['status'] = 0;
 		}
 
+		$data['two_factor'] = null;
+		if (isset($this->request->get['user_id'])) {
+			$target_id = (int)$this->request->get['user_id'];
+			$protected = $this->twoFactorUsers(array($target_id));
+			$data['two_factor'] = $protected === null ? null : isset($protected[$target_id]);
+			$data['two_factor_can_reset'] = $data['two_factor'] && $target_id !== (int)$this->user->getId() && $this->canResetTwoFactor();
+			$data['two_factor_reset'] = $this->url->link('user/user/resetTwoFactor', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $target_id . $url, true);
+		}
+		$data['two_factor_success'] = isset($this->session->data['codecart_two_factor_success']) ? (string)$this->session->data['codecart_two_factor_success'] : '';
+		$data['two_factor_error'] = isset($this->session->data['codecart_two_factor_error']) ? (string)$this->session->data['codecart_two_factor_error'] : '';
+		unset($this->session->data['codecart_two_factor_success'], $this->session->data['codecart_two_factor_error']);
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
 		$this->response->setOutput($this->load->view('user/user_form', $data));
+	}
+
+	/**
+	 * Removes another administrator's second factor (lost phone). Needs user and
+	 * security-settings modify rights plus the acting administrator's password,
+	 * because together with a password change it hands over the account.
+	 */
+	public function resetTwoFactor() {
+		$this->load->language('user/user');
+
+		$target_id = isset($this->request->get['user_id']) ? (int)$this->request->get['user_id'] : 0;
+		$back = $this->url->link('user/user/edit', 'user_token=' . $this->session->data['user_token'] . '&user_id=' . $target_id, true);
+
+		if ($this->request->server['REQUEST_METHOD'] !== 'POST') {
+			$this->response->redirect($back);
+			return;
+		}
+
+		$this->load->model('user/user');
+		$target = $target_id ? $this->model_user_user->getUser($target_id) : array();
+		$actor_id = (int)$this->user->getId();
+		$audit = new \CodeCart\Core\SecurityAudit($this->registry);
+
+		if (!$this->canResetTwoFactor()) {
+			$this->session->data['codecart_two_factor_error'] = $this->language->get('error_permission');
+		} elseif (!$target || $target_id === $actor_id) {
+			$this->session->data['codecart_two_factor_error'] = $this->language->get('error_two_factor_target');
+		} else {
+			$password = isset($this->request->post['two_factor_password']) ? (string)$this->request->post['two_factor_password'] : '';
+			$check = (new \CodeCart\Core\LoginProtection($this->registry))->confirmPassword($actor_id, $password);
+
+			if ($check !== 'ok') {
+				$audit->add('admin.totp.reset', 'failed', 'warning', 'admin', $actor_id, $this->user->getUserName(), array('target_user_id' => $target_id));
+				$this->session->data['codecart_two_factor_error'] = $this->language->get($check === 'blocked' ? 'error_two_factor_attempts' : 'error_two_factor_password');
+			} else {
+				$totp = new \CodeCart\Core\TotpManager($this->registry);
+				$totp->reset($target_id);
+				$audit->add('admin.totp.reset', 'success', 'warning', 'admin', $actor_id, $this->user->getUserName(), array('target_user_id' => $target_id, 'target_username' => $target['username']));
+				$totp->notify($target_id, $this->language->get('mail_two_factor_reset_subject'), sprintf($this->language->get('mail_two_factor_reset_text'), $target['username'], $this->user->getUserName(), date('Y-m-d H:i:s')));
+				$this->session->data['codecart_two_factor_success'] = $this->language->get('text_two_factor_reset');
+			}
+		}
+
+		$this->response->redirect($back);
+	}
+
+	private function canResetTwoFactor() {
+		return $this->user->hasPermission('modify', 'user/user') && $this->user->hasPermission('modify', 'tool/codecart_core');
+	}
+
+	/** user_id => true for accounts with an active second factor; null when the state cannot be read. */
+	private function twoFactorUsers(array $user_ids) {
+		$user_ids = array_filter(array_map('intval', $user_ids));
+		if (!$user_ids) {
+			return array();
+		}
+		try {
+			$query = $this->db->query("SELECT user_id FROM `" . DB_PREFIX . "codecart_user_mfa` WHERE status = '1' AND secret <> '' AND user_id IN (" . implode(',', $user_ids) . ")");
+		} catch (\Throwable $e) {
+			return null;
+		}
+		return array_fill_keys(array_map('intval', array_column($query->rows, 'user_id')), true);
 	}
 
 	protected function validateForm() {

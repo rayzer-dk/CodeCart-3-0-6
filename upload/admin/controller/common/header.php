@@ -83,7 +83,8 @@ class ControllerCommonHeader extends Controller {
         $data['stores'] = array();
         $data['search'] = '';
 
-        if (!isset($this->request->get['user_token']) || !isset($this->session->data['user_token']) || ($this->request->get['user_token'] != $this->session->data['user_token'])) {
+        // A session waiting for its second factor gets the signed-out header.
+        if ($this->registry->get('codecart_mfa_pending') || !isset($this->request->get['user_token']) || !isset($this->session->data['user_token']) || ($this->request->get['user_token'] != $this->session->data['user_token'])) {
             $data['logged'] = '';
             $data['home'] = $this->url->link('common/login', '', true);
         } else {
@@ -91,6 +92,7 @@ class ControllerCommonHeader extends Controller {
             $data['home'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true);
             $data['logout'] = $this->url->link('common/logout', 'user_token=' . $this->session->data['user_token'], true);
             $data['profile'] = $this->url->link('common/profile', 'user_token=' . $this->session->data['user_token'], true);
+            $data['two_factor'] = $this->url->link('common/two_factor', 'user_token=' . $this->session->data['user_token'], true);
             $data['modification_refresh'] = $this->url->link('marketplace/modification/refresh', 'user_token=' . $this->session->data['user_token'], true);
             try {
                 $ocmodState = \CodeCart\Core\OcmodState::get();
@@ -157,11 +159,13 @@ class ControllerCommonHeader extends Controller {
             }
         }
 
-        try {
-            $data['search'] = $this->load->controller('search/search');
-        } catch (\Throwable $e) {
-            $this->logHeaderFailure('search', $e);
-            $data['search'] = '';
+        $data['search'] = '';
+        if ($data['logged']) {
+            try {
+                $data['search'] = $this->load->controller('search/search');
+            } catch (\Throwable $e) {
+                $this->logHeaderFailure('search', $e);
+            }
         }
 
         return $this->load->view('common/header', $data);
