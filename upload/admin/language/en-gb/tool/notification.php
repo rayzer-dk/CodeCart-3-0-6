@@ -87,5 +87,5 @@ $_['text_next'] = 'Next page';
 $_['error_action'] = 'Action failed. Reload the page or check your permissions.';
 $_['error_network'] = 'Server request failed. Check your connection and the error log.';
 $_['text_status_dismissed'] = 'Archived';
-$_['text_archive_help'] = 'Archived notifications are hidden from the active list, but remain here for review. They can reappear as new when a resolved issue occurs again.';
+$_['text_archive_help'] = 'Archived notifications are hidden from the active list and stay hidden while the issue persists, even after successful Cron runs. A notification appears again only if the issue comes back after it was fixed or becomes more severe.';
 $_['error_session'] = 'Your session has expired or the login token is invalid. Sign in again, then retry.';

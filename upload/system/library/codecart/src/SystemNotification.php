@@ -20,8 +20,12 @@ final class SystemNotification {
         // Atomic upsert avoids the SELECT-then-INSERT race when two requests publish
         // the same notification code at the same time. The UNIQUE(code) key is the
         // concurrency guard. Status is evaluated before the mutable fields are
-        // overwritten, so a changed/resolved notice becomes unread again while an
-        // unchanged read notice stays read.
+        // overwritten:
+        // - resolved/archived: the problem came back, so the notice is unread again;
+        // - dismissed: the administrator hid a problem that is still active; it stays
+        //   hidden while the text changes (counts, details) and reopens only when the
+        //   severity rises;
+        // - unread/read: unread again when its content changes.
         $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_notification` SET " .
             "code='" . $this->db->escape($code) . "', " .
             "severity='" . $this->db->escape($severity) . "', " .
@@ -30,16 +34,22 @@ final class SystemNotification {
             "route='" . $this->db->escape($route) . "', " .
             "status='unread', date_added=NOW(), date_modified=NOW() " .
             "ON DUPLICATE KEY UPDATE " .
-            "status=IF(severity<>VALUES(severity) OR title<>VALUES(title) OR message<>VALUES(message) OR route<>VALUES(route) OR status='resolved','unread',status), " .
+            "status=CASE " .
+                "WHEN status IN ('resolved','archived') THEN 'unread' " .
+                "WHEN status='dismissed' THEN IF(FIELD(VALUES(severity),'info','warning','error','critical')>FIELD(severity,'info','warning','error','critical'),'unread','dismissed') " .
+                "WHEN severity<>VALUES(severity) OR title<>VALUES(title) OR message<>VALUES(message) OR route<>VALUES(route) THEN 'unread' " .
+                "ELSE status END, " .
             "severity=VALUES(severity), title=VALUES(title), message=VALUES(message), route=VALUES(route), date_modified=NOW()");
     }
 
     public function resolve(string $code): void {
         if (!$this->tableExists()) { return; }
         $code = $this->db->escape(strtolower(trim($code)));
-        // Keep the full history. A dismissed warning that is fixed becomes resolved;
-        // if it recurs, notify() reopens it because its status was resolved.
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status='resolved', date_modified=NOW() WHERE code='" . $code . "' AND status!='resolved'");
+        // Visible notices move to "resolved". A dismissed one stays out of sight as
+        // "archived": scheduler tasks resolve their notice after every successful run,
+        // and turning a dismissed row into "resolved" brought it back the next day.
+        // Both "resolved" and "archived" reopen in notify() if the problem recurs.
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status=IF(status='dismissed','archived','resolved'), date_modified=NOW() WHERE code='" . $code . "' AND status IN ('unread','read','dismissed')");
     }
 
     public function unreadCount(): int {
@@ -51,14 +61,17 @@ final class SystemNotification {
     public function latest(int $limit=5): array {
         if (!$this->tableExists()) { return array(); }
         $limit=max(1,min(50,$limit));
-        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_notification` WHERE status NOT IN ('resolved','dismissed') ORDER BY FIELD(severity,'critical','error','warning','info'), notification_id DESC LIMIT " . (int)$limit)->rows;
+        return $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('unread','read') ORDER BY FIELD(severity,'critical','error','warning','info'), notification_id DESC LIMIT " . (int)$limit)->rows;
     }
 
-    // A dismissed notice is retained as a tombstone so the next cron/preflight
-    // pass cannot recreate the exact same warning. It becomes unread if its
-    // message/severity changes or if it is resolved and later recurs.
+    // Hidden notices are kept as tombstones so the next cron/preflight pass cannot
+    // recreate them: "dismissed" (problem still active) and "archived" (hidden,
+    // then fixed). The archive tab shows both.
     private function visibleCondition(string $status = 'all'): string {
-        if (in_array($status, array('unread', 'read', 'resolved', 'dismissed'), true)) {
+        if ($status === 'dismissed') {
+            return "status IN ('dismissed','archived')";
+        }
+        if (in_array($status, array('unread', 'read', 'resolved'), true)) {
             return "status='" . $status . "'";
         }
         return "status IN ('unread','read','resolved')";
@@ -67,11 +80,11 @@ final class SystemNotification {
     public function counts(): array {
         $counts = array('all' => 0, 'unread' => 0, 'read' => 0, 'resolved' => 0, 'dismissed' => 0);
         if (!$this->tableExists()) { return $counts; }
-        $rows = $this->db->query("SELECT status, COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('unread','read','resolved','dismissed') GROUP BY status")->rows;
+        $rows = $this->db->query("SELECT status, COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('unread','read','resolved','dismissed','archived') GROUP BY status")->rows;
         foreach ($rows as $row) {
-            $status = (string)$row['status'];
+            $status = (string)$row['status'] === 'archived' ? 'dismissed' : (string)$row['status'];
             if (isset($counts[$status])) {
-                $counts[$status] = (int)$row['total'];
+                $counts[$status] += (int)$row['total'];
                 if ($status !== 'dismissed') { $counts['all'] += $counts[$status]; }
             }
         }
@@ -259,22 +272,25 @@ final class SystemNotification {
     public function delete(int $id): bool {
         if ($id <= 0 || !$this->tableExists()) { return false; }
         // A hard DELETE allows the next health/queue poll to reinsert the row
-        // immediately. Preserve a dismissed tombstone until the condition changes.
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status='dismissed', date_modified=NOW() WHERE notification_id='" . (int)$id . "' AND status!='dismissed'");
+        // immediately. Keep a tombstone: an already resolved notice is archived,
+        // an active one is dismissed until it is resolved.
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status=IF(status='resolved','archived','dismissed'), date_modified=NOW() WHERE notification_id='" . (int)$id . "' AND status IN ('unread','read','resolved')");
         return method_exists($this->db, 'countAffected') ? ((int)$this->db->countAffected() > 0) : true;
     }
 
     public function deleteReadAndResolved(): void {
         if ($this->tableExists()) {
             // Bulk clear must also survive recurring notices from background jobs.
-            $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status='dismissed', date_modified=NOW() WHERE status IN ('read','resolved')");
+            $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status=IF(status='resolved','archived','dismissed'), date_modified=NOW() WHERE status IN ('read','resolved')");
         }
     }
 
     public function cleanup(int $days = 30): int {
         $days = max(1, min(3650, $days));
         if (!$this->tableExists()) { return 0; }
-        $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('read','resolved') AND date_modified < DATE_SUB(NOW(), INTERVAL " . (int)$days . " DAY)");
+        // Archived tombstones belong to problems that are already fixed; a recurrence
+        // creates a new notice, so they can expire with the rest of the history.
+        $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('read','resolved','archived') AND date_modified < DATE_SUB(NOW(), INTERVAL " . (int)$days . " DAY)");
         return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
     }
 

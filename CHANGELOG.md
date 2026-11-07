@@ -1,3 +1,8 @@
+# CodeCart 3.0.6.0 — Build 2.1.7 (2026-11-07)
+
+- System notifications: a deleted notification no longer comes back. Every successful Cron run resolved its task notice, and `resolve()` turned the hidden ("dismissed") row into "resolved", which is listed again; daily tasks therefore restored deleted notices the next day. A hidden notice now becomes "archived" when the problem is fixed and stays in the Archive tab. It reappears only if the problem returns after a fix or its severity rises; a changed failure count no longer reopens it. Deleting or clearing an already resolved notice archives it.
+- Keep schema 3.0.6.0; `archived` uses the existing `status` column.
+
 # CodeCart 3.0.6.0 — Build 2.1.6 (2026-11-02)
 
 - Security: administrator two-factor verification is enforced. In earlier builds `startup/totp` tested `isset($this->user)`, which is always false on `Controller`, so the code was never requested and a password alone opened the administration.

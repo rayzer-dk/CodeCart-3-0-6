@@ -30,7 +30,7 @@
               <div class="text-muted">{{ item.message|e('html') }}</div>
               <div class="ccp-notification-meta"><span><i class="fa fa-clock-o"></i> {{ item.date_modified|e('html') }}</span>{% if item.route %}<a href="index.php?route={{ item.route|url_encode }}&amp;user_token={{ user_token|url_encode }}"><i class="fa fa-external-link"></i> {{ item.route|e('html') }}</a>{% endif %}<span>{% if item.status == 'unread' %}{{ text_status_unread }}{% elseif item.status == 'read' %}{{ text_status_read }}{% elseif item.status == 'resolved' %}{{ text_status_resolved }}{% else %}{{ text_status_dismissed }}{% endif %}</span></div>
             </div>
-            {% if can_modify and item.status != 'dismissed' %}<div class="ccp-notification-card-actions">
+            {% if can_modify and item.status not in ['dismissed', 'archived'] %}<div class="ccp-notification-card-actions">
               {% if item.status == 'unread' %}<button type="button" class="btn btn-primary btn-read" data-id="{{ item.notification_id }}" title="{{ text_read }}"><i class="fa fa-check"></i></button>{% endif %}
               <button type="button" class="btn btn-danger btn-delete" data-id="{{ item.notification_id }}" title="{{ text_delete }}"><i class="fa fa-trash-o"></i></button>
             </div>{% endif %}
