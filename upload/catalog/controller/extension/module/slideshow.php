@@ -61,7 +61,7 @@ class ControllerExtensionModuleSlideshow extends Controller {
 
 		// Load slider assets only when this module actually renders content.
 		$this->document->addStyle('catalog/view/javascript/codecart/slider/codecart-slider.css?v=3.0.6.0-3');
-		$this->document->addScript('catalog/view/javascript/codecart/slider/codecart-slider.js?v=3.0.6.0-3', 'footer');
+		$this->document->addScript('catalog/view/javascript/codecart/slider/codecart-slider.js?v=3.0.6.0-4', 'footer');
 
 		// Compatibility bridge for third-party OpenCart 3 themes that override these templates.
 		if (!in_array((string)$this->config->get('config_theme'), array('default', 'codecart'), true)) {

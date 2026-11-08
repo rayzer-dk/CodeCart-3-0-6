@@ -452,7 +452,7 @@ $_['about_added_items'] = array(
 $_['about_updated_items'] = array(
     'PHP 8.1–8.5; Twig 3.30, Guzzle 7.15, scssphp 2.1.',
     'jQuery 3.7.1 everywhere, jQuery Migrate 3.4.1 for legacy modules.',
-    'Font Awesome 6.7.2 Free; Font Awesome 4 class names and font-family FontAwesome keep working through the bundled compatibility layer. jquery-2.1.1.min.js stays in the package for themes that link to it directly.',
+    'Font Awesome 6.7.2 Free; Font Awesome 4 class names and font-family FontAwesome keep working through the bundled compatibility layer.',
     'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 as an alternative gallery.',
     'Storefront date fields use the built-in date picker; moment.js and bootstrap-datetimepicker stay only for third-party modules.',
     'New installs use utf8mb4 and InnoDB; the database modernizer converts old tables after a backup.',
@@ -473,7 +473,7 @@ $_['about_security_items'] = array(
     'SMTP and bundled HTTP integrations (PayPal, currency rates, Google, Turnstile) require TLS 1.2+ with certificate verification.'
 );
 $_['about_removed_items'] = array(
-    'Font Awesome 4 font files (Font Awesome 6 webfonts are used, FA4 class names are mapped).',
+    'Font Awesome 4 font files (Font Awesome 6 webfonts are used, FA4 class names are mapped) and jQuery 2.1.1 (jQuery 3.7.1 with jQuery Migrate 3.4.1 is used).',
     'Legacy php.ini in the web root (delete it from existing sites).',
     'Duplicate upgrade step 3054 and legacy catalog import actions in Tools → Backup.'
 );

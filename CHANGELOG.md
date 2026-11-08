@@ -1,3 +1,10 @@
+# CodeCart 3.0.6.0 — Build 2.2.2 (2026-11-08)
+
+Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
+
+- Slideshow, banner and carousel (`codecart-slider.js` 1.2.3): after the slide change the strip slid back to the start with a second animation and showed the next picture for a moment. The reset to the start position is now flushed before transitions are re-enabled, and a size change during a slide change (scrollbar, image load, font swap) no longer resets the strip in the middle of the move.
+- `jquery-2.1.1.min.js` is no longer shipped (storefront and administration). Sites that are updated keep the old file; nothing in CodeCart loads it.
+
 # CodeCart 3.0.6.0 — Build 2.2.1 (2026-11-08)
 
 Core schema 3.0.6.0; presentation schema revision 35 (unchanged).

@@ -36,3 +36,24 @@ test('a purchasable product can be added to the guest cart', async ({ page }) =>
   expect(cartPage.ok()).toBe(true);
   await expect(page.locator('#content input[name^="quantity"]')).toHaveCount(1);
 });
+
+test('slideshow finishes a slide change with a single transition', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#slideshow0.ccp-slider--ready')).toBeVisible();
+
+  // The 460 ms fallback timer, not transitionend, ends the move: the case that used to slide the strip back.
+  const transitions = await page.evaluate(async () => {
+    const root = document.querySelector('#slideshow0');
+    const track = root.querySelector('.ccp-slider__track');
+    const slider = window.CodeCartSlider.get(root);
+    slider.userPaused = true;
+    slider.stop();
+    let count = 0;
+    track.addEventListener('transitionrun', event => { if (event.target === track) { count += 1; } });
+    root.addEventListener('transitionend', event => { if (event.target === track) { event.stopImmediatePropagation(); } }, true);
+    root.querySelector('.ccp-slider__next').click();
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    return count;
+  });
+  expect(transitions).toBe(1);
+});

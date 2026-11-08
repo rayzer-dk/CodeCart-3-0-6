@@ -425,7 +425,7 @@ $_['about_added_items'] = array(
 $_['about_updated_items'] = array(
     'PHP 8.1–8.5; Twig 3.30, Guzzle 7.15, scssphp 2.1.',
     'jQuery 3.7.1 везде, jQuery Migrate 3.4.1 для старых модулей.',
-    'Font Awesome 6.7.2 Free; классы Font Awesome 4 и font-family FontAwesome работают через встроенный слой совместимости. jquery-2.1.1.min.js оставлен в пакете для тем, которые подключают его напрямую.',
+    'Font Awesome 6.7.2 Free; классы Font Awesome 4 и font-family FontAwesome работают через встроенный слой совместимости.',
     'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 как альтернативная галерея.',
     'Поля дат на витрине используют встроенный выбор даты; moment.js и bootstrap-datetimepicker оставлены только для сторонних модулей.',
     'Новые установки используют utf8mb4 и InnoDB; модернизатор БД переводит старые таблицы после резервной копии.',
@@ -446,7 +446,7 @@ $_['about_security_items'] = array(
     'SMTP и встроенные HTTP-интеграции (PayPal, курсы валют, Google, Turnstile) требуют TLS 1.2+ с проверкой сертификата.'
 );
 $_['about_removed_items'] = array(
-    'Файлы шрифтов Font Awesome 4 (используются веб-шрифты Font Awesome 6, классы FA4 сопоставлены).',
+    'Файлы шрифтов Font Awesome 4 (используются веб-шрифты Font Awesome 6, классы FA4 сопоставлены) и jQuery 2.1.1 (используется jQuery 3.7.1 с jQuery Migrate 3.4.1).',
     'Устаревший php.ini в корне сайта (удалите его на существующих сайтах).',
     'Дублирующий шаг обновления 3054 и старые действия импорта каталога в «Инструменты → Резервное копирование».'
 );

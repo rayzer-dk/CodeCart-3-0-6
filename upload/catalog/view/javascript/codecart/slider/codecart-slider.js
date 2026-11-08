@@ -1,5 +1,5 @@
 /**
- * CodeCart PRO Slider 1.2.2
+ * CodeCart PRO Slider 1.2.3
  * Lightweight dependency-free slider for the bundled default theme.
  * Legacy Swiper 3 remains available only for OpenCart 3 compatibility.
  */
@@ -147,7 +147,9 @@
         }
 
         this.initialWidth = 0;
-        this.render(animate !== false);
+        if (!this.animating) {
+            this.render(animate !== false);
+        }
         this.buildPagination();
         this.updateControls();
     };
@@ -161,15 +163,14 @@
             }
         } else {
             var offset = this.infiniteItem ? 0 : this.index * ((this.slideWidth || 0) + this.gap);
-            if (!animate || reducedMotion()) {
+            var instant = !animate || reducedMotion();
+            if (instant) {
                 this.track.classList.add('ccp-slider__track--instant');
             }
             this.track.style.transform = 'translate3d(' + (-offset) + 'px,0,0)';
-            if (!animate || reducedMotion()) {
-                var track = this.track;
-                window.requestAnimationFrame(function () {
-                    track.classList.remove('ccp-slider__track--instant');
-                });
+            if (instant) {
+                void this.track.offsetWidth;
+                this.track.classList.remove('ccp-slider__track--instant');
             }
         }
 
@@ -273,14 +274,13 @@
             self.slides = Array.prototype.slice.call(self.track.children);
             self.index = (self.index + (direction * count)) % self.originalCount;
             if (self.index < 0) { self.index += self.originalCount; }
-            window.requestAnimationFrame(function () {
-                if (token !== self.animationToken) { return; }
-                self.track.classList.remove('ccp-slider__track--instant');
-                self.animating = false;
-                self.updatePagination();
-                self.updateControls();
-                self.start();
-            });
+            // Flush the instant reset; otherwise the transition resumes from the old offset and the track slides back.
+            void self.track.offsetWidth;
+            self.track.classList.remove('ccp-slider__track--instant');
+            self.animating = false;
+            self.updatePagination();
+            self.updateControls();
+            self.start();
         }
         function onEnd(event) {
             if (token !== self.animationToken) { return; }
