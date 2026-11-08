@@ -57,3 +57,14 @@ test('slideshow finishes a slide change with a single transition', async ({ page
   });
   expect(transitions).toBe(1);
 });
+
+test('a theme that links jquery-2.1.1 still gets jQuery 3 with Migrate', async ({ page }) => {
+  await page.route('**/jquery-stub-check.html', route => route.fulfill({
+    contentType: 'text/html',
+    body: '<!doctype html><meta charset="utf-8"><script src="/catalog/view/javascript/jquery/jquery-2.1.1.min.js"></script><p>stub</p>',
+  }));
+  await page.goto('/jquery-stub-check.html');
+  const loaded = await page.evaluate(() => ({ jquery: window.jQuery ? window.jQuery.fn.jquery : null, migrate: window.jQuery ? window.jQuery.migrateVersion : null }));
+  expect(loaded.jquery).toMatch(/^3\./);
+  expect(loaded.migrate).toMatch(/^3\./);
+});

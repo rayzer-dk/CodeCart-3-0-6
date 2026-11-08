@@ -473,7 +473,7 @@ $_['about_security_items'] = array(
     'SMTP and bundled HTTP integrations (PayPal, currency rates, Google, Turnstile) require TLS 1.2+ with certificate verification.'
 );
 $_['about_removed_items'] = array(
-    'Font Awesome 4 font files (Font Awesome 6 webfonts are used, FA4 class names are mapped) and jQuery 2.1.1 (jQuery 3.7.1 with jQuery Migrate 3.4.1 is used).',
+    'Font Awesome 4 font files (Font Awesome 6 webfonts are used, FA4 class names are mapped) and the jQuery 2.1.1 library (a 1 KB stub with the old file name loads jQuery 3.7.1 with jQuery Migrate 3.4.1 for themes that still link to it).',
     'Legacy php.ini in the web root (delete it from existing sites).',
     'Duplicate upgrade step 3054 and legacy catalog import actions in Tools → Backup.'
 );

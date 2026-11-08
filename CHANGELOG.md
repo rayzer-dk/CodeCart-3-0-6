@@ -1,9 +1,16 @@
+# CodeCart 3.0.6.0 — Build 2.2.3 (2026-11-08)
+
+Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
+
+- `jquery-2.1.1.min.js` is back as a 1 KB compatibility stub (storefront and administration). Themes and modules made for ocStore/OpenCart 3 that link to this file (for example Listore, NiceTheme, invoice templates) were left without jQuery after build 2.2.2. The stub loads the bundled jQuery 3.7.1 with jQuery Migrate 3.4.1 and does nothing when jQuery is already on the page, so a module that adds the old file after jQuery 3.7.1 no longer replaces it.
+- The old 85 KB jQuery 2.1.1 library and the Font Awesome 4 font files stay removed. Font Awesome 4 class names are served by Font Awesome 6.7.2 (784 of 786 icon names; two discontinued brands are not in Font Awesome 6 either).
+
 # CodeCart 3.0.6.0 — Build 2.2.2 (2026-11-08)
 
 Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
 
 - Slideshow, banner and carousel (`codecart-slider.js` 1.2.3): after the slide change the strip slid back to the start with a second animation and showed the next picture for a moment. The reset to the start position is now flushed before transitions are re-enabled, and a size change during a slide change (scrollbar, image load, font swap) no longer resets the strip in the middle of the move.
-- `jquery-2.1.1.min.js` is no longer shipped (storefront and administration). Sites that are updated keep the old file; nothing in CodeCart loads it.
+- `jquery-2.1.1.min.js` is no longer shipped as a library (storefront and administration); build 2.2.3 replaces it with a compatibility stub.
 
 # CodeCart 3.0.6.0 — Build 2.2.1 (2026-11-08)
 
