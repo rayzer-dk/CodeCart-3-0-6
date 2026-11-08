@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.2.1 (2026-11-08)
+
+Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
+
+- Font Awesome 4 font files are not shipped: Font Awesome 4 class names and `font-family: FontAwesome` are served by the bundled Font Awesome 6.7.2 compatibility layer. `jquery-2.1.1.min.js` stays in the package (not loaded by CodeCart) for ocStore-era themes that link to it directly.
+- Storefront telephone fields: the input pattern is valid in current browsers (Chrome compiles `pattern` with the `v` flag and previously rejected it, so the format was not checked).
+- Verified: legacy ocStore `DB_DRIVER` `mpdo` with storefront, administration and a browser checkout on MariaDB 10.11 and PHP 8.4.
+
 # CodeCart 3.0.6.0 — Build 2.2.0 (2026-11-08)
 
 Compatibility release. Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
