@@ -571,7 +571,6 @@ class ControllerExtensionCaptchaBasic extends Controller {
         ob_start();
         $ok = @imagewebp($image, null, 84);
         $binary = (string)ob_get_clean();
-        if (PHP_VERSION_ID < 80500 && function_exists('imagedestroy')) { imagedestroy($image); }
         return $ok && $binary !== '' ? $binary : '';
     }
 
@@ -595,11 +594,9 @@ class ControllerExtensionCaptchaBasic extends Controller {
             $rw = imagesx($rotated);
             $rh = imagesy($rotated);
             imagecopy($image, $rotated, $cx - (int)($rw / 2), $cy - (int)($rh / 2), 0, 0, $rw, $rh);
-            if (PHP_VERSION_ID < 80500 && function_exists('imagedestroy')) { imagedestroy($rotated); }
         } else {
             $this->drawCaptchaIcon($image, $key, $cx, $cy, $color);
         }
-        if (PHP_VERSION_ID < 80500 && function_exists('imagedestroy')) { imagedestroy($layer); }
     }
 
     private function drawCaptchaIcon($image, $key, $cx, $cy, $color) {
@@ -653,11 +650,9 @@ class ControllerExtensionCaptchaBasic extends Controller {
                                 }
                             }
 
-                            if (PHP_VERSION_ID < 80500 && function_exists('imagedestroy')) { imagedestroy($mask); }
                             return;
                         }
 
-                        if (PHP_VERSION_ID < 80500 && function_exists('imagedestroy')) { imagedestroy($mask); }
                     }
                 }
             }
@@ -686,8 +681,7 @@ class ControllerExtensionCaptchaBasic extends Controller {
                 break;
             case 'home':
                 $homePoints = array($cx - 17,$cy - 1,$cx,$cy - 16,$cx + 17,$cy - 1);
-                if (PHP_VERSION_ID >= 80500) { imagepolygon($image, $homePoints, $color); }
-                else { imagepolygon($image, $homePoints, 3, $color); }
+                imagepolygon($image, $homePoints, $color);
                 imagerectangle($image, $cx - 12, $cy - 1, $cx + 12, $cy + 14, $color);
                 imagerectangle($image, $cx - 4, $cy + 5, $cx + 4, $cy + 14, $color);
                 break;
@@ -732,8 +726,7 @@ class ControllerExtensionCaptchaBasic extends Controller {
                     $radius = ($i % 2 === 0) ? 16 : 7;
                     $points[] = (int)round($cx + cos($angle) * $radius); $points[] = (int)round($cy + sin($angle) * $radius);
                 }
-                if (PHP_VERSION_ID >= 80500) { imagepolygon($image, $points, $color); }
-                else { imagepolygon($image, $points, 10, $color); }
+                imagepolygon($image, $points, $color);
                 break;
         }
         imagesetthickness($image, 1);

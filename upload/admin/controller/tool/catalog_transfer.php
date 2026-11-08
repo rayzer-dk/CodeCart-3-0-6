@@ -194,7 +194,7 @@ class ControllerToolCatalogTransfer extends Controller {
             try {
                 // UTF-8 BOM helps Excel import multilingual product titles correctly.
                 fwrite($handle, "\xEF\xBB\xBF");
-                fputcsv($handle, array('Product ID', 'SKU', 'Product name', 'Error reason'));
+                fputcsv($handle, array('Product ID', 'SKU', 'Product name', 'Error reason'), ',', '"', '');
                 foreach ($issues as $issue) {
                     $fields = array((int)(isset($issue['product_id']) ? $issue['product_id'] : 0));
                     foreach (array('sku','name','reason') as $column) {
@@ -203,7 +203,7 @@ class ControllerToolCatalogTransfer extends Controller {
                         if (preg_match('/^[\x00-\x20]*[=+\-@]/', $value)) { $value = "'" . $value; }
                         $fields[] = $value;
                     }
-                    if (fputcsv($handle, $fields) === false) {
+                    if (fputcsv($handle, $fields, ',', '"', '') === false) {
                         throw new \RuntimeException('Cannot write catalog error report.');
                     }
                 }

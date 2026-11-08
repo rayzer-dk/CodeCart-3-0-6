@@ -52,7 +52,6 @@ final class EmailLogo {
 
             $canvas = imagecreatetruecolor(self::OUTPUT_MAX_WIDTH, self::OUTPUT_MAX_HEIGHT);
             if (!$canvas) {
-                imagedestroy($image);
                 return self::fallback($filename, $base_url);
             }
 
@@ -81,8 +80,6 @@ final class EmailLogo {
 
             $tmp = $target . '.tmp';
             $saved = @imagepng($canvas, $tmp, 6);
-            imagedestroy($canvas);
-            imagedestroy($image);
 
             if (!$saved) {
                 @unlink($tmp);

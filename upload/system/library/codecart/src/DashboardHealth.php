@@ -44,7 +44,7 @@ final class DashboardHealth {
                 $q = $this->db->query("SELECT COUNT(DISTINCT CONCAT(customer_id,':',session_id)) AS total FROM `" . DB_PREFIX . "cart` WHERE date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR) AND date_added >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
                 $abandoned = (int)($q->row['total'] ?? 0);
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('abandoned carts', $e); }
 
         return array(
             'sales' => $sales,
@@ -73,7 +73,7 @@ final class DashboardHealth {
                 $failed = (int)($q->row['total'] ?? 0);
                 if ($failed > 0) { $items[] = $this->notice('queue_failed', 'error', $failed); }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('failed queue', $e); }
 
         $cron = $this->cronState();
         if ($cron['state'] !== 'ok') { $items[] = $this->notice('cron_stale', $cron['state'] === 'error' ? 'error' : 'warning', $cron['age_minutes']); }
@@ -105,7 +105,7 @@ final class DashboardHealth {
                 $q = $this->db->query("SELECT status,COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_queue` GROUP BY status");
                 foreach ($q->rows as $row) { if (isset($queue[$row['status']])) { $queue[$row['status']] = (int)$row['total']; } }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('queue status', $e); }
 
         $cacheRequested = strtoupper((string)$this->config->get('cache_engine'));
         $cacheActive = $cacheRequested !== '' ? $cacheRequested : 'FILE';
@@ -189,7 +189,7 @@ final class DashboardHealth {
             $result['missing_brand']=(int)($q->row['total']??0);
             $q=$this->db->query("SELECT COUNT(*) AS total FROM `".DB_PREFIX."product` p WHERE p.status='1' AND NOT EXISTS(SELECT 1 FROM `".DB_PREFIX."product_to_category` pc WHERE pc.product_id=p.product_id)");
             $result['orphan_product']=(int)($q->row['total']??0);
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('catalog quality', $e); }
 
         $result['schema_enabled'] = (int)$this->config->get('config_codecart_structured_data_status');
         $result['sitemap_enabled'] = (int)$this->config->get('feed_google_sitemap_status');
@@ -212,11 +212,11 @@ final class DashboardHealth {
                 $q=$this->db->query("SELECT COUNT(*) AS total FROM `".DB_PREFIX."codecart_admin_login_attempt` WHERE date_added>=DATE_SUB(NOW(),INTERVAL 24 HOUR)");
                 $attempts=(int)($q->row['total']??0);
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('login attempts', $e); }
         $totp = false;
-        try { $totp=(new TotpManager($this->registry))->isEnabled($userId); } catch (\Throwable $e) {}
+        try { $totp=(new TotpManager($this->registry))->isEnabled($userId); } catch (\Throwable $e) { $this->logFailure('totp', $e); }
         $integrity = array('status'=>'warning','checked'=>0,'changed'=>0,'missing'=>0,'items'=>array());
-        try { $integrity=(new FileIntegrity($this->registry))->check(); } catch (\Throwable $e) {}
+        try { $integrity=(new FileIntegrity($this->registry))->check(); } catch (\Throwable $e) { $this->logFailure('file integrity', $e); }
 
         return array(
             'mfa'=>array('value'=>$totp?'enabled':'disabled','state'=>$totp?'ok':'warning'),
@@ -295,7 +295,7 @@ final class DashboardHealth {
             if($q->num_rows){$result['text_columns']=(int)$q->row['total'];$result['utf8mb4_columns']=(int)$q->row['utf8mb4'];}
             $result['legacy_columns']=max(0,$result['text_columns']-$result['utf8mb4_columns']);
             $result['state']=($result['innodb_tables']===$result['total_tables']&&$result['utf8mb4_tables']===$result['total_tables']&&$result['utf8mb4_columns']===$result['text_columns'])?'ok':'warning';
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('database state', $e); }
         return $result;
     }
 
@@ -313,7 +313,7 @@ final class DashboardHealth {
                     else{$result['state']='warning';}
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('cron state', $e); }
         return $result;
     }
 
@@ -343,6 +343,10 @@ final class DashboardHealth {
         return $count;
     }
 
+    private function logFailure(string $context, \Throwable $e): void {
+        $log = $this->registry->get('log');
+        if ($log) { $log->write('Dashboard health ' . $context . ': ' . $e->getMessage()); }
+    }
     private function notice(string $code,string $state,$value): array { return array('code'=>$code,'state'=>$state,'value'=>$value); }
     private function tableExists(string $table): bool { try{$q=$this->db->query("SHOW TABLES LIKE '".$this->db->escape(DB_PREFIX.$table)."'");return (bool)$q->num_rows;}catch(\Throwable $e){return false;} }
     private function performanceFile(): string { return rtrim(DIR_STORAGE,'/\\').DIRECTORY_SEPARATOR.'codecart'.DIRECTORY_SEPARATOR.'diagnostics'.DIRECTORY_SEPARATOR.'storefront_performance.json'; }

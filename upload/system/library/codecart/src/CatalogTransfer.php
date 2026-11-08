@@ -1673,7 +1673,7 @@ final class CatalogTransfer {
                 $copied=stream_copy_to_stream($in,$out,$size+1); fclose($in); fclose($out);
                 if($copied!==$size||$copied>self::MAX_SINGLE_IMAGE_BYTES){@unlink($tmp);continue;}
                 $mime='';
-                $fi=finfo_open(FILEINFO_MIME_TYPE);if($fi){$mime=(string)finfo_file($fi,$tmp);finfo_close($fi);}
+                $fi=finfo_open(FILEINFO_MIME_TYPE);if($fi){$mime=(string)finfo_file($fi,$tmp);}
                 if($mime===''){$info=@getimagesize($tmp);if(is_array($info)&&isset($info['mime']))$mime=(string)$info['mime'];}
                 $imageType = strtolower(pathinfo($rel, PATHINFO_EXTENSION));
                 $mimeOk = isset($allowedMimes[strtolower($mime)])

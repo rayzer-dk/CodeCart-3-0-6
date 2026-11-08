@@ -1,3 +1,24 @@
+# CodeCart 3.0.6.0 — Build 2.1.9 (2026-11-08)
+
+Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
+
+Added
+- Cloudflare Turnstile captcha extension (Extensions → Captcha). Off until configured; verification fails closed when Cloudflare is unreachable.
+- jQuery Migrate 3.4.1 after jQuery 3.7.1 in the storefront, administration and installer, so OpenCart 3 modules written for jQuery 1.x/2.x keep working; warnings are muted.
+- Content Security Policy mode (CodeCart Core → Security): report-only (default) or enforce. In the administration the enforced policy and frame protection are sent as one header.
+- Core / Compatibility → About system: build, schema and live runtime data, component versions compared with ocStore 3.0.3.7 and OpenCart 3.0.4.1 / 3.0.5.1, grouped changes and advantages.
+
+Fixes
+- Storefront CMS model called a non-existent customer method (fatal error for logged-in customers).
+- Download file names were always replaced by `download.bin` because of a broken pattern.
+- PayPal webhook retries on timeouts are limited to three attempts.
+- PHP 8.1–8.5: removed deprecated `imagepolygon()` point count, explicit `fputcsv()` escape, no `imagedestroy()` / `curl_close()` / `finfo_close()` calls.
+- PayPal capture in the administration kept an undefined transaction status.
+- Store health, preflight, mail delivery and relation clean-up failures are logged instead of being silently ignored.
+
+Removed
+- Font Awesome 4 font files (the bundled Font Awesome 6.7.2 uses only its woff2 webfonts; Font Awesome 4 class names keep working), an empty migration step and an orphaned template.
+
 # CodeCart 3.0.6.0 — Build 2.1.8 (2026-11-08)
 
 Final audit release. Core schema 3.0.6.0; presentation schema revision 35 (applied by the Installer UPDATE).

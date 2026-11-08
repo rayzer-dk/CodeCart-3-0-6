@@ -78,7 +78,7 @@ class ControllerExtensionDashboardDomovyk extends Controller {
         try {
             $q = $this->db->query('SELECT VERSION() AS version');
             $data['database_version'] = isset($q->row['version']) ? (string)$q->row['version'] : '';
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->log->write('Dashboard database version: ' . $e->getMessage()); }
         $data['cache_engine'] = strtoupper((string)$this->config->get('cache_engine'));
         if ($data['cache_engine'] === '') { $data['cache_engine'] = 'FILE'; }
         $data['cache_requested'] = $data['cache_engine'];
@@ -110,10 +110,10 @@ class ControllerExtensionDashboardDomovyk extends Controller {
                     $data['http_compression_checked'] = isset($performance['checked_at']) ? (string)$performance['checked_at'] : '';
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->log->write('Dashboard performance snapshot: ' . $e->getMessage()); }
         $data['notification_count'] = 0;
         if (class_exists('CodeCart\\Core\\SystemNotification')) {
-            try { $data['notification_count'] = (new \CodeCart\Core\SystemNotification($this->registry))->unreadCount(); } catch (\Throwable $e) {}
+            try { $data['notification_count'] = (new \CodeCart\Core\SystemNotification($this->registry))->unreadCount(); } catch (\Throwable $e) { $this->log->write('Dashboard notification count: ' . $e->getMessage()); }
         }
 
         if (function_exists('disk_free_space') && $this->config->get('dashboard_domovyk_free_space_status')) {

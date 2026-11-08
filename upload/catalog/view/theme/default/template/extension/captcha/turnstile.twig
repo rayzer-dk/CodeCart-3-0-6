@@ -1,0 +1,23 @@
+<fieldset class="ccp-captcha ccp-turnstile-captcha">
+  <legend>{{ text_captcha }}</legend>
+  <div class="form-group required">
+    <div{% if route|slice(0, 9) == 'checkout/' %} id="input-payment-captcha"{% endif %} class="cf-turnstile" data-sitekey="{{ site_key }}" data-size="flexible"></div>
+    {% if error_captcha %}<div class="text-danger ccp-captcha-error">{{ error_captcha }}</div>{% endif %}
+  </div>
+</fieldset>
+<script type="text/javascript">
+(function(){
+  if (window.turnstile) {
+    var boxes = document.querySelectorAll('.cf-turnstile');
+    for (var i = 0; i < boxes.length; i++) {
+      if (!boxes[i].childElementCount) { window.turnstile.render(boxes[i]); }
+    }
+  } else if (!document.querySelector('script[src^="https://challenges.cloudflare.com/turnstile/v0/api.js"]')) {
+    var s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    s.async = true;
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+})();
+</script>

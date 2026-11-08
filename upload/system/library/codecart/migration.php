@@ -93,7 +93,6 @@ class Migration {
             $this->ensureFormBuilderTables();
             $this->ensureTaxDisplayDefault();
             $this->ensureCurrencyDisplayDefaults();
-            $this->ensureManufacturerImageDefaults();
             $this->currentStep = 'language_and_seo';
             $this->ensureLanguageUrlPrefix();
             // Preserve existing aliases but fill genuinely missing entity SEO URLs from names.
@@ -911,13 +910,6 @@ class Migration {
             $this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET store_id = '0', code = 'config', `key` = 'config_currency_trim_zeros', value = '0', serialized = '0'");
         }
     }
-
-    private function ensureManufacturerImageDefaults() {
-        // UPDATE must not change an existing storefront image geometry.
-        // Clean-install SQL owns the modern 160x160 default; upgrades preserve merchant values.
-        return;
-    }
-
 
     private function ensureProductTaxDisplayMode() {
         if (!$this->tableExists('product')) { return; }

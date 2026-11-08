@@ -12,6 +12,11 @@ final class Preflight {
         $this->config = $registry->get('config');
     }
 
+    private function logFailure(string $context, \Throwable $e): void {
+        $log = $this->registry->get('log');
+        if ($log) { $log->write('Preflight ' . $context . ': ' . $e->getMessage()); }
+    }
+
     public function rows(): array {
         $rows = array();
 
@@ -119,7 +124,7 @@ final class Preflight {
                     $this->row($rows, 'cron.health', 'Cron heartbeat', $last ?: 'never', $state, trim((string)$q->row['last_status'] . ' ' . (string)$q->row['last_message']));
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('cron heartbeat', $e); }
 
         try {
             if ($this->tableExists('codecart_queue')) {
@@ -127,7 +132,7 @@ final class Preflight {
                 $count = (int)($q->row['total'] ?? 0);
                 $this->row($rows, 'queue.failed', 'Queue failed', $count, $count ? 'warning' : 'ok', $count ? 'Review Scheduler / Queue.' : '');
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) { $this->logFailure('queue', $e); }
 
         $mail = (string)$this->config->get('config_mail_engine');
         if ($mail === 'smtp') {

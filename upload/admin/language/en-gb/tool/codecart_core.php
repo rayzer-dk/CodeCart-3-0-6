@@ -87,7 +87,6 @@ $_['entry_totp'] = 'Authenticator MFA (TOTP)';
 $_['entry_security_headers'] = 'Security headers';
 $_['entry_frame_options'] = 'Frame protection';
 $_['entry_permissions_policy'] = 'Permissions-Policy';
-$_['entry_csp_report_only'] = 'CSP Report-Only';
 $_['entry_hsts'] = 'HSTS';
 $_['text_totp_enabled'] = 'TOTP enabled';
 $_['text_totp_disabled'] = 'TOTP disabled';
@@ -98,49 +97,15 @@ $_['text_hsts_help'] = 'Enable only after the whole domain and required subdomai
 
 $_['entry_nosniff'] = 'MIME sniffing protection';
 $_['entry_referrer_policy'] = 'Referrer-Policy';
-$_['entry_csp_policy'] = 'CSP Report-Only policy';
-$_['text_csp_report_only_help'] = 'Report-Only records policy violations without blocking legacy inline scripts. Enable enforcement only after reviewing reports.';
 
 $_['text_about'] = 'About System';
-$_['text_about_overview'] = 'Overview';
 $_['text_about_requirements'] = 'Server requirements';
-$_['text_about_changes'] = 'What changed';
-$_['text_about_comparison'] = 'Comparison';
-$_['text_about_comparison_note'] = 'In addition to the components listed in the table, CodeCart PRO includes many smaller improvements and fixes: SEO URL generation, image sorting and drag-and-drop, centralized spam protection, cleaner numeric values without redundant zeros, custom UI components, catalog import/export, abandoned carts, enhanced forms, additional blocks, and many other catalog, checkout, admin and system-tool improvements.';
-$_['text_about_future'] = 'Forward architecture';
-$_['text_about_fixed'] = 'Fixed';
-$_['text_about_improved'] = 'Improved';
-$_['text_about_security'] = 'Security';
 $_['text_required'] = 'Required';
 $_['text_recommended'] = 'Recommended';
-$_['text_current'] = 'Current state';
-$_['text_supported'] = 'Supported';
 $_['text_not_supported'] = 'Not supported';
-$_['text_added'] = 'Added';
-$_['text_updated'] = 'Updated';
-$_['text_removed_runtime'] = 'Removed from Core runtime';
-$_['text_legacy'] = 'Legacy compatibility';
-$_['text_builtin'] = 'Built in';
-$_['text_server_profile'] = 'WEB/FPM profile';
 $_['text_server_requirements_help'] = 'These checks apply to the PHP profile serving the website. CLI used by Cron must be checked separately.';
-$_['text_platform'] = 'Component / capability';
 $_['text_component'] = 'Component';
-$_['text_benefit'] = 'Benefit';
 $_['text_codecart_website'] = 'CodeCart PRO website';
-$_['text_about_legacy_title'] = 'Legacy + Modern Core';
-$_['text_about_legacy_value'] = 'MVC-L + PSR-4';
-$_['text_about_legacy_help'] = 'Legacy modules remain compatible while new modules can use the modern layer.';
-$_['text_about_security_value'] = 'TOTP · Audit · Anti-Spam';
-$_['text_about_security_help'] = 'Protection for sign-in, public forms, sessions, installer and system operations.';
-$_['text_about_server_value'] = 'WEB/FPM + CLI';
-$_['text_about_server_help'] = 'Preflight checks the real server profile without keeping phpinfo.php public.';
-$_['text_about_modern_title'] = 'Modern Extensions';
-$_['text_about_modern_value'] = 'Services · Queue · API';
-$_['text_about_modern_help'] = 'Foundation for new extensions without breaking the OpenCart 3 compatibility layer.';
-$_['about_fixed_items'] = array('PHP 8.1–8.5: critical Core incompatibilities and deprecated calls were addressed.','MySQLi/PDO, sessions, File Manager, OCMOD, SMTP/cron and language-aware SEO URLs were hardened.','URL duplicates, page=1, canonical, sitemap/blog and GD/FPM failure modes were corrected.','UPDATE does not remove third-party payments, CRM/1C integrations, tables or modules.');
-$_['about_improved_items'] = array('InnoDB + utf8mb4 for fresh installs; Schema Registry for safer upgrades.','WebP/AVIF, batch image upload and upload filename normalization.','Redis/APCu/Memcached/File cache, Scheduler, Queue, Preflight and System Notification Center.','Modernized admin/default theme while retaining Bootstrap 3/FA4 for Legacy modules.');
-$_['about_security_items'] = array('password_hash/password_verify, hardened sessions, rate limiting and login audit.','TOTP MFA, unknown-device authorization, GDPR and Cookie Consent.','Safer ZIP extension extraction, DOM preflight before OCMOD refresh, hardened File Manager.','Security Headers Manager: nosniff, Referrer-Policy, optional HSTS and CSP Report-Only.');
-$_['about_future_items'] = array('Legacy Core keeps MVC-L, Registry, Loader, legacy routes, OCMOD, Events, jQuery, Bootstrap 3 and FA4.','Modern Core adds PSR-4, Services, Repositories, Manifest, Migrations, Queue, Scheduler, Assets, API and Webhooks.','Extension Points allow new modules to extend the system without XML-patching controllers and Twig.','This allows long-term modernization without breaking the OpenCart 3 extension ecosystem.');
 
 $_['text_icons'] = 'Icons';
 $_['text_icon_search'] = 'Search icon name';
@@ -278,7 +243,6 @@ $_['help_nosniff'] = 'Prevents browsers from guessing a file MIME type. Recommen
 $_['help_referrer_policy'] = 'Controls how much page-address information is sent to external sites. strict-origin-when-cross-origin is the recommended compatibility/privacy balance.';
 $_['help_frame_options'] = 'Protects pages from iframe embedding. SAMEORIGIN is recommended; DENY is stricter and may block legitimate integrations.';
 $_['help_permissions_policy'] = 'Restricts browser APIs such as camera, microphone and geolocation. Do not change without testing integrations.';
-$_['help_csp_policy'] = 'Content-Security-Policy used in Report-Only mode. Observe violations first; this field does not itself enable blocking CSP.';
 $_['help_gdpr'] = 'Controls personal-data export/anonymization requests. Orders and accounting records are not automatically deleted.';
 $_['help_gdpr_retention'] = 'Days to retain completed/cancelled GDPR requests. 365 is recommended; active requests are not purged.';
 $_['help_cookie'] = 'Shows Cookie Consent status and links to its dedicated settings. Optional cookies should run only after consent.';
@@ -410,33 +374,6 @@ $_['diag_msg_xlsx_stream'] = 'Large XLSX imports use streaming XMLReader mode.';
 $_['diag_msg_xlsx_simplexml'] = 'Regular XLSX import remains available through SimpleXML, but very large workbooks can require significantly more memory.';
 $_['diag_optional_cache_backends'] = 'optional cache backends';
 $_['diag_storage_cache_logs'] = 'Storage / cache / logs';
-$_['cmp_content_editor'] = 'Content editor';
-$_['cmp_image_formats'] = 'Image formats';
-$_['cmp_cache_backends'] = 'Cache backends';
-$_['cmp_scheduler_queue'] = 'Scheduler / Queue';
-$_['cmp_system_notifications'] = 'System Notifications';
-$_['cmp_spam_service'] = 'Central Spam Service';
-$_['cmp_builtin'] = 'Built-in';
-$_['cmp_builtin_optin'] = 'Built-in, opt-in on UPDATE';
-$_['cmp_totp'] = 'TOTP + trusted device layer';
-$_['cmp_schema'] = 'Read-only diagnostics + migrations';
-$_['cmp_modern'] = 'PSR-4 / Services / Manifest / Extension Points';
-$_['cmp_spam_scope'] = 'contact / reviews / registration / forgotten / returns / GDPR';
-$_['cmp_form_specific'] = 'form-specific';
-$_['cmp_core_dashboard'] = 'Core Dashboard';
-$_['cmp_legacy_assets'] = 'not used by Core Dashboard; Legacy assets retained';
-$_['cmp_slider'] = 'CodeCart PRO Slider; Swiper 3 Legacy';
-$_['cmp_jquery_legacy'] = '3.7.1 Legacy Core';
-$_['cmp_bootstrap_legacy'] = '3.4.1 Legacy Core';
-$_['cmp_scss_cli'] = '2.1.0 manual / CLI only';
-$_['cmp_scss_runtime_oc'] = '2.1.0 runtime';
-$_['cmp_scss_runtime_ocs'] = '2.0.1 runtime';
-$_['cmp_seo'] = 'SeoPro + language prefixes + canonical/faceted policy';
-$_['cmp_images'] = 'JPEG/PNG/WebP/AVIF + safe fallback';
-$_['cmp_cache'] = 'File / APCu / Memcached / Redis + fallback';
-$_['cmp_file'] = 'File';
-$_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + FA4 compatibility';
-$_['cmp_summernote'] = 'Summernote 0.9.1 local';
 $_['diag_msg_sql_compat'] = 'OpenCart-compatible SQL mode (standard for OpenCart/ocStore modules). Strict mode is enabled with codecart_db_strict_mode = 1.';
 
 $_['text_icon_packages'] = 'Font Awesome packages';
@@ -456,3 +393,98 @@ $_['button_totp_manage'] = 'Manage';
 $_['text_totp_policy'] = 'Mandatory for groups';
 $_['help_totp_policy'] = 'Members of the selected groups must set up two-factor verification at their next sign-in and cannot disable it. Leave shared demo or view-only groups unselected.';
 $_['text_totp_group_stats'] = '%d of %d active users protected';
+$_['entry_csp_report_only'] = 'Content Security Policy';
+$_['entry_csp_policy'] = 'CSP policy';
+$_['text_csp_report_only_help'] = 'Sends the policy below. In Report-only mode the browser only reports violations and blocks nothing.';
+$_['help_csp_policy'] = 'Content-Security-Policy directives separated by semicolons. The same policy is used in both modes.';
+$_['entry_csp_mode'] = 'CSP mode';
+$_['text_csp_mode_report'] = 'Report-only (Content-Security-Policy-Report-Only)';
+$_['text_csp_mode_enforce'] = 'Enforce (Content-Security-Policy)';
+$_['help_csp_mode'] = 'Enforce makes the browser block everything the policy does not allow. OpenCart 3 themes and modules use inline scripts and external resources, so switch to Enforce only after testing the storefront, checkout, payments and the admin in Report-only mode without violations.';
+$_['text_about_changes'] = 'What changed vs OpenCart/ocStore';
+$_['text_about_build'] = 'Build';
+$_['text_about_schema'] = 'Core schema';
+$_['text_about_revision'] = 'Presentation revision';
+$_['text_about_upstream'] = 'Based on';
+$_['text_about_upgrade_required'] = 'Installer UPDATE required, database has';
+$_['text_about_db'] = 'Database';
+$_['text_about_driver'] = 'DB driver';
+$_['text_about_components'] = 'Components and libraries';
+$_['text_about_components_note'] = 'ocStore and OpenCart versions are taken from their release archives (composer.lock and bundled files). "—" means the component is not included.';
+$_['text_about_advantages'] = 'Advantages';
+$_['text_about_level_updated'] = 'Updated';
+$_['text_about_level_added'] = 'Added';
+$_['text_about_level_same'] = 'Same';
+$_['text_about_group_added'] = 'Added';
+$_['text_about_group_security'] = 'Security';
+$_['text_about_group_updated'] = 'Updated';
+$_['text_about_group_fixed'] = 'Fixed';
+$_['text_about_group_removed'] = 'Removed';
+$_['about_component_php'] = 'PHP';
+$_['about_component_gallery'] = 'Product gallery';
+$_['about_component_datepicker'] = 'Storefront date picker';
+$_['about_component_password'] = 'Admin password hashing';
+$_['about_component_smtp_tls'] = 'SMTP / HTTPS TLS';
+$_['about_v_datepicker_native'] = 'Built-in (no moment.js)';
+$_['about_v_datepicker_bootstrap'] = 'bootstrap-datetimepicker + moment.js';
+$_['about_v_password_sha1'] = 'salted SHA-1';
+$_['about_v_tls_strict'] = 'TLS 1.2–1.3, certificate check';
+$_['about_v_tls_starttls'] = 'STARTTLS, no minimum version';
+$_['about_advantages'] = array(
+    'Runs on PHP 8.1–8.5. ocStore 3.0.3.7 declares PHP 5.4+, OpenCart 3.0.4.1 PHP 7.3+.',
+    'Newer libraries than every base: Twig 3.30 vs 2.14 / 3.8 / 3.24, Guzzle 7.15 vs 5.3 / 6.5 / 7.10.',
+    'Admin passwords use password_hash() instead of salted SHA-1, and two-factor sign-in is built in. None of the three base versions has either.',
+    'Existing OpenCart 3 extensions keep working: Twig 2 class aliases, jQuery Migrate, Font Awesome 4 class names, OCMOD and events.',
+    'Cron, queue, notifications, store health, integrity check and the database modernizer are part of the core, not separate modules.'
+);
+$_['about_added_items'] = array(
+    'Two-factor sign-in (TOTP) for administrators with recovery codes; can be made mandatory per user group.',
+    'Confirmation of new devices by e-mail code for administrators and customers.',
+    'Scheduler, task queue, server Cron and CLI commands (cron:run, queue:work, db:migrate, styles:rebuild).',
+    'System notifications and store health dashboard with a file integrity check against the release manifest.',
+    'Abandoned carts with consent-based reminders, including guest contacts.',
+    'Catalog import/export (XLSX), public documents for products, product relations.',
+    'SEO: language URL prefixes, SeoPro, hreflang and canonical rules, lost URL monitor.',
+    'Mail audit log, SPF/DKIM/DMARC DNS check, back-in-stock notifications.',
+    'GDPR requests, cookie consent, central spam protection for public forms, Cloudflare Turnstile captcha.',
+    'Read-only REST API v1 (off by default), Redis/APCu/Memcached cache, WebP/AVIF images.'
+);
+$_['about_updated_items'] = array(
+    'PHP 8.1–8.5; Twig 3.30, Guzzle 7.15, scssphp 2.1.',
+    'jQuery 3.7.1 everywhere, jQuery Migrate 3.4.1 for legacy modules.',
+    'Font Awesome 6.7.2 Free; Font Awesome 4 class names keep working.',
+    'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 as an alternative gallery.',
+    'Storefront date fields use the built-in date picker; moment.js and bootstrap-datetimepicker stay only for third-party modules.',
+    'New installs use utf8mb4 and InnoDB; the database modernizer converts old tables after a backup.',
+    'Installer UPDATE upgrades existing stores with versioned migrations and a schema check.'
+);
+$_['about_fixed_items'] = array(
+    'OpenCart 3.0.5.1 core fixes included: admin password encoding, GLOB_BRACE on musl, Redis authentication, captcha session.',
+    'Extensions: Twig 2 class names are aliased to Twig 3, event triggers match by prefix, ocStore DB_DRIVER mpdo is accepted.',
+    'MySQL 8: CodeCart tables use utf8mb4_unicode_ci, no collation error 1267.',
+    'SeoPro returns 404 for unknown path segments and does not redirect cron.php or payment callbacks.',
+    'Requests with a non-string route no longer end in HTTP 500.'
+);
+$_['about_security_items'] = array(
+    'Admin passwords hashed with password_hash() and rehashed on sign-in; old SHA-1 hashes are still accepted.',
+    'Login protection with attempt limits per account and source, security audit log.',
+    'CSRF tokens on device authorization and GDPR forms; API rate limit by the real client IP.',
+    'Security headers: nosniff, Referrer-Policy, Permissions-Policy, HSTS, CSP in report-only or enforce mode; the admin cannot be framed by other sites.',
+    'SMTP and bundled HTTP integrations (PayPal, currency rates, Google, Turnstile) require TLS 1.2+ with certificate verification.'
+);
+$_['about_removed_items'] = array(
+    'jQuery 2.1.1 copies.',
+    'Font Awesome 4 font files (Font Awesome 6 webfonts are used, FA4 class names are mapped).',
+    'Legacy php.ini in the web root (delete it from existing sites).',
+    'Duplicate upgrade step 3054 and legacy catalog import actions in Tools → Backup.'
+);
+$_['about_component_twig'] = 'Twig';
+$_['about_component_scssphp'] = 'scssphp';
+$_['about_component_guzzle'] = 'Guzzle';
+$_['about_component_jquery'] = 'jQuery';
+$_['about_component_jquery_migrate'] = 'jQuery Migrate';
+$_['about_component_bootstrap'] = 'Bootstrap';
+$_['about_component_fontawesome'] = 'Font Awesome';
+$_['about_component_swiper'] = 'Swiper';
+$_['about_component_summernote'] = 'Summernote';
+$_['about_component_htmlpurifier'] = 'HTML Purifier';

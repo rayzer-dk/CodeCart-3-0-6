@@ -62,6 +62,7 @@
               <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_frame_options }}">{{ entry_frame_options }}</span></label><div class="col-sm-2"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_frame_options_status" value="1" {% if codecart_security_frame_options_status %}checked{% endif %}> {{ text_enabled }}</label></div><div class="col-sm-3"><select name="codecart_security_frame_options" class="form-control"><option value="SAMEORIGIN" {% if codecart_security_frame_options == 'SAMEORIGIN' %}selected{% endif %}>SAMEORIGIN</option><option value="DENY" {% if codecart_security_frame_options == 'DENY' %}selected{% endif %}>DENY</option></select></div></div>
               <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_permissions_policy }}">{{ entry_permissions_policy }}</span></label><div class="col-sm-2"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_permissions_policy_status" value="1" {% if codecart_security_permissions_policy_status %}checked{% endif %}> {{ text_enabled }}</label></div><div class="col-sm-7"><input type="text" name="codecart_security_permissions_policy" value="{{ codecart_security_permissions_policy }}" class="form-control"></div></div>
               <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_csp_report_only_help }}">{{ entry_csp_report_only }}</span></label><div class="col-sm-9"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_csp_report_only_status" value="1" {% if codecart_security_csp_report_only_status %}checked{% endif %}> {{ text_enabled }}</label><p class="help-block">{{ text_csp_report_only_help }}</p></div></div>
+              <div class="form-group"><label class="col-sm-3 control-label" for="input-csp-mode">{{ entry_csp_mode }}</label><div class="col-sm-9"><select name="codecart_security_csp_mode" id="input-csp-mode" class="form-control"><option value="report"{% if codecart_security_csp_mode != 'enforce' %} selected{% endif %}>{{ text_csp_mode_report }}</option><option value="enforce"{% if codecart_security_csp_mode == 'enforce' %} selected{% endif %}>{{ text_csp_mode_enforce }}</option></select><p class="help-block">{{ help_csp_mode }}</p></div></div>
               <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ help_csp_policy }}">{{ entry_csp_policy }}</span></label><div class="col-sm-9"><textarea name="codecart_security_csp_report_only_policy" rows="3" class="form-control">{{ codecart_security_csp_report_only_policy }}</textarea></div></div>
               <div class="form-group"><label class="col-sm-3 control-label"><span data-toggle="tooltip" title="{{ text_hsts_help }}">{{ entry_hsts }}</span></label><div class="col-sm-2"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_hsts_status" value="1" {% if codecart_security_hsts_status %}checked{% endif %}> {{ text_enabled }}</label></div><div class="col-sm-3"><input type="number" min="300" max="63072000" name="codecart_security_hsts_max_age" value="{{ codecart_security_hsts_max_age }}" class="form-control"></div><div class="col-sm-3"><label class="checkbox-inline"><input type="checkbox" name="codecart_security_hsts_subdomains" value="1" {% if codecart_security_hsts_subdomains %}checked{% endif %}> includeSubDomains</label></div><div class="col-sm-9 col-sm-offset-3"><p class="help-block">{{ text_hsts_help }}</p></div></div>
             </fieldset>
@@ -203,74 +204,79 @@
           </div>
         </div>
         <div class="tab-pane ccp-core-about" id="tab-about">
-          <div class="ccp-about-hero">
-            <div>
-              <h2 class="ccp-about-title"><i class="fa fa-shopping-cart"></i> CodeCart PRO {{ about_version }}</h2>
-              <p class="ccp-about-sub">{{ about_build }} · PHP 8.1–8.5 · OpenCart/ocStore 3.x compatible</p>
+          <div class="ccp-about-head">
+            <div class="ccp-about-id">
+              <h2 class="ccp-about-title">{{ about.product }}</h2>
+              <ul class="ccp-about-meta">
+                <li><span>{{ text_about_build }}</span> <strong>{{ about.build }}</strong></li>
+                <li><span>{{ text_about_schema }}</span> <strong>{{ about.schema }}</strong></li>
+                <li><span>{{ text_about_revision }}</span> <strong>{{ about.presentation }}</strong></li>
+                <li><span>{{ text_about_upstream }}</span> <strong>{{ about.upstream }}</strong></li>
+              </ul>
+              {% if about.upgrade_required %}<p class="ccp-about-alert"><span class="label label-warning">{{ text_about_upgrade_required }}</span> {{ about.installed }}</p>{% endif %}
             </div>
-            <a class="btn btn-primary ccp-site-link" href="{{ codecart_website }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link"></i> {{ text_codecart_website }}</a>
+            <dl class="ccp-about-runtime">
+              <div><dt>PHP</dt><dd>{{ about.php }}</dd></div>
+              <div><dt>{{ text_about_db }}</dt><dd>{{ about.db }}</dd></div>
+              <div><dt>{{ text_about_driver }}</dt><dd>{{ about.driver }}</dd></div>
+            </dl>
+            <a class="btn btn-default btn-sm ccp-site-link" href="{{ codecart_website }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link"></i> {{ text_codecart_website }}</a>
           </div>
 
-          <div class="ccp-kpis">
-            <div class="ccp-kpi"><span><i class="fa fa-random"></i> {{ text_about_legacy_title }}</span><strong>{{ text_about_legacy_value }}</strong><small>{{ text_about_legacy_help }}</small></div>
-            <div class="ccp-kpi"><span><i class="fa fa-shield"></i> {{ text_about_security }}</span><strong>{{ text_about_security_value }}</strong><small>{{ text_about_security_help }}</small></div>
-            <div class="ccp-kpi"><span><i class="fa fa-server"></i> {{ text_about_requirements }}</span><strong>{{ text_about_server_value }}</strong><small>{{ text_about_server_help }}</small></div>
-            <div class="ccp-kpi"><span><i class="fa fa-plug"></i> {{ text_about_modern_title }}</span><strong>{{ text_about_modern_value }}</strong><small>{{ text_about_modern_help }}</small></div>
-          </div>
+          <ul class="nav nav-pills ccp-about-nav" role="tablist">
+            <li class="active"><a href="#about-pane-changes" data-toggle="pill" role="tab"><i class="fa fa-list-ul"></i> {{ text_about_changes }}</a></li>
+            <li><a href="#about-pane-components" data-toggle="pill" role="tab"><i class="fa fa-cubes"></i> {{ text_about_components }}</a></li>
+            <li><a href="#about-pane-requirements" data-toggle="pill" role="tab"><i class="fa fa-server"></i> {{ text_about_requirements }} <span class="badge">{{ server_requirements_passed }}/{{ server_requirements_total }}</span></a></li>
+          </ul>
 
-          <div class="panel-group" id="about-accordion" role="tablist">
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#about-accordion" href="#about-overview" aria-expanded="true"><i class="fa fa-check-circle"></i> {{ text_about_changes }} <span class="pull-right ccp-collapse-chevron"><i class="fa fa-chevron-up"></i></span></a></h4></div>
-              <div id="about-overview" class="panel-collapse collapse in"><div class="panel-body">
-                <div class="row">
-                  <div class="col-md-4"><h4><i class="fa fa-wrench"></i> {{ text_about_fixed }}</h4><ul class="ccp-list">{% for item in about_fixed_items %}<li>{{ item }}</li>{% endfor %}</ul></div>
-                  <div class="col-md-4"><h4><i class="fa fa-line-chart"></i> {{ text_about_improved }}</h4><ul class="ccp-list">{% for item in about_improved_items %}<li>{{ item }}</li>{% endfor %}</ul></div>
-                  <div class="col-md-4"><h4><i class="fa fa-shield"></i> {{ text_about_security }}</h4><ul class="ccp-list">{% for item in about_security_items %}<li>{{ item }}</li>{% endfor %}</ul></div>
-                </div>
-              </div></div>
+          <div class="tab-content ccp-about-panes">
+            <div class="tab-pane active" id="about-pane-changes" role="tabpanel">
+              <section class="ccp-about-card ccp-about-primary ccp-about-adv">
+                <h3>{{ text_about_advantages }}</h3>
+                <ul>{% for item in about_advantages %}<li>{{ item }}</li>{% endfor %}</ul>
+              </section>
+              {% set group_icons = {'added':'fa-plus-circle','security':'fa-shield','updated':'fa-refresh','fixed':'fa-wrench','removed':'fa-minus-circle'} %}
+              <div class="ccp-about-grid">
+                {% for group in about_changes %}
+                <section class="ccp-about-card ccp-about-{{ group.level }} ccp-about-group-{{ group.group }}">
+                  <h4><i class="fa {{ group_icons[group.group] }}" aria-hidden="true"></i> {{ group.title }} <span class="ccp-about-count">{{ group.items|length }}</span></h4>
+                  <ul>{% for item in group.items %}<li>{{ item }}</li>{% endfor %}</ul>
+                </section>
+                {% endfor %}
+              </div>
             </div>
 
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#about-accordion" href="#about-requirements"><i class="fa fa-server"></i> {{ text_about_requirements }} <span class="pull-right ccp-collapse-chevron"><i class="fa fa-chevron-down"></i></span></a></h4></div>
-              <div id="about-requirements" class="panel-collapse collapse"><div class="panel-body">
-                <p class="help-block"><i class="fa fa-info-circle"></i> {{ text_server_requirements_help }}</p>
-                <div class="ccp-req-grid">
-                  {% for row in server_requirements %}
-                  <div class="ccp-req">
-                    <div><div class="ccp-req-name">{{ row.name }}</div><div class="ccp-req-value">{{ row.value }}</div></div>
-                    <div class="text-right">
-                      {% if row.required %}<span class="label label-primary">{{ text_required }}</span>{% else %}<span class="label label-default">{{ text_recommended }}</span>{% endif %}
-                      {% if row.ok %}<span class="label label-success"><i class="fa fa-check"></i> OK</span>{% elseif row.required %}<span class="label label-danger"><i class="fa fa-times"></i> {{ text_not_supported }}</span>{% else %}<span class="label label-warning"><i class="fa fa-info"></i> {{ text_recommended }}</span>{% endif %}
-                    </div>
-                  </div>
+            <div class="tab-pane" id="about-pane-components" role="tabpanel">
+              <div class="table-responsive">
+                <table class="table table-condensed table-hover ccp-about-table">
+                  <thead><tr><td>{{ text_component }}</td><td class="ccp-about-col-cc">{{ about.product }}</td><td>ocStore 3.0.3.7</td><td>OpenCart 3.0.4.1</td><td>OpenCart 3.0.5.1</td></tr></thead>
+                  <tbody>
+                  {% for row in about_components %}
+                    <tr>
+                      <td><strong>{{ row.name }}</strong></td>
+                      <td class="ccp-about-col-cc">{{ row.cells[0] }} {% if row.level == 'added' %}<span class="label label-success">{{ text_about_level_added }}</span>{% elseif row.level == 'updated' %}<span class="label label-primary">{{ text_about_level_updated }}</span>{% else %}<span class="label label-default">{{ text_about_level_same }}</span>{% endif %}</td>
+                      <td>{{ row.cells[1] }}</td><td>{{ row.cells[2] }}</td><td>{{ row.cells[3] }}</td>
+                    </tr>
                   {% endfor %}
-                </div>
-                <p style="margin-top:12px;"><a href="index.php?route=tool/codecart_core&user_token={{ user_token }}&tab=runtime" class="btn btn-default"><i class="fa fa-heartbeat"></i> {{ text_runtime }}</a></p>
-              </div></div>
+                  </tbody>
+                </table>
+              </div>
+              <p class="help-block">{{ text_about_components_note }}</p>
             </div>
 
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#about-accordion" href="#about-comparison"><i class="fa fa-table"></i> {{ text_about_comparison }} <span class="pull-right ccp-collapse-chevron"><i class="fa fa-chevron-down"></i></span></a></h4></div>
-              <div id="about-comparison" class="panel-collapse collapse"><div class="panel-body">
-                <div class="table-responsive">
-                  <table class="table table-bordered table-hover">
-                    <thead><tr><td>{{ text_component }}</td><td>OpenCart 3.0.5.x</td><td>ocStore 3.0.5.x</td><td>CodeCart PRO 3.0.6.x</td><td style="width:155px;">{{ column_state }}</td></tr></thead>
-                    <tbody>
-                    {% for row in comparison_rows %}
-                      <tr><td><strong>{{ row.component }}</strong></td><td>{{ row.opencart }}</td><td>{{ row.ocstore }}</td><td>{{ row.codecart }}</td><td class="ccp-status">
-                        {% if row.status == 'updated' %}<span class="label label-primary">{{ text_updated }}</span>{% elseif row.status == 'added' %}<span class="label label-success">{{ text_added }}</span>{% elseif row.status == 'removed_runtime' %}<span class="label label-warning">{{ text_removed_runtime }}</span>{% else %}<span class="label label-default">{{ text_legacy }}</span>{% endif %}
-                      </td></tr>
-                    {% endfor %}
-                    </tbody>
-                  </table>
+            <div class="tab-pane" id="about-pane-requirements" role="tabpanel">
+              <p class="help-block">{{ text_server_requirements_help }}</p>
+              <div class="ccp-req-grid">
+                {% for row in server_requirements %}
+                <div class="ccp-req{% if not row.ok %}{% if row.required %} ccp-req-fail{% else %} ccp-req-warn{% endif %}{% endif %}">
+                  <div><div class="ccp-req-name">{{ row.name }}</div><div class="ccp-req-value">{{ row.value }}</div></div>
+                  <div class="ccp-req-state">
+                    {% if row.ok %}<span class="label label-success"><i class="fa fa-check"></i> OK</span>{% elseif row.required %}<span class="label label-danger"><i class="fa fa-times"></i> {{ text_required }}</span>{% else %}<span class="label label-default">{{ text_recommended }}</span>{% endif %}
+                  </div>
                 </div>
-                <p class="help-block ccp-comparison-note"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ text_about_comparison_note }}</p>
-              </div></div>
-            </div>
-
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#about-accordion" href="#about-future"><i class="fa fa-road"></i> {{ text_about_future }} <span class="pull-right ccp-collapse-chevron"><i class="fa fa-chevron-down"></i></span></a></h4></div>
-              <div id="about-future" class="panel-collapse collapse"><div class="panel-body"><ul class="ccp-list">{% for item in about_future_items %}<li>{{ item }}</li>{% endfor %}</ul></div></div>
+                {% endfor %}
+              </div>
+              <p class="ccp-about-actions"><a href="index.php?route=tool/codecart_core&amp;user_token={{ user_token }}&amp;tab=runtime" class="btn btn-default btn-sm"><i class="fa fa-heartbeat"></i> {{ text_runtime }}</a></p>
             </div>
           </div>
         </div>
@@ -279,9 +285,6 @@
   </div>
 </div>
 <script>$(function(){var tab='{{ active_tab|escape('js') }}';$('#core-tabs a[href="#tab-'+tab+'"]').tab('show');$('#core-tabs a[data-toggle="tab"]').on('shown.bs.tab',function(e){var id=$(e.target).attr('href').replace('#tab-','');try{history.replaceState(null,'','index.php?route=tool/codecart_core&user_token={{ user_token }}&tab='+encodeURIComponent(id));}catch(x){}});});</script>
-<script type="text/javascript">
-$('#about-accordion').on('shown.bs.collapse hidden.bs.collapse',function(){ $('#about-accordion .panel-title>a').each(function(){var open=$($(this).attr('href')).hasClass('in');$(this).attr('aria-expanded',open?'true':'false');$(this).find('.ccp-collapse-chevron i').attr('class',open?'fa fa-chevron-up':'fa fa-chevron-down');});});
-</script>
 <script type="text/javascript">
 (function(){
 var input=document.getElementById('ccp-icon-search'),tab=document.getElementById('tab-icons'),filters=document.getElementById('ccp-icon-filters'),styleFilters=document.getElementById('ccp-icon-style-filters'),status=document.getElementById('ccp-icon-copy-status');

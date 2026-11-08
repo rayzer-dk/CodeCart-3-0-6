@@ -2594,6 +2594,7 @@ class ControllerExtensionPaymentPayPal extends Controller {
 
 			if ($order_info && $paypal_order_info) {
 				$transaction_id = $paypal_order_info['transaction_id'];
+				$transaction_status = $paypal_order_info['transaction_status'];
 				$currency_code = $paypal_order_info['currency_code'];
 				$order_status_id = 0;
 				

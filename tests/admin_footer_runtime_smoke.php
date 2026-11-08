@@ -9,7 +9,7 @@ namespace CodeCart\Core {
 }
 namespace {
     define('VERSION', '3.0.6.0');
-    define('CODECART_PACKAGE_BUILD', '2.1.8');
+    define('CODECART_PACKAGE_BUILD', '2.1.9');
     define('DB_DRIVER', 'mysqli');
     class Controller {
         public $registry;
@@ -87,7 +87,7 @@ namespace {
     check(strpos($template, 'ccp-footer-main') !== false, 'Main footer row absent');
     check(strpos($template, 'text_runtime_web_server') !== false, 'Web server not rendered');
     check(strpos($template, 'text_runtime_more') === false && strpos($template, 'ccp-footer-runtime-details') === false, 'Legacy system details disclosure still rendered');
-    check($data['runtime_build'] === '2.1.8' && $data['runtime_db_driver'] === 'mysqli', 'Original runtime details regressed');
+    check($data['runtime_build'] === '2.1.9' && $data['runtime_db_driver'] === 'mysqli', 'Original runtime details regressed');
     check(isset($data['project_links']) && isset($data['project_support_methods']), 'Support links regressed');
     renderFooter(true, 'valid', $session, $db);
     check($db->calls === 1, 'DB read should be cached per session');

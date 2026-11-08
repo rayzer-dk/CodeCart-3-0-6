@@ -205,13 +205,12 @@ class Mail extends \stdClass {
 		$scale = min(1200 / $sw, 1200 / $sh, 1);
 		$dw = max(1, (int)round($sw * $scale)); $dh = max(1, (int)round($sh * $scale));
 		$canvas = imagecreatetruecolor($dw, $dh);
-		if (!$canvas) { imagedestroy($image); return ''; }
+		if (!$canvas) { return ''; }
 		$white = imagecolorallocate($canvas, 255, 255, 255);
 		imagefill($canvas, 0, 0, $white);
 		imagecopyresampled($canvas, $image, 0, 0, 0, 0, $dw, $dh, $sw, $sh);
 		$tmp = $target . '.tmp-' . bin2hex(random_bytes(4));
 		$ok = @imagepng($canvas, $tmp, 6);
-		imagedestroy($canvas); imagedestroy($image);
 		if (!$ok) { @unlink($tmp); return ''; }
 		if (!@rename($tmp, $target)) { @unlink($tmp); if (!is_file($target)) { return ''; } }
 		@chmod($target, 0644);

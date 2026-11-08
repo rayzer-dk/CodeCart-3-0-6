@@ -20,7 +20,20 @@ final class SecurityHeaders {
         $adminFrameProtection = $admin && (string)$this->config->get('codecart_security_admin_frame_protection') !== '0';
         if ($adminFrameProtection) {
             $this->response->addHeader('X-Frame-Options: SAMEORIGIN');
-            $this->response->addHeader("Content-Security-Policy: frame-ancestors 'self'");
+        }
+
+        // Response::output() sends headers with replace=true, so a second Content-Security-Policy
+        // header would silently drop the first one; the enforced policy is sent as one value.
+        $enforcedPolicy = $this->enforcedPolicy();
+        if ($adminFrameProtection) {
+            $directives = array_filter(array_map('trim', explode(';', $enforcedPolicy)), function ($directive) {
+                return $directive !== '' && stripos($directive, 'frame-ancestors') !== 0;
+            });
+            $directives[] = "frame-ancestors 'self'";
+            $enforcedPolicy = implode('; ', $directives);
+        }
+        if ($enforcedPolicy !== '') {
+            $this->response->addHeader('Content-Security-Policy: ' . $enforcedPolicy);
         }
 
         if (!(int)$this->config->get('codecart_security_headers_status')) {
@@ -52,7 +65,7 @@ final class SecurityHeaders {
             }
         }
 
-        if ((int)$this->config->get('codecart_security_csp_report_only_status')) {
+        if ($this->cspMode() === 'report') {
             $policy = $this->sanitizePolicy((string)$this->config->get('codecart_security_csp_report_only_policy'));
             if ($policy !== '') {
                 $this->response->addHeader('Content-Security-Policy-Report-Only: ' . $policy);
@@ -68,6 +81,17 @@ final class SecurityHeaders {
             }
             $this->response->addHeader('Strict-Transport-Security: ' . $value);
         }
+    }
+
+    private function cspMode(): string {
+        if (!(int)$this->config->get('codecart_security_headers_status') || !(int)$this->config->get('codecart_security_csp_report_only_status')) {
+            return '';
+        }
+        return $this->config->get('codecart_security_csp_mode') === 'enforce' ? 'enforce' : 'report';
+    }
+
+    private function enforcedPolicy(): string {
+        return $this->cspMode() === 'enforce' ? $this->sanitizePolicy((string)$this->config->get('codecart_security_csp_report_only_policy')) : '';
     }
 
     private function sanitizePolicy(string $value): string {

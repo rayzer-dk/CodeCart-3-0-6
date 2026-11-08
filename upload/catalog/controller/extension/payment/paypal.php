@@ -5245,8 +5245,9 @@ class ControllerExtensionPaymentPayPal extends Controller {
 				$paypal->setAccessToken($token_info);
 			
 				$webhook_repeat = 1;
+				$webhook_attempt = 0;
 								
-				while ($webhook_repeat) {
+				while ($webhook_repeat && $webhook_attempt++ < 3) {
 					$webhook_event = $paypal->getWebhookEvent($webhook_event_id);
 
 					$errors = array();

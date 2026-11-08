@@ -5,7 +5,7 @@ class ControllerToolCodeCartCore extends Controller {
         $this->ensureCoreServices();
         $this->load->language('tool/codecart_core');
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->document->addStyle('view/stylesheet/codecart-core.css?v=3.0.6.0');
+        $this->document->addStyle('view/stylesheet/codecart-core.css?v=' . CODECART_PACKAGE_BUILD);
         $this->load->model('setting/setting');
 
         if ($this->request->server['REQUEST_METHOD'] === 'POST') {
@@ -30,7 +30,7 @@ class ControllerToolCodeCartCore extends Controller {
 
         $data = array();
         foreach (array(
-            'text_extension_code','text_extension_name','text_extension_version','text_extension_namespace','text_icon_style_solid','text_icon_style_regular','text_icon_style_brands','text_icon_packages','heading_title','text_home','text_status','text_runtime','text_security','text_privacy','text_schema','text_extensions','text_icons','text_icon_search','text_icon_help','text_modern_social_icons','text_icon_core_package','text_icon_full_package','text_icon_core_package_help','text_icon_full_package_help','text_icon_full_count','text_icon_styles','text_icon_scanner','text_icon_scanner_help','text_icon_mode_requested','text_icon_mode_effective','text_icon_mode_setting','text_icon_mode_setting_help','text_icon_auto','text_icon_core','text_icon_full','text_icon_core_count','text_icon_files_scanned','text_icon_last_scan','text_icon_unknown','text_icon_location','text_icon_line','text_icon_kind','text_icon_resolution','text_icon_resolution_full','text_icon_resolution_unresolved','text_icon_unresolved','text_icon_no_unknown','text_icon_fallback_full','text_icon_core_active','text_icon_scan_error','text_icon_manual_build_help','button_icon_rescan','entry_icon_extras','help_icon_extras','button_icon_add_found','button_icon_save_extras','text_icon_all','text_icon_social','text_icon_commerce','text_icon_payment','text_icon_shipping','text_icon_contact','text_icon_interface','text_icon_security','text_icon_media','text_icon_development','text_icon_other','text_icon_copied','text_icon_usage','text_icon_loading','text_icon_load_error','text_about','text_about_overview','text_about_requirements','text_about_changes','text_about_comparison','text_about_comparison_note','text_about_future','text_about_fixed','text_about_improved','text_about_security','text_required','text_recommended','text_current','text_supported','text_not_supported','text_added','text_updated','text_removed_runtime','text_legacy','text_builtin','text_server_profile','text_server_requirements_help','text_platform','text_component','text_benefit','text_codecart_website','text_about_legacy_title','text_about_legacy_value','text_about_legacy_help','text_about_security_value','text_about_security_help','text_about_server_value','text_about_server_help','text_about_modern_title','text_about_modern_value','text_about_modern_help','text_enabled','text_disabled','text_ok','text_missing','text_optional','text_schema_not_scanned','text_no_issues','text_no_extensions','text_gdpr_requests','text_confirm_delete','text_device_fail_open','text_schema_readonly','text_extension_help','text_runtime_help','text_spam_help','text_gdpr_help','text_cookie_help','text_notification_help','text_current_user_devices','text_revoke_devices','text_refresh_registry','text_scan_schema','text_save','text_processed','text_pending','text_confirmed','text_superseded','text_export','text_delete','text_unknown','text_system_notifications','text_scheduler','text_retention_auto','text_cleanup_done','text_cleanup_confirm','text_gdpr_retention_help',
+            'text_extension_code','text_extension_name','text_extension_version','text_extension_namespace','text_icon_style_solid','text_icon_style_regular','text_icon_style_brands','text_icon_packages','heading_title','text_home','text_status','text_runtime','text_security','text_privacy','text_schema','text_extensions','text_icons','text_icon_search','text_icon_help','text_modern_social_icons','text_icon_core_package','text_icon_full_package','text_icon_core_package_help','text_icon_full_package_help','text_icon_full_count','text_icon_styles','text_icon_scanner','text_icon_scanner_help','text_icon_mode_requested','text_icon_mode_effective','text_icon_mode_setting','text_icon_mode_setting_help','text_icon_auto','text_icon_core','text_icon_full','text_icon_core_count','text_icon_files_scanned','text_icon_last_scan','text_icon_unknown','text_icon_location','text_icon_line','text_icon_kind','text_icon_resolution','text_icon_resolution_full','text_icon_resolution_unresolved','text_icon_unresolved','text_icon_no_unknown','text_icon_fallback_full','text_icon_core_active','text_icon_scan_error','text_icon_manual_build_help','button_icon_rescan','entry_icon_extras','help_icon_extras','button_icon_add_found','button_icon_save_extras','text_icon_all','text_icon_social','text_icon_commerce','text_icon_payment','text_icon_shipping','text_icon_contact','text_icon_interface','text_icon_security','text_icon_media','text_icon_development','text_icon_other','text_icon_copied','text_icon_usage','text_icon_loading','text_icon_load_error','text_about','text_about_requirements','text_about_changes','text_about_build','text_about_schema','text_about_revision','text_about_upstream','text_about_upgrade_required','text_about_db','text_about_driver','text_about_components','text_about_components_note','text_about_advantages','text_about_level_updated','text_about_level_added','text_about_level_same','entry_csp_mode','text_csp_mode_report','text_csp_mode_enforce','help_csp_mode','text_required','text_recommended','text_not_supported','text_server_requirements_help','text_component','text_codecart_website','text_enabled','text_disabled','text_ok','text_missing','text_optional','text_schema_not_scanned','text_no_issues','text_no_extensions','text_gdpr_requests','text_confirm_delete','text_device_fail_open','text_schema_readonly','text_extension_help','text_runtime_help','text_spam_help','text_gdpr_help','text_cookie_help','text_notification_help','text_current_user_devices','text_revoke_devices','text_refresh_registry','text_scan_schema','text_save','text_processed','text_pending','text_confirmed','text_superseded','text_export','text_delete','text_unknown','text_system_notifications','text_scheduler','text_retention_auto','text_cleanup_done','text_cleanup_confirm','text_gdpr_retention_help',
             'text_performance','text_performance_help','text_minify_diagnostics','text_minify_available','text_minify_stale','text_minify_active','entry_storefront_minify_css','entry_storefront_minify_js','entry_admin_minify_css','entry_admin_minify_js','help_storefront_minify_css','help_storefront_minify_js','help_admin_minify_css','help_admin_minify_js','text_safe_minify_note','button_save_performance','text_architecture','text_architecture_help','text_compat_detected','text_active_languages','text_service_layer_help','text_event_layer_help','text_asset_manager_help','text_api_v1','text_api_v1_help','text_service_layer','text_compat_layer','text_event_layer','text_asset_manager','text_search_adapter','text_native_fallback','text_opt_in','text_read_only','entry_api_v1_status','button_save_architecture',
             'entry_spam','entry_gdpr_retention','entry_admin_device','entry_customer_device','entry_login_protection','entry_login_max_attempts','entry_login_window','entry_security_audit_retention','entry_totp','entry_security_headers','entry_nosniff','entry_referrer_policy','entry_frame_options','entry_permissions_policy','entry_csp_report_only','entry_csp_policy','entry_hsts','entry_gdpr','entry_cookie','column_component','column_value','column_state','column_details','column_severity','column_type','column_table','column_column','column_message','column_request','column_customer','column_email','column_date','column_action','button_process_delete','button_cleanup_old','button_save','button_scan','button_refresh','button_revoke','button_cookie_settings','text_info','text_warning','text_error','text_external','text_core','text_schema_external_help','text_preflight_help','text_totp_enabled','text_totp_disabled','text_totp_own','text_totp_policy','help_totp_policy','button_totp_manage','text_security_audit','text_login_protection_help','text_security_headers_help','text_csp_report_only_help','text_hsts_help','button_phpinfo','button_schema_safe_fix','text_schema_safe_fix_help','text_schema_backup_warning','text_schema_backup_confirm','text_schema_fixable','text_schema_manual','text_schema_external_ok','text_schema_fix_result','text_schema_fix_errors','column_meaning','column_next_action'
         ) as $key) { $data[$key] = $this->language->get($key); }
@@ -67,7 +67,7 @@ class ControllerToolCodeCartCore extends Controller {
         $securityDefaults = array(
             'codecart_admin_login_protection_status'=>1,'codecart_admin_login_max_attempts'=>5,'codecart_admin_login_window_minutes'=>15,'codecart_security_audit_retention_days'=>90,'codecart_gdpr_retention_days'=>365,
             'codecart_security_headers_status'=>1,'codecart_security_nosniff_status'=>1,'codecart_security_referrer_policy'=>'strict-origin-when-cross-origin','codecart_security_frame_options_status'=>0,'codecart_security_frame_options'=>'SAMEORIGIN','codecart_security_permissions_policy_status'=>0,
-            'codecart_security_permissions_policy'=>'camera=(), microphone=()','codecart_security_csp_report_only_status'=>0,'codecart_security_csp_report_only_policy'=>"default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:",'codecart_security_hsts_status'=>0,'codecart_security_hsts_max_age'=>31536000,'codecart_security_hsts_subdomains'=>0
+            'codecart_security_permissions_policy'=>'camera=(), microphone=()','codecart_security_csp_report_only_status'=>0,'codecart_security_csp_mode'=>'report','codecart_security_csp_report_only_policy'=>"default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:",'codecart_security_hsts_status'=>0,'codecart_security_hsts_max_age'=>31536000,'codecart_security_hsts_subdomains'=>0
         );
         foreach ($securityDefaults as $key=>$default) { $value=$this->config->get($key); $data[$key]=($value===null||$value==='')?$default:$value; }
         $data['totp_enabled'] = false;
@@ -101,17 +101,16 @@ class ControllerToolCodeCartCore extends Controller {
         try { $device = new \CodeCart\Core\DeviceAuthorization($this->registry); $data['trusted_admin_devices'] = $device->countTrusted('admin', (int)$this->user->getId()); } catch (\Throwable $e) { $data['trusted_admin_devices'] = 0; }
 
         $data['codecart_website'] = 'https://codecartpro.com/';
-        $data['about_version'] = VERSION;
-        $data['about_build'] = 'CodeCart PRO ' . VERSION . (defined('CODECART_CHANNEL') && CODECART_CHANNEL ? ' ' . CODECART_CHANNEL : '');
-        $data['about_fixed_items'] = $this->language->get('about_fixed_items');
-        $data['about_improved_items'] = $this->language->get('about_improved_items');
-        $data['about_security_items'] = $this->language->get('about_security_items');
-        $data['about_future_items'] = $this->language->get('about_future_items');
-        foreach (array('about_fixed_items','about_improved_items','about_security_items','about_future_items') as $listKey) {
-            if (!is_array($data[$listKey])) { $data[$listKey] = array(); }
+        $data['about'] = $this->aboutSystem();
+        $data['about_components'] = $this->aboutComponents();
+        $data['about_changes'] = array();
+        foreach (array('added'=>'primary','security'=>'primary','updated'=>'secondary','fixed'=>'secondary','removed'=>'muted') as $group=>$level) {
+            $data['about_changes'][] = $this->escapeHtml(array('title'=>$this->language->get('text_about_group_' . $group),'level'=>$level,'group'=>$group,'items'=>(array)$this->language->get('about_' . $group . '_items')));
         }
-        $data['server_requirements'] = $this->localizeServerRequirements($this->serverRequirements());
-        $data['comparison_rows'] = $this->localizeComparisonRows($this->comparisonRows());
+        $data['about_advantages'] = $this->escapeHtml((array)$this->language->get('about_advantages'));
+        $data['server_requirements'] = $this->escapeHtml($this->localizeServerRequirements($this->serverRequirements()));
+        $data['server_requirements_passed'] = count(array_filter($data['server_requirements'], function ($row) { return $row['required'] && $row['ok']; }));
+        $data['server_requirements_total'] = count(array_filter($data['server_requirements'], function ($row) { return $row['required']; }));
         $data['icon_catalog'] = $this->iconCatalog();
         $data['icon_full_count'] = $this->iconFullCount();
         $data['icon_full_catalog'] = array();
@@ -226,6 +225,8 @@ class ControllerToolCodeCartCore extends Controller {
             $csp = isset($this->request->post['codecart_security_csp_report_only_policy']) ? trim(str_replace(array("\r","\n","\0"), '', (string)$this->request->post['codecart_security_csp_report_only_policy'])) : "default-src 'self'";
             $csp = substr($csp, 0, 4000);
             $this->upsertSetting('codecart_core','codecart_security_csp_report_only_policy',$csp); $this->config->set('codecart_security_csp_report_only_policy',$csp);
+            $cspMode = isset($this->request->post['codecart_security_csp_mode']) && $this->request->post['codecart_security_csp_mode'] === 'enforce' ? 'enforce' : 'report';
+            $this->upsertSetting('codecart_core','codecart_security_csp_mode',$cspMode); $this->config->set('codecart_security_csp_mode',$cspMode);
             if ($action === 'save_security' && isset($this->request->post['codecart_totp_policy_present'])) {
                 $this->saveTwoFactorPolicy();
             }
@@ -566,28 +567,6 @@ class ControllerToolCodeCartCore extends Controller {
         return $rows;
     }
 
-    private function localizeComparisonRows(array $rows) {
-        $map = array(
-            'Content editor'=>'cmp_content_editor','Image formats'=>'cmp_image_formats','Cache backends'=>'cmp_cache_backends','Scheduler / Queue'=>'cmp_scheduler_queue',
-            'System Notifications'=>'cmp_system_notifications','Central Spam Service'=>'cmp_spam_service','Built-in'=>'cmp_builtin','Built-in, opt-in on UPDATE'=>'cmp_builtin_optin',
-            'TOTP + trusted device layer'=>'cmp_totp','Read-only diagnostics + migrations'=>'cmp_schema','PSR-4 / Services / Manifest / Extension Points'=>'cmp_modern',
-            'contact / reviews / registration / forgotten / returns / GDPR'=>'cmp_spam_scope','form-specific'=>'cmp_form_specific','Core Dashboard'=>'cmp_core_dashboard',
-            'not used by Core Dashboard; Legacy assets retained'=>'cmp_legacy_assets','CodeCart PRO Slider; Swiper 3 Legacy'=>'cmp_slider','3.7.1 Legacy Core'=>'cmp_jquery_legacy','3.4.1 Legacy Core'=>'cmp_bootstrap_legacy',
-            '2.1.0 manual / CLI only'=>'cmp_scss_cli','2.1.0 runtime'=>'cmp_scss_runtime_oc','2.0.1 runtime'=>'cmp_scss_runtime_ocs','SeoPro + language prefixes + canonical/faceted policy'=>'cmp_seo',
-            'JPEG/PNG/WebP/AVIF + safe fallback'=>'cmp_images','File / APCu / Memcached / Redis + fallback'=>'cmp_cache','File'=>'cmp_file','6.7.2 + AUTO/Core/Full + FA4 compatibility'=>'cmp_fa','Summernote 0.9.1 local'=>'cmp_summernote'
-        );
-        foreach ($rows as &$row) {
-            foreach (array('component','opencart','ocstore','codecart') as $field) {
-                if (isset($row[$field], $map[$row[$field]])) {
-                    $text = $this->language->get($map[$row[$field]]);
-                    if ($text !== $map[$row[$field]]) { $row[$field] = $text; }
-                }
-            }
-        }
-        unset($row);
-        return $rows;
-    }
-
     private function localizeSchemaResult(array $result) {
         if (!$result) { return $result; }
         $summaryMap = array('tables_expected'=>'schema_tables_expected','tables_present'=>'schema_tables_present','missing_tables'=>'schema_missing_tables','missing_columns'=>'schema_missing_columns','type_mismatches'=>'schema_type_mismatches','engine_mismatches'=>'schema_engine_mismatches','charset_mismatches'=>'schema_charset_mismatches','missing_indexes'=>'schema_missing_indexes','external_tables'=>'schema_external_tables','external_columns'=>'schema_external_columns','external_indexes'=>'schema_external_indexes','blocking_issues'=>'schema_blocking_issues','warnings'=>'schema_warnings','informational'=>'schema_informational');
@@ -616,48 +595,61 @@ class ControllerToolCodeCartCore extends Controller {
         return $result;
     }
 
-    private function comparisonRows() {
-        return array(
-            array('component'=>'PHP','opencart'=>'PHP 8.0–8.4','ocstore'=>'PHP 8.0–8.5','codecart'=>'PHP 8.1–8.5','status'=>'updated'),
-            array('component'=>'Guzzle','opencart'=>'7.10.0','ocstore'=>'7.9.3','codecart'=>'7.15.5','status'=>'updated'),
-            array('component'=>'Twig','opencart'=>'3.24.0','ocstore'=>'3.21.1','codecart'=>'3.28.0','status'=>'updated'),
-            array('component'=>'Guzzle Promises','opencart'=>'2.3.0','ocstore'=>'2.2.0','codecart'=>'2.5.3','status'=>'updated'),
-            array('component'=>'Guzzle PSR-7','opencart'=>'2.9.0','ocstore'=>'2.7.1','codecart'=>'2.13.1','status'=>'updated'),
-            array('component'=>'League URI','opencart'=>'7.8.1','ocstore'=>'7.5.1','codecart'=>'7.8.1','status'=>'updated'),
-            array('component'=>'League URI Interfaces','opencart'=>'7.8.1','ocstore'=>'7.5.0','codecart'=>'7.8.1','status'=>'updated'),
-            array('component'=>'Symfony Deprecation Contracts','opencart'=>'3.6.0','ocstore'=>'3.6.0','codecart'=>'3.7.1','status'=>'updated'),
-            array('component'=>'Symfony Polyfill Ctype','opencart'=>'1.37.0','ocstore'=>'1.32.0','codecart'=>'1.37.0','status'=>'updated'),
-            array('component'=>'Symfony Polyfill PHP 8.0','opencart'=>'1.37.0','ocstore'=>'1.32.0','codecart'=>'1.37.0','status'=>'updated'),
-            array('component'=>'scssphp Source Span','opencart'=>'1.1.0','ocstore'=>'1.0.0','codecart'=>'1.1.0','status'=>'updated'),
-            array('component'=>'scssphp','opencart'=>'2.1.0 runtime','ocstore'=>'2.0.1 runtime','codecart'=>'2.1.0 manual / CLI only','status'=>'updated'),
-            array('component'=>'Symfony Filesystem','opencart'=>'6.4.34','ocstore'=>'6.4.13','codecart'=>'6.4.45','status'=>'updated'),
-            array('component'=>'Symfony Polyfill Mbstring','opencart'=>'1.37.0','ocstore'=>'1.32.0','codecart'=>'1.38.2','status'=>'updated'),
-            array('component'=>'jQuery','opencart'=>'3.7.1','ocstore'=>'3.7.1','codecart'=>'3.7.1 Legacy Core','status'=>'legacy'),
-            array('component'=>'Bootstrap','opencart'=>'3.4.1','ocstore'=>'3.4.1','codecart'=>'3.4.1 Legacy Core','status'=>'legacy'),
-            array('component'=>'Font Awesome','opencart'=>'4.7.0','ocstore'=>'4.7.0','codecart'=>'6.7.2 + AUTO/Core/Full + FA4 compatibility','status'=>'updated'),
-            array('component'=>'Content editor','opencart'=>'Summernote 0.8.18','ocstore'=>'Summernote 0.8.18','codecart'=>'Summernote 0.9.1 local','status'=>'updated'),
-            array('component'=>'CodeMirror','opencart'=>'5.15.3','ocstore'=>'5.15.3','codecart'=>'5.65.21','status'=>'updated'),
-            array('component'=>'Magnific Popup','opencart'=>'1.1.0','ocstore'=>'1.1.0','codecart'=>'1.2.0','status'=>'updated'),
-            array('component'=>'PhotoSwipe','opencart'=>'—','ocstore'=>'—','codecart'=>'5.4.4','status'=>'added'),
-            array('component'=>'HTML Purifier','opencart'=>'—','ocstore'=>'4.18.0','codecart'=>'4.19.0','status'=>'updated'),
-            array('component'=>'Moment.js','opencart'=>'2.18.1','ocstore'=>'2.18.1','codecart'=>'2.30.1','status'=>'updated'),
-            array('component'=>'DateTimePicker','opencart'=>'Bootstrap DateTimePicker 3.1.3.1','ocstore'=>'Bootstrap DateTimePicker 3.1.3.1','codecart'=>'CodeCart PRO Hybrid DateTimePicker 1.8.7','status'=>'updated'),
-            array('component'=>'SortableJS','opencart'=>'—','ocstore'=>'1.10.2','codecart'=>'1.15.7','status'=>'updated'),
-            array('component'=>'Swiper','opencart'=>'3.4.2','ocstore'=>'3.4.2','codecart'=>'CodeCart PRO Slider; Swiper 3 Legacy','status'=>'removed_runtime'),
-            array('component'=>'Flot / jQVMap','opencart'=>'Core Dashboard','ocstore'=>'Core Dashboard','codecart'=>'not used by Core Dashboard; Legacy assets retained','status'=>'removed_runtime'),
-            array('component'=>'SEO / clean URL','opencart'=>'SEO URL','ocstore'=>'SeoPro','codecart'=>'SeoPro + language prefixes + canonical/faceted policy','status'=>'updated'),
-            array('component'=>'Image formats','opencart'=>'JPEG/PNG/WebP','ocstore'=>'JPEG/PNG/WebP','codecart'=>'JPEG/PNG/WebP/AVIF + safe fallback','status'=>'updated'),
-            array('component'=>'Cache backends','opencart'=>'File','ocstore'=>'File','codecart'=>'File / APCu / Memcached / Redis + fallback','status'=>'added'),
-            array('component'=>'Scheduler / Queue','opencart'=>'—','ocstore'=>'—','codecart'=>'Built-in','status'=>'added'),
-            array('component'=>'System Notifications','opencart'=>'—','ocstore'=>'—','codecart'=>'Built-in','status'=>'added'),
-            array('component'=>'GDPR / Cookie Consent','opencart'=>'—','ocstore'=>'—','codecart'=>'Built-in, opt-in on UPDATE','status'=>'added'),
-            array('component'=>'MFA / Device Authorization','opencart'=>'—','ocstore'=>'—','codecart'=>'TOTP + trusted device layer','status'=>'added'),
-            array('component'=>'Schema Registry / Diff','opencart'=>'—','ocstore'=>'—','codecart'=>'Read-only diagnostics + migrations','status'=>'added'),
-            array('component'=>'Modern Extension Layer','opencart'=>'—','ocstore'=>'—','codecart'=>'PSR-4 / Services / Manifest / Extension Points','status'=>'added'),
-            array('component'=>'Central Spam Service','opencart'=>'form-specific','ocstore'=>'form-specific','codecart'=>'contact / reviews / registration / forgotten / returns / GDPR','status'=>'added')
-        );
+    private function aboutSystem() {
+        $dbVersion = (string)($this->db->query('SELECT VERSION() AS version')->row['version'] ?? '');
+        $installedSchema = (string)$this->config->get('codecart_core_schema_version');
+        $installedPresentation = (string)$this->config->get('codecart_presentation_schema_version');
+        return $this->escapeHtml(array(
+            'product' => 'CodeCart ' . VERSION,
+            'build' => CODECART_PACKAGE_BUILD,
+            'upstream' => CODECART_UPSTREAM,
+            'schema' => \CodeCart\Migration::VERSION,
+            'presentation' => \CodeCart\Migration::PRESENTATION_SCHEMA_VERSION,
+            'installed' => ($installedSchema !== '' ? $installedSchema : '—') . ' / ' . ($installedPresentation !== '' ? $installedPresentation : '—'),
+            'upgrade_required' => (bool)$this->config->get('codecart_upgrade_required'),
+            'php' => PHP_VERSION . ' (' . PHP_SAPI . ')',
+            'db' => (stripos($dbVersion, 'mariadb') !== false ? 'MariaDB ' : 'MySQL ') . $dbVersion,
+            'driver' => DB_DRIVER
+        ));
     }
 
+    private function aboutComponents() {
+        // Columns: CodeCart, ocStore 3.0.3.7, OpenCart 3.0.4.1, OpenCart 3.0.5.1 (values taken from the
+        // shipped composer.lock files and bundled assets). "about_v_" values are translated labels.
+        $rows = array(
+            array('php', '8.1–8.5', '>= 5.4', '>= 7.3', '>= 8.1', 'updated'),
+            array('twig', '3.30.0', '2.14.3', '3.8.0', '3.24.0', 'updated'),
+            array('scssphp', '2.1.0', '1.1.1', '1.12.1', '2.1.0', 'updated'),
+            array('guzzle', '7.15.5', '5.3.4', '6.5.8', '7.10.0', 'updated'),
+            array('jquery', '3.7.1', '2.1.1', '2.1.1 + 3.7.x', '2.1.1 + 3.7.x', 'updated'),
+            array('jquery_migrate', '3.4.1', '', '', '', 'added'),
+            array('bootstrap', '3.4.1', '3.3.5', '3.4.1', '3.4.1', 'same'),
+            array('fontawesome', '6.7.2 Free', '4.7.0', '4.7.0', '4.7.0', 'updated'),
+            array('gallery', 'PhotoSwipe 5.4.4 / Magnific Popup', 'Magnific Popup', 'Magnific Popup', 'Magnific Popup', 'added'),
+            array('swiper', '3.4.2', '3.4.2', '3.4.2', '3.4.2', 'same'),
+            array('summernote', '0.9.1', '0.8.2', '0.8.18', '0.8.18', 'updated'),
+            array('htmlpurifier', '4.19.0', '4.13.0', '', '', 'updated'),
+            array('datepicker', 'about_v_datepicker_native', 'about_v_datepicker_bootstrap', 'about_v_datepicker_bootstrap', 'about_v_datepicker_bootstrap', 'updated'),
+            array('password', 'password_hash()', 'about_v_password_sha1', 'about_v_password_sha1', 'about_v_password_sha1', 'updated'),
+            array('smtp_tls', 'about_v_tls_strict', 'about_v_tls_starttls', 'about_v_tls_starttls', 'about_v_tls_starttls', 'updated')
+        );
+        $result = array();
+        foreach ($rows as $row) {
+            $cells = array();
+            foreach (array_slice($row, 1, 4) as $value) {
+                $cells[] = $value === '' ? '—' : (strpos($value, 'about_v_') === 0 ? $this->language->get($value) : $value);
+            }
+            $result[] = array('name' => $this->language->get('about_component_' . $row[0]), 'cells' => $cells, 'level' => $row[5]);
+        }
+        return $this->escapeHtml($result);
+    }
+
+    private function escapeHtml($value) {
+        if (is_array($value)) {
+            return array_map(array($this, 'escapeHtml'), $value);
+        }
+        return is_string($value) ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value;
+    }
     private function runtimeInfo() {
         $required = array('mysqli/pdo_mysql'=>(extension_loaded('mysqli') || (extension_loaded('pdo') && extension_loaded('pdo_mysql'))),'gd'=>extension_loaded('gd'),'curl'=>extension_loaded('curl'),'mbstring'=>extension_loaded('mbstring'),'dom'=>extension_loaded('dom'),'xmlwriter'=>extension_loaded('xmlwriter'),'zip'=>extension_loaded('zip'),'simplexml'=>extension_loaded('simplexml') && function_exists('simplexml_load_string'),'openssl'=>extension_loaded('openssl'),'fileinfo'=>extension_loaded('fileinfo'));
         $optional = array('intl'=>extension_loaded('intl'),'apcu'=>extension_loaded('apcu'),'redis'=>extension_loaded('redis'),'memcached'=>extension_loaded('memcached'));

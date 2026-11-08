@@ -175,7 +175,7 @@ class ModelBlogArticle extends Model {
 		
 		// SEO URL
 		$this->db->query("DELETE FROM " . DB_PREFIX . "seo_url WHERE query = 'article_id=" . (int)$article_id . "'");
-		try { (new \CodeCart\Core\RelationLayer($this->registry))->purgeEntity('article', (int)$article_id); } catch (\Throwable $e) {}
+		try { (new \CodeCart\Core\RelationLayer($this->registry))->purgeEntity('article', (int)$article_id); } catch (\Throwable $e) { $this->log->write('Relation purge article: ' . $e->getMessage()); }
 		
 		if (isset($data['article_seo_url'])) {
 			foreach ($data['article_seo_url']as $store_id => $language) {

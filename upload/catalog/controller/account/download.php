@@ -190,7 +190,7 @@ class ControllerAccountDownload extends Controller {
 
 	private function safeDownloadName($name) {
 		$name = basename((string)$name);
-		$name = preg_replace('/[\x00-\x1F\x7F"\\]+/', '_', $name);
+		$name = preg_replace('/[\x00-\x1F\x7F"\\\\]+/', '_', $name);
 		$name = trim((string)$name, " .\t\n\r\0\x0B");
 
 		return $name !== '' ? $name : 'download.bin';

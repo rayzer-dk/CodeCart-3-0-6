@@ -87,7 +87,6 @@ $_['entry_totp'] = 'MFA через автентифікатор (TOTP)';
 $_['entry_security_headers'] = 'Заголовки безпеки';
 $_['entry_frame_options'] = 'Захист від iframe';
 $_['entry_permissions_policy'] = 'Permissions-Policy';
-$_['entry_csp_report_only'] = 'CSP Report-Only';
 $_['entry_hsts'] = 'HSTS';
 $_['text_totp_enabled'] = 'TOTP увімкнено';
 $_['text_totp_disabled'] = 'TOTP вимкнено';
@@ -98,49 +97,15 @@ $_['text_hsts_help'] = 'Вмикайте лише коли весь домен �
 
 $_['entry_nosniff'] = 'Захист від MIME sniffing';
 $_['entry_referrer_policy'] = 'Referrer-Policy';
-$_['entry_csp_policy'] = 'Політика CSP Report-Only';
-$_['text_csp_report_only_help'] = 'Report-Only фіксує порушення політики, але не блокує legacy inline-скрипти. Примусове CSP вмикайте лише після перевірки звітів.';
 
 $_['text_about'] = 'Про систему';
-$_['text_about_overview'] = 'Огляд';
 $_['text_about_requirements'] = 'Вимоги сервера';
-$_['text_about_changes'] = 'Що змінено';
-$_['text_about_comparison'] = 'Порівняння';
-$_['text_about_comparison_note'] = 'Окрім наведених у таблиці компонентів, у CodeCart PRO додано багато дрібних покращень і виправлень: генерацію SEO URL, сортування та перетягування зображень, централізований захист від спаму, коректне відображення числових значень без зайвих нулів, власні компоненти інтерфейсу, імпорт і експорт каталогу, покинуті кошики, розширені форми, додаткові блоки та багато інших змін у каталозі, checkout, адмінпанелі й системних інструментах.';
-$_['text_about_future'] = 'Архітектура на перспективу';
-$_['text_about_fixed'] = 'Виправлено';
-$_['text_about_improved'] = 'Покращено';
-$_['text_about_security'] = 'Безпека';
 $_['text_required'] = 'Обов’язково';
 $_['text_recommended'] = 'Рекомендовано';
-$_['text_current'] = 'Поточний стан';
-$_['text_supported'] = 'Підтримується';
 $_['text_not_supported'] = 'Не підтримується';
-$_['text_added'] = 'Додано';
-$_['text_updated'] = 'Оновлено';
-$_['text_removed_runtime'] = 'Виведено зі штатного runtime';
-$_['text_legacy'] = 'Legacy-сумісність';
-$_['text_builtin'] = 'Вбудовано';
-$_['text_server_profile'] = 'WEB/FPM-профіль';
 $_['text_server_requirements_help'] = 'Показано вимоги саме до профілю PHP, який обслуговує сайт. CLI для Cron перевіряється окремо.';
-$_['text_platform'] = 'Компонент / можливість';
 $_['text_component'] = 'Компонент';
-$_['text_benefit'] = 'Користь';
 $_['text_codecart_website'] = 'Сайт CodeCart PRO';
-$_['text_about_legacy_title'] = 'Класичне та сучасне ядро';
-$_['text_about_legacy_value'] = 'MVC-L + PSR-4';
-$_['text_about_legacy_help'] = 'Старі модулі залишаються сумісними, нові можуть використовувати сучасний шар.';
-$_['text_about_security_value'] = 'TOTP · Audit · Anti-Spam';
-$_['text_about_security_help'] = 'Захист входу, форм, сесій, installer та системних операцій.';
-$_['text_about_server_value'] = 'WEB/FPM + CLI';
-$_['text_about_server_help'] = 'Preflight перевіряє реальний серверний профіль без постійного phpinfo.php.';
-$_['text_about_modern_title'] = 'Сучасні розширення';
-$_['text_about_modern_value'] = 'Сервіси · Черги · API';
-$_['text_about_modern_help'] = 'Фундамент для нових модулів без руйнування OpenCart 3 compatibility layer.';
-$_['about_fixed_items'] = array('PHP 8.1–8.5: усунено критичні несумісності ядра та deprecated-виклики.','Посилено MySQLi/PDO, сесії, File Manager, OCMOD, SMTP/cron і мовні SEO URL.','Виправлено дублікати URL, page=1, canonical, sitemap/blog та проблеми з GD/FPM.','Оновлення не видаляє сторонні платежі, CRM/1С, таблиці або модулі.');
-$_['about_improved_items'] = array('InnoDB + utf8mb4 для нової установки; Schema Registry для безпечного контролю оновлень.','WebP/AVIF, пакетне завантаження зображень і нормалізація імен файлів.','Redis/APCu/Memcached/File cache, Scheduler, Queue, Preflight і System Notification Center.','Сучасніша адмінка та default theme без заміни Bootstrap 3/FA4 для Legacy-модулів.');
-$_['about_security_items'] = array('password_hash/password_verify, захищені сесії, rate limiting та аудит входів.','TOTP MFA, перевірка невідомих пристроїв, GDPR та Cookie Consent.','Безпечніша установка ZIP-розширень, перевірка DOM до OCMOD refresh, контроль File Manager.','Security Headers Manager: nosniff, Referrer-Policy, опційний HSTS та CSP Report-Only.');
-$_['about_future_items'] = array('Legacy Core зберігає MVC-L, Registry, Loader, старі routes, OCMOD, Events, jQuery, Bootstrap 3 та FA4.','Modern Core додає PSR-4, Services, Repositories, Manifest, Migrations, Queue, Scheduler, Assets, API та Webhooks.','Extension Points дозволяють новим модулям розширювати систему без XML-патчів контролерів і Twig.','Це дає можливість модернізувати систему поступово без руйнування екосистеми OpenCart 3.');
 
 $_['text_icons'] = 'Іконки';
 $_['text_icon_search'] = 'Пошук за назвою іконки';
@@ -278,7 +243,6 @@ $_['help_nosniff'] = 'Забороняє браузеру вгадувати MIM
 $_['help_referrer_policy'] = 'Керує тим, скільки адреси сторінки браузер передає зовнішнім сайтам. strict-origin-when-cross-origin — рекомендований баланс приватності та сумісності.';
 $_['help_frame_options'] = 'Захищає адмінку/вітрину від вбудовування в iframe. SAMEORIGIN — рекомендовано; DENY суворіше і може завадити легальним інтеграціям.';
 $_['help_permissions_policy'] = 'Обмежує доступ браузерних API, наприклад камери, мікрофона та геолокації. Не змінюйте без перевірки інтеграцій.';
-$_['help_csp_policy'] = 'Політика Content-Security-Policy у режимі Report-Only. Спочатку спостерігайте за порушеннями; жорстке блокування не вмикається цим полем.';
 $_['help_gdpr'] = 'Керує запитами на експорт/анонімізацію персональних даних. Замовлення та бухгалтерські записи не видаляються автоматично.';
 $_['help_gdpr_retention'] = 'Скільки днів зберігати завершені/скасовані GDPR-запити. Рекомендовано 365; активні запити не очищаються.';
 $_['help_cookie'] = 'Статус Cookie Consent і перехід до його окремих налаштувань. Необов’язкові cookies мають запускатися лише після згоди.';
@@ -410,33 +374,6 @@ $_['diag_msg_xlsx_stream'] = 'Великі XLSX імпортуються у по
 $_['diag_msg_xlsx_simplexml'] = 'Звичайний імпорт XLSX працює через SimpleXML, але дуже великі книги можуть потребувати значно більше пам’яті.';
 $_['diag_optional_cache_backends'] = 'необов’язкові бекенди кешу';
 $_['diag_storage_cache_logs'] = 'Storage / кеш / журнали';
-$_['cmp_content_editor'] = 'Редактор контенту';
-$_['cmp_image_formats'] = 'Формати зображень';
-$_['cmp_cache_backends'] = 'Бекенди кешу';
-$_['cmp_scheduler_queue'] = 'Планувальник / черга';
-$_['cmp_system_notifications'] = 'Системні сповіщення';
-$_['cmp_spam_service'] = 'Центральний антиспам';
-$_['cmp_builtin'] = 'Вбудовано';
-$_['cmp_builtin_optin'] = 'Вбудовано, вмикається вручну після UPDATE';
-$_['cmp_totp'] = 'TOTP + довірені пристрої';
-$_['cmp_schema'] = 'Діагностика лише для читання + міграції';
-$_['cmp_modern'] = 'PSR-4 / сервіси / маніфести / точки розширення';
-$_['cmp_spam_scope'] = 'контакти / відгуки / реєстрація / відновлення пароля / повернення / GDPR';
-$_['cmp_form_specific'] = 'окремо для кожної форми';
-$_['cmp_core_dashboard'] = 'Дашборд ядра';
-$_['cmp_legacy_assets'] = 'не використовується дашбордом ядра; legacy-файли збережено';
-$_['cmp_slider'] = 'Слайдер CodeCart PRO; Swiper 3 як legacy';
-$_['cmp_jquery_legacy'] = '3.7.1 (legacy-ядро)';
-$_['cmp_bootstrap_legacy'] = '3.4.1 (legacy-ядро)';
-$_['cmp_scss_cli'] = '2.1.0, лише вручну / CLI';
-$_['cmp_scss_runtime_oc'] = '2.1.0 під час роботи';
-$_['cmp_scss_runtime_ocs'] = '2.0.1 під час роботи';
-$_['cmp_seo'] = 'SeoPro + мовні префікси + політика canonical/фільтрів';
-$_['cmp_images'] = 'JPEG/PNG/WebP/AVIF + безпечний fallback';
-$_['cmp_cache'] = 'File / APCu / Memcached / Redis + fallback';
-$_['cmp_file'] = 'Файли';
-$_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + сумісність із FA4';
-$_['cmp_summernote'] = 'Summernote 0.9.1 локально';
 $_['diag_msg_sql_compat'] = 'Сумісний з OpenCart режим SQL (стандарт для модулів OpenCart/ocStore). Строгий режим вмикається налаштуванням codecart_db_strict_mode = 1.';
 
 $_['text_icon_packages'] = 'Пакети Font Awesome';
@@ -456,3 +393,98 @@ $_['button_totp_manage'] = 'Керувати';
 $_['text_totp_policy'] = 'Обов’язково для груп';
 $_['help_totp_policy'] = 'Учасники вибраних груп мають налаштувати двофакторну перевірку під час наступного входу й не зможуть її вимкнути. Спільні демо-групи та групи лише для перегляду не позначайте.';
 $_['text_totp_group_stats'] = 'захищено %d з %d активних користувачів';
+$_['entry_csp_report_only'] = 'Content Security Policy';
+$_['entry_csp_policy'] = 'Політика CSP';
+$_['text_csp_report_only_help'] = 'Надсилає політику нижче. У режимі «Лише звіти» браузер тільки повідомляє про порушення й нічого не блокує.';
+$_['help_csp_policy'] = 'Директиви Content-Security-Policy через крапку з комою. Та сама політика використовується в обох режимах.';
+$_['entry_csp_mode'] = 'Режим CSP';
+$_['text_csp_mode_report'] = 'Лише звіти (Content-Security-Policy-Report-Only)';
+$_['text_csp_mode_enforce'] = 'Блокувати (Content-Security-Policy)';
+$_['help_csp_mode'] = 'У режимі «Блокувати» браузер забороняє все, що не дозволено політикою. Теми й модулі OpenCart 3 використовують inline-скрипти та зовнішні ресурси, тому вмикайте блокування лише після перевірки вітрини, оформлення замовлення, оплат і адмінки в режимі «Лише звіти» без порушень.';
+$_['text_about_changes'] = 'Відмінності від OpenCart/ocStore';
+$_['text_about_build'] = 'Збірка';
+$_['text_about_schema'] = 'Схема ядра';
+$_['text_about_revision'] = 'Ревізія оформлення';
+$_['text_about_upstream'] = 'Основа';
+$_['text_about_upgrade_required'] = 'Потрібен Installer UPDATE, у базі';
+$_['text_about_db'] = 'База даних';
+$_['text_about_driver'] = 'Драйвер БД';
+$_['text_about_components'] = 'Компоненти та бібліотеки';
+$_['text_about_components_note'] = 'Версії ocStore та OpenCart узято з їхніх релізних архівів (composer.lock і файли в комплекті). «—» означає, що компонента немає.';
+$_['text_about_advantages'] = 'Переваги';
+$_['text_about_level_updated'] = 'Оновлено';
+$_['text_about_level_added'] = 'Додано';
+$_['text_about_level_same'] = 'Без змін';
+$_['text_about_group_added'] = 'Додано';
+$_['text_about_group_security'] = 'Безпека';
+$_['text_about_group_updated'] = 'Оновлено';
+$_['text_about_group_fixed'] = 'Виправлено';
+$_['text_about_group_removed'] = 'Видалено';
+$_['about_component_php'] = 'PHP';
+$_['about_component_gallery'] = 'Галерея товару';
+$_['about_component_datepicker'] = 'Вибір дати на вітрині';
+$_['about_component_password'] = 'Хешування паролів адмінки';
+$_['about_component_smtp_tls'] = 'TLS для SMTP / HTTPS';
+$_['about_v_datepicker_native'] = 'Вбудований (без moment.js)';
+$_['about_v_datepicker_bootstrap'] = 'bootstrap-datetimepicker + moment.js';
+$_['about_v_password_sha1'] = 'SHA-1 із сіллю';
+$_['about_v_tls_strict'] = 'TLS 1.2–1.3, перевірка сертифіката';
+$_['about_v_tls_starttls'] = 'STARTTLS, без мінімальної версії';
+$_['about_advantages'] = array(
+    'Працює на PHP 8.1–8.5. ocStore 3.0.3.7 заявляє PHP 5.4+, OpenCart 3.0.4.1 — PHP 7.3+.',
+    'Бібліотеки новіші, ніж у будь-якій з основ: Twig 3.30 проти 2.14 / 3.8 / 3.24, Guzzle 7.15 проти 5.3 / 6.5 / 7.10.',
+    'Паролі адміністраторів хешуються password_hash() замість SHA-1 із сіллю, двофакторний вхід вбудовано. У жодній із трьох основ цього немає.',
+    'Наявні розширення OpenCart 3 і далі працюють: аліаси класів Twig 2, jQuery Migrate, класи Font Awesome 4, OCMOD та події.',
+    'Cron, черга, сповіщення, стан магазину, перевірка цілісності та модернізація БД входять до ядра, а не до окремих модулів.'
+);
+$_['about_added_items'] = array(
+    'Двофакторний вхід (TOTP) для адміністраторів із резервними кодами; можна зробити обов’язковим для групи користувачів.',
+    'Підтвердження нових пристроїв кодом із листа для адміністраторів і покупців.',
+    'Планувальник, черга завдань, серверний Cron і команди CLI (cron:run, queue:work, db:migrate, styles:rebuild).',
+    'Системні сповіщення та панель стану магазину з перевіркою файлів за маніфестом релізу.',
+    'Покинуті кошики з нагадуваннями за згодою, включно з контактами гостей.',
+    'Імпорт/експорт каталогу (XLSX), публічні документи для товарів, зв’язки товарів.',
+    'SEO: мовні префікси URL, SeoPro, hreflang і правила canonical, монітор втрачених URL.',
+    'Журнал пошти, DNS-перевірка SPF/DKIM/DMARC, сповіщення про надходження товару.',
+    'Запити GDPR, згода на cookie, єдиний антиспам-захист публічних форм, капча Cloudflare Turnstile.',
+    'REST API v1 лише для читання (вимкнено за замовчуванням), кеш Redis/APCu/Memcached, зображення WebP/AVIF.'
+);
+$_['about_updated_items'] = array(
+    'PHP 8.1–8.5; Twig 3.30, Guzzle 7.15, scssphp 2.1.',
+    'jQuery 3.7.1 скрізь, jQuery Migrate 3.4.1 для старих модулів.',
+    'Font Awesome 6.7.2 Free; класи Font Awesome 4 і далі працюють.',
+    'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 як альтернативна галерея.',
+    'Поля дат на вітрині використовують вбудований вибір дати; moment.js і bootstrap-datetimepicker залишено лише для сторонніх модулів.',
+    'Нові встановлення використовують utf8mb4 та InnoDB; модернізатор БД переводить старі таблиці після резервної копії.',
+    'Installer UPDATE оновлює наявні магазини версіонованими міграціями з перевіркою схеми.'
+);
+$_['about_fixed_items'] = array(
+    'Містить виправлення ядра OpenCart 3.0.5.1: кодування пароля адміністратора, GLOB_BRACE на musl, авторизація Redis, сесія капчі.',
+    'Розширення: імена класів Twig 2 пов’язано з Twig 3, тригери подій збігаються за префіксом, приймається DB_DRIVER mpdo з ocStore.',
+    'MySQL 8: таблиці CodeCart використовують utf8mb4_unicode_ci, помилки зіставлення 1267 немає.',
+    'SeoPro повертає 404 для невідомих сегментів шляху й не перенаправляє cron.php та платіжні callback.',
+    'Запити з нерядковим route більше не завершуються HTTP 500.'
+);
+$_['about_security_items'] = array(
+    'Паролі адміністраторів хешуються password_hash() і перехешуються під час входу; старі хеші SHA-1 і далі приймаються.',
+    'Захист входу з лімітами спроб за обліковим записом і джерелом, журнал безпеки.',
+    'CSRF-токени у формах підтвердження пристрою та GDPR; ліміт API за реальною IP-адресою клієнта.',
+    'Заголовки безпеки: nosniff, Referrer-Policy, Permissions-Policy, HSTS, CSP у режимі звітів або блокування; адмінку не можна вбудувати у фрейм стороннього сайту.',
+    'SMTP і вбудовані HTTP-інтеграції (PayPal, курси валют, Google, Turnstile) вимагають TLS 1.2+ з перевіркою сертифіката.'
+);
+$_['about_removed_items'] = array(
+    'Копії jQuery 2.1.1.',
+    'Файли шрифтів Font Awesome 4 (використовуються веб-шрифти Font Awesome 6, класи FA4 зіставлено).',
+    'Застарілий php.ini у корені сайту (видаліть його на наявних сайтах).',
+    'Дубльований крок оновлення 3054 і старі дії імпорту каталогу в «Інструменти → Резервне копіювання».'
+);
+$_['about_component_twig'] = 'Twig';
+$_['about_component_scssphp'] = 'scssphp';
+$_['about_component_guzzle'] = 'Guzzle';
+$_['about_component_jquery'] = 'jQuery';
+$_['about_component_jquery_migrate'] = 'jQuery Migrate';
+$_['about_component_bootstrap'] = 'Bootstrap';
+$_['about_component_fontawesome'] = 'Font Awesome';
+$_['about_component_swiper'] = 'Swiper';
+$_['about_component_summernote'] = 'Summernote';
+$_['about_component_htmlpurifier'] = 'HTML Purifier';

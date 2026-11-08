@@ -876,7 +876,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 
 	private function isLanguageTargetFile($path) {
 		$path = str_replace('\\', '/', strtolower((string)$path));
-		return strpos($path, '/language/') !== false || strpos($path, '/language/') === 0 || strpos($path, 'language/') === 0;
+		return strpos($path, '/language/') !== false || strpos($path, 'language/') === 0;
 	}
 
 	private function countCompatibilityIssues(array $issues, $severity) {

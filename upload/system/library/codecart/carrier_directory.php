@@ -413,7 +413,6 @@ class CodeCartCarrierDirectory {
             $errno = curl_errno($ch);
             $error = curl_error($ch);
             $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
 
             if ($errno) {
                 $lastError = 'Nova Poshta network error #' . $errno . ': ' . $error;
@@ -618,7 +617,6 @@ class CodeCartCarrierDirectory {
             $errno = curl_errno($ch);
             $error = curl_error($ch);
             $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
 
             if ($errno) {
                 $lastError = 'Carrier API network error #' . $errno . ': ' . $error;

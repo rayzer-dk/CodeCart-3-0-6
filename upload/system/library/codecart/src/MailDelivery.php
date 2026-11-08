@@ -115,7 +115,7 @@ final class MailDelivery {
                 $db = $registry->get('db');
                 $q = $db->query("SELECT store_id FROM `" . DB_PREFIX . "order` WHERE order_id = '" . (int)$m[1] . "' LIMIT 1");
                 if ($q->num_rows) { $resolved = (int)$q->row['store_id']; }
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) { self::write($registry, 'Mail store lookup failed: ' . $e->getMessage()); }
         }
         return max(0, $resolved);
     }

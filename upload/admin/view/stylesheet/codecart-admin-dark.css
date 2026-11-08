@@ -74,9 +74,8 @@ html.ccp-admin-dark .ccp-product-taxonomy-tools strong,html.ccp-admin-dark .ccp-
 html.ccp-admin-dark .ccp-notification-card,html.ccp-admin-dark .ccp-notification-card.is-unread{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important}
 html.ccp-admin-dark .ccp-notification-card-head strong{color:#eef4fa!important}html.ccp-admin-dark .ccp-notification-meta{color:#9eacbc!important}
 /* Core / Compatibility page-specific cards. */
-html.ccp-admin-dark .ccp-core-about .ccp-about-hero,html.ccp-admin-dark .ccp-core-about .ccp-kpi,html.ccp-admin-dark .ccp-core-about .ccp-req,html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item,html.ccp-admin-dark #tab-schema .ccp-schema-stat,html.ccp-admin-dark .ccp-icon-scan-summary>div{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important}
-html.ccp-admin-dark .ccp-core-about .ccp-about-hero{background:linear-gradient(135deg,#18212b,#202b37)!important}
-html.ccp-admin-dark .ccp-core-about .ccp-about-title,html.ccp-admin-dark #tab-schema .ccp-schema-stat strong{color:#edf3f9!important}
+html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item,html.ccp-admin-dark #tab-schema .ccp-schema-stat,html.ccp-admin-dark .ccp-icon-scan-summary>div{background:#18212b!important;border-color:#3d4a59!important;color:#dce5ef!important}
+html.ccp-admin-dark #tab-schema .ccp-schema-stat strong{color:#edf3f9!important}
 html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item{color:#dce5ef!important}html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item:hover,html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item:focus{background:#24303d!important}
 html.ccp-admin-dark .ccp-icon-catalog .ccp-icon-item.is-copied{background:#173a2a!important;border-color:#2d684d!important}
 html.ccp-admin-dark #tab-schema .ccp-schema-external{background:#173126!important}html.ccp-admin-dark #tab-schema .ccp-schema-fixable{background:#332b1d!important}

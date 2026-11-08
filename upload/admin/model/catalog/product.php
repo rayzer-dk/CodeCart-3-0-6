@@ -421,7 +421,7 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "review WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "seo_url WHERE query = 'product_id=" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "coupon_product WHERE product_id = '" . (int)$product_id . "'");
-		try { (new \CodeCart\Core\RelationLayer($this->registry))->purgeEntity('product', (int)$product_id); } catch (\Throwable $e) {}
+		try { (new \CodeCart\Core\RelationLayer($this->registry))->purgeEntity('product', (int)$product_id); } catch (\Throwable $e) { $this->log->write('Relation purge product: ' . $e->getMessage()); }
 
 		$this->cache->delete('product');
 		$this->cache->delete('admin.product_sidebar_stats');
