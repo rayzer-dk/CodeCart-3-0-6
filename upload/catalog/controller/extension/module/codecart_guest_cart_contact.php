@@ -54,7 +54,7 @@ class ControllerExtensionModuleCodecartGuestCartContact extends Controller {
             $url = parse_url($origin);
             $host = strtolower((string)($url['host'] ?? ''));
             $site = strtolower((string)($this->request->server['HTTP_HOST'] ?? ''));
-            if (!$host || $host !== strtolower(explode(':', $site)[0]) || strtolower((string)($url['scheme'] ?? '')) !== 'https') {
+            if (!$host || $host !== strtolower(explode(':', $site)[0]) || !in_array(strtolower((string)($url['scheme'] ?? '')), array('http', 'https'), true)) {
                 $this->respond(array('success'=>false), 403); return;
             }
         }
@@ -69,7 +69,7 @@ class ControllerExtensionModuleCodecartGuestCartContact extends Controller {
             $data['lastname'] = trim((string)($this->request->post['lastname'] ?? ''));
             $data['telephone'] = trim((string)($this->request->post['telephone'] ?? ''));
             if (strlen($data['email']) > 96 || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)
-                || (function_exists('utf8_strlen') ? utf8_strlen($data['firstname']) > 100 || utf8_strlen($data['lastname']) > 100 : strlen($data['firstname']) > 100 || strlen($data['lastname']) > 100)
+                || utf8_strlen($data['firstname']) > 100 || utf8_strlen($data['lastname']) > 100
                 || strlen($data['telephone']) > 40) {
                 $this->respond(array('success'=>false,'error'=>'invalid_contact'), 422); return;
             }

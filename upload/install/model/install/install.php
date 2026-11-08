@@ -2,6 +2,7 @@
 class ModelInstallInstall extends Model {
 	public function database($data) {
 		$db = new DB($data['db_driver'], htmlspecialchars_decode($data['db_hostname']), htmlspecialchars_decode($data['db_username']), htmlspecialchars_decode($data['db_password']), htmlspecialchars_decode($data['db_database']), $data['db_port']);
+		$db->query("SET SESSION sql_mode = 'NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION'");
 
 		$this->assertPrefixAvailable($db, $data['db_prefix']);
 
@@ -60,6 +61,10 @@ class ModelInstallInstall extends Model {
 			$db->query("DELETE FROM `" . $data['db_prefix'] . "setting` WHERE `key` = 'codecart_db_modernization_required'");
 			$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` SET store_id = '0', code = 'codecart_core', `key` = 'codecart_db_modernization_required', value = '0', serialized = '0'");
 
+			require_once(DIR_SYSTEM . 'library/codecart/migration.php');
+			$db->query("UPDATE `" . $data['db_prefix'] . "setting` SET `value` = '" . $db->escape(\CodeCart\Migration::VERSION) . "' WHERE store_id = '0' AND `key` = 'codecart_core_schema_version'");
+			$db->query("UPDATE `" . $data['db_prefix'] . "setting` SET `value` = '" . $db->escape(\CodeCart\Migration::PRESENTATION_SCHEMA_VERSION) . "' WHERE store_id = '0' AND `key` = 'codecart_presentation_schema_version'");
+
 			// Register lightweight core maintenance tasks immediately on a fresh install.
 			$db->query("DELETE FROM `" . $data['db_prefix'] . "codecart_scheduler` WHERE code IN ('core.currency.refresh','core.cart.cleanup')");
 			$db->query("INSERT INTO `" . $data['db_prefix'] . "codecart_scheduler` SET code = 'core.currency.refresh', route = 'cron/currency', args = '{}', interval_seconds = '86400', status = '1', date_next = NOW(), date_added = NOW(), date_modified = NOW()");
@@ -116,6 +121,7 @@ class ModelInstallInstall extends Model {
 	public function rollbackDatabase($data) {
 		try {
 			$db = new DB($data['db_driver'], htmlspecialchars_decode($data['db_hostname']), htmlspecialchars_decode($data['db_username']), htmlspecialchars_decode($data['db_password']), htmlspecialchars_decode($data['db_database']), $data['db_port']);
+			$db->query("SET SESSION sql_mode = 'NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION'");
 			$this->cleanupFailedInstall($db, $data['db_prefix']);
 		} catch (\Throwable $e) {
 			// Configuration failure remains the primary error; rollback is best effort.

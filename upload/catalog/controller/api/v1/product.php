@@ -3,6 +3,11 @@ class ControllerApiV1Product extends Controller {
     public function index() {
         $api = $this->registry->get('codecart_api_v1');
         if (!$api->enabled()) { $api->disabled($this->response); return; }
+        if (!$api->allowRequest()) {
+            $this->response->addHeader('Retry-After: 60');
+            $api->respond($this->response,array('ok'=>false,'error'=>array('code'=>'rate_limit','message'=>'Too many API requests.')),429);
+            return;
+        }
         $productId = isset($this->request->get['product_id']) ? (int)$this->request->get['product_id'] : 0;
         if ($productId < 1) { $api->respond($this->response,array('ok'=>false,'error'=>array('code'=>'invalid_product_id','message'=>'product_id is required.')),400); return; }
         $this->load->model('catalog/product');

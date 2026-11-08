@@ -357,7 +357,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $order = isset($this->request->get['order']) && strtoupper((string)$this->request->get['order']) === 'ASC' ? 'ASC' : 'DESC';
 
         $search = trim((string)($this->request->get['filter_search'] ?? ''));
-        $search = function_exists('utf8_substr') ? utf8_substr($search, 0, 80) : substr($search, 0, 80);
+        $search = utf8_substr($search, 0, 80);
         $contactFilter = (string)($this->request->get['filter_contact'] ?? '');
         if (!in_array($contactFilter, array('','yes','no','guest'), true)) { $contactFilter = ''; }
         $filters = array('search'=>$search, 'contact'=>$contactFilter);
@@ -572,7 +572,7 @@ class ControllerSaleAbandonedCart extends Controller {
         $data['history_status'] = (string)($this->request->get['history_status'] ?? '');
         if (!in_array($data['history_status'],array('','sent','failed','sending'),true)) { $data['history_status']=''; }
         $data['history_search'] = trim((string)($this->request->get['history_search'] ?? ''));
-        $data['history_search'] = function_exists('utf8_substr') ? utf8_substr($data['history_search'],0,80) : substr($data['history_search'],0,80);
+        $data['history_search'] = utf8_substr($data['history_search'],0,80);
         $data['history_page'] = max(1, (int)($this->request->get['history_page'] ?? 1));
         $data['history_count'] = 0;
         $data['mail_records'] = array();

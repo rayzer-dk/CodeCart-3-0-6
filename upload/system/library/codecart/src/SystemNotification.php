@@ -275,7 +275,7 @@ final class SystemNotification {
         // immediately. Keep a tombstone: an already resolved notice is archived,
         // an active one is dismissed until it is resolved.
         $this->db->query("UPDATE `" . DB_PREFIX . "codecart_notification` SET status=IF(status='resolved','archived','dismissed'), date_modified=NOW() WHERE notification_id='" . (int)$id . "' AND status IN ('unread','read','resolved')");
-        return method_exists($this->db, 'countAffected') ? ((int)$this->db->countAffected() > 0) : true;
+        return (int)$this->db->countAffected() > 0;
     }
 
     public function deleteReadAndResolved(): void {
@@ -290,8 +290,8 @@ final class SystemNotification {
         if (!$this->tableExists()) { return 0; }
         // Archived tombstones belong to problems that are already fixed; a recurrence
         // creates a new notice, so they can expire with the rest of the history.
-        $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('read','resolved','archived') AND date_modified < DATE_SUB(NOW(), INTERVAL " . (int)$days . " DAY)");
-        return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
+        $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_notification` WHERE status IN ('resolved','archived') AND date_modified < DATE_SUB(NOW(), INTERVAL " . (int)$days . " DAY)");
+        return (int)$this->db->countAffected();
     }
 
     private function tableExists(): bool {

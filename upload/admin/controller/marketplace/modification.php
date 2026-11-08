@@ -893,7 +893,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 
 	private function shortCompatibilityMessage($message) {
 		$message = trim(preg_replace('/\s+/u', ' ', (string)$message));
-		return function_exists('mb_substr') ? mb_substr($message, 0, 240, 'UTF-8') : substr($message, 0, 240);
+		return mb_substr($message, 0, 240, 'UTF-8');
 	}
 
 	private function normalizeCompatibilityAdd($code, $version, $file, $search, $add) {

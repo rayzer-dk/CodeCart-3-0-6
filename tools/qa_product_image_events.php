@@ -8,6 +8,7 @@ foreach (array('registry', 'controller', 'model', 'proxy', 'loader', 'action', '
 }
 require $root . '/upload/system/library/config.php';
 require $root . '/upload/system/library/document.php';
+require $root . '/upload/system/helper/general.php';
 require $root . '/upload/system/helper/utf8.php';
 require $root . '/upload/system/library/image.php';
 require $root . '/upload/system/library/codecart/src/TaxDisplay.php';
@@ -60,6 +61,7 @@ try {
                 return array(array('product_id' => 1, 'image' => 'wide.jpg', 'price' => 10, 'special' => null,
                     'tax_class_id' => 0, 'quantity' => 1, 'stock_status' => 'Available', 'name' => 'Fixture', 'description' => ''));
             }
+            public function getProductCardAttributes(array $product_ids, $limit = 3) { return array(); }
         });
         $event = new Event($registry);
         $registry->set('event', $event);

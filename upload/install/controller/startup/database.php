@@ -44,14 +44,18 @@ class ControllerStartupDatabase extends Controller {
 		}
 		if (!defined('DB_PORT')) { define('DB_PORT', (string)$port); }
 
-		$this->registry->set('db', new DB(
+		$db = new DB(
 			$config['DB_DRIVER'],
 			$config['DB_HOSTNAME'],
 			$config['DB_USERNAME'],
 			$config['DB_PASSWORD'],
 			$config['DB_DATABASE'],
 			$port
-		));
+		);
+
+		$db->query("SET SESSION sql_mode = 'NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION'");
+
+		$this->registry->set('db', $db);
 	}
 
 	private function readDefines($file, array $allowed) {

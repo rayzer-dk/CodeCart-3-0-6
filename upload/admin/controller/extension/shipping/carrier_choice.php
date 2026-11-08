@@ -128,9 +128,7 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
             $json['mode'] = isset($result['mode']) ? (string)$result['mode'] : '';
         } catch (\Throwable $e) {
             $message = $this->safeExceptionMessage($e, $carrier);
-            if ($this->log) {
-                $this->log->write('Carrier city sync failed [' . (isset($carrier['provider']) ? $carrier['provider'] : 'unknown') . '] ' . get_class($e) . ': ' . $message . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
-            }
+            $this->log->write('Carrier city sync failed [' . (isset($carrier['provider']) ? $carrier['provider'] : 'unknown') . '] ' . get_class($e) . ': ' . $message . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
             $json['error'] = $this->language->get('error_sync_failed') . ($message !== '' ? ' ' . $message : '');
         }
 
@@ -145,14 +143,16 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
         if (!empty($this->request->post['shipping_carrier_choice_status'])) {
             $carriers = $this->normalizeCarriers(isset($this->request->post['shipping_carrier_choice_carriers']) ? $this->request->post['shipping_carrier_choice_carriers'] : array());
             $hasEnabled = false;
+            $errors = array();
             foreach ($carriers as $carrier) {
                 if (empty($carrier['status']) || !$this->hasCarrierName($carrier)) { continue; }
                 $hasEnabled = true;
-                if ($carrier['provider'] === 'nova_poshta' && $carrier['api_key'] === '') { $this->error['carriers'] = $this->language->get('error_nova_key'); }
-                if ($carrier['provider'] === 'meest' && ($carrier['api_login'] === '' || $carrier['api_password'] === '')) { $this->error['carriers'] = $this->language->get('error_meest_credentials'); }
-                if ($carrier['provider'] === 'ukrposhta' && $carrier['api_token'] === '') { $this->error['carriers'] = $this->language->get('error_ukrposhta_token'); }
+                if ($carrier['provider'] === 'nova_poshta' && $carrier['api_key'] === '') { $errors['error_nova_key'] = true; }
+                if ($carrier['provider'] === 'meest' && ($carrier['api_login'] === '' || $carrier['api_password'] === '')) { $errors['error_meest_credentials'] = true; }
+                if ($carrier['provider'] === 'ukrposhta' && $carrier['api_token'] === '') { $errors['error_ukrposhta_token'] = true; }
             }
-            if (!$hasEnabled) { $this->error['carriers'] = $this->language->get('error_carriers'); }
+            if (!$hasEnabled) { $errors['error_carriers'] = true; }
+            if ($errors) { $this->error['carriers'] = implode(' ', array_map(array($this->language, 'get'), array_keys($errors))); }
         }
         return !$this->error;
     }

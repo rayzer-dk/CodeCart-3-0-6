@@ -76,10 +76,6 @@ final class SecurityHeaders {
     }
 
     private function isHttps(): bool {
-        if (function_exists('codecart_is_https')) {
-            return (bool)codecart_is_https();
-        }
-        $request = $this->registry->get('request');
-        return $request && !empty($request->server['HTTPS']) && strtolower((string)$request->server['HTTPS']) !== 'off';
+        return (bool)codecart_is_https();
     }
 }

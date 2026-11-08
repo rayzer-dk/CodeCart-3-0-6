@@ -128,6 +128,6 @@ class ControllerCommonTotp extends Controller {
     }
 
     private function clientIp(): string {
-        return function_exists('codecart_client_ip') ? (string)codecart_client_ip($this->request->server) : (string)($this->request->server['REMOTE_ADDR'] ?? '');
+        return (string)codecart_client_ip($this->request->server);
     }
 }

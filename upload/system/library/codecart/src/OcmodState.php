@@ -126,9 +126,6 @@ final class OcmodState {
 
     private static function shortText($value, $limit) {
         $value = trim(preg_replace('/\s+/u', ' ', (string)$value));
-        if (function_exists('mb_substr')) {
-            return mb_substr($value, 0, (int)$limit, 'UTF-8');
-        }
-        return substr($value, 0, (int)$limit);
+        return mb_substr($value, 0, (int)$limit, 'UTF-8');
     }
 }

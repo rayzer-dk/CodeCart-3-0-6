@@ -193,7 +193,7 @@ class ControllerCommonTwoFactor extends Controller {
     }
 
     private function notice(\CodeCart\Core\TotpManager $totp, int $userId, string $key): void {
-        $ip = function_exists('codecart_client_ip') ? (string)codecart_client_ip($this->request->server) : (string)($this->request->server['REMOTE_ADDR'] ?? '');
+        $ip = (string)codecart_client_ip($this->request->server);
         $totp->notify($userId, $this->language->get($key . '_subject'), sprintf($this->language->get('mail_text'), $this->user->getUserName(), $this->language->get($key . '_event'), $ip, date('Y-m-d H:i:s')));
     }
 

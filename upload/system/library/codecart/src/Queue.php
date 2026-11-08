@@ -61,7 +61,11 @@ final class Queue {
             return array('status' => 'skipped', 'processed' => 0, 'failed' => 0, 'queue_id' => $queueId, 'message' => 'Queue job is not pending or is not available yet.');
         }
 
-        return $this->executeClaimedJob($job);
+        $result = $this->executeClaimedJob($job);
+        if ($retryFailed && $result['status'] === 'ok') {
+            (new SystemNotification($this->registry))->resolve('queue.' . $queueId);
+        }
+        return $result;
     }
 
     public function deleteById(int $queueId): bool {
@@ -78,13 +82,13 @@ final class Queue {
         }
 
         $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_queue` WHERE queue_id = '" . (int)$queueId . "' AND status <> 'processing'");
-        return !method_exists($this->db, 'countAffected') || (int)$this->db->countAffected() > 0;
+        return (int)$this->db->countAffected() > 0;
     }
 
     public function purgeCompleted(int $olderThanHours = 24): int {
         $olderThanHours = max(1, min(8760, $olderThanHours));
         $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_queue` WHERE status = 'done' AND date_modified < DATE_SUB(NOW(), INTERVAL " . (int)$olderThanHours . " HOUR)");
-        return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
+        return (int)$this->db->countAffected();
     }
 
     public function stats(): array {
@@ -138,10 +142,13 @@ final class Queue {
         } else {
             $final = $attempts >= (int)$job['max_attempts'];
             $delay = min(3600, 30 * (2 ** max(0, $attempts - 1)));
-            $available = $delay;
-            $this->db->query("UPDATE `" . DB_PREFIX . "codecart_queue` SET status = '" . ($final ? 'failed' : 'pending') . "', attempts = '" . $attempts . "', available_at = DATE_ADD(NOW(), INTERVAL " . (int)$available . " SECOND), locked_at = NULL, locked_by = NULL, last_error = '" . $this->db->escape(substr($message, 0, 2000)) . "', date_modified = NOW() WHERE queue_id = '" . $queueId . "'");
+            $this->db->query("UPDATE `" . DB_PREFIX . "codecart_queue` SET status = '" . ($final ? 'failed' : 'pending') . "', attempts = '" . $attempts . "', available_at = DATE_ADD(NOW(), INTERVAL " . (int)$delay . " SECOND), locked_at = NULL, locked_by = NULL, last_error = '" . $this->db->escape(substr($message, 0, 2000)) . "', date_modified = NOW() WHERE queue_id = '" . $queueId . "'");
             if ($final) {
-                try { (new SystemNotification($this->registry))->notify('queue.' . $queueId, 'error', 'Queue task failed: ' . (string)$job['code'], substr($message, 0, 1200), 'tool/scheduler'); } catch (\Throwable $e) {}
+                try {
+                    (new SystemNotification($this->registry))->notify('queue.' . $queueId, 'error', 'Queue task failed: ' . (string)$job['code'], substr($message, 0, 1200), 'tool/scheduler');
+                } catch (\Throwable $e) {
+                    if ($this->log) { $this->log->write('CodeCart PRO queue #' . $queueId . ' notification failed: ' . $e->getMessage()); }
+                }
             }
         }
 
@@ -172,7 +179,7 @@ final class Queue {
         // transaction open while workers compete for the same first pending row.
         $this->db->query("UPDATE `" . DB_PREFIX . "codecart_queue` SET status = 'processing', attempts = attempts + 1, locked_at = NOW(), locked_by = '" . $this->db->escape($worker) . "', date_modified = NOW() WHERE status = 'pending' AND available_at <= NOW() ORDER BY priority ASC, queue_id ASC LIMIT 1");
 
-        if (method_exists($this->db, 'countAffected') && (int)$this->db->countAffected() < 1) {
+        if ((int)$this->db->countAffected() < 1) {
             return array();
         }
 
@@ -183,13 +190,13 @@ final class Queue {
     private function claimOne(int $queueId): array {
         $worker = substr((string)gethostname() . ':' . (string)getmypid() . ':' . bin2hex(random_bytes(8)), 0, 96);
         $this->db->query("UPDATE `" . DB_PREFIX . "codecart_queue` SET status = 'processing', attempts = attempts + 1, locked_at = NOW(), locked_by = '" . $this->db->escape($worker) . "', date_modified = NOW() WHERE queue_id = '" . (int)$queueId . "' AND status = 'pending' AND available_at <= NOW() LIMIT 1");
-        if (method_exists($this->db, 'countAffected') && (int)$this->db->countAffected() < 1) { return array(); }
+        if ((int)$this->db->countAffected() < 1) { return array(); }
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_queue` WHERE queue_id = '" . (int)$queueId . "' AND status = 'processing' AND locked_by = '" . $this->db->escape($worker) . "' LIMIT 1");
         return $query->num_rows ? $query->row : array();
     }
 
     private function releaseClaim(int $queueId, string $message): void {
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_queue` SET status = 'pending', available_at = DATE_ADD(NOW(), INTERVAL 5 SECOND), locked_at = NULL, locked_by = NULL, last_error = '" . $this->db->escape(substr($message, 0, 2000)) . "', date_modified = NOW() WHERE queue_id = '" . $queueId . "' AND status = 'processing'");
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_queue` SET status = 'pending', attempts = IF(attempts > 0, attempts - 1, 0), available_at = DATE_ADD(NOW(), INTERVAL 5 SECOND), locked_at = NULL, locked_by = NULL, last_error = '" . $this->db->escape(substr($message, 0, 2000)) . "', date_modified = NOW() WHERE queue_id = '" . $queueId . "' AND status = 'processing'");
     }
 
     private function jobLockName(int $queueId): string {

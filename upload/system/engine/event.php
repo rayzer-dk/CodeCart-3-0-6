@@ -31,7 +31,7 @@ class Event {
     /**
      * Register an event listener.
      *
-     * Exact triggers are matched without regex. Wildcard patterns are evaluated
+     * Plain triggers are prefix-matched without regex, as in OpenCart 3. Wildcard patterns are evaluated
      * only when needed and the resolved listener list is cached per event for the
      * lifetime of the request. This preserves OpenCart 3 early-return semantics.
      *
@@ -81,7 +81,7 @@ class Event {
 
             foreach ($this->data as $value) {
                 if (!$value['wildcard']) {
-                    if ($value['trigger'] === $event) {
+                    if (strpos($event, $value['trigger']) === 0) {
                         $this->processed[$event][] = $value;
                     }
                     continue;

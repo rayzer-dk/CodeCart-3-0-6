@@ -131,7 +131,7 @@ class ControllerBlogArticle extends Controller {
 			$this->document->addLink($this->url->link('blog/article', 'article_id=' . $article_id), 'canonical');
 			$this->document->setOgType('article');
 			if (!empty($article_info['image']) && is_file(DIR_IMAGE . $article_info['image'])) {
-				$is_https = function_exists('codecart_is_https') ? codecart_is_https((array)$this->request->server) : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+				$is_https = codecart_is_https((array)$this->request->server);
 				$og_base = $is_https ? (string)$this->config->get('config_ssl') : (string)$this->config->get('config_url');
 				$this->document->setOgImage(rtrim($og_base, '/') . '/image/' . ltrim(str_replace('\\', '/', (string)$article_info['image']), '/'));
 			}
@@ -224,7 +224,7 @@ class ControllerBlogArticle extends Controller {
 			$this->load->model('tool/image');
 			$article_image_width = max(760, (int)$this->config->get('configblog_image_article_width'));
 			$article_image_height = max(560, (int)$this->config->get('configblog_image_article_height'));
-			$image_base = function_exists('codecart_is_https') && codecart_is_https() ? (string)$this->config->get('config_ssl') : (string)$this->config->get('config_url');
+			$image_base = codecart_is_https() ? (string)$this->config->get('config_ssl') : (string)$this->config->get('config_url');
 
 			$data['popup_width'] = $article_image_width;
 			$data['popup_height'] = $article_image_height;
@@ -293,10 +293,10 @@ class ControllerBlogArticle extends Controller {
 			
 			$results = $this->model_blog_article->getArticleRelatedProduct($article_id);
 			$blog_card_attributes = array();
-			$card_mode = (string)$this->config->get('theme_default_product_card_content');
-			$data['card_content'] = in_array($card_mode, array('none','description','attributes','both'), true) ? $card_mode : 'attributes';
-			$card_attribute_limit = max(1, min(10, (int)$this->config->get('theme_default_product_card_attribute_limit')));
-			if (!$this->config->get('theme_default_product_card_attribute_limit')) { $card_attribute_limit = 3; }
+			$card_theme = 'theme_' . $this->config->get('config_theme') . '_';
+			$card_mode = (string)$this->config->get($card_theme . 'product_card_content');
+			$data['card_content'] = in_array($card_mode, array('none','description','attributes','both'), true) ? $card_mode : 'both';
+			$card_attribute_limit = $this->config->get($card_theme . 'product_card_attribute_limit') ? max(1, min(10, (int)$this->config->get($card_theme . 'product_card_attribute_limit'))) : 4;
 			if (in_array($data['card_content'], array('attributes','both'), true) && $results) {
 				$blog_product_ids = array();
 				foreach ($results as $blog_product) { $blog_product_ids[] = (int)$blog_product['product_id']; }
@@ -407,7 +407,7 @@ class ControllerBlogArticle extends Controller {
 					'author' => array('@type' => 'Organization', 'name' => (string)$this->config->get('config_name'))
 				);
 
-				$is_https = function_exists('codecart_is_https') ? codecart_is_https((array)$this->request->server) : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+				$is_https = codecart_is_https((array)$this->request->server);
 				$schema_base = $is_https ? (string)$this->config->get('config_ssl') : (string)$this->config->get('config_url');
 				$article_schema['publisher'] = array('@id' => rtrim($schema_base, '/') . '/#organization');
 

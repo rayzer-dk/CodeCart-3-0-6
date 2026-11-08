@@ -20,7 +20,7 @@ final class LoginProtection {
     }
 
     public function isBlocked(string $username): bool {
-        if (!$this->enabled() || !$this->tableExists()) {
+        if (!$this->enabled()) {
             return false;
         }
 
@@ -46,7 +46,7 @@ final class LoginProtection {
     }
 
     public function recordFailure(string $username): void {
-        if (!$this->enabled() || !$this->tableExists()) {
+        if (!$this->enabled()) {
             return;
         }
         $username = $this->normalizeUsername($username);
@@ -78,9 +78,6 @@ final class LoginProtection {
     }
 
     public function recordSuccess(string $username): void {
-        if (!$this->tableExists()) {
-            return;
-        }
         $username = $this->normalizeUsername($username);
         $ip = $this->clientIp();
         if ($username === '' || $ip === '') {
@@ -90,9 +87,6 @@ final class LoginProtection {
     }
 
     public function attemptsForCurrentSource(string $username): int {
-        if (!$this->tableExists()) {
-            return 0;
-        }
         $username = $this->normalizeUsername($username);
         $ip = $this->clientIp();
         if ($username === '' || $ip === '') {
@@ -103,9 +97,6 @@ final class LoginProtection {
     }
 
     public function cleanup(int $days = 7): int {
-        if (!$this->tableExists()) {
-            return 0;
-        }
         $days = max(1, min(90, $days));
         $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_admin_login_attempt` WHERE date_added < DATE_SUB(NOW(), INTERVAL " . (int)$days . " DAY)");
         return (int)$this->db->countAffected();
@@ -121,37 +112,14 @@ final class LoginProtection {
         return max(5, min(240, $value > 0 ? $value : 15));
     }
 
-    private function tableExists(): bool {
-        try {
-            $query = $this->db->query("SHOW TABLES LIKE '" . $this->db->escape(DB_PREFIX . 'codecart_admin_login_attempt') . "'");
-            return (bool)$query->num_rows;
-        } catch (\Throwable $e) {
-            return false;
-        }
-    }
-
     private function normalizeUsername(string $username): string {
         $username = trim($username);
-        if (function_exists('utf8_strtolower')) {
-            $username = utf8_strtolower($username);
-        } else {
-            $username = strtolower($username);
-        }
+        $username = utf8_strtolower($username);
         return substr($username, 0, 96);
     }
 
     private function clientIp(): string {
         $server = ($this->request && is_array($this->request->server)) ? $this->request->server : array();
-        if (function_exists('codecart_client_ip')) {
-            $ip = codecart_client_ip($server);
-            return $ip !== '' ? substr($ip, 0, 45) : '';
-        }
-        if (isset($server['REMOTE_ADDR'])) {
-            $ip = trim((string)$server['REMOTE_ADDR']);
-            if (filter_var($ip, FILTER_VALIDATE_IP)) {
-                return substr($ip, 0, 45);
-            }
-        }
-        return '';
+        return substr((string)codecart_client_ip($server), 0, 45);
     }
 }

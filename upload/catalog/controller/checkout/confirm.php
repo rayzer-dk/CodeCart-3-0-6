@@ -110,7 +110,7 @@ class ControllerCheckoutConfirm extends Controller {
 			if ($order_data['store_id']) {
 				$order_data['store_url'] = $this->config->get('config_url');
 			} else {
-				$is_https = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+				$is_https = codecart_is_https();
 
 				if ($is_https) {
 					$order_data['store_url'] = HTTPS_SERVER;

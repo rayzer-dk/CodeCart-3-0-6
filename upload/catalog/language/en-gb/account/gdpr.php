@@ -35,3 +35,4 @@ $_['error_type'] = 'Invalid request type.';
 $_['error_rate'] = 'Too many requests. Try again later.';
 $_['error_email'] = 'Your account does not have a valid e-mail address.';
 $_['error_mail'] = 'The confirmation e-mail could not be sent. Try again later.';
+$_['error_csrf'] = 'The form has expired. Reload the page and try again.';

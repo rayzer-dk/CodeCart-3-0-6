@@ -46,7 +46,7 @@ class ControllerExtensionModuleCodecartRegisteredCartConsent extends Controller 
             $parsed = parse_url($origin);
             $host = strtolower((string)($parsed['host'] ?? ''));
             $site = strtolower(explode(':',(string)($this->request->server['HTTP_HOST'] ?? ''))[0]);
-            if (!$host || $host !== $site || strtolower((string)($parsed['scheme'] ?? '')) !== 'https') {
+            if (!$host || $host !== $site || !in_array(strtolower((string)($parsed['scheme'] ?? '')), array('http', 'https'), true)) {
                 $this->respond(array('success'=>false), 403); return;
             }
         }

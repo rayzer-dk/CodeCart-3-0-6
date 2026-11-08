@@ -33,7 +33,7 @@ final class ApiClient {
         throw new \RuntimeException('Monobank API returned an unexpected public-key response.');
     }
 
-    private function request($method, $path, array $payload = null): array {
+    private function request($method, $path, ?array $payload = null): array {
         if ($this->token === '') { throw new \RuntimeException('Monobank token is not configured.'); }
         if (!function_exists('curl_init')) { throw new \RuntimeException('PHP cURL extension is required.'); }
 

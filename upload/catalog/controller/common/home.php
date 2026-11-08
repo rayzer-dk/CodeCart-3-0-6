@@ -13,7 +13,7 @@ class ControllerCommonHome extends Controller {
 
 		if ($this->config->get('config_codecart_structured_data_status')) {
 			$home_url = $canonical;
-			$is_https = function_exists('codecart_is_https') ? codecart_is_https((array)$this->request->server) : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+			$is_https = codecart_is_https((array)$this->request->server);
 			$schema_base = $is_https ? $this->config->get('config_ssl') : $this->config->get('config_url');
 			$this->document->addStructuredData(array(
 				'@type' => 'WebPage',

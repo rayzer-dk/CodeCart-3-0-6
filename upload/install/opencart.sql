@@ -3780,6 +3780,8 @@ CREATE TABLE `oc_codecart_scheduler` (
 
 INSERT INTO `oc_codecart_scheduler` (`code`,`route`,`args`,`interval_seconds`,`status`,`date_last`,`date_next`,`last_duration_ms`,`last_status`,`last_message`,`date_added`,`date_modified`) VALUES
 ('core.cart.cleanup','cron/cart','{}',3600,1,NULL,NOW(),0,'','',NOW(),NOW()),
+('core.cart.reminder','cron/cart_reminder','{}',300,0,NULL,NOW(),0,'','',NOW(),NOW()),
+('core.cart.guest_purge','cron/cart_guest_purge','{}',43200,0,NULL,NOW(),0,'','',NOW(),NOW()),
 ('core.currency.refresh','cron/currency','{}',86400,1,NULL,NOW(),0,'','',NOW(),NOW()),
 ('core.health.check','cron/health','{}',21600,1,NULL,NOW(),0,'','',NOW(),NOW()),
 ('core.security.cleanup','cron/security','{}',86400,1,NULL,NOW(),0,'','',NOW(),NOW()),
@@ -9969,7 +9971,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 
 -- CodeCart PRO core schema marker
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_core_schema_version', '3.0.6.0', 0);
-INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_presentation_schema_version', '33', 0);
+INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_presentation_schema_version', '35', 0);
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_setting_serialized_default', '1', 0);
 
 
@@ -9992,7 +9994,7 @@ CREATE TABLE `oc_mail_campaign_queue` (
   UNIQUE KEY `unsubscribe_token` (`unsubscribe_token`),
   KEY `campaign_status` (`campaign_id`,`status`),
   KEY `status_added` (`status`,`date_added`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_mail_campaign`;
 CREATE TABLE `oc_mail_campaign` (
@@ -10014,7 +10016,7 @@ CREATE TABLE `oc_mail_campaign` (
   PRIMARY KEY (`campaign_id`),
   KEY `status_added` (`status`,`date_added`),
   KEY `store_id` (`store_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_mail_suppression`;
 CREATE TABLE `oc_mail_suppression` (
@@ -10022,7 +10024,7 @@ CREATE TABLE `oc_mail_suppression` (
   `reason` varchar(32) NOT NULL DEFAULT 'unsubscribe',
   `date_added` datetime NOT NULL,
   PRIMARY KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_stock_notify`;
 CREATE TABLE `oc_stock_notify` (
@@ -10044,7 +10046,7 @@ CREATE TABLE `oc_stock_notify` (
   UNIQUE KEY `uniq_product_email_option` (`product_id`,`store_id`,`email`,`option_hash`),
   KEY `status_product` (`status`,`product_id`),
   KEY `customer_id` (`customer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- CodeCart built-in public documents and download statistics (Build 2.0.7)
 CREATE TABLE `oc_codecart_public_document` (

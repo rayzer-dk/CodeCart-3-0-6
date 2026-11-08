@@ -608,10 +608,10 @@ class ControllerProductProduct extends Controller {
                 }
             }
 			$related_card_attributes = array();
-			$card_mode = (string)$this->config->get('theme_default_product_card_content');
-			$data['card_content'] = in_array($card_mode, array('none','description','attributes','both'), true) ? $card_mode : 'attributes';
-			$card_attribute_limit = max(1, min(10, (int)$this->config->get('theme_default_product_card_attribute_limit')));
-			if (!$this->config->get('theme_default_product_card_attribute_limit')) { $card_attribute_limit = 3; }
+			$card_theme = 'theme_' . $this->config->get('config_theme') . '_';
+			$card_mode = (string)$this->config->get($card_theme . 'product_card_content');
+			$data['card_content'] = in_array($card_mode, array('none','description','attributes','both'), true) ? $card_mode : 'both';
+			$card_attribute_limit = $this->config->get($card_theme . 'product_card_attribute_limit') ? max(1, min(10, (int)$this->config->get($card_theme . 'product_card_attribute_limit'))) : 4;
 			if (in_array($data['card_content'], array('attributes','both'), true) && $results) {
 				$related_ids = array();
 				foreach ($results as $related_product) { $related_ids[] = (int)$related_product['product_id']; }
@@ -717,7 +717,7 @@ class ControllerProductProduct extends Controller {
 						'price' => number_format((float)$schema_price, max(0, (int)$this->currency->getDecimalPlace($schema_currency)), '.', ''),
 						'availability' => ((int)$product_info['quantity'] > 0) ? 'https://schema.org/InStock' : ($this->config->get('config_stock_checkout') ? 'https://schema.org/BackOrder' : 'https://schema.org/OutOfStock'),
 						'itemCondition' => 'https://schema.org/NewCondition',
-						'seller' => array('@id' => rtrim((string)(function_exists('codecart_is_https') && codecart_is_https((array)$this->request->server) ? $this->config->get('config_ssl') : $this->config->get('config_url')), '/') . '/#organization')
+						'seller' => array('@id' => rtrim((string)(codecart_is_https((array)$this->request->server) ? $this->config->get('config_ssl') : $this->config->get('config_url')), '/') . '/#organization')
 					);
 				}
 

@@ -146,7 +146,7 @@ final class GdprManager {
     }
     private function audit(int $requestId,string $actorType,int $actorId,string $action,string $details): void {
         if (!$this->tableExists('codecart_gdpr_audit')) return;
-        $ip=function_exists('codecart_client_ip')?(string)codecart_client_ip((array)$this->request->server):(isset($this->request->server['REMOTE_ADDR'])?(string)$this->request->server['REMOTE_ADDR']:'');
+        $ip=(string)codecart_client_ip((array)$this->request->server);
         $this->db->query("INSERT INTO `".DB_PREFIX."codecart_gdpr_audit` SET request_id='".(int)$requestId."', actor_type='".$this->db->escape($actorType)."', actor_id='".(int)$actorId."', action='".$this->db->escape(substr($action,0,64))."', ip='".$this->db->escape($ip)."', details='".$this->db->escape(substr($details,0,1000))."', date_added=NOW()");
     }
     private function tableExists(string $table): bool {

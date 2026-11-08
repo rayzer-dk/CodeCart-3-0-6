@@ -52,10 +52,13 @@ foreach ($iterator as $file) {
     if (str_starts_with($relative, '.git/') ||
         str_starts_with($relative, 'upload/system/storage/vendor/') ||
         str_starts_with($relative, 'artifacts/') ||
-        str_starts_with($relative, '.autopilot/') ||
-        str_starts_with($relative, 'source-package/') ||
         str_starts_with($relative, 'bonus-source/') ||
-        str_starts_with($relative, 'vendor/')) {
+        str_starts_with($relative, 'vendor/') ||
+        str_starts_with($relative, 'node_modules/') ||
+        str_starts_with($relative, 'tools/quality/vendor/') ||
+        str_starts_with($relative, 'releases/') ||
+        str_starts_with($relative, 'playwright-report/') ||
+        str_starts_with($relative, 'test-results/')) {
         continue;
     }
 
@@ -218,10 +221,22 @@ $gates = [
     ['qa_rich_html_persistence.php', 'form'],
     ['qa_rich_html_persistence.php', 'theme-default'],
     ['qa_rich_html_persistence.php', 'theme-codecart'],
+    ['qa_notification_diagnostics.php'],
+    ['tests/admin_footer_runtime_smoke.php'],
+    ['tests/cart_external_schema_smoke.php'],
+    ['tests/cart_reminder_consent_multistore_smoke.php'],
+    ['tests/cart_source_discovery_smoke.php'],
+    ['tests/cart_workflow_smoke.php'],
+    ['tests/checkout_contact_bridge_smoke.php'],
+    ['tests/checkout_contact_data_mock.php'],
+    ['tests/codecart_external_http_smoke.php'],
+    ['tests/scheduler_cart_admin_ui_smoke.php'],
+    ['tests/scheduler_crud_smoke.php'],
+    ['tests/scheduler_runtime_smoke.php'],
 ];
 foreach ($gates as $arguments) {
     $gate = implode(' ', $arguments);
-    $path = $root . '/tools/' . $arguments[0];
+    $path = $root . '/' . (strpos($arguments[0], '/') === false ? 'tools/' : '') . $arguments[0];
     if (!is_file($path)) {
         fail($errors, 'Missing release gate: ' . $gate);
         continue;

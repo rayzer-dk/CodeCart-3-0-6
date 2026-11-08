@@ -5,8 +5,32 @@
  * Keeps selected regional extensions from an existing ocStore installation
  * operational after the modern Core Composer runtime has been refreshed.
  * Fresh installations do not ship these packages, so this loader is inert.
+ * Twig 2 underscore class names used by extensions are aliased to Twig 3 lazily.
  */
 function codecart_register_legacy_vendor_compatibility(): void {
+	spl_autoload_register(static function (string $class): void {
+		static $twig = array(
+			'Twig_Environment' => 'Twig\\Environment',
+			'Twig_Loader_Filesystem' => 'Twig\\Loader\\FilesystemLoader',
+			'Twig_Loader_Array' => 'Twig\\Loader\\ArrayLoader',
+			'Twig_Loader_Chain' => 'Twig\\Loader\\ChainLoader',
+			'Twig_SimpleFunction' => 'Twig\\TwigFunction',
+			'Twig_SimpleFilter' => 'Twig\\TwigFilter',
+			'Twig_SimpleTest' => 'Twig\\TwigTest',
+			'Twig_Function' => 'Twig\\TwigFunction',
+			'Twig_Filter' => 'Twig\\TwigFilter',
+			'Twig_Test' => 'Twig\\TwigTest',
+			'Twig_Extension' => 'Twig\\Extension\\AbstractExtension',
+			'Twig_ExtensionInterface' => 'Twig\\Extension\\ExtensionInterface',
+			'Twig_Markup' => 'Twig\\Markup',
+			'Twig_Error' => 'Twig\\Error\\Error',
+			'Twig_Error_Loader' => 'Twig\\Error\\LoaderError',
+			'Twig_Error_Runtime' => 'Twig\\Error\\RuntimeError',
+			'Twig_Error_Syntax' => 'Twig\\Error\\SyntaxError'
+		);
+		if (isset($twig[$class]) && (class_exists($twig[$class]) || interface_exists($twig[$class]))) { class_alias($twig[$class], $class); }
+	});
+
 	if (!defined('DIR_STORAGE')) { return; }
 	$active_vendor = rtrim(DIR_STORAGE, '/\\') . '/vendor/';
 	$previous_vendor = rtrim(DIR_STORAGE, '/\\') . '/codecart/vendor-previous/';

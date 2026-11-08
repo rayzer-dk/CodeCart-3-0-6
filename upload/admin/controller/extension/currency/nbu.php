@@ -20,6 +20,8 @@ class ControllerExtensionCurrencyNbu extends Controller {
         }
 
         $data['error_warning'] = isset($this->error['warning']) ? $this->error['warning'] : '';
+        $data['success'] = isset($this->session->data['success']) ? $this->session->data['success'] : '';
+        unset($this->session->data['success']);
         $data['breadcrumbs'] = array(
             array('text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)),
             array('text' => $this->language->get('text_extension'), 'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=currency', true)),

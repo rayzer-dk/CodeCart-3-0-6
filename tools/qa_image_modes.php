@@ -8,6 +8,7 @@ define('DIR_IMAGE', $fixture . '/');
 require $root . '/upload/system/engine/registry.php';
 require $root . '/upload/system/engine/model.php';
 require $root . '/upload/system/library/config.php';
+require $root . '/upload/system/helper/general.php';
 require $root . '/upload/system/helper/utf8.php';
 require $root . '/upload/system/library/image.php';
 require $root . '/upload/catalog/model/tool/image.php';
@@ -77,6 +78,7 @@ try {
     imageCheck(dimensions(derivative($namedLikeMode)) === array(200, 200), 'Legacy named-like-mode input keeps exact canvas');
     imageCheck(method_exists($model, 'productImage'), 'Explicit CodeCart product image API must exist');
     $config->set('config_theme', 'codecart');
+    $config->set('theme_codecart_image_gallery_upscale', '3');
     foreach (array(array(500, 300, 1100, 660), array(300, 500, 660, 1100), array(1600, 900, 1100, 619), array(900, 1600, 619, 1100), array(800, 800, 1100, 1100), array(2000, 2000, 1100, 1100), array(100, 100, 300, 300)) as $sample) {
         $input = imagecreatetruecolor($sample[0], $sample[1]);
         imagefill($input, 0, 0, imagecolorallocate($input, 25, 80, 130));
@@ -88,6 +90,8 @@ try {
         imageCheck(array($metadata['width'], $metadata['height']) === array($sample[2], $sample[3]), 'Product metadata equals actual dimensions');
         imagedestroy($input);
     }
+    $config->set('theme_codecart_image_gallery_upscale', '');
+    imageCheck(dimensions(derivative($model->productImage('catalog/sample-500x300.jpg', 1100, 1100, 'gallery'))) === array(500, 300), 'Gallery keeps original pixels by default');
     $config->set('theme_codecart_image_upscale', '2');
     imageCheck(dimensions(derivative($model->productImage('catalog/sample-100x100.jpg', 1100, 1100))) === array(200, 200), 'Common upscale setting applies');
     $config->set('theme_codecart_image_gallery_upscale', '1');

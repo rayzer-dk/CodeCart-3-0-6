@@ -23,6 +23,7 @@ class TestRegistry {
     public function __construct() { $this->db = new TestDB(); $this->config = new TestConfig(); }
     public function get($key) { return $this->{$key}; }
 }
+require dirname(__DIR__) . '/upload/system/helper/utf8.php';
 require dirname(__DIR__) . '/upload/system/library/codecart/src/GuestCartContact.php';
 function check($condition, $message) { if (!$condition) { fwrite(STDERR, 'FAIL '.$message."\n"); exit(1); } }
 $r = new TestRegistry(); $g = new \CodeCart\Core\GuestCartContact($r);

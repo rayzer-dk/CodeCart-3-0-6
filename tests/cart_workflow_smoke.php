@@ -27,6 +27,7 @@ class Model {
     public function __construct($db,$config) { $this->db=$db;$this->config=$config; }
 }
 function check($condition,$message) { if (!$condition) { throw new RuntimeException($message); } }
+require_once __DIR__ . '/../upload/system/helper/utf8.php';
 require_once __DIR__ . '/../upload/system/library/codecart/src/GuestCartContact.php';
 require_once __DIR__ . '/../upload/admin/model/sale/abandoned_cart.php';
 $db = new FakeCartDb();

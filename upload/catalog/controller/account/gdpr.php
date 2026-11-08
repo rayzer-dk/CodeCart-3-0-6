@@ -9,7 +9,7 @@ class ControllerAccountGdpr extends Controller {
         if (($this->request->server['REQUEST_METHOD']??'GET')==='POST') { $this->request($manager); }
         $data['breadcrumbs']=array(array('text'=>$this->language->get('text_home'),'href'=>$this->url->link('common/home')),array('text'=>$this->language->get('text_account'),'href'=>$this->url->link('account/account','',true)),array('text'=>$this->language->get('heading_title'),'href'=>$this->url->link('account/gdpr','',true)));
         foreach(array('heading_title','text_intro','text_export_help','text_delete_help','text_requests','text_no_requests','text_export','text_delete','text_pending','text_confirmed','text_processed','text_superseded','column_type','column_status','column_date','column_action','button_request_export','button_request_delete','button_download','text_confirm_delete_request') as $k)$data[$k]=$this->language->get($k);
-        $data['action']=$this->url->link('account/gdpr','',true); $data['download']=$this->url->link('account/gdpr/export','',true); $data['requests']=$manager->getCustomerRequests((int)$this->customer->getId());
+        $data['action']=$this->url->link('account/gdpr','',true); $data['download']=$this->url->link('account/gdpr/export','',true); $data['requests']=$manager->getCustomerRequests((int)$this->customer->getId()); $data['csrf_token']=codecart_csrf_token($this->session,'account_gdpr');
         $data['success']=isset($this->session->data['success'])?$this->session->data['success']:''; unset($this->session->data['success']); $data['error_warning']=$this->error;
         $data['column_left']=$this->load->controller('common/column_left');$data['column_right']=$this->load->controller('common/column_right');$data['content_top']=$this->load->controller('common/content_top');$data['content_bottom']=$this->load->controller('common/content_bottom');$data['footer']=$this->load->controller('common/footer');$data['header']=$this->load->controller('common/header');
         $this->response->setOutput($this->load->view('account/gdpr',$data));
@@ -33,6 +33,7 @@ class ControllerAccountGdpr extends Controller {
     }
 
     private function request(\CodeCart\Core\GdprManager $manager) {
+        if (!codecart_csrf_validate($this->session,(string)($this->request->post['csrf_token']??''),'account_gdpr')) { $this->error=$this->language->get('error_csrf'); return; }
         $type=isset($this->request->post['request_type'])?(string)$this->request->post['request_type']:''; if (!in_array($type,array('export','delete'),true)) { $this->error=$this->language->get('error_type'); return; }
         $guard=(new \CodeCart\Core\SpamService($this->registry))->consume('gdpr_request',5,3600,3); if (empty($guard['allowed'])) { $this->error=$this->language->get('error_rate'); return; }
         $this->load->model('account/customer'); $customer=$this->model_account_customer->getCustomer((int)$this->customer->getId()); if (!$customer || !filter_var($customer['email']??'',FILTER_VALIDATE_EMAIL)) { $this->error=$this->language->get('error_email'); return; }

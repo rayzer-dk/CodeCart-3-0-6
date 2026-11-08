@@ -8,6 +8,7 @@ require_once __DIR__ . '/check_paypal_financial_guards.php';
 $twig = new \Twig\Environment(new \Twig\Loader\ArrayLoader(), array('autoescape'=>false, 'cache'=>false));
 $table = file_get_contents($root . '/upload/admin/view/template/extension/extension/module.twig');
 $parent = file_get_contents($root . '/upload/admin/view/template/marketplace/extension.twig');
+$moduleSortKeys = array('name', 'status', 'upload');
 $passed = 0;
 
 function checkerAssert($condition, $name) {
@@ -17,19 +18,19 @@ function checkerAssert($condition, $name) {
     echo 'PASS ' . $name . PHP_EOL;
 }
 
-checkerAssert(ccpCheckExtensionTable($twig, $table) === array(), 'baseline rendered table');
+checkerAssert(ccpCheckExtensionTable($twig, $table, $moduleSortKeys) === array(), 'baseline rendered table');
 checkerAssert(ccpCheckExtensionParent($twig, $parent) === array(), 'baseline parent DOM and CSS');
 $formatted = str_replace('<th scope="col" class="text-center">', "<th class='additional text-center' scope='col'>", $table);
 $formatted = str_replace('{{ column_action }}', '{{column_action}}', $formatted);
 $formatted = str_replace('<thead>', '<thead data-example="yes">', $formatted);
-checkerAssert(ccpCheckExtensionTable($twig, $formatted) === array(), 'attribute order, quotes, extra class, Twig spacing and thead attributes');
+checkerAssert(ccpCheckExtensionTable($twig, $formatted, $moduleSortKeys) === array(), 'attribute order, quotes, extra class, Twig spacing and thead attributes');
 $formattedParent = str_replace(array('overflow-x:auto', 'table-layout:fixed'), array("overflow-x :\n auto", 'table-layout : fixed'), $parent);
 $formattedParent = str_replace('{{ column_left }}', '{{ column_left }}<!-- harmless comment -->', $formattedParent);
 $formattedParent = str_replace('<div id="content">', "<div class='extra' id='content'>", $formattedParent);
 checkerAssert(ccpCheckExtensionParent($twig, $formattedParent) === array(), 'CSS whitespace and DOM adjacency ignore comment nodes');
 
 $badTables = array(
-    'thead attribute must not hide wrong colspan'=>str_replace('colspan="6"', 'colspan="99"', $formatted),
+    'thead attribute must not hide wrong colspan'=>str_replace('colspan="4"', 'colspan="99"', $formatted),
     'missing thead'=>str_replace(array('<thead>', '</thead>'), '', $table),
     'missing main row class'=>str_replace('ccp-extension-main', 'other-row', $table),
     'missing empty-state message'=>str_replace('{{ text_no_results }}', '', $table),
@@ -39,7 +40,7 @@ $badTables = array(
     'missing action alignment'=>str_replace('<th scope="col" class="text-center">{{ column_action }}', '<th scope="col">{{ column_action }}', $table),
     'missing uploaded sort value'=>str_replace('data-sort-upload=', 'data-other-upload=', $table)
 );
-foreach ($badTables as $name=>$source) { checkerAssert(ccpCheckExtensionTable($twig, $source) !== array(), $name); }
+foreach ($badTables as $name=>$source) { checkerAssert(ccpCheckExtensionTable($twig, $source, $moduleSortKeys) !== array(), $name); }
 
 $commentedCss = preg_replace_callback('~<style>(.*?)</style>~s', function ($match) {
     return '<style>/*' . preg_replace('~/\*.*?\*/~s', '', $match[1]) . '*/</style>';

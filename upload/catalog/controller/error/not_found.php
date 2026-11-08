@@ -28,7 +28,10 @@ class ControllerErrorNotFound extends Controller {
 			$url = '';
 
 			if ($url_data) {
-				$url = '&' . urldecode(http_build_query($url_data, '', '&'));
+				array_walk_recursive($url_data, function (&$value) {
+					$value = html_entity_decode((string)$value, ENT_QUOTES, 'UTF-8');
+				});
+				$url = '&' . http_build_query($url_data, '', '&');
 			}
 
 			$data['breadcrumbs'][] = array(

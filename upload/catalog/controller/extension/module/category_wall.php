@@ -13,9 +13,11 @@ class ControllerExtensionModuleCategoryWall extends Controller {
 
         $data['text_pause_autoplay'] = $this->language->get('text_pause_autoplay');
         $data['text_play_autoplay'] = $this->language->get('text_play_autoplay');
-        $data['text_previous_items'] = $this->language->get('text_previous');
-        $data['text_next_items'] = $this->language->get('text_next');
+        $data['text_previous_items'] = $this->language->get('text_previous_items');
+        $data['text_next_items'] = $this->language->get('text_next_items');
         $data['text_all_categories'] = $this->language->get('text_all_categories');
+        $data['text_carousel'] = $this->language->get('text_carousel');
+        $data['text_carousel_pages'] = $this->language->get('text_carousel_pages');
 
         $language_id = (int)$this->config->get('config_language_id');
         $source = isset($setting['source']) ? (string)$setting['source'] : 'selected';

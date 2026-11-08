@@ -28,7 +28,7 @@ final class UploadGuard {
             return self::error('filetype');
         }
 
-        $mimes = self::normalizeList($mimeAllowed, false);
+        $mimes = self::normalizeList($mimeAllowed);
         $mime = self::detectMime($file['tmp_name']);
         if (!$mime || !$mimes || !in_array(strtolower($mime), $mimes, true)) {
             return self::error('filetype');
@@ -108,7 +108,6 @@ final class UploadGuard {
         $zip = new \ZipArchive();
         $opened = $zip->open($file['tmp_name'], \ZipArchive::CHECKCONS);
         if ($opened !== true) {
-            if ($opened === true) { $zip->close(); }
             return self::error('unsafe_archive');
         }
         $count = (int)$zip->numFiles;
@@ -285,13 +284,7 @@ final class UploadGuard {
     }
 
     private static function stringLength($value) {
-        if (function_exists('mb_strlen')) {
-            return (int)mb_strlen((string)$value, 'UTF-8');
-        }
-        if (function_exists('utf8_strlen')) {
-            return (int)utf8_strlen((string)$value);
-        }
-        return strlen((string)$value);
+        return mb_strlen((string)$value, 'UTF-8');
     }
 
     private static function detectMime($file) {
@@ -300,14 +293,10 @@ final class UploadGuard {
         return $finfo->file($file);
     }
 
-    private static function normalizeList($value, $lower = true) {
+    private static function normalizeList($value) {
         $value = preg_replace('~\r?\n~', "\n", (string)$value);
         $rows = array_filter(array_map('trim', explode("\n", $value)), 'strlen');
-        if ($lower) {
-            $rows = array_map('strtolower', $rows);
-        } else {
-            $rows = array_map('strtolower', $rows);
-        }
+        $rows = array_map('strtolower', $rows);
         return array_values(array_unique($rows));
     }
 

@@ -129,10 +129,10 @@ final class MailAudit {
             $value = isset($values[$field]) ? (string)$values[$field] : '';
             $value = preg_replace('/[\x00-\x1f\x7f]/u', ' ', $value);
             if ($value === null) { $value = ''; }
-            $value = function_exists('mb_substr') ? mb_substr($value, 0, $max, 'UTF-8') : substr($value, 0, $max);
+            $value = mb_substr($value, 0, $max, 'UTF-8');
             $sql[] = $field . " = '" . $db->escape($value) . "'";
         }
-        $ip = function_exists('codecart_client_ip') ? (string)codecart_client_ip((array)$_SERVER) : (isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : '');
+        $ip = (string)codecart_client_ip((array)$_SERVER);
         $ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
         $sql[] = "remote_ip = '" . $db->escape($ip) . "'";
         $storeId = isset($values['store_id']) && $values['store_id'] !== null ? (int)$values['store_id'] : (int)$config->get('config_store_id');

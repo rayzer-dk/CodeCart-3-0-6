@@ -46,7 +46,7 @@ class ControllerCommonFooter extends Controller {
 			}
 
 			if (isset($this->request->server['HTTP_HOST']) && isset($this->request->server['REQUEST_URI'])) {
-				$is_https = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+				$is_https = codecart_is_https();
 				$host = isset($this->request->server['HTTP_HOST']) ? (string)$this->request->server['HTTP_HOST'] : '';
 				$request_uri = isset($this->request->server['REQUEST_URI']) ? (string)$this->request->server['REQUEST_URI'] : '/';
 				$url = ($is_https ? 'https://' : 'http://') . $host . $request_uri;

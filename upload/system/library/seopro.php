@@ -68,47 +68,43 @@ class SeoPro {
             }));
 
             foreach($parts as $id => $part) {
-                $query = null;
-
                 if($this->config->get('config_seopro_lowercase'))
                     $parts[$id] = utf8_strtolower($part);
 
-                if($parts[$id] or $parts[$id] == "") {
+                $query = $this->getQueryByKeyword($parts[$id]);
 
-                    $query = $this->getQueryByKeyword($parts[$id]);
+                // Every path segment must be a known keyword, not only the last one.
+                if ($query === null || $query === '') {
+                    $this->request->get['route'] = 'error/not_found';
+                    return [];
+                }
 
-                    $url = explode('=', (string)$query);
+                $url = explode('=', $query);
 
-                    if(!empty($url[0])) {
+                if(!empty($url[0])) {
 
-                        if(!in_array($url[0], ['category_id', 'product_id', 'manufacturer_id', 'information_id', 'article_id', 'blog_category_id'])) {
-                            return $parts;
+                    if(!in_array($url[0], ['category_id', 'product_id', 'manufacturer_id', 'information_id', 'article_id', 'blog_category_id'])) {
+                        return $parts;
+                    }
+
+                    if ($url[0] == 'category_id') {
+                        if (!isset($this->request->get['path'])) {
+                            $this->request->get['path'] = $url[1];
+                        } else {
+                            $this->request->get['path'] .= '_' . $url[1];
                         }
-
-                        if ($url[0] == 'category_id') {
-                            if (!isset($this->request->get['path'])) {
-                                $this->request->get['path'] = $url[1];
-                            } else {
-                                $this->request->get['path'] .= '_' . $url[1];
-                            }
-                        } elseif ($url[0] == 'blog_category_id') {
-                            if (!isset($this->request->get['blog_category_id'])) {
-                                $this->request->get['blog_category_id'] = $url[1];
-                            } else {
-                                $this->request->get['blog_category_id'] .= '_' . $url[1];
-                            }
-                        } elseif (count($url) > 1) {
-                            $this->request->get[$url[0]] = $url[1];
+                    } elseif ($url[0] == 'blog_category_id') {
+                        if (!isset($this->request->get['blog_category_id'])) {
+                            $this->request->get['blog_category_id'] = $url[1];
+                        } else {
+                            $this->request->get['blog_category_id'] .= '_' . $url[1];
                         }
+                    } elseif (count($url) > 1) {
+                        $this->request->get[$url[0]] = $url[1];
                     }
                 }
 
                 unset($parts[$id]);
-            }
-
-            if(!$query) {
-                $this->request->get['route'] = 'error/not_found';
-                return [];
             }
         }
 
@@ -413,10 +409,10 @@ class SeoPro {
 
             // Rows written outside the admin models (imports, migrations,
             // extensions) do not clear the SeoPro cache. The highest seo_url_id
-            // detects added rows with a primary-key lookup, so a cached map can
-            // be trusted for misses instead of querying every unknown link.
-            $max_query = $this->db->query("SELECT MAX(seo_url_id) AS seo_url_id FROM " . DB_PREFIX . "seo_url");
-            $signature = (int)($max_query->row['seo_url_id'] ?? 0) . ':' . ($this->config->get('config_seopro_lowercase') ? 1 : 0);
+            // and the row count detect added and deleted rows, so a cached map
+            // can be trusted for misses instead of querying every unknown link.
+            $max_query = $this->db->query("SELECT MAX(seo_url_id) AS seo_url_id, COUNT(*) AS total FROM " . DB_PREFIX . "seo_url");
+            $signature = (int)($max_query->row['seo_url_id'] ?? 0) . ':' . (int)($max_query->row['total'] ?? 0) . ':' . ($this->config->get('config_seopro_lowercase') ? 1 : 0);
 
             if (!is_array($this->keywords) || !$this->keywords || !is_array($this->queries) || !$this->queries
                 || (string)$this->cache->get('seopro.signature') !== $signature) {
@@ -539,11 +535,9 @@ class SeoPro {
                             if ($this->session) {
                                 $this->session->data['language'] = $defaultCode;
                             }
-                            if (class_exists('Language')) {
-                                $language = new Language($defaultCode);
-                                $language->load($defaultCode);
-                                $this->registry->set('language', $language);
-                            }
+                            $language = new Language($defaultCode);
+                            $language->load($defaultCode);
+                            $this->registry->set('language', $language);
                         }
                     }
                 }
@@ -628,7 +622,7 @@ class SeoPro {
             unset($this->request->get['page']);
         }
 
-        $is_https = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+        $is_https = codecart_is_https();
 
         $configured_base = (string)($is_https ? $this->config->get('config_ssl') : $this->config->get('config_url'));
         $parts = parse_url($configured_base);
@@ -817,7 +811,12 @@ class SeoPro {
         if (!is_array($exclude))
             $exclude = [];
 
-        return urldecode(http_build_query(array_diff_key($this->request->get, array_flip($exclude))));
+        $query = array_diff_key($this->request->get, array_flip($exclude));
+        array_walk_recursive($query, function (&$value) {
+            $value = html_entity_decode((string)$value, ENT_QUOTES, 'UTF-8');
+        });
+
+        return http_build_query($query, '', '&');
     }
 
     public function __destruct() {

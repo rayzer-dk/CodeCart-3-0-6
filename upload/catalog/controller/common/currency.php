@@ -3,7 +3,7 @@ class ControllerCommonCurrency extends Controller {
 	public function index() {
 		$this->load->language('common/currency');
 
-		$secure = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+		$secure = codecart_is_https();
 		$data['action'] = $this->url->link('common/currency/currency', '', $secure);
 
 		$data['code'] = $this->session->data['currency'];
@@ -39,7 +39,10 @@ class ControllerCommonCurrency extends Controller {
 			$url = '';
 
 			if ($url_data) {
-				$url = '&' . urldecode(http_build_query($url_data, '', '&'));
+				array_walk_recursive($url_data, function (&$value) {
+					$value = html_entity_decode((string)$value, ENT_QUOTES, 'UTF-8');
+				});
+				$url = '&' . http_build_query($url_data, '', '&');
 			}
 
 			$data['redirect'] = $this->url->link($route, $url, $secure);

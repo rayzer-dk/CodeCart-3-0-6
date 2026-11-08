@@ -7,12 +7,18 @@
 2. Preserve store-specific `.htaccess` and `robots.txt` separately; merge the new neutral defaults with reviewed hosting/SEO rules rather than blindly replacing them. Preserve `config.php`, `admin/config.php`, merchant images and actual `DIR_STORAGE`, including downloads, uploads and persistent module data. Overlay application files; do not delete existing theme/extension files or replace the whole site with an empty directory.
 3. Upload only the contents of the production package's `upload/`. Same-name Core files are replaced. Keep tools and documentation outside the web root.
 4. Open `/install/`, choose **UPDATE**, and sign in as a store administrator authorized to modify users, extensions or Core. Review preflight warnings/blockers, confirm backup and complete the update. Never force a blocked migration.
-5. Refresh **Extensions → Modifications**, review compatibility and Problems entries, then clear relevant theme/template caches. Extension Installer's optional automatic refresh is disabled by default.
+5. Refresh **Extensions → Modifications**: after the update all OCMOD modifications stay inactive until this refresh. Review compatibility and Problems entries, then clear relevant theme/template caches. Extension Installer's optional automatic refresh is disabled by default.
 6. Check login, settings, themes for every store, products, categories, images, SEO URLs, cart, checkout, payments/shipping, cron and logs. Remove `/install/` and restore normal operation after verification.
 
 Never import `install/opencart.sql` into an existing database. Keep the backup until real orders/integrations are checked. Rollback requires matching files **and** database from the same backup.
 
 The updater preserves every store's `config_theme`, store name and configured logo/favicon. CodeCart Theme is added as an option without automatic activation. Persistent storage is preserved. Legacy schema differences can remain as warnings; an upgrade does not guarantee a schema identical to a clean install.
+
+## Compatibility notes
+
+- Twig 3: legacy `Twig_*` PHP class names used by extensions are aliased automatically, but removed template syntax is not. Before updating, check third-party themes and extension templates for `{% for ... if ... %}` (use the `filter` filter or an inner `{% if %}`), `{% spaceless %}` and `{% filter %}` (use `{% apply ... %}`) and the `sameas` test (use `same as`).
+- A `php.ini` left in the site root by older OpenCart/ocStore packages is no longer shipped and its directives are obsolete; delete it and set PHP options in the hosting panel.
+- `DB_DRIVER` `mpdo` from older ocStore installers keeps working through the bundled PDO driver; `config.php` does not need changes.
 
 ## Repair and modernization
 

@@ -434,7 +434,7 @@ class ModelToolImage extends Model {
 
     private function imageUrl($filename) {
         $filename = str_replace(' ', '%20', str_replace('\\', '/', (string)$filename));
-        $base = function_exists('codecart_is_https') && codecart_is_https()
+        $base = codecart_is_https()
             ? (string)$this->config->get('config_ssl')
             : (string)$this->config->get('config_url');
         return rtrim($base, '/') . '/image/' . ltrim($filename, '/');

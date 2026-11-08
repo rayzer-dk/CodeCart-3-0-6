@@ -10,6 +10,10 @@ if (!is_array($schema) || !isset($schema['version']) || !is_string($schema['vers
     exit(1);
 }
 $uploadRoot = realpath($root . '/upload');
+// Every CodeCart Core class is a required manifest entry (see integrity-manifest-check.php).
+foreach (glob($root . '/upload/system/library/codecart/src/*.php') ?: array() as $libraryFile) {
+    $data['files'] += array('system/library/codecart/src/' . basename($libraryFile) => '');
+}
 foreach ($data['files'] as $relative => $hash) {
     if (!is_string($relative) || !preg_match('#^(?!/)(?!.*(?:^|/)\.\.(?:/|$))[A-Za-z0-9_./-]+$#D', $relative)) {
         fwrite(STDERR, 'Invalid manifest path.' . PHP_EOL);

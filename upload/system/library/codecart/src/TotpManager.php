@@ -160,7 +160,7 @@ final class TotpManager {
 
     private function failures(int $userId, string $scope, int $window): array {
         $where = $scope === 'account'
-            ? "username = '@totp:" . (int)$userId . "'"
+            ? "username = '@totp:" . (int)$userId . "' AND ip LIKE 'totp:%'"
             : "ip = '" . $this->db->escape($this->attemptSource()) . "' AND username LIKE '@totp:%'";
         $query = $this->db->query("SELECT COUNT(*) AS total, GREATEST(1, " . (int)$window . " - TIMESTAMPDIFF(SECOND, MIN(date_added), NOW())) AS retry_after FROM `" . DB_PREFIX . "codecart_admin_login_attempt` WHERE " . $where . " AND date_added >= DATE_SUB(NOW(), INTERVAL " . (int)$window . " SECOND)");
         return $query->row;
@@ -178,7 +178,7 @@ final class TotpManager {
     private function attemptSource(): string {
         $request = $this->registry->get('request');
         $server = $request ? (array)$request->server : array();
-        $ip = function_exists('codecart_client_ip') ? codecart_client_ip($server) : ($server['REMOTE_ADDR'] ?? '');
+        $ip = codecart_client_ip($server);
         // Primary-password success/disable must never clear or disable MFA limits.
         return 'totp:' . sha1((string)$ip);
     }

@@ -277,6 +277,7 @@ function has_tables_with_prefix($db, $prefix) {
 
 function setup_db($data) {
 	$db = new DB($data['db_driver'], htmlspecialchars_decode($data['db_hostname']), htmlspecialchars_decode($data['db_username']), htmlspecialchars_decode($data['db_password']), htmlspecialchars_decode($data['db_database']), $data['db_port']);
+	$db->query("SET SESSION sql_mode = 'NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION'");
 
 	if (has_tables_with_prefix($db, $data['db_prefix'])) {
 		throw new RuntimeException('Refusing to install: the selected database already contains tables using prefix ' . $data['db_prefix'] . '.');
@@ -333,6 +334,10 @@ function setup_db($data) {
 		$db->query("DELETE FROM `" . $data['db_prefix'] . "setting` WHERE `key` = 'codecart_db_modernization_required'");
 		$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` SET store_id = '0', code = 'codecart_core', `key` = 'codecart_db_modernization_required', value = '0', serialized = '0'");
 
+		require_once(DIR_SYSTEM . 'library/codecart/migration.php');
+		$db->query("UPDATE `" . $data['db_prefix'] . "setting` SET `value` = '" . $db->escape(\CodeCart\Migration::VERSION) . "' WHERE store_id = '0' AND `key` = 'codecart_core_schema_version'");
+		$db->query("UPDATE `" . $data['db_prefix'] . "setting` SET `value` = '" . $db->escape(\CodeCart\Migration::PRESENTATION_SCHEMA_VERSION) . "' WHERE store_id = '0' AND `key` = 'codecart_presentation_schema_version'");
+
 		// Grant the Administrator group access to every controller shipped with this build.
 		// CLI installs must have the same permissions as the web installer.
 		$admin_root = DIR_OPENCART . 'admin/controller/';
@@ -361,6 +366,7 @@ function rollback_cli_database($data) {
 	if (!isset($data['db_prefix']) || !preg_match('/^[A-Za-z0-9_]*$/', (string)$data['db_prefix'])) { return; }
 	try {
 		$db = new DB($data['db_driver'], htmlspecialchars_decode($data['db_hostname']), htmlspecialchars_decode($data['db_username']), htmlspecialchars_decode($data['db_password']), htmlspecialchars_decode($data['db_database']), $data['db_port']);
+		$db->query("SET SESSION sql_mode = 'NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION'");
 		$query = $db->query('SHOW TABLES');
 		$tables = array();
 		foreach ($query->rows as $row) {
@@ -635,7 +641,7 @@ case "install":
 			define('HTTP_OPENCART', $options['http_server']);
 		}
 		install($options);
-		echo "SUCCESS! Opencart successfully installed on your server\n";
+		echo "SUCCESS! CodeCart successfully installed on your server\n";
 		echo "Store link: " . $options['http_server'] . "\n";
 		echo "Admin link: " . $options['http_server'] . "admin/\n\n";
 	} catch (Throwable $e) {

@@ -153,7 +153,8 @@ if ($case === 'background') {
     file_put_contents($temp . '/controller/cron/commerce_fixture.php', <<<'PHP'
 <?php
 class ControllerCronCommerceFixture extends Controller {
-    public function index($data) {}
+    public function index($data) { return array('success' => true); }
+    public function void($data) {}
     public function failed($data) { return false; }
     public function structured($data) { return array('success' => false, 'message' => 'Fixture task failed'); }
     public function broken($data) { throw new RuntimeException('Fixture exception'); }
@@ -187,7 +188,7 @@ PHP
     $registry->set('load', $loader);
     $queue = new \CodeCart\Core\Queue($registry);
     $scheduler = new \CodeCart\Core\Scheduler($registry);
-    foreach (array('cron/removed_extension', 'cron/commerce_fixture/missing', 'cron/commerce_fixture/failed', 'cron/commerce_fixture/structured', 'cron/commerce_fixture/broken') as $route) {
+    foreach (array('cron/removed_extension', 'cron/commerce_fixture/missing', 'cron/commerce_fixture/void', 'cron/commerce_fixture/failed', 'cron/commerce_fixture/structured', 'cron/commerce_fixture/broken') as $route) {
         $db->route = $route;
         $db->queries = array();
         $result = $queue->runOne(1);
@@ -199,7 +200,7 @@ PHP
     }
     commerceCheck($loader->controller('cron/removed_extension') === null, 'Ordinary legacy Loader calls must preserve their missing-route contract');
     $db->route = 'cron/commerce_fixture';
-    commerceCheck($queue->runOne(1)['status'] === 'ok' && $scheduler->runOne(1)['success'], 'A valid void controller must remain successful');
+    commerceCheck($queue->runOne(1)['status'] === 'ok' && $scheduler->runOne(1)['success'], 'A controller reporting success must remain successful');
     foreach (array('replacement' => 'before', 'output' => 'before', 'after' => 'after') as $method => $when) {
         $db->route = 'cron/removed_extension';
         $trigger = 'controller/' . $db->route . '/' . $when;
@@ -217,6 +218,7 @@ PHP
 }
 
 if ($case === 'image') {
+    require $root . '/upload/system/helper/general.php';
     require $root . '/upload/system/helper/utf8.php';
     require $root . '/upload/system/library/image.php';
     require $root . '/upload/catalog/model/tool/image.php';

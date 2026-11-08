@@ -122,24 +122,22 @@ final class AbandonedCartReminder {
 
     /** Plain-text reminder; guests get a one-time restore link, customers a sign-in link. */
     private function message(string $locale, string $name, string $store, string $link, bool $guest): array {
-        if (strpos($locale, 'uk') === 0) {
-            return array('Незавершена покупка — ' . $store, 'Вітаємо' . ($name !== '' ? ', ' . $name : '') . "!\n\nУ вашому кошику залишилися товари. "
-                . ($guest ? 'Щоб повернути їх у кошик і завершити покупку, відкрийте посилання: ' : 'Щоб завершити покупку, увійдіть у свій обліковий запис: ')
-                . $link . ($guest ? "\nПосилання одноразове." : '') . "\n\nЯкщо ви вже оформили замовлення, не зважайте на цей лист.\n\n" . $store);
-        }
-        if (strpos($locale, 'ru') === 0) {
-            return array('Незавершённая покупка — ' . $store, 'Здравствуйте' . ($name !== '' ? ', ' . $name : '') . "!\n\nВ вашей корзине остались товары. "
-                . ($guest ? 'Чтобы вернуть их в корзину и завершить покупку, откройте ссылку: ' : 'Чтобы завершить покупку, войдите в свой аккаунт: ')
-                . $link . ($guest ? "\nСсылка одноразовая." : '') . "\n\nЕсли заказ уже оформлен, проигнорируйте письмо.\n\n" . $store);
-        }
-        if (strpos($locale, 'da') === 0) {
+        $directory = dirname(DIR_SYSTEM) . '/catalog/language/';
+        $file = $directory . (preg_match('/^[a-z0-9-]{2,32}$/', $locale) ? $locale : 'en-gb') . '/mail/abandoned_cart.php';
+        if (!is_file($file) && strpos($locale, 'da') === 0) {
             return array('Din uafsluttede bestilling hos ' . $store, 'Hej' . ($name !== '' ? ' ' . $name : '') . ",\n\nDer ligger stadig varer i din indkøbskurv. "
                 . ($guest ? 'Åbn linket for at hente dem tilbage i kurven og fuldføre bestillingen: ' : 'Log ind her for at fuldføre bestillingen: ')
                 . $link . ($guest ? "\nLinket kan kun bruges én gang." : '') . "\n\nHvis du allerede har bestilt, kan du se bort fra denne mail.\n\n" . $store);
         }
-        return array('Your unfinished order at ' . $store, 'Hello' . ($name !== '' ? ' ' . $name : '') . ",\n\nYou left products in your shopping cart. "
-            . ($guest ? 'Open this link to put them back in your cart and complete your order: ' : 'To complete your order, sign in here: ')
-            . $link . ($guest ? "\nThe link can be used once." : '') . "\n\nIf you have already ordered, please ignore this message.\n\n" . $store);
+        $_ = array();
+        require $directory . 'en-gb/mail/abandoned_cart.php';
+        if (is_file($file)) {
+            require $file;
+        }
+        $greeting = $name !== '' ? sprintf($_['text_greeting_name'], $name) : $_['text_greeting'];
+        return array(sprintf($_['text_subject'], $store), $greeting . "\n\n" . $_['text_cart'] . ' '
+            . ($guest ? $_['text_guest'] : $_['text_customer'])
+            . $link . ($guest ? "\n" . $_['text_once'] : '') . "\n\n" . $_['text_ignore'] . "\n\n" . $store);
     }
 
     public function history(array $carts): array {
@@ -251,7 +249,7 @@ final class AbandonedCartReminder {
             $base = rtrim($base, '/') . ($languagePrefix !== '' ? '/' . rawurlencode($languagePrefix) : '');
             $link = $base . '/index.php?route=account/login';
             if ($customerId === 0) {
-                $token = (new GuestCartContact($this->registry))->issueToken($sessionId);
+                $token = (new GuestCartContact($this->registry))->issueToken($sessionId, $storeId);
                 if ($token === '') { throw new \RuntimeException('Guest cart recovery token not available.'); }
                 // URL stays on the originating storefront and contains a single-use random token.
                 $link = $base . '/index.php?route=extension/module/codecart_cart_recover&token=' . $token;

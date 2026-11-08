@@ -15,7 +15,7 @@ class ControllerStartupStartup extends Controller {
 	public function index() {
 		// Store
 		// Do not assume browser-only server variables: catalog startup is also used by CLI/cron.
-		$is_https = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+		$is_https = codecart_is_https();
 		$host = isset($this->request->server['HTTP_HOST']) ? trim((string)$this->request->server['HTTP_HOST']) : '';
 
 		if ($host !== '') {

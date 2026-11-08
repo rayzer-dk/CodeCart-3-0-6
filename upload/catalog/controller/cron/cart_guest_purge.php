@@ -6,6 +6,6 @@ class ControllerCronCartGuestPurge extends Controller {
         }
         (new \CodeCart\Core\RegisteredCartConsent($this->registry))->purge();
         if ($this->config->get('codecart_abandoned_cart_guest_capture')) { (new \CodeCart\Core\GuestCartContact($this->registry))->purge(); }
-        return array('success'=>true,'message'=>'Guest cart contacts older than seven days removed.');
+        return array('success'=>true,'message'=>'Expired cart recovery contacts removed.');
     }
 }

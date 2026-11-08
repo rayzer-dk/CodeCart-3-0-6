@@ -188,7 +188,7 @@ final class RelationLayer {
             return array();
         }
         $limit = max(1, min(48, $limit));
-        $query = $this->db->query("SELECT target_id FROM `" . DB_PREFIX . "codecart_relation` WHERE source_type='product' AND source_id='" . (int)$productId . "' AND target_type='product' AND relation_type='related' AND origin='rule' AND status='1' ORDER BY score DESC, relation_id ASC LIMIT " . (int)$limit);
+        $query = $this->db->query("SELECT cr.target_id FROM `" . DB_PREFIX . "codecart_relation` cr INNER JOIN `" . DB_PREFIX . "product_to_store` p2s ON (p2s.product_id=cr.target_id AND p2s.store_id='" . (int)$this->config->get('config_store_id') . "') WHERE cr.source_type='product' AND cr.source_id='" . (int)$productId . "' AND cr.target_type='product' AND cr.relation_type='related' AND cr.origin='rule' AND cr.status='1' ORDER BY cr.score DESC, cr.relation_id ASC LIMIT " . (int)$limit);
         $ids = array();
         foreach ($query->rows as $row) {
             $ids[] = (int)$row['target_id'];
@@ -201,7 +201,7 @@ final class RelationLayer {
             return array();
         }
         $limit = max(1, min(24, $limit));
-        $query = $this->db->query("SELECT target_id FROM `" . DB_PREFIX . "codecart_relation` WHERE source_type='product' AND source_id='" . (int)$productId . "' AND target_type='article' AND relation_type='related' AND origin='rule' AND status='1' ORDER BY score DESC, relation_id ASC LIMIT " . (int)$limit);
+        $query = $this->db->query("SELECT cr.target_id FROM `" . DB_PREFIX . "codecart_relation` cr INNER JOIN `" . DB_PREFIX . "article_to_store` a2s ON (a2s.article_id=cr.target_id AND a2s.store_id='" . (int)$this->config->get('config_store_id') . "') WHERE cr.source_type='product' AND cr.source_id='" . (int)$productId . "' AND cr.target_type='article' AND cr.relation_type='related' AND cr.origin='rule' AND cr.status='1' ORDER BY cr.score DESC, cr.relation_id ASC LIMIT " . (int)$limit);
         $ids = array();
         foreach ($query->rows as $row) {
             $ids[] = (int)$row['target_id'];
@@ -264,7 +264,7 @@ final class RelationLayer {
         $ids = array_slice($ids, 0, 1000);
         if (!$ids) { return 0; }
         $this->db->query("UPDATE `" . DB_PREFIX . "codecart_relation` SET status='" . ($status ? 1 : 0) . "', date_modified=NOW() WHERE origin='rule' AND relation_id IN (" . implode(',', $ids) . ")");
-        return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
+        return (int)$this->db->countAffected();
     }
 
     public function deleteRelations(array $relationIds): int {
@@ -273,7 +273,7 @@ final class RelationLayer {
         $ids = array_slice($ids, 0, 1000);
         if (!$ids) { return 0; }
         $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_relation` WHERE origin='rule' AND relation_id IN (" . implode(',', $ids) . ")");
-        return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
+        return (int)$this->db->countAffected();
     }
 
     private function relationNameJoins(int $languageId): string {
@@ -307,21 +307,21 @@ final class RelationLayer {
         $type = strtolower(trim($type));
         if ($id < 1 || !in_array($type, array('product','article','category','manufacturer'), true) || !$this->tableExists('codecart_relation')) { return 0; }
         $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_relation` WHERE (source_type='" . $this->db->escape($type) . "' AND source_id='" . (int)$id . "') OR (target_type='" . $this->db->escape($type) . "' AND target_id='" . (int)$id . "')");
-        return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
+        return (int)$this->db->countAffected();
     }
 
     public function invalidateProductRulesByCategory(int $categoryId): int {
         if (!$this->enabled()) { return 0; }
         if ($categoryId < 1 || !$this->tableExists('codecart_relation') || !$this->tableExists('product_to_category')) { return 0; }
         $this->db->query("DELETE cr FROM `" . DB_PREFIX . "codecart_relation` cr INNER JOIN `" . DB_PREFIX . "product_to_category` p2c ON (p2c.product_id=cr.source_id) WHERE cr.source_type='product' AND cr.origin='rule' AND p2c.category_id='" . (int)$categoryId . "'");
-        return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
+        return (int)$this->db->countAffected();
     }
 
     public function invalidateProductRulesByManufacturer(int $manufacturerId): int {
         if (!$this->enabled()) { return 0; }
         if ($manufacturerId < 1 || !$this->tableExists('codecart_relation') || !$this->tableExists('product')) { return 0; }
         $this->db->query("DELETE cr FROM `" . DB_PREFIX . "codecart_relation` cr INNER JOIN `" . DB_PREFIX . "product` p ON (p.product_id=cr.source_id) WHERE cr.source_type='product' AND cr.origin='rule' AND p.manufacturer_id='" . (int)$manufacturerId . "'");
-        return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
+        return (int)$this->db->countAffected();
     }
 
     public function cleanupOrphans(): int {
@@ -340,7 +340,7 @@ final class RelationLayer {
                 $typeColumn = $side . '_type';
                 $alias = $side === 'source' ? 'src' : 'dst';
                 $this->db->query("DELETE cr FROM `" . DB_PREFIX . "codecart_relation` cr LEFT JOIN `" . DB_PREFIX . $table . "` " . $alias . " ON (" . $alias . ".`" . $idColumn . "`=cr.`" . $relationIdColumn . "`) WHERE cr.`" . $typeColumn . "`='" . $this->db->escape($type) . "' AND " . $alias . ".`" . $idColumn . "` IS NULL");
-                if (method_exists($this->db, 'countAffected')) { $removed += (int)$this->db->countAffected(); }
+                $removed += (int)$this->db->countAffected();
             }
         }
         return $removed;
@@ -349,7 +349,7 @@ final class RelationLayer {
     public function clearAuto(bool $force = false): int {
         if (!$force && !$this->enabled()) { return 0; }
         $this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_relation` WHERE origin='rule'");
-        return method_exists($this->db, 'countAffected') ? (int)$this->db->countAffected() : 0;
+        return (int)$this->db->countAffected();
     }
 
     private function getProductSource(int $productId): array {
@@ -620,7 +620,7 @@ final class RelationLayer {
         $value = html_entity_decode(strip_tags($value), ENT_QUOTES, 'UTF-8');
         $value = mb_strtolower($value, 'UTF-8');
         $parts = preg_split('/[^\p{L}\p{N}]+/u', $value, -1, PREG_SPLIT_NO_EMPTY);
-        $stop = array('для'=>1,'with'=>1,'the'=>1,'and'=>1,'або'=>1,'или'=>1,'та'=>1,'из'=>1,'для'=>1,'від'=>1,'from'=>1,'product'=>1,'товар'=>1);
+        $stop = array('для'=>1,'with'=>1,'the'=>1,'and'=>1,'або'=>1,'или'=>1,'та'=>1,'из'=>1,'від'=>1,'from'=>1,'product'=>1,'товар'=>1);
         $tokens = array();
         foreach ((array)$parts as $part) {
             if (mb_strlen($part, 'UTF-8') < 3 || isset($stop[$part])) { continue; }

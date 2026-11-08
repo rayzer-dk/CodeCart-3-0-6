@@ -83,19 +83,7 @@ final class SecurityAudit {
     }
 
     private function clientIp(): string {
-        if ($this->request && function_exists('codecart_client_ip')) {
-            $ip = (string)codecart_client_ip((array)$this->request->server);
-            if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP)) {
-                return substr($ip, 0, 45);
-            }
-        }
-        if ($this->request && isset($this->request->server['REMOTE_ADDR'])) {
-            $ip = trim((string)$this->request->server['REMOTE_ADDR']);
-            if (filter_var($ip, FILTER_VALIDATE_IP)) {
-                return substr($ip, 0, 45);
-            }
-        }
-        return '';
+        return $this->request ? substr((string)codecart_client_ip((array)$this->request->server), 0, 45) : '';
     }
 
     private function userAgent(): string {

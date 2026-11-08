@@ -31,7 +31,7 @@ class ControllerExtensionModuleSubcategories extends Controller {
             );
         }
         $language_id = (int)$this->config->get('config_language_id');
-        $heading = isset($setting['heading'][$language_id]) ? trim((string)$setting['heading'][$language_id]) : '';
+        $heading = isset($setting['heading']) && is_array($setting['heading']) && isset($setting['heading'][$language_id]) ? trim((string)$setting['heading'][$language_id]) : '';
         $data['heading_title'] = $heading !== '' ? $heading : $this->language->get('heading_title');
         $data['show_image'] = $show_image;
         $data['image_width'] = $width;

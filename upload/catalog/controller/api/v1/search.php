@@ -3,7 +3,7 @@ class ControllerApiV1Search extends Controller {
     public function index() {
         $api = $this->registry->get('codecart_api_v1');
         if (!$api->enabled()) { $api->disabled($this->response); return; }
-        if (!$this->allowRequest()) {
+        if (!$api->allowRequest()) {
             $this->response->addHeader('Retry-After: 60');
             $api->respond($this->response,array('ok'=>false,'error'=>array('code'=>'rate_limit','message'=>'Too many API requests.')),429);
             return;
@@ -14,13 +14,13 @@ class ControllerApiV1Search extends Controller {
         $start = isset($this->request->get['start']) ? max(0, (int)$this->request->get['start']) : 0;
         $categoryId = isset($this->request->get['category_id']) ? max(0, (int)$this->request->get['category_id']) : 0;
         if ($q === '' && $categoryId < 1) { $api->respond($this->response,array('ok'=>false,'error'=>array('code'=>'search_criteria_required','message'=>'q or category_id is required.')),400); return; }
-        $query = function_exists('mb_substr') ? mb_substr($q,0,200,'UTF-8') : substr($q,0,200);
+        $query = mb_substr($q,0,200,'UTF-8');
         $criteria = array('query'=>$query,'start'=>$start,'limit'=>$limit,'category_id'=>$categoryId);
         $events = $this->registry->get('codecart_extension_points');
         $logError = function($e,$point,$owner){ if ($this->registry->has('log')) $this->log->write('[CodeCart PRO API] Extension point ' . $point . ' (' . $owner . ') failed: ' . $e->getMessage()); };
         $criteria = $events->dispatchSafe('api.v1.search.before', $criteria, $logError);
         $criteria['query'] = isset($criteria['query']) ? trim((string)$criteria['query']) : '';
-        $criteria['query'] = function_exists('mb_substr') ? mb_substr($criteria['query'],0,200,'UTF-8') : substr($criteria['query'],0,200);
+        $criteria['query'] = mb_substr($criteria['query'],0,200,'UTF-8');
         $criteria['start'] = isset($criteria['start']) ? max(0,(int)$criteria['start']) : 0;
         $criteria['limit'] = isset($criteria['limit']) ? max(1,min(50,(int)$criteria['limit'])) : 20;
         $criteria['category_id'] = isset($criteria['category_id']) ? max(0,(int)$criteria['category_id']) : 0;
@@ -51,29 +51,5 @@ class ControllerApiV1Search extends Controller {
         if (!isset($payload['items']) || !is_array($payload['items'])) $payload['items'] = $items;
         $payload['count'] = count($payload['items']);
         $api->respond($this->response,array('ok'=>true,'data'=>$payload));
-    }
-
-
-    private function allowRequest() {
-        $ip = isset($this->request->server['REMOTE_ADDR']) ? (string)$this->request->server['REMOTE_ADDR'] : 'unknown';
-        $bucket = (int)floor(time() / 60);
-        $dir = rtrim(DIR_CACHE, '/\\') . DIRECTORY_SEPARATOR . 'codecart-api-rate';
-        if (!is_dir($dir) && !@mkdir($dir, 0750, true) && !is_dir($dir)) { return true; }
-        $file = $dir . DIRECTORY_SEPARATOR . hash('sha256', $ip . '|' . $bucket) . '.json';
-        $fp = @fopen($file, 'c+');
-        if (!$fp) { return true; }
-        $allowed = true;
-        if (@flock($fp, LOCK_EX)) {
-            $raw = stream_get_contents($fp);
-            $data = json_decode((string)$raw, true);
-            $count = is_array($data) && isset($data['count']) ? (int)$data['count'] : 0;
-            $count++;
-            $allowed = $count <= 120;
-            ftruncate($fp, 0); rewind($fp);
-            fwrite($fp, json_encode(array('count'=>$count,'expires'=>($bucket+1)*60), JSON_UNESCAPED_SLASHES));
-            fflush($fp); @flock($fp, LOCK_UN);
-        }
-        fclose($fp);
-        return $allowed;
     }
 }

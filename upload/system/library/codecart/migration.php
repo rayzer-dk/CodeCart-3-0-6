@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '34';
+    const PRESENTATION_SCHEMA_VERSION = '35';
 
     private $db;
     private $config;
@@ -197,6 +197,7 @@ class Migration {
             $this->ensureEditorDefault();
             $this->ensureStockNotifyInfrastructure();
             $this->ensureMailCampaignInfrastructure();
+            $this->ensureUnicodeCollation(array('mail_campaign', 'mail_campaign_queue', 'mail_suppression', 'stock_notify'));
             // Registered cart reminders require a dedicated, per-store consent record.
             // This is schema-only; no reminder task is switched on during migration.
             $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_cart_registered_consent` (
@@ -1173,7 +1174,6 @@ class Migration {
 
     private function backfillMissingSeoUrls() {
         if (!$this->tableExists('seo_url') || !$this->tableExists('language')) { return; }
-        if (!function_exists('codecart_unique_seo_keyword')) { return; }
 
         $sources = array();
 
@@ -2524,8 +2524,8 @@ class Migration {
             'theme_default_commerce_style' => 'standard',
             'theme_default_catalog_ajax_status' => '0',
             'theme_default_header_menu_mode' => 'horizontal',
-            'theme_default_product_card_content' => 'description',
-            'theme_default_product_card_attribute_limit' => '3',
+            'theme_default_product_card_content' => 'both',
+            'theme_default_product_card_attribute_limit' => '4',
             'theme_default_option_image_switch_status' => '0',
             'theme_default_purchase_blocks_status' => '1',
             'theme_default_datetimepicker_theme' => 'light'
@@ -2883,7 +2883,7 @@ class Migration {
             `date_finished` datetime DEFAULT NULL,
             `date_modified` datetime NOT NULL,
             PRIMARY KEY (`campaign_id`), KEY `status_added` (`status`,`date_added`), KEY `store_id` (`store_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mail_campaign_queue` (
             `mail_queue_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             `campaign_id` int(11) NOT NULL,
@@ -2898,8 +2898,23 @@ class Migration {
             `date_sent` datetime DEFAULT NULL,
             `date_modified` datetime NOT NULL,
             PRIMARY KEY (`mail_queue_id`), UNIQUE KEY `campaign_email` (`campaign_id`,`email`), UNIQUE KEY `unsubscribe_token` (`unsubscribe_token`), KEY `campaign_status` (`campaign_id`,`status`), KEY `status_added` (`status`,`date_added`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mail_suppression` (`email` varchar(96) NOT NULL, `reason` varchar(32) NOT NULL DEFAULT 'unsubscribe', `date_added` datetime NOT NULL, PRIMARY KEY (`email`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mail_suppression` (`email` varchar(96) NOT NULL, `reason` varchar(32) NOT NULL DEFAULT 'unsubscribe', `date_added` datetime NOT NULL, PRIMARY KEY (`email`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+
+    // Tables created by MySQL 8 without an explicit collation got utf8mb4_0900_ai_ci and cannot be joined with core tables (error 1267).
+    private function ensureUnicodeCollation(array $tables) {
+        foreach ($tables as $table) {
+            $query = $this->db->query("SELECT TABLE_COLLATION FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . $this->db->escape(DB_PREFIX . $table) . "' LIMIT 1");
+            if ($query->num_rows && (string)$query->row['TABLE_COLLATION'] !== 'utf8mb4_unicode_ci') {
+                try {
+                    $this->db->query("ALTER TABLE `" . DB_PREFIX . $table . "` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                } catch (\Throwable $e) {
+                    // Rows that collide under the target collation must be resolved manually; the rest of the upgrade proceeds.
+                    if ($this->log) { $this->log->write('CodeCart PRO DB: collation of ' . DB_PREFIX . $table . ' not converted: ' . $e->getMessage()); }
+                }
+            }
+        }
     }
 
     private function ensureStockNotifyInfrastructure() {
@@ -2922,7 +2937,7 @@ class Migration {
             UNIQUE KEY `uniq_product_email_option` (`product_id`,`store_id`,`email`,`option_hash`),
             KEY `status_product` (`status`,`product_id`),
             KEY `customer_id` (`customer_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
         if (!$this->columnExists('stock_notify','option_hash')) { $this->db->query("ALTER TABLE `" . DB_PREFIX . "stock_notify` ADD `option_hash` char(64) NOT NULL DEFAULT '' AFTER `email`"); }
         if (!$this->columnExists('stock_notify','option_data')) { $this->db->query("ALTER TABLE `" . DB_PREFIX . "stock_notify` ADD `option_data` text AFTER `option_hash`"); }
         if (!$this->columnExists('stock_notify','option_label')) { $this->db->query("ALTER TABLE `" . DB_PREFIX . "stock_notify` ADD `option_label` varchar(255) NOT NULL DEFAULT '' AFTER `option_data`"); }

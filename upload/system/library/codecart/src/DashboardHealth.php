@@ -201,7 +201,7 @@ final class DashboardHealth {
     }
 
     public function security(int $userId): array {
-        $https = function_exists('codecart_is_https') ? codecart_is_https((array)$this->registry->get('request')->server) : false;
+        $https = codecart_is_https((array)$this->registry->get('request')->server);
         $documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath((string)$_SERVER['DOCUMENT_ROOT']) : false;
         $storage = realpath(DIR_STORAGE);
         $storageOutside = false;

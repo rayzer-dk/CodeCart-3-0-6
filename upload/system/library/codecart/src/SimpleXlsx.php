@@ -452,12 +452,12 @@ final class SimpleXlsx {
         $name = trim((string)$name);
         $name = str_replace(array('\\', '/', '?', '*', '[', ']', ':'), '_', $name);
         if ($name === '') { $name = 'Sheet'; }
-        $name = function_exists('mb_substr') ? mb_substr($name, 0, 31, 'UTF-8') : substr($name, 0, 31);
+        $name = mb_substr($name, 0, 31, 'UTF-8');
         $base = $name; $i = 2;
         while (in_array($name, $used, true)) {
             $suffix = '_' . $i++;
             $limit = 31 - strlen($suffix);
-            $name = (function_exists('mb_substr') ? mb_substr($base, 0, $limit, 'UTF-8') : substr($base, 0, $limit)) . $suffix;
+            $name = mb_substr($base, 0, $limit, 'UTF-8') . $suffix;
         }
         return $name;
     }

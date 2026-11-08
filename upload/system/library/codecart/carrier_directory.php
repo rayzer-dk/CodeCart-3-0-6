@@ -449,7 +449,7 @@ class CodeCartCarrierDirectory {
             }
             if (isset($response['success']) && !$response['success']) {
                 $lastError = $messages !== '' ? $messages : 'Nova Poshta API returned success=false.';
-                $lower = function_exists('mb_strtolower') ? mb_strtolower($lastError, 'UTF-8') : strtolower($lastError);
+                $lower = mb_strtolower($lastError, 'UTF-8');
                 $rate = strpos($lower, 'too many requests') !== false || strpos($lower, 'to many requests') !== false;
                 if ($rate && $attempt < 3) { usleep(900000); continue; }
                 break;

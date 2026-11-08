@@ -162,6 +162,7 @@ unset($env_db_map, $env_name, $env_value, $config_key);
 // Database
 if ($config->get('db_autostart')) {
 	$db_engine = strtolower((string)$config->get('db_engine'));
+	if ($db_engine === 'mpdo') { $db_engine = 'pdo'; }
 	$has_mysqli = extension_loaded('mysqli');
 	$has_pdo_mysql = extension_loaded('pdo') && extension_loaded('pdo_mysql');
 

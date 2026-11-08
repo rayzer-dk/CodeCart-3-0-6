@@ -16,9 +16,12 @@ class ControllerCommonDeviceAuthorize extends Controller {
         }
 
         $retry = $this->session->data['codecart_admin_device_retry'] ?? array();
-        if ((int)($retry['entity_id'] ?? 0) === (int)$this->user->getId() && (int)($retry['next_at'] ?? 0) > time()) {
-            $this->error = $this->language->get('error_mail');
-        } elseif (!$service->hasPendingChallenge('admin',(int)$this->user->getId())) {
+        $pending = $service->hasPendingChallenge('admin',(int)$this->user->getId());
+        if (!$pending && $service->challengeLimitReached('admin',(int)$this->user->getId())) {
+            $this->error = $this->language->get('error_limit');
+        } elseif (!$pending && (int)($retry['entity_id'] ?? 0) === (int)$this->user->getId() && (int)($retry['next_at'] ?? 0) > time()) {
+            if (!$this->error) { $this->error = $this->language->get('error_mail'); }
+        } elseif (!$pending) {
             $this->session->data['codecart_admin_device_retry'] = array('entity_id' => (int)$this->user->getId(), 'next_at' => time() + 60);
             $this->load->model('user/user'); $user=$this->model_user_user->getUser((int)$this->user->getId());
             $email=$user&&isset($user['email'])?(string)$user['email']:'';
@@ -34,7 +37,6 @@ class ControllerCommonDeviceAuthorize extends Controller {
                 try {(new \CodeCart\Core\SystemNotification($this->registry))->notify('security.admin_device.mail','critical',$this->language->get('notice_mail_title'),$this->language->get('notice_mail_message'),'tool/codecart_core');}catch(\Throwable $e){}
                 $this->error=$this->language->get('error_mail');
             } else {
-                unset($this->session->data['codecart_admin_device_retry']);
                 $this->session->data['success']=$this->language->get('text_code_sent');
             }
         }
@@ -46,7 +48,10 @@ class ControllerCommonDeviceAuthorize extends Controller {
     private function finishRedirect() {
         if (!empty($this->session->data['codecart_admin_device_redirect']) && is_array($this->session->data['codecart_admin_device_redirect'])) {
             $r=$this->session->data['codecart_admin_device_redirect']; unset($this->session->data['codecart_admin_device_redirect']);
-            $route=isset($r['route'])?(string)$r['route']:'common/dashboard'; $query=isset($r['query'])&&is_array($r['query'])?$r['query']:array(); $query['user_token']=$this->session->data['user_token'];
+            $route=isset($r['route'])?preg_replace('/[^a-zA-Z0-9_\/]/','',(string)$r['route']):''; if ($route==='') { $route='common/dashboard'; }
+            $query=isset($r['query'])&&is_array($r['query'])?$r['query']:array(); unset($query['route']);
+            array_walk_recursive($query,function (&$value) { $value=html_entity_decode((string)$value,ENT_QUOTES,'UTF-8'); });
+            $query['user_token']=$this->session->data['user_token'];
             $this->response->redirect($this->url->link($route,http_build_query($query),true)); return;
         }
         $this->response->redirect($this->url->link('common/dashboard','user_token='.$this->session->data['user_token'],true));

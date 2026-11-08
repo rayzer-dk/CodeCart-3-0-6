@@ -113,7 +113,7 @@ class ModelSaleAbandonedCart extends Model {
         $first = $this->sourceColumn($f, 'firstname', "''");
         $last = $this->sourceColumn($f, 'lastname', "''");
         $name = "TRIM(CONCAT(COALESCE(NULLIF(cu.firstname,'')," . $first . "), ' ', COALESCE(NULLIF(cu.lastname,'')," . $last . ")))";
-        $idle = max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 60));
+        $idle = max(1, min(10080, (int)$this->config->get('codecart_abandoned_cart_idle_minutes') ?: 5));
         $days = max(1, min(30, (int)$this->config->get('codecart_abandoned_cart_days') ?: 7));
         $from = ' FROM ' . chr(96) . $source['table'] . chr(96) . ' c LEFT JOIN '
             . chr(96) . DB_PREFIX . 'customer' . chr(96) . ' cu ON cu.customer_id=' . $cid;

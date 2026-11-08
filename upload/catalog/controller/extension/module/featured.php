@@ -75,10 +75,10 @@ class ControllerExtensionModuleFeatured extends Controller {
 		if ($results) {
 			$product_ids = array();
 			foreach ($results as $product_info) { $product_ids[] = (int)$product_info['product_id']; }
-			$card_mode = (string)$this->config->get('theme_default_product_card_content');
-			$data['card_content'] = in_array($card_mode, array('none','description','attributes','both'), true) ? $card_mode : 'attributes';
-			$card_attribute_limit = max(1, min(10, (int)$this->config->get('theme_default_product_card_attribute_limit')));
-			if (!$this->config->get('theme_default_product_card_attribute_limit')) { $card_attribute_limit = 3; }
+			$card_theme = 'theme_' . $this->config->get('config_theme') . '_';
+			$card_mode = (string)$this->config->get($card_theme . 'product_card_content');
+			$data['card_content'] = in_array($card_mode, array('none','description','attributes','both'), true) ? $card_mode : 'both';
+			$card_attribute_limit = $this->config->get($card_theme . 'product_card_attribute_limit') ? max(1, min(10, (int)$this->config->get($card_theme . 'product_card_attribute_limit'))) : 4;
 			$card_attributes = (in_array($data['card_content'], array('attributes','both'), true)) ? $this->model_catalog_product->getProductCardAttributes($product_ids, $card_attribute_limit) : array();
 			$description_length = max(20, min(1000, (int)$this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')));
 

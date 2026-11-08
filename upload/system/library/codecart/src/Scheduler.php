@@ -92,12 +92,16 @@ final class Scheduler {
         $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET status = '" . (int)$status . "'" . $next . ", date_modified = NOW() WHERE scheduler_id = '" . (int)$schedulerId . "'");
     }
 
-    public function runDue(int $limit = 20, string $source = 'visitor'): array {
+    public function runDue(int $limit = 20, string $source = 'visitor', array $excludeCodes = array()): array {
         $limit = max(1, min(100, $limit));
-        $result = $this->withLock(function () use ($limit, $source) {
+        $exclude = '';
+        if ($excludeCodes) {
+            $exclude = " AND code NOT IN ('" . implode("','", array_map(array($this->db, 'escape'), $excludeCodes)) . "')";
+        }
+        $result = $this->withLock(function () use ($limit, $source, $exclude) {
             $processed = 0;
             $failed = 0;
-            $jobs = $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_scheduler` WHERE status = '1' AND date_next <= NOW() ORDER BY date_next ASC, scheduler_id ASC LIMIT " . (int)$limit);
+            $jobs = $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_scheduler` WHERE status = '1' AND date_next <= NOW()" . $exclude . " ORDER BY date_next ASC, scheduler_id ASC LIMIT " . (int)$limit);
             foreach ($jobs->rows as $job) {
                 $result = $this->execute($job, $source);
                 $processed++;
@@ -204,13 +208,14 @@ final class Scheduler {
             $noticeCode = 'scheduler.' . strtolower((string)$job['code']);
             if ($ok) { $notice->resolve($noticeCode); }
             else { $notice->notify($noticeCode, 'error', 'Cron task failed: ' . (string)$job['code'], substr($message,0,1000), 'tool/scheduler'); }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            if ($this->log) { $this->log->write('CodeCart PRO scheduler notification failed: ' . $e->getMessage()); }
+        }
 
         $this->recordHistory($job, $source, $ok, $duration, $message);
         return array('success' => $ok, 'status' => $ok ? 'success' : 'error', 'message' => $message, 'duration_ms' => $duration);
     }
 
-    /** History and heartbeat are observational only; never turn a finished task into a retry. */
     /**
      * History and heartbeat tables were added by a later migration; installs that
      * skipped it would otherwise never show Cron health or run history.

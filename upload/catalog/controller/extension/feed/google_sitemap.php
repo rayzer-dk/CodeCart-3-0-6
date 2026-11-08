@@ -371,7 +371,7 @@ class ControllerExtensionFeedGoogleSitemap extends Controller {
             return '';
         }
 
-        $secure = function_exists('codecart_is_https') ? codecart_is_https((array)$this->request->server) : (!empty($this->request->server['HTTPS']) && $this->request->server['HTTPS'] !== 'off');
+        $secure = codecart_is_https((array)$this->request->server);
         $base = $secure ? $this->config->get('config_ssl') : $this->config->get('config_url');
         $segments = array_filter(explode('/', ltrim($image, '/')), 'strlen');
         $segments = array_map('rawurlencode', $segments);

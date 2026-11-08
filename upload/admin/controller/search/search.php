@@ -551,7 +551,7 @@ class ControllerSearchSearch extends Controller {
         if ($value === '') {
             return '';
         }
-        $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+        $value = mb_strtolower($value, 'UTF-8');
         $value = strtr($value, array('ё'=>'е','і'=>'и','ї'=>'и','є'=>'е','ґ'=>'г','’'=>' ','`'=>' ','\''=>' '));
         $value = preg_replace('/[^\p{L}\p{N}]+/u', ' ', $value);
         $value = preg_replace('/\s+/u', ' ', (string)$value);

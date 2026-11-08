@@ -5,7 +5,7 @@ class ControllerEventCodeCart extends Controller {
 			return;
 		}
 
-		$is_https = function_exists('codecart_is_https') ? codecart_is_https((array)$this->request->server) : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+		$is_https = codecart_is_https((array)$this->request->server);
 		$base = $is_https ? (string)$this->config->get('config_ssl') : (string)$this->config->get('config_url');
 		$base = rtrim($base, '/') . '/';
 		$organization_id = $base . '#organization';

@@ -120,7 +120,7 @@ final class CatalogTransfer {
     }
 
 
-    public function onProgress(callable $callback = null) {
+    public function onProgress(?callable $callback = null) {
         $this->progressCallback = $callback;
         return $this;
     }
@@ -470,36 +470,55 @@ final class CatalogTransfer {
         }
         $ext = strtolower(pathinfo((string)$file['name'], PATHINFO_EXTENSION));
         if (!in_array($ext, array('xlsx','zip'), true)) { throw new \RuntimeException('Only XLSX or CodeCart PRO ZIP package is supported.'); }
+        $this->purgeExpiredUploads();
         $token = bin2hex(random_bytes(16));
         $base = DIR_UPLOAD . 'codecart_catalog_' . $token;
         $stored = $base . '.' . $ext;
         if (!move_uploaded_file($file['tmp_name'], $stored)) { throw new \RuntimeException('Unable to store uploaded catalog file.'); }
         @chmod($stored, 0600);
-        $xlsx = $stored;
-        $package = '';
-        if ($ext === 'zip') {
-            $package = $stored;
-            $xlsx = $base . '.xlsx';
-            $zip = new \ZipArchive();
-            if ($zip->open($package) !== true) { @unlink($stored); throw new \RuntimeException('Invalid ZIP package.'); }
-            try {
-                $index = $zip->locateName('catalog.xlsx', \ZipArchive::FL_NOCASE);
-                if ($index === false) { throw new \RuntimeException('Portable package does not contain catalog.xlsx.'); }
-                $stat = $zip->statIndex($index);
-                if (!$stat || (int)$stat['size'] <= 0 || (int)$stat['size'] > self::MAX_UPLOAD_BYTES) { throw new \RuntimeException('catalog.xlsx is invalid.'); }
-                $stream = $zip->getStream($stat['name']);
-                $out = fopen($xlsx, 'wb');
-                if (!$stream || !$out) { throw new \RuntimeException('Unable to read catalog.xlsx.'); }
-                stream_copy_to_stream($stream, $out, self::MAX_UPLOAD_BYTES + 1);
-                fclose($stream); fclose($out);
-            } finally { $zip->close(); }
+        try {
+            $xlsx = $stored;
+            $package = '';
+            if ($ext === 'zip') {
+                $package = $stored;
+                $xlsx = $base . '.xlsx';
+                $zip = new \ZipArchive();
+                if ($zip->open($package) !== true) { throw new \RuntimeException('Invalid ZIP package.'); }
+                try {
+                    $index = $zip->locateName('catalog.xlsx', \ZipArchive::FL_NOCASE);
+                    if ($index === false) { throw new \RuntimeException('Portable package does not contain catalog.xlsx.'); }
+                    $stat = $zip->statIndex($index);
+                    if (!$stat || (int)$stat['size'] <= 0 || (int)$stat['size'] > self::MAX_UPLOAD_BYTES) { throw new \RuntimeException('catalog.xlsx is invalid.'); }
+                    $stream = $zip->getStream($stat['name']);
+                    if (!$stream) { throw new \RuntimeException('Unable to read catalog.xlsx.'); }
+                    $out = fopen($xlsx, 'wb');
+                    if (!$out) { fclose($stream); throw new \RuntimeException('Unable to read catalog.xlsx.'); }
+                    stream_copy_to_stream($stream, $out, self::MAX_UPLOAD_BYTES + 1);
+                    fclose($stream); fclose($out);
+                } finally { $zip->close(); }
+            }
+            $preview = $this->preflight($xlsx, $package);
+        } catch (\Throwable $e) {
+            $this->cleanupToken($token);
+            throw $e;
         }
-        $preview = $this->preflight($xlsx, $package);
+        if (!$preview['ok']) {
+            $this->cleanupToken($token);
+            return $preview;
+        }
         file_put_contents($base . '.json', json_encode(array('xlsx'=>$xlsx,'package'=>$package,
             'created'=>time(),'options'=>$this->importOptions), JSON_UNESCAPED_SLASHES));
         @chmod($base . '.json', 0600);
         $preview['token'] = $token;
         return $preview;
+    }
+
+    private function purgeExpiredUploads() {
+        foreach (glob(DIR_UPLOAD . 'codecart_catalog_*') ?: array() as $file) {
+            if (preg_match('/codecart_catalog_[a-f0-9]{32}\.(?:json|xlsx|zip)$/', $file) && is_file($file) && filemtime($file) < time() - 3600) {
+                @unlink($file);
+            }
+        }
     }
 
     public function preflight($xlsx, $package = '') {
@@ -731,7 +750,7 @@ final class CatalogTransfer {
             try { $this->db->query('ROLLBACK'); } catch (\Throwable $ignored) {}
             throw $e;
         }
-        if ($package) { $stats['images'] = $this->importPackageImages($package, (bool)$overwriteImages); $stats['downloads'] = $this->importPackageDownloads($package); }
+        if ($package) { $this->installPackageFiles($package, (bool)$overwriteImages, $stats); }
         $stats['processed_products']=(int)$this->progressCounts['processed'];
         $stats['successful_products']=(int)$this->progressCounts['success'];
         $this->publishProgress('complete', true);
@@ -1017,7 +1036,7 @@ final class CatalogTransfer {
             }
             $this->db->query('COMMIT');
         }catch(\Throwable $e){try{$this->db->query('ROLLBACK');}catch(\Throwable $ignored){}throw $e;}
-        if($package){$stats['images']=$this->importPackageImages($package,(bool)$overwriteImages);$stats['downloads']=$this->importPackageDownloads($package);}
+        if($package){$this->installPackageFiles($package,(bool)$overwriteImages,$stats);}
         $stats['processed_products'] = (int)$this->progressCounts['processed'];
         $stats['successful_products'] = (int)$this->progressCounts['success'];
         $this->publishProgress('complete', true);
@@ -1570,7 +1589,7 @@ final class CatalogTransfer {
         $count = 0;
         $bytes = 0;
         try {
-            $finfo = class_exists('finfo') ? new \finfo(FILEINFO_MIME_TYPE) : null;
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
             foreach (range(0, $zip->numFiles - 1) as $i) {
                 $entry = $zip->statIndex($i);
                 if (!$entry) { throw new \RuntimeException('Invalid portable ZIP entry.'); }
@@ -1594,7 +1613,7 @@ final class CatalogTransfer {
                 $extension = strtolower((string)pathinfo($rel, PATHINFO_EXTENSION));
                 $expected = array('jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png',
                     'gif'=>'image/gif','webp'=>'image/webp','avif'=>'image/avif','svg'=>'image/svg+xml');
-                $actual = $finfo ? (string)$finfo->buffer($raw) : '';
+                $actual = (string)$finfo->buffer($raw);
                 if (!isset($expected[$extension]) || ($actual !== '' && $actual !== $expected[$extension]
                     && !($extension === 'svg' && in_array($actual, array('application/xml','text/xml','text/plain'), true)))) {
                     throw new \RuntimeException('Portable ZIP image content does not match its extension: ' . $rel);
@@ -1617,6 +1636,17 @@ final class CatalogTransfer {
         return $out;
     }
 
+    private function installPackageFiles($package, $overwriteImages, array &$stats) {
+        try {
+            $stats['images'] = $this->importPackageImages($package, $overwriteImages);
+            $stats['downloads'] = $this->importPackageDownloads($package);
+        } catch (\Throwable $e) {
+            $message = 'Catalog data was imported, but package files were not fully installed: ' . $e->getMessage();
+            $stats['file_warnings'][] = $message;
+            if ($this->log) { $this->log->write('CodeCart PRO catalog import: ' . $message); }
+        }
+    }
+
     private function importPackageImages($package,$overwrite) {
         $zip=new \ZipArchive(); if($zip->open($package)!==true)return 0;
         $count=0; $bytes=0; $written=0;
@@ -1625,7 +1655,7 @@ final class CatalogTransfer {
             for($i=0;$i<$zip->numFiles;$i++){
                 $s=$zip->statIndex($i); if(!$s)continue;
                 $name=str_replace('\\','/',(string)$s['name']); if(strpos($name,'image/')!==0)continue;
-                $rel=substr($name,6); if(strpos($rel,'catalog/')!==0||!$this->safeImagePath($rel))continue;
+                $rel=substr($name,6); if(!$this->safeImagePath($rel))continue;
                 $size=(int)$s['size']; if($size<=0||$size>self::MAX_SINGLE_IMAGE_BYTES)continue;
                 if(++$count>self::MAX_PACKAGE_IMAGES)break;
                 if(($bytes+$size)>self::MAX_PACKAGE_IMAGE_BYTES)break; $bytes+=$size;
@@ -1643,13 +1673,13 @@ final class CatalogTransfer {
                 $copied=stream_copy_to_stream($in,$out,$size+1); fclose($in); fclose($out);
                 if($copied!==$size||$copied>self::MAX_SINGLE_IMAGE_BYTES){@unlink($tmp);continue;}
                 $mime='';
-                if(function_exists('finfo_open')){$fi=finfo_open(FILEINFO_MIME_TYPE);if($fi){$mime=(string)finfo_file($fi,$tmp);finfo_close($fi);}}
-                if($mime===''&&function_exists('getimagesize')){$info=@getimagesize($tmp);if(is_array($info)&&isset($info['mime']))$mime=(string)$info['mime'];}
+                $fi=finfo_open(FILEINFO_MIME_TYPE);if($fi){$mime=(string)finfo_file($fi,$tmp);finfo_close($fi);}
+                if($mime===''){$info=@getimagesize($tmp);if(is_array($info)&&isset($info['mime']))$mime=(string)$info['mime'];}
                 $imageType = strtolower(pathinfo($rel, PATHINFO_EXTENSION));
                 $mimeOk = isset($allowedMimes[strtolower($mime)])
                     || ($imageType === 'svg' && in_array(strtolower($mime), array('application/xml','text/xml','text/plain'), true));
                 if (!$mimeOk) { @unlink($tmp); continue; }
-                if (strtolower(pathinfo($rel, PATHINFO_EXTENSION)) === 'svg') {
+                if ($imageType === 'svg') {
                     $error = '';
                     $sanitized = SvgSanitizer::sanitizeFile($tmp, $error);
                     if ($sanitized === false || file_put_contents($tmp, $sanitized, LOCK_EX) === false) {

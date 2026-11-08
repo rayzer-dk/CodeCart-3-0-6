@@ -27,9 +27,9 @@ class ControllerExtensionThemeDefault extends Controller {
 				$this->request->post['theme_default_commerce_style'] = 'standard';
 			}
 			if (!isset($this->request->post['theme_default_product_card_content']) || !in_array((string)$this->request->post['theme_default_product_card_content'], $allowed_product_card_content, true)) {
-				$this->request->post['theme_default_product_card_content'] = 'description';
+				$this->request->post['theme_default_product_card_content'] = 'both';
 			}
-			$this->request->post['theme_default_product_card_attribute_limit'] = max(1, min(10, (int)($this->request->post['theme_default_product_card_attribute_limit'] ?? 3)));
+			$this->request->post['theme_default_product_card_attribute_limit'] = max(1, min(10, (int)($this->request->post['theme_default_product_card_attribute_limit'] ?? 4)));
 			$this->request->post['theme_default_option_image_switch_status'] = !empty($this->request->post['theme_default_option_image_switch_status']) ? 1 : 0;
 			$this->request->post['theme_default_purchase_blocks_status'] = !empty($this->request->post['theme_default_purchase_blocks_status']) ? 1 : 0;
 			$this->request->post['theme_default_catalog_ajax_status'] = !empty($this->request->post['theme_default_catalog_ajax_status']) ? 1 : 0;
@@ -434,7 +434,7 @@ class ControllerExtensionThemeDefault extends Controller {
 		} elseif (isset($setting_info['theme_default_product_card_content']) && in_array((string)$setting_info['theme_default_product_card_content'], array('none', 'description', 'attributes', 'both'), true)) {
 			$data['theme_default_product_card_content'] = (string)$setting_info['theme_default_product_card_content'];
 		} else {
-			$data['theme_default_product_card_content'] = 'description';
+			$data['theme_default_product_card_content'] = 'both';
 		}
 
 		if (isset($this->request->post['theme_default_product_card_attribute_limit'])) {
@@ -442,7 +442,7 @@ class ControllerExtensionThemeDefault extends Controller {
 		} elseif (isset($setting_info['theme_default_product_card_attribute_limit'])) {
 			$data['theme_default_product_card_attribute_limit'] = max(1, min(10, (int)$setting_info['theme_default_product_card_attribute_limit']));
 		} else {
-			$data['theme_default_product_card_attribute_limit'] = 3;
+			$data['theme_default_product_card_attribute_limit'] = 4;
 		}
 
 		if (isset($this->request->post['theme_default_option_image_switch_status'])) {

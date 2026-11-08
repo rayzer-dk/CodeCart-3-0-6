@@ -17,7 +17,7 @@ class ControllerCommonHeader extends Controller {
 			}
 		}
 
-		$is_https = function_exists('codecart_is_https') ? codecart_is_https((array)$this->request->server) : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+		$is_https = codecart_is_https((array)$this->request->server);
 
 		if ($is_https) {
 			$server = $this->config->get('config_ssl');

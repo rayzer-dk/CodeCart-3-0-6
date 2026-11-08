@@ -6,7 +6,7 @@ class ControllerCommonLanguage extends Controller {
     public function index() {
         $this->load->language('common/language');
 
-        $secure = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+        $secure = codecart_is_https();
         $data['action'] = $this->url->link('common/language/language', '', $secure);
         $data['code'] = isset($this->session->data['language']) ? (string)$this->session->data['language'] : (string)$this->config->get('config_language');
 
@@ -34,7 +34,10 @@ class ControllerCommonLanguage extends Controller {
             }
             $route = isset($url_data['route']) ? (string)$url_data['route'] : 'common/home';
             unset($url_data['route']);
-            $url = $url_data ? '&' . urldecode(http_build_query($url_data, '', '&')) : '';
+            array_walk_recursive($url_data, function (&$value) {
+                $value = html_entity_decode((string)$value, ENT_QUOTES, 'UTF-8');
+            });
+            $url =$url_data ? '&' . http_build_query($url_data, '', '&') : '';
         }
 
         if ($this->config->get('config_seo_url') || $this->config->get('codecart_language_prefix_enabled')) {
@@ -96,7 +99,7 @@ class ControllerCommonLanguage extends Controller {
     }
 
     private function seoLanguage() {
-        $secure = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+        $secure = codecart_is_https();
         $languages = $this->model_localisation_language->getLanguages();
         $selected = isset($this->request->post['code']) ? trim((string)$this->request->post['code']) : '';
 

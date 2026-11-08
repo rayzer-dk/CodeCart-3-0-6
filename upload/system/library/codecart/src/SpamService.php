@@ -79,9 +79,6 @@ final class SpamService {
     }
 
     private function clientIp(): string {
-        if (function_exists('codecart_client_ip')) {
-            return (string)codecart_client_ip((array)$this->request->server);
-        }
-        return isset($this->request->server['REMOTE_ADDR']) ? (string)$this->request->server['REMOTE_ADDR'] : '';
+        return (string)codecart_client_ip((array)$this->request->server);
     }
 }

@@ -17,3 +17,4 @@ $_['error_mail'] = 'The verification code could not be sent. Access remains bloc
 $_['text_code_sent'] = 'Security code sent.';
 $_['notice_mail_title'] = 'Login protection mail failed';
 $_['notice_mail_message'] = 'Unknown-device verification could not send a code. The session remains unverified. Check the account e-mail and SMTP/Mail settings.';
+$_['error_limit'] = 'Too many verification codes were requested. Try again in an hour.';

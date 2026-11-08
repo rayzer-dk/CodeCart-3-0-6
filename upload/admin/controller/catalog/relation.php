@@ -132,12 +132,10 @@ class ControllerCatalogRelation extends Controller {
         $data['results'] = sprintf($this->language->get('text_pagination'), ($relationTotal) ? (($page - 1) * $limit) + 1 : 0, ((($page - 1) * $limit) > ($relationTotal - $limit)) ? $relationTotal : ((($page - 1) * $limit) + $limit), $relationTotal, ceil($relationTotal / $limit));
 
         $data['queue_stats'] = array('pending'=>0,'processing'=>0,'done'=>0,'failed'=>0);
-        try {
-            $queueQuery = $this->db->query("SELECT status, COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_queue` WHERE code LIKE 'relation.generate.%' GROUP BY status");
-            foreach ($queueQuery->rows as $row) {
-                if (isset($data['queue_stats'][$row['status']])) { $data['queue_stats'][$row['status']] = (int)$row['total']; }
-            }
-        } catch (\Throwable $e) {}
+        $queueQuery = $this->db->query("SELECT status, COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_queue` WHERE code LIKE 'relation.generate.%' GROUP BY status");
+        foreach ($queueQuery->rows as $row) {
+            if (isset($data['queue_stats'][$row['status']])) { $data['queue_stats'][$row['status']] = (int)$row['total']; }
+        }
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
@@ -162,14 +160,7 @@ class ControllerCatalogRelation extends Controller {
             return $this->json($json, 400);
         }
         $suggestions = (new \CodeCart\Core\RelationLayer($this->registry))->suggestProduct($productId);
-        foreach (array('products','articles') as $group) {
-            foreach ($suggestions[$group] as $index => $row) {
-                $suggestions[$group][$index]['reason'] = $this->formatReason(isset($row['reason']) ? (string)$row['reason'] : '');
-            }
-        }
-        $json += $suggestions;
-        $json['success'] = $this->language->get('text_preview_success');
-        $this->json($json);
+        return $this->previewJson($suggestions);
     }
 
     public function previewCategory() {

@@ -65,16 +65,18 @@ file_put_contents($temp . '/config/codecart_schema.json', json_encode($contract)
 $db = new SchemaFixtureDb($types);
 $config = new Config();
 $config->set('codecart_core_schema_version', '3.0.6.0');
-$config->set('codecart_presentation_schema_version', '33');
+$currentRevision = \CodeCart\Migration::PRESENTATION_SCHEMA_VERSION;
+$previousRevision = (string)((int)$currentRevision - 1);
+$config->set('codecart_presentation_schema_version', $currentRevision);
 $registry = new Registry();
 $registry->set('db', $db);
 $registry->set('config', $config);
 $registry->set('log', null);
 schemaCheck(\CodeCart\Migration::VERSION === '3.0.6.0', 'Platform version must remain unchanged.');
-schemaCheck(\CodeCart\Migration::PRESENTATION_SCHEMA_VERSION === '33', 'Repair must advance the stored revision.');
+schemaCheck(ctype_digit($currentRevision) && (int)$currentRevision > 1, 'Presentation revision must be a positive integer.');
 (new \CodeCart\Migration($registry))->run();
 schemaCheck($db->queries === array(), 'Current schema must perform zero SQL.');
-foreach (array(array('3.0.6.0', '32'), array('3.0.5.1', '33')) as $markers) {
+foreach (array(array('3.0.6.0', $previousRevision), array('3.0.5.1', $currentRevision)) as $markers) {
     $config->set('codecart_core_schema_version', $markers[0]);
     $config->set('codecart_presentation_schema_version', $markers[1]);
     $db->queries = array();
@@ -102,7 +104,7 @@ final class MigrationPublicationDb {
     public int $journalAttempts = 0;
     public int $releases = 0;
     public int $locks = 0;
-    public array $markers = array('codecart_core_schema_version' => '3.0.6.0', 'codecart_presentation_schema_version' => '32');
+    public array $markers = array('codecart_core_schema_version' => '3.0.6.0', 'codecart_presentation_schema_version' => '');
     public function escape(string $value): string { return addslashes($value); }
     public function getLastId(): int { return 1; }
     public function query(string $sql): object {
@@ -131,6 +133,7 @@ final class MigrationPublicationDb {
     }
 }
 $publicationDb = new MigrationPublicationDb();
+$publicationDb->markers['codecart_presentation_schema_version'] = $previousRevision;
 $publicationConfig = new Config();
 foreach ($publicationDb->markers as $key => $value) { $publicationConfig->set($key, $value); }
 $publicationConfig->set('codecart_setting_serialized_default', '1');
@@ -140,13 +143,13 @@ $publicationRegistry->set('config', $publicationConfig);
 $publicationRegistry->set('log', null);
 (new \CodeCart\Migration($publicationRegistry))->run();
 schemaCheck($publicationDb->journalAttempts === 1, 'Injected failure must reach the late migration journal.');
-schemaCheck($publicationDb->markers['codecart_presentation_schema_version'] === '32', 'A later failure must preserve the pending stored revision.');
-schemaCheck($publicationConfig->get('codecart_presentation_schema_version') === '32', 'A later failure must preserve the pending in-memory revision.');
+schemaCheck($publicationDb->markers['codecart_presentation_schema_version'] === $previousRevision, 'A later failure must preserve the pending stored revision.');
+schemaCheck($publicationConfig->get('codecart_presentation_schema_version') === $previousRevision, 'A later failure must preserve the pending in-memory revision.');
 schemaCheck($publicationDb->releases === 1, 'Failed migration must release its advisory lock.');
 $publicationDb->failJournal = false;
 (new \CodeCart\Migration($publicationRegistry))->run();
 schemaCheck($publicationDb->journalAttempts === 2, 'Pending revision must retry the full migration.');
-schemaCheck($publicationDb->markers['codecart_presentation_schema_version'] === '33' && $publicationConfig->get('codecart_presentation_schema_version') === '33', 'Successful retry must publish the stored and in-memory revision.');
+schemaCheck($publicationDb->markers['codecart_presentation_schema_version'] === $currentRevision && $publicationConfig->get('codecart_presentation_schema_version') === $currentRevision, 'Successful retry must publish the stored and in-memory revision.');
 schemaCheck($publicationDb->releases === 2, 'Successful retry must release its advisory lock.');
 (new \CodeCart\Migration($publicationRegistry))->run();
 schemaCheck($publicationDb->locks === 2, 'Completed retry must restore zero-work steady state.');

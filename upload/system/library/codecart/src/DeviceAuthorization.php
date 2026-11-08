@@ -59,6 +59,7 @@ final class DeviceAuthorization {
     public function startChallenge(string $type,int $entityId): array {
         if ($entityId < 1) throw new \InvalidArgumentException('Invalid account.');
         if (!$this->isStorageReady($type)) throw new \RuntimeException('Device authorization storage is not ready. Run Installer UPDATE.');
+        if ($this->challengeLimitReached($type,$entityId)) throw new \RuntimeException('Too many verification codes requested.');
         list($table,$column)=$this->target($type);
         $this->db->query("UPDATE `".DB_PREFIX.$table."` SET status='superseded' WHERE `".$column."`='".(int)$entityId."' AND status='pending'");
         $raw=bin2hex(random_bytes(32));
@@ -72,6 +73,13 @@ final class DeviceAuthorization {
         $id=(int)$this->db->getLastId();
         $this->session->data[$this->sessionKey($type)]=array('id'=>$id,'token'=>$raw,'entity_id'=>$entityId);
         return array('authorize_id'=>$id,'code'=>$code,'expires_in'=>600);
+    }
+
+    public function challengeLimitReached(string $type,int $entityId): bool {
+        if (!$this->isStorageReady($type)) return false;
+        list($table,$column)=$this->target($type);
+        $q=$this->db->query("SELECT COUNT(*) AS total FROM `".DB_PREFIX.$table."` WHERE `".$column."`='".(int)$entityId."' AND code_hash<>'' AND date_added>=DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+        return (int)$q->row['total']>=5;
     }
 
     public function verify(string $type,int $entityId,string $code): array {
@@ -137,11 +145,10 @@ final class DeviceAuthorization {
     private function cookieName(string $type): string { return $type==='admin'?'CCPADMINDEVICE':'CCPCUSTOMERDEVICE'; }
     private function sessionKey(string $type): string { return 'codecart_'.$type.'_device_challenge'; }
     private function clientIp(): string {
-        if (function_exists('codecart_client_ip')) return (string)codecart_client_ip((array)$this->request->server);
-        return isset($this->request->server['REMOTE_ADDR'])?(string)$this->request->server['REMOTE_ADDR']:'';
+        return (string)codecart_client_ip((array)$this->request->server);
     }
     private function setCookie(string $name,string $value,int $expires): void {
-        $secure=function_exists('codecart_is_https')?(bool)codecart_is_https():!empty($this->request->server['HTTPS']);
+        $secure=(bool)codecart_is_https();
         setcookie($name,$value,array('expires'=>$expires,'path'=>'/','secure'=>$secure,'httponly'=>true,'samesite'=>'Lax'));
         $this->request->cookie[$name]=$value;
     }

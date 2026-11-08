@@ -256,7 +256,7 @@ class ModelSearchSettings extends Model {
     private function normalize($value) {
         $value = trim((string)$value);
         if ($value === '') return '';
-        $value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+        $value = mb_strtolower($value, 'UTF-8');
         $value = str_replace(array('_', '-', '/', '\\', '.', ':', ';', ',', '(', ')', '[', ']'), ' ', $value);
         $value = preg_replace('/\s+/u', ' ', $value);
         return trim((string)$value);

@@ -242,7 +242,7 @@ class ControllerStartupSeoUrl extends Controller {
 		foreach (array_keys($args) as $key) {
 			if (strpos((string)$key, '_codecart_') === 0) unset($args[$key]);
 		}
-		$is_https = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+		$is_https = codecart_is_https();
 		$target = html_entity_decode($this->url->link($route, http_build_query($args, '', '&'), $is_https), ENT_QUOTES, 'UTF-8');
 		$target_parts = parse_url($target);
 		$base = (string)($is_https ? $this->config->get('config_ssl') : $this->config->get('config_url'));
@@ -273,7 +273,7 @@ class ControllerStartupSeoUrl extends Controller {
 		$path = preg_replace('#/+#', '/', (string)$uri['path']);
 		if ($path === '/' || substr($path, -1) !== '/') { return false; }
 
-		$isHttps = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+		$isHttps = codecart_is_https();
 		$base = (string)($isHttps ? $this->config->get('config_ssl') : $this->config->get('config_url'));
 		$baseParts = parse_url($base);
 		if (!is_array($baseParts) || empty($baseParts['host'])) { return false; }
@@ -297,11 +297,14 @@ class ControllerStartupSeoUrl extends Controller {
 	private function redirectMissingLanguagePrefix() {
 		$method = isset($this->request->server['REQUEST_METHOD']) ? strtoupper((string)$this->request->server['REQUEST_METHOD']) : 'GET';
 		if (!in_array($method, array('GET', 'HEAD'), true) || !empty($this->request->post)) { return false; }
+		$route = isset($this->request->get['route']) && is_string($this->request->get['route']) ? $this->request->get['route'] : '';
+		if ($this->isUnprefixedRoute($route)) { return false; }
+		if (isset($this->request->get['_route_']) && preg_match('#^(?:sitemap(?:\.xml|-[^/]*\.xml)|google-merchant(?:-[^/]+)?\.xml)$#i', trim((string)$this->request->get['_route_'], '/'))) { return false; }
 		$prefix = strtolower(trim((string)$this->config->get('codecart_language_prefix_current')));
 		if ($prefix === '' || !preg_match('/^[a-z0-9][a-z0-9-]{0,31}$/', $prefix)) { return false; }
 		$requestUri = isset($this->request->server['REQUEST_URI']) ? (string)$this->request->server['REQUEST_URI'] : '';
 		if ($requestUri === '') { return false; }
-		$isHttps = function_exists('codecart_is_https') ? codecart_is_https() : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+		$isHttps = codecart_is_https();
 		$base = (string)($isHttps ? $this->config->get('config_ssl') : $this->config->get('config_url'));
 		$baseParts = parse_url($base);
 		$uriParts = parse_url($requestUri);
@@ -451,9 +454,7 @@ class ControllerStartupSeoUrl extends Controller {
 			return $url;
 		}
 
-		$route = (string)$route;
-		$route_normalized = strtolower($route);
-		if ($route_normalized === 'common/language/language' || strpos($route_normalized, 'extension/feed/') === 0 || strpos($route_normalized, 'extension/payment/') === 0 || strpos($route_normalized, 'api/') === 0) {
+		if ($this->isUnprefixedRoute($route)) {
 			return $url;
 		}
 
@@ -480,6 +481,12 @@ class ControllerStartupSeoUrl extends Controller {
 		}
 
 		return $url;
+	}
+
+	// Machine and callback endpoints keep one language-neutral URL.
+	private function isUnprefixedRoute($route) {
+		$route = strtolower((string)$route);
+		return $route === 'common/language/language' || (bool)preg_match('#^(?:extension/feed/|extension/payment/|api/|cron/)#', $route);
 	}
 
 	private function isCatalogLanguageRoute($route) {

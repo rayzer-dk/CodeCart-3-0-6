@@ -1,3 +1,20 @@
+# CodeCart 3.0.6.0 — Build 2.1.8 (2026-11-08)
+
+Final audit release. Core schema 3.0.6.0; presentation schema revision 35 (applied by the Installer UPDATE).
+
+Fixes
+- Database: mail campaign, mail suppression and stock notification tables are created with `utf8mb4_unicode_ci`. On MySQL 8 they previously got `utf8mb4_0900_ai_ci`, and building a customer mail campaign failed with error 1267 (illegal mix of collations). The update converts existing tables.
+- Fresh installations record the current presentation schema. Before, a new store reported "update required" forever, which skipped administrator device authorization.
+- Security: failed password logins can no longer fill the two-factor lockout of an administrator; device authorization codes are limited to 5 per account per hour; customer device authorization and GDPR request forms require a CSRF token; the public API rate limit uses the real client IP, cleans up its files and also covers `api/v1/product`; the API hides prices and stock when the store hides them from guests.
+- Scheduler: visitor-triggered runs no longer perform network or mail tasks (currency rates, mail, reminders, stock notices) inside a page request and are skipped while a server Cron is active; the lost-URL cleanup task no longer fails without a key; guest cart reminders work for additional stores; consent saving works on HTTP stores and behind TLS proxies; resolved queue notices are cleared and old resolved/archived notices are purged.
+- Compatibility with OpenCart/ocStore 3.x extensions: event triggers without wildcards match by prefix again; Twig 2 class names (`Twig_Environment`, `Twig_SimpleFunction`, ...) are aliased to Twig 3; ocStore `DB_DRIVER` `mpdo` is accepted; the installer uses the same SQL mode as the store; PHP 8.4 deprecation in catalog import removed.
+- SEO: unprefixed sitemap, feed, payment callback and API URLs are not redirected when every language has a URL prefix; SeoPro returns 404 for unknown path segments, notices changed SEO keywords and keeps encoded query values in canonical redirects; the language and currency switchers keep encoded query values.
+- Catalog import: failed or abandoned uploads are removed; file installation errors after a committed import are reported as warnings; NBU settings show their save confirmation; all carrier validation errors are shown.
+- Theme: product card content and attribute limit follow the active theme's settings; category and brand wall controls are translated.
+
+Removed
+- Duplicate upgrade step 3054, unused jQuery 2.1.1 copies, the legacy `php.ini` in the web root (delete it from existing sites), legacy catalog import actions in `tool/backup`, redundant helper guards and development leftovers.
+
 # CodeCart 3.0.6.0 — Build 2.1.7 (2026-11-07)
 
 - System notifications: a deleted notification no longer comes back. Every successful Cron run resolved its task notice, and `resolve()` turned the hidden ("dismissed") row into "resolved", which is listed again; daily tasks therefore restored deleted notices the next day. A hidden notice now becomes "archived" when the problem is fixed and stays in the Archive tab. It reappears only if the problem returns after a fix or its severity rises; a changed failure count no longer reopens it. Deleting or clearing an already resolved notice archives it.
@@ -15,7 +32,7 @@
 - The verification form checks the admin token, so a foreign page cannot post wrong codes to lock an account. Missing-table detection also recognises PDO errors (SQLSTATE 42S02).
 - Users list shows the 2FA state. An administrator with modify rights on users and CodeCart Core can reset another administrator's second factor after entering their own password; the target is notified.
 - Requests with a non-string `route` parameter are normalized instead of failing with HTTP 500.
-- Keep schema 3.0.6.0; see documentation/RELEASE_2.1.6.md for verification scope.
+- Keep schema 3.0.6.0.
 
 # CodeCart 3.0.6.0 — Build 2.1.5 (2026-11-02)
 
@@ -24,7 +41,7 @@
 - Missing tables are detected by MySQL error 1146 (`CodeCart\Core\DatabaseError`) and created on first use for guest contacts, reminder consent and the Cron run history/heartbeat; fresh installs create the Cron history and heartbeat tables.
 - Cron screen: server Cron status with its source, last site-visit run, localized short intervals, success results without the "Technical details" wrapper, "Success" labels and a "Site visit" source in the run history, columns that no longer wrap.
 - Abandoned carts screen: sticky action column for the wide table, "No contact left" / "No opt-in" wording.
-- Keep schema 3.0.6.0; see documentation/RELEASE_2.1.5.md for verification scope.
+- Keep schema 3.0.6.0.
 
 # CodeCart 3.0.6.0 — Build 2.1.4 (2026-11-01)
 
@@ -34,7 +51,7 @@
 - Lock checkout stock with one ordered statement per table; restock and reprocessing read order options once per order.
 - Administration: batch product autocomplete options, customer list login attempts, customer autocomplete addresses, IP totals, form selections, bulk invoice/shipping printing and related/link-table writes; rebuild category paths in memory.
 - Cron and import: mail campaigns and stock notifications read suppression, settings and option stock once per batch; catalog import writes main categories per chunk; the SEO alias upgrade backfill preloads existing aliases.
-- Keep schema 3.0.6.0 and public model methods; see documentation/RELEASE_2.1.4.md for verification scope.
+- Keep schema 3.0.6.0 and public model methods.
 
 # CodeCart 3.0.6.0 — Build 2.1.3 (2026-10-23)
 
@@ -42,14 +59,14 @@
 - Reuse optional native WebP/AVIF conversion after scaling; retain transparency, distinct mode cache keys and AVIF-only Accept cache variation.
 - Align mobile article carousel columns with the existing grid breakpoint below 768px, preserving merchant column settings and desktop/list layouts.
 - Add validated POST bulk enable/disable for selected OCMOD modifications with confirmation and existing compatibility dirty signals.
-- Keep schema 3.0.6.0; see documentation/RELEASE_2.1.3.md and archive acceptance evidence for verification scope.
+- Keep schema 3.0.6.0.
 
 # CodeCart 3.0.6.0 — Build 2.1.2 (2026-10-22)
 
 - Use native administration form submission instead of submitting every form from a legacy IE click handler.
 - Ignore outdated autocomplete callbacks after newer requests, input changes, blur or Escape, preserving empty selectors and the public callback API.
 - Restore the existing product-view increment in the successful product page controller, leaving list and AJAX consumers unchanged.
-- Retain schema 3.0.6.0 and existing extension interfaces. Verification scope is recorded in documentation/RELEASE_2.1.2.md; deployment-specific acceptance remains separate.
+- Retain schema 3.0.6.0 and existing extension interfaces.
 
 # CodeCart 3.0.6.0 — Build 2.1.1 (2026-10-21)
 
@@ -62,7 +79,7 @@
 - Apply additive presentation revision 33 to undersized IPv6 and order shipping-company columns, including stores already using core schema 3.0.6.0; synchronize fresh-install and CI markers.
 - Publish the presentation revision after a successful upgrade journal and core-version save, allowing failed upgrades to retry safely.
 - Correct database and legacy-framework analysis contracts, with scoped development-only stubs and regression checks for the affected administration and catalog behavior.
-- Validation of the final source and archive is pending. This entry does not declare production acceptance; see documentation/RELEASE_2.1.1.md.
+- Validation of the final source and archive is pending.
 
 # CodeCart 3.0.6.0 — Build 2.1.0 (2026-10-16)
 
@@ -71,7 +88,7 @@
 - Update runtime workflows to compare staged source with the current checkout instead of requiring an obsolete build number.
 - Keep schema version separate from package build in integrity generation, write manifests atomically, and retain the GPL license in production archives.
 - Review development comments and compatibility behavior. Native theme behavior still requires deployment-specific verification.
-- This source revision is not a declaration of production acceptance; see documentation/RELEASE_2.1.0.md.
+- This source revision is not a declaration of production acceptance.
 
 ## CodeCart 3.0.6.0 — product list UI patch 3.0.6.4 (2026-10-14)
 

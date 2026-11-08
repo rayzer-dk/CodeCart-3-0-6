@@ -25,6 +25,10 @@ class DB {
 	 *
  	*/
 	public function __construct($adaptor, $hostname, $username, $password, $database, $port = NULL) {
+		if (strtolower((string)$adaptor) === 'mpdo') {
+			$adaptor = 'pdo';
+		}
+
 		$class = 'DB\\' . $adaptor;
 
 		if (class_exists($class)) {

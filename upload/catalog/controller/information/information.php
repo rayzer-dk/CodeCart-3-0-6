@@ -53,7 +53,7 @@ class ControllerInformationInformation extends Controller {
 
 			if ($this->config->get('config_codecart_structured_data_status') && stripos((string)$this->document->getRobots(), 'noindex') === false) {
 				$schema_url = $this->url->link('information/information', 'information_id=' . $information_id);
-				$is_https = function_exists('codecart_is_https') ? codecart_is_https((array)$this->request->server) : (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off');
+				$is_https = codecart_is_https((array)$this->request->server);
 				$schema_base = $is_https ? $this->config->get('config_ssl') : $this->config->get('config_url');
 				$this->document->addStructuredData(array(
 					'@type' => 'WebPage',

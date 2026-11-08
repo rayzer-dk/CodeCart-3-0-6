@@ -64,8 +64,8 @@ final class GuestCartContact {
         }
         $rawFirstname = trim((string)($post['firstname'] ?? ''));
         $rawLastname = trim((string)($post['lastname'] ?? ''));
-        $firstname = function_exists('utf8_substr') ? utf8_substr($rawFirstname, 0, 100) : substr($rawFirstname, 0, 100);
-        $lastname = function_exists('utf8_substr') ? utf8_substr($rawLastname, 0, 100) : substr($rawLastname, 0, 100);
+        $firstname = utf8_substr($rawFirstname, 0, 100);
+        $lastname = utf8_substr($rawLastname, 0, 100);
         $phone = substr(trim((string)($post['telephone'] ?? '')), 0, 40);
         // Upgrade legacy schema if an earlier version created the table without newer columns.
         static $schemaChecked = false;
@@ -88,11 +88,11 @@ final class GuestCartContact {
         return $query->num_rows > 0 && (int)$query->row['consent'] === 1;
     }
 
-    public function issueToken(string $sessionId): string {
+    public function issueToken(string $sessionId, ?int $storeId = null): string {
         if (!$this->enabled() || $sessionId === '' || strlen($sessionId) > 128) { return ''; }
         $token = bin2hex(random_bytes(32));
         $hash = hash('sha256', $token);
-        $this->db->query("UPDATE " . $this->table() . " SET token_hash='" . $hash . "',token_expires=DATE_ADD(NOW(), INTERVAL 7 DAY),token_used=NULL WHERE session_id='" . $this->db->escape($sessionId) . "' AND store_id='" . (int)$this->config->get('config_store_id') . "' AND consent=1 AND recovered_at IS NULL AND date_modified>=DATE_SUB(NOW(),INTERVAL " . $this->retentionDays() . " DAY)");
+        $this->db->query("UPDATE " . $this->table() . " SET token_hash='" . $hash . "',token_expires=DATE_ADD(NOW(), INTERVAL 7 DAY),token_used=NULL WHERE session_id='" . $this->db->escape($sessionId) . "' AND store_id='" . (int)($storeId ?? $this->config->get('config_store_id')) . "' AND consent=1 AND recovered_at IS NULL AND date_modified>=DATE_SUB(NOW(),INTERVAL " . $this->retentionDays() . " DAY)");
         return $this->db->countAffected() > 0 ? $token : '';
     }
     public function restore(string $token, $cart): bool {

@@ -1,6 +1,6 @@
 # CodeCart 3.0.6
 
-Current package build: **2.1.7**. Core schema version remains **3.0.6.0**. This build keeps deleted system notifications hidden after later successful Cron runs; see [release notes](documentation/RELEASE_2.1.7.md). Build 2.1.6 enforced administrator two-factor verification ([release notes](documentation/RELEASE_2.1.6.md)).
+Current package build: **2.1.8**. Core schema version remains **3.0.6.0**; presentation schema revision **35**. See the [changelog](CHANGELOG.md) for changes in this build.
 
 **CodeCart** is a free, open-source e-commerce content management system for creating and managing online stores. It builds on the familiar OpenCart/ocStore 3.x architecture while combining a modern responsive storefront, a comprehensive administration panel, multilingual SEO routing and a foundation for developing independent extensions.
 

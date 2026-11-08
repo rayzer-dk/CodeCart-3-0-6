@@ -19,7 +19,7 @@ class ControllerToolScheduler extends Controller {
                     $this->processAction($scheduler);
                     unset($this->session->data['scheduler_form_old'], $this->session->data['scheduler_form_error']);
                 } catch (\Throwable $e) {
-                    $message = $this->safeDiagnostic($e->getMessage());
+                    $message = \CodeCart\Core\SystemNotification::localizeDiagnostic($e->getMessage(), $this->language);
                     $this->session->data['error_warning'] = $message;
                     if (($this->request->post['scheduler_action'] ?? '') === 'save') {
                         $this->session->data['scheduler_form_error'] = $message;
@@ -132,7 +132,7 @@ class ControllerToolScheduler extends Controller {
                 $localizedDesc = $this->language->get($codeDesc);
                 $job['description'] = $localizedDesc !== $codeDesc ? $localizedDesc : '';
                 $job['last_status_text'] = $job['last_status'] === 'success' ? $this->language->get('text_result_success') : ($job['last_status'] === 'error' ? $this->language->get('text_result_error') : '');
-                $job['last_message_localized'] = trim((string)$job['last_message']) === '' ? '' : ($job['last_status'] === 'success' ? $this->successMessage((string)$job['last_message']) : $this->safeDiagnostic((string)$job['last_message']));
+                $job['last_message_localized'] = trim((string)$job['last_message']) === '' ? '' : ($job['last_status'] === 'success' ? $this->successMessage((string)$job['last_message']) : \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$job['last_message'], $this->language));
             }
             unset($job);
             $registered = array();
@@ -176,13 +176,13 @@ class ControllerToolScheduler extends Controller {
             foreach ($stats->rows as $row) { $data['queue_stats'][(string)$row['status']] = (int)$row['total']; }
         } catch (\Throwable $e) {
             $this->log->write('CodeCart scheduler list failure: ' . $e->getMessage());
-            $data['warning'] = $this->safeDiagnostic($e->getMessage());
+            $data['warning'] = \CodeCart\Core\SystemNotification::localizeDiagnostic($e->getMessage(), $this->language);
         }
 
         $queueStatus = isset($this->request->get['queue_status']) ? (string)$this->request->get['queue_status'] : '';
         if (!in_array($queueStatus, array('', 'pending', 'processing', 'failed', 'done'), true)) { $queueStatus = ''; }
         $queueSearch = isset($this->request->get['queue_search']) ? trim((string)$this->request->get['queue_search']) : '';
-        if (function_exists('utf8_substr')) { $queueSearch = utf8_substr($queueSearch, 0, 128); } else { $queueSearch = substr($queueSearch, 0, 128); }
+        $queueSearch = utf8_substr($queueSearch, 0, 128);
         $queueLimit = isset($this->request->get['queue_limit']) ? (int)$this->request->get['queue_limit'] : 25;
         if (!in_array($queueLimit, array(10, 25, 50, 100), true)) { $queueLimit = 25; }
         $queuePage = isset($this->request->get['queue_page']) ? max(1, (int)$this->request->get['queue_page']) : 1;
@@ -224,12 +224,12 @@ class ControllerToolScheduler extends Controller {
             $queueRows = $this->db->query("SELECT queue_id, code, route, priority, status, attempts, max_attempts, available_at, locked_at, last_error, date_added, date_modified FROM `" . DB_PREFIX . "codecart_queue`" . $queueWhereSql . " ORDER BY " . $queueOrderSql . " LIMIT " . (int)$queueStart . "," . (int)$queueLimit);
             $data['queue_jobs'] = $queueRows->rows;
             foreach ($data['queue_jobs'] as &$queueJob) {
-                $queueJob['last_error_localized'] = trim((string)$queueJob['last_error']) !== '' ? $this->safeDiagnostic((string)$queueJob['last_error']) : '';
+                $queueJob['last_error_localized'] = trim((string)$queueJob['last_error']) !== '' ? \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$queueJob['last_error'], $this->language) : '';
             }
             unset($queueJob);
         } catch (\Throwable $e) {
             $this->log->write('CodeCart scheduler queue listing failed: ' . $e->getMessage());
-            if ($data['warning'] === '') { $data['warning'] = $this->safeDiagnostic($e->getMessage()); }
+            if ($data['warning'] === '') { $data['warning'] = \CodeCart\Core\SystemNotification::localizeDiagnostic($e->getMessage(), $this->language); }
         }
         $data['queue_filter_status'] = $queueStatus;
         $data['queue_filter_search'] = $queueSearch;
@@ -288,25 +288,6 @@ class ControllerToolScheduler extends Controller {
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
         $this->response->setOutput($this->load->view('tool/scheduler', $data));
-    }
-
-    /**
-     * Tolerate a partially deployed SystemNotification file or stale PHP OPcache.
-     * Avoid throwing a second error while reporting the original scheduler error.
-     */
-    private function safeDiagnostic($message): string {
-        $message = (string)$message;
-
-        if (is_callable(array('\CodeCart\Core\SystemNotification', 'localizeDiagnostic'))) {
-            try {
-                return \CodeCart\Core\SystemNotification::localizeDiagnostic($message, $this->language);
-            } catch (\Throwable $ignored) {
-                // Use the original diagnostic if an outdated helper cannot run.
-            }
-        }
-        $technical = $this->language->get('text_diag_technical_details');
-        return $technical !== 'text_diag_technical_details' && strpos($technical, '%s') !== false
-            ? sprintf($technical, $message) : $message;
     }
 
     public function taskInfo() {
@@ -649,13 +630,13 @@ class ControllerToolScheduler extends Controller {
 
     /** A successful handler summary ("Cart reminders: sent 1 ...") is not an error diagnostic. */
     private function successMessage(string $message): string {
-        $localized = $this->safeDiagnostic($message);
-        return $localized === sprintf($this->language->get('text_diag_technical_details'), trim($message)) ? trim($message) : $localized;
+        $message = trim($message);
+        return $message === 'OK' ? $this->language->get('text_diag_ok') : $message;
     }
 
     /** Messages already translated by this controller are not wrapped as raw technical details. */
     private function resultMessage(array $result): string {
-        return !empty($result['localized']) ? (string)$result['message'] : $this->safeDiagnostic((string)$result['message']);
+        return !empty($result['localized']) ? (string)$result['message'] : \CodeCart\Core\SystemNotification::localizeDiagnostic((string)$result['message'], $this->language);
     }
 
     /**

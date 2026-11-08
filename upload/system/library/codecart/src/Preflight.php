@@ -64,7 +64,7 @@ final class Preflight {
         $displayErrors = filter_var(ini_get('display_errors'), FILTER_VALIDATE_BOOLEAN);
         $this->row($rows, 'security.display_errors', 'display_errors', $displayErrors ? 'On' : 'Off', $displayErrors ? 'warning' : 'ok', 'Production should use Off with log_errors On.');
 
-        $https = function_exists('codecart_is_https') ? codecart_is_https((array)$this->registry->get('request')->server) : false;
+        $https = codecart_is_https((array)$this->registry->get('request')->server);
         $this->row($rows, 'http.https', 'HTTPS', $https ? 'active' : 'not detected', $https ? 'ok' : 'warning', 'Required for production checkout and secure cookies.');
 
         foreach (array('storage'=>DIR_STORAGE,'cache'=>DIR_CACHE,'logs'=>DIR_LOGS,'image'=>DIR_IMAGE) as $name => $path) {

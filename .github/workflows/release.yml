@@ -51,6 +51,26 @@ jobs:
       - name: Release gate
         run: php tools/release_check.php
 
+      - name: Build optional bonus extensions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bonuses
+          if [ -d bonus-source/monobank_payment ]; then
+            python3 tools/package_unishop2_bonus.py --module monobank_payment --output bonuses
+            test -f bonuses/Monobank_Payment_Modern_Pro_v1.1.1.ocmod.zip
+          fi
+          test -f bonus-source/unishop2_compatibility/install.xml
+          python3 tools/package_unishop2_bonus.py --output bonuses
+          test -f bonuses/UniShop2_Compatibility_Pro_v1.0.2.ocmod.zip
+
+      - name: Verify current bundled documentation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/package_documentation.py --output "$RUNNER_TEMP/CodeCart_PRO_Documentation.zip"
+          cmp upload/admin/view/documentation/CodeCart_PRO_Documentation.zip "$RUNNER_TEMP/CodeCart_PRO_Documentation.zip"
+
       - name: Build release archive
         shell: bash
         run: |

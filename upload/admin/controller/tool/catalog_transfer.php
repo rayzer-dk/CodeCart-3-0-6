@@ -182,35 +182,38 @@ class ControllerToolCatalogTransfer extends Controller {
     }
 
     private function saveIssuesCsv(array $issues) {
+        if (!$this->validProgressToken()) {
+            return;
+        }
         try {
-        $path = $this->reportFile();
-        if (!$issues) { if (is_file($path)) { @unlink($path); } return; }
-        $tmp = tempnam(dirname($path), 'ccpcsv_');
-        if (!$tmp) { throw new \RuntimeException('Cannot create catalog error report.'); }
-        $handle = fopen($tmp, 'wb');
-        try {
-            // UTF-8 BOM helps Excel import multilingual product titles correctly.
-            fwrite($handle, "\xEF\xBB\xBF");
-            fputcsv($handle, array('Product ID', 'SKU', 'Product name', 'Error reason'));
-            foreach ($issues as $issue) {
-                $fields = array((int)(isset($issue['product_id']) ? $issue['product_id'] : 0));
-                foreach (array('sku','name','reason') as $column) {
-                    $value = isset($issue[$column]) ? (string)$issue[$column] : '';
-                    // Avoid CSV formula execution if a merchant opens the report.
-                    if (preg_match('/^[\x00-\x20]*[=+\-@]/', $value)) { $value = "'" . $value; }
-                    $fields[] = $value;
+            $path = $this->reportFile();
+            if (!$issues) { if (is_file($path)) { @unlink($path); } return; }
+            $tmp = tempnam(dirname($path), 'ccpcsv_');
+            if (!$tmp) { throw new \RuntimeException('Cannot create catalog error report.'); }
+            $handle = fopen($tmp, 'wb');
+            try {
+                // UTF-8 BOM helps Excel import multilingual product titles correctly.
+                fwrite($handle, "\xEF\xBB\xBF");
+                fputcsv($handle, array('Product ID', 'SKU', 'Product name', 'Error reason'));
+                foreach ($issues as $issue) {
+                    $fields = array((int)(isset($issue['product_id']) ? $issue['product_id'] : 0));
+                    foreach (array('sku','name','reason') as $column) {
+                        $value = isset($issue[$column]) ? (string)$issue[$column] : '';
+                        // Avoid CSV formula execution if a merchant opens the report.
+                        if (preg_match('/^[\x00-\x20]*[=+\-@]/', $value)) { $value = "'" . $value; }
+                        $fields[] = $value;
+                    }
+                    if (fputcsv($handle, $fields) === false) {
+                        throw new \RuntimeException('Cannot write catalog error report.');
+                    }
                 }
-                if (fputcsv($handle, $fields) === false) {
-                    throw new \RuntimeException('Cannot write catalog error report.');
-                }
-            }
-        } finally { fclose($handle); }
-        if (!rename($tmp, $path)) { @unlink($tmp); throw new \RuntimeException('Cannot finalize catalog error report.'); }
-        @chmod($path, 0600);
+            } finally { fclose($handle); }
+            if (!rename($tmp, $path)) { @unlink($tmp); throw new \RuntimeException('Cannot finalize catalog error report.'); }
+            @chmod($path, 0600);
         } catch (\Throwable $e) {
             // An optional CSV report must not make an otherwise correct XLSX
             // or catalog import fail after the main data operation succeeded.
-            if ($this->log) { $this->log->write('Catalog error report could not be saved.'); }
+            $this->log->write('Catalog error report could not be saved: ' . $e->getMessage());
         }
     }
 
@@ -262,7 +265,7 @@ class ControllerToolCatalogTransfer extends Controller {
         try {
             $path = $this->progressFile();
         } catch (\Throwable $e) {
-            if ($this->log) { $this->log->write('Catalog progress storage unavailable.'); }
+            $this->log->write('Catalog progress storage unavailable.');
             return function(array $payload) {};
         }
         return function(array $payload) use ($path) {

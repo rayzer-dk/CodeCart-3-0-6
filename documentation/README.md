@@ -21,4 +21,3 @@ Canonical source: [CodeCartPro/CodeCartPro-3.0.6.0](https://github.com/CodeCartP
 
 [Demo storefront and administrator access](DEMO.md)
 
-Multilingual QA: [Language consistency and translation rules](I18N_QA.md).

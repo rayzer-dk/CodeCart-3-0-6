@@ -9,8 +9,8 @@ class ControllerExtensionModuleManufacturerWall extends Controller {
         $this->load->model('catalog/manufacturer');
         $this->load->model('tool/image');
 
-        $data['text_previous_items'] = $this->language->get('text_previous');
-        $data['text_next_items'] = $this->language->get('text_next');
+        $data['text_previous_items'] = $this->language->get('text_previous_items');
+        $data['text_next_items'] = $this->language->get('text_next_items');
         $language_id = (int)$this->config->get('config_language_id');
         $source = isset($setting['source']) && $setting['source'] === 'selected' ? 'selected' : 'all';
         $limit = max(1, min(100, (int)($setting['limit'] ?? 12)));

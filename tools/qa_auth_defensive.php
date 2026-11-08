@@ -6,6 +6,7 @@ require dirname(__DIR__) . '/upload/system/engine/registry.php';
 require dirname(__DIR__) . '/upload/system/engine/controller.php';
 require dirname(__DIR__) . '/upload/system/library/config.php';
 require dirname(__DIR__) . '/upload/system/library/request.php';
+require dirname(__DIR__) . '/upload/system/helper/general.php';
 define('DB_PREFIX', 'qa_');
 define('DIR_SYSTEM', dirname(__DIR__) . '/upload/system/');
 define('DIR_APPLICATION', dirname(__DIR__) . '/upload/catalog/');
@@ -176,6 +177,7 @@ final class DefensiveDeviceDb {
             foreach ($matches as $match) { if ((string)($row[$match[1]] ?? '') !== $match[2]) { return false; } }
             return true;
         });
+        if (strpos($sql, 'SELECT COUNT(*) AS total ') === 0) { return result(array(array('total' => count(array_filter($rows, function ($row) { return ($row['code_hash'] ?? '') !== ''; }))))); }
         if (strpos($sql, 'SELECT ') === 0) { return result(array_values($rows)); }
         if (strpos($sql, 'UPDATE ') === 0) {
             $set = explode(' WHERE ', $sql)[0];
@@ -261,6 +263,7 @@ if (strpos($case, 'device-') === 0) {
         (new $class($registry))->index();
         $registry->get('request')->server['REQUEST_METHOD'] = 'POST';
         $registry->get('request')->post['code'] = Mail::$code;
+        $registry->get('request')->post['csrf_token'] = $load->viewData['csrf_token'] ?? '';
         (new $class($registry))->index();
         check($registry->get('response')->redirects && !(new ControllerStartupDeviceAuthorization($registry))->index(), $type . ' successful retry and code authorize normally');
     }
@@ -270,7 +273,6 @@ if ($case === 'cart') {
     require DIR_SYSTEM . 'library/cart/customer.php';
     require DIR_SYSTEM . 'library/cart/cart.php';
     require DIR_SYSTEM . 'library/cart/user.php';
-    require DIR_SYSTEM . 'helper/general.php';
     function utf8_strtolower($text) { return mb_strtolower($text, 'UTF-8'); }
     $db = new DefensiveCartDb();
     $db->customer = array('customer_id' => 7, 'firstname' => 'QA', 'lastname' => 'Customer', 'customer_group_id' => 1, 'email' => 'qa@example.invalid', 'telephone' => '', 'newsletter' => 0, 'address_id' => 0, 'password' => codecart_password_hash('qa-password-example'), 'salt' => '');
@@ -406,6 +408,7 @@ if ($case === 'html') {
     }
 }
 if ($case === 'totp') {
+    require DIR_SYSTEM . 'helper/utf8.php';
     define('DB_DATABASE', 'qa_auth');
     $db = new DefensiveMfaDb();
     $registry = registry($db);

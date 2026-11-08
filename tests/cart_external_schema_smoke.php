@@ -1,7 +1,7 @@
 <?php
 /** Read-only external cart schema validation: php tests/cart_external_schema_smoke.php */
 define('DB_PREFIX', 'oc_');
-class Model {}
+class Model { public $db; }
 class ExternalFakeResult {
     public $rows;
     public function __construct($rows) { $this->rows = $rows; }

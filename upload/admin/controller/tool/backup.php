@@ -400,49 +400,4 @@ class ControllerToolBackup extends Controller {
 			if (is_file($path)) { @unlink($path); }
 		}
 	}
-
-	public function catalogPreview() {
-		$this->load->language('tool/backup');
-		$json = array();
-		if (!$this->user->hasPermission('modify', 'tool/backup')) {
-			$json['error'] = $this->language->get('error_permission');
-		} elseif ($this->request->server['REQUEST_METHOD'] !== 'POST') {
-			$json['error'] = $this->language->get('error_catalog_file');
-		} elseif (!isset($this->request->files['catalog_import']) || !is_array($this->request->files['catalog_import'])) {
-			$json['error'] = $this->language->get('error_catalog_file');
-		} else {
-			try {
-				$transfer = new \CodeCart\Core\CatalogTransfer($this->registry);
-				$json['preview'] = $transfer->prepareUpload($this->request->files['catalog_import']);
-			} catch (\Throwable $e) {
-				$json['error'] = $e->getMessage();
-			}
-		}
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-	}
-
-	public function catalogImport() {
-		$this->load->language('tool/backup');
-		$json = array();
-		if (!$this->user->hasPermission('modify', 'tool/backup')) {
-			$json['error'] = $this->language->get('error_permission');
-		} elseif ($this->request->server['REQUEST_METHOD'] !== 'POST') {
-			$json['error'] = $this->language->get('error_catalog_file');
-		} else {
-			$token = isset($this->request->post['token']) ? (string)$this->request->post['token'] : '';
-			$overwrite = !empty($this->request->post['overwrite_images']);
-			try {
-				$transfer = new \CodeCart\Core\CatalogTransfer($this->registry);
-				$json['result'] = $transfer->importToken($token, $overwrite);
-				$json['success'] = $this->language->get('text_catalog_import_success');
-				$this->cache->delete('*');
-			} catch (\Throwable $e) {
-				$json['error'] = $e->getMessage();
-			}
-		}
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-	}
-
 }

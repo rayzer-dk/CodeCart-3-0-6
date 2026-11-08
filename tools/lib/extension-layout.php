@@ -27,9 +27,15 @@ function ccpExtensionFixture($installed = true) {
     );
 }
 
-/** Render actual Twig branches before inspecting table structure, not source formatting. */
-function ccpCheckExtensionTable(\Twig\Environment $twig, $source) {
+/**
+ * Render actual Twig branches before inspecting table structure, not source formatting.
+ * The module list has no installed/install-date columns: name, status, upload date and actions.
+ */
+function ccpCheckExtensionTable(\Twig\Environment $twig, $source, $sortKeys = array('name', 'status', 'installed', 'upload', 'date')) {
     $errors = array();
+    $minColumns = count($sortKeys) + 1;
+    $expectedKeys = $sortKeys;
+    sort($expectedKeys);
     foreach (array('empty'=>array(), 'installed'=>array(ccpExtensionFixture()), 'uninstalled'=>array(ccpExtensionFixture(false))) as $scenario=>$extensions) {
         $html = $twig->createTemplate($source)->render(array('extensions'=>$extensions, 'column_action'=>'QA action', 'text_no_results'=>'QA empty'));
         $xpath = ccpLayoutDom($html);
@@ -38,8 +44,8 @@ function ccpCheckExtensionTable(\Twig\Environment $twig, $source) {
         $table = $tables->item(0);
         $headers = $xpath->query('./thead/tr/th', $table);
         $columns = $headers->length;
-        if ($xpath->query('./thead', $table)->length !== 1 || $columns < 6 || $columns > 8 || !ccpHasClass($table, 'ccp-extension-cols-' . $columns)) {
-            $errors[] = $scenario . ': expected 6-8 headers and matching table width class';
+        if ($xpath->query('./thead', $table)->length !== 1 || $columns < $minColumns || $columns > 8 || !ccpHasClass($table, 'ccp-extension-cols-' . $columns)) {
+            $errors[] = $scenario . ': expected ' . $minColumns . '-8 headers and matching table width class';
         }
         $keys = array();
         foreach ($xpath->query('./thead/tr/th/button[@data-ccp-sort]', $table) as $button) {
@@ -53,8 +59,8 @@ function ccpCheckExtensionTable(\Twig\Environment $twig, $source) {
             }
         }
         sort($keys);
-        if ($keys !== array('date','installed','name','status','upload')) {
-            $errors[] = $scenario . ': expected exactly five sort keys: name, status, installed, upload, date';
+        if ($keys !== $expectedKeys) {
+            $errors[] = $scenario . ': expected exactly these sort keys: ' . implode(', ', $sortKeys);
         }
         $action = $headers->item($columns - 1);
         if (!$action || trim($action->textContent) !== 'QA action' || !ccpHasClass($action, 'text-center') || $action->getAttribute('scope') !== 'col') {
@@ -79,7 +85,7 @@ function ccpCheckExtensionTable(\Twig\Environment $twig, $source) {
             }
             if (ccpHasClass($row, 'ccp-extension-main')) {
                 $mainRows++;
-                foreach (array('name','status','installed','upload','date') as $key) {
+                foreach ($sortKeys as $key) {
                     if (!$row->hasAttribute('data-sort-' . $key)) { $errors[] = $scenario . ': missing row sort value ' . $key; }
                 }
             }
