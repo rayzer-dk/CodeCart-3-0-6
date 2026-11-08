@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.2.0 (2026-11-08)
+
+Compatibility release. Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
+
+- Font Awesome 4 font files (`font-awesome/fonts/`) and `jquery-2.1.1.min.js` are shipped again in the storefront and administration, as in OpenCart 3.0.5.1. They are not loaded by CodeCart; themes and modules made for ocStore/OpenCart 3 that link to these files directly keep working on new installations.
+- jQuery Migrate 3.4.1 stays enabled after jQuery 3.7.1 (warnings muted): it restores APIs removed in jQuery 3 that older ocStore-era modules call.
+- Release QA: the browser checkout gate installs Playwright from the pinned project dependency and shows its output.
+
 # CodeCart 3.0.6.0 — Build 2.1.9 (2026-11-08)
 
 Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
@@ -17,7 +25,7 @@ Fixes
 - Store health, preflight, mail delivery and relation clean-up failures are logged instead of being silently ignored.
 
 Removed
-- Font Awesome 4 font files (the bundled Font Awesome 6.7.2 uses only its woff2 webfonts; Font Awesome 4 class names keep working), an empty migration step and an orphaned template.
+- An empty migration step and an orphaned template.
 
 # CodeCart 3.0.6.0 — Build 2.1.8 (2026-11-08)
 
@@ -34,7 +42,7 @@ Fixes
 - Theme: product card content and attribute limit follow the active theme's settings; category and brand wall controls are translated.
 
 Removed
-- Duplicate upgrade step 3054, unused jQuery 2.1.1 copies, the legacy `php.ini` in the web root (delete it from existing sites), legacy catalog import actions in `tool/backup`, redundant helper guards and development leftovers.
+- Duplicate upgrade step 3054, the legacy `php.ini` in the web root (delete it from existing sites), legacy catalog import actions in `tool/backup`, redundant helper guards and development leftovers.
 
 # CodeCart 3.0.6.0 — Build 2.1.7 (2026-11-07)
 
