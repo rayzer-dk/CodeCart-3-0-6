@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.2.4 (2026-11-09)
+
+Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
+
+- A new installation now enables the Core Product structured data (JSON-LD) switch. Before, the row was missing from the installation SQL: the settings page showed "Enabled" while the storefront printed no Product, Organization or BreadcrumbList data until the settings were saved once. Merchant Center and search engines read this markup from the initial HTML of the product page.
+- Updated stores keep the switch as it is (off when it was never set), so no duplicate markup appears next to a theme or SEO extension.
+- A Playwright test checks that the product page of a fresh installation carries Product JSON-LD with price, currency and availability in `<head>`.
+
 # CodeCart 3.0.6.0 — Build 2.2.3 (2026-11-08)
 
 Core schema 3.0.6.0; presentation schema revision 35 (unchanged).

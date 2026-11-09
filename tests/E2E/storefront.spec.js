@@ -68,3 +68,23 @@ test('a theme that links jquery-2.1.1 still gets jQuery 3 with Migrate', async (
   expect(loaded.jquery).toMatch(/^3\./);
   expect(loaded.migrate).toMatch(/^3\./);
 });
+
+test('a fresh installation emits Product structured data in the initial HTML', async ({ page }) => {
+  const id = process.env.E2E_PRODUCT_ID;
+  if (!id || !/^\d+$/.test(id)) {
+    throw new Error('E2E_PRODUCT_ID must identify a seeded, in-stock QA product.');
+  }
+
+  // The raw response is checked, not the rendered DOM: crawlers read the HTML before any script runs.
+  const response = await page.request.get('/index.php?route=product/product&product_id=' + id);
+  expect(response.ok()).toBe(true);
+  const html = await response.text();
+  const head = html.slice(0, html.toLowerCase().indexOf('</head>'));
+  const blocks = [...head.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(match => JSON.parse(match[1]));
+  const nodes = blocks.flatMap(block => block['@graph'] || [block]);
+  const product = nodes.find(node => node['@type'] === 'Product');
+  expect(product, 'Product JSON-LD is missing from <head>').toBeTruthy();
+  expect(product.offers.priceCurrency).toMatch(/^[A-Z]{3}$/);
+  expect(Number(product.offers.price)).toBeGreaterThan(0);
+  expect(product.offers.availability).toMatch(/^https:\/\/schema\.org\//);
+});

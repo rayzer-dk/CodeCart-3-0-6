@@ -4322,6 +4322,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 (0, 'config', 'config_checkout_field_postcode_mode', 'required', 0),
 (0, 'config', 'config_checkout_field_telephone_mode', 'required', 0),
 (0, 'config', 'config_checkout_field_zone_mode', 'required', 0),
+(0, 'config', 'config_codecart_structured_data_status', '1', 0),
 (0, 'config', 'config_cookie_consent_accent_color', '#0b6fd3', 0),
 (0, 'config', 'config_cookie_consent_custom_icon', '', 0),
 (0, 'config', 'config_cookie_consent_days', '180', 0),
