@@ -2,7 +2,7 @@
 namespace CodeCart\Core;
 
 final class Heartbeat {
-    private const NETWORK_TASKS = array('core.currency.refresh', 'core.queue.worker', 'core.mail.campaign', 'core.cart.reminder', 'core.stock.notify');
+    private const NETWORK_TASKS = array('core.currency.refresh', 'core.mail.campaign', 'core.cart.reminder', 'core.stock.notify');
 
     private $registry;
     private $log;
@@ -69,8 +69,9 @@ final class Heartbeat {
 
             // On mod_php/CGI the visitor would wait for scheduled work (currency
             // providers, SMTP queue, ...). Hand the work to a detached loopback
-            // request instead; when loopback is unavailable run only local tasks
-            // inline and leave network and mail tasks to a real cron.
+            // request instead; when loopback is unavailable run inline only what a
+            // customer waits for (the transactional mail queue) and leave slow
+            // network and bulk tasks to a real cron.
             if (self::canFinishRequest()) {
                 $scheduler->runDue(5, 'visitor');
             } elseif (!$this->spawnLoopback($directory)) {

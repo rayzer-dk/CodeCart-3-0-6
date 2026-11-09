@@ -25,8 +25,7 @@
         <div class="alert alert-warning">
           <strong>{{ text_recovery_title }}</strong>
           <p>{{ text_recovery_help }}</p>
-          <pre class="ccp-two-factor-codes">{% for code in recovery_codes %}{{ code }}{% if not loop.last %}
-{% endif %}{% endfor %}</pre>
+          <pre class="ccp-two-factor-codes">{{ recovery_codes|join("\n")|e }}</pre>
         </div>
         {% endif %}
 

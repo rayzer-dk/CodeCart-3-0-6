@@ -1,3 +1,12 @@
+# CodeCart 3.0.6.0 — Build 2.2.5 (2026-11-09)
+
+Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
+
+- Transactional e-mail without a server Cron: build 2.1.8 stopped the visitor heartbeat from running the mail queue when the host blocks loopback requests. On such a host password resets, registration and order e-mails stayed in the queue and were never sent. The heartbeat again delivers the mail queue itself; only currency refresh, mail campaigns, cart reminders and stock notices are left to a real Cron.
+- Administrator two-factor setup: the recovery codes were shown as one unbroken string (Twig drops a newline that directly follows a tag). They are listed one per line again.
+- Release checks cover both fixes (`tests/heartbeat_policy_smoke.php`, `tests/two_factor_template_smoke.php`).
+- Verified end to end on a fresh installation: registration, password reset and order e-mails, two-factor sign-in with a code, recovery codes (single use), lock-out after repeated wrong codes, contact form, compare, wishlist, review validation, search.
+
 # CodeCart 3.0.6.0 — Build 2.2.4 (2026-11-09)
 
 Core schema 3.0.6.0; presentation schema revision 35 (unchanged).

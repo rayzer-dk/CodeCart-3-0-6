@@ -232,6 +232,8 @@ $gates = [
     ['tests/codecart_external_http_smoke.php'],
     ['tests/scheduler_cart_admin_ui_smoke.php'],
     ['tests/scheduler_crud_smoke.php'],
+    ['tests/two_factor_template_smoke.php'],
+    ['tests/heartbeat_policy_smoke.php'],
     ['tests/scheduler_runtime_smoke.php'],
 ];
 foreach ($gates as $arguments) {
