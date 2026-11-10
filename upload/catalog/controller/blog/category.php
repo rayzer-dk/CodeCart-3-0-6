@@ -200,6 +200,9 @@ class ControllerBlogCategory extends Controller {
 			$data['description'] = html_entity_decode($category_info['description'], ENT_QUOTES, 'UTF-8');
 			$data['description'] = $this->load->controller('common/codecart_form/shortcodes', array('html'=>$data['description'],'context'=>array('context_type'=>'blog_category','context_id'=>(int)$blog_category_id,'context_url'=>$this->url->link('blog/category','blog_category_id=' . (int)$blog_category_id,true))));
 			$data['configblog_review_status'] = $this->config->get('configblog_review_status');
+			$data['blog_show_date'] = $this->config->get('configblog_show_date') === null || (bool)$this->config->get('configblog_show_date');
+			$data['blog_show_reviews'] = $this->config->get('configblog_show_reviews') === null || (bool)$this->config->get('configblog_show_reviews');
+			$data['blog_show_views'] = $this->config->get('configblog_show_views') === null || (bool)$this->config->get('configblog_show_views');
 
 			$url = '';
 
