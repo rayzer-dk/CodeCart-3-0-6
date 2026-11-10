@@ -43,11 +43,14 @@ class ControllerCatalogPublicDocument extends Controller {
             $data['rows'][]=$row;
         }
         $data['filter_name']=$filter;
+        $data['sort']=$sort;
+        $data['order']=$order;
         $data['user_token']=$this->session->data['user_token'];
         $filter_param=$filter!==''?'&filter_name='.rawurlencode($filter):'';
         $data['sort_name']=$this->url->link('catalog/public_document',$token.$filter_param.'&sort=name&order='.($sort==='name'&&$order==='ASC'?'DESC':'ASC'),true);
         $data['sort_date']=$this->url->link('catalog/public_document',$token.$filter_param.'&sort=date_added&order='.($sort==='date_added'&&$order==='ASC'?'DESC':'ASC'),true);
         $data['sort_downloads']=$this->url->link('catalog/public_document',$token.$filter_param.'&sort=downloads&order='.($sort==='downloads'&&$order==='ASC'?'DESC':'ASC'),true);
+        $data['sort_last']=$this->url->link('catalog/public_document',$token.$filter_param.'&sort=last_download&order='.($sort==='last_download'&&$order==='ASC'?'DESC':'ASC'),true);
         $data['add']=$this->url->link('catalog/public_document/form',$token,true);
         $data['delete']=$this->url->link('catalog/public_document/delete',$token,true);
         $data['paid']=$this->url->link('catalog/download',$token,true);
@@ -58,7 +61,7 @@ class ControllerCatalogPublicDocument extends Controller {
         $pages=new Pagination();$pages->total=$total;$pages->page=$page;$pages->limit=$limit;
         $pages->url=$this->url->link('catalog/public_document',$token.$filter_param.'&sort='.$sort.'&order='.$order.'&page={page}',true);
         $data['pagination']=$pages->render();
-        $data['results']=sprintf($this->language->get('text_pagination'),$total?($page-1)*$limit+1:0,min($total,$page*$limit),$total,max(1,(int)ceil($total/$limit)));
+        $data['results']=sprintf($this->language->get('text_pagination'),$total?($page-1)*$limit+1:0,min($total,$page*$limit),$total,(int)ceil($total/$limit));
         $data['success']=$this->session->data['success']??'';unset($this->session->data['success']);
         $data['error_warning']=$this->session->data['error_warning']??'';unset($this->session->data['error_warning']);
         $data['header']=$this->load->controller('common/header');$data['column_left']=$this->load->controller('common/column_left');$data['footer']=$this->load->controller('common/footer');
