@@ -107,12 +107,9 @@ class ControllerExtensionExtensionDashboard extends Controller {
 
 		// Track installation dates without fabricating dates for older extensions.
 		$install_dates = $this->model_setting_extension->getInstallDates('dashboard');
-		$upload_dates = $this->model_setting_extension->getUploadDates('dashboard');
 		foreach ($data['extensions'] as &$extension_row) {
 			$installed_at = $extension_row['installed'] && isset($install_dates[$extension_row['code']]) ? $install_dates[$extension_row['code']] : '';
-			$uploaded_at = isset($upload_dates[$extension_row['code']]) ? $upload_dates[$extension_row['code']] : '';
-			$extension_row['date_uploaded'] = $uploaded_at;
-			$extension_row['date_uploaded_label'] = $uploaded_at !== '' ? substr($uploaded_at, 0, 16) : '';
+			$extension_row['status_enabled'] = ($extension_row['status'] === $this->language->get('text_enabled'));
 			$extension_row['date_installed'] = $installed_at;
 			$extension_row['date_installed_label'] = $installed_at !== '' ? date('Y-m-d H:i', strtotime($installed_at)) : '';
 		}
