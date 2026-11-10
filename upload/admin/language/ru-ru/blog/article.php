@@ -1,4 +1,5 @@
 <?php
+$_['text_blog_quick_save_failed'] = 'Не удалось сохранить изменение. Проверьте права доступа и повторите попытку.';
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Статьи блога';
 $_['text_success'] = 'Настройки успешно изменены!';
