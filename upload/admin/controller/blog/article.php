@@ -316,6 +316,7 @@ class ControllerBlogArticle extends Controller {
 			);
 		}
 
+		$data['text_blog_quick_save_failed'] = $this->language->get('text_blog_quick_save_failed');
 		$data['blog_toggle_allowed'] = $this->user->hasPermission('modify', 'blog/article');
 		$data['blog_toggle_url'] = $this->url->link('blog/article/quickToggle', 'user_token=' . $this->session->data['user_token'], true);
 		$data['user_token'] = $this->session->data['user_token'];
