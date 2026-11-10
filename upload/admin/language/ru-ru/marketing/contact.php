@@ -1,4 +1,9 @@
 <?php
+$_['help_template_branded'] = 'К письму автоматически добавляются адаптивная шапка с логотипом магазина, кнопка, подпись, контакты и персональная ссылка отписки. Предпросмотр соответствует реальному письму.';
+$_['text_template_save_copy'] = 'Сохранить отдельную копию встроенного шаблона';
+$_['text_preview_device'] = 'Режим просмотра';
+$_['text_preview_desktop'] = 'Компьютер';
+$_['text_preview_mobile'] = 'Телефон';
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Почтовая рассылка';
 $_['text_success'] = 'Сообщение успешно отправлено.';
