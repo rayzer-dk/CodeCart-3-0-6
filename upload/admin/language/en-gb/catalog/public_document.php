@@ -1,4 +1,5 @@
 <?php
+$_['text_clear_filter'] = 'Clear';
 // CodeCart public document manager
 $_['heading_title'] = 'Public Documents';
 $_['text_help'] = 'Manuals, certificates, catalogues and free public downloads. Paid files remain separate.';

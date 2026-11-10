@@ -29,6 +29,15 @@
         <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
       </div>
       <div class="panel-body">
+        <form action="index.php" method="get" class="ccp-doc-search" role="search">
+          <input type="hidden" name="route" value="catalog/download" />
+          <input type="hidden" name="user_token" value="{{ user_token }}" />
+          <input type="hidden" name="sort" value="{{ sort }}" />
+          <input type="hidden" name="order" value="{{ order }}" />
+          <input type="text" name="filter_name" class="form-control" value="{{ filter_name }}" maxlength="120" placeholder="{{ entry_download_search }}" aria-label="{{ entry_download_search }}" />
+          <button type="submit" class="btn btn-primary" title="{{ button_download_search }}"><i class="fa fa-search"></i> {{ button_download_search }}</button>
+          {% if filter_name %}<a href="{{ filter_reset }}" class="btn btn-default" title="{{ button_download_reset }}"><i class="fa fa-times"></i> {{ button_download_reset }}</a>{% endif %}
+        </form>
         <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-download">
           <div class="table-responsive ccp-doc-table-wrap">
             <table class="table table-bordered table-hover ccp-doc-table">
@@ -50,10 +59,12 @@
                     {% else %}
                     <input type="checkbox" name="selected[]" value="{{ download.download_id }}" />
                     {% endif %}</td>
-                  <td class="text-left">{{ download.name }}</td>
-                  <td class="text-right">{{ download.date_added }}</td>
-                  <td class="text-right">{{ download.stats_count }}</td><td class="text-right">{{ download.stats_30d }}</td><td class="text-right">{{ download.stats_last }}</td>
-                  <td class="text-right"><a href="{{ download.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
+                  <td class="ccp-doc-col-name">{{ download.name }}</td>
+                  <td class="ccp-doc-col-count">{{ download.stats_count }}</td>
+                  <td class="ccp-doc-col-count">{{ download.stats_30d }}</td>
+                  <td class="ccp-doc-col-date">{{ download.stats_last }}</td>
+                  <td class="ccp-doc-col-date">{{ download.date_added }}</td>
+                  <td class="ccp-doc-col-actions"><a href="{{ download.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                 </tr>
                 {% endfor %}
                 {% else %}
@@ -65,7 +76,7 @@
             </table>
           </div>
         </form>
-        <div class="row">
+        <div class="row ccp-doc-paging">
           <div class="col-sm-6 text-left">{{ pagination }}</div>
           <div class="col-sm-6 text-right">{{ results }}</div>
         </div>

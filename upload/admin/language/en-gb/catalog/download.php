@@ -1,4 +1,7 @@
 <?php
+$_['entry_download_search'] = 'Search downloads by name';
+$_['button_download_search'] = 'Search';
+$_['button_download_reset'] = 'Clear';
 // Heading
 $_['heading_title']     = 'Downloads';
 

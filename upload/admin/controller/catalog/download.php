@@ -111,26 +111,29 @@ class ControllerCatalogDownload extends Controller {
 	}
 
 	protected function getList() {
-		$this->document->addStyle('view/stylesheet/codecart_documents.css?v=3.0.6.0-1');
+		$this->document->addStyle('view/stylesheet/codecart_documents.css?v=3.0.6.0-2');
+		$filter_name = isset($this->request->get['filter_name']) ? trim((string)$this->request->get['filter_name']) : '';
+		$filter_name = mb_substr($filter_name, 0, 120, 'UTF-8');
+		$filter_url = $filter_name !== '' ? '&filter_name=' . rawurlencode($filter_name) : '';
 		if (isset($this->request->get['sort'])) {
-			$sort = $this->request->get['sort'];
+			$sort = in_array((string)$this->request->get['sort'], array('dd.name','d.date_added'), true) ? (string)$this->request->get['sort'] : 'dd.name';
 		} else {
 			$sort = 'dd.name';
 		}
 
 		if (isset($this->request->get['order'])) {
-			$order = $this->request->get['order'];
+			$order = strtoupper((string)$this->request->get['order']) === 'DESC' ? 'DESC' : 'ASC';
 		} else {
 			$order = 'ASC';
 		}
 
 		if (isset($this->request->get['page'])) {
-			$page = (int)$this->request->get['page'];
+			$page = max(1, (int)$this->request->get['page']);
 		} else {
 			$page = 1;
 		}
 
-		$url = '';
+		$url = $filter_url;
 
 		if (isset($this->request->get['sort'])) {
 			$url .= '&sort=' . $this->request->get['sort'];
@@ -160,6 +163,12 @@ class ControllerCatalogDownload extends Controller {
 		$data['delete'] = $this->url->link('catalog/download/delete', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
 		$data['downloads'] = array();
+		$data['filter_name'] = $filter_name;
+		$data['user_token'] = $this->session->data['user_token'];
+		$data['filter_reset'] = $this->url->link('catalog/download', 'user_token=' . $this->session->data['user_token'], true);
+		$data['entry_download_search'] = $this->language->get('entry_download_search');
+		$data['button_download_search'] = $this->language->get('button_download_search');
+		$data['button_download_reset'] = $this->language->get('button_download_reset');
         $data['public_documents'] = $this->url->link('catalog/public_document','user_token='.$this->session->data['user_token'],true);
         $data['column_download_count']=$this->language->get('column_download_count');
         $data['column_download_30d']=$this->language->get('column_download_30d');
@@ -167,13 +176,14 @@ class ControllerCatalogDownload extends Controller {
         $data['text_public_documents']=$this->language->get('text_public_documents');
 
 		$filter_data = array(
+			'filter_name' => $filter_name,
 			'sort'  => $sort,
 			'order' => $order,
 			'start' => ($page - 1) * $this->config->get('config_limit_admin'),
 			'limit' => $this->config->get('config_limit_admin')
 		);
 
-		$download_total = $this->model_catalog_download->getTotalDownloads();
+		$download_total = $this->model_catalog_download->getTotalDownloads($filter_data);
 
 		$results = $this->model_catalog_download->getDownloads($filter_data);
 
@@ -209,7 +219,7 @@ class ControllerCatalogDownload extends Controller {
 			$data['selected'] = array();
 		}
 
-		$url = '';
+		$url = $filter_url;
 
 		if ($order == 'ASC') {
 			$url .= '&order=DESC';
@@ -224,7 +234,7 @@ class ControllerCatalogDownload extends Controller {
 		$data['sort_name'] = $this->url->link('catalog/download', 'user_token=' . $this->session->data['user_token'] . '&sort=dd.name' . $url, true);
 		$data['sort_date_added'] = $this->url->link('catalog/download', 'user_token=' . $this->session->data['user_token'] . '&sort=d.date_added' . $url, true);
 
-		$url = '';
+		$url = $filter_url;
 
 		if (isset($this->request->get['sort'])) {
 			$url .= '&sort=' . $this->request->get['sort'];
@@ -242,7 +252,7 @@ class ControllerCatalogDownload extends Controller {
 
 		$data['pagination'] = $pagination->render();
 
-		$data['results'] = sprintf($this->language->get('text_pagination'), ($download_total) ? (($page - 1) * $this->config->get('config_limit_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_limit_admin')) > ($download_total - $this->config->get('config_limit_admin'))) ? $download_total : ((($page - 1) * $this->config->get('config_limit_admin')) + $this->config->get('config_limit_admin')), $download_total, ceil($download_total / $this->config->get('config_limit_admin')));
+		$data['results'] = sprintf($this->language->get('text_pagination'), $download_total ? (($page - 1) * $this->config->get('config_limit_admin')) + 1 : 0, min($download_total, $page * $this->config->get('config_limit_admin')), $download_total, (int)ceil($download_total / $this->config->get('config_limit_admin')));
 
 		$data['sort'] = $sort;
 		$data['order'] = $order;

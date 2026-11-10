@@ -1,4 +1,7 @@
 <?php
+$_['entry_download_search'] = 'Поиск файла по названию';
+$_['button_download_search'] = 'Поиск';
+$_['button_download_reset'] = 'Очистить';
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Файлы для скачивания';
 $_['text_success'] = 'Настройки успешно изменены!';

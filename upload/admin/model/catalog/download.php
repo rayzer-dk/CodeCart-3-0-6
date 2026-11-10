@@ -69,7 +69,7 @@ class ModelCatalogDownload extends Model {
         $sql .= " WHERE dd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
 		if (!empty($data['filter_name'])) {
-			$sql .= " AND dd.name LIKE '" . $this->db->escape($data['filter_name']) . "%'";
+			$sql .= " AND dd.name LIKE '%" . $this->db->escape(trim((string)$data['filter_name'])) . "%'";
 		}
 
 		$sort_data = array(
@@ -118,9 +118,15 @@ class ModelCatalogDownload extends Model {
 		return $download_description_data;
 	}
 
-	public function getTotalDownloads() {
-		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "download");
-
-		return $query->row['total'];
+	public function getTotalDownloads($data = array()) {
+		$filter = isset($data['filter_name']) ? trim((string)$data['filter_name']) : '';
+		if ($filter !== '') {
+			// Match the list query exactly. Count unique downloads, not language rows.
+			$sql = "SELECT COUNT(DISTINCT d.download_id) AS total FROM `" . DB_PREFIX . "download` d INNER JOIN `" . DB_PREFIX . "download_description` dd ON dd.download_id = d.download_id WHERE dd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND dd.name LIKE '%" . $this->db->escape($filter) . "%'";
+		} else {
+			$sql = "SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "download`";
+		}
+		$query = $this->db->query($sql);
+		return (int)$query->row['total'];
 	}
 }

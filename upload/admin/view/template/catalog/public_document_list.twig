@@ -28,6 +28,7 @@
           <input type="hidden" name="user_token" value="{{ user_token }}" />
           <div class="form-group"><input type="text" name="filter_name" class="form-control" value="{{ filter_name }}" placeholder="{{ entry_search }}" /></div>
           <button type="submit" class="btn btn-primary" title="{{ button_search }}"><i class="fa fa-search"></i> {{ button_search }}</button>
+          {% if filter_name %}<a href="{{ current_url }}" class="btn btn-default" title="{{ text_clear_filter }}"><i class="fa fa-times"></i> {{ text_clear_filter }}</a>{% endif %}
         </form>
         <form id="form-documents" action="{{ delete }}" method="post">
           <div class="table-responsive ccp-doc-table-wrap">
@@ -52,8 +53,8 @@
                     <td class="ccp-doc-col-count">{{ item.downloads_30d }}</td>
                     <td class="ccp-doc-col-date">{{ item.last_download ? item.last_download : '—' }}</td>
                     <td class="ccp-doc-col-date">{{ item.date_added }}</td>
-                    <td class="text-right">
-                      <div style="display:inline-flex;gap:4px;white-space:nowrap;">
+                    <td class="ccp-doc-col-actions">
+                      <div class="ccp-doc-actions">
                         {% if item.status %}
                           <button type="button" class="btn btn-default btn-sm" title="{{ button_copy }}" data-url="{{ item.href }}" onclick="if(navigator.clipboard){navigator.clipboard.writeText(this.getAttribute('data-url'));}else{window.prompt(this.getAttribute('title'),this.getAttribute('data-url'));}"><i class="fa fa-copy"></i></button>
                         {% endif %}

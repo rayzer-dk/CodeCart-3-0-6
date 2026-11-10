@@ -44,6 +44,7 @@ class ControllerCatalogPublicDocument extends Controller {
             $data['rows'][]=$row;
         }
         $data['filter_name']=$filter;
+        $data['text_clear_filter']=$this->language->get('text_clear_filter');
         $data['sort']=$sort;
         $data['order']=$order;
         $data['user_token']=$this->session->data['user_token'];

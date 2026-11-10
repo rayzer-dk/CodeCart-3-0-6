@@ -1,4 +1,7 @@
 <?php
+$_['entry_download_search'] = 'Пошук файлу за назвою';
+$_['button_download_search'] = 'Пошук';
+$_['button_download_reset'] = 'Очистити';
 
 // Heading
 $_['heading_title']     = 'Файли для завантаження';
