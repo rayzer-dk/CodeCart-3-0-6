@@ -14,6 +14,9 @@
 .ccp-document-admin .ccp-doc-table .ccp-doc-col-date{width:15%;text-align:center;font-variant-numeric:tabular-nums}
 .ccp-document-admin .ccp-doc-table .ccp-doc-col-actions{width:100px;text-align:center;white-space:nowrap}
 .ccp-document-admin .ccp-doc-table .ccp-doc-col-actions .btn{margin:0 2px}
+.ccp-document-admin .ccp-doc-actions{display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.ccp-document-admin .ccp-doc-table thead a.asc:after{content:" ▲";font-size:10px}
+.ccp-document-admin .ccp-doc-table thead a.desc:after{content:" ▼";font-size:10px}
 .ccp-document-admin .ccp-doc-table .ccp-doc-col-name .text-muted{font-size:12px;margin-top:3px}
 .ccp-document-admin .ccp-doc-search{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;align-items:center}
 .ccp-document-admin .ccp-doc-search .form-control{max-width:330px}
