@@ -1,4 +1,9 @@
 <?php
+$_['help_template_branded'] = 'Every message automatically receives a responsive branded header, store logo, call-to-action, signature, contact details and a personal unsubscribe link. Preview matches the sent email.';
+$_['text_template_save_copy'] = 'Save a separate copy of this built-in template';
+$_['text_preview_device'] = 'Preview mode';
+$_['text_preview_desktop'] = 'Desktop';
+$_['text_preview_mobile'] = 'Mobile';
 // Heading
 $_['heading_title']        = 'Mail';
 
