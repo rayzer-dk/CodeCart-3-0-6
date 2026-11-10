@@ -27,7 +27,7 @@ class ControllerCronMailCampaign extends Controller {
 
             $store_id=(int)$row['store_id'];
             if (!isset($store_settings[$store_id])) {
-                $sq=$this->db->query("SELECT `key`,`value` FROM `".DB_PREFIX."setting` WHERE store_id='".$store_id."' AND `key` IN ('config_url','config_ssl','config_name','config_email','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout')");
+                $sq=$this->db->query("SELECT `key`,`value` FROM `".DB_PREFIX."setting` WHERE store_id='".$store_id."' AND `key` IN ('config_url','config_ssl','config_name','config_email','config_mail_engine','config_mail_parameter','config_mail_smtp_hostname','config_mail_smtp_username','config_mail_smtp_password','config_mail_smtp_port','config_mail_smtp_timeout','config_logo','config_language')");
                 $store_settings[$store_id]=array(); foreach($sq->rows as $sr){$store_settings[$store_id][$sr['key']]=$sr['value'];}
             }
             $sc=$store_settings[$store_id];
@@ -35,10 +35,17 @@ class ControllerCronMailCampaign extends Controller {
             $store_name=isset($sc['config_name'])?(string)$sc['config_name']:(string)$this->config->get('config_name');
             $unsubscribe=$base.'/index.php?route=account/newsletter/unsubscribe&token='.rawurlencode($token);
             $plain=array('{{ customer_name }}'=>(string)$row['name'],'{{ store_name }}'=>$store_name,'{{ store_url }}'=>$base.'/','{{ unsubscribe_url }}'=>$unsubscribe);
-            $html=array(); foreach($plain as $k=>$v){$html[$k]=htmlspecialchars($v,ENT_QUOTES,'UTF-8');}
             $subject=str_replace(array("\r","\n"),' ',strtr((string)$row['subject'],$plain));
-            $body=strtr((string)$row['message'],$html);
-            $message='<html><head><meta charset="UTF-8"><title>'.htmlspecialchars($subject,ENT_QUOTES,'UTF-8').'</title></head><body>'.$body.'</body></html>';
+            // Same branded HTML is used for preview and actual deliveries.
+            require_once DIR_SYSTEM . 'library/codecart/src/NewsletterEmail.php';
+            $values=array('customer_name'=>(string)$row['name'],'store_name'=>$store_name,'store_url'=>$base.'/','unsubscribe_url'=>$unsubscribe);
+            $brand=array(
+                'name'=>$store_name,'url'=>$base.'/','email'=>isset($sc['config_email'])?$sc['config_email']:(string)$this->config->get('config_email'),
+                'locale'=>isset($sc['config_language'])?$sc['config_language']:(string)$this->config->get('config_language'),
+                'logo'=>\CodeCart\Core\NewsletterEmail::logoUrl($base,isset($sc['config_logo'])?$sc['config_logo']:(string)$this->config->get('config_logo'))
+            );
+            $message=\CodeCart\Core\NewsletterEmail::render($subject,(string)$row['message'],$values,$brand);
+            $body=strtr((string)$row['message'],$plain);
             $mail=new Mail(isset($sc['config_mail_engine'])?$sc['config_mail_engine']:$this->config->get('config_mail_engine'));
             $mail->parameter=isset($sc['config_mail_parameter'])?$sc['config_mail_parameter']:$this->config->get('config_mail_parameter');
             $mail->smtp_hostname=isset($sc['config_mail_smtp_hostname'])?$sc['config_mail_smtp_hostname']:$this->config->get('config_mail_smtp_hostname');
