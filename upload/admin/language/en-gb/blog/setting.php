@@ -1,4 +1,8 @@
 <?php
+$_['text_blog_display'] = 'Storefront display';
+$_['entry_blog_show_date'] = 'Show publication date';
+$_['entry_blog_show_reviews'] = 'Show reviews and rating';
+$_['entry_blog_show_views'] = 'Show view count';
 // *	@source		See SOURCE.txt for source and other copyright.
 // *	@license	GNU General Public License version 3; see LICENSE.txt
 
