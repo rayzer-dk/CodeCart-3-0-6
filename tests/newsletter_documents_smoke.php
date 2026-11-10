@@ -29,10 +29,13 @@ foreach (array('<!DOCTYPE html>', 'width="600"', 'max-width:620px', 'Logo%20D%C3
 check(strpos($render, 'Alex & Sam') === false, 'Variable not HTML escaped');
 $root = dirname(__DIR__) . '/upload/';
 $css = file_get_contents($root . 'admin/view/stylesheet/codecart_documents.css');
+foreach (array('catalog/download.php','catalog/public_document.php') as $controller) {
+    $code = file_get_contents($root . 'admin/controller/' . $controller);
+    check(strpos($code, "addStyle('view/stylesheet/codecart_documents.css") !== false, 'Missing document style registration: ' . $controller);
+}
 check(strpos($css, '.ccp-document-admin .ccp-doc-table') !== false, 'Shared document stylesheet missing');
 foreach (array('download_list.twig','public_document_list.twig','download_form.twig','public_document_form.twig') as $file) {
     $page = file_get_contents($root . 'admin/view/template/catalog/' . $file);
-    check(strpos($page, 'codecart_documents.css') !== false, 'Document stylesheet not included: ' . $file);
     check(strpos($page, 'ccp-document-admin') !== false, 'Document scope missing: ' . $file);
     check(strpos($page, 'form-download') !== false || strpos($page, 'form-documents') !== false || strpos($page,'form-document') !== false, 'Document form semantics damaged: ' . $file);
 }
