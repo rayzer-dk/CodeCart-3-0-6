@@ -19,6 +19,9 @@ final class FontAwesomeManager {
     private $extraManifest = array();
 
     public function __construct($themeDirectory = '', array $extraIcons = array()) {
+        // PDF icon used by the native product document tab: keep AUTO in lightweight Core.
+        // Its regular font shard is already prebuilt and shipped with the release.
+        $extraIcons = array_values(array_unique(array_merge(array('file-pdf-o'), $extraIcons)));
         $themeDirectory = strtolower(trim((string)$themeDirectory));
         $this->themeDirectory = preg_match('/^[a-z0-9_-]+$/', $themeDirectory) ? $themeDirectory : '';
         if ($extraIcons) {
