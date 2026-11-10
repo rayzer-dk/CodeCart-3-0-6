@@ -111,6 +111,7 @@ class ControllerCatalogDownload extends Controller {
 	}
 
 	protected function getList() {
+		$this->document->addStyle('view/stylesheet/codecart_documents.css?v=3.0.6.0-1');
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
@@ -254,6 +255,7 @@ class ControllerCatalogDownload extends Controller {
 	}
 
 	protected function getForm() {
+		$this->document->addStyle('view/stylesheet/codecart_documents.css?v=3.0.6.0-1');
 		$data['text_form'] = !isset($this->request->get['download_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
 		if (isset($this->error['warning'])) {
