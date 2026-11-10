@@ -34,6 +34,7 @@ class ControllerMarketingContact extends Controller {
 		$data['template_save_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/saveTemplate', 'user_token=' . $this->session->data['user_token'], true));
 		$data['template_delete_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/deleteTemplate', 'user_token=' . $this->session->data['user_token'], true));
 		$data['template_import_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/importTemplate', 'user_token=' . $this->session->data['user_token'], true));
+		$data['template_preview_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/previewTemplate', 'user_token=' . $this->session->data['user_token'], true));
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -45,10 +46,10 @@ class ControllerMarketingContact extends Controller {
 	public function send() {
 		$this->load->language('marketing/contact');
 		$json = array();
-		if ($this->request->server['REQUEST_METHOD'] !== 'POST') {
+		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->mailAuthorized(false)) {
 			$this->response->setStatusCode(405);
 			$json['error']['warning'] = $this->language->get('error_permission');
-		} elseif (!$this->user->hasPermission('modify', 'marketing/contact')) {
+		} elseif (!$this->mailAuthorized(true)) {
 			$json['error']['warning'] = $this->language->get('error_permission');
 		} else {
 			$subject = trim(isset($this->request->post['subject']) ? (string)$this->request->post['subject'] : '');
@@ -57,6 +58,11 @@ class ControllerMarketingContact extends Controller {
 			$allowed = array('newsletter','customer_all','customer_group','customer','affiliate_all','affiliate','product');
 			if ($subject === '') { $json['error']['subject'] = $this->language->get('error_subject'); }
 			if ($message === '') { $json['error']['message'] = $this->language->get('error_message'); }
+			if (!$json) {
+				try { $message = $this->sanitizeMailHtml(html_entity_decode($message, ENT_QUOTES, 'UTF-8')); }
+				catch (\Throwable $e) { $json['error']['message'] = $this->language->get('error_template_html'); }
+				if (trim($message) === '') { $json['error']['message'] = $this->language->get('error_message'); }
+			}
 			if (!in_array($audience, $allowed, true)) { $json['error']['email'] = $this->language->get('error_email'); }
 			if ($audience === 'customer' && empty($this->request->post['customer'])) { $json['error']['email'] = $this->language->get('error_email'); }
 			if ($audience === 'affiliate' && empty($this->request->post['affiliate'])) { $json['error']['email'] = $this->language->get('error_email'); }
@@ -71,7 +77,7 @@ class ControllerMarketingContact extends Controller {
 					'affiliate' => isset($this->request->post['affiliate']) ? (array)$this->request->post['affiliate'] : array(),
 					'product' => isset($this->request->post['product']) ? (array)$this->request->post['product'] : array(),
 					'subject' => html_entity_decode($subject, ENT_QUOTES, 'UTF-8'),
-					'message' => html_entity_decode($message, ENT_QUOTES, 'UTF-8')
+					'message' => $message
 				));
 				if ((int)$result['total'] < 1) { $json['error']['email'] = $this->language->get('error_email'); }
 				else { $json['success'] = sprintf($this->language->get('text_campaign_queued'), (int)$result['campaign_id'], (int)$result['total']); $json['campaign_id']=(int)$result['campaign_id']; }
@@ -86,8 +92,10 @@ class ControllerMarketingContact extends Controller {
 		$json = array();
 		$id = isset($this->request->get['template_id']) ? (string)$this->request->get['template_id'] : '';
 		$templates = $this->getMailTemplates();
-
-		if ($id !== '' && isset($templates[$id])) {
+		if (!$this->mailAuthorized(false)) {
+			$this->response->setStatusCode(403);
+			$json['error'] = $this->language->get('error_permission');
+		} elseif ($id !== '' && isset($templates[$id])) {
 			$json['template'] = $templates[$id];
 		} else {
 			$json['error'] = $this->language->get('error_template_not_found');
@@ -101,7 +109,7 @@ class ControllerMarketingContact extends Controller {
 		$this->load->language('marketing/contact');
 		$json = array();
 
-		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->user->hasPermission('modify', 'marketing/contact')) {
+		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->mailAuthorized(true)) {
 			$json['error'] = $this->language->get('error_permission');
 		} else {
 			$name = trim(html_entity_decode(isset($this->request->post['template_name']) ? (string)$this->request->post['template_name'] : '', ENT_QUOTES, 'UTF-8'));
@@ -125,7 +133,7 @@ class ControllerMarketingContact extends Controller {
 				}
 				if (!isset($json['error'])) {
 					$templates = $this->getMailTemplates();
-					if ($id === '' || !isset($templates[$id])) {
+					if ($id === '' || strpos($id, 'builtin_') === 0 || !isset($templates[$id])) {
 						$id = 'tpl_' . substr(hash('sha256', microtime(true) . '|' . $name . '|' . mt_rand()), 0, 16);
 					}
 					$templates[$id] = array('id' => $id, 'name' => $name, 'subject' => $subject, 'message' => $message, 'html_encoding' => 'raw');
@@ -144,12 +152,12 @@ class ControllerMarketingContact extends Controller {
 		$this->load->language('marketing/contact');
 		$json = array();
 
-		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->user->hasPermission('modify', 'marketing/contact')) {
+		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->mailAuthorized(true)) {
 			$json['error'] = $this->language->get('error_permission');
 		} else {
 			$id = isset($this->request->post['template_id']) ? preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$this->request->post['template_id']) : '';
 			$templates = $this->getMailTemplates();
-			if ($id !== '' && isset($templates[$id])) {
+			if ($id !== '' && strpos($id, 'builtin_') !== 0 && isset($templates[$id])) {
 				unset($templates[$id]);
 				$this->saveMailTemplates($templates);
 				$json['success'] = $this->language->get('text_template_deleted');
@@ -165,7 +173,7 @@ class ControllerMarketingContact extends Controller {
 	public function importTemplate() {
 		$this->load->language('marketing/contact');
 		$json = array();
-		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->user->hasPermission('modify', 'marketing/contact')) {
+		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->mailAuthorized(true)) {
 			$json['error'] = $this->language->get('error_permission');
 		} else {
 			$file = isset($this->request->files['template_file']) ? $this->request->files['template_file'] : array();
@@ -198,6 +206,51 @@ class ControllerMarketingContact extends Controller {
 		}
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
+	}
+
+
+	/** Admin routes must not silently permit foreign or stale user tokens. */
+	private function mailAuthorized($modify) {
+		$token = isset($this->request->get['user_token']) ? (string)$this->request->get['user_token'] : '';
+		$expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+		return $token !== '' && $expected !== '' && hash_equals($expected, $token)
+			&& $this->user->hasPermission('access', 'marketing/contact')
+			&& (!$modify || $this->user->hasPermission('modify', 'marketing/contact'));
+	}
+
+	/** Exact same branded HTML as the mail queue sends; no campaign is created. */
+	public function previewTemplate() {
+		$this->load->language('marketing/contact');
+		$json = array();
+		if (strtoupper((string)($this->request->server['REQUEST_METHOD'] ?? '')) !== 'POST' || !$this->mailAuthorized(false)) {
+			$this->response->setStatusCode(403);
+			$json['error'] = $this->language->get('error_permission');
+		} else {
+			try {
+				$subject = substr(trim((string)($this->request->post['subject'] ?? '')), 0, 255);
+				$message = (string)($this->request->post['message'] ?? '');
+				if (strlen($message) > 1000000) { throw new \InvalidArgumentException('Mail preview too large'); }
+				$message = $this->sanitizeMailHtml($message);
+				$storeId = max(0, (int)($this->request->post['store_id'] ?? 0));
+				$setting = array();
+				$query = $this->db->query("SELECT `key`,`value` FROM `" . DB_PREFIX . "setting` WHERE store_id='" . $storeId . "' AND `code`='config' AND `key` IN ('config_name','config_url','config_ssl','config_logo','config_email','config_language')");
+				foreach ($query->rows as $item) { $setting[$item['key']] = $item['value']; }
+				$base = !empty($setting['config_ssl']) ? rtrim((string)$setting['config_ssl'], '/') : (!empty($setting['config_url']) ? rtrim((string)$setting['config_url'], '/') : (defined('HTTP_CATALOG') ? rtrim(HTTP_CATALOG, '/') : ''));
+				$name = isset($setting['config_name']) ? $setting['config_name'] : (string)$this->config->get('config_name');
+				require_once DIR_SYSTEM . 'library/codecart/src/NewsletterEmail.php';
+				$values = array('customer_name'=>$this->language->get('text_preview_customer'), 'store_name'=>$name, 'store_url'=>$base . '/', 'unsubscribe_url'=>$base . '/index.php?route=account/newsletter/unsubscribe&token=preview');
+				$brand = array('name'=>$name, 'url'=>$base . '/', 'email'=>isset($setting['config_email']) ? $setting['config_email'] : (string)$this->config->get('config_email'),
+					'locale'=>isset($setting['config_language']) ? $setting['config_language'] : (string)$this->config->get('config_language'),
+					'logo'=>\CodeCart\Core\NewsletterEmail::logoUrl($base, isset($setting['config_logo']) ? $setting['config_logo'] : (string)$this->config->get('config_logo')));
+				$json['html'] = \CodeCart\Core\NewsletterEmail::render($subject, $message, $values, $brand);
+			} catch (\Throwable $e) {
+				$this->log->write('Newsletter preview failed: code=' . (int)$e->getCode());
+				$this->response->setStatusCode(400);
+				$json['error'] = $this->language->get('error_template_html');
+			}
+		}
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 	private function customerRecipient($customer) {
@@ -254,7 +307,9 @@ class ControllerMarketingContact extends Controller {
 				'html_encoding' => 'raw'
 			);
 		}
-		return $clean;
+		require_once DIR_SYSTEM . 'library/codecart/src/NewsletterEmail.php';
+		$locale = (string)$this->config->get('config_language');
+		return \CodeCart\Core\NewsletterEmail::presets($locale) + $clean;
 	}
 
 	private function saveMailTemplates($templates) {
