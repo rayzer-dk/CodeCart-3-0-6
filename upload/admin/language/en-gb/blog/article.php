@@ -1,4 +1,5 @@
 <?php
+$_['text_blog_quick_save_failed'] = 'Could not save this change. Check permissions and retry.';
 // *	@source		See SOURCE.txt for source and other copyright.
 // *	@license	GNU General Public License version 3; see LICENSE.txt
 
