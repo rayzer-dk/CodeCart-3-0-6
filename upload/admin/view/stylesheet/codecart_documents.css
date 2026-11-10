@@ -1,0 +1,28 @@
+/* CodeCart document pages: one lightweight layout for downloads and public files. */
+.ccp-document-admin .panel{border-color:#dfe5ee;border-radius:6px;overflow:hidden}
+.ccp-document-admin .panel-heading{background:#fff;border-bottom:1px solid #e4e9f1;padding:14px 16px}
+.ccp-document-admin .panel-body{padding:16px}
+.ccp-document-admin .ccp-doc-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ccp-document-admin .ccp-doc-table{border-top:3px solid #0057d9;width:100%;min-width:790px;table-layout:fixed;margin-bottom:0}
+.ccp-document-admin .ccp-doc-table thead th{background:#f7faff;border-right:1px solid #dbe3ef;padding:10px 8px;font-size:13px;line-height:1.35;font-weight:600;vertical-align:middle;text-align:center}
+.ccp-document-admin .ccp-doc-table thead th:last-child{border-right:0}
+.ccp-document-admin .ccp-doc-table thead th.ccp-doc-col-name{text-align:left}
+.ccp-document-admin .ccp-doc-table tbody td{padding:9px 8px;vertical-align:middle;overflow-wrap:anywhere}
+.ccp-document-admin .ccp-doc-table .ccp-doc-col-check{width:36px;text-align:center}
+.ccp-document-admin .ccp-doc-table .ccp-doc-col-name{width:32%;text-align:left}
+.ccp-document-admin .ccp-doc-table .ccp-doc-col-count{width:10%;text-align:center}
+.ccp-document-admin .ccp-doc-table .ccp-doc-col-date{width:15%;text-align:center;font-variant-numeric:tabular-nums}
+.ccp-document-admin .ccp-doc-table .ccp-doc-col-actions{width:100px;text-align:center;white-space:nowrap}
+.ccp-document-admin .ccp-doc-table .ccp-doc-col-actions .btn{margin:0 2px}
+.ccp-document-admin .ccp-doc-table .ccp-doc-col-name .text-muted{font-size:12px;margin-top:3px}
+.ccp-document-admin .ccp-doc-search{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;align-items:center}
+.ccp-document-admin .ccp-doc-search .form-control{max-width:330px}
+.ccp-document-admin .ccp-doc-table .ccp-doc-empty{padding:22px 8px;text-align:center;color:#68788e}
+.ccp-document-admin .ccp-doc-paging{margin-top:13px}
+.ccp-document-admin .ccp-doc-paging .pagination{margin:3px 0}
+.ccp-document-admin .ccp-doc-form .form-group{padding:3px 0;margin-bottom:14px}
+.ccp-document-admin .ccp-doc-form .input-group{margin-bottom:8px}
+.ccp-document-admin .ccp-doc-form .help-block{color:#64748b;font-size:12px;line-height:1.55}
+html.ccp-admin-dark .ccp-document-admin .panel,html.ccp-admin-dark .ccp-document-admin .panel-heading{background:#1b2531;border-color:#354454}
+html.ccp-admin-dark .ccp-document-admin .ccp-doc-table thead th{background:#202f40;border-color:#354454}
+@media(max-width:767px){.ccp-document-admin .panel-body{padding:10px}.ccp-document-admin .ccp-doc-search .form-control{width:100%;max-width:none}.ccp-document-admin .ccp-doc-paging>div{text-align:left!important}.ccp-document-admin .ccp-doc-table thead th{font-size:12px}}

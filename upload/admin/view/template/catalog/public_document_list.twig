@@ -1,5 +1,6 @@
 {{ header }}{{ column_left }}
-<div id="content" class="cc-documents-admin">
+<link rel="stylesheet" href="view/stylesheet/codecart_documents.css?v=3.0.6.0-1" />
+<div id="content" class="cc-documents-admin ccp-document-admin">
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
@@ -23,35 +24,35 @@
       <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3></div>
       <div class="panel-body">
         <p class="help-block">{{ text_help }}</p>
-        <form action="index.php" method="get" class="form-inline" style="margin-bottom:15px;">
+        <form action="index.php" method="get" class="ccp-doc-search">
           <input type="hidden" name="route" value="catalog/public_document" />
           <input type="hidden" name="user_token" value="{{ user_token }}" />
           <div class="form-group"><input type="text" name="filter_name" class="form-control" value="{{ filter_name }}" placeholder="{{ entry_search }}" /></div>
           <button type="submit" class="btn btn-primary" title="{{ button_search }}"><i class="fa fa-search"></i> {{ button_search }}</button>
         </form>
         <form id="form-documents" action="{{ delete }}" method="post">
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover cc-documents-table">
-              <thead style="border-top:3px solid #0057d9;">
+          <div class="table-responsive ccp-doc-table-wrap">
+            <table class="table table-bordered table-hover ccp-doc-table">
+              <thead>
                 <tr>
-                  <th class="text-center" style="width:32px;"><input type="checkbox" onclick="$('#form-documents input[name*=\'selected\']').prop('checked',this.checked)" /></th>
-                  <th><a href="{{ sort_name }}">{{ column_name }}</a></th>
-                  <th class="text-right"><a href="{{ sort_downloads }}">{{ column_downloads }}</a></th>
-                  <th class="text-right">{{ column_30d }}</th>
-                  <th>{{ column_last }}</th>
-                  <th class="text-right"><a href="{{ sort_date }}">{{ column_date }}</a></th>
-                  <th class="text-right" style="min-width:116px;">{{ column_action }}</th>
+                  <th class="ccp-doc-col-check"><input type="checkbox" onclick="$('#form-documents input[name*=\'selected\']').prop('checked',this.checked)" /></th>
+                  <th class="ccp-doc-col-name"><a href="{{ sort_name }}">{{ column_name }}</a></th>
+                  <th class="ccp-doc-col-count"><a href="{{ sort_downloads }}">{{ column_downloads }}</a></th>
+                  <th class="ccp-doc-col-count">{{ column_30d }}</th>
+                  <th class="ccp-doc-col-date">{{ column_last }}</th>
+                  <th class="ccp-doc-col-date"><a href="{{ sort_date }}">{{ column_date }}</a></th>
+                  <th class="ccp-doc-col-actions">{{ column_action }}</th>
                 </tr>
               </thead>
               <tbody>
                 {% for item in rows %}
                   <tr>
-                    <td class="text-center"><input type="checkbox" name="selected[]" value="{{ item.document_id }}" /></td>
-                    <td><strong>{{ item.title }}</strong><div class="text-muted small">{{ item.original_name }}</div></td>
-                    <td class="text-right">{{ item.download_count }}</td>
-                    <td class="text-right">{{ item.downloads_30d }}</td>
-                    <td>{{ item.last_download ? item.last_download : '—' }}</td>
-                    <td class="text-right">{{ item.date_added }}</td>
+                    <td class="ccp-doc-col-check"><input type="checkbox" name="selected[]" value="{{ item.document_id }}" /></td>
+                    <td class="ccp-doc-col-name"><strong>{{ item.title }}</strong><div class="text-muted small">{{ item.original_name }}</div></td>
+                    <td class="ccp-doc-col-count">{{ item.download_count }}</td>
+                    <td class="ccp-doc-col-count">{{ item.downloads_30d }}</td>
+                    <td class="ccp-doc-col-date">{{ item.last_download ? item.last_download : '—' }}</td>
+                    <td class="ccp-doc-col-date">{{ item.date_added }}</td>
                     <td class="text-right">
                       <div style="display:inline-flex;gap:4px;white-space:nowrap;">
                         {% if item.status %}
@@ -62,13 +63,13 @@
                     </td>
                   </tr>
                 {% else %}
-                  <tr><td colspan="7" class="text-center">{{ text_empty }}</td></tr>
+                  <tr><td colspan="7" class="ccp-doc-empty">{{ text_empty }}</td></tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
         </form>
-        <div class="row"><div class="col-sm-6 text-left">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
+        <div class="row ccp-doc-paging"><div class="col-sm-6 text-left">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
       </div>
     </div>
   </div>
