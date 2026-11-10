@@ -1,0 +1,128 @@
+{
+  "uk": {
+    "labels": {
+      "visit": "Відвідати магазин",
+      "goodbye": "З повагою, команда",
+      "optout": "Відмовитися від розсилки",
+      "reason": "Ви отримали цей лист від магазину"
+    },
+    "presets": {
+      "news": [
+        "Новини магазину",
+        "Новини та корисні оновлення від {{ store_name }}",
+        "Останні новини",
+        "Вітаємо, {{ customer_name }}!",
+        "Ділимося важливими новинами, добірками та корисною інформацією нашого магазину.",
+        "Завітайте до нас, щоб дізнатися більше."
+      ],
+      "offer": [
+        "Спеціальна пропозиція",
+        "Спеціальна пропозиція від {{ store_name }}",
+        "Пропозиція для вас",
+        "Вітаємо, {{ customer_name }}!",
+        "Ми підготували для вас добірку цікавих пропозицій. Оберіть те, що підходить саме вам.",
+        "Актуальні товари й умови дивіться в магазині."
+      ],
+      "new": [
+        "Нові надходження",
+        "Новинки в {{ store_name }}",
+        "Щойно з’явилося",
+        "Вітаємо, {{ customer_name }}!",
+        "Оновили асортимент! Перегляньте нові товари та знайдіть рішення для своїх завдань.",
+        "Відкрийте каталог за посиланням нижче."
+      ],
+      "info": [
+        "Інформаційне повідомлення",
+        "Важлива інформація від {{ store_name }}",
+        "Важливе повідомлення",
+        "Вітаємо, {{ customer_name }}!",
+        "Хочемо повідомити вам важливу інформацію щодо роботи нашого магазину.",
+        "Деталі завжди доступні на нашому сайті."
+      ]
+    }
+  },
+  "ru": {
+    "labels": {
+      "visit": "Перейти в магазин",
+      "goodbye": "С уважением, команда",
+      "optout": "Отписаться от рассылки",
+      "reason": "Вы получили это письмо от магазина"
+    },
+    "presets": {
+      "news": [
+        "Новости магазина",
+        "Новости и полезные обновления от {{ store_name }}",
+        "Последние новости",
+        "Здравствуйте, {{ customer_name }}!",
+        "Делимся новостями, подборками и полезной информацией нашего магазина.",
+        "Загляните к нам, чтобы узнать больше."
+      ],
+      "offer": [
+        "Специальное предложение",
+        "Специальное предложение от {{ store_name }}",
+        "Предложение для вас",
+        "Здравствуйте, {{ customer_name }}!",
+        "Мы подготовили подборку интересных предложений. Выберите то, что подходит именно вам.",
+        "Актуальные товары и условия смотрите в магазине."
+      ],
+      "new": [
+        "Новые поступления",
+        "Новинки в {{ store_name }}",
+        "Только что появилось",
+        "Здравствуйте, {{ customer_name }}!",
+        "Обновили ассортимент! Посмотрите новые товары и найдите решения для своих задач.",
+        "Откройте каталог по ссылке ниже."
+      ],
+      "info": [
+        "Информационное сообщение",
+        "Важная информация от {{ store_name }}",
+        "Важное сообщение",
+        "Здравствуйте, {{ customer_name }}!",
+        "Хотим сообщить важную информацию о работе нашего магазина.",
+        "Подробности всегда доступны на нашем сайте."
+      ]
+    }
+  },
+  "en": {
+    "labels": {
+      "visit": "Visit our store",
+      "goodbye": "Kind regards, the team at",
+      "optout": "Unsubscribe from these emails",
+      "reason": "You received this email from"
+    },
+    "presets": {
+      "news": [
+        "Store news",
+        "News and helpful updates from {{ store_name }}",
+        "Latest updates",
+        "Hello {{ customer_name }}!",
+        "Here are the latest updates, ideas and useful information from our store.",
+        "Visit us to learn more."
+      ],
+      "offer": [
+        "Special offer",
+        "A special offer from {{ store_name }}",
+        "Selected for you",
+        "Hello {{ customer_name }}!",
+        "We have put together a selection of offers worth exploring.",
+        "See current products and details in our store."
+      ],
+      "new": [
+        "New arrivals",
+        "What is new at {{ store_name }}",
+        "Fresh arrivals",
+        "Hello {{ customer_name }}!",
+        "Discover our latest additions and find solutions that fit your needs.",
+        "Explore the catalog below."
+      ],
+      "info": [
+        "Store announcement",
+        "Important information from {{ store_name }}",
+        "Important update",
+        "Hello {{ customer_name }}!",
+        "We would like to share important information about our store.",
+        "Find the latest details on our website."
+      ]
+    }
+  }
+}

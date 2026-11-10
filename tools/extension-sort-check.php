@@ -21,7 +21,7 @@ foreach ($types as $type) {
         $errors[] = $type . ': no installation date metadata in controller';
     }
     try {
-        $sortKeys = $type === 'module' ? array('name', 'status', 'upload') : array('name', 'status', 'installed', 'upload', 'date');
+        $sortKeys = array('name', 'status', 'date');
         foreach (ccpCheckExtensionTable($renderer, $twig, $sortKeys) as $error) { $errors[] = $type . ': ' . $error; }
     } catch (\Throwable $e) {
         $errors[] = $type . ': template check failed: ' . $e->getMessage();
@@ -32,7 +32,7 @@ foreach (array('uk-ua', 'ru-ru', 'en-gb') as $locale) {
     $path = $root . '/upload/admin/language/' . $locale . '/marketplace/extension.php';
     $content = file_get_contents($path);
     $keys = ccpLanguageAssignmentKeys($content);
-    foreach (array('column_installed','column_install_date','column_upload_date','text_installed','text_not_installed','text_date_unknown','text_upload_date_unknown') as $key) {
+    foreach (array('column_install_date','text_date_unknown') as $key) {
         if (!in_array($key, $keys, true)) {
             $errors[] = $locale . ': missing ' . $key;
         }

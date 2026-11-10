@@ -8,7 +8,7 @@ require_once __DIR__ . '/check_paypal_financial_guards.php';
 $twig = new \Twig\Environment(new \Twig\Loader\ArrayLoader(), array('autoescape'=>false, 'cache'=>false));
 $table = file_get_contents($root . '/upload/admin/view/template/extension/extension/module.twig');
 $parent = file_get_contents($root . '/upload/admin/view/template/marketplace/extension.twig');
-$moduleSortKeys = array('name', 'status', 'upload');
+$moduleSortKeys = array('name', 'status', 'date');
 $passed = 0;
 
 function checkerAssert($condition, $name) {
@@ -38,7 +38,7 @@ $badTables = array(
     'sort key present only in comment'=>str_replace('data-ccp-sort="status"', 'data-other="status"', $table) . '<!-- data-ccp-sort="status" -->',
     'row colspan'=>str_replace('<td><b>{{ extension.name }}</b></td>', '<td colspan="2"><b>{{ extension.name }}</b></td>', $table),
     'missing action alignment'=>str_replace('<th scope="col" class="text-center">{{ column_action }}', '<th scope="col">{{ column_action }}', $table),
-    'missing uploaded sort value'=>str_replace('data-sort-upload=', 'data-other-upload=', $table)
+    'missing installed-date sort value'=>str_replace('data-sort-date=', 'data-other-date=', $table)
 );
 foreach ($badTables as $name=>$source) { checkerAssert(ccpCheckExtensionTable($twig, $source, $moduleSortKeys) !== array(), $name); }
 

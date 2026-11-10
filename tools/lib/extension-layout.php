@@ -29,9 +29,9 @@ function ccpExtensionFixture($installed = true) {
 
 /**
  * Render actual Twig branches before inspecting table structure, not source formatting.
- * The module list has no installed/install-date columns: name, status, upload date and actions.
+ * All extension lists use installation dates, never uploaded dates or installed-state columns.
  */
-function ccpCheckExtensionTable(\Twig\Environment $twig, $source, $sortKeys = array('name', 'status', 'installed', 'upload', 'date')) {
+function ccpCheckExtensionTable(\Twig\Environment $twig, $source, $sortKeys = array('name', 'status', 'date')) {
     $errors = array();
     $minColumns = count($sortKeys) + 1;
     $expectedKeys = $sortKeys;
@@ -44,8 +44,8 @@ function ccpCheckExtensionTable(\Twig\Environment $twig, $source, $sortKeys = ar
         $table = $tables->item(0);
         $headers = $xpath->query('./thead/tr/th', $table);
         $columns = $headers->length;
-        if ($xpath->query('./thead', $table)->length !== 1 || $columns < $minColumns || $columns > 8 || !ccpHasClass($table, 'ccp-extension-cols-' . $columns)) {
-            $errors[] = $scenario . ': expected ' . $minColumns . '-8 headers and matching table width class';
+        if ($xpath->query('./thead', $table)->length !== 1 || $columns < $minColumns || $columns > 6 || !ccpHasClass($table, 'ccp-extension-cols-' . $columns)) {
+            $errors[] = $scenario . ': expected ' . $minColumns . '-6 headers and matching table width class';
         }
         $keys = array();
         foreach ($xpath->query('./thead/tr/th/button[@data-ccp-sort]', $table) as $button) {
@@ -54,7 +54,7 @@ function ccpCheckExtensionTable(\Twig\Environment $twig, $source, $sortKeys = ar
             if (!ccpHasClass($button, 'ccp-extension-sort') || $button->getAttribute('type') !== 'button') {
                 $errors[] = $scenario . ': sort control must be a button with the sorting class';
             }
-            if (in_array($key, array('status','upload','date'), true) && !ccpHasClass($button->parentNode, 'text-center')) {
+            if (in_array($key, array('status','date'), true) && !ccpHasClass($button->parentNode, 'text-center')) {
                 $errors[] = $scenario . ': heading ' . $key . ' needs text-center';
             }
         }
@@ -132,7 +132,7 @@ function ccpCheckExtensionParent(\Twig\Environment $twig, $source) {
             if (($rules[$selector][$property] ?? null) !== $value) { $errors[] = 'missing CSS declaration: ' . $selector . ' { ' . $property . ': ' . $value . ' }'; }
         }
     }
-    foreach (array(6,7,8) as $columns) {
+    foreach (array(4,5,6) as $columns) {
         for ($column = 1; $column <= $columns; $column++) {
             $selector = '#extension .ccp-extension-cols-' . $columns . ' th:nth-child(' . $column . ')';
             if (!isset($rules[$selector]['width']) || !preg_match('/^(?:\d+(?:\.\d+)?|\.\d+)%$/D', $rules[$selector]['width']) || (float)$rules[$selector]['width'] <= 0) {

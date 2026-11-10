@@ -7,35 +7,32 @@ namespace CodeCart\Core;
  * the same render function, so what merchants see is what recipients receive.
  */
 final class NewsletterEmail {
+    /** Shared UTF-8 translation source for previews and queued deliveries. */
+    private static function translations() {
+        static $translations = null;
+        if ($translations === null) {
+            $path = dirname(__DIR__, 3) . '/config/codecart_newsletter_text.json';
+            $raw = @file_get_contents($path);
+            $decoded = $raw !== false ? json_decode($raw, true) : null;
+            if (!is_array($decoded) || !isset($decoded['en']['presets'], $decoded['en']['labels'])) {
+                throw new \RuntimeException('Newsletter translation file unavailable.');
+            }
+            $translations = $decoded;
+        }
+        return $translations;
+    }
+
     private static function h($value) {
         return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     public static function presets($locale) {
         $lang = strtolower(substr((string)$locale, 0, 2));
-        $strings = array(
-            'uk' => array(
-                'news' => array('Новини магазину', 'Новини та корисні оновлення від {{ store_name }}', 'Останні новини', 'Вітаємо, {{ customer_name }}!', 'Ділимося важливими новинами, добірками та корисною інформацією нашого магазину.', 'Завітайте до нас, щоб дізнатися більше.'),
-                'offer' => array('Спеціальна пропозиція', 'Спеціальна пропозиція від {{ store_name }}', 'Пропозиція для вас', 'Вітаємо, {{ customer_name }}!', 'Ми підготували для вас добірку цікавих пропозицій. Оберіть те, що підходить саме вам.', 'Актуальні товари й умови дивіться в магазині.'),
-                'new' => array('Нові надходження', 'Новинки в {{ store_name }}', 'Щойно з’явилося', 'Вітаємо, {{ customer_name }}!', 'Оновили асортимент! Перегляньте нові товари та знайдіть рішення для своїх завдань.', 'Відкрийте каталог за посиланням нижче.'),
-                'info' => array('Інформаційне повідомлення', 'Важлива інформація від {{ store_name }}', 'Важливе повідомлення', 'Вітаємо, {{ customer_name }}!', 'Хочемо повідомити вам важливу інформацію щодо роботи нашого магазину.', 'Деталі завжди доступні на нашому сайті.')
-            ),
-            'ru' => array(
-                'news' => array('Новости магазина', 'Новости и полезные обновления от {{ store_name }}', 'Последние новости', 'Здравствуйте, {{ customer_name }}!', 'Делимся новостями, подборками и полезной информацией нашего магазина.', 'Загляните к нам, чтобы узнать больше.'),
-                'offer' => array('Специальное предложение', 'Специальное предложение от {{ store_name }}', 'Предложение для вас', 'Здравствуйте, {{ customer_name }}!', 'Мы подготовили подборку интересных предложений. Выберите то, что подходит именно вам.', 'Актуальные товары и условия смотрите в магазине.'),
-                'new' => array('Новые поступления', 'Новинки в {{ store_name }}', 'Только что появилось', 'Здравствуйте, {{ customer_name }}!', 'Обновили ассортимент! Посмотрите новые товары и найдите решения для своих задач.', 'Откройте каталог по ссылке ниже.'),
-                'info' => array('Информационное сообщение', 'Важная информация от {{ store_name }}', 'Важное сообщение', 'Здравствуйте, {{ customer_name }}!', 'Хотим сообщить важную информацию о работе нашего магазина.', 'Подробности всегда доступны на нашем сайте.')
-            ),
-            'en' => array(
-                'news' => array('Store news', 'News and helpful updates from {{ store_name }}', 'Latest updates', 'Hello {{ customer_name }}!', 'Here are the latest updates, ideas and useful information from our store.', 'Visit us to learn more.'),
-                'offer' => array('Special offer', 'A special offer from {{ store_name }}', 'Selected for you', 'Hello {{ customer_name }}!', 'We have put together a selection of offers worth exploring.', 'See current products and details in our store.'),
-                'new' => array('New arrivals', 'What is new at {{ store_name }}', 'Fresh arrivals', 'Hello {{ customer_name }}!', 'Discover our latest additions and find solutions that fit your needs.', 'Explore the catalog below.'),
-                'info' => array('Store announcement', 'Important information from {{ store_name }}', 'Important update', 'Hello {{ customer_name }}!', 'We would like to share important information about our store.', 'Find the latest details on our website.')
-            )
-        );
-        if (!isset($strings[$lang])) { $lang = 'en'; }
+        $translations = self::translations();
+        if (!isset($translations[$lang])) { $lang = 'en'; }
+        $strings = $translations[$lang]['presets'];
         $result = array();
-        foreach ($strings[$lang] as $id => $parts) {
+        foreach ($strings as $id => $parts) {
             $message = '<h2 style="margin:0 0 18px;font:700 25px/1.3 Arial,sans-serif;color:#172b4d;">'
                 . self::h($parts[2]) . '</h2><p style="margin:0 0 16px;line-height:1.7;">'
                 . self::h($parts[3]) . '</p><p style="margin:0 0 16px;line-height:1.7;">'
@@ -71,12 +68,8 @@ final class NewsletterEmail {
 
     public static function render($subject, $messageBody, array $variables, array $brand = array()) {
         $locale = strtolower(substr(isset($brand['locale']) ? (string)$brand['locale'] : 'en', 0, 2));
-        $labels = array(
-            'uk' => array('visit'=>'Відвідати магазин','goodbye'=>'З повагою, команда','optout'=>'Відмовитися від розсилки','reason'=>'Ви отримали цей лист від магазину'),
-            'ru' => array('visit'=>'Перейти в магазин','goodbye'=>'С уважением, команда','optout'=>'Отписаться от рассылки','reason'=>'Вы получили это письмо от магазина'),
-            'en' => array('visit'=>'Visit our store','goodbye'=>'Kind regards, the team at','optout'=>'Unsubscribe from these emails','reason'=>'You received this email from')
-        );
-        $words = isset($labels[$locale]) ? $labels[$locale] : $labels['en'];
+        $translations = self::translations();
+        $words = isset($translations[$locale]['labels']) ? $translations[$locale]['labels'] : $translations['en']['labels'];
         $storeName = isset($brand['name']) ? (string)$brand['name'] : (isset($variables['store_name']) ? (string)$variables['store_name'] : '');
         $storeUrl = isset($brand['url']) ? (string)$brand['url'] : (isset($variables['store_url']) ? (string)$variables['store_url'] : '');
         $logoUrl = isset($brand['logo']) ? (string)$brand['logo'] : '';

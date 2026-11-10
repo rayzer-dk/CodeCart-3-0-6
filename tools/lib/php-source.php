@@ -38,7 +38,7 @@ function ccpExtensionControllerHasMetadata($source, $type) {
             $found['code'] = true;
         }
     }
-    return isset($found['getInstallDates'], $found['getUploadDates'], $found['code']);
+    return isset($found['getInstallDates'], $found['code']);
 }
 
 /** Static language loads and object aliases; dynamic routes/keys are outside this check. */
