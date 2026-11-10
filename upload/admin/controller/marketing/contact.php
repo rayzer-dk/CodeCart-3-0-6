@@ -230,7 +230,7 @@ class ControllerMarketingContact extends Controller {
 				$subject = substr(trim((string)($this->request->post['subject'] ?? '')), 0, 255);
 				$message = (string)($this->request->post['message'] ?? '');
 				if (strlen($message) > 1000000) { throw new \InvalidArgumentException('Mail preview too large'); }
-				$message = $this->sanitizeMailHtml($message);
+				$message = $this->sanitizeMailHtml(html_entity_decode($message, ENT_QUOTES, 'UTF-8'));
 				$storeId = max(0, (int)($this->request->post['store_id'] ?? 0));
 				$setting = array();
 				$query = $this->db->query("SELECT `key`,`value` FROM `" . DB_PREFIX . "setting` WHERE store_id='" . $storeId . "' AND `code`='config' AND `key` IN ('config_name','config_url','config_ssl','config_logo','config_email','config_language')");
