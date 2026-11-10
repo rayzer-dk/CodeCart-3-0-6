@@ -126,8 +126,8 @@
                       {% endif %}</td>
                     <td class="text-center">{% if article.image %} <img src="{{ article.image }}" alt="{{ article.name }}" class="img-thumbnail codecart-blog-list-thumb" width="48" height="48" loading="lazy" /> {% else %} <span class="img-thumbnail list"><i class="fa fa-camera fa-2x"></i></span> {% endif %}</td>
                     <td class="text-left">{{ article.name }}</td>
-                    <td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.status_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="status" aria-checked="{{ article.status_value ? 'true' : 'false' }}" aria-label="{{ column_status }}: {{ article.status }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.status }}{% endif %}</td>
-					<td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.noindex_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="noindex" aria-checked="{{ article.noindex_value ? 'true' : 'false' }}" aria-label="{{ column_noindex }}: {{ article.noindex }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.noindex }}{% endif %}</td>
+                    <td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.status_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="status" aria-checked="{{ article.status_value ? 'true' : 'false' }}" aria-label="{{ column_status }}: {{ article.status }}" title="{{ article.status }}" data-caption="{{ column_status }}" data-on="{{ text_enabled }}" data-off="{{ text_disabled }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.status }}{% endif %}</td>
+					<td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.noindex_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="noindex" aria-checked="{{ article.noindex_value ? 'true' : 'false' }}" aria-label="{{ column_noindex }}: {{ article.noindex }}" title="{{ article.noindex }}" data-caption="{{ column_noindex }}" data-on="{{ text_enabled }}" data-off="{{ text_disabled }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.noindex }}{% endif %}</td>
                     <td class="text-left">{{ article.date_added }}</td>
                     <td class="text-right">
 						<a target="_blank" href="{{ article.href_shop }}" data-toggle="tooltip" title="{{ button_shop }}" class="btn btn-success"><i class="fa fa-eye"></i></a>
@@ -165,7 +165,8 @@ $(document).on('click', '#ccp-blog-list .ccp-blog-switch', function() {
         data: {article_id: $btn.attr('data-id'), field: $btn.attr('data-field'), value: next}
     }).done(function(result) {
         if (result && result.success && Number(result.value) === Number(next)) {
-            $btn.toggleClass('is-on', next === '1').attr('aria-checked', next === '1' ? 'true' : 'false');
+            var state = next === '1' ? $btn.attr('data-on') : $btn.attr('data-off');
+            $btn.toggleClass('is-on', next === '1').attr('aria-checked', next === '1' ? 'true' : 'false').attr('aria-label', $btn.attr('data-caption') + ': ' + state).attr('title', state);
         } else {
             window.alert('{{ text_blog_quick_save_failed|e('js') }}');
         }
