@@ -46,6 +46,9 @@ class ControllerCronMailCampaign extends Controller {
             );
             $message=\CodeCart\Core\NewsletterEmail::render($subject,(string)$row['message'],$values,$brand);
             $body=strtr((string)$row['message'],$plain);
+            $plainText = preg_replace('~<\\s*br\\s*/?>|</\\s*(?:p|div|h[1-6]|li)\\s*>~i', "\n", $body);
+            $plainText = trim(html_entity_decode(strip_tags($plainText), ENT_QUOTES, 'UTF-8'));
+            $plainText .= "\n\n" . $store_name . "\n" . $base . "/\\n" . $unsubscribe;
             $mail=new Mail(isset($sc['config_mail_engine'])?$sc['config_mail_engine']:$this->config->get('config_mail_engine'));
             $mail->parameter=isset($sc['config_mail_parameter'])?$sc['config_mail_parameter']:$this->config->get('config_mail_parameter');
             $mail->smtp_hostname=isset($sc['config_mail_smtp_hostname'])?$sc['config_mail_smtp_hostname']:$this->config->get('config_mail_smtp_hostname');
@@ -53,7 +56,7 @@ class ControllerCronMailCampaign extends Controller {
             $mail->smtp_password=html_entity_decode(isset($sc['config_mail_smtp_password'])?$sc['config_mail_smtp_password']:$this->config->get('config_mail_smtp_password'),ENT_QUOTES,'UTF-8');
             $mail->smtp_port=isset($sc['config_mail_smtp_port'])?$sc['config_mail_smtp_port']:$this->config->get('config_mail_smtp_port');
             $mail->smtp_timeout=isset($sc['config_mail_smtp_timeout'])?$sc['config_mail_smtp_timeout']:$this->config->get('config_mail_smtp_timeout');
-            $mail->setTo((string)$row['email']); $mail->setFrom(isset($sc['config_email'])?$sc['config_email']:$this->config->get('config_email')); $mail->setSender(html_entity_decode($store_name,ENT_QUOTES,'UTF-8')); $mail->setSubject($subject); $mail->setHtml($message); $mail->setText(trim(strip_tags(str_replace(array('<br>','<br/>','<br />'),"\n",$body)))."\n\n".$unsubscribe);
+            $mail->setTo((string)$row['email']); $mail->setFrom(isset($sc['config_email'])?$sc['config_email']:$this->config->get('config_email')); $mail->setSender(html_entity_decode($store_name,ENT_QUOTES,'UTF-8')); $mail->setSubject($subject); $mail->setHtml($message); $mail->setText($plainText);
             try { $ok=\CodeCart\Core\MailDelivery::send($this->registry,$mail,'mail-campaign:'.(int)$row['mail_queue_id']); $err=''; }
             catch (\Throwable $e) { $ok=false; $err=substr($e->getMessage(),0,250); }
             if($ok){$this->db->query("UPDATE `".DB_PREFIX."mail_campaign_queue` SET status='sent', date_sent=NOW(), last_error='', date_modified=NOW() WHERE mail_queue_id='".(int)$row['mail_queue_id']."'");$sent++;}
