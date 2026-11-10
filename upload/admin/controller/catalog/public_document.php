@@ -15,6 +15,7 @@ class ControllerCatalogPublicDocument extends Controller {
     private function setup() {
         $this->load->language('catalog/public_document');
         $this->document->setTitle($this->language->get('heading_title'));
+        $this->document->addStyle('view/stylesheet/codecart_documents.css?v=3.0.6.0-1');
         $this->load->model('catalog/public_document');
         // An upgrade may be an overlay without running the install/upgrade wizard.
         // Perform one idempotent DB schema activation on first authorized admin usage.
