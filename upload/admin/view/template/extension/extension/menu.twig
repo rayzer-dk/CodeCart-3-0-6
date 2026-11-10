@@ -25,7 +25,7 @@
         {% if extensions %}
         {% for extension in extensions %}
         <tr class="ccp-extension-main" data-sort-name="{{ extension.name|e('html_attr') }}" data-sort-status="{{ extension.status|default('')|e('html_attr') }}" data-sort-date="{{ extension.date_installed|e('html_attr') }}">
-          <td class="text-left">{{ extension.name }}</b></td>
+          <td class="text-left">{{ extension.name }}</td>
           <td class="text-center"><span class="ccp-extension-status {{ extension.status_enabled ? 'ccp-extension-status-on' : 'ccp-extension-status-off' }}">{{ extension.status }}</span></td>
           <td class="text-center ccp-extension-date">{% if extension.date_installed_label %}{{ extension.date_installed_label }}{% else %}<span class="text-muted" title="{{ text_date_unknown }}">—</span>{% endif %}</td>
           <td class="text-right">{% if not extension.installed %}
