@@ -314,6 +314,10 @@ class ControllerMarketingContact extends Controller {
 
 	private function saveMailTemplates($templates) {
 		$this->load->model('setting/setting');
+		// Built-in designs are immutable code assets, not rows to copy into the database.
+		foreach (array_keys($templates) as $id) {
+			if (strpos((string)$id, 'builtin_') === 0) { unset($templates[$id]); }
+		}
 		$this->model_setting_setting->setSettingValue($this->templateSettingCode, $this->templateSettingKey, $templates, 0);
 	}
 }
