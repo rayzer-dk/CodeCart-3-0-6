@@ -13,6 +13,9 @@ class ControllerBlogSetting extends Controller {
 		$this->load->model('setting/setting');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+			$this->request->post['configblog_show_date'] = !empty($this->request->post['configblog_show_date']) ? 1 : 0;
+			$this->request->post['configblog_show_reviews'] = !empty($this->request->post['configblog_show_reviews']) ? 1 : 0;
+			$this->request->post['configblog_show_views'] = !empty($this->request->post['configblog_show_views']) ? 1 : 0;
 			$this->model_setting_setting->editSetting('configblog', $this->request->post);
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -22,6 +25,13 @@ class ControllerBlogSetting extends Controller {
 
 		$data['heading_title'] = $this->language->get('heading_title');
 
+		$data['configblog_show_date'] = isset($this->request->post['configblog_show_date']) ? (int)$this->request->post['configblog_show_date'] : ($this->config->get('configblog_show_date') === null ? 1 : (int)$this->config->get('configblog_show_date'));
+		$data['configblog_show_reviews'] = isset($this->request->post['configblog_show_reviews']) ? (int)$this->request->post['configblog_show_reviews'] : ($this->config->get('configblog_show_reviews') === null ? 1 : (int)$this->config->get('configblog_show_reviews'));
+		$data['configblog_show_views'] = isset($this->request->post['configblog_show_views']) ? (int)$this->request->post['configblog_show_views'] : ($this->config->get('configblog_show_views') === null ? 1 : (int)$this->config->get('configblog_show_views'));
+		$data['entry_blog_show_date'] = $this->language->get('entry_blog_show_date');
+		$data['entry_blog_show_reviews'] = $this->language->get('entry_blog_show_reviews');
+		$data['entry_blog_show_views'] = $this->language->get('entry_blog_show_views');
+		$data['text_blog_display'] = $this->language->get('text_blog_display');
 		$data['text_edit'] = $this->language->get('text_edit');
 		$data['text_yes'] = $this->language->get('text_yes');
 		$data['text_no'] = $this->language->get('text_no');
