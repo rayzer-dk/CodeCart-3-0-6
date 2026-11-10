@@ -573,7 +573,7 @@ class ControllerToolCodeCartCore extends Controller {
         $localized = array();
         foreach (($result['summary'] ?? array()) as $key=>$value) { $localized[$this->language->get($summaryMap[$key] ?? $key)] = $value; }
         $result['summary'] = $localized;
-        $typeMap = array('missing_table'=>'schema_type_missing_table','missing_column'=>'schema_type_missing_column','type'=>'schema_type_type','engine'=>'schema_type_engine','charset'=>'schema_type_charset','missing_index'=>'schema_type_missing_index','external_table'=>'schema_type_external_table','external_column'=>'schema_type_external_column','external_index'=>'schema_type_external_index');
+        $typeMap = array('missing_table'=>'schema_type_missing_table','missing_column'=>'schema_type_missing_column','type'=>'schema_type_type','engine'=>'schema_type_engine','charset'=>'schema_type_charset','database_default'=>'schema_type_database_default','missing_index'=>'schema_type_missing_index','external_table'=>'schema_type_external_table','external_column'=>'schema_type_external_column','external_index'=>'schema_type_external_index');
         foreach (($result['issues'] ?? array()) as &$issue) {
             $rawType = isset($issue['type']) ? (string)$issue['type'] : '';
             $isExternal = isset($issue['source']) && $issue['source'] === 'external';

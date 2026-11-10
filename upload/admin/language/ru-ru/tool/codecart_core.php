@@ -1,4 +1,7 @@
 <?php
+$_['schema_type_database_default'] = 'Настройки базы данных';
+$_['schema_meaning_database_default'] = 'Кодировка или сопоставление по умолчанию самой базы отличается от utf8mb4_unicode_ci. Таблицы проверяются отдельно.';
+$_['schema_action_database_default'] = 'После полного резервного копирования используйте безопасное исправление. Оно изменит только настройки базы, не содержимое таблиц.';
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Ядро / Совместимость';
 $_['text_home'] = 'Главная';

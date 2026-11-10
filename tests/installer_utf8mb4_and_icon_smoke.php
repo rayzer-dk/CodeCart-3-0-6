@@ -7,12 +7,14 @@ class CodeCartFakeInstallerDb {
     private $objects;
     private $schema;
     private $charset;
+    private $collation;
     private $fail;
 
-    public function __construct(array $objects, string $schema, string $charset, bool $fail = false) {
+    public function __construct(array $objects, string $schema, string $charset, bool $fail = false, string $collation = '') {
         $this->objects = $objects;
         $this->schema = $schema;
         $this->charset = $charset;
+        $this->collation = $collation !== '' ? $collation : ($charset === 'utf8mb4' ? 'utf8mb4_unicode_ci' : 'utf8mb3_unicode_ci');
         $this->fail = $fail;
     }
 
@@ -21,8 +23,8 @@ class CodeCartFakeInstallerDb {
         if ($sql === 'SHOW FULL TABLES') {
             return (object)array('rows' => $this->objects);
         }
-        if (strpos($sql, 'SELECT DATABASE()') === 0) {
-            return (object)array('row' => array('schema_name' => $this->schema, 'db_charset' => $this->charset));
+        if (strpos($sql, 'information_schema.SCHEMATA') !== false) {
+            return (object)array('row' => array('schema_name' => $this->schema, 'db_charset' => $this->charset, 'db_collation' => $this->collation));
         }
         if ($this->fail) {
             throw new RuntimeException('SQL privilege denied');
@@ -36,11 +38,12 @@ $cases = array(
     array(array(), 'shop', 'utf8mb4', false, 'already_utf8mb4', false),
     array(array(), 'shop', 'utf8mb3', false, 'updated', true),
     array(array(), 'shop', 'utf8mb3', true, 'unavailable', true),
+    array(array(), 'shop', 'utf8mb4', false, 'updated', true, 'utf8mb4_general_ci'),
     array(array(), 'shared-tenant', 'utf8mb3', false, 'unsupported_name', false),
 );
 
 foreach ($cases as $case) {
-    $db = new CodeCartFakeInstallerDb($case[0], $case[1], $case[2], $case[3]);
+    $db = new CodeCartFakeInstallerDb($case[0], $case[1], $case[2], $case[3], $case[6] ?? '');
     $status = \CodeCart\Core\DatabaseDefaults::ensureUtf8mb4ForNewInstallation($db);
     if ($status !== $case[4]) {
         throw new RuntimeException('Incorrect charset installer status: ' . $status);

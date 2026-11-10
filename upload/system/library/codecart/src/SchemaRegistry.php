@@ -25,6 +25,22 @@ final class SchemaRegistry {
         $summary['tables_expected'] = count($tables);
         $dbName = defined('DB_DATABASE') ? DB_DATABASE : '';
 
+        // Database defaults are separate from table collations: report them
+        // explicitly so a healthy table scan does not hide utf8mb3 defaults.
+        try {
+            $dbDefaults = $this->db->query('SELECT DEFAULT_CHARACTER_SET_NAME AS db_charset, DEFAULT_COLLATION_NAME AS db_collation FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = DATABASE() LIMIT 1');
+            if (!empty($dbDefaults->row)) {
+                $defaultCharset = strtolower((string)($dbDefaults->row['db_charset'] ?? ''));
+                $defaultCollation = strtolower((string)($dbDefaults->row['db_collation'] ?? ''));
+                if ($defaultCharset !== 'utf8mb4' || $defaultCollation !== 'utf8mb4_unicode_ci') {
+                    $summary['charset_mismatches']++;
+                    $this->issue($issues, $limit, 'database_default', $dbName, '', $defaultCharset . ' / ' . $defaultCollation . ' -> utf8mb4 / utf8mb4_unicode_ci', 'warning', 'core', true);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Lack of metadata privileges must not prevent the table schema scan.
+        }
+
         $actualTables = array();
         $q = $this->db->query("SELECT TABLE_NAME, ENGINE, TABLE_COLLATION FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" . $this->db->escape($dbName) . "'");
         foreach ($q->rows as $row) { $actualTables[(string)$row['TABLE_NAME']] = $row; }
@@ -123,6 +139,23 @@ final class SchemaRegistry {
         foreach (($diff['issues'] ?? array()) as $issue) {
             if (empty($issue['fixable']) || ($issue['source'] ?? '') !== 'core') {
                 $result['skipped']++;
+                continue;
+            }
+            if (($issue['type'] ?? '') === 'database_default') {
+                try {
+                    $status = DatabaseDefaults::setCurrentDatabaseDefault($this->db);
+                    if ($status === 'updated') {
+                        $result['fixed']++;
+                    } elseif ($status === 'already_utf8mb4') {
+                        $result['skipped']++;
+                    } else {
+                        $result['errors']++;
+                        $result['messages'][] = 'Database default: ' . $status;
+                    }
+                } catch (\Throwable $e) {
+                    $result['errors']++;
+                    $result['messages'][] = 'Database default update failed (' . (int)$e->getCode() . ')';
+                }
                 continue;
             }
 

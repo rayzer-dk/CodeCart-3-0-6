@@ -1,4 +1,7 @@
 <?php
+$_['schema_type_database_default'] = 'Database default';
+$_['schema_meaning_database_default'] = 'The default charset/collation of the selected database differs from utf8mb4_unicode_ci. Existing tables are checked separately.';
+$_['schema_action_database_default'] = 'After a full backup, use Safe repair to change only the database default; existing tables and their data remain unchanged.';
 $_['heading_title'] = 'Core / Compatibility';
 $_['text_home'] = 'Home';
 $_['text_runtime'] = 'Runtime';
