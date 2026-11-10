@@ -306,6 +306,8 @@ function setup_db($data) {
 
 		// This is the initial installation, not a migration of an existing store.
 		$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` (`store_id`, `code`, `key`, `value`, `serialized`) SELECT 0, 'codecart_extension_install', CONCAT('installed_at_', `type`, '_', `code`), NOW(), 0 FROM `" . $data['db_prefix'] . "extension`");
+		// Baseline dates are recorded only when this clean CLI installer runs.
+		$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` (store_id, code, `key`, `value`, serialized) SELECT 0, 'codecart_extension_install', CONCAT('installed_at_', `type`, '_', `code`), NOW(), 0 FROM `" . $data['db_prefix'] . "extension` WHERE `type` IN ('advertise','analytics','captcha','currency','dashboard','feed','fraud','menu','module','payment','report','shipping','theme','total')");
 		$db->query("SET CHARACTER SET utf8mb4");
 
 		$db->query("SET collation_connection = 'utf8mb4_unicode_ci'");
