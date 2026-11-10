@@ -9,6 +9,8 @@ on:
       - 'upload/admin/language/*/marketing/contact.php'
       - 'upload/catalog/controller/cron/mail_campaign.php'
       - 'upload/admin/view/stylesheet/codecart_documents.css'
+      - 'upload/admin/controller/catalog/download.php'
+      - 'upload/admin/controller/catalog/public_document.php'
       - 'upload/admin/view/template/catalog/download_*.twig'
       - 'upload/admin/view/template/catalog/public_document_*.twig'
       - 'tests/newsletter_documents_smoke.php'
@@ -41,6 +43,8 @@ jobs:
           php -l upload/system/library/codecart/src/NewsletterEmail.php
           php -l upload/admin/controller/marketing/contact.php
           php -l upload/catalog/controller/cron/mail_campaign.php
+          php -l upload/admin/controller/catalog/download.php
+          php -l upload/admin/controller/catalog/public_document.php
           for lang in en-gb ru-ru uk-ua; do
             php -l "upload/admin/language/$lang/marketing/contact.php"
           done
