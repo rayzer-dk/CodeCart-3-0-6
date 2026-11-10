@@ -77,6 +77,9 @@ class ModelInstallInstall extends Model {
 			$db->query("INSERT INTO `" . $data['db_prefix'] . "codecart_scheduler` SET code = 'core.currency.refresh', route = 'cron/currency', args = '{}', interval_seconds = '86400', status = '1', date_next = NOW(), date_added = NOW(), date_modified = NOW()");
 			$db->query("INSERT INTO `" . $data['db_prefix'] . "codecart_scheduler` SET code = 'core.cart.cleanup', route = 'cron/cart', args = '{}', interval_seconds = '3600', status = '1', date_next = NOW(), date_added = NOW(), date_modified = NOW()");
 
+			// Date for baseline extensions on a fresh install only; upgrades never run this installer.
+			$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` (store_id, code, `key`, `value`, serialized) SELECT 0, 'codecart_extension_install', CONCAT('installed_at_', `type`, '_', `code`), NOW(), 0 FROM `" . $data['db_prefix'] . "extension` WHERE `type` IN ('advertise','analytics','captcha','currency','dashboard','feed','fraud','menu','module','payment','report','shipping','theme','total')");
+
 			// Generate Administrator permissions from controllers that actually ship in
 			// this build. This prevents removed legacy extensions leaving dead routes.
 			$permission = $this->buildAdministratorPermission();
