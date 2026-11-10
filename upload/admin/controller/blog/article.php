@@ -306,6 +306,8 @@ class ControllerBlogArticle extends Controller {
 				'article_id' => $result['article_id'],
 				'image'      => $image,
 				'name'       => $result['name'],
+				'status_value' => (int)$result['status'],
+				'noindex_value' => (int)$result['noindex'],
 				'status'     => ($result['status']) ? $this->language->get('text_enabled') : $this->language->get('text_disabled'),
 				'noindex'    => ($result['noindex']) ? $this->language->get('text_enabled') : $this->language->get('text_disabled'),
 				'date_added' => !empty($result['date_added']) ? date($this->language->get('date_format_short'), strtotime($result['date_added'])) : '',
@@ -314,6 +316,8 @@ class ControllerBlogArticle extends Controller {
 			);
 		}
 
+		$data['blog_toggle_allowed'] = $this->user->hasPermission('modify', 'blog/article');
+		$data['blog_toggle_url'] = $this->url->link('blog/article/quickToggle', 'user_token=' . $this->session->data['user_token'], true);
 		$data['user_token'] = $this->session->data['user_token'];
 
         $data['codecart_relation_enabled'] = (bool)$this->config->get('codecart_relation_status') && isset($this->request->get['article_id']) && (int)$this->request->get['article_id'] > 0 && $this->user->hasPermission('access', 'catalog/relation');
@@ -906,6 +910,48 @@ class ControllerBlogArticle extends Controller {
 		}
 
 		return !$this->error;
+	}
+
+
+	/** Change one article flag without bypassing validation or touching other fields. */
+	public function quickToggle() {
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->addHeader('Cache-Control: no-store');
+		$json = array();
+		$token = isset($this->request->get['user_token']) ? (string)$this->request->get['user_token'] : '';
+		$expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+		if (!isset($this->request->server['REQUEST_METHOD']) || strtoupper((string)$this->request->server['REQUEST_METHOD']) !== 'POST'
+			|| $token === '' || $expected === '' || !hash_equals($expected, $token)
+			|| !$this->user->hasPermission('access', 'blog/article')
+			|| !$this->user->hasPermission('modify', 'blog/article')) {
+			$this->response->setStatusCode(403);
+			$json['error'] = 'forbidden';
+		} else {
+			$id = isset($this->request->post['article_id']) ? (int)$this->request->post['article_id'] : 0;
+			$field = isset($this->request->post['field']) ? (string)$this->request->post['field'] : '';
+			$value = isset($this->request->post['value']) ? (string)$this->request->post['value'] : '';
+			if ($id <= 0 || !in_array($field, array('status','noindex'), true) || !in_array($value, array('0','1'), true)) {
+				$this->response->setStatusCode(400);
+				$json['error'] = 'invalid_value';
+			} else {
+				try {
+					$this->load->model('blog/article');
+					$article = $this->model_blog_article->getArticle($id);
+					if (!$article) {
+						$this->response->setStatusCode(404);
+						$json['error'] = 'not_found';
+					} else {
+						$this->model_blog_article->editArticleFlag($id, $field, (int)$value);
+						$json = array('success' => true, 'article_id' => $id, 'field' => $field, 'value' => (int)$value);
+					}
+				} catch (\Throwable $e) {
+					$this->log->write('Blog quick toggle failed: code=' . (int)$e->getCode());
+					$this->response->setStatusCode(500);
+					$json['error'] = 'save_failed';
+				}
+			}
+		}
+		$this->response->setOutput(json_encode($json));
 	}
 
 	public function autocomplete() {
