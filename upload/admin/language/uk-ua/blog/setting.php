@@ -1,4 +1,8 @@
 <?php
+$_['text_blog_display'] = 'Відображення на вітрині';
+$_['entry_blog_show_date'] = 'Показувати дату публікації';
+$_['entry_blog_show_reviews'] = 'Показувати відгуки та рейтинг';
+$_['entry_blog_show_views'] = 'Показувати кількість переглядів';
 
 // Heading
 $_['heading_title']                    = 'Налаштування блогу';
