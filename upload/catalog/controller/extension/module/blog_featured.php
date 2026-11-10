@@ -38,6 +38,9 @@ class ControllerExtensionModuleBlogFeatured extends Controller {
 
 		$this->load->model('tool/image');
 
+				$data['blog_show_date'] = $this->config->get('configblog_show_date') === null || (bool)$this->config->get('configblog_show_date');
+		$data['blog_show_reviews'] = $this->config->get('configblog_show_reviews') === null || (bool)$this->config->get('configblog_show_reviews');
+		$data['blog_show_views'] = $this->config->get('configblog_show_views') === null || (bool)$this->config->get('configblog_show_views');
 		$data['articles'] = array();
 
 
