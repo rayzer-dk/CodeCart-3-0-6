@@ -5,6 +5,10 @@ class ModelInstallInstall extends Model {
 		$db->query("SET SESSION sql_mode = 'NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION'");
 
 		$this->assertPrefixAvailable($db, $data['db_prefix']);
+		$charsetSetup = \CodeCart\Core\DatabaseDefaults::ensureUtf8mb4ForNewInstallation($db);
+		if (in_array($charsetSetup, array('unavailable', 'unsupported_name'), true)) {
+			$this->log->write('Installer: database default utf8mb4 not changed (' . $charsetSetup . '); tables use explicit utf8mb4.');
+		}
 
 		try {
 			$file = DIR_APPLICATION . 'opencart.sql';
