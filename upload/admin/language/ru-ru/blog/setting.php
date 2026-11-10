@@ -1,4 +1,8 @@
 <?php
+$_['text_blog_display'] = 'Отображение на витрине';
+$_['entry_blog_show_date'] = 'Показывать дату публикации';
+$_['entry_blog_show_reviews'] = 'Показывать отзывы и рейтинг';
+$_['entry_blog_show_views'] = 'Показывать количество просмотров';
 // CodeCart PRO ru-ru language pack. Missing keys fall back to en-gb.
 $_['heading_title'] = 'Настройки блога';
 $_['text_success'] = 'Настройки успешно изменены!';
