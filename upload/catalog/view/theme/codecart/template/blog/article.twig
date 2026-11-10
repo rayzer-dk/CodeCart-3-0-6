@@ -34,9 +34,9 @@
          
           <div class="content ccp-blog-article-content">
 		   <h1>{{ heading_title }}</h1>
-            {% if date_added %}<div class="ccp-blog-meta"><span><i class="fa fa-calendar-o"></i> {{ text_date_added }} {{ date_added }}</span></div>{% endif %}
+            {% if blog_show_date and date_added %}<div class="ccp-blog-meta"><span><i class="fa fa-calendar-o"></i> {{ text_date_added }} {{ date_added }}</span></div>{% endif %}
             <div class="tab-pane active ccp-blog-copy" id="tab-description">{{ description }}</div>
-			{% if review_status %}
+			{% if blog_show_reviews and review_status %}
           <div class="rating">
             <p>{% for i in 1..5 %}
               {% if rating < i %}<span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>{% else %}<span class="fa fa-stack"><i class="fa fa-star fa-stack-1x"></i><i class="fa fa-star-o fa-stack-1x"></i></span>{% endif %}
@@ -94,15 +94,15 @@
         {% for article in articles %}
           <div class="product-layout ccp-native-module-item"><div class="product-thumb transition">
             {% if article.thumb %}<div class="image"><a href="{{ article.href }}"><img src="{{ article.thumb }}" alt="{{ article.name }}" title="{{ article.name }}" class="img-responsive" loading="lazy" decoding="async" /></a></div>{% endif %}
-            <div class="caption"><h4><a href="{{ article.href }}">{{ article.name }}</a></h4>{% if article.description %}<p class="ccp-card-description">{{ article.description|e }}</p>{% endif %}{% if article.rating %}<div class="rating">{% for j in 1..5 %}{% if article.rating < j %}<span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>{% else %}<span class="fa fa-stack"><i class="fa fa-star fa-stack-1x"></i><i class="fa fa-star-o fa-stack-1x"></i></span>{% endif %}{% endfor %}</div>{% endif %}</div>
-            <div class="button-group"><button type="button" class="ccp-article-open" title="{{ button_more }}" aria-label="{{ button_more }}" onclick="location.href=('{{ article.href }}');"><span class="hidden-xs hidden-sm hidden-md">{{ button_more }}</span> <i class="fa fa-share"></i></button><button type="button" data-toggle="tooltip" title="{{ article.date_added }}" aria-label="{{ article.date_added }}"><i class="fa fa-clock-o"></i></button><button type="button" data-toggle="tooltip" title="{{ text_views }} {{ article.viewed }}" aria-label="{{ text_views }} {{ article.viewed }}"><i class="fa fa-eye"></i></button></div>
+            <div class="caption"><h4><a href="{{ article.href }}">{{ article.name }}</a></h4>{% if article.description %}<p class="ccp-card-description">{{ article.description|e }}</p>{% endif %}{% if blog_show_reviews and article.rating %}<div class="rating">{% for j in 1..5 %}{% if article.rating < j %}<span class="fa fa-stack"><i class="fa fa-star-o fa-stack-1x"></i></span>{% else %}<span class="fa fa-stack"><i class="fa fa-star fa-stack-1x"></i><i class="fa fa-star-o fa-stack-1x"></i></span>{% endif %}{% endfor %}</div>{% endif %}</div>
+            <div class="button-group"><button type="button" class="ccp-article-open" title="{{ button_more }}" aria-label="{{ button_more }}" onclick="location.href=('{{ article.href }}');"><span class="hidden-xs hidden-sm hidden-md">{{ button_more }}</span> <i class="fa fa-share"></i></button>{% if blog_show_date %}<button type="button" data-toggle="tooltip" title="{{ article.date_added }}" aria-label="{{ article.date_added }}"><i class="fa fa-clock-o"></i></button>{% endif %}{% if blog_show_views %}<button type="button" data-toggle="tooltip" title="{{ text_views }} {{ article.viewed }}" aria-label="{{ text_views }} {{ article.viewed }}"><i class="fa fa-eye"></i></button>{% endif %}</div>
           </div></div>
         {% endfor %}
         </div></div><div class="ccp-native-module-pagination" aria-label="{{ text_related }}"></div>
       </div>
       {% endif %}
 
-{% if review_status %}
+{% if blog_show_reviews and review_status %}
             <div class="tab-pane" id="tab-review">
               <form class="form-horizontal" id="form-review">
                 <div id="review"></div>
