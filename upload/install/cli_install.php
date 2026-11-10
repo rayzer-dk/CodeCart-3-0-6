@@ -283,6 +283,11 @@ function setup_db($data) {
 		throw new RuntimeException('Refusing to install: the selected database already contains tables using prefix ' . $data['db_prefix'] . '.');
 	}
 
+	$charsetSetup = \CodeCart\Core\DatabaseDefaults::ensureUtf8mb4ForNewInstallation($db);
+	if (in_array($charsetSetup, array('unavailable', 'unsupported_name'), true)) {
+		fwrite(STDERR, 'Warning: database default utf8mb4 was not changed (' . $charsetSetup . '); installed tables use explicit utf8mb4.' . PHP_EOL);
+	}
+
 	$GLOBALS['codecart_cli_db_started'] = true;
 
 	$file = DIR_APPLICATION . 'opencart.sql';
