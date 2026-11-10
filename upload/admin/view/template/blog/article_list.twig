@@ -161,15 +161,15 @@ $(document).on('click', '#ccp-blog-list .ccp-blog-switch', function() {
     if ($btn.prop('disabled')) { return; }
     $btn.prop('disabled', true);
     $.ajax({
-        url: '{{ blog_toggle_url }}', type: 'POST', dataType: 'json',
+        url: '{{ blog_toggle_url|replace({'&amp;':'&'})|e('js') }}', type: 'POST', dataType: 'json',
         data: {article_id: $btn.attr('data-id'), field: $btn.attr('data-field'), value: next}
     }).done(function(result) {
         if (result && result.success && Number(result.value) === Number(next)) {
             $btn.toggleClass('is-on', next === '1').attr('aria-checked', next === '1' ? 'true' : 'false');
         } else {
-            window.alert('{{ error_warning|e('js') }}');
+            window.alert('{{ text_blog_quick_save_failed|e('js') }}');
         }
-    }).fail(function() { window.alert('{{ error_warning|e('js') }}'); })
+    }).fail(function() { window.alert('{{ text_blog_quick_save_failed|e('js') }}'); })
     .always(function() { $btn.prop('disabled', false); });
 });
 $('#button-filter').on('click', function() {
