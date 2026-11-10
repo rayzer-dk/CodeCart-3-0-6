@@ -27,6 +27,9 @@ class ControllerMarketingContact extends Controller {
 		$this->load->model('customer/customer_group');
 		$data['customer_groups'] = $this->model_customer_customer_group->getCustomerGroups();
 
+		foreach (array('help_template_branded','text_template_save_copy','text_preview_device','text_preview_desktop','text_preview_mobile') as $languageKey) {
+			$data[$languageKey] = $this->language->get($languageKey);
+		}
 		$data['mail_templates'] = $this->getMailTemplates();
 		$this->load->model('marketing/mail_campaign');
 		$data['recent_campaigns'] = $this->model_marketing_mail_campaign->getRecentCampaigns(20);
@@ -308,7 +311,7 @@ class ControllerMarketingContact extends Controller {
 			);
 		}
 		require_once DIR_SYSTEM . 'library/codecart/src/NewsletterEmail.php';
-		$locale = (string)$this->config->get('config_language');
+		$locale = isset($this->session->data['language']) && is_string($this->session->data['language']) ? $this->session->data['language'] : (string)($this->config->get('config_admin_language') ?: $this->config->get('config_language'));
 		return \CodeCart\Core\NewsletterEmail::presets($locale) + $clean;
 	}
 
