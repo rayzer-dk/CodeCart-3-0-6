@@ -1,0 +1,64 @@
+name: Blog and Extension UI QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/admin/controller/blog/**'
+      - 'upload/admin/model/blog/**'
+      - 'upload/admin/view/template/blog/**'
+      - 'upload/admin/controller/extension/extension/**'
+      - 'upload/admin/view/template/extension/extension/**'
+      - 'upload/admin/view/template/marketplace/extension.twig'
+      - 'upload/admin/model/setting/extension.php'
+      - 'upload/install/**'
+      - 'upload/catalog/controller/blog/**'
+      - 'upload/catalog/controller/extension/module/blog_*'
+      - 'upload/catalog/controller/extension/module/featured_article.php'
+      - 'upload/catalog/view/theme/*/template/blog/**'
+      - 'upload/catalog/view/theme/*/template/extension/module/blog_*'
+      - 'upload/catalog/view/theme/*/template/extension/module/featured_article.twig'
+      - 'tests/blog_extension_ui_smoke.php'
+      - '.github/workflows/blog-extension-ui-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          extensions: mbstring, mysqli
+      - name: PHP syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in \
+            upload/admin/controller/blog/article.php \
+            upload/admin/model/blog/article.php \
+            upload/admin/controller/blog/setting.php \
+            upload/admin/controller/extension/extension/theme.php \
+            upload/admin/model/setting/extension.php \
+            upload/install/model/install/install.php \
+            upload/install/cli_install.php \
+            upload/catalog/controller/blog/article.php \
+            upload/catalog/controller/blog/category.php \
+            upload/catalog/controller/blog/latest.php \
+            upload/catalog/controller/extension/module/blog_latest.php \
+            upload/catalog/controller/extension/module/blog_featured.php \
+            upload/catalog/controller/extension/module/featured_article.php; do
+            php -l "$f"
+          done
+          for f in upload/admin/language/{uk-ua,ru-ru,en-gb}/blog/{article,setting}.php; do php -l "$f"; done
+      - name: Extension and blog UI regression
+        run: php tests/blog_extension_ui_smoke.php
+      - name: Database defaults and PDF icon regression
+        run: php tests/installer_utf8mb4_and_icon_smoke.php
+      - name: Mail audit storage regression
+        run: php tests/mail_audit_restore_smoke.php
