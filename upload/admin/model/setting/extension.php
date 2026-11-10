@@ -107,32 +107,8 @@ class ModelSettingExtension extends Model {
 	 * registered and successfully updated by the package installer.
 	 */
 	public function refreshInstalledDatesFromPackage($extension_install_id) {
-		$types = array('advertise', 'analytics', 'captcha', 'currency', 'dashboard', 'feed', 'fraud', 'menu', 'module', 'payment', 'report', 'shipping', 'theme', 'total');
-		$paths = $this->getExtensionPathsByExtensionInstallId((int)$extension_install_id);
-		$found = array();
-
-		foreach ($paths as $row) {
-			$path = str_replace('\\', '/', $row['path']);
-			if (!preg_match('~^admin/controller/extension/([a-z]+)/([a-zA-Z0-9_]+)\\.php$~D', $path, $matches)) {
-				continue;
-			}
-			if (!in_array($matches[1], $types, true)) {
-				continue;
-			}
-			$found[$matches[1]][$matches[2]] = true;
-		}
-
-		foreach ($found as $type => $codes) {
-			$installed = array_flip($this->getInstalled($type));
-			foreach (array_keys($codes) as $code) {
-				if (!isset($installed[$code])) {
-					continue;
-				}
-				$key = 'installed_at_' . $type . '_' . $code;
-				$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `store_id` = 0 AND `code` = 'codecart_extension_install' AND `key` = '" . $this->db->escape($key) . "'");
-				$this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET `store_id` = 0, `code` = 'codecart_extension_install', `key` = '" . $this->db->escape($key) . "', `value` = NOW(), `serialized` = 0");
-			}
-		}
+		// Uploading a replacement package does not change the original install date.
+		return;
 	}
 
 	public function uninstall($type, $code) {
