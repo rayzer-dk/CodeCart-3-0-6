@@ -203,6 +203,18 @@ class ModelBlogArticle extends Model {
 
 	}
 	
+	public function editArticleFlag($article_id, $field, $value) {
+		// Field identifiers are fixed; no user input is interpolated into SQL identifiers.
+		if (!in_array($field, array('status', 'noindex'), true)) {
+			throw new \InvalidArgumentException('Invalid article field.');
+		}
+		$this->db->query("UPDATE `" . DB_PREFIX . "article` SET `" . $field . "` = '" . (int)(bool)$value . "', date_modified = NOW() WHERE article_id = '" . (int)$article_id . "'");
+		$this->cache->delete('article');
+		if ($this->config->get('config_seo_pro')) {
+			$this->cache->delete('seopro');
+		}
+	}
+
 	public function editArticleStatus($article_id, $status) {
         $this->db->query("UPDATE " . DB_PREFIX . "article SET status = '" . (int)$status . "', date_modified = NOW() WHERE article_id = '" . (int)$article_id . "'");
         
