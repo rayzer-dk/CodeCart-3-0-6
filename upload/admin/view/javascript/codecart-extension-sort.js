@@ -3,7 +3,7 @@
     'use strict';
 
     var stateByType = {};
-    var keys = ['name', 'status', 'installed', 'upload', 'date'];
+    var keys = ['name', 'status', 'date'];
 
     function selectedType() {
         // The selection value is the target route URL, stable across AJAX refreshes.
@@ -14,7 +14,7 @@
         var x = a.getAttribute('data-sort-' + key) || '';
         var y = b.getAttribute('data-sort-' + key) || '';
         // Unknown dates always appear at the end, in both directions.
-        if (key === 'date' || key === 'upload') {
+        if (key === 'date') {
             if (!x || !y) {
                 return x ? -1 : (y ? 1 : 0);
             }
@@ -71,7 +71,7 @@
         if ($.inArray(key, keys) === -1) { return; }
         var type = selectedType();
         var previous = stateByType[type];
-        var initialDirection = (key === 'upload' || key === 'date' || key === 'installed') ? -1 : 1;
+        var initialDirection = key === 'date' ? -1 : 1;
         stateByType[type] = {
             key: key,
             direction: previous && previous.key === key ? -previous.direction : initialDirection

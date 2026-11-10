@@ -303,6 +303,9 @@ function setup_db($data) {
 			$db->query(\CodeCart\Core\SqlScript::applyPrefix($statement, (string)$data['db_prefix']));
 		}
 
+
+		// This is the initial installation, not a migration of an existing store.
+		$db->query("INSERT INTO `" . $data['db_prefix'] . "setting` (`store_id`, `code`, `key`, `value`, `serialized`) SELECT 0, 'codecart_extension_install', CONCAT('installed_at_', `type`, '_', `code`), NOW(), 0 FROM `" . $data['db_prefix'] . "extension`");
 		$db->query("SET CHARACTER SET utf8mb4");
 
 		$db->query("SET collation_connection = 'utf8mb4_unicode_ci'");
