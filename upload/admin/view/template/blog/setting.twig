@@ -169,6 +169,24 @@
                 </div>
               </fieldset>
               <fieldset>
+                <legend>{{ text_blog_display }}</legend>
+                {% for item in [
+                  {'name':'configblog_show_date','label':entry_blog_show_date,'enabled':configblog_show_date},
+                  {'name':'configblog_show_reviews','label':entry_blog_show_reviews,'enabled':configblog_show_reviews},
+                  {'name':'configblog_show_views','label':entry_blog_show_views,'enabled':configblog_show_views}
+                ] %}
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="{{ item.name }}">{{ item.label }}</label>
+                  <div class="col-sm-10">
+                    <select id="{{ item.name }}" name="{{ item.name }}" class="form-control" style="max-width:220px">
+                      <option value="1"{{ item.enabled ? ' selected="selected"' : '' }}>{{ text_yes }}</option>
+                      <option value="0"{{ not item.enabled ? ' selected="selected"' : '' }}>{{ text_no }}</option>
+                    </select>
+                  </div>
+                </div>
+                {% endfor %}
+              </fieldset>
+              <fieldset>
                 <legend>{{ text_review }}</legend>
                 <div class="form-group">
                   <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_review }}">{{ entry_review }}</span></label>
