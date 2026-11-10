@@ -84,7 +84,7 @@
                   <select name="template_id" id="input-mail-template" class="form-control">
                     <option value="">{{ text_template_new }}</option>
                     {% for template_id, template in mail_templates %}
-                    <option value="{{ template_id|escape }}">{{ template.name|escape }}</option>
+                    <option value="{{ template_id|escape }}" data-built-in="{{ template.built_in ? '1' : '0' }}">{{ template.name|escape }}</option>
                     {% endfor %}
                   </select>
                 </div>
@@ -101,6 +101,7 @@
               <input type="file" id="input-template-file" accept=".html,.htm,text/html" class="hidden" />
               <p class="help-block">{{ help_template_open }}</p>
               <p class="help-block">{{ help_template_variables }}</p>
+              <p class="help-block"><i class="fa fa-paint-brush"></i> {{ help_template_branded }}</p>
             </div>
           </div>
           <div class="form-group required">
@@ -136,7 +137,8 @@
           <h4 class="modal-title" id="mail-preview-title">{{ text_template_preview }}</h4>
         </div>
         <div class="modal-body">
-          <iframe id="mail-preview-frame" sandbox="" style="width:100%;height:520px;border:1px solid #ddd;background:#fff;"></iframe>
+          <div class="text-right" style="margin-bottom:12px" role="group" aria-label="{{ text_preview_device }}"><button type="button" class="btn btn-primary btn-sm" id="mail-preview-desktop" title="{{ text_preview_desktop }}"><i class="fa fa-desktop"></i> {{ text_preview_desktop }}</button> <button type="button" class="btn btn-default btn-sm" id="mail-preview-mobile" title="{{ text_preview_mobile }}"><i class="fa fa-mobile"></i> {{ text_preview_mobile }}</button></div>
+          <div style="width:100%;overflow-x:auto;text-align:center"><iframe id="mail-preview-frame" title="{{ text_template_preview }}" sandbox="" style="display:inline-block;max-width:100%;width:100%;height:580px;border:1px solid #dde5ef;border-radius:7px;background:#fff;vertical-align:top;"></iframe></div>
         </div>
       </div>
     </div>
@@ -170,6 +172,15 @@ function setMailHtml(html) {
 	}
 }
 
+function updateMailPresetActions() {
+    var builtIn = $('#input-mail-template option:selected').attr('data-built-in') === '1';
+    $('#button-template-delete').prop('disabled', builtIn || !$('#input-mail-template').val());
+    $('#button-template-save').attr('title', builtIn ? "{{ text_template_save_copy|escape('js') }}" : "{{ button_template_save|escape('js') }}");
+}
+$('#input-mail-template').on('change', function() {
+    updateMailPresetActions();
+    if ($(this).val()) { $('#button-template-load').trigger('click'); }
+});
 $('#button-template-load').on('click', function() {
 	var templateId = $('#input-mail-template').val();
 	if (!templateId) { $('#input-template-file').val('').trigger('click'); return; }
@@ -224,6 +235,7 @@ $('#button-template-save').on('click', function() {
 			var option = $('#input-mail-template option[value="' + tpl.id + '"]');
 			if (option.length) { option.text(tpl.name); } else { $('#input-mail-template').append($('<option>', {value: tpl.id, text: tpl.name})); }
 			$('#input-mail-template').val(tpl.id);
+            updateMailPresetActions();
 			mailTemplateAlert('success', json.success);
 		}
 	});
@@ -241,6 +253,7 @@ $('#button-template-delete').on('click', function() {
 			if (json.error) { mailTemplateAlert('danger', json.error); return; }
 			$('#input-mail-template option[value="' + templateId + '"]').remove();
 			$('#input-mail-template').val('');
+            updateMailPresetActions();
 			$('#input-template-name').val('');
 			mailTemplateAlert('success', json.success);
 		}
@@ -248,17 +261,35 @@ $('#button-template-delete').on('click', function() {
 });
 
 $('#button-template-preview').on('click', function() {
-	var html = currentMailHtml();
-	var replacements = {};
-	replacements['{' + '{ customer_name }' + '}'] = '{{ text_preview_customer|escape('js') }}';
-	replacements['{' + '{ store_name }' + '}'] = '{{ text_preview_store|escape('js') }}';
-	replacements['{' + '{ store_url }' + '}'] = 'https://example.com/';
-	replacements['{' + '{ unsubscribe_url }' + '}'] = 'https://example.com/index.php?route=account/newsletter';
-	Object.keys(replacements).forEach(function(key) { html = html.split(key).join(replacements[key]); });
-	var doc = '<!doctype html><html><head><meta charset="utf-8"><title>' + $('<div>').text($('#input-subject').val()).html() + '</title></head><body>' + html + '</body></html>';
-	var frame = document.getElementById('mail-preview-frame');
-	frame.srcdoc = doc;
-	$('#modal-mail-preview').modal('show');
+    var $button = $(this);
+    $button.prop('disabled', true);
+    $.ajax({
+        url: "{{ template_preview_url|escape('js') }}",
+        type: 'POST', dataType: 'json',
+        data: {store_id: $('#input-store').val(), subject: $('#input-subject').val(), message: currentMailHtml()}
+    }).done(function(json) {
+        if (json && json.html) {
+            document.getElementById('mail-preview-frame').srcdoc = json.html;
+            $('#mail-preview-desktop').trigger('click');
+            $('#modal-mail-preview').modal('show');
+        } else { mailTemplateAlert('danger', json.error || "{{ error_template_html|escape('js') }}"); }
+    }).fail(function() { mailTemplateAlert('danger', "{{ error_template_html|escape('js') }}"); })
+      .always(function() { $button.prop('disabled', false); });
+});
+$('#mail-preview-mobile').on('click', function() {
+    $('#mail-preview-frame').css('width', '375px');
+    $('#mail-preview-mobile').removeClass('btn-default').addClass('btn-primary');
+    $('#mail-preview-desktop').removeClass('btn-primary').addClass('btn-default');
+});
+$('#mail-preview-desktop').on('click', function() {
+    $('#mail-preview-frame').css('width', '100%');
+    $('#mail-preview-desktop').removeClass('btn-default').addClass('btn-primary');
+    $('#mail-preview-mobile').removeClass('btn-primary').addClass('btn-default');
+});
+$(function() {
+    if ($('#input-mail-template option[value="builtin_news"]').length) {
+        $('#input-mail-template').val('builtin_news').trigger('change');
+    } else { updateMailPresetActions(); }
 });
 
 // Customers
@@ -358,6 +389,7 @@ $('#input-product').parent().find('.well').delegate('.fa-minus-circle', 'click',
 });
 
 function send(url) {
+    $('#input-message').val(currentMailHtml());
 	$.ajax({
 		url: url,
 		type: 'post',
