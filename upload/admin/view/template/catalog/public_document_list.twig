@@ -36,11 +36,11 @@
               <thead>
                 <tr>
                   <th class="ccp-doc-col-check"><input type="checkbox" onclick="$('#form-documents input[name*=\'selected\']').prop('checked',this.checked)" /></th>
-                  <th class="ccp-doc-col-name"><a href="{{ sort_name }}">{{ column_name }}</a></th>
-                  <th class="ccp-doc-col-count"><a href="{{ sort_downloads }}">{{ column_downloads }}</a></th>
+                  <th class="ccp-doc-col-name"><a href="{{ sort_name }}" class="{{ sort == 'name' ? order|lower : '' }}">{{ column_name }}</a></th>
+                  <th class="ccp-doc-col-count"><a href="{{ sort_downloads }}" class="{{ sort == 'downloads' ? order|lower : '' }}">{{ column_downloads }}</a></th>
                   <th class="ccp-doc-col-count">{{ column_30d }}</th>
-                  <th class="ccp-doc-col-date">{{ column_last }}</th>
-                  <th class="ccp-doc-col-date"><a href="{{ sort_date }}">{{ column_date }}</a></th>
+                  <th class="ccp-doc-col-date"><a href="{{ sort_last }}" class="{{ sort == 'last_download' ? order|lower : '' }}">{{ column_last }}</a></th>
+                  <th class="ccp-doc-col-date"><a href="{{ sort_date }}" class="{{ sort == 'date_added' ? order|lower : '' }}">{{ column_date }}</a></th>
                   <th class="ccp-doc-col-actions">{{ column_action }}</th>
                 </tr>
               </thead>
