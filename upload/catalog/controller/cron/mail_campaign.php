@@ -48,7 +48,7 @@ class ControllerCronMailCampaign extends Controller {
             $body=strtr((string)$row['message'],$plain);
             $plainText = preg_replace('~<\\s*br\\s*/?>|</\\s*(?:p|div|h[1-6]|li)\\s*>~i', "\n", $body);
             $plainText = trim(html_entity_decode(strip_tags($plainText), ENT_QUOTES, 'UTF-8'));
-            $plainText .= "\n\n" . $store_name . "\n" . $base . "/\\n" . $unsubscribe;
+            $plainText .= "\n\n" . $store_name . "\n" . $base . "/\n" . $unsubscribe;
             $mail=new Mail(isset($sc['config_mail_engine'])?$sc['config_mail_engine']:$this->config->get('config_mail_engine'));
             $mail->parameter=isset($sc['config_mail_parameter'])?$sc['config_mail_parameter']:$this->config->get('config_mail_parameter');
             $mail->smtp_hostname=isset($sc['config_mail_smtp_hostname'])?$sc['config_mail_smtp_hostname']:$this->config->get('config_mail_smtp_hostname');
