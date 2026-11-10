@@ -36,7 +36,10 @@ class ControllerExtensionModuleFeaturedArticle extends Controller {
         $data['show_dots'] = !isset($setting['show_dots']) || !empty($setting['show_dots']) ? 1 : 0;
         $data['loop'] = !isset($setting['loop']) || !empty($setting['loop']) ? 1 : 0;
         $data['carousel_step'] = (isset($setting['carousel_step']) && $setting['carousel_step'] === 'page') ? 'page' : 'item';
-        $data['articles'] = array();
+        		$data['blog_show_date'] = $this->config->get('configblog_show_date') === null || (bool)$this->config->get('configblog_show_date');
+		$data['blog_show_reviews'] = $this->config->get('configblog_show_reviews') === null || (bool)$this->config->get('configblog_show_reviews');
+		$data['blog_show_views'] = $this->config->get('configblog_show_views') === null || (bool)$this->config->get('configblog_show_views');
+		$data['articles'] = array();
         $results = array();
 
         if (isset($this->request->get['product_id'])) {
