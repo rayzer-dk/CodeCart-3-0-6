@@ -26,7 +26,7 @@
         {% for extension in extensions %}
         <tr class="ccp-extension-main" data-sort-name="{{ extension.name|e('html_attr') }}" data-sort-status="{{ extension.status|default('')|e('html_attr') }}" data-sort-date="{{ extension.date_installed|e('html_attr') }}">
           <td class="text-left"><b>{{ extension.name }}</b></td>
-          <td class="text-left">{% if extension.installed %}{{ extension.status }}{% endif %}</td>
+          <td class="text-center">{% if extension.installed %}<span class="ccp-extension-status {{ extension.status_enabled ? 'ccp-extension-status-on' : 'ccp-extension-status-off' }}">{{ extension.status }}</span>{% endif %}</td>
           <td class="text-center ccp-extension-date">{% if extension.date_installed_label %}{{ extension.date_installed_label }}{% else %}<span class="text-muted" title="{{ text_date_unknown }}">—</span>{% endif %}</td>
           <td class="text-right">{% if not extension.installed %}
             <a href="{{ extension.install }}" data-toggle="tooltip" title="{{ button_install }}" class="btn btn-success"><i class="fa fa-plus-circle"></i></a>
@@ -39,7 +39,7 @@
         {% for store in extension.store %}
         <tr class="ccp-extension-child">
           <td class="text-left">&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;{{ store.name }}</td>
-          <td class="text-left">{{ store.status }}</td>
+          <td class="text-center"><span class="ccp-extension-status {{ store.status_enabled ? 'ccp-extension-status-on' : 'ccp-extension-status-off' }}">{{ store.status }}</span></td>
           <td></td>
           <td class="text-right"><a href="{{ store.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
         </tr>
