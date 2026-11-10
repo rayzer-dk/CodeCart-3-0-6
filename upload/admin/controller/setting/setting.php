@@ -318,6 +318,7 @@ class ControllerSettingSetting extends Controller {
             : ($this->config->get('config_mail_dkim_selector') ?: 'default');
         $data['mail_audit_list_url'] = $this->url->link('setting/setting/mailAuditList', 'user_token=' . $this->session->data['user_token'], true);
         $data['mail_audit_clear_url'] = $this->url->link('setting/setting/mailAuditClear', 'user_token=' . $this->session->data['user_token'], true);
+		$data['mail_audit_repair_url'] = $this->url->link('setting/setting/mailAuditRepair', 'user_token=' . $this->session->data['user_token'], true);
         $data['mail_audit_dns_url'] = $this->url->link('setting/setting/mailAuditDns', 'user_token=' . $this->session->data['user_token'], true);
         $data['mail_audit_test_url'] = $this->url->link('setting/setting/mailAuditTest', 'user_token=' . $this->session->data['user_token'], true);
 		$data['user_token'] = $this->session->data['user_token'];
@@ -1596,7 +1597,7 @@ class ControllerSettingSetting extends Controller {
             } catch (\Throwable $e) {
                 // Do not hide valid mail-history rows when only statistics fail.
                 $result['summary'] = null;
-                $result['warning'] = 'audit_summary_unavailable';
+                $result['warning'] = in_array((int)$e->getCode(), array(1054, 1146), true) ? 'audit_schema_outdated' : 'audit_summary_unavailable';
                 $this->log->write('Mail Audit summary failed: ' . get_class($e) . ' db_code=' . (int)$e->getCode());
             }
             return $this->auditJson($result);
@@ -1611,6 +1612,31 @@ class ControllerSettingSetting extends Controller {
         }
     }
 
+
+
+    /**
+     * Explicit, permission-checked schema repair. Never create tables from the
+     * history GET endpoint or on a disabled/background request.
+     */
+    public function mailAuditRepair() {
+        if (!$this->auditAuthorized(true)
+            || !isset($this->request->server['REQUEST_METHOD'])
+            || strtoupper((string)$this->request->server['REQUEST_METHOD']) !== 'POST'
+            || !isset($this->request->post['confirm'])
+            || (string)$this->request->post['confirm'] !== '1') {
+            $this->response->setStatusCode(403);
+            return $this->auditJson(array('error' => 'forbidden'));
+        }
+        try {
+            \CodeCart\Core\MailAudit::install($this->db);
+            return $this->auditJson(array('success' => true));
+        } catch (\Throwable $e) {
+            $code = (int)$e->getCode();
+            $this->log->write('Mail Audit schema repair failed: ' . get_class($e) . ' db_code=' . $code);
+            $this->response->setStatusCode(500);
+            return $this->auditJson(array('error' => 'audit_storage_unavailable', 'db_code' => $code));
+        }
+    }
 
     public function mailAuditClear() {
         if (!$this->auditAuthorized(true) || $this->request->server['REQUEST_METHOD'] !== 'POST'

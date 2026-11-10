@@ -16,7 +16,7 @@ final class MailAudit {
     }
 
     public static function install($db) {
-        $db->query("CREATE TABLE IF NOT EXISTS " . DB_PREFIX . "codecart_mail_audit (
+        $db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_mail_audit` (
             audit_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             store_id INT NOT NULL DEFAULT 0,
             date_added DATETIME NOT NULL,

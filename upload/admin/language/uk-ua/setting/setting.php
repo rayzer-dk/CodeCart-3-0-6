@@ -1,6 +1,9 @@
 <?php
+$_['text_mail_audit_repair'] = 'Створити / відновити таблицю журналу';
+$_['text_mail_audit_repair_help'] = 'Створити відсутню таблицю Mail Audit або додати відсутні стовпці без видалення історії.';
+$_['text_mail_audit_repair_confirm'] = 'Створити або відновити таблицю Mail Audit? Наявні записи буде збережено.';
 // Mail Audit and DNS diagnostics
-$_['mail_error_audit_schema_outdated'] = 'Таблиця Mail Audit або її стовпці відсутні. Збережіть налаштування пошти для створення або оновлення структури.';
+$_['mail_error_audit_schema_outdated'] = 'Структура Mail Audit відсутня або застаріла. Натисніть «Створити / відновити таблицю журналу» нижче.';
 $_['mail_error_audit_summary_unavailable'] = 'Журнал завантажено, але статистику обчислити не вдалося.';
 $_['mail_error_audit_db_code'] = 'Код помилки бази даних';
 $_['text_mail_audit_last30'] = 'За останні 30 днів';

@@ -1313,7 +1313,7 @@
                 <div class="form-group">
                   <label class="col-sm-2 control-label">{{ text_mail_audit_title }}</label>
                   <div class="col-sm-10">
-                    <div id="mail-audit-widget" data-list-url="{{ mail_audit_list_url }}" data-clear-url="{{ mail_audit_clear_url }}" data-dns-url="{{ mail_audit_dns_url }}"
+                    <div id="mail-audit-widget" data-list-url="{{ mail_audit_list_url }}" data-clear-url="{{ mail_audit_clear_url }}" data-repair-url="{{ mail_audit_repair_url }}" data-dns-url="{{ mail_audit_dns_url }}"
                          data-empty="{{ text_mail_audit_empty }}" data-error="{{ text_mail_audit_load_error }}"
                          data-confirm="{{ text_mail_audit_confirm }}" data-dns-warning="{{ text_mail_dns_warning }}">
                       <div class="row" style="margin-bottom:8px">
@@ -1337,6 +1337,7 @@
                         </tr></thead>
                         <tbody id="mail-audit-rows"><tr><td colspan="9" class="text-muted">{{ text_mail_audit_empty }}</td></tr></tbody>
                       </table></div>
+                      <div id="mail-audit-repair-panel" style="display:none;margin:8px 0"><button type="button" class="btn btn-warning btn-sm" id="mail-audit-repair" title="{{ text_mail_audit_repair_help }}"><i class="fa fa-wrench"></i> {{ text_mail_audit_repair }}</button><span id="mail-audit-repair-result" class="small text-muted" role="status" aria-live="polite"></span></div>
                       <div id="mail-audit-stats" class="small text-muted"></div>
                       <div id="mail-audit-source-stats" class="small"></div>
                       <div class="clearfix"><span id="mail-audit-count" class="text-muted small"></span>
@@ -2180,11 +2181,13 @@ $('select[name=\'config_country_id\']').trigger('change');
     }
     function cell($tr, value) { $('<td/>').text(value == null ? '' : String(value)).appendTo($tr); }
     function error(value) { $('#mail-audit-rows').empty().append($('<tr/>').append($('<td/>').attr('colspan', 9).addClass('text-danger').text(value))); }
+    function showRepair(state) { $('#mail-audit-repair-panel').toggle(!!state); }
     function load() {
         $('#mail-audit-refresh').prop('disabled', true);
         $.getJSON($box.attr('data-list-url'), {page:page, email:$('#mail-audit-email').val(), status:$('#mail-audit-filter').val()})
         .done(function(data) {
-            if (data.error) { error(errorName(data.error)); return; }
+            if (data.error) { showRepair(data.error === 'audit_schema_outdated'); error(errorName(data.error)); return; }
+            showRepair(data.warning === 'audit_schema_outdated');
             renderSummary(data.summary);
             $('#mail-audit-stats-warning').remove();
             if (data.warning) {
@@ -2207,10 +2210,26 @@ $('select[name=\'config_country_id\']').trigger('change');
         }).fail(function(xhr){
             var code=xhr&&xhr.responseJSON&&xhr.responseJSON.error ? xhr.responseJSON.error : 'audit_storage_unavailable';
             var dbCode = xhr && xhr.responseJSON && xhr.responseJSON.db_code ? String(xhr.responseJSON.db_code) : '';
+            showRepair(code === 'audit_schema_outdated');
             error(errorName(code) + (dbCode ? ' ({{ mail_error_audit_db_code|escape('js') }}: ' + dbCode + ')' : '')
                 + (xhr && xhr.status ? ' (HTTP ' + xhr.status + ')' : ''));
         }).always(function(){ $('#mail-audit-refresh').prop('disabled', false); });
     }
+    $('#mail-audit-repair').on('click', function(){
+        if (!window.confirm('{{ text_mail_audit_repair_confirm|escape('js') }}')) { return; }
+        var $button=$(this), $result=$('#mail-audit-repair-result');
+        $button.prop('disabled',true); $result.text('');
+        $.post($box.attr('data-repair-url'), {confirm:'1'}, null, 'json')
+            .done(function(data){
+                if (data.success) { page=1; load(); }
+                else { $result.text(errorName(data.error)); }
+            })
+            .fail(function(xhr){
+                var code=xhr && xhr.responseJSON ? xhr.responseJSON.error : 'audit_storage_unavailable';
+                $result.text(errorName(code));
+            })
+            .always(function(){ $button.prop('disabled',false); });
+    });
     $('#mail-audit-refresh').on('click', function(){ page = 1; load(); });
     $('#mail-audit-filter').on('change', function(){ page = 1; load(); });
     $('#mail-audit-email').on('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); page = 1; load(); } });

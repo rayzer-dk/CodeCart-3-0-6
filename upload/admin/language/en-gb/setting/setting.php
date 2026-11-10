@@ -1,6 +1,9 @@
 <?php
+$_['text_mail_audit_repair'] = 'Create / repair audit table';
+$_['text_mail_audit_repair_help'] = 'Create the Mail Audit table or add missing audit columns without deleting history.';
+$_['text_mail_audit_repair_confirm'] = 'Create or repair the Mail Audit table? Existing history will be preserved.';
 // Mail Audit and DNS diagnostics
-$_['mail_error_audit_schema_outdated'] = 'Mail Audit database is missing a table or column. Save mail settings again to initialize the audit schema.';
+$_['mail_error_audit_schema_outdated'] = 'Mail Audit storage is missing or outdated. Use the Repair audit table button below.';
 $_['mail_error_audit_summary_unavailable'] = 'Mail history loaded, but statistics could not be calculated.';
 $_['mail_error_audit_db_code'] = 'Database error code';
 $_['text_mail_audit_last30'] = 'Last 30 days';
