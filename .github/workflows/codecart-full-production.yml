@@ -1,0 +1,97 @@
+name: CodeCart Full Production 2.2.6
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/index.php'
+      - 'upload/admin/index.php'
+      - '.github/workflows/codecart-full-production.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: codecart-full-production-2-2-6
+  cancel-in-progress: false
+
+jobs:
+  full-build:
+    name: Validated one-upload archive
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, mysqli, pdo_mysql, gd
+          tools: composer:v2
+
+      - name: Install locked production dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Refresh and commit integrity hashes for the actual source
+        shell: bash
+        run: |
+          set -euo pipefail
+          php tools/refresh_integrity.php
+          git add upload/system/config/codecart_integrity.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Build 2.2.6: refresh audited Core integrity manifest [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      - name: Full release gate
+        run: php tools/release_check.php
+
+      - name: Additional newsletter and extension regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          php tests/newsletter_documents_smoke.php
+          php tests/blog_extension_ui_smoke.php
+          php tests/installer_utf8mb4_and_icon_smoke.php
+          php tests/mail_audit_restore_smoke.php
+
+      - name: Rebuild optional bonus modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bonuses
+          if [ -d bonus-source/monobank_payment ]; then
+            python3 tools/package_unishop2_bonus.py --module monobank_payment --output bonuses
+            test -f bonuses/Monobank_Payment_Modern_Pro_v1.1.1.ocmod.zip
+          fi
+          python3 tools/package_unishop2_bonus.py --output bonuses
+          test -f bonuses/UniShop2_Compatibility_Pro_v1.0.2.ocmod.zip
+
+      - name: Verify bundled documentation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/package_documentation.py --output "$RUNNER_TEMP/CodeCart_PRO_Documentation.zip"
+          cmp upload/admin/view/documentation/CodeCart_PRO_Documentation.zip "$RUNNER_TEMP/CodeCart_PRO_Documentation.zip"
+
+      - name: Create full production ZIP and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python3 tools/package_production.py --output artifacts
+          test -f artifacts/CodeCart-3.0.6-production-Build-2.2.6.zip
+          test -f artifacts/CodeCart-3.0.6-production-Build-2.2.6.zip.sha256
+          unzip -tq artifacts/CodeCart-3.0.6-production-Build-2.2.6.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart-3.0.6-full-2.2.6
+          path: artifacts/
+          retention-days: 90
+          if-no-files-found: error
