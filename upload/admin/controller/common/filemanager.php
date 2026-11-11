@@ -647,7 +647,7 @@ class ControllerCommonFileManager extends Controller {
 
 		if (!$json) {
 			foreach ($paths as $path) {
-				$path = str_replace('\\\\', '/', (string)$path);
+				$path = str_replace('\\', '/', (string)$path);
 				$target = DIR_IMAGE . ltrim($path, '/');
 				$real = realpath($target);
 
@@ -658,9 +658,18 @@ class ControllerCommonFileManager extends Controller {
 			}
 		}
 
+		if (!$json && empty($this->request->post['force'])) {
+			$in_use = $this->countImageUsage($paths);
+
+			if ($in_use) {
+				$json['in_use'] = $in_use;
+				$json['warning'] = sprintf($this->language->get('text_in_use'), $in_use);
+			}
+		}
+
 		if (!$json) {
 			foreach ($paths as $path) {
-				$target = DIR_IMAGE . ltrim(str_replace('\\\\', '/', (string)$path), '/');
+				$target = DIR_IMAGE . ltrim(str_replace('\\', '/', (string)$path), '/');
 
 				if (!$this->deletePath($target, $root)) {
 					$json['error'] = $this->language->get('error_delete');
@@ -677,9 +686,42 @@ class ControllerCommonFileManager extends Controller {
 		$this->response->setOutput(json_encode($json));
 	}
 
+	/**
+	 * Number of product, additional product image, category and manufacturer records that
+	 * point at the given files or folders.
+	 */
+	private function countImageUsage(array $paths) {
+		$conditions = array();
+
+		foreach ($paths as $path) {
+			$path = trim(str_replace('\\', '/', (string)$path), '/');
+
+			if ($path === '') {
+				continue;
+			}
+
+			$like = addcslashes($path, '\\%_');
+			$conditions[] = "`image` = '" . $this->db->escape($path) . "' OR `image` LIKE '" . $this->db->escape($like . '/%') . "'";
+		}
+
+		if (!$conditions) {
+			return 0;
+		}
+
+		$where = implode(' OR ', $conditions);
+		$total = 0;
+
+		foreach (array('product', 'product_image', 'category', 'manufacturer') as $table) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . $table . "` WHERE " . $where);
+			$total += (int)$query->row['total'];
+		}
+
+		return $total;
+	}
+
 	private function isPathInside($path, $root) {
-		$path = rtrim(str_replace('\\\\', '/', $path), '/');
-		$root = rtrim(str_replace('\\\\', '/', $root), '/');
+		$path = rtrim(str_replace('\\', '/', $path), '/');
+		$root = rtrim(str_replace('\\', '/', $root), '/');
 
 		return strpos($path . '/', $root . '/') === 0;
 	}

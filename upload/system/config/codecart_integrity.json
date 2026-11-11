@@ -454,7 +454,7 @@
         "admin/language/uk-ua/extension/dashboard/codecart_health.php": "7a45d523d4615c384de3d6f8adbf9e05d277123eeda4b5a236b7548e9e488300",
         "admin/model/user/user.php": "47f734bf68cf1c18aa069f0d3cd404777c92108413c7bca4957328fc3a0deab4",
         "admin/model/user/user_group.php": "73d2eb8247342717bccbdc6df00ce5d015b24225c26627cf1ec02f54a5fa60ed",
-        "admin/view/template/common/filemanager.twig": "0330ff09b6ee4368fc16af8142f5aa54c25df6843edcfdfe803f621492dda851",
+        "admin/view/template/common/filemanager.twig": "6f585322c2e240bf3c735c0b0598642d2b6fc7f8a75359c1a6dbe2691400b0b9",
         "admin/view/template/extension/dashboard/codecart_health_form.twig": "c6d8e1e57e88aafed597764e31bc2919bb49fa009beadd907dacd4c96d66306c",
         "admin/view/template/extension/dashboard/codecart_health_info.twig": "7f146d0ebfc0209ad30b80c9f5048515013c3a9ee89b3b6d10ad55760db2284e",
         "admin/view/template/extension/dashboard/codecart_health_section.twig": "39813b351d2aa0026db32b7bc58210b5fd0514126df2876f1e1ce90533ad4165",

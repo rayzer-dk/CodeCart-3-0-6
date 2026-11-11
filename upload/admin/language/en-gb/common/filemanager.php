@@ -37,3 +37,4 @@ $_['button_select'] = 'Select';
 
 // CodeCart PRO safe SVG
 $_['error_svg_unsafe'] = 'Unsafe SVG content was blocked. SVG files are sanitized and may not contain scripts, embedded content, CSS, event handlers or external URLs.';
+$_['text_in_use'] = 'Warning: the selected files are used as pictures by %d product, category or manufacturer records. Delete anyway? Those records will lose their picture.';
