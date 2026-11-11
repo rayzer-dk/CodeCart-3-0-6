@@ -4,6 +4,25 @@
 
 class ModelCatalogCategory extends Model {
 	public function addCategory($data) {
+		$category_id = \CodeCart\Core\Transaction::run($this->db, function () use ($data) {
+			return $this->insertCategory($data);
+		});
+
+		// The body clears the cache inside the transaction; clear again now that the data is committed.
+		$this->cache->delete('category');
+
+		return $category_id;
+	}
+
+	public function editCategory($category_id, $data) {
+		\CodeCart\Core\Transaction::run($this->db, function () use ($category_id, $data) {
+			$this->updateCategory($category_id, $data);
+		});
+
+		$this->cache->delete('category');
+	}
+
+	private function insertCategory($data) {
 		$google_product_category_id = preg_replace('/[^0-9]/', '', (string)($data['google_product_category_id'] ?? ''));
 		$this->db->query("INSERT INTO " . DB_PREFIX . "category SET parent_id = '" . (int)$data['parent_id'] . "', `top` = '" . (isset($data['top']) ? (int)$data['top'] : 0) . "', `column` = '" . (int)$data['column'] . "', sort_order = '" . (int)$data['sort_order'] . "', status = '" . (int)$data['status'] . "', noindex = '" . (int)$data['noindex'] . "', google_product_category_id = '" . $this->db->escape($google_product_category_id) . "', date_modified = NOW(), date_added = NOW()");
 
@@ -99,7 +118,7 @@ class ModelCatalogCategory extends Model {
 		return $category_id;
 	}
 
-	public function editCategory($category_id, $data) {
+	private function updateCategory($category_id, $data) {
 		try { (new \CodeCart\Core\RelationLayer($this->registry))->invalidateProductRulesByCategory((int)$category_id); } catch (\Throwable $e) { $this->log->write('Relation invalidate category: ' . $e->getMessage()); }
 		$google_product_category_id = preg_replace('/[^0-9]/', '', (string)($data['google_product_category_id'] ?? ''));
 		$this->db->query("UPDATE " . DB_PREFIX . "category SET parent_id = '" . (int)$data['parent_id'] . "', `top` = '" . (isset($data['top']) ? (int)$data['top'] : 0) . "', `column` = '" . (int)$data['column'] . "', sort_order = '" . (int)$data['sort_order'] . "', status = '" . (int)$data['status'] . "', noindex = '" . (int)$data['noindex'] . "', google_product_category_id = '" . $this->db->escape($google_product_category_id) . "', date_modified = NOW() WHERE category_id = '" . (int)$category_id . "'");

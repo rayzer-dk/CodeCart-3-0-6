@@ -1,7 +1,9 @@
-# CodeCart 3.0.6.0 — Build 2.2.6 (2026-11-11)
+# CodeCart 3.0.6.0 — Build 2.2.7 (2026-11-11)
 
 Core schema 3.0.6.0; presentation schema revision 36 (new event; updated stores register it on the next update run).
 
+- Product and category saves are one transaction: when any statement fails halfway, nothing is saved. Before, a failure after the old relations were deleted left the product without its categories and SEO URLs. The public methods (`addProduct`, `editProduct`, `addCategory`, `editCategory`) keep their names and signatures for third-party modifications. Verified against a real database with an injected failure: the product is unchanged with the transaction, and was left half-saved without it.
+- E-mailed links no longer act on their own: the newsletter unsubscribe link and the GDPR confirmation link open a page with a button, and only the button (POST) unsubscribes or confirms. Mail scanners that open links can no longer unsubscribe a customer or use up a one-time token.
 - Administrator change audit: every create, edit, delete, copy, install, enable and similar change made in the administration is written to the security audit log (Core / Compatibility → Security) with the administrator, the model call and the record id. Submitted form values are never stored.
 - Product list, bulk edit: change price (set, by percent or by amount), quantity (set or add), manufacturer and add a category for all ticked products at once. The last bulk edit can be undone; a field is restored only while it still holds the value the bulk edit wrote, so later manual changes survive. Bulk edits and undo are recorded in the audit log.
 - Product list: warnings stored in the session (for example an invalid bulk value) are now shown.
@@ -22,6 +24,18 @@ Core schema 3.0.6.0; presentation schema revision 36 (new event; updated stores 
 - Development aid: `define('CODECART_SQL_PROFILE', true);` in `config.php` logs queries slower than `CODECART_SQL_PROFILE_MS` (default 50) and a per-request summary to `sql_profile.log`. Off by default and without cost when off.
 - Verified on a fresh installation (MariaDB 10.11, PHP 8.3): bulk edit and undo on real products, the audit rows, the sales report comparison with two test orders, three scheduled backups with rotation, and a restore of the dump into an empty database with identical row counts and a matching checksum of product data.
 - Not part of this build: numeric range filters for attributes.
+
+# CodeCart 3.0.6.0 — Build 2.2.6 (2026-11-10)
+
+Core schema 3.0.6.0; presentation schema revision 35 (unchanged).
+
+- Installer: a clean installation selects the utf8mb4 database default; Core detects and safely repairs a database default that is not utf8mb4_unicode_ci.
+- Extension lists: the real installation date is kept and shown (the ZIP upload date is gone), with compact enabled/disabled status badges on every extension type.
+- Blog: AJAX status and indexing switches in the article list with authorization, independent storefront controls for publication date, ratings and view counters, and the same flags honoured by the blog modules and cards.
+- Newsletter: responsive branded renderer with built-in localized designs, logo, signature, unsubscribe link and a readable text version; server-side desktop and mobile preview; the same sanitization for preview and sending.
+- Downloads: paid downloads and public documents share one responsive admin layout with search, sortable dates and download counts.
+- Mail Audit: missing storage is repaired on demand; browsing the history never changes it.
+- PDF icon included in the Core icon package.
 
 # CodeCart 3.0.6.0 — Build 2.2.5 (2026-11-09)
 

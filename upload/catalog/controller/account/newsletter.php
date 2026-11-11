@@ -71,11 +71,15 @@ class ControllerAccountNewsletter extends Controller {
 		$this->document->setTitle($this->language->get('heading_title'));
 		$token = isset($this->request->get['token']) ? strtolower(trim((string)$this->request->get['token'])) : '';
 		$ok = false;
+		$known = false;
+		$confirmed = isset($this->request->server['REQUEST_METHOD']) && $this->request->server['REQUEST_METHOD'] === 'POST';
 		if (preg_match('/^[a-f0-9]{64}$/', $token)) {
 			$q = $this->db->query("SELECT mail_queue_id,customer_id,email FROM `" . DB_PREFIX . "mail_campaign_queue` WHERE unsubscribe_token='" . $this->db->escape($token) . "' LIMIT 1");
 			if ($q->num_rows) {
 				$email = utf8_strtolower(trim((string)$q->row['email']));
-				if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				$known = filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+				// Mail scanners open links on their own; opening the link only asks for confirmation.
+				if ($known && $confirmed) {
 					$this->db->query("INSERT INTO `" . DB_PREFIX . "mail_suppression` SET email='" . $this->db->escape($email) . "', reason='unsubscribe', date_added=NOW() ON DUPLICATE KEY UPDATE reason='unsubscribe', date_added=VALUES(date_added)");
 					if ((int)$q->row['customer_id'] > 0) { $this->db->query("UPDATE `" . DB_PREFIX . "customer` SET newsletter='0' WHERE customer_id='" . (int)$q->row['customer_id'] . "'"); }
 					$this->db->query("UPDATE `" . DB_PREFIX . "mail_campaign_queue` SET status=IF(status='waiting','suppressed',status), date_modified=NOW() WHERE LOWER(email)='" . $this->db->escape($email) . "' AND status='waiting'");
@@ -85,6 +89,12 @@ class ControllerAccountNewsletter extends Controller {
 		}
 		$data['heading_title'] = $this->language->get('heading_title');
 		$data['message'] = $ok ? $this->language->get('text_unsubscribe_success') : $this->language->get('text_unsubscribe_invalid');
+		$data['confirm_action'] = '';
+		if ($known && !$confirmed) {
+			$data['confirm_action'] = $this->url->link('account/newsletter/unsubscribe', 'token=' . $token, true);
+			$data['text_confirm'] = $this->language->get('text_unsubscribe_confirm');
+			$data['button_confirm'] = $this->language->get('button_unsubscribe_confirm');
+		}
 		$data['continue'] = $this->url->link('common/home');
 		$data['button_continue'] = $this->language->get('button_continue');
 		$data['header'] = $this->load->controller('common/header');

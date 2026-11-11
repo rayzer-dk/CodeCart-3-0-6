@@ -4,6 +4,27 @@
 
 class ModelCatalogProduct extends Model {
 	public function addProduct($data) {
+		$product_id = \CodeCart\Core\Transaction::run($this->db, function () use ($data) {
+			return $this->insertProduct($data);
+		});
+
+		// The body clears these inside the transaction; clear again now that the data is committed.
+		$this->cache->delete('product');
+		$this->cache->delete('admin.product_sidebar_stats');
+
+		return $product_id;
+	}
+
+	public function editProduct($product_id, $data) {
+		\CodeCart\Core\Transaction::run($this->db, function () use ($product_id, $data) {
+			$this->updateProduct($product_id, $data);
+		});
+
+		$this->cache->delete('product');
+		$this->cache->delete('admin.product_sidebar_stats');
+	}
+
+	private function insertProduct($data) {
 		$google_product_category_id = preg_replace('/[^0-9]/', '', (string)(isset($data['google_product_category_id']) ? $data['google_product_category_id'] : ''));
 		$tax_display_mode = isset($data['tax_display_mode']) ? (string)$data['tax_display_mode'] : 'inherit';
 		if (!in_array($tax_display_mode, array('inherit','native','none','gross_net','gross_tax','net_gross'), true)) { $tax_display_mode = 'inherit'; }
@@ -160,7 +181,7 @@ class ModelCatalogProduct extends Model {
 		return $product_id;
 	}
 
-	public function editProduct($product_id, $data) {
+	private function updateProduct($product_id, $data) {
 		$google_product_category_id = preg_replace('/[^0-9]/', '', (string)(isset($data['google_product_category_id']) ? $data['google_product_category_id'] : ''));
 		if (isset($data['tax_display_mode'])) {
 			$tax_display_mode = (string)$data['tax_display_mode'];

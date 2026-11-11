@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "c481360a728d1e7841c3a9f56517b5dc6b300fdf0ebf2d132a7e583217128b37",
         "admin/controller/tool/catalog_transfer.php": "80560c947411023615e28bfa851f589cb390babaead8cd46e1e549b2b7cd4da6",
         "admin/controller/tool/codecart_core.php": "cdbc65653d4550e9fe6b9e09202532f1a80f8cc0fd9f513c3ea47cc6208c4194",
-        "admin/index.php": "8a1d32cc8b09993f266f0cebe74d7ff230674d9a6a67badc03d1750edcd41316",
+        "admin/index.php": "7d90061c9a3af54aacc4a8ac4e66d87036c2f7035691adc8abc71a8bf26a56ec",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "a7295aadbac45f11ef8c2f0700a4a1461ac9f1c685d737165d563d366235fc28",
@@ -92,7 +92,7 @@
         "admin/language/uk-ua/tool/backup.php": "1462a0a0401b75296bce629c4dbcfd437008dd134d6814b056cd685fc2670f93",
         "admin/language/uk-ua/tool/codecart_core.php": "b1ea3d7ca46f2116370fde038c4c35c0a234b6796edb2fd4e91eb0c39712491b",
         "admin/language/uk-ua/uk-ua.png": "570bf6b85a842c81538db60f3ef12ebc26447481576a7f1e095d7ea4269a3c55",
-        "admin/model/catalog/product.php": "fb7a5cd6ec9664906516117bdd8280a27e46831cc1dfa14cbdd1475f4bd9fce4",
+        "admin/model/catalog/product.php": "b3d12507a14f1c47285ddf3ece50962b93382a1cde155dba314b1a1537c536c7",
         "admin/model/design/form.php": "97a378e99229f857f88584f50a042b1595bd3b68b6de25b88280a264feb42c0c",
         "admin/model/extension/currency/nbu.php": "90721448da6122bd9cc90951c44ab329500f918375a43413eb8e62d11c73c434",
         "admin/model/localisation/country.php": "613c16f891f137c300caf2d394376a76d4d6d6e0fb8bfeae1489a752ab7ae198",
@@ -101,7 +101,7 @@
         "admin/model/report/lost_url.php": "6348b726364d6224d516f890023340a9a045d9d9bac46dfb35277e45725ed484",
         "admin/model/sale/abandoned_cart.php": "9131bf4fc8d5ecfa9d7626d45d03644db513e633d66b4cd37d1fcc415a3b38c1",
         "admin/model/setting/setting.php": "79552c0d9b9d78582e17a4671cc68845050949af5c0dbe9b8dc47976ae559972",
-        "admin/view/documentation/CodeCart_PRO_Documentation.zip": "a1280c6e2d213198c21c50de5add2bf59d594ef170a81dd59ef26244356348a5",
+        "admin/view/documentation/CodeCart_PRO_Documentation.zip": "ef257435a0312840e0d5c1c966d76abd27a05b323350bc028b02ceee75fe4d92",
         "admin/view/image/logo.webp": "810993168d33da8d54d9f0e56a22d5572a3e88d994b76e9be42059b5835d6140",
         "admin/view/image/support/bitcoin.png": "c0a3254ce414038fdbcc57e3f14f3f62b70f5262e03dc8e287a913a57ba4438f",
         "admin/view/image/support/card.png": "5458b94bbae63af6f8d746303faadfb4ca6da58f9f14848df73133e210606535",
@@ -346,9 +346,9 @@
         "catalog/view/theme/default/template/product/product.twig": "8374ae02bf3969693bed04912e9cce39c14234b152c6e9e22a9f8deb66c9e08e",
         "catalog/view/theme/default/template/product/search.twig": "694d3110cf38f17d5dc0bc432275a30dbb8d314a7f68058be393da58d89e3227",
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
-        "cli.php": "6c3d233af463c5ee3ef53e36599693a1db3925f467156cec641e58eaae75b48e",
-        "cron.php": "c2e42c5e07a4bb454e661a6b6f1cbedd20649a9761560a439dee003e7e75eed8",
-        "index.php": "fa76520b74be6a0f4f5fc2da58920043f510e719df5a159d45bafcd478af7f43",
+        "cli.php": "45e019fca8294ed38bf9e95acc2a081b6e6b552784a096ce00d0c5d7c3df6a57",
+        "cron.php": "d99065163ee91215152009325765561fa870da57ad5ae0f13d4f11af205098f5",
+        "index.php": "1823942b2762b0a1c7b8172678cf5ad8edec4fbfe7f51f72f57d62d2cfd657f0",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "c0b6b100035063a9ec0bcd44c26370c208af21bc3eddea3d67640ae09218e859",
         "system/config/codecart_fontawesome_core_manifest.json": "09d769f4d4633c857c8097435c8f54f9cd3f789bb58b92a2954ea8c9e80896f8",
@@ -529,8 +529,9 @@
         "system/library/codecart/src/SeoUrlIndex.php": "e4e5001cf197c4c8571b2d5fd8f8a9ba37a164ad76faa10472984bb8aebce582",
         "system/library/codecart/src/SqlBackup.php": "30c705933ef32bc47da59b1e11289a12848f2c04182100231cf9e30ce50d1b1e",
         "system/library/codecart/src/DatabaseDefaults.php": "f6670ae08245ccb6652865d504413144b705432b06c5c6b6e06754dba3c19c1c",
-        "system/library/codecart/src/NewsletterEmail.php": "f870e8d98bf8bd749332cf20d4e2943c6e08a30446ae3661469497c05a85392a"
+        "system/library/codecart/src/NewsletterEmail.php": "f870e8d98bf8bd749332cf20d4e2943c6e08a30446ae3661469497c05a85392a",
+        "system/library/codecart/src/Transaction.php": "1ad5240fd93928d1e87052f922285b8a985062af418686f3566a73ab60642c36"
     },
     "version": "3.0.6.0",
-    "package_build": "2.2.6"
+    "package_build": "2.2.7"
 }

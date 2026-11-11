@@ -11,3 +11,5 @@ $_['text_success']     = 'Success: Your newsletter subscription has been success
 $_['entry_newsletter'] = 'Subscribe';
 $_['text_unsubscribe_success'] = 'You have been unsubscribed from marketing emails.';
 $_['text_unsubscribe_invalid'] = 'This unsubscribe link is invalid or has expired.';
+$_['text_unsubscribe_confirm'] = 'Do you want to stop receiving marketing emails from us?';
+$_['button_unsubscribe_confirm'] = 'Unsubscribe';

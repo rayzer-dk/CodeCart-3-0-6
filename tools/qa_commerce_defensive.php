@@ -288,6 +288,7 @@ if (str_starts_with($case, 'category-')) {
         require $root . '/upload/system/library/codecart/src/PurchaseBlocks.php';
     } else {
         require $root . '/upload/admin/model/catalog/product.php';
+        require $root . '/upload/system/library/codecart/src/Transaction.php';
         require $root . '/upload/system/helper/general.php';
     }
     class CommerceCache {
@@ -308,6 +309,9 @@ if (str_starts_with($case, 'category-')) {
         }
         public function escape($value) { return addslashes((string)$value); }
         public function getLastId() { return 1; }
+        public function beginTransaction() {}
+        public function commit() {}
+        public function rollback() {}
         public function query($sql) {
             if ($sql === 'SHOW TABLES') { return commerceRows(array(array('table' => 'qa_product_to_category'), array('table' => 'qa_product'))); }
             if (str_starts_with($sql, 'SHOW COLUMNS')) {

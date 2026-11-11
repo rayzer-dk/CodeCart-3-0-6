@@ -36,3 +36,5 @@ $_['error_rate'] = 'Too many requests. Try again later.';
 $_['error_email'] = 'Your account does not have a valid e-mail address.';
 $_['error_mail'] = 'The confirmation e-mail could not be sent. Try again later.';
 $_['error_csrf'] = 'The form has expired. Reload the page and try again.';
+$_['text_confirm_intro'] = 'Please confirm the request you made on this site. Nothing happens until you press the button.';
+$_['button_confirm_request'] = 'Confirm request';

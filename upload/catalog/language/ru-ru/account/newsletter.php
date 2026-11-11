@@ -7,3 +7,5 @@ $_['text_success'] = 'Настройки подписки успешно обн�
 $_['entry_newsletter'] = 'Подписаться';
 $_['text_unsubscribe_success'] = 'Вы успешно отписались от маркетинговых рассылок.';
 $_['text_unsubscribe_invalid'] = 'Ссылка для отписки недействительна или устарела.';
+$_['text_unsubscribe_confirm'] = 'Вы хотите отписаться от маркетинговых рассылок?';
+$_['button_unsubscribe_confirm'] = 'Отписаться';

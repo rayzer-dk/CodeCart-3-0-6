@@ -1,3 +1,3 @@
 {{ header }}
-<div class="container"><div class="row"><div class="col-sm-12"><h1>{{ heading_title }}</h1><div class="alert alert-info">{{ message }}</div><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div></div></div>
+<div class="container"><div class="row"><div class="col-sm-12"><h1>{{ heading_title }}</h1>{% if confirm_action %}<p>{{ text_confirm }}</p><form action="{{ confirm_action }}" method="post"><button type="submit" class="btn btn-primary">{{ button_confirm }}</button> <a href="{{ continue }}" class="btn btn-default">{{ button_continue }}</a></form>{% else %}<div class="alert alert-info">{{ message }}</div><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a>{% endif %}</div></div></div>
 {{ footer }}

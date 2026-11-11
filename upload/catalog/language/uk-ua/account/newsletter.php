@@ -13,3 +13,5 @@ $_['entry_newsletter'] = 'Підписатись';
 
 $_['text_unsubscribe_success'] = 'Ви успішно відписалися від маркетингових розсилок.';
 $_['text_unsubscribe_invalid'] = 'Посилання для відписки недійсне або застаріло.';
+$_['text_unsubscribe_confirm'] = 'Ви хочете відписатися від маркетингових розсилок?';
+$_['button_unsubscribe_confirm'] = 'Відписатися';

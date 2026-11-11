@@ -17,8 +17,18 @@ class ControllerAccountGdpr extends Controller {
 
     public function confirm() {
         if (!(int)$this->config->get('codecart_gdpr_status')) { $this->response->redirect($this->url->link('common/home')); return; }
-        $token=isset($this->request->get['token'])?trim((string)$this->request->get['token']):''; $row=(new \CodeCart\Core\GdprManager($this->registry))->confirm($token);
-        $this->load->language('account/gdpr'); $this->session->data['success']=$row?$this->language->get('text_confirm_success'):$this->language->get('error_confirm');
+        $token=isset($this->request->get['token'])?trim((string)$this->request->get['token']):'';
+        $this->load->language('account/gdpr');
+        // Mail scanners open links on their own: the link only shows a page, the button confirms.
+        if (($this->request->server['REQUEST_METHOD']??'GET')!=='POST') {
+            $this->document->setTitle($this->language->get('heading_title')); $this->document->setRobots('noindex,nofollow');
+            $data['heading_title']=$this->language->get('heading_title'); $data['text_confirm_intro']=$this->language->get('text_confirm_intro'); $data['button_confirm_request']=$this->language->get('button_confirm_request');
+            $data['action']=$this->url->link('account/gdpr/confirm','token='.rawurlencode($token),true); $data['continue']=$this->url->link('common/home'); $data['button_continue']=$this->language->get('button_continue');
+            $data['header']=$this->load->controller('common/header'); $data['footer']=$this->load->controller('common/footer');
+            $this->response->setOutput($this->load->view('account/gdpr_confirm',$data));
+            return;
+        }
+        $row=(new \CodeCart\Core\GdprManager($this->registry))->confirm($token); $this->session->data['success']=$row?$this->language->get('text_confirm_success'):$this->language->get('error_confirm');
         $this->response->redirect($this->customer->isLogged()?$this->url->link('account/gdpr','',true):$this->url->link('account/login','',true));
     }
 
