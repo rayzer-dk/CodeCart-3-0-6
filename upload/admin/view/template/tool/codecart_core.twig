@@ -248,20 +248,18 @@
 
             <div class="tab-pane" id="about-pane-components" role="tabpanel">
               <div class="table-responsive">
-                <table class="table table-condensed table-hover ccp-about-table">
-                  <thead><tr><td>{{ text_component }}</td><td class="ccp-about-col-cc">{{ about.product }}</td><td>ocStore 3.0.3.7</td><td>OpenCart 3.0.4.1</td><td>OpenCart 3.0.5.1</td></tr></thead>
+                <table class="table table-bordered table-hover ccp-comparison-table">
+                  <thead><tr><td>{{ text_component }}</td><td>OpenCart 3.0.5.x</td><td>ocStore 3.0.5.x</td><td>CodeCart PRO 3.0.6.x</td><td style="width:155px;">{{ column_state }}</td></tr></thead>
                   <tbody>
-                  {% for row in about_components %}
-                    <tr>
-                      <td><strong>{{ row.name }}</strong></td>
-                      <td class="ccp-about-col-cc">{{ row.cells[0] }} {% if row.level == 'added' %}<span class="label label-success">{{ text_about_level_added }}</span>{% elseif row.level == 'updated' %}<span class="label label-primary">{{ text_about_level_updated }}</span>{% else %}<span class="label label-default">{{ text_about_level_same }}</span>{% endif %}</td>
-                      <td>{{ row.cells[1] }}</td><td>{{ row.cells[2] }}</td><td>{{ row.cells[3] }}</td>
-                    </tr>
+                  {% for row in comparison_rows %}
+                    <tr><td><strong>{{ row.component }}</strong></td><td>{{ row.opencart }}</td><td>{{ row.ocstore }}</td><td>{{ row.codecart }}</td><td class="ccp-status">
+                      {% if row.status == 'updated' %}<span class="label label-primary">{{ text_updated }}</span>{% elseif row.status == 'added' %}<span class="label label-success">{{ text_added }}</span>{% elseif row.status == 'removed_runtime' %}<span class="label label-warning">{{ text_removed_runtime }}</span>{% else %}<span class="label label-default">{{ text_legacy }}</span>{% endif %}
+                    </td></tr>
                   {% endfor %}
                   </tbody>
                 </table>
               </div>
-              <p class="help-block">{{ text_about_components_note }}</p>
+              <p class="help-block ccp-comparison-note"><i class="fa fa-info-circle" aria-hidden="true"></i> {{ text_about_comparison_note }}</p>
             </div>
 
             <div class="tab-pane" id="about-pane-requirements" role="tabpanel">

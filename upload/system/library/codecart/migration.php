@@ -2569,6 +2569,20 @@ class Migration {
         }
 
         $routes[] = 'sale/abandoned_cart';
+
+        // The root administrator must be able to open and change every screen the package ships,
+        // including routes added after the store was installed. Permissions are only ever added.
+        $controller_root = dirname(rtrim(str_replace('\\', '/', DIR_SYSTEM), '/')) . '/admin/controller/';
+        if (is_dir($controller_root)) {
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($controller_root, \FilesystemIterator::SKIP_DOTS));
+            foreach ($iterator as $file) {
+                if (!$file->isFile() || strtolower($file->getExtension()) !== 'php') { continue; }
+                $relative = substr(str_replace('\\', '/', $file->getPathname()), strlen($controller_root));
+                $route = preg_replace('/\.php$/i', '', $relative);
+                if ($route !== '' && preg_match('#^[a-z0-9_/]+$#', $route)) { $routes[] = $route; }
+            }
+        }
+
         $routes = array_values(array_unique($routes));
         $changed = false;
         foreach (array('access','modify') as $kind) {

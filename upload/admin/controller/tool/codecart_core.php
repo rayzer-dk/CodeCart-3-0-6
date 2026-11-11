@@ -102,7 +102,7 @@ class ControllerToolCodeCartCore extends Controller {
 
         $data['codecart_website'] = 'https://codecartpro.com/';
         $data['about'] = $this->aboutSystem();
-        $data['about_components'] = $this->aboutComponents();
+        $data['comparison_rows'] = $this->localizeComparisonRows($this->comparisonRows());
         $data['about_changes'] = array();
         foreach (array('added'=>'primary','security'=>'primary','updated'=>'secondary','fixed'=>'secondary','removed'=>'muted') as $group=>$level) {
             $data['about_changes'][] = $this->escapeHtml(array('title'=>$this->language->get('text_about_group_' . $group),'level'=>$level,'group'=>$group,'items'=>(array)$this->language->get('about_' . $group . '_items')));
@@ -613,35 +613,102 @@ class ControllerToolCodeCartCore extends Controller {
         ));
     }
 
-    private function aboutComponents() {
-        // Columns: CodeCart, ocStore 3.0.3.7, OpenCart 3.0.4.1, OpenCart 3.0.5.1 (values taken from the
-        // shipped composer.lock files and bundled assets). "about_v_" values are translated labels.
+    private function comparisonRows() {
         $rows = array(
-            array('php', '8.1–8.5', '>= 5.4', '>= 7.3', '>= 8.1', 'updated'),
-            array('twig', '3.30.0', '2.14.3', '3.8.0', '3.24.0', 'updated'),
-            array('scssphp', '2.1.0', '1.1.1', '1.12.1', '2.1.0', 'updated'),
-            array('guzzle', '7.15.5', '5.3.4', '6.5.8', '7.10.0', 'updated'),
-            array('jquery', '3.7.1', '2.1.1', '2.1.1 + 3.7.x', '2.1.1 + 3.7.x', 'updated'),
-            array('jquery_migrate', '3.4.1', '', '', '', 'added'),
-            array('bootstrap', '3.4.1', '3.3.5', '3.4.1', '3.4.1', 'same'),
-            array('fontawesome', '6.7.2 Free', '4.7.0', '4.7.0', '4.7.0', 'updated'),
-            array('gallery', 'PhotoSwipe 5.4.4 / Magnific Popup', 'Magnific Popup', 'Magnific Popup', 'Magnific Popup', 'added'),
-            array('swiper', '3.4.2', '3.4.2', '3.4.2', '3.4.2', 'same'),
-            array('summernote', '0.9.1', '0.8.2', '0.8.18', '0.8.18', 'updated'),
-            array('htmlpurifier', '4.19.0', '4.13.0', '', '', 'updated'),
-            array('datepicker', 'about_v_datepicker_native', 'about_v_datepicker_bootstrap', 'about_v_datepicker_bootstrap', 'about_v_datepicker_bootstrap', 'updated'),
-            array('password', 'password_hash()', 'about_v_password_sha1', 'about_v_password_sha1', 'about_v_password_sha1', 'updated'),
-            array('smtp_tls', 'about_v_tls_strict', 'about_v_tls_starttls', 'about_v_tls_starttls', 'about_v_tls_starttls', 'updated')
+            array('component'=>'PHP','opencart'=>'PHP 8.0–8.4','ocstore'=>'PHP 8.0–8.5','codecart'=>'PHP 8.1–8.5','status'=>'updated'),
+            array('component'=>'Guzzle','opencart'=>'7.10.0','ocstore'=>'7.9.3','codecart'=>'7.15.5','status'=>'updated'),
+            array('component'=>'Twig','opencart'=>'3.24.0','ocstore'=>'3.21.1','codecart'=>'3.28.0','status'=>'updated'),
+            array('component'=>'Guzzle Promises','opencart'=>'2.3.0','ocstore'=>'2.2.0','codecart'=>'2.5.3','status'=>'updated'),
+            array('component'=>'Guzzle PSR-7','opencart'=>'2.9.0','ocstore'=>'2.7.1','codecart'=>'2.13.1','status'=>'updated'),
+            array('component'=>'League URI','opencart'=>'7.8.1','ocstore'=>'7.5.1','codecart'=>'7.8.1','status'=>'updated'),
+            array('component'=>'League URI Interfaces','opencart'=>'7.8.1','ocstore'=>'7.5.0','codecart'=>'7.8.1','status'=>'updated'),
+            array('component'=>'Symfony Deprecation Contracts','opencart'=>'3.6.0','ocstore'=>'3.6.0','codecart'=>'3.7.1','status'=>'updated'),
+            array('component'=>'Symfony Polyfill Ctype','opencart'=>'1.37.0','ocstore'=>'1.32.0','codecart'=>'1.37.0','status'=>'updated'),
+            array('component'=>'Symfony Polyfill PHP 8.0','opencart'=>'1.37.0','ocstore'=>'1.32.0','codecart'=>'1.37.0','status'=>'updated'),
+            array('component'=>'scssphp Source Span','opencart'=>'1.1.0','ocstore'=>'1.0.0','codecart'=>'1.1.0','status'=>'updated'),
+            array('component'=>'scssphp','opencart'=>'2.1.0 runtime','ocstore'=>'2.0.1 runtime','codecart'=>'2.1.0 manual / CLI only','status'=>'updated'),
+            array('component'=>'Symfony Filesystem','opencart'=>'6.4.34','ocstore'=>'6.4.13','codecart'=>'6.4.45','status'=>'updated'),
+            array('component'=>'Symfony Polyfill Mbstring','opencart'=>'1.37.0','ocstore'=>'1.32.0','codecart'=>'1.38.2','status'=>'updated'),
+            array('component'=>'jQuery Migrate','opencart'=>'—','ocstore'=>'—','codecart'=>'3.4.1','status'=>'added'),
+            array('component'=>'jQuery','opencart'=>'3.7.1','ocstore'=>'3.7.1','codecart'=>'3.7.1 Legacy Core','status'=>'legacy'),
+            array('component'=>'Bootstrap','opencart'=>'3.4.1','ocstore'=>'3.4.1','codecart'=>'3.4.1 Legacy Core','status'=>'legacy'),
+            array('component'=>'Font Awesome','opencart'=>'4.7.0','ocstore'=>'4.7.0','codecart'=>'6.7.2 + AUTO/Core/Full + FA4 compatibility','status'=>'updated'),
+            array('component'=>'Content editor','opencart'=>'Summernote 0.8.18','ocstore'=>'Summernote 0.8.18','codecart'=>'Summernote 0.9.1 local','status'=>'updated'),
+            array('component'=>'CodeMirror','opencart'=>'5.15.3','ocstore'=>'5.15.3','codecart'=>'5.65.21','status'=>'updated'),
+            array('component'=>'Magnific Popup','opencart'=>'1.1.0','ocstore'=>'1.1.0','codecart'=>'1.2.0','status'=>'updated'),
+            array('component'=>'PhotoSwipe','opencart'=>'—','ocstore'=>'—','codecart'=>'5.4.4','status'=>'added'),
+            array('component'=>'HTML Purifier','opencart'=>'—','ocstore'=>'4.18.0','codecart'=>'4.19.0','status'=>'updated'),
+            array('component'=>'Moment.js','opencart'=>'2.18.1','ocstore'=>'2.18.1','codecart'=>'2.30.1','status'=>'updated'),
+            array('component'=>'DateTimePicker','opencart'=>'Bootstrap DateTimePicker 3.1.3.1','ocstore'=>'Bootstrap DateTimePicker 3.1.3.1','codecart'=>'CodeCart PRO Hybrid DateTimePicker 1.8.7','status'=>'updated'),
+            array('component'=>'SortableJS','opencart'=>'—','ocstore'=>'1.10.2','codecart'=>'1.15.7','status'=>'updated'),
+            array('component'=>'Swiper','opencart'=>'3.4.2','ocstore'=>'3.4.2','codecart'=>'CodeCart PRO Slider; Swiper 3 Legacy','status'=>'removed_runtime'),
+            array('component'=>'Flot / jQVMap','opencart'=>'Core Dashboard','ocstore'=>'Core Dashboard','codecart'=>'not used by Core Dashboard; Legacy assets retained','status'=>'removed_runtime'),
+            array('component'=>'SEO / clean URL','opencart'=>'SEO URL','ocstore'=>'SeoPro','codecart'=>'SeoPro + language prefixes + canonical/faceted policy','status'=>'updated'),
+            array('component'=>'Image formats','opencart'=>'JPEG/PNG/WebP','ocstore'=>'JPEG/PNG/WebP','codecart'=>'JPEG/PNG/WebP/AVIF + safe fallback','status'=>'updated'),
+            array('component'=>'Cache backends','opencart'=>'File','ocstore'=>'File','codecart'=>'File / APCu / Memcached / Redis + fallback','status'=>'added'),
+            array('component'=>'Scheduler / Queue','opencart'=>'—','ocstore'=>'—','codecart'=>'Built-in','status'=>'added'),
+            array('component'=>'System Notifications','opencart'=>'—','ocstore'=>'—','codecart'=>'Built-in','status'=>'added'),
+            array('component'=>'GDPR / Cookie Consent','opencart'=>'—','ocstore'=>'—','codecart'=>'Built-in, opt-in on UPDATE','status'=>'added'),
+            array('component'=>'MFA / Device Authorization','opencart'=>'—','ocstore'=>'—','codecart'=>'TOTP + trusted device layer','status'=>'added'),
+            array('component'=>'Schema Registry / Diff','opencart'=>'—','ocstore'=>'—','codecart'=>'Read-only diagnostics + migrations','status'=>'added'),
+            array('component'=>'Modern Extension Layer','opencart'=>'—','ocstore'=>'—','codecart'=>'PSR-4 / Services / Manifest / Extension Points','status'=>'added'),
+            array('component'=>'Central Spam Service','opencart'=>'form-specific','ocstore'=>'form-specific','codecart'=>'contact / reviews / registration / forgotten / returns / GDPR','status'=>'added')
         );
-        $result = array();
-        foreach ($rows as $row) {
-            $cells = array();
-            foreach (array_slice($row, 1, 4) as $value) {
-                $cells[] = $value === '' ? '—' : (strpos($value, 'about_v_') === 0 ? $this->language->get($value) : $value);
+
+        // CodeCart column: versions of bundled Composer packages come from the installed vendor tree,
+        // so the table cannot drift from what the package actually ships.
+        $installed = $this->installedPackageVersions();
+        $packages = array(
+            'Guzzle' => 'guzzlehttp/guzzle', 'Twig' => 'twig/twig', 'Guzzle Promises' => 'guzzlehttp/promises', 'Guzzle PSR-7' => 'guzzlehttp/psr7',
+            'League URI' => 'league/uri', 'League URI Interfaces' => 'league/uri-interfaces', 'Symfony Deprecation Contracts' => 'symfony/deprecation-contracts',
+            'Symfony Polyfill Ctype' => 'symfony/polyfill-ctype', 'Symfony Polyfill PHP 8.0' => 'symfony/polyfill-php80', 'scssphp Source Span' => 'scssphp/source-span',
+            'scssphp' => 'scssphp/scssphp', 'Symfony Filesystem' => 'symfony/filesystem', 'Symfony Polyfill Mbstring' => 'symfony/polyfill-mbstring'
+        );
+        foreach ($rows as &$row) {
+            if (isset($packages[$row['component']], $installed[$packages[$row['component']]])) {
+                $version = $installed[$packages[$row['component']]];
+                $row['codecart'] = $row['component'] === 'scssphp' ? preg_replace('/^[0-9.]+/', $version, $row['codecart']) : $version;
             }
-            $result[] = array('name' => $this->language->get('about_component_' . $row[0]), 'cells' => $cells, 'level' => $row[5]);
         }
-        return $this->escapeHtml($result);
+        unset($row);
+
+        return $rows;
+    }
+
+    private function installedPackageVersions() {
+        $versions = array();
+        foreach (array(DIR_STORAGE . 'vendor/composer/installed.json', DIR_SYSTEM . 'storage/vendor/composer/installed.json') as $file) {
+            if (!is_file($file)) { continue; }
+            $json = json_decode((string)file_get_contents($file), true);
+            $packages = isset($json['packages']) ? $json['packages'] : (is_array($json) ? $json : array());
+            foreach ($packages as $package) {
+                if (isset($package['name'], $package['version'])) { $versions[(string)$package['name']] = ltrim((string)$package['version'], 'v'); }
+            }
+            if ($versions) { break; }
+        }
+        return $versions;
+    }
+
+    private function localizeComparisonRows(array $rows) {
+        $map = array(
+            'Content editor'=>'cmp_content_editor','Image formats'=>'cmp_image_formats','Cache backends'=>'cmp_cache_backends','Scheduler / Queue'=>'cmp_scheduler_queue',
+            'System Notifications'=>'cmp_system_notifications','Central Spam Service'=>'cmp_spam_service','Built-in'=>'cmp_builtin','Built-in, opt-in on UPDATE'=>'cmp_builtin_optin',
+            'TOTP + trusted device layer'=>'cmp_totp','Read-only diagnostics + migrations'=>'cmp_schema','PSR-4 / Services / Manifest / Extension Points'=>'cmp_modern',
+            'contact / reviews / registration / forgotten / returns / GDPR'=>'cmp_spam_scope','form-specific'=>'cmp_form_specific','Core Dashboard'=>'cmp_core_dashboard',
+            'not used by Core Dashboard; Legacy assets retained'=>'cmp_legacy_assets','CodeCart PRO Slider; Swiper 3 Legacy'=>'cmp_slider','3.7.1 Legacy Core'=>'cmp_jquery_legacy','3.4.1 Legacy Core'=>'cmp_bootstrap_legacy',
+            '2.1.0 manual / CLI only'=>'cmp_scss_cli','2.1.0 runtime'=>'cmp_scss_runtime_oc','2.0.1 runtime'=>'cmp_scss_runtime_ocs','SeoPro + language prefixes + canonical/faceted policy'=>'cmp_seo',
+            'JPEG/PNG/WebP/AVIF + safe fallback'=>'cmp_images','File / APCu / Memcached / Redis + fallback'=>'cmp_cache','File'=>'cmp_file','6.7.2 + AUTO/Core/Full + FA4 compatibility'=>'cmp_fa','Summernote 0.9.1 local'=>'cmp_summernote'
+        );
+        foreach ($rows as &$row) {
+            foreach (array('component','opencart','ocstore','codecart') as $field) {
+                if (isset($row[$field], $map[$row[$field]])) {
+                    $text = $this->language->get($map[$row[$field]]);
+                    if ($text !== $map[$row[$field]]) { $row[$field] = $text; }
+                }
+            }
+        }
+        unset($row);
+        return $rows;
     }
 
     private function escapeHtml($value) {

@@ -1598,15 +1598,21 @@ class ControllerSettingSetting extends Controller {
                 // Do not hide valid mail-history rows when only statistics fail.
                 $result['summary'] = null;
                 $result['warning'] = in_array((int)$e->getCode(), array(1054, 1146), true) ? 'audit_schema_outdated' : 'audit_summary_unavailable';
-                $this->log->write('Mail Audit summary failed: ' . get_class($e) . ' db_code=' . (int)$e->getCode());
+                if ($result['warning'] === 'audit_summary_unavailable') {
+                    $this->log->write('Mail Audit summary failed: ' . get_class($e) . ' db_code=' . (int)$e->getCode());
+                }
             }
             return $this->auditJson($result);
         } catch (\Throwable $e) {
             $code = (int)$e->getCode();
-            $this->log->write('Mail Audit listing failed at ' . $stage . ': ' . get_class($e) . ' db_code=' . $code);
+            // A missing or outdated audit table is reported to the administrator with a repair
+            // action; only other storage failures belong in the error log.
+            $kind = in_array($code, array(1054, 1146), true) ? 'audit_schema_outdated' : 'audit_storage_unavailable';
+            if ($kind === 'audit_storage_unavailable') {
+                $this->log->write('Mail Audit listing failed at ' . $stage . ': ' . get_class($e) . ' db_code=' . $code);
+            }
             // Only an error category and numeric DB error code are exposed; no
             // customer data, query text, credentials or absolute PHP paths.
-            $kind = in_array($code, array(1054, 1146), true) ? 'audit_schema_outdated' : 'audit_storage_unavailable';
             $this->response->setStatusCode(500);
             return $this->auditJson(array('error' => $kind, 'stage' => $stage, 'db_code' => $code));
         }
