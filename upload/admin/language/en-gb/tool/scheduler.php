@@ -203,3 +203,5 @@ $_['text_external_auto_mode'] = 'CodeCart will register this task in its schedul
 $_['text_host_copy_action'] = 'Copy for hosting';
 $_['text_scheduler_visitor_none'] = 'No visitor-triggered runs yet.';
 $_['text_interval_short_day'] = '%d d';
+$_['text_task_core_backup_database'] = 'Database backup';
+$_['text_task_core_backup_database_description'] = 'Saves a verified SQL copy of the database to the private storage backup folder and keeps the newest copies (argument keep, default 7). Disabled until enabled; run it from a server Cron.';

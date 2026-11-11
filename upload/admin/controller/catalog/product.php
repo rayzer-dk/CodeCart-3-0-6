@@ -741,6 +741,16 @@ class ControllerCatalogProduct extends Controller {
 		$data['codecart_relation_status'] = (bool)$this->config->get('codecart_relation_status') && $this->user->hasPermission('modify', 'catalog/relation');
 		$data['button_relation_selected'] = $this->language->get('button_relation_selected');
 		$data['delete'] = $this->url->link('catalog/product/delete', 'user_token=' . $this->session->data['user_token'] . $url, true);
+		$data['bulk_edit'] = $this->url->link('catalog/product/bulkEdit', 'user_token=' . $this->session->data['user_token'], true);
+		$data['bulk_undo'] = $this->url->link('catalog/product/bulkUndo', 'user_token=' . $this->session->data['user_token'], true);
+		$data['bulk_undo_available'] = !empty($this->session->data['codecart_bulk_undo']['undo']);
+
+		$this->load->model('catalog/manufacturer');
+		$this->load->model('catalog/category');
+
+		$data['bulk_manufacturers'] = $this->model_catalog_manufacturer->getManufacturers(array('sort' => 'name', 'start' => 0, 'limit' => 1000));
+		$data['bulk_categories'] = $this->model_catalog_category->getCategories(array('sort' => 'name', 'start' => 0, 'limit' => 1000));
+
 		$data['enabled'] = $this->url->link('catalog/product/enable', 'user_token=' . $this->session->data['user_token'] . $url, true);
 		$data['disabled'] = $this->url->link('catalog/product/disable', 'user_token=' . $this->session->data['user_token'] . $url, true);
 		$data['extra_tab_global'] = $this->url->link('catalog/product/extraTabGlobal', 'user_token=' . $this->session->data['user_token'] . $url, true);
@@ -832,6 +842,10 @@ class ControllerCatalogProduct extends Controller {
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
+		} elseif (isset($this->session->data['error'])) {
+			$data['error_warning'] = $this->session->data['error'];
+
+			unset($this->session->data['error']);
 		} else {
 			$data['error_warning'] = '';
 		}
@@ -2282,6 +2296,95 @@ class ControllerCatalogProduct extends Controller {
 			}
 		}
 		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+	}
+
+	public function bulkEdit() {
+		$this->load->language('catalog/product');
+		$this->load->model('catalog/product');
+
+		$selected = isset($this->request->post['selected']) && is_array($this->request->post['selected'])
+			? array_values(array_unique(array_filter(array_map('intval', $this->request->post['selected'])))) : array();
+		$post = $this->request->post;
+		$change = array();
+
+		$price_mode = isset($post['bulk_price_mode']) ? (string)$post['bulk_price_mode'] : '';
+		if (in_array($price_mode, array('set', 'percent', 'amount'), true)) {
+			$value = isset($post['bulk_price']) ? str_replace(',', '.', trim((string)$post['bulk_price'])) : '';
+			if (is_numeric($value) && abs((float)$value) <= 100000000 && ($price_mode !== 'set' || (float)$value >= 0) && ($price_mode !== 'percent' || (float)$value > -100)) {
+				$change['price_mode'] = $price_mode;
+				$change['price'] = (float)$value;
+			} else {
+				$this->error['warning'] = $this->language->get('error_bulk_value');
+			}
+		}
+
+		$quantity_mode = isset($post['bulk_quantity_mode']) ? (string)$post['bulk_quantity_mode'] : '';
+		if (in_array($quantity_mode, array('set', 'add'), true)) {
+			$value = isset($post['bulk_quantity']) ? trim((string)$post['bulk_quantity']) : '';
+			if (preg_match('/^-?[0-9]{1,9}$/', $value) && ($quantity_mode !== 'set' || (int)$value >= 0)) {
+				$change['quantity_mode'] = $quantity_mode;
+				$change['quantity'] = (int)$value;
+			} else {
+				$this->error['warning'] = $this->language->get('error_bulk_value');
+			}
+		}
+
+		if (isset($post['bulk_manufacturer_id']) && $post['bulk_manufacturer_id'] !== '' && ctype_digit((string)$post['bulk_manufacturer_id'])) {
+			$change['manufacturer_id'] = (int)$post['bulk_manufacturer_id'];
+		}
+
+		if (isset($post['bulk_category_id']) && ctype_digit((string)$post['bulk_category_id']) && (int)$post['bulk_category_id'] > 0) {
+			$change['category_id'] = (int)$post['bulk_category_id'];
+		}
+
+		if (!$this->validateModify()) {
+			$this->session->data['error'] = $this->error['warning'];
+		} elseif (!$selected || count($selected) > 1000) {
+			$this->session->data['error'] = $this->language->get('error_bulk_selection');
+		} elseif (!empty($this->error['warning'])) {
+			$this->session->data['error'] = $this->error['warning'];
+		} elseif (!$change) {
+			$this->session->data['error'] = $this->language->get('error_bulk_nothing');
+		} else {
+			$undo = $this->model_catalog_product->bulkEditProducts($selected, $change);
+
+			$this->session->data['codecart_bulk_undo'] = array('time' => time(), 'undo' => $undo);
+			(new \CodeCart\Core\SecurityAudit($this->registry))->add('admin.bulk.product', 'success', 'info', 'admin', (int)$this->user->getId(), (string)$this->user->getUserName(), array(
+				'selected' => count($selected),
+				'changed'  => count($undo),
+				'change'   => $change
+			));
+
+			$this->session->data['success'] = sprintf($this->language->get('text_bulk_success'), count($undo), count($selected));
+			$this->session->data['codecart_bulk_undo_available'] = (bool)$undo;
+		}
+
+		$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'], true));
+	}
+
+	public function bulkUndo() {
+		$this->load->language('catalog/product');
+		$this->load->model('catalog/product');
+
+		$state = isset($this->session->data['codecart_bulk_undo']) ? $this->session->data['codecart_bulk_undo'] : array();
+
+		if (!$this->validateModify()) {
+			$this->session->data['error'] = $this->error['warning'];
+		} elseif (empty($state['undo']) || time() - (int)$state['time'] > 86400) {
+			$this->session->data['error'] = $this->language->get('error_bulk_undo_none');
+		} else {
+			$restored = $this->model_catalog_product->bulkRestoreProducts($state['undo']);
+
+			(new \CodeCart\Core\SecurityAudit($this->registry))->add('admin.bulk.product.undo', 'success', 'info', 'admin', (int)$this->user->getId(), (string)$this->user->getUserName(), array(
+				'products' => count($state['undo']),
+				'restored' => $restored
+			));
+
+			unset($this->session->data['codecart_bulk_undo'], $this->session->data['codecart_bulk_undo_available']);
+			$this->session->data['success'] = sprintf($this->language->get('text_bulk_undo_success'), $restored);
+		}
+
+		$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'], true));
 	}
 
 	public function seoAutocomplete() {

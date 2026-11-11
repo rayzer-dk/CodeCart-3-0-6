@@ -1,3 +1,16 @@
+# CodeCart 3.0.6.0 — Build 2.2.6 (2026-11-11)
+
+Core schema 3.0.6.0; presentation schema revision 36 (new event; updated stores register it on the next update run).
+
+- Administrator change audit: every create, edit, delete, copy, install, enable and similar change made in the administration is written to the security audit log (Core / Compatibility → Security) with the administrator, the model call and the record id. Submitted form values are never stored.
+- Product list, bulk edit: change price (set, by percent or by amount), quantity (set or add), manufacturer and add a category for all ticked products at once. The last bulk edit can be undone; a field is restored only while it still holds the value the bulk edit wrote, so later manual changes survive. Bulk edits and undo are recorded in the audit log.
+- Product list: warnings stored in the session (for example an invalid bulk value) are now shown.
+- Sales report: comparison with the previous period of the same length (orders, revenue, average order value, change in percent).
+- Scheduled database backup (`core.backup.database`, off by default): writes a verified SQL dump with a SHA-256 file to the private storage backup folder and keeps the newest copies (task argument `keep`, default 7). A copy is accepted only after a completeness check, and the visitor heartbeat never runs it. The dump code moved to `CodeCart\Core\SqlBackup` and is shared with the manual SQL export.
+- Development aid: `define('CODECART_SQL_PROFILE', true);` in `config.php` logs queries slower than `CODECART_SQL_PROFILE_MS` (default 50) and a per-request summary to `sql_profile.log`. Off by default and without cost when off.
+- Verified on a fresh installation (MariaDB 10.11, PHP 8.3): bulk edit and undo on real products, the audit rows, the sales report comparison with two test orders, three scheduled backups with rotation, and a restore of the dump into an empty database with identical row counts and a matching checksum of product data.
+- Not part of this build: numeric range filters for attributes.
+
 # CodeCart 3.0.6.0 — Build 2.2.5 (2026-11-09)
 
 Core schema 3.0.6.0; presentation schema revision 35 (unchanged).

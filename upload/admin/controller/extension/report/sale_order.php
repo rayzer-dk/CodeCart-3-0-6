@@ -132,6 +132,41 @@ class ControllerExtensionReportSaleOrder extends Controller {
 			);
 		}
 
+		$data['comparison'] = array();
+
+		$start_time = strtotime($filter_date_start);
+		$end_time = strtotime($filter_date_end);
+
+		if ($start_time && $end_time && $end_time >= $start_time) {
+			$days = (int)round(($end_time - $start_time) / 86400) + 1;
+			$previous_end = date('Y-m-d', strtotime('-1 day', $start_time));
+			$previous_start = date('Y-m-d', strtotime('-' . $days . ' days', $start_time));
+
+			$current = $this->model_extension_report_sale->getPeriodSummary($filter_date_start, $filter_date_end, (int)$filter_order_status_id);
+			$previous = $this->model_extension_report_sale->getPeriodSummary($previous_start, $previous_end, (int)$filter_order_status_id);
+
+			$data['comparison_current'] = date($this->language->get('date_format_short'), $start_time) . ' - ' . date($this->language->get('date_format_short'), $end_time);
+			$data['comparison_previous'] = date($this->language->get('date_format_short'), strtotime($previous_start)) . ' - ' . date($this->language->get('date_format_short'), strtotime($previous_end));
+
+			foreach (array('orders', 'total', 'average') as $key) {
+				if ($previous[$key] > 0) {
+					$change = round((($current[$key] - $previous[$key]) / $previous[$key]) * 100, 1);
+					$change_text = ($change > 0 ? '+' : '') . $change . '%';
+				} else {
+					$change = null;
+					$change_text = '-';
+				}
+
+				$data['comparison'][] = array(
+					'name'     => $this->language->get('text_compare_' . $key),
+					'current'  => $key == 'orders' ? $current[$key] : $this->currency->format($current[$key], $this->config->get('config_currency')),
+					'previous' => $key == 'orders' ? $previous[$key] : $this->currency->format($previous[$key], $this->config->get('config_currency')),
+					'change'   => $change_text,
+					'class'    => $change === null ? 'text-muted' : ($change >= 0 ? 'text-success' : 'text-danger')
+				);
+			}
+		}
+
 		$data['user_token'] = $this->session->data['user_token'];
 
 		$this->load->model('localisation/order_status');

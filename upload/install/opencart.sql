@@ -1516,7 +1516,8 @@ INSERT INTO `oc_event` (`event_id`, `code`, `trigger`, `action`, `status`) VALUE
 (33, 'admin_mail_forgotten', 'admin/model/user/user/editCode/after', 'mail/forgotten', 1);
 INSERT INTO `oc_event` (`event_id`, `code`, `trigger`, `action`, `status`) VALUES
 (34, 'codecart_structured_data', 'catalog/view/common/header/after', 'event/codecart/injectStructuredData', 1),
-(35, 'codecart_cookie_consent', 'catalog/view/common/footer/after', 'event/codecart/injectCookieConsent', 1);
+(35, 'codecart_cookie_consent', 'catalog/view/common/footer/after', 'event/codecart/injectCookieConsent', 1),
+(36, 'codecart_admin_audit', 'admin/model/*/after', 'event/codecart_audit/record', 1);
 
 -- --------------------------------------------------------
 --
@@ -3787,7 +3788,8 @@ INSERT INTO `oc_codecart_scheduler` (`code`,`route`,`args`,`interval_seconds`,`s
 ('core.security.cleanup','cron/security','{}',86400,1,NULL,NOW(),0,'','',NOW(),NOW()),
 ('core.stock.notify','cron/stock_notify','{}',300,1,NULL,NOW(),0,'','',NOW(),NOW()),
 ('core.mail.campaign','cron/mail_campaign','{}',60,1,NULL,NOW(),0,'','',NOW(),NOW()),
-('core.queue.worker','cron/queue_worker','{}',60,1,NULL,NOW(),0,'','',NOW(),NOW());
+('core.queue.worker','cron/queue_worker','{}',60,1,NULL,NOW(),0,'','',NOW(),NOW()),
+('core.backup.database','cron/backup','{"keep":7}',86400,0,NULL,NOW(),0,'','',NOW(),NOW());
 
 DROP TABLE IF EXISTS `oc_codecart_scheduler_history`;
 CREATE TABLE `oc_codecart_scheduler_history` (
@@ -9972,7 +9974,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 
 -- CodeCart PRO core schema marker
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_core_schema_version', '3.0.6.0', 0);
-INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_presentation_schema_version', '35', 0);
+INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_presentation_schema_version', '36', 0);
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES (0, 'codecart_core', 'codecart_setting_serialized_default', '1', 0);
 
 

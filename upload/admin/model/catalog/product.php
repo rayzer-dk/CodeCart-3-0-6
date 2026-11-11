@@ -562,6 +562,133 @@ class ModelCatalogProduct extends Model {
 		return $updated > 0;
 	}
 
+	/**
+	 * Applies one bulk change to the given products and returns what is needed to undo it.
+	 * $change keys: price_mode (set|percent|amount), price, quantity_mode (set|add), quantity,
+	 * manufacturer_id (int, 0 clears), category_id (int, added to the product's categories).
+	 */
+	public function bulkEditProducts(array $product_ids, array $change) {
+		$product_ids = array_values(array_unique(array_filter(array_map('intval', $product_ids))));
+		$undo = array();
+
+		if (!$product_ids) {
+			return $undo;
+		}
+
+		$query = $this->db->query("SELECT product_id, price, quantity, manufacturer_id FROM `" . DB_PREFIX . "product` WHERE product_id IN (" . implode(',', $product_ids) . ")");
+
+		foreach ($query->rows as $row) {
+			$product_id = (int)$row['product_id'];
+			$set = array();
+			$entry = array();
+
+			if (!empty($change['price_mode'])) {
+				$old = (float)$row['price'];
+				$value = (float)$change['price'];
+
+				if ($change['price_mode'] === 'set') {
+					$new = $value;
+				} elseif ($change['price_mode'] === 'percent') {
+					$new = $old * (1 + $value / 100);
+				} else {
+					$new = $old + $value;
+				}
+
+				$new = number_format(max(0, round($new, 4)), 4, '.', '');
+
+				if ((float)$new !== $old) {
+					$set[] = "price = '" . $this->db->escape($new) . "'";
+					$entry['price'] = array((string)$row['price'], $new);
+				}
+			}
+
+			if (!empty($change['quantity_mode'])) {
+				$old = (int)$row['quantity'];
+				$new = $change['quantity_mode'] === 'set' ? (int)$change['quantity'] : $old + (int)$change['quantity'];
+				$new = max(0, min(2147483647, $new));
+
+				if ($new !== $old) {
+					$set[] = "quantity = '" . $new . "'";
+					$entry['quantity'] = array($old, $new);
+				}
+			}
+
+			if (isset($change['manufacturer_id']) && $change['manufacturer_id'] !== null) {
+				$old = (int)$row['manufacturer_id'];
+				$new = (int)$change['manufacturer_id'];
+
+				if ($new !== $old) {
+					$set[] = "manufacturer_id = '" . $new . "'";
+					$entry['manufacturer_id'] = array($old, $new);
+				}
+			}
+
+			if ($set) {
+				$this->db->query("UPDATE `" . DB_PREFIX . "product` SET " . implode(', ', $set) . ", date_modified = NOW() WHERE product_id = '" . $product_id . "'");
+			}
+
+			if (!empty($change['category_id'])) {
+				$category_id = (int)$change['category_id'];
+				$exists = $this->db->query("SELECT 1 FROM `" . DB_PREFIX . "product_to_category` WHERE product_id = '" . $product_id . "' AND category_id = '" . $category_id . "' LIMIT 1");
+
+				if (!$exists->num_rows) {
+					$this->db->query("INSERT INTO `" . DB_PREFIX . "product_to_category` SET product_id = '" . $product_id . "', category_id = '" . $category_id . "'");
+					$entry['category_id'] = $category_id;
+				}
+			}
+
+			if ($entry) {
+				$undo[$product_id] = $entry;
+			}
+		}
+
+		$this->clearBulkCaches();
+
+		return $undo;
+	}
+
+	/**
+	 * Reverts a bulk change. A field is restored only while it still holds the value the bulk
+	 * change wrote, so later manual edits are never overwritten.
+	 */
+	public function bulkRestoreProducts(array $undo) {
+		$restored = 0;
+
+		foreach ($undo as $product_id => $entry) {
+			$product_id = (int)$product_id;
+
+			foreach (array('price', 'quantity', 'manufacturer_id') as $field) {
+				if (!isset($entry[$field])) {
+					continue;
+				}
+
+				list($old, $new) = $entry[$field];
+
+				$this->db->query("UPDATE `" . DB_PREFIX . "product` SET `" . $field . "` = '" . $this->db->escape((string)$old) . "', date_modified = NOW() WHERE product_id = '" . $product_id . "' AND `" . $field . "` = '" . $this->db->escape((string)$new) . "'");
+				$restored += (int)$this->db->countAffected();
+			}
+
+			if (!empty($entry['category_id'])) {
+				$this->db->query("DELETE FROM `" . DB_PREFIX . "product_to_category` WHERE product_id = '" . $product_id . "' AND category_id = '" . (int)$entry['category_id'] . "'");
+				$restored += (int)$this->db->countAffected();
+			}
+		}
+
+		$this->clearBulkCaches();
+
+		return $restored;
+	}
+
+	private function clearBulkCaches() {
+		$this->cache->delete('product');
+		$this->cache->delete('admin.product_sidebar_stats');
+		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
+
+		if ($this->config->get('config_seo_pro')) {
+			$this->cache->delete('seopro');
+		}
+	}
+
 	public function getQuickPrice($product_id) {
 		$query = $this->db->query("SELECT price FROM `" . DB_PREFIX . "product` WHERE product_id = '" . (int)$product_id . "' LIMIT 1");
 		return $query->num_rows ? (string)$query->row['price'] : null;

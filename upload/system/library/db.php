@@ -12,6 +12,10 @@
 */
 class DB {
 	private $adaptor;
+	private $profile = false;
+	private $profile_threshold = 50.0;
+	private $profile_count = 0;
+	private $profile_time = 0.0;
 
 	/**
 	 * Constructor
@@ -36,6 +40,35 @@ class DB {
 		} else {
 			throw new \Exception('Error: Could not load database adaptor ' . $adaptor . '!');
 		}
+
+		// Development aid: define('CODECART_SQL_PROFILE', true) in config.php to log slow queries
+		// (CODECART_SQL_PROFILE_MS, default 50) and a per-request summary to system/storage/logs/sql_profile.log.
+		if (defined('CODECART_SQL_PROFILE') && CODECART_SQL_PROFILE && defined('DIR_LOGS')) {
+			$this->profile = true;
+
+			if (defined('CODECART_SQL_PROFILE_MS') && (float)CODECART_SQL_PROFILE_MS > 0) {
+				$this->profile_threshold = (float)CODECART_SQL_PROFILE_MS;
+			}
+
+			register_shutdown_function(array($this, 'writeProfileSummary'));
+		}
+	}
+
+	public function writeProfileSummary() {
+		if ($this->profile_count) {
+			$this->writeProfile(sprintf('SUMMARY %s queries=%d time=%.1fms', isset($_SERVER['REQUEST_URI']) ? substr((string)$_SERVER['REQUEST_URI'], 0, 200) : PHP_SAPI, $this->profile_count, $this->profile_time));
+		}
+	}
+
+	private function writeProfile($line) {
+		$file = DIR_LOGS . 'sql_profile.log';
+
+		// Keep the file bounded; stop writing instead of growing without limit.
+		if (is_file($file) && filesize($file) > 5242880) {
+			return;
+		}
+
+		@file_put_contents($file, date('Y-m-d H:i:s') . ' ' . $line . "\n", FILE_APPEND | LOCK_EX);
 	}
 
 	/**
@@ -46,7 +79,23 @@ class DB {
 	 * @return	\stdClass|true
      */
 	public function query($sql) {
-		return $this->adaptor->query($sql);
+		if (!$this->profile) {
+			return $this->adaptor->query($sql);
+		}
+
+		$start = microtime(true);
+
+		try {
+			return $this->adaptor->query($sql);
+		} finally {
+			$elapsed = (microtime(true) - $start) * 1000;
+			$this->profile_count++;
+			$this->profile_time += $elapsed;
+
+			if ($elapsed >= $this->profile_threshold) {
+				$this->writeProfile(sprintf('SLOW %.1fms %s', $elapsed, substr(preg_replace('/\s+/', ' ', (string)$sql), 0, 600)));
+			}
+		}
 	}
 
 	/**

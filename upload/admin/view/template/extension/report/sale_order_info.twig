@@ -60,6 +60,30 @@
         <h3 class="panel-title"><i class="fa fa-bar-chart"></i> {{ heading_title }}</h3>
       </div>
       <div class="panel-body">
+        {% if comparison %}
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <td>{{ text_compare_period }}</td>
+                <td class="text-right">{{ comparison_current }}</td>
+                <td class="text-right">{{ comparison_previous }}</td>
+                <td class="text-right">{{ text_compare_change }}</td>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in comparison %}
+              <tr>
+                <td>{{ row.name }}</td>
+                <td class="text-right">{{ row.current }}</td>
+                <td class="text-right">{{ row.previous }}</td>
+                <td class="text-right {{ row.class }}">{{ row.change }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
         <div class="table-responsive">
           <table class="table table-bordered">
             <thead>

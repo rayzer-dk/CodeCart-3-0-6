@@ -236,6 +236,30 @@ class ModelExtensionReportSale extends Model {
 		return $query->row['total'];
 	}
 
+	/**
+	 * Order count, revenue and average order value for an inclusive date range.
+	 */
+	public function getPeriodSummary($date_start, $date_end, $order_status_id = 0) {
+		$sql = "SELECT COUNT(*) AS orders, COALESCE(SUM(total), 0) AS total FROM `" . DB_PREFIX . "order` WHERE DATE(date_added) >= DATE('" . $this->db->escape($date_start) . "') AND DATE(date_added) <= DATE('" . $this->db->escape($date_end) . "')";
+
+		if ($order_status_id) {
+			$sql .= " AND order_status_id = '" . (int)$order_status_id . "'";
+		} else {
+			$sql .= " AND order_status_id > '0'";
+		}
+
+		$query = $this->db->query($sql);
+
+		$orders = (int)$query->row['orders'];
+		$total = (float)$query->row['total'];
+
+		return array(
+			'orders'  => $orders,
+			'total'   => $total,
+			'average' => $orders ? $total / $orders : 0.0
+		);
+	}
+
 	public function getTaxes($data = array()) {
 		$sql = "SELECT MIN(o.date_added) AS date_start, MAX(o.date_added) AS date_end, ot.title, SUM(ot.value) AS total, COUNT(o.order_id) AS `orders` FROM `" . DB_PREFIX . "order` o LEFT JOIN `" . DB_PREFIX . "order_total` ot ON (ot.order_id = o.order_id) WHERE ot.code = 'tax'";
 

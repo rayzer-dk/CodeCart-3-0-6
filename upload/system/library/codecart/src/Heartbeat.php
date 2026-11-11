@@ -2,7 +2,7 @@
 namespace CodeCart\Core;
 
 final class Heartbeat {
-    private const NETWORK_TASKS = array('core.currency.refresh', 'core.mail.campaign', 'core.cart.reminder', 'core.stock.notify');
+    private const NETWORK_TASKS = array('core.currency.refresh', 'core.mail.campaign', 'core.cart.reminder', 'core.stock.notify', 'core.backup.database');
 
     private $registry;
     private $log;

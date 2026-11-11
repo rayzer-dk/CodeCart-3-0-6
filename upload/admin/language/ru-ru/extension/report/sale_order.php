@@ -25,3 +25,8 @@ $_['error_permission'] = 'Внимание: у вас нет прав для и�
 
 // CodeCart PRO: aligned locale keys
 $_['text_list'] = 'Список переводов';
+$_['text_compare_period'] = 'Сравнение с предыдущим периодом';
+$_['text_compare_change'] = 'Изменение';
+$_['text_compare_orders'] = 'Заказов';
+$_['text_compare_total'] = 'Выручка';
+$_['text_compare_average'] = 'Средний чек';

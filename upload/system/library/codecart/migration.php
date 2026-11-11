@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '35';
+    const PRESENTATION_SCHEMA_VERSION = '36';
 
     private $db;
     private $config;
@@ -240,6 +240,8 @@ class Migration {
             $this->ensureCodeCartStructuredDataEvent();
             $this->currentStep = 'events.cookie_consent';
             $this->ensureCodeCartCookieConsentEvent();
+            $this->currentStep = 'events.admin_audit';
+            $this->ensureCodeCartAdminAuditEvent();
             $this->currentStep = 'filesystem.preserve';
             // .htaccess and robots.txt are deployment/merchant files. UPDATE never rewrites them.
             // Do not rewrite config.php or relocate storage automatically during UPDATE.
@@ -2952,7 +2954,8 @@ class Migration {
             array('code' => 'core.security.cleanup', 'route' => 'cron/security', 'interval' => 86400),
             array('code' => 'core.stock.notify', 'route' => 'cron/stock_notify', 'interval' => 300),
             array('code' => 'core.mail.campaign', 'route' => 'cron/mail_campaign', 'interval' => 60),
-            array('code' => 'core.queue.worker', 'route' => 'cron/queue_worker', 'interval' => 60)
+            array('code' => 'core.queue.worker', 'route' => 'cron/queue_worker', 'interval' => 60),
+            array('code' => 'core.backup.database', 'route' => 'cron/backup', 'interval' => 86400)
         );
         foreach ($tasks as $task) {
             $code = $task['code']; $route = $task['route']; $interval = (int)$task['interval'];
@@ -2961,7 +2964,7 @@ class Migration {
                 $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET route = '" . $this->db->escape($route) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$query->row['scheduler_id'] . "' AND route <> '" . $this->db->escape($route) . "'");
             } else {
                 $default_status = in_array($code, array('core.stock.notify','core.mail.campaign','core.queue.worker'), true) ? 1 : 0;
-                $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '{}', interval_seconds = '" . $interval . "', status = '" . (int)$default_status . "', date_next = NOW(), date_added = NOW(), date_modified = NOW()");
+                $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . ($code === 'core.backup.database' ? '{\"keep\":7}' : '{}') . "', interval_seconds = '" . $interval . "', status = '" . (int)$default_status . "', date_next = NOW(), date_added = NOW(), date_modified = NOW()");
             }
         }
     }
@@ -3539,6 +3542,11 @@ class Migration {
     }
 
 
+
+    private function ensureCodeCartAdminAuditEvent() {
+        if (!$this->tableExists('event')) { return; }
+        $this->ensureCoreEvent('codecart_admin_audit', 'admin/model/*/after', 'event/codecart_audit/record', 900);
+    }
 
     private function ensureCodeCartCookieConsentEvent() {
         if (!$this->tableExists('event')) { return; }

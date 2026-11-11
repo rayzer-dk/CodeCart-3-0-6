@@ -154,7 +154,8 @@ final class Scheduler {
                     'core.cart.guest_purge' => 'cron/cart_guest_purge',
                     'core.currency.refresh' => 'cron/currency',
                     'core.health.check' => 'cron/health',
-                    'core.security.cleanup' => 'cron/security'
+                    'core.security.cleanup' => 'cron/security',
+                    'core.backup.database' => 'cron/backup'
                 );
                 $code = (string)$job['code'];
                 if (!isset($builtin_routes[$code])) {

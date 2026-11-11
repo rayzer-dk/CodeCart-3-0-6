@@ -204,3 +204,5 @@ $_['text_external_auto_mode'] = 'CodeCart добавит задание в со�
 $_['text_host_copy_action'] = 'Скопировать для хостинга';
 $_['text_scheduler_visitor_none'] = 'Во время посещений задачи ещё не запускались.';
 $_['text_interval_short_day'] = '%d дн.';
+$_['text_task_core_backup_database'] = 'Резервная копия базы данных';
+$_['text_task_core_backup_database_description'] = 'Сохраняет проверенную SQL-копию базы в закрытую папку резервных копий хранилища и оставляет последние копии (аргумент keep, по умолчанию 7). Выключена, пока не включена; запускайте через серверный Cron.';

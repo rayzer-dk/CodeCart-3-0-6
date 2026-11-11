@@ -33,3 +33,8 @@ $_['error_permission']  = 'Warning: You do not have permission to modify sales r
 
 // CodeCart PRO: aligned locale keys
 $_['text_list'] = 'Feed List';
+$_['text_compare_period'] = 'Comparison with the previous period';
+$_['text_compare_change'] = 'Change';
+$_['text_compare_orders'] = 'Orders';
+$_['text_compare_total'] = 'Revenue';
+$_['text_compare_average'] = 'Average order value';
