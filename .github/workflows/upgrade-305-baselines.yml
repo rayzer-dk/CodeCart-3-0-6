@@ -77,7 +77,7 @@ jobs:
           tools: composer:v2
 
       - name: Install QA utilities
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq rsync
+        run: command -v mysql >/dev/null && command -v jq >/dev/null && command -v rsync >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq rsync; }
 
       - name: Fetch exact baseline source
         shell: bash

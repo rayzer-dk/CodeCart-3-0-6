@@ -61,7 +61,7 @@ jobs:
           coverage: none
 
       - name: Install QA utilities
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq
+        run: command -v mysql >/dev/null && command -v jq >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client jq; }
 
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
