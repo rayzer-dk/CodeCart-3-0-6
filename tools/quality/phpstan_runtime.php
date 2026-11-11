@@ -5,3 +5,4 @@ define('DB_PREFIX', 'oc_');
 define('DIR_SYSTEM', '/system/');
 define('DIR_IMAGE', '/image/');
 define('HTTP_SERVER', 'http://localhost/');
+define('HTTP_CATALOG', 'http://localhost/');

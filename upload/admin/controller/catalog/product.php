@@ -2499,7 +2499,7 @@ class ControllerCatalogProduct extends Controller {
                 (new \CodeCart\Core\Queue($this->registry))->enqueue($code, 'cron/relation/batch', array('ids' => array($product_id)), 85, null, 3);
             }
         } catch (\Throwable $e) {
-            if ($this->log) { $this->log->write('Auto Relation queue error for product #' . $product_id . ': ' . $e->getMessage()); }
+            $this->log->write('Auto Relation queue error for product #' . $product_id . ': ' . $e->getMessage());
         }
     }
 

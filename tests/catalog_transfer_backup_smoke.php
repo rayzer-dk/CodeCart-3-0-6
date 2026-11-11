@@ -46,6 +46,7 @@ function privateCall($object,$name,$arguments=array()){
     $m=new ReflectionMethod($object,$name);$m->setAccessible(true);return $m->invokeArgs($object,$arguments);
 }
 require_once __DIR__.'/../upload/system/library/codecart/src/CatalogTransfer.php';
+require_once __DIR__.'/../upload/system/library/codecart/src/SqlBackup.php';
 require_once __DIR__.'/../upload/admin/model/tool/backup.php';
 try {
     $db=new TestDb();

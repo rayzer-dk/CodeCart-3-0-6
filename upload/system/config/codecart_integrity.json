@@ -3,7 +3,7 @@
     "files": {
         ".htaccess": "2fe63d4d0fc60be3a3467cb55552b8ef65c3b15f269218633a993812f9e3a784",
         "admin/controller/catalog/category.php": "1386984340afb29e551056d48ea619b0510dc29ee9ae0b1910a8d69c48b5bc9d",
-        "admin/controller/catalog/product.php": "7eece1450f6c181c13b021c699d48974b89c950c77456ee2075d7d4c9418eaaa",
+        "admin/controller/catalog/product.php": "b4052b9179099468783391f3bb06a827e8e86b6a2f46a75fc01fbda1559a0a56",
         "admin/controller/common/dashboard.php": "34524aa832812d23c8c9c08da548a4ad638575e15e57a541ffa4f80ae45a7a4c",
         "admin/controller/common/developer.php": "17199613d4138c01b737756534f435d885820e26b64d73a59c11c3427f2614cc",
         "admin/controller/common/footer.php": "10d6a6886cdffbfe54f1bb430f1c193201f61b9b1b5089b27e79156d3e0724ae",
@@ -101,7 +101,7 @@
         "admin/model/report/lost_url.php": "6348b726364d6224d516f890023340a9a045d9d9bac46dfb35277e45725ed484",
         "admin/model/sale/abandoned_cart.php": "9131bf4fc8d5ecfa9d7626d45d03644db513e633d66b4cd37d1fcc415a3b38c1",
         "admin/model/setting/setting.php": "79552c0d9b9d78582e17a4671cc68845050949af5c0dbe9b8dc47976ae559972",
-        "admin/view/documentation/CodeCart_PRO_Documentation.zip": "b55c50cdec30ab646a7d52be38c3b7fb4f0b4658a34c58479d456ef0bb5dc497",
+        "admin/view/documentation/CodeCart_PRO_Documentation.zip": "a1280c6e2d213198c21c50de5add2bf59d594ef170a81dd59ef26244356348a5",
         "admin/view/image/logo.webp": "810993168d33da8d54d9f0e56a22d5572a3e88d994b76e9be42059b5835d6140",
         "admin/view/image/support/bitcoin.png": "c0a3254ce414038fdbcc57e3f14f3f62b70f5262e03dc8e287a913a57ba4438f",
         "admin/view/image/support/card.png": "5458b94bbae63af6f8d746303faadfb4ca6da58f9f14848df73133e210606535",
