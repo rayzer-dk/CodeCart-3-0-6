@@ -67,17 +67,9 @@ class ControllerAccountReset extends Controller {
 
 			$data['back'] = $this->url->link('account/login', '', true);
 
-			if (isset($this->request->post['password'])) {
-				$data['password'] = $this->request->post['password'];
-			} else {
-				$data['password'] = '';
-			}
+			$data['password'] = '';
 
-			if (isset($this->request->post['confirm'])) {
-				$data['confirm'] = $this->request->post['confirm'];
-			} else {
-				$data['confirm'] = '';
-			}
+			$data['confirm'] = '';
 
 			$data['column_left'] = $this->load->controller('common/column_left');
 			$data['column_right'] = $this->load->controller('common/column_right');

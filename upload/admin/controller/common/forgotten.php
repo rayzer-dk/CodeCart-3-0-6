@@ -21,7 +21,7 @@ class ControllerCommonForgotten extends Controller {
 			$user_info = $this->model_user_user->getUserByEmail($this->request->post['email']);
 
 			// for better security use existing validated user email address instead of the posted one
-			$this->model_user_user->editCode($user_info['email'], token(40));
+			$this->model_user_user->editCode($user_info['email'], codecart_reset_code());
 
 			$this->session->data['success'] = $this->language->get('text_success');
 

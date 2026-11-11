@@ -50,11 +50,7 @@ class ControllerCommonLogin extends Controller {
 			$data['username'] = '';
 		}
 
-		if (isset($this->request->post['password'])) {
-			$data['password'] = $this->request->post['password'];
-		} else {
-			$data['password'] = '';
-		}
+		$data['password'] = '';
 
 		if (isset($this->request->get['route'])) {
 			$route = $this->request->get['route'];

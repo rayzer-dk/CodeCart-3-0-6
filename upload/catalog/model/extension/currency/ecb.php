@@ -59,7 +59,12 @@ class ModelExtensionCurrencyEcb extends Model {
 
         $default = strtoupper(trim((string)$this->config->get('config_currency')));
         if ($default === '') { $default = 'EUR'; }
-        if ($default === 'UAH' && (!isset($rates['UAH']) || $rates['UAH'] <= 0)) {
+        $currencies = $this->db->query("SELECT code FROM `" . DB_PREFIX . "currency` WHERE status = '1'");
+        $uah_needed = $default === 'UAH';
+        foreach ($currencies->rows as $currency) {
+            if (strtoupper((string)$currency['code']) === 'UAH') { $uah_needed = true; }
+        }
+        if ($uah_needed && (!isset($rates['UAH']) || $rates['UAH'] <= 0)) {
             $uahPerEur = $this->fetchNbuUahPerEur();
             if ($uahPerEur > 0) {
                 // ECB quotes currencies per EUR; NBU's EUR rate is UAH per EUR, so the
@@ -71,7 +76,6 @@ class ModelExtensionCurrencyEcb extends Model {
             return $this->fail('ECB currency refresh failed: base currency ' . $default . ' is unavailable in ECB data and the NBU EUR/UAH bridge did not return a valid rate.');
         }
 
-        $currencies = $this->db->query("SELECT code FROM `" . DB_PREFIX . "currency` WHERE status = '1'");
         try {
             $this->db->beginTransaction();
             foreach ($currencies->rows as $currency) {

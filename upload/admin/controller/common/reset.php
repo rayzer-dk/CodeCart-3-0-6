@@ -64,17 +64,9 @@ class ControllerCommonReset extends Controller {
 
 			$data['cancel'] = $this->url->link('common/login', '', true);
 
-			if (isset($this->request->post['password'])) {
-				$data['password'] = $this->request->post['password'];
-			} else {
-				$data['password'] = '';
-			}
+			$data['password'] = '';
 
-			if (isset($this->request->post['confirm'])) {
-				$data['confirm'] = $this->request->post['confirm'];
-			} else {
-				$data['confirm'] = '';
-			}
+			$data['confirm'] = '';
 
 			$data['header'] = $this->load->controller('common/header');
 			$data['footer'] = $this->load->controller('common/footer');

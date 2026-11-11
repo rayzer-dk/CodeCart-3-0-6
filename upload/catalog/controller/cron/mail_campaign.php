@@ -65,8 +65,8 @@ class ControllerCronMailCampaign extends Controller {
         foreach(array_keys($campaigns) as $campaign_id){
             $counts=$this->db->query("SELECT status,COUNT(*) total FROM `".DB_PREFIX."mail_campaign_queue` WHERE campaign_id='".(int)$campaign_id."' GROUP BY status");$map=array();foreach($counts->rows as $r){$map[$r['status']]=(int)$r['total'];}
             $waiting=isset($map['waiting'])?$map['waiting']:0;$processing=isset($map['processing'])?$map['processing']:0;$s=isset($map['sent'])?$map['sent']:0;$f=isset($map['failed'])?$map['failed']:0;$sp=isset($map['suppressed'])?$map['suppressed']:0;
-            $status=($waiting+$processing)>0?'sending':'completed';
-            $this->db->query("UPDATE `".DB_PREFIX."mail_campaign` SET status='".$status."', sent='".$s."', failed='".$f."', suppressed='".$sp."', date_finished=".($status==='completed'?'NOW()':'date_finished').", date_modified=NOW() WHERE campaign_id='".(int)$campaign_id."'");
+            $status=($waiting+$processing)>0?'sending':(((int)$s===0&&(int)$f>0)?'failed':'completed');
+            $this->db->query("UPDATE `".DB_PREFIX."mail_campaign` SET status='".$status."', sent='".$s."', failed='".$f."', suppressed='".$sp."', date_finished=".($status!=='sending'?'NOW()':'date_finished').", date_modified=NOW() WHERE campaign_id='".(int)$campaign_id."'");
         }
         return array('success'=>true,'message'=>'Mail campaigns: sent '.$sent.', failed '.$failed.', suppressed '.$suppressed,'sent'=>$sent,'failed'=>$failed,'suppressed'=>$suppressed);
     }

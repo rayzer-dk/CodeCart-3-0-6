@@ -238,6 +238,7 @@ $gates = [
     ['tests/admin_audit_smoke.php'],
     ['tests/filemanager_usage_smoke.php'],
     ['tests/admin_permission_smoke.php'],
+    ['tests/audit_fixes_smoke.php'],
     ['tests/scheduler_runtime_smoke.php'],
 ];
 foreach ($gates as $arguments) {

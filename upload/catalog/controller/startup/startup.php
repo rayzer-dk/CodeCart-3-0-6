@@ -32,7 +32,9 @@ class ControllerStartupStartup extends Controller {
 		$store_column = $is_https ? 'ssl' : 'url';
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "store WHERE REPLACE(`" . $store_column . "`, 'www.', '') = '" . $this->db->escape($current_store_url) . "'");
 		
-		if (isset($this->request->get['store_id'])) {
+		// Only API calls (admin order editing) may select a store explicitly; the storefront
+		// store always follows the requested domain.
+		if (isset($this->request->get['store_id']) && strpos((string)(isset($this->request->get['route']) ? $this->request->get['route'] : ''), 'api/') === 0) {
 			$this->config->set('config_store_id', (int)$this->request->get['store_id']);
 		} else if ($query->num_rows) {
 			$this->config->set('config_store_id', $query->row['store_id']);

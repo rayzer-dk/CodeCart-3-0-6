@@ -166,7 +166,7 @@ class Cart {
 				$recurring = array('recurring_id'=>$r['recurring_id'],'name'=>$r['name'],'frequency'=>$r['frequency'],'price'=>$r['price'],'cycle'=>$r['cycle'],'duration'=>$r['duration'],'trial'=>$r['trial_status'],'trial_frequency'=>$r['trial_frequency'],'trial_price'=>$r['trial_price'],'trial_cycle'=>$r['trial_cycle'],'trial_duration'=>$r['trial_duration']);
 			}
 
-			if ((int)$product['quantity'] < (int)$cart['quantity']) { $stock = false; }
+			if ((int)$product['subtract'] && (int)$product['quantity'] < (int)$cart['quantity']) { $stock = false; }
 			$unit_price = $option_price_equal !== null ? $option_price_equal : ($price + $option_price);
 			$unit_price = \CodeCart\Core\Money::decimal($unit_price);
 			$line_total = \CodeCart\Core\Money::decimal(\CodeCart\Core\Money::multiply($unit_price, (int)$cart['quantity']));

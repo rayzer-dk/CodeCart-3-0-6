@@ -16,7 +16,9 @@ final class Money {
         $scale = max(0, min(8, $scale));
         $number = self::number($value);
         $factor = 10 ** $scale;
-        $rounded = round($number * $factor, 0, PHP_ROUND_HALF_UP) / $factor;
+        // round() with a precision handles the binary representation of the value; scaling by hand
+        // first rounds 79364.02835 to .0283 on PHP 8.4 instead of .0284.
+        $rounded = round($number, $scale, PHP_ROUND_HALF_UP);
         if (abs($rounded) < (0.5 / max(1, $factor))) {
             $rounded = 0.0;
         }
@@ -139,7 +141,7 @@ final class Money {
     private static function scaledInteger($value, int $scale): int {
         $scale = max(0, min(8, $scale));
         $factor = 10 ** $scale;
-        return (int)round(self::number($value) * $factor, 0, PHP_ROUND_HALF_UP);
+        return (int)round(round(self::number($value), $scale, PHP_ROUND_HALF_UP) * $factor);
     }
 
     private static function number($value): float {

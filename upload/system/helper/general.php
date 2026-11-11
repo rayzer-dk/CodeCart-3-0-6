@@ -1,4 +1,17 @@
 <?php
+/**
+ * Password reset code: 28 random characters plus the expiry time (8 hex digits), 36 characters in
+ * total so it fits the existing varchar(40) column. A code that was issued without an expiry,
+ * or has expired, is never accepted.
+ */
+function codecart_reset_code() {
+	return token(28) . dechex(time() + 3600);
+}
+
+function codecart_reset_code_valid($code) {
+	return (bool)preg_match('/^[A-Za-z0-9]{28}[0-9a-f]{8}$/D', (string)$code) && hexdec(substr((string)$code, 28)) >= time();
+}
+
 function token($length = 32) {
 	// Create random token
 	$string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

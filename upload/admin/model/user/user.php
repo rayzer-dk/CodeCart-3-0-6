@@ -48,6 +48,10 @@ class ModelUserUser extends Model {
 	}
 
 	public function getUserByCode($code) {
+		if (!codecart_reset_code_valid($code)) {
+			return array();
+		}
+
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "user` WHERE code = '" . $this->db->escape($code) . "' AND code != ''");
 
 		return $query->row;
