@@ -22,4 +22,10 @@ parameters:
         - tools/quality/phpstan_cache.stub
         - build/phpstan-stubs/admin.stub
     tmpDir: build/phpstan-cache/admin
+    ignoreErrors:
+        # load->language($route, $prefix) registers a Language object under that prefix; the
+        # key is read back through language->get(), which PHPStan types as string.
+        -
+            message: '#^Cannot call method get\(\) on string\.$#'
+            path: upload/admin/controller/setting/setting.php
     reportUnmatchedIgnoredErrors: true
