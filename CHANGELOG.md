@@ -1,21 +1,12 @@
-# CodeCart 3.0.6.0 — Build 2.2.12 (2026-11-12)
+# CodeCart 3.0.6.0 — Build 2.3.1 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
 
-- Release packaging: the build number check in `tools/package_production.py` accepted only single-digit components, so builds 2.2.10 and later were rejected as invalid. It now accepts any number of digits per component.
-
-# CodeCart 3.0.6.0 — Build 2.2.11 (2026-11-12)
-
-Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
-
-- Release checks: the bundled documentation archive is verified by member names and content (`tools/check_documentation_archive.py`) instead of comparing compressed bytes. Compressed output depends on the zlib implementation of the machine that built the archive, so a byte comparison failed for archives built on a different system although the documentation was identical. Applies to the full production, production release and release workflows.
-
-# CodeCart 3.0.6.0 — Build 2.2.10 (2026-11-12)
-
-Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
-
+- Administration: a short, localized message when an AJAX request receives the sign-in page (expired session) instead of the raw page text; parser errors no longer show the JavaScript exception text in the notification title.
+- Administration: notifications in the dark theme keep their status colour on the left edge.
 - Quality gates: removed a redundant `method_exists()` guard in the administration header controller (`Document::getAssets()` is part of the same package), which made the legacy PHPStan check fail on that file.
-- Documentation: the bundled documentation archive is regenerated from the current README and `documentation/` sources, so the release check can reproduce it byte for byte.
+- Release checks: the bundled documentation archive is verified by member names and content (`tools/check_documentation_archive.py`) instead of comparing compressed bytes. Compressed output depends on the zlib implementation of the machine that built the archive. Applies to the full production, production release and release workflows.
+- Release packaging: the build number check in `tools/package_production.py` accepted only single-digit components; it now accepts any number of digits per component.
 - Changelog wording for build 2.2.8 no longer names a third-party theme, as required by the public documentation policy.
 
 # CodeCart 3.0.6.0 — Build 2.2.9 (2026-11-12)

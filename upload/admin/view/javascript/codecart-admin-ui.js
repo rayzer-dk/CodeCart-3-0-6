@@ -86,13 +86,16 @@ function toast(type,message,options){
 function responseSummary(xhr){
 	var raw=String((xhr&&xhr.responseText)||'');
 	if(!raw)return '';
+	if(/type=["']password["']/i.test(raw)&&/name=["']username["']/i.test(raw)){return i18n('ui_session_expired','Session expired. Sign in again.');}
 	try{var data=JSON.parse(raw);if(data){var v=data.error||data.message||data.warning;if(typeof v==='string')return v;if(v&&typeof v==='object'){var first=Object.keys(v).map(function(k){return v[k];}).filter(function(s){return typeof s==='string';})[0];if(first)return first;}}}catch(e){}
 	var plain=raw.replace(/<(script|style)[\s\S]*?<\/\1>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
 	return plain.length>200?plain.slice(0,200)+'…':plain;
 }
 function ajaxError(xhr,thrown){
 	var status=xhr&&xhr.status?xhr.status:0;
-	var head=status?status+' '+String(thrown||xhr.statusText||'').trim():String(thrown||(xhr&&xhr.statusText)||'').trim();
+	var reason=typeof thrown==='string'?thrown:((xhr&&xhr.statusText)||'');
+	reason=String(reason).trim();if(reason.length>60||reason==='parsererror')reason='';
+	var head=status?(status+' '+reason).trim():reason;
 	var detail=responseSummary(xhr);
 	if(window.console&&console.error){console.error('[CodeCart] AJAX '+head,xhr&&xhr.responseText);}
 	return toast('danger',detail,{title:i18n('ui_request_failed','Request failed')+(head?' ('+head.trim()+')':'')});

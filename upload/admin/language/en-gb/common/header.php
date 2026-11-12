@@ -82,3 +82,4 @@ $_['ui_request_failed'] = 'Request failed';
 $_['ui_quick_nav'] = 'Quick navigation';
 $_['ui_quick_nav_placeholder'] = 'Go to a page (menu, settings, extensions)';
 $_['ui_quick_nav_empty'] = 'Nothing found';
+$_['ui_session_expired'] = 'Session expired. Sign in again.';
