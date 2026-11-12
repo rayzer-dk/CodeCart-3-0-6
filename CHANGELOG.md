@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.3.5 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- Supported PHP range is unchanged: 8.1 to 8.5. PHP 7.4 was removed from the Catalog Transfer and Newsletter document CI matrices; both now run on 8.1 and newer. The `PHP_VERSION_ID` guards added to the QA scripts in 2.3.4 are removed together with the calls they protected (`setAccessible()` has had no effect since PHP 8.1, `imagedestroy()` since 8.0).
+- CI: one version of each GitHub Action across all workflows (`actions/checkout`, `actions/upload-artifact`, `actions/setup-node` at the current major); previously three different `checkout` majors were mixed.
+- CI: new workflow "Dependency Audit" — `composer validate`, `composer audit --locked` (also weekly) and a check that `composer.lock` and `THIRD_PARTY_DEPENDENCIES.json` list the same versions. Security advisories in locked packages used to be found only by hand.
+
 # CodeCart 3.0.6.0 — Build 2.3.4 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).

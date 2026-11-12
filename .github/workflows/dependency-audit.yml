@@ -1,0 +1,57 @@
+name: Dependency Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 5 * * 1'
+  push:
+    branches: [main]
+    paths:
+      - 'composer.json'
+      - 'composer.lock'
+      - 'THIRD_PARTY_DEPENDENCIES.json'
+      - '.github/workflows/dependency-audit.yml'
+  pull_request:
+    paths:
+      - 'composer.json'
+      - 'composer.lock'
+      - 'THIRD_PARTY_DEPENDENCIES.json'
+      - '.github/workflows/dependency-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  composer-audit:
+    name: Composer audit and lock consistency
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+      - name: Validate composer.json and composer.lock
+        run: composer validate --no-check-publish
+      - name: Known security advisories (locked versions)
+        run: composer audit --locked
+      - name: Lock file and THIRD_PARTY_DEPENDENCIES.json list the same versions
+        run: |
+          php -r '
+            $lock = json_decode(file_get_contents("composer.lock"), true);
+            $doc = json_decode(file_get_contents("THIRD_PARTY_DEPENDENCIES.json"), true);
+            $locked = [];
+            foreach ($lock["packages"] as $p) { $locked[$p["name"]] = ltrim($p["version"], "v"); }
+            $listed = [];
+            $walk = function ($node) use (&$walk, &$listed) {
+                if (!is_array($node)) { return; }
+                if (isset($node["name"], $node["version"]) && is_string($node["name"])) { $listed[$node["name"]] = ltrim((string)$node["version"], "v"); }
+                foreach ($node as $child) { $walk($child); }
+            };
+            $walk($doc);
+            $bad = [];
+            foreach ($locked as $n => $v) { if (!isset($listed[$n]) || $listed[$n] !== $v) { $bad[] = $n . " lock=" . $v . " doc=" . ($listed[$n] ?? "missing"); } }
+            if ($bad) { fwrite(STDERR, "Mismatch:\n" . implode("\n", $bad) . "\n"); exit(1); }
+            echo count($locked) . " packages consistent\n";
+          '

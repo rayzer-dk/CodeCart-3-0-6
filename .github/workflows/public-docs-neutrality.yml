@@ -18,7 +18,7 @@ jobs:
   neutral-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Block theme/plugin advertisements and store-specific examples
         shell: bash
         run: |
