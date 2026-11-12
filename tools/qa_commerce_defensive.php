@@ -247,6 +247,7 @@ if ($case === 'image') {
             if ($extension === 'avif' && (!$info[0] || !$info[1])) {
                 $decoded = imagecreatefromavif($target);
                 $info[0] = imagesx($decoded); $info[1] = imagesy($decoded);
+                if (PHP_VERSION_ID < 80000) { imagedestroy($decoded); }
             }
             commerceCheck($info[0] === $expectedWidth && $info[1] === $expectedHeight, 'Display ' . $extension . ' dimensions ' . $info[0] . 'x' . $info[1] . ' must match ' . $expectedWidth . 'x' . $expectedHeight);
             commerceCheck(hash_file('sha256', DIR_IMAGE . $filename) === $hash, 'Display must never modify its source');
@@ -254,6 +255,7 @@ if ($case === 'image') {
                 $decoded = $extension === 'png' ? imagecreatefrompng($target) : imagecreatefromwebp($target);
                 $color = imagecolorsforindex($decoded, imagecolorat($decoded, 0, 0));
                 commerceCheck($color['alpha'] >= 120, 'Transparent ' . $extension . ' derivatives must retain transparency');
+                if (PHP_VERSION_ID < 80000) { imagedestroy($decoded); }
             }
         }
     }
@@ -267,9 +269,11 @@ if ($case === 'image') {
         if ($info[2] === IMAGETYPE_AVIF && (!$info[0] || !$info[1])) {
             $decoded = imagecreatefromavif($target);
             $info[0] = imagesx($decoded); $info[1] = imagesy($decoded);
+            if (PHP_VERSION_ID < 80000) { imagedestroy($decoded); }
         }
         commerceCheck(str_contains($url, '/image/cache/') && $info[0] === 40 && $info[1] === 30, 'Automatic modern output must also stay cached without upscaling');
     }
+    if (PHP_VERSION_ID < 80000) { imagedestroy($source); }
 }
 
 if (str_starts_with($case, 'category-')) {
@@ -485,6 +489,7 @@ if ($case === 'bonus') {
     $registry->set('response', $response);
     $installer = new ControllerMarketplaceInstall($registry);
     $extract = new ReflectionMethod($installer, 'safeExtractZip');
+    if (PHP_VERSION_ID < 80100) { $extract->setAccessible(true); }
     $extract->invoke($installer, $zip, DIR_UPLOAD . 'tmp-fixture');
     $installer->preflight();
     $result = json_decode($response->output, true);

@@ -88,6 +88,7 @@ try {
         imageCheck(dimensions(derivative($url)) === array($sample[2], $sample[3]), 'Product contain respects 3x cap: ' . $name);
         $metadata = $model->getProductImageSize($name, 1100, 1100, 'gallery');
         imageCheck(array($metadata['width'], $metadata['height']) === array($sample[2], $sample[3]), 'Product metadata equals actual dimensions');
+        if (PHP_VERSION_ID < 80000) { imagedestroy($input); }
     }
     $config->set('theme_codecart_image_gallery_upscale', '');
     imageCheck(dimensions(derivative($model->productImage('catalog/sample-500x300.jpg', 1100, 1100, 'gallery'))) === array(500, 300), 'Gallery keeps original pixels by default');

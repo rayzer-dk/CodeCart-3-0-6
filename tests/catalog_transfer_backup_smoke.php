@@ -43,7 +43,7 @@ class TestRegistry {
 function utf8_substr($v,$start,$length=null) { return $length===null?substr($v,$start):substr($v,$start,$length); }
 function check($condition,$message){if(!$condition)throw new RuntimeException($message);}
 function privateCall($object,$name,$arguments=array()){
-    $m=new ReflectionMethod($object,$name); return $m->invokeArgs($object,$arguments);
+    $m=new ReflectionMethod($object,$name);if (PHP_VERSION_ID < 80100) { $m->setAccessible(true); }return $m->invokeArgs($object,$arguments);
 }
 require_once __DIR__.'/../upload/system/library/codecart/src/CatalogTransfer.php';
 require_once __DIR__.'/../upload/system/library/codecart/src/SqlBackup.php';

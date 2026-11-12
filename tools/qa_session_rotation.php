@@ -17,7 +17,7 @@ function fixture(bool $fail, bool $throw = false): array {
     $adapter->records[$oldId]=['visitor'=>'anonymous'];
     $ref=new ReflectionClass(Session::class);
     $session=$ref->newInstanceWithoutConstructor();
-    $property=$ref->getProperty('adaptor'); $property->setValue($session,$adapter);
+    $property=$ref->getProperty('adaptor'); if (PHP_VERSION_ID < 80100) { $property->setAccessible(true); } $property->setValue($session,$adapter);
     $session->start($oldId);
     $session->data['user_id']=42;
     $session->data['user_token']='review-token';
