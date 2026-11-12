@@ -1,3 +1,9 @@
+# CodeCart 3.0.6.0 — Build 2.2.12 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- Release packaging: the build number check in `tools/package_production.py` accepted only single-digit components, so builds 2.2.10 and later were rejected as invalid. It now accepts any number of digits per component.
+
 # CodeCart 3.0.6.0 — Build 2.2.11 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).

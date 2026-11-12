@@ -39,7 +39,7 @@ def build(root, output):
             if leaf.split('/')[0] in {'cache', 'logs', 'session', 'download', 'upload', 'modification'} and not leaf.endswith('/index.html'):
                 raise ValueError('Runtime data in package: ' + name)
     source = (root / 'upload/index.php').read_text(encoding='utf-8')
-    version = re.search(r"CODECART_PACKAGE_BUILD'\s*,\s*'([0-9]\.[0-9]\.[0-9])'", source)
+    version = re.search(r"CODECART_PACKAGE_BUILD'\s*,\s*'([0-9]+\.[0-9]+\.[0-9]+)'", source)
     if not version:
         raise ValueError('Invalid package build')
     output.mkdir(parents=True, exist_ok=True)
