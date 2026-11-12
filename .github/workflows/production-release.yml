@@ -126,8 +126,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 tools/package_documentation.py --output "$RUNNER_TEMP/CodeCart_PRO_Documentation.zip"
-          cmp upload/admin/view/documentation/CodeCart_PRO_Documentation.zip "$RUNNER_TEMP/CodeCart_PRO_Documentation.zip"
+          python3 tools/check_documentation_archive.py
 
       - name: Build one-upload ZIP
         shell: bash

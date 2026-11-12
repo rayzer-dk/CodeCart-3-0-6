@@ -1,3 +1,9 @@
+# CodeCart 3.0.6.0 — Build 2.2.11 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- Release checks: the bundled documentation archive is verified by member names and content (`tools/check_documentation_archive.py`) instead of comparing compressed bytes. Compressed output depends on the zlib implementation of the machine that built the archive, so a byte comparison failed for archives built on a different system although the documentation was identical. Applies to the full production, production release and release workflows.
+
 # CodeCart 3.0.6.0 — Build 2.2.10 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).

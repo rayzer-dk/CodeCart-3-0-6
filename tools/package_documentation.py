@@ -5,7 +5,8 @@ import tempfile
 import zipfile
 
 
-def build(root: Path, output: Path) -> Path:
+def collect_entries(root: Path) -> dict:
+    """Return the archive members: retained notices from the bundled archive plus current documentation sources."""
     original = root / 'upload/admin/view/documentation/CodeCart_PRO_Documentation.zip'
     entries = {}
     with zipfile.ZipFile(original) as package:
@@ -21,6 +22,11 @@ def build(root: Path, output: Path) -> Path:
             if path.is_symlink():
                 raise ValueError('Documentation symlink is not accepted: ' + str(path))
             entries[path.relative_to(root).as_posix()] = path.read_bytes()
+    return entries
+
+
+def build(root: Path, output: Path) -> Path:
+    entries = collect_entries(root)
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(dir=output.parent, prefix='.documentation-', suffix='.zip', delete=False) as staged:
         temporary = Path(staged.name)
