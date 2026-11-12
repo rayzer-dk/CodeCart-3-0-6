@@ -74,6 +74,14 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
         </ul>
         <div class="tab-content">
           <div class="tab-pane active" id="tab-general">
+            <form action="index.php" method="get" class="form-inline cc-mod-search" style="margin-bottom:12px">
+              <input type="hidden" name="route" value="marketplace/modification" />
+              <input type="hidden" name="user_token" value="{{ user_token }}" />
+              {% if compatibility_filter %}<input type="hidden" name="compatibility_filter" value="{{ compatibility_filter }}" />{% endif %}
+              <input type="search" name="filter_search" value="{{ filter_search|e('html_attr') }}" maxlength="80" class="form-control" style="min-width:280px;max-width:100%" placeholder="{{ entry_search }}" aria-label="{{ entry_search }}" />
+              <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> {{ button_search }}</button>
+              {% if filter_search %}<a href="{{ clear_search }}" class="btn btn-default"><i class="fa fa-times"></i></a>{% endif %}
+            </form>
             <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-modification">
               <div class="table-responsive">
                 <table class="table table-bordered table-hover cc-mod-table">

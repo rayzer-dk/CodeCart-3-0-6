@@ -130,7 +130,12 @@ class ControllerExtensionExtensionAdvertise extends Controller {
 		$install_dates = $this->model_setting_extension->getInstallDates('advertise');
 		foreach ($data['extensions'] as &$extension_row) {
 			$installed_at = $extension_row['installed'] && isset($install_dates[$extension_row['code']]) ? $install_dates[$extension_row['code']] : '';
-			$extension_row['status_enabled'] = ($extension_row['status'] === $this->language->get('text_enabled'));
+			foreach ($extension_row['store'] as &$store_row) {
+				$store_row['status_enabled'] = ($store_row['status'] === $this->language->get('text_enabled'));
+			}
+			unset($store_row);
+			$extension_row['status'] = $extension_row['store'][0]['status'];
+			$extension_row['status_enabled'] = $extension_row['store'][0]['status_enabled'];
 			$extension_row['date_installed'] = $installed_at;
 			$extension_row['date_installed_label'] = $installed_at !== '' ? date('Y-m-d H:i', strtotime($installed_at)) : '';
 		}

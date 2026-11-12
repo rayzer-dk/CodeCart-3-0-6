@@ -2335,6 +2335,7 @@ class ControllerCatalogProduct extends Controller {
 
 		if (isset($post['bulk_category_id']) && ctype_digit((string)$post['bulk_category_id']) && (int)$post['bulk_category_id'] > 0) {
 			$change['category_id'] = (int)$post['bulk_category_id'];
+			$change['category_mode'] = isset($post['bulk_category_mode']) && $post['bulk_category_mode'] === 'move' ? 'move' : 'add';
 		}
 
 		if (!$this->validateModify()) {

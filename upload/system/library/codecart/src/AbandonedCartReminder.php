@@ -223,7 +223,7 @@ final class AbandonedCartReminder {
             if ($storeId < 0) { throw new \RuntimeException('Cart origin store is unknown.'); }
             $store = array();
             if ($storeId > 0) {
-                $origin = $this->db->query("SELECT store_id,name,url,ssl FROM `" . DB_PREFIX . "store` WHERE store_id='" . $storeId . "' LIMIT 1");
+                $origin = $this->db->query("SELECT store_id,name,url,`ssl` FROM `" . DB_PREFIX . "store` WHERE store_id='" . $storeId . "' LIMIT 1");
                 if (!$origin->num_rows) { throw new \RuntimeException('Origin storefront no longer exists.'); }
                 $store = $origin->row;
             }

@@ -1,3 +1,18 @@
+# CodeCart 3.0.6.0 — Build 2.3.7 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 37 (was 36). Updated stores run UPDATE in `/install/` once: the migration now also creates the Mail Audit table, which until now was created only by saving the mail settings; a clean install now ships it too (the Mail Audit history showed "structure missing, error 1146" on a fresh install).
+
+- Reminder emails for abandoned carts from a secondary storefront failed with SQL error 1064: the `ssl` column of the store table was not quoted.
+- Storefront, "notify me when in stock": the request URL reached the script with `&amp;`, so the product id was lost and the visitor saw an error. The URL is now passed unescaped.
+- Administration, "Customer approvals" showed a red "check the form" warning on opening, because the language string `error_warning` was rendered as a message. The Analytics and Advertising extension lists logged `Undefined array key "status"` and showed an empty status column; the status of the default store is now shown, and each store row gets its on/off colour.
+- Administration, header: the refresh, quick navigation and theme icons are now the same size as the notification bell.
+- Core / Compatibility → About: removed the build, schema and revision line.
+- Mail campaigns: the template panel has header and button colour settings (saved for all later campaigns, also applied in the preview before saving) and a separate button to upload an HTML template file; the "load" button no longer fails silently. Colours are accepted only as `#rrggbb`; the header text switches between white and dark by contrast.
+- Products list: the bulk edit button is now an icon with a tooltip (the undo button too). A second icon opens a dialog to add the selected products to a category or move them (keep only that category), with a category filter and a confirmation for "move". The category is no longer part of the bulk edit dialog. "Undo last bulk change" also restores the removed categories. Checked on a clean install: add, move and undo give the expected `product_to_category` rows.
+- Modifications (OCMOD): search by name, author, code or version; it works together with the status filters and sorting.
+- Public documents: wider search field.
+- Cart dashboard: the log line for a failed summary now carries the database error code.
+
 # CodeCart 3.0.6.0 — Build 2.3.6 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).

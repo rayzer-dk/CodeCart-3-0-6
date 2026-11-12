@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '36';
+    const PRESENTATION_SCHEMA_VERSION = '37';
 
     private $db;
     private $config;
@@ -196,6 +196,7 @@ class Migration {
             $this->ensureEditorDefault();
             $this->ensureStockNotifyInfrastructure();
             $this->ensureMailCampaignInfrastructure();
+            $this->ensureMailAuditTable();
             $this->ensureUnicodeCollation(array('mail_campaign', 'mail_campaign_queue', 'mail_suppression', 'stock_notify'));
             // Registered cart reminders require a dedicated, per-store consent record.
             // This is schema-only; no reminder task is switched on during migration.
@@ -279,6 +280,13 @@ class Migration {
     }
 
 
+
+    private function ensureMailAuditTable() {
+        if (!class_exists('\CodeCart\Core\MailAudit', false)) {
+            require_once(__DIR__ . '/src/MailAudit.php');
+        }
+        \CodeCart\Core\MailAudit::install($this->db);
+    }
 
     private function ensureCodeCartThemeExtension() {
         if (!$this->tableExists('extension') || !$this->tableExists('setting')) {

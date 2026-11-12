@@ -1294,6 +1294,8 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		$compatibility_filter = isset($this->request->get['compatibility_filter']) ? (string)$this->request->get['compatibility_filter'] : '';
 		$allowed_filters = array('', 'active', 'ok', 'warning', 'error', 'issues');
 		if (!in_array($compatibility_filter, $allowed_filters, true)) { $compatibility_filter = ''; }
+		$filter_search = isset($this->request->get['filter_search']) ? utf8_substr(trim((string)$this->request->get['filter_search']), 0, 80) : '';
+		$search_url = $filter_search !== '' ? '&filter_search=' . rawurlencode($filter_search) : '';
 
 		$url = '';
 
@@ -1311,6 +1313,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		if ($compatibility_filter !== '') {
 			$url .= '&compatibility_filter=' . rawurlencode($compatibility_filter);
 		}
+		$url .= $search_url;
 
 		$data['breadcrumbs'] = array();
 
@@ -1338,7 +1341,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		$compatibility_map = isset($compatibility_state['modifications']) && is_array($compatibility_state['modifications']) ? $compatibility_state['modifications'] : array();
 
 		if ($compatibility_filter !== '') {
-			$all_results = $this->model_setting_modification->getModifications(array('sort' => $sort, 'order' => $order));
+			$all_results = $this->model_setting_modification->getModifications(array('sort' => $sort, 'order' => $order, 'filter_search' => $filter_search));
 			$filtered_results = array();
 			foreach ($all_results as $candidate) {
 				$id = (string)$candidate['modification_id'];
@@ -1355,7 +1358,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 			if ($page > $max_page) { $page = $max_page; }
 			$results = array_slice($filtered_results, ($page - 1) * $limit, $limit);
 		} elseif ($sort === 'compatibility') {
-			$all_results = $this->model_setting_modification->getModifications(array('sort' => 'name', 'order' => 'ASC'));
+			$all_results = $this->model_setting_modification->getModifications(array('sort' => 'name', 'order' => 'ASC', 'filter_search' => $filter_search));
 			$stateRank = array('error'=>0, 'warning'=>1, 'unchecked'=>2, 'disabled'=>3, 'ok'=>4);
 			usort($all_results, function($a, $b) use ($compatibility_map, $stateRank) {
 				$ia = isset($compatibility_map[(string)$a['modification_id']]) && is_array($compatibility_map[(string)$a['modification_id']]) ? $compatibility_map[(string)$a['modification_id']] : array();
@@ -1372,8 +1375,8 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 			if ($page > $max_page) $page = $max_page;
 			$results = array_slice($all_results, ($page - 1) * $limit, $limit);
 		} else {
-			$filter_data = array('sort' => $sort, 'order' => $order, 'start' => ($page - 1) * $limit, 'limit' => $limit);
-			$modification_total = $this->model_setting_modification->getTotalModifications();
+			$filter_data = array('sort' => $sort, 'order' => $order, 'start' => ($page - 1) * $limit, 'limit' => $limit, 'filter_search' => $filter_search);
+			$modification_total = $this->model_setting_modification->getTotalModifications($filter_data);
 			$results = $this->model_setting_modification->getModifications($filter_data);
 		}
 
@@ -1414,6 +1417,12 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		$data['compatibility_core_build'] = isset($compatibility_state['core_build']) ? (string)$compatibility_state['core_build'] : '';
 		$data['compatibility_package_build'] = isset($compatibility_state['package_build']) ? (string)$compatibility_state['package_build'] : '';
 		$data['compatibility_filter'] = $compatibility_filter;
+		$data['filter_search'] = $filter_search;
+		$data['search_sort'] = $sort;
+		$data['search_order'] = $order;
+		$data['entry_search'] = $this->language->get('entry_search');
+		$data['button_search'] = $this->language->get('button_search');
+		$data['clear_search'] = $this->url->link('marketplace/modification', 'user_token=' . $this->session->data['user_token'] . ($compatibility_filter !== '' ? '&compatibility_filter=' . rawurlencode($compatibility_filter) : ''), true);
 		$filter_base = 'user_token=' . $this->session->data['user_token'];
 		$data['filter_all'] = $this->url->link('marketplace/modification', $filter_base, true);
 		$data['filter_active'] = $this->url->link('marketplace/modification', $filter_base . '&compatibility_filter=active', true);
@@ -1528,6 +1537,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		if (isset($this->request->get['page'])) {
 			$url .= '&page=' . $this->request->get['page'];
 		}
+		$url .= $search_url;
 
 		$data['sort_name'] = $this->url->link('marketplace/modification', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
 		$data['sort_author'] = $this->url->link('marketplace/modification', 'user_token=' . $this->session->data['user_token'] . '&sort=author' . $url, true);
@@ -1548,6 +1558,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 		if ($compatibility_filter !== '') {
 			$url .= '&compatibility_filter=' . rawurlencode($compatibility_filter);
 		}
+		$url .= $search_url;
 
 		$pagination = new Pagination();
 		$pagination->total = $modification_total;

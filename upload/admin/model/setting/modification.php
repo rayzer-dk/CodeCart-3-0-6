@@ -76,6 +76,7 @@ class ModelSettingModification extends Model {
 
 	public function getModifications($data = array()) {
 		$sql = "SELECT * FROM `" . DB_PREFIX . "modification`";
+		$sql .= $this->searchWhere($data);
 
 		$sort_data = array(
 			'name',
@@ -126,8 +127,20 @@ class ModelSettingModification extends Model {
         return $query->row;
     }
 
-    public function getTotalModifications() {
-        $query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "modification`");
+    private function searchWhere($data) {
+        $term = isset($data['filter_search']) ? trim((string)$data['filter_search']) : '';
+
+        if ($term === '') {
+            return '';
+        }
+
+        $like = "'%" . addcslashes($this->db->escape($term), '%_') . "%'";
+
+        return " WHERE (name LIKE " . $like . " OR author LIKE " . $like . " OR code LIKE " . $like . " OR version LIKE " . $like . ")";
+    }
+
+    public function getTotalModifications($data = array()) {
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "modification`" . $this->searchWhere($data));
 
         return $query->row['total'];
     }

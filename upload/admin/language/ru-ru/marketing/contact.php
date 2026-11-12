@@ -67,3 +67,11 @@ $_['error_template_size'] = 'HTML-файл должен быть непусты�
 $_['error_template_encoding'] = 'HTML-файл должен использовать кодировку UTF-8.';
 $_['error_template_import'] = 'Не удалось загрузить HTML-файл. Проверьте права доступа и повторите попытку.';
 $_['error_template_html'] = 'Не удалось безопасно обработать HTML шаблона. Проверьте разметку и повторите попытку.';
+
+$_['text_template_settings'] = 'Настройки шаблона';
+$_['entry_header_color']     = 'Цвет шапки';
+$_['entry_button_color']     = 'Цвет кнопки';
+$_['button_template_upload'] = 'Загрузить HTML-файл шаблона';
+$_['button_brand_save']      = 'Сохранить цвета';
+$_['button_brand_reset']     = 'Сбросить цвета';
+$_['text_brand_saved']       = 'Цвета шаблона сохранены. Их получат все следующие рассылки.';

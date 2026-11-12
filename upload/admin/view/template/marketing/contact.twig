@@ -93,6 +93,7 @@
                 </div>
                 <div class="col-sm-3">
                   <button type="button" id="button-template-load" class="btn btn-default" data-toggle="tooltip" title="{{ button_template_load }}"><i class="fa fa-folder-open"></i></button>
+                  <button type="button" id="button-template-upload" class="btn btn-default" data-toggle="tooltip" title="{{ button_template_upload }}"><i class="fa fa-upload"></i></button>
                   <button type="button" id="button-template-save" class="btn btn-primary" data-toggle="tooltip" title="{{ button_template_save }}"><i class="fa fa-save"></i></button>
                   <button type="button" id="button-template-preview" class="btn btn-info" data-toggle="tooltip" title="{{ button_template_preview }}"><i class="fa fa-eye"></i></button>
                   <button type="button" id="button-template-delete" class="btn btn-danger" data-toggle="tooltip" title="{{ button_template_delete }}"><i class="fa fa-trash"></i></button>
@@ -102,6 +103,21 @@
               <p class="help-block">{{ help_template_open }}</p>
               <p class="help-block">{{ help_template_variables }}</p>
               <p class="help-block"><i class="fa fa-paint-brush"></i> {{ help_template_branded }}</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ text_template_settings }}</label>
+            <div class="col-sm-10">
+              <div class="row">
+                <div class="col-sm-4"><label class="control-label" for="input-header-color">{{ entry_header_color }}</label>
+                  <input type="color" id="input-header-color" name="header_color" value="{{ header_color }}" data-default="#102d56" class="form-control" style="height:38px;padding:3px;" /></div>
+                <div class="col-sm-4"><label class="control-label" for="input-button-color">{{ entry_button_color }}</label>
+                  <input type="color" id="input-button-color" name="button_color" value="{{ button_color }}" data-default="#0969da" class="form-control" style="height:38px;padding:3px;" /></div>
+                <div class="col-sm-4" style="padding-top:25px;">
+                  <button type="button" id="button-brand-save" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_brand_save }}</button>
+                  <button type="button" id="button-brand-reset" class="btn btn-default" data-toggle="tooltip" title="{{ button_brand_reset }}"><i class="fa fa-undo"></i></button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="form-group required">
@@ -189,7 +205,24 @@ $('#button-template-load').on('click', function() {
 		$('#input-template-name').val(json.template.name || '');
 		$('#input-subject').val(json.template.subject || '');
 		setMailHtml(json.template.message || '');
+	}).fail(function() { mailTemplateAlert('danger', '{{ error_template_not_found|escape('js') }}'); });
+});
+
+$('#button-template-upload').on('click', function() {
+	$('#input-template-file').val('').trigger('click');
+});
+
+$('#button-brand-save').on('click', function() {
+	$.ajax({
+		url: '{{ brand_save_url }}', type: 'post', dataType: 'json',
+		data: {header_color: $('#input-header-color').val(), button_color: $('#input-button-color').val()},
+		success: function(json) { mailTemplateAlert(json.error ? 'danger' : 'success', json.error || json.success); },
+		error: function(xhr, ajaxOptions, thrownError) { CodeCartAdmin.ajaxError(xhr, thrownError); }
 	});
+});
+
+$('#button-brand-reset').on('click', function() {
+	$('#input-header-color, #input-button-color').each(function() { $(this).val($(this).attr('data-default')); });
 });
 
 $('#input-template-file').on('change', function() {
@@ -266,7 +299,7 @@ $('#button-template-preview').on('click', function() {
     $.ajax({
         url: "{{ template_preview_url|escape('js') }}",
         type: 'POST', dataType: 'json',
-        data: {store_id: $('#input-store').val(), subject: $('#input-subject').val(), message: currentMailHtml()}
+        data: {store_id: $('#input-store').val(), subject: $('#input-subject').val(), message: currentMailHtml(), header_color: $('#input-header-color').val(), button_color: $('#input-button-color').val()}
     }).done(function(json) {
         if (json && json.html) {
             document.getElementById('mail-preview-frame').srcdoc = json.html;

@@ -78,3 +78,11 @@ $_['error_template_size'] = 'The HTML file must be non-empty and no larger than 
 $_['error_template_encoding'] = 'The HTML file must use UTF-8 encoding.';
 $_['error_template_import'] = 'Unable to import the HTML file. Check your permissions and try again.';
 $_['error_template_html'] = 'Unable to safely process the template HTML. Check the markup and try again.';
+
+$_['text_template_settings'] = 'Template settings';
+$_['entry_header_color']     = 'Header colour';
+$_['entry_button_color']     = 'Button colour';
+$_['button_template_upload'] = 'Upload an HTML template file';
+$_['button_brand_save']      = 'Save colours';
+$_['button_brand_reset']     = 'Reset colours';
+$_['text_brand_saved']       = 'Template colours saved. All following campaigns will use them.';

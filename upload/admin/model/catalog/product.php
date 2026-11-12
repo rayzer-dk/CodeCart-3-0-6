@@ -586,7 +586,7 @@ class ModelCatalogProduct extends Model {
 	/**
 	 * Applies one bulk change to the given products and returns what is needed to undo it.
 	 * $change keys: price_mode (set|percent|amount), price, quantity_mode (set|add), quantity,
-	 * manufacturer_id (int, 0 clears), category_id (int, added to the product's categories).
+	 * manufacturer_id (int, 0 clears), category_id (int) with category_mode (add|move: move also drops the product's other categories).
 	 */
 	public function bulkEditProducts(array $product_ids, array $change) {
 		$product_ids = array_values(array_unique(array_filter(array_map('intval', $product_ids))));
@@ -650,11 +650,24 @@ class ModelCatalogProduct extends Model {
 
 			if (!empty($change['category_id'])) {
 				$category_id = (int)$change['category_id'];
-				$exists = $this->db->query("SELECT 1 FROM `" . DB_PREFIX . "product_to_category` WHERE product_id = '" . $product_id . "' AND category_id = '" . $category_id . "' LIMIT 1");
+				$current = array();
 
-				if (!$exists->num_rows) {
+				foreach ($this->db->query("SELECT category_id FROM `" . DB_PREFIX . "product_to_category` WHERE product_id = '" . $product_id . "'")->rows as $link) {
+					$current[] = (int)$link['category_id'];
+				}
+
+				if (!in_array($category_id, $current, true)) {
 					$this->db->query("INSERT INTO `" . DB_PREFIX . "product_to_category` SET product_id = '" . $product_id . "', category_id = '" . $category_id . "'");
 					$entry['category_id'] = $category_id;
+				}
+
+				if (isset($change['category_mode']) && $change['category_mode'] === 'move') {
+					$removed = array_values(array_diff($current, array($category_id)));
+
+					if ($removed) {
+						$this->db->query("DELETE FROM `" . DB_PREFIX . "product_to_category` WHERE product_id = '" . $product_id . "' AND category_id IN (" . implode(',', $removed) . ")");
+						$entry['categories_removed'] = $removed;
+					}
 				}
 			}
 
@@ -691,6 +704,12 @@ class ModelCatalogProduct extends Model {
 
 			if (!empty($entry['category_id'])) {
 				$this->db->query("DELETE FROM `" . DB_PREFIX . "product_to_category` WHERE product_id = '" . $product_id . "' AND category_id = '" . (int)$entry['category_id'] . "'");
+				$restored += (int)$this->db->countAffected();
+			}
+
+			foreach (isset($entry['categories_removed']) ? (array)$entry['categories_removed'] : array() as $removed_id) {
+				$removed_id = (int)$removed_id;
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "product_to_category` (product_id, category_id) SELECT '" . $product_id . "', '" . $removed_id . "' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `" . DB_PREFIX . "product_to_category` WHERE product_id = '" . $product_id . "' AND category_id = '" . $removed_id . "')");
 				$restored += (int)$this->db->countAffected();
 			}
 		}

@@ -592,7 +592,7 @@ class ControllerSaleAbandonedCart extends Controller {
                     $q = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_cart_guest_contact` WHERE recovered_at IS NOT NULL AND recovered_at>=DATE_SUB(NOW(),INTERVAL 7 DAY)");
                     $data['restored_count'] = (int)($q->row['total'] ?? 0);
                 }
-            } catch (\Throwable $e) { $this->log->write('Cart dashboard summary: ' . get_class($e)); }
+            } catch (\Throwable $e) { $this->log->write('Cart dashboard summary: ' . get_class($e) . ' ' . $e->getMessage()); }
             try {
                 $q = $this->db->query("SELECT status,last_status,date_last,last_message,interval_seconds,TIMESTAMPDIFF(SECOND,date_last,NOW()) AS seconds_since FROM `" . DB_PREFIX . "codecart_scheduler` WHERE code='core.cart.reminder' LIMIT 1");
                 if ($q->num_rows) {

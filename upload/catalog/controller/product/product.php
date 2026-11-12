@@ -550,7 +550,7 @@ class ControllerProductProduct extends Controller {
 			$data['can_buy'] = (int)$product_info['quantity'] > 0;
 			$data['has_unavailable_option'] = $has_unavailable_option;
 			$data['stock_notify_email'] = $this->customer->isLogged() ? (string)$this->customer->getEmail() : '';
-			$data['stock_notify_url'] = $this->url->link('product/product/stockNotify', 'product_id=' . (int)$product_id, true);
+			$data['stock_notify_url'] = str_replace('&amp;', '&', $this->url->link('product/product/stockNotify', 'product_id=' . (int)$product_id, true));
 
 			if ($product_info['minimum']) {
 				$data['minimum'] = $product_info['minimum'];

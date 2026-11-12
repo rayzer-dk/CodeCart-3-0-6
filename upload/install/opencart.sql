@@ -10051,6 +10051,28 @@ CREATE TABLE `oc_stock_notify` (
   KEY `customer_id` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `oc_codecart_mail_audit`;
+CREATE TABLE `oc_codecart_mail_audit` (
+  `audit_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `store_id` int(11) NOT NULL DEFAULT '0',
+  `date_added` datetime NOT NULL,
+  `engine` varchar(12) NOT NULL DEFAULT '',
+  `sender_email` varchar(190) NOT NULL DEFAULT '',
+  `recipient_email` text NOT NULL,
+  `subject` varchar(255) NOT NULL DEFAULT '',
+  `source` varchar(128) NOT NULL DEFAULT '',
+  `status` varchar(16) NOT NULL DEFAULT '',
+  `error_type` varchar(48) NOT NULL DEFAULT '',
+  `remote_ip` varchar(45) NOT NULL DEFAULT '',
+  `event_key` char(64) DEFAULT NULL,
+  `attempts` int(10) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`audit_id`),
+  UNIQUE KEY `idx_event_bucket` (`event_key`),
+  KEY `idx_date` (`date_added`),
+  KEY `idx_status_date` (`status`,`date_added`),
+  KEY `idx_store_date` (`store_id`,`date_added`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- CodeCart built-in public documents and download statistics (Build 2.0.7)
 CREATE TABLE `oc_codecart_public_document` (
               document_id INT UNSIGNED NOT NULL AUTO_INCREMENT,

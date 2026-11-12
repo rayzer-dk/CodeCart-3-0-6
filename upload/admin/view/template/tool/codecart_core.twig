@@ -207,12 +207,6 @@
           <div class="ccp-about-head">
             <div class="ccp-about-id">
               <h2 class="ccp-about-title">{{ about.product }}</h2>
-              <ul class="ccp-about-meta">
-                <li><span>{{ text_about_build }}</span> <strong>{{ about.build }}</strong></li>
-                <li><span>{{ text_about_schema }}</span> <strong>{{ about.schema }}</strong></li>
-                <li><span>{{ text_about_revision }}</span> <strong>{{ about.presentation }}</strong></li>
-                <li><span>{{ text_about_upstream }}</span> <strong>{{ about.upstream }}</strong></li>
-              </ul>
               {% if about.upgrade_required %}<p class="ccp-about-alert"><span class="label label-warning">{{ text_about_upgrade_required }}</span> {{ about.installed }}</p>{% endif %}
             </div>
             <dl class="ccp-about-runtime">

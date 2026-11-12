@@ -79,3 +79,11 @@ $_['error_template_size'] = 'HTML-файл має бути непорожнім 
 $_['error_template_encoding'] = 'HTML-файл має використовувати кодування UTF-8.';
 $_['error_template_import'] = 'Не вдалося завантажити HTML-файл. Перевірте права доступу та повторіть спробу.';
 $_['error_template_html'] = 'Не вдалося безпечно обробити HTML шаблону. Перевірте розмітку та повторіть спробу.';
+
+$_['text_template_settings'] = 'Налаштування шаблону';
+$_['entry_header_color']     = 'Колір шапки';
+$_['entry_button_color']     = 'Колір кнопки';
+$_['button_template_upload'] = 'Завантажити HTML-файл шаблону';
+$_['button_brand_save']      = 'Зберегти кольори';
+$_['button_brand_reset']     = 'Скинути кольори';
+$_['text_brand_saved']       = 'Кольори шаблону збережено. Їх отримають усі наступні розсилки.';

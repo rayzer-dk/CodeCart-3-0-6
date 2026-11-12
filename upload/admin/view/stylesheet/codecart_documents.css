@@ -19,7 +19,7 @@
 .ccp-document-admin .ccp-doc-table thead a.desc:after{content:" ▼";font-size:10px}
 .ccp-document-admin .ccp-doc-table .ccp-doc-col-name .text-muted{font-size:12px;margin-top:3px}
 .ccp-document-admin .ccp-doc-search{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;align-items:center}
-.ccp-document-admin .ccp-doc-search .form-control{max-width:330px}
+.ccp-document-admin .ccp-doc-search .form-control{flex:1 1 340px;min-width:240px;max-width:560px}
 .ccp-document-admin .ccp-doc-table .ccp-doc-empty{padding:22px 8px;text-align:center;color:#68788e}
 .ccp-document-admin .ccp-doc-paging{margin-top:13px}
 .ccp-document-admin .ccp-doc-paging .pagination{margin:3px 0}

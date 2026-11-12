@@ -103,3 +103,6 @@ $_['error_warning'] = 'Внимательно проверьте форму на
 $_['text_filesystem_modifications'] = 'Файловые источники OCMOD';
 $_['text_filesystem_readonly'] = 'Только просмотр. Эти XML-файлы не зарегистрированы в списке расширений.';
 $_['text_filesystem_source'] = 'Исходный XML-файл';
+
+$_['entry_search'] = 'Поиск по названию, автору, коду или версии';
+$_['button_search'] = 'Искать';

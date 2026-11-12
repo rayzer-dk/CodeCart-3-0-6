@@ -127,3 +127,6 @@ $_['error_warning'] = 'Уважно перевірте форму на поми�
 $_['text_filesystem_modifications'] = 'Файлові джерела OCMOD';
 $_['text_filesystem_readonly'] = 'Лише перегляд. Ці XML-файли не зареєстровані у списку доповнень.';
 $_['text_filesystem_source'] = 'Вихідний XML-файл';
+
+$_['entry_search'] = 'Пошук за назвою, автором, кодом або версією';
+$_['button_search'] = 'Шукати';

@@ -10,8 +10,9 @@
         {% if codecart_relation_status %}<button type="submit" form="form-product" formaction="{{ relation_queue_selected }}" data-toggle="tooltip" title="{{ button_relation_selected }}" class="btn btn-default"><i class="fa fa-random"></i></button>{% endif %}
         <button type="submit" form="form-product" formaction="{{ enabled }}" data-toggle="tooltip" title="{{ button_enable }}" class="btn btn-default"><i class="fa fa-play"></i></button>
 		<button type="submit" form="form-product" formaction="{{ disabled }}" data-toggle="tooltip" title="{{ button_disable }}" class="btn btn-default"><i class="fa fa-pause"></i></button>
-		<button type="button" data-toggle="modal" data-target="#modal-bulk-edit" title="{{ button_bulk_edit }}" class="btn btn-default"><i class="fa fa-sliders"></i> <span class="hidden-xs hidden-sm">{{ button_bulk_edit }}</span></button>
-		{% if bulk_undo_available %}<a href="{{ bulk_undo }}" title="{{ button_bulk_undo }}" class="btn btn-default" onclick="return confirm('{{ text_bulk_undo_confirm|escape('js') }}');"><i class="fa fa-undo"></i> <span class="hidden-xs hidden-sm">{{ button_bulk_undo }}</span></a>{% endif %}
+		<button type="button" data-toggle="modal" data-target="#modal-bulk-edit" title="{{ button_bulk_edit }}" aria-label="{{ button_bulk_edit }}" class="btn btn-default"><i class="fa fa-sliders"></i></button>
+		<button type="button" data-toggle="modal" data-target="#modal-bulk-category" title="{{ button_bulk_category }}" aria-label="{{ button_bulk_category }}" class="btn btn-default"><i class="fa fa-sitemap"></i></button>
+		{% if bulk_undo_available %}<a href="{{ bulk_undo }}" title="{{ button_bulk_undo }}" aria-label="{{ button_bulk_undo }}" class="btn btn-default" onclick="return confirm('{{ text_bulk_undo_confirm|escape('js') }}');"><i class="fa fa-undo"></i></a>{% endif %}
 		<button type="button" form="form-product" formaction="{{ delete }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-product').submit() : false;"><i class="fa fa-trash-o"></i></button>
       </div>
       <h1>{{ heading_title }}</h1>
@@ -787,13 +788,6 @@ $('input[name=\'filter_name\'], input[name=\'filter_sku\'], input[name=\'filter_
             {% for manufacturer in bulk_manufacturers %}<option value="{{ manufacturer.manufacturer_id }}">{{ manufacturer.name }}</option>{% endfor %}
           </select>
         </div>
-        <div class="form-group">
-          <label for="bulk-category">{{ text_bulk_category }}</label>
-          <select id="bulk-category" name="bulk_category_id" form="form-product" class="form-control">
-            <option value="">{{ text_bulk_no_change }}</option>
-            {% for category in bulk_categories %}<option value="{{ category.category_id }}">{{ category.name }}</option>{% endfor %}
-          </select>
-        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
@@ -802,4 +796,43 @@ $('input[name=\'filter_name\'], input[name=\'filter_sku\'], input[name=\'filter_
     </div>
   </div>
 </div>
+<div class="modal fade" id="modal-bulk-category" tabindex="-1" role="dialog" aria-labelledby="modal-bulk-category-title">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="{{ button_cancel }}"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="modal-bulk-category-title">{{ button_bulk_category }}</h4>
+      </div>
+      <div class="modal-body">
+        <p class="help-block">{{ text_bulk_category_help }}</p>
+        <div class="form-group">
+          <label for="bulk-category-filter">{{ text_bulk_category }}</label>
+          <input type="text" id="bulk-category-filter" class="form-control" autocomplete="off" placeholder="{{ text_bulk_category_filter }}" style="margin-bottom:6px" />
+          <select id="bulk-category" name="bulk_category_id" form="form-product" class="form-control" size="8">
+            {% for category in bulk_categories %}<option value="{{ category.category_id }}">{{ category.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="radio"><label><input type="radio" name="bulk_category_mode" form="form-product" value="add" checked="checked" /> {{ text_bulk_category_add }}</label></div>
+        <div class="radio"><label><input type="radio" name="bulk_category_mode" form="form-product" value="move" /> {{ text_bulk_category_move }}</label></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ button_cancel }}</button>
+        <button type="submit" form="form-product" formaction="{{ bulk_edit }}" id="button-bulk-category-apply" class="btn btn-primary"><i class="fa fa-check"></i> {{ button_bulk_apply }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript"><!--
+$('#bulk-category-filter').on('input', function() {
+	var term = $.trim($(this).val()).toLowerCase();
+	$('#bulk-category option').each(function() {
+		$(this).prop('hidden', term !== '' && $(this).text().toLowerCase().indexOf(term) === -1);
+	});
+});
+$('#button-bulk-category-apply').on('click', function() {
+	if (!$('#bulk-category').val()) { alert('{{ error_bulk_category|escape('js') }}'); return false; }
+	var move = $('input[name="bulk_category_mode"]:checked').val() === 'move';
+	return confirm(move ? '{{ text_bulk_category_move_confirm|escape('js') }}' : '{{ text_bulk_confirm|escape('js') }}');
+});
+//--></script>
 {{ footer }} 

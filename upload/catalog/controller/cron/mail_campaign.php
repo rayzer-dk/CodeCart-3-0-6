@@ -39,7 +39,9 @@ class ControllerCronMailCampaign extends Controller {
             // Same branded HTML is used for preview and actual deliveries.
             require_once DIR_SYSTEM . 'library/codecart/src/NewsletterEmail.php';
             $values=array('customer_name'=>(string)$row['name'],'store_name'=>$store_name,'store_url'=>$base.'/','unsubscribe_url'=>$unsubscribe);
+            $colors=array(); foreach($this->db->query("SELECT `key`,`value` FROM `".DB_PREFIX."setting` WHERE store_id='0' AND `key` IN ('codecart_mail_header_color','codecart_mail_button_color')")->rows as $cr){$colors[$cr['key']]=$cr['value'];}
             $brand=array(
+                'header_color'=>isset($colors['codecart_mail_header_color'])?$colors['codecart_mail_header_color']:'','button_color'=>isset($colors['codecart_mail_button_color'])?$colors['codecart_mail_button_color']:'',
                 'name'=>$store_name,'url'=>$base.'/','email'=>isset($sc['config_email'])?$sc['config_email']:(string)$this->config->get('config_email'),
                 'locale'=>isset($sc['config_language'])?$sc['config_language']:(string)$this->config->get('config_language'),
                 'logo'=>\CodeCart\Core\NewsletterEmail::logoUrl($base,isset($sc['config_logo'])?$sc['config_logo']:(string)$this->config->get('config_logo'))

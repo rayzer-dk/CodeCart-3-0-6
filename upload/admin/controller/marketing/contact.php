@@ -30,7 +30,14 @@ class ControllerMarketingContact extends Controller {
 		foreach (array('help_template_branded','text_template_save_copy','text_preview_device','text_preview_desktop','text_preview_mobile') as $languageKey) {
 			$data[$languageKey] = $this->language->get($languageKey);
 		}
+		foreach (array('entry_header_color','entry_button_color','text_template_settings','button_template_upload','button_brand_save','button_brand_reset') as $languageKey) {
+			$data[$languageKey] = $this->language->get($languageKey);
+		}
 		$data['mail_templates'] = $this->getMailTemplates();
+		$brand = $this->getMailBrand();
+		$data['header_color'] = $brand['header_color'];
+		$data['button_color'] = $brand['button_color'];
+		$data['brand_save_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/saveBrand', 'user_token=' . $this->session->data['user_token'], true));
 		$this->load->model('marketing/mail_campaign');
 		$data['recent_campaigns'] = $this->model_marketing_mail_campaign->getRecentCampaigns(20);
 		$data['template_load_url'] = str_replace('&amp;', '&', $this->url->link('marketing/contact/loadTemplate', 'user_token=' . $this->session->data['user_token'], true));
@@ -151,6 +158,41 @@ class ControllerMarketingContact extends Controller {
 		$this->response->setOutput(json_encode($json));
 	}
 
+	public function saveBrand() {
+		$this->load->language('marketing/contact');
+		$json = array();
+
+		if ($this->request->server['REQUEST_METHOD'] !== 'POST' || !$this->mailAuthorized(true)) {
+			$json['error'] = $this->language->get('error_permission');
+		} else {
+			require_once DIR_SYSTEM . 'library/codecart/src/NewsletterEmail.php';
+			$this->load->model('setting/setting');
+			$defaults = $this->mailBrandDefaults();
+			foreach ($defaults as $field => $default) {
+				$value = \CodeCart\Core\NewsletterEmail::color(isset($this->request->post[$field]) ? $this->request->post[$field] : '', $default);
+				$this->model_setting_setting->setSettingValue('codecart_mail_brand', 'codecart_mail_' . $field, $value, 0);
+			}
+			$json['success'] = $this->language->get('text_brand_saved');
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	private function mailBrandDefaults() {
+		return array('header_color' => '#102d56', 'button_color' => '#0969da');
+	}
+
+	private function getMailBrand() {
+		require_once DIR_SYSTEM . 'library/codecart/src/NewsletterEmail.php';
+		$this->load->model('setting/setting');
+		$brand = array();
+		foreach ($this->mailBrandDefaults() as $field => $default) {
+			$brand[$field] = \CodeCart\Core\NewsletterEmail::color($this->model_setting_setting->getSettingValue('codecart_mail_' . $field, 0), $default);
+		}
+		return $brand;
+	}
+
 	public function deleteTemplate() {
 		$this->load->language('marketing/contact');
 		$json = array();
@@ -245,6 +287,10 @@ class ControllerMarketingContact extends Controller {
 				$brand = array('name'=>$name, 'url'=>$base . '/', 'email'=>isset($setting['config_email']) ? $setting['config_email'] : (string)$this->config->get('config_email'),
 					'locale'=>isset($setting['config_language']) ? $setting['config_language'] : (string)$this->config->get('config_language'),
 					'logo'=>\CodeCart\Core\NewsletterEmail::logoUrl($base, isset($setting['config_logo']) ? $setting['config_logo'] : (string)$this->config->get('config_logo')));
+				$saved = $this->getMailBrand();
+				foreach ($saved as $field => $color) {
+					$brand[$field] = \CodeCart\Core\NewsletterEmail::color($this->request->post[$field] ?? '', $color);
+				}
 				$json['html'] = \CodeCart\Core\NewsletterEmail::render($subject, $message, $values, $brand);
 			} catch (\Throwable $e) {
 				$this->log->write('Newsletter preview failed: code=' . (int)$e->getCode());

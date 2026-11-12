@@ -117,3 +117,6 @@ $_['error_warning'] = 'Warning: Please check the form carefully for errors!';
 $_['text_filesystem_modifications'] = 'File-based OCMOD sources';
 $_['text_filesystem_readonly'] = 'Read-only. Managed as XML files, not through the extensions list.';
 $_['text_filesystem_source'] = 'Source file';
+
+$_['entry_search'] = 'Search by name, author, code or version';
+$_['button_search'] = 'Search';
