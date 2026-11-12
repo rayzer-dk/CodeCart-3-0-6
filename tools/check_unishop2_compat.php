@@ -31,6 +31,7 @@ $checks = [
         "case 'catalog.product.option_image_size':",
         "case 'catalog.product.option_value':",
         "case 'catalog.banner.item':",
+        "case 'catalog.layout.modules':",
         'public function satisfiesOcmod(',
     ],
     'upload/catalog/controller/common/menu.php' => [
@@ -48,6 +49,10 @@ $checks = [
     'upload/catalog/controller/product/product.php' => [
         "apply('catalog.product.option_image_size'",
         "apply('catalog.product.option_value'",
+    ],
+    'upload/catalog/model/design/layout.php' => [
+        "codecart_compatibility_framework",
+        "apply('catalog.layout.modules'",
     ],
     'upload/catalog/controller/extension/module/banner.php' => [
         "apply('catalog.banner.item'",

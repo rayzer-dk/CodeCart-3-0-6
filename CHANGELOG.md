@@ -1,3 +1,12 @@
+# CodeCart 3.0.6.0 — Build 2.3.2 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- Dependencies (minor and patch updates, exact pins): guzzlehttp/guzzle 7.16.1, guzzlehttp/promises 2.6.0, guzzlehttp/psr7 2.13.2, league/uri and league/uri-interfaces 7.10.0, symfony/deprecation-contracts 3.8.1, symfony/polyfill-mbstring 1.43.3, symfony/filesystem 6.4.50. The filesystem update closes advisory GHSA-6prc-h956-hxjq reported by `composer audit`. Major versions (Guzzle 8, psr7 3, promises 3, symfony/filesystem 7) are intentionally not applied.
+- Third-party theme compatibility: the home banners module of the supported third-party theme was lost because its OCMOD anchor does not exist in the batched CodeCart layout model. The layout model now exposes the `catalog.layout.modules` compatibility contract and the theme adapter appends the module to the configured layout position (ordering, layout list and status flag as before). The theme is not changed.
+- Modification compatibility report: one operation that the compatibility layer already satisfies (Twig loader chain) was reported as skipped because the expected search string in the legacy contract table had a typo; the compatibility layer now recognises it.
+- New regression test `tests/theme_layout_compat_smoke.php` (17 checks) is part of the release gate.
+
 # CodeCart 3.0.6.0 — Build 2.3.1 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).

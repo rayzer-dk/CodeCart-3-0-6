@@ -56,6 +56,9 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
                 }
                 return $payload;
 
+            case 'catalog.layout.modules':
+                return $this->adaptLayoutModules($payload);
+
             case 'catalog.banner.item':
                 if (isset($payload['item']) && is_array($payload['item'])) {
                     $payload['item'] = $this->adaptBannerItem($payload['item'], (int)($payload['width'] ?? 1), (int)($payload['height'] ?? 1));
@@ -228,11 +231,16 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
     }
 
     public function satisfiesOcmod(string $code, string $file, string $search): bool {
+        $file = str_replace('\\', '/', $file);
+        $search = trim($search);
+        if (trim($code) === 'UniShop2 fix') {
+            // CodeCart's Twig wrapper already chains the array loader with the active theme directory.
+            return $file === 'system/library/template/twig.php'
+                && $search === '$loader = new \\Twig\\Loader\\ArrayLoader(array($filename . \'.twig\' => $code));';
+        }
         if (trim($code) !== 'UniShop2 template') {
             return false;
         }
-        $file = str_replace('\\', '/', $file);
-        $search = trim($search);
         $contracts = array(
             'catalog/controller/common/menu.php' => array(
                 '$children_data = array();',
@@ -256,6 +264,9 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
             ),
             'catalog/controller/extension/module/banner.php' => array(
                 '\'image\' => $this->model_tool_image->resize($result[\'image\'], $setting[\'width\'], $setting[\'height\'])'
+            ),
+            'catalog/model/design/layout.php' => array(
+                'return $query->rows;'
             )
         );
         return isset($contracts[$file]) && in_array($search, $contracts[$file], true);
@@ -308,6 +319,49 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
             return $match[1] . " ((int)(\$uniset['sort_qty'] ?? 0) === " . $match[2] . ')';
         }, $add, -1, $count);
         return $count === 2 && is_string($normalized) ? $normalized : $add;
+    }
+
+    /**
+     * UniShop2 appends its "home banners" module to a layout position through an OCMOD
+     * anchor in the stock layout model. CodeCart batches layout modules, so the same
+     * entry is added here on the already loaded rows instead.
+     */
+    public function adaptLayoutModules(array $payload): array {
+        if (!$this->active() || !isset($payload['modules']) || !is_array($payload['modules'])) {
+            return $payload;
+        }
+
+        $settings = $this->settings();
+        $position = (string)($payload['position'] ?? '');
+        if (!isset($settings['home_banners_position']) || (string)$settings['home_banners_position'] !== $position) {
+            return $payload;
+        }
+
+        $layoutId = (int)($payload['layout_id'] ?? 0);
+        $layouts = isset($settings['home_banners_layout'])
+            ? array_map('intval', explode(',', (string)$settings['home_banners_layout']))
+            : array(1);
+        if (!in_array($layoutId, $layouts, true)) {
+            return $payload;
+        }
+
+        foreach ($payload['modules'] as $row) {
+            if (isset($row['code']) && $row['code'] === 'uni_home_banner') {
+                return $payload;
+            }
+        }
+
+        $payload['modules'][] = array(
+            'layout_module_id' => 99999999,
+            'layout_id'        => $layoutId,
+            'code'             => 'uni_home_banner',
+            'position'         => $position,
+            'sort_order'       => (int)($settings['home_banners_position_n'] ?? 0)
+        );
+        $this->config->set('module_uni_home_banner_status', 1);
+        $this->sortByOrder($payload['modules']);
+
+        return $payload;
     }
 
     private function sortByOrder(array &$items): void {

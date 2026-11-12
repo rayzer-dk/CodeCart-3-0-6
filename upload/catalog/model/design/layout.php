@@ -20,7 +20,19 @@ class ModelDesignLayout extends Model {
 	public function getLayoutModules($layout_id, $position) {
 		$this->loadLayoutModules($layout_id);
 
-		return isset($this->modules[(int)$layout_id][(string)$position]) ? $this->modules[(int)$layout_id][(string)$position] : array();
+		$modules = isset($this->modules[(int)$layout_id][(string)$position]) ? $this->modules[(int)$layout_id][(string)$position] : array();
+
+		$compatibility = $this->registry->get('codecart_compatibility_framework');
+		if ($compatibility) {
+			$payload = $compatibility->apply('catalog.layout.modules', array(
+				'layout_id' => (int)$layout_id,
+				'position'  => (string)$position,
+				'modules'   => $modules
+			));
+			$modules = isset($payload['modules']) && is_array($payload['modules']) ? $payload['modules'] : $modules;
+		}
+
+		return $modules;
 	}
 
 	/**

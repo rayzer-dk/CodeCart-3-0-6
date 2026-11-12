@@ -5,23 +5,23 @@
   "packages": [
     {
       "name": "guzzlehttp/guzzle",
-      "version": "7.15.5"
+      "version": "7.16.1"
     },
     {
       "name": "guzzlehttp/promises",
-      "version": "2.5.3"
+      "version": "2.6.0"
     },
     {
       "name": "guzzlehttp/psr7",
-      "version": "2.13.1"
+      "version": "2.13.2"
     },
     {
       "name": "league/uri",
-      "version": "7.8.1"
+      "version": "7.10.0"
     },
     {
       "name": "league/uri-interfaces",
-      "version": "7.8.1"
+      "version": "7.10.0"
     },
     {
       "name": "psr/http-client",
@@ -49,11 +49,11 @@
     },
     {
       "name": "symfony/deprecation-contracts",
-      "version": "3.7.1"
+      "version": "3.8.1"
     },
     {
       "name": "symfony/filesystem",
-      "version": "6.4.45"
+      "version": "6.4.50"
     },
     {
       "name": "symfony/polyfill-ctype",
@@ -61,7 +61,7 @@
     },
     {
       "name": "symfony/polyfill-mbstring",
-      "version": "1.43.0"
+      "version": "1.43.3"
     },
     {
       "name": "symfony/polyfill-php80",
