@@ -76,3 +76,4 @@ $_['text_logged'] = 'Ви увійшли як %s';
 $_['text_project_support_header'] = 'Підтримка проєкту';
 $_['text_telegram_forum'] = 'Форум Telegram';
 $_['text_two_factor'] = 'Двофакторна перевірка';
+$_['ui_request_failed'] = 'Запит не виконано';

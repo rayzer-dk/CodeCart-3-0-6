@@ -2351,3 +2351,21 @@ html.ccp-admin-dark #footer .ccp-footer-runtime { color: #a8b8cb; }
     margin: 0;
     white-space: nowrap;
 }
+
+/* Toast notifications and quick-save bar (CodeCartAdmin in codecart-admin-ui.js) */
+.ccp-toast-stack{position:fixed;top:68px;right:16px;z-index:2147482000;display:flex;flex-direction:column;gap:8px;width:360px;max-width:calc(100vw - 32px);pointer-events:none}
+.ccp-toast{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid #d8dee6;border-left-width:4px;border-radius:6px;background:#fff;color:#273142;box-shadow:0 8px 24px rgba(16,24,40,.16);opacity:0;transform:translateY(-6px);transition:opacity .18s ease,transform .18s ease;pointer-events:auto}
+.ccp-toast.is-visible{opacity:1;transform:none}
+.ccp-toast-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+.ccp-toast-close{flex:0 0 auto;border:0;background:transparent;color:#697789;font-size:20px;line-height:1;padding:0 2px;cursor:pointer}
+.ccp-toast-success{border-left-color:#2e9e5b}
+.ccp-toast-info{border-left-color:#2b7bd6}
+.ccp-toast-warning{border-left-color:#d98a00}
+.ccp-toast-danger{border-left-color:#d64545}
+.ccp-savebar{position:fixed;right:20px;bottom:20px;z-index:1030;padding:8px;border:1px solid #d8dee6;border-radius:8px;background:#fff;box-shadow:0 8px 24px rgba(16,24,40,.18)}
+.ccp-savebar[hidden]{display:none}
+@media(max-width:767px){.ccp-toast-stack{top:56px;right:8px;left:8px;width:auto;max-width:none}.ccp-savebar{right:12px;bottom:12px}}
+
+/* Keyboard focus and reduced motion */
+#header a:focus-visible,#column-left a:focus-visible,.page-header a:focus-visible,.btn:focus-visible,.dropdown-toggle:focus-visible,.nav-tabs>li>a:focus-visible,.ccp-toast-close:focus-visible{outline:2px solid var(--ccp-admin-accent,#2b7bd6);outline-offset:2px;box-shadow:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

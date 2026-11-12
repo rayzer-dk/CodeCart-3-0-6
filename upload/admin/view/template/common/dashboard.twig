@@ -50,7 +50,7 @@ $('#button-developer').on('click', function() {
 			$('#modal-developer').modal('show');
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});	
 });	

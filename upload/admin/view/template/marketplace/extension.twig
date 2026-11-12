@@ -109,7 +109,7 @@ $('select[name="type"]').on('change', function() {
             if (window.CodeCartExtensionSort) { window.CodeCartExtensionSort.apply(); }
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -135,7 +135,7 @@ $('#extension').on('click', '.btn-success', function(e) {
             if (window.CodeCartExtensionSort) { window.CodeCartExtensionSort.apply(); }
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -169,12 +169,12 @@ $('#extension').on('click', '.btn-danger, .btn-warning', function(e) {
 						$('select[name="type"]').trigger('change');
 					},
 					error: function(xhr, ajaxOptions, thrownError) {
-						alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+						CodeCartAdmin.ajaxError(xhr, thrownError);
 					}
 				});
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				CodeCartAdmin.ajaxError(xhr, thrownError);
 			}
 		});
 	}

@@ -928,7 +928,7 @@
         }
       },
       error: function(xhr, ajaxOptions, thrownError) {
-        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        CodeCartAdmin.ajaxError(xhr, thrownError);
       }
     });
   });
@@ -1187,7 +1187,7 @@
         $('select[name=\'address[' + index + '][zone_id]\']').html(html);
       },
       error: function(xhr, ajaxOptions, thrownError) {
-        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        CodeCartAdmin.ajaxError(xhr, thrownError);
       }
     });
   }
@@ -1233,7 +1233,7 @@
         }
       },
       error: function(xhr, ajaxOptions, thrownError) {
-        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        CodeCartAdmin.ajaxError(xhr, thrownError);
       }
     });
   });
@@ -1278,7 +1278,7 @@
         }
       },
       error: function(xhr, ajaxOptions, thrownError) {
-        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        CodeCartAdmin.ajaxError(xhr, thrownError);
       }
     });
   });
@@ -1323,7 +1323,7 @@
         }
       },
       error: function(xhr, ajaxOptions, thrownError) {
-        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        CodeCartAdmin.ajaxError(xhr, thrownError);
       }
     });
   });
@@ -1375,7 +1375,7 @@
             }
 
             if (json['success']) {
-              alert(json['success']);
+              CodeCartAdmin.toast('success', json['success']);
             }
 
             if (json['code']) {
@@ -1383,7 +1383,7 @@
             }
           },
           error: function(xhr, ajaxOptions, thrownError) {
-            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            CodeCartAdmin.ajaxError(xhr, thrownError);
           }
         });
       }

@@ -174,7 +174,7 @@ $('#button-opencart').on('click', function(e) {
 			$('#modal-opencart').modal('show');
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -244,7 +244,7 @@ $('body').on('click', '#modal-purchase #button-purchase', function(e) {
 			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -294,7 +294,7 @@ $('#tab-download').on('click', '.btn-primary', function(e) {
 			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -327,7 +327,7 @@ function next(url, element, i) {
 			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 }
@@ -371,7 +371,7 @@ $('#tab-download').on('click', ' .btn-danger', function(e) {
 			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -414,7 +414,7 @@ $('#button-comment').on('click', function() {
 			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -440,7 +440,7 @@ $('#comment').on('click', '.btn-block', function(e) {
 			$(element).parent().remove();
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -485,7 +485,7 @@ $('#comment').on('click', '.btn-primary', function(e) {
 			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -509,7 +509,7 @@ $('#comment').on('click', '.reply-refresh', function(e) {
 			$(element).parent().replaceWith(html);
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });

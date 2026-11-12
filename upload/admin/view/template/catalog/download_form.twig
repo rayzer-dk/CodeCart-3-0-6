@@ -97,18 +97,18 @@ $('#button-upload').on('click', function() {
 				},
 				success: function(json) {
 					if (json['error']) {
-						alert(json['error']);
+						CodeCartAdmin.toast('danger', json['error']);
 					}
 
 					if (json['success']) {
-						alert(json['success']);
+						CodeCartAdmin.toast('success', json['success']);
 
 						$('input[name=\'filename\']').val(json['filename']);
 						$('input[name=\'mask\']').val(json['mask']);
 					}
 				},
 				error: function(xhr, ajaxOptions, thrownError) {
-					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+					CodeCartAdmin.ajaxError(xhr, thrownError);
 				}
 			});
 		}

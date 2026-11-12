@@ -6,7 +6,11 @@ $checks = [
     'upload/admin/view/template/common/header.twig' => [
         'extension/module/uni_settings',
         'extension/theme/unishop2',
-        'ccp-unishop-admin-compat',
+        'codecart-unishop-compat.css',
+    ],
+    'upload/admin/view/stylesheet/codecart-unishop-compat.css' => [
+        '#unishop .nav-pills>li>a.section-0',
+        '#unishop #module',
     ],
     'upload/system/library/codecart/src/CompatibilityAdapterInterface.php' => [
         'interface CompatibilityAdapterInterface',

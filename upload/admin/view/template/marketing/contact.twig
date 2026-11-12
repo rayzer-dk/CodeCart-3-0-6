@@ -307,7 +307,7 @@ $('input[name=\'customers\']').autocomplete({
 				}));
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				CodeCartAdmin.ajaxError(xhr, thrownError);
 			}
 		});
 	},
@@ -339,7 +339,7 @@ $('input[name=\'affiliates\']').autocomplete({
 				}));
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				CodeCartAdmin.ajaxError(xhr, thrownError);
 			}
 		});
 	},
@@ -371,7 +371,7 @@ $('input[name=\'products\']').autocomplete({
 				}));
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				CodeCartAdmin.ajaxError(xhr, thrownError);
 			}
 		});
 	},
@@ -431,7 +431,7 @@ function send(url) {
 			
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 }

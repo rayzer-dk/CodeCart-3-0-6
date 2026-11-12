@@ -90,7 +90,7 @@ $('select[name="store_id"]').on('change', function(e) {
 			$('#path').html(html);
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -135,7 +135,7 @@ $('#path').on('click', 'a.directory', function(e) {
 			$('#path').html(html);
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -201,7 +201,7 @@ $('#path').on('click', 'a.file', function(e) {
 				}
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				CodeCartAdmin.ajaxError(xhr, thrownError);
 			}
 		});
 	} else {
@@ -262,7 +262,7 @@ $('.tab-content').on('click', '.btn-primary', function(e) {
 			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
-			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			CodeCartAdmin.ajaxError(xhr, thrownError);
 		}
 	});
 });
@@ -296,7 +296,7 @@ $('.tab-content').on('click', '.btn-danger', function(e) {
 				codemirror.setValue(json['code']);
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				CodeCartAdmin.ajaxError(xhr, thrownError);
 			}
 		});
 	}
@@ -363,7 +363,7 @@ $('#history').on('click', '.btn-primary', function(e) {
 				}
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				CodeCartAdmin.ajaxError(xhr, thrownError);
 			}
 		});
 	} else {
@@ -400,7 +400,7 @@ $('#history').on('click', '.btn-danger', function(e) {
 				}
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				CodeCartAdmin.ajaxError(xhr, thrownError);
 			}
 		});
 	}

@@ -308,7 +308,7 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
             }
           },
           error: function(xhr, ajaxOptions, thrownError) {
-            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            CodeCartAdmin.ajaxError(xhr, thrownError);
           }
         });
       }
@@ -344,7 +344,7 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
           }
         },
         error: function(xhr, ajaxOptions, thrownError) {
-          alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+          CodeCartAdmin.ajaxError(xhr, thrownError);
         }
       });
     }

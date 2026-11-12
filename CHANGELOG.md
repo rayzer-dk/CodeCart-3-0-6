@@ -1,3 +1,14 @@
+# CodeCart 3.0.6.0 — Build 2.2.8 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- Administration: one feedback layer (`CodeCartAdmin.toast`, `CodeCartAdmin.ajaxError`). AJAX failures in 26 admin templates used to show the raw server response (often a full HTML page) in a browser `alert`; they now show a short toast with the HTTP status and a one-line summary, and the full response goes to the browser console. Success and error messages that used `alert(json.success)` / `alert(json.error)` use the same toasts.
+- Administration: on long forms a floating Save button appears when the page header buttons scroll out of view, and leaving a form page with unsaved changes asks for confirmation. Password and file fields are ignored; a successful AJAX save of the same route resets the baseline.
+- Administration: the UniShop2 settings layout fix moved from an inline `<style>` in the header template to `codecart-unishop-compat.css`, loaded only on the two UniShop2 settings routes.
+- Administration: the "New" menu toggle is a focusable link with ARIA state, per-item inline styles were removed, keyboard focus is visible on header, menu, tabs and buttons, and animations are disabled for `prefers-reduced-motion`.
+- Administration: `stylesheet.css`, `codecart-admin-ui.js` and `codecart-admin-dark.css` are versioned by the package build, so a browser cache can no longer keep an old copy after an update.
+- Not part of this build: replacing the `confirm()` dialogs (87), de-duplicating the dark theme overrides, and storefront fragment responses for catalog AJAX navigation.
+
 # CodeCart 3.0.6.0 — Build 2.2.7 (2026-11-11)
 
 Core schema 3.0.6.0; presentation schema revision 36 (new event; updated stores register it on the next update run).

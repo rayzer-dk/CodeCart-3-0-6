@@ -276,7 +276,7 @@ $('.js-order-delete').on('click', function(e) {
 			}
 			if (json['success']) { location = '{{ delete }}'; }
 		},
-		error: function(xhr, ajaxOptions, thrownError) { alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText); }
+		error: function(xhr, ajaxOptions, thrownError) { CodeCartAdmin.ajaxError(xhr, thrownError); }
 	});
 });
 //--></script> 
