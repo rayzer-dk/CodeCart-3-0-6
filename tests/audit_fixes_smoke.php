@@ -46,6 +46,11 @@ if (strpos($read('system/library/cart/cart.php'), "(int)\$product['subtract'] &&
     $failures[] = 'Cart stock check must respect the product subtract flag.';
 }
 
+// List pages with row checkboxes must not trigger the unsaved-changes prompt.
+if (strpos($read('admin/view/javascript/codecart-admin-ui.js'), "!$(this).find('input[name^=\"selected\"]').length") === false) {
+    $failures[] = 'The unsaved-changes guard must skip list forms.';
+}
+
 if ($failures) {
     foreach ($failures as $failure) {
         fwrite(STDERR, 'FAIL ' . $failure . "\n");

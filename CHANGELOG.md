@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.3.6 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- Administration, unsaved-changes guard (added in 2.2.8): ticking rows in a list page (products, orders, customers and so on) counted as an unsaved change, so navigating away after selecting rows asked "Leave site?". The guard now watches edit forms only and skips list forms that carry row checkboxes. Checked in a browser: ticking a product row no longer prompts, editing a field on the product form still does.
+- Whole branch reviewed after builds 2.2.8 to 2.3.5: the administration pages touched by the feedback layer (29 routes) load without new JavaScript errors or server errors compared with build 2.2.7, and the release gate, installation from a clean database and the product, order-support, GDPR, cart and mail flows pass.
+- The package must be built after `composer install --no-dev` against the current `composer.lock` (the vendor tree is not in git). Guzzle 7.16.1 and symfony/filesystem 6.4.50, which closes the advisory, are now in the archive; `composer audit` reports no advisories.
+
 # CodeCart 3.0.6.0 — Build 2.3.5 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).

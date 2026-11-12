@@ -122,7 +122,8 @@ function initQuickSave(){
 
 function snapshot(form){return $(form).find(':input').not(':password,:button,:submit,[type="file"],[data-ccp-no-guard]').filter('[name]').serialize();}
 function initUnsavedGuard(){
-	var forms=$('#content form[id^="form-"]').filter(function(){return String(this.method||'').toLowerCase()==='post';});
+	// List forms (row checkboxes for bulk actions) are not edits: selecting rows must not warn on leaving.
+	var forms=$('#content form[id^="form-"]').filter(function(){return String(this.method||'').toLowerCase()==='post'&&!$(this).find('input[name^="selected"]').length;});
 	if(!forms.length)return;
 	var baseline=new Map(),submitting=false;
 	function capture(){forms.each(function(){baseline.set(this,snapshot(this));});}
