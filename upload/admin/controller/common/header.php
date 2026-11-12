@@ -28,7 +28,7 @@ class ControllerCommonHeader extends Controller {
         $data['links'] = $this->document->getLinks();
         $data['styles'] = $this->document->getStyles();
         $data['scripts'] = $this->document->getScripts();
-        $data['modern_assets'] = method_exists($this->document, 'getAssets') ? $this->document->getAssets('header') : array();
+        $data['modern_assets'] = $this->document->getAssets('header');
         try {
             $assetOptimizer = new \CodeCart\Core\AdminAssetOptimizer($this->config);
             $data['styles'] = $assetOptimizer->styles($data['styles']);

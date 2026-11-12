@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.2.10 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- Quality gates: removed a redundant `method_exists()` guard in the administration header controller (`Document::getAssets()` is part of the same package), which made the legacy PHPStan check fail on that file.
+- Documentation: the bundled documentation archive is regenerated from the current README and `documentation/` sources, so the release check can reproduce it byte for byte.
+- Changelog wording for build 2.2.8 no longer names a third-party theme, as required by the public documentation policy.
+
 # CodeCart 3.0.6.0 — Build 2.2.9 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
@@ -12,7 +20,7 @@ Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
 
 - Administration: one feedback layer (`CodeCartAdmin.toast`, `CodeCartAdmin.ajaxError`). AJAX failures in 26 admin templates used to show the raw server response (often a full HTML page) in a browser `alert`; they now show a short toast with the HTTP status and a one-line summary, and the full response goes to the browser console. Success and error messages that used `alert(json.success)` / `alert(json.error)` use the same toasts.
 - Administration: on long forms a floating Save button appears when the page header buttons scroll out of view, and leaving a form page with unsaved changes asks for confirmation. Password and file fields are ignored; a successful AJAX save of the same route resets the baseline.
-- Administration: the UniShop2 settings layout fix moved from an inline `<style>` in the header template to `codecart-unishop-compat.css`, loaded only on the two UniShop2 settings routes.
+- Administration: the layout fix for a third-party theme's settings pages moved from an inline `<style>` in the header template to its own stylesheet, loaded only on the two routes that need it.
 - Administration: the "New" menu toggle is a focusable link with ARIA state, per-item inline styles were removed, keyboard focus is visible on header, menu, tabs and buttons, and animations are disabled for `prefers-reduced-motion`.
 - Administration: `stylesheet.css`, `codecart-admin-ui.js` and `codecart-admin-dark.css` are versioned by the package build, so a browser cache can no longer keep an old copy after an update.
 - Not part of this build: replacing the `confirm()` dialogs (87), de-duplicating the dark theme overrides, and storefront fragment responses for catalog AJAX navigation.

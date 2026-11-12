@@ -7,7 +7,7 @@
         "admin/controller/common/dashboard.php": "34524aa832812d23c8c9c08da548a4ad638575e15e57a541ffa4f80ae45a7a4c",
         "admin/controller/common/developer.php": "17199613d4138c01b737756534f435d885820e26b64d73a59c11c3427f2614cc",
         "admin/controller/common/footer.php": "10d6a6886cdffbfe54f1bb430f1c193201f61b9b1b5089b27e79156d3e0724ae",
-        "admin/controller/common/header.php": "558128d5f8c971645e3fef7cd9dc5e3d480b83e6c841872b2ce23dcd9ae91670",
+        "admin/controller/common/header.php": "2cb896ebbbebc5ed552d8461e2ddbb47d30d37ba994c8805ea1e2b4a63e2a4b4",
         "admin/controller/common/security.php": "32372322f0869ba817c8fb490937f4521dfe08f4796a72802913bb6285200487",
         "admin/controller/design/form.php": "fcaf7190815697cc950848b2e99e630e26a2d7b13ccd45693aac851707b1a7c1",
         "admin/controller/extension/currency/nbu.php": "2885fdbbf128bf3e7622132be68b7d4e267dd8fb2b7c7563952500764f1d2a90",
@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "c481360a728d1e7841c3a9f56517b5dc6b300fdf0ebf2d132a7e583217128b37",
         "admin/controller/tool/catalog_transfer.php": "80560c947411023615e28bfa851f589cb390babaead8cd46e1e549b2b7cd4da6",
         "admin/controller/tool/codecart_core.php": "cdbc65653d4550e9fe6b9e09202532f1a80f8cc0fd9f513c3ea47cc6208c4194",
-        "admin/index.php": "70258b59fc7352a324be5d3eb624f337996125f3e78ecf16262764e2bd1e5ecc",
+        "admin/index.php": "df38a7ecd5138df5e103aac53ef12ece6a16dbe0b087aadddd7b363fdaee2651",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "19457977a56db7e61f38ff35e4129437a910821e1d557dd096a96e2ab9d9b2af",
@@ -101,7 +101,7 @@
         "admin/model/report/lost_url.php": "6348b726364d6224d516f890023340a9a045d9d9bac46dfb35277e45725ed484",
         "admin/model/sale/abandoned_cart.php": "9131bf4fc8d5ecfa9d7626d45d03644db513e633d66b4cd37d1fcc415a3b38c1",
         "admin/model/setting/setting.php": "79552c0d9b9d78582e17a4671cc68845050949af5c0dbe9b8dc47976ae559972",
-        "admin/view/documentation/CodeCart_PRO_Documentation.zip": "ef257435a0312840e0d5c1c966d76abd27a05b323350bc028b02ceee75fe4d92",
+        "admin/view/documentation/CodeCart_PRO_Documentation.zip": "7defebfc05446185aba17ee513c86a0aeefb8e0b7b6cfd71190b38f57e74917b",
         "admin/view/image/logo.webp": "810993168d33da8d54d9f0e56a22d5572a3e88d994b76e9be42059b5835d6140",
         "admin/view/image/support/bitcoin.png": "c0a3254ce414038fdbcc57e3f14f3f62b70f5262e03dc8e287a913a57ba4438f",
         "admin/view/image/support/card.png": "5458b94bbae63af6f8d746303faadfb4ca6da58f9f14848df73133e210606535",
@@ -346,9 +346,9 @@
         "catalog/view/theme/default/template/product/product.twig": "8374ae02bf3969693bed04912e9cce39c14234b152c6e9e22a9f8deb66c9e08e",
         "catalog/view/theme/default/template/product/search.twig": "694d3110cf38f17d5dc0bc432275a30dbb8d314a7f68058be393da58d89e3227",
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
-        "cli.php": "d809c43155d92bf213c6974fea398d7fc1a7febc8e30fb6ae99ea3e1ec6886bc",
-        "cron.php": "72fbf06bd06cd32838f45736cdbe8ce3ddc33cf7b1b3f4125ee2de67c04d7641",
-        "index.php": "f5960c03503331121a22cfae7595269e55899bbaa93f4146705ff0cc17c22442",
+        "cli.php": "a968e56f4fdb70322618869e98b08d64d91dfd23491294b58f951c3bc269138b",
+        "cron.php": "4c44dc67642e40a1aa85ef883148e5d052a371d97145b09de181f0f17c93e052",
+        "index.php": "fee482de6302ca72e4c93af6413419e66b97223c368b39adc870418c22e8a9c4",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "c0b6b100035063a9ec0bcd44c26370c208af21bc3eddea3d67640ae09218e859",
         "system/config/codecart_fontawesome_core_manifest.json": "09d769f4d4633c857c8097435c8f54f9cd3f789bb58b92a2954ea8c9e80896f8",
@@ -533,5 +533,5 @@
         "system/library/codecart/src/Transaction.php": "1ad5240fd93928d1e87052f922285b8a985062af418686f3566a73ab60642c36"
     },
     "version": "3.0.6.0",
-    "package_build": "2.2.9"
+    "package_build": "2.2.10"
 }
