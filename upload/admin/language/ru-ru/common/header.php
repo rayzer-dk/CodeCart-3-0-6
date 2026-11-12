@@ -70,3 +70,6 @@ $_['ui_video_help'] = 'Поддерживаются YouTube, Vimeo, Facebook Vid
 $_['ui_view'] = 'Просмотреть';
 $_['text_two_factor'] = 'Двухфакторная проверка';
 $_['ui_request_failed'] = 'Запрос не выполнен';
+$_['ui_quick_nav'] = 'Быстрая навигация';
+$_['ui_quick_nav_placeholder'] = 'Перейти на страницу (меню, настройки, расширения)';
+$_['ui_quick_nav_empty'] = 'Ничего не найдено';

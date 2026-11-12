@@ -2369,3 +2369,15 @@ html.ccp-admin-dark #footer .ccp-footer-runtime { color: #a8b8cb; }
 /* Keyboard focus and reduced motion */
 #header a:focus-visible,#column-left a:focus-visible,.page-header a:focus-visible,.btn:focus-visible,.dropdown-toggle:focus-visible,.nav-tabs>li>a:focus-visible,.ccp-toast-close:focus-visible{outline:2px solid var(--ccp-admin-accent,#2b7bd6);outline-offset:2px;box-shadow:none}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Quick navigation palette */
+.ccp-palette[hidden]{display:none}
+.ccp-palette{position:fixed;inset:0;z-index:2147481000}
+.ccp-palette-backdrop{position:absolute;inset:0;background:rgba(9,17,28,.5)}
+.ccp-palette-dialog{position:relative;width:560px;max-width:calc(100vw - 24px);margin:12vh auto 0;padding:10px;border:1px solid #d8dee6;border-radius:10px;background:#fff;box-shadow:0 22px 70px rgba(0,0,0,.35)}
+.ccp-palette-input{height:42px;font-size:15px}
+.ccp-palette-list{list-style:none;margin:8px 0 0;padding:0;max-height:50vh;overflow-y:auto}
+.ccp-palette-list li{display:flex;flex-direction:column;gap:1px;padding:7px 10px;border-radius:6px;cursor:pointer}
+.ccp-palette-list li.is-active{background:#e8f1fc}
+.ccp-palette-list li small{color:#697789;font-size:12px}
+.ccp-palette-list li.ccp-palette-empty{cursor:default;color:#697789}

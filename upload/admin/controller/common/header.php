@@ -66,7 +66,9 @@ class ControllerCommonHeader extends Controller {
                 $data['codecart_ui_i18n'][$ui_key] = $this->language->get($ui_key);
             }
         }
-        $data['codecart_ui_i18n']['ui_request_failed'] = $this->language->get('ui_request_failed');
+        foreach (array('ui_request_failed','ui_quick_nav','ui_quick_nav_placeholder','ui_quick_nav_empty') as $ui_key) {
+            $data['codecart_ui_i18n'][$ui_key] = $this->language->get($ui_key);
+        }
         $data['text_refresh_modifications'] = $this->language->get('text_refresh_modifications');
         $data['ocmod_state'] = 'unknown';
         $data['ocmod_state_title'] = $data['text_refresh_modifications'];

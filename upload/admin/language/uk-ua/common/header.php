@@ -77,3 +77,6 @@ $_['text_project_support_header'] = 'Підтримка проєкту';
 $_['text_telegram_forum'] = 'Форум Telegram';
 $_['text_two_factor'] = 'Двофакторна перевірка';
 $_['ui_request_failed'] = 'Запит не виконано';
+$_['ui_quick_nav'] = 'Швидка навігація';
+$_['ui_quick_nav_placeholder'] = 'Перейти до сторінки (меню, налаштування, розширення)';
+$_['ui_quick_nav_empty'] = 'Нічого не знайдено';

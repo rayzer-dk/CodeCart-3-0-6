@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.2.9 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- Administration: quick navigation on Ctrl/Cmd+K (also a compass button in the header). It filters every link of the left menu, including nested groups and extension menus, and shows the menu path of each result. Arrow keys and Enter open a page, Ctrl/Cmd+Enter opens it in a new tab, Esc closes. Strings are localized (English, Ukrainian, Russian).
+- Administration: the unsaved-changes guard also works when the page `load` event has already fired before the script initializes.
+- Checked in Chrome on a static harness with the real admin CSS and JavaScript (light and dark theme, desktop and 390 px width): palette, toasts, quick-save bar and the native leave-page confirmation. Not checked on a running store.
+
 # CodeCart 3.0.6.0 — Build 2.2.8 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).

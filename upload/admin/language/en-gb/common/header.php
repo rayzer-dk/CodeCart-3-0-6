@@ -79,3 +79,6 @@ $_['ui_anchor_help'] = 'After selection the URL will be filled in automatically.
 $_['ui_video_help'] = 'Supported: YouTube (watch, youtu.be, Shorts, Live), Vimeo, Facebook Video (/videos/ID), Instagram posts/reels, Dailymotion, Google Drive /file/d/.../view and direct MP4/M4V/WebM/Ogg video URLs.';
 $_['text_two_factor'] = 'Two-factor verification';
 $_['ui_request_failed'] = 'Request failed';
+$_['ui_quick_nav'] = 'Quick navigation';
+$_['ui_quick_nav_placeholder'] = 'Go to a page (menu, settings, extensions)';
+$_['ui_quick_nav_empty'] = 'Nothing found';

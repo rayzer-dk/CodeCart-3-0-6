@@ -128,3 +128,7 @@ html.ccp-admin-dark #oc-search-result .ccp-search-rich-copy small,html.ccp-admin
 html.ccp-admin-dark #oc-search-result .oc-search-group + .oc-search-group{border-top-color:#344150!important}
 html.ccp-admin-dark .ccp-toast,html.ccp-admin-dark .ccp-savebar{background:#17212b;border-color:#33404f;color:#e4ecf5;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 html.ccp-admin-dark .ccp-toast-close{color:#94a3b4}
+html.ccp-admin-dark .ccp-palette-dialog{background:#17212b;border-color:#33404f}
+html.ccp-admin-dark .ccp-palette-list li.is-active{background:#23415f}
+html.ccp-admin-dark .ccp-palette-list li strong{color:#e4ecf5}
+html.ccp-admin-dark .ccp-palette-list li small,html.ccp-admin-dark .ccp-palette-list li.ccp-palette-empty{color:#94a3b4}
