@@ -1,3 +1,10 @@
+# CodeCart 3.0.6.0 — Build 2.3.3 (2026-11-12)
+
+Core schema 3.0.6.0; presentation schema revision 36 (unchanged).
+
+- PHP 8.5 readiness of the QA tooling: removed calls that have had no effect since PHP 8.0/8.1 and are deprecated in 8.5 (`ReflectionMethod::setAccessible()`, `ReflectionProperty::setAccessible()`, `imagedestroy()`) from the release-gate scripts and smoke tests. Shipped code in `upload/` did not contain them.
+- The complete release gate (75 checks) passes on PHP 8.3, 8.4 and 8.5 with GD built with AVIF support, and PHP 8.5 reports no deprecation notices from the gate.
+
 # CodeCart 3.0.6.0 — Build 2.3.2 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 36 (unchanged).

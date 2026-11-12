@@ -281,7 +281,7 @@ if ($case === 'cart') {
     $adapter = new DefensiveSessionAdapter();
     $reflection = new ReflectionClass(Session::class);
     $session = $reflection->newInstanceWithoutConstructor();
-    $property = $reflection->getProperty('adaptor'); $property->setAccessible(true); $property->setValue($session, $adapter);
+    $property = $reflection->getProperty('adaptor'); $property->setValue($session, $adapter);
     $old = str_repeat('a', 32); $session->start($old); $registry->set('session', $session);
     $base = array('cart_id' => 1, 'api_id' => 0, 'customer_id' => 0, 'session_id' => $old, 'product_id' => 10, 'recurring_id' => 0, 'option' => '{"21":"22"}', 'quantity' => 2);
     $db->rows = array($base, array_merge($base, array('cart_id' => 2, 'customer_id' => 7, 'session_id' => str_repeat('b', 32), 'quantity' => 3)), array_merge($base, array('cart_id' => 3, 'api_id' => 1)), array_merge($base, array('cart_id' => 4, 'customer_id' => 8)), array_merge($base, array('cart_id' => 5, 'option' => '{"21":"23"}', 'quantity' => 1)));
@@ -370,7 +370,6 @@ if ($case === 'html') {
             check(\CodeCart\Core\SafeRichHtml::sanitize($encoded ? $request->clean($rendered) : $rendered, $encoded) === $stored, $format . ' inline raster repeat save remains stable');
         }
     }
-    imagedestroy($raster);
     foreach (array('data:image/svg+xml;base64,' . base64_encode('<svg/>'), 'data:text/html;base64,' . base64_encode('<p>text</p>'), 'data:image/webp;base64,invalid!', 'data:image/webp;base64,' . base64_encode('not an image'), 'data:image/png;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg"/>')) as $uri) {
         $clean = \CodeCart\Core\SafeRichHtml::sanitize('<img src="' . $uri . '" alt="Untrusted">', false);
         check(strpos($clean, 'data:') === false, 'unsupported or corrupt inline raster is rejected');
@@ -417,8 +416,8 @@ if ($case === 'totp') {
     $manager = new \CodeCart\Core\TotpManager($registry);
     $secret = $manager->createSecret();
     $reflection = new ReflectionClass($manager);
-    $encrypt = $reflection->getMethod('encrypt'); $encrypt->setAccessible(true);
-    $hotp = $reflection->getMethod('hotp'); $hotp->setAccessible(true);
+    $encrypt = $reflection->getMethod('encrypt');
+    $hotp = $reflection->getMethod('hotp');
     $code = $hotp->invoke($manager, $secret, (int)floor(time() / 30));
     $recovery = 'ABCD-1234';
     $db->mfa = array('status' => 1, 'secret' => $encrypt->invoke($manager, $secret), 'last_counter' => -1, 'recovery_codes' => json_encode(array(password_hash('ABCD1234', PASSWORD_DEFAULT))));

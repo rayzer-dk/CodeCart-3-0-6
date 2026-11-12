@@ -71,7 +71,6 @@ $input = '<h2>Опис</h2><p onclick="void(0)">A &amp; B, &lt;b&gt;literal&lt;/
 $raster = imagecreatetruecolor(2, 2);
 ob_start(); imagewebp($raster); $webpUri = 'data:image/webp;base64,' . base64_encode(ob_get_clean());
 ob_start(); imageavif($raster); $avifUri = 'data:image/avif;base64,' . base64_encode(ob_get_clean());
-imagedestroy($raster);
 $input .= '<img src="' . $webpUri . '" alt="WebP"><img src="' . $avifUri . '" alt="AVIF">';
 $description = array_fill_keys(array('name','title','tag','meta_title','meta_h1','meta_description','meta_keyword','submit_text','success_text'), 'QA');
 $case = $argv[1] ?? 'product';

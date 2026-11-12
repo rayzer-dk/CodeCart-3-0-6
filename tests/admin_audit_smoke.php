@@ -40,7 +40,6 @@ if (strpos($source, 'isset($this->user)') !== false || strpos($source, "registry
 }
 
 $method = new ReflectionMethod('ControllerEventCodecartAudit', 'isAuditedMethod');
-$method->setAccessible(true);
 $handler = new ControllerEventCodecartAudit(new FakeRegistry());
 
 foreach (array('addProduct' => true, 'editProductStatus' => true, 'deleteCategory' => true, 'copyProduct' => true, 'getProducts' => false, 'getTotalOrders' => false, 'saveQuickProductField' => false) as $name => $expected) {
