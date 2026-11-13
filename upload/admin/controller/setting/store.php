@@ -316,18 +316,17 @@ class ControllerSettingStore extends Controller {
 
 		$data['themes'] = array();
 
-		// Create a new language container so we don't pollute the current one
-		$language = new Language($this->config->get('config_language'));
-
 		$this->load->model('setting/extension');
 
 		$extensions = $this->model_setting_extension->getInstalled('theme');
 
 		foreach ($extensions as $code) {
-			$this->load->language('extension/theme/' . $code, 'extension');
+			// Resolve each theme's translation independently without polluting global language data.
+			$theme_language = new Language($this->config->get('config_language'));
+			$theme_language->load('extension/theme/' . $code);
 
 			$data['themes'][] = array(
-				'text'  => ($this->language->get('extension') instanceof Language ? $this->language->get('extension')->get('heading_title') : (string)$this->language->get('extension')),
+				'text'  => $theme_language->get('heading_title'),
 				'value' => $code
 			);
 		}
