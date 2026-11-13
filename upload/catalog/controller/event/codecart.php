@@ -54,7 +54,9 @@ class ControllerEventCodeCart extends Controller {
             $organization['hasShippingService'] = $shipping;
         }
         $return_page = (int)$this->config->get('config_codecart_schema_return_info_id');
-        if ($return_page < 1) {
+        // Default store can reuse its existing return-terms page. Additional
+        // stores must select their own page to avoid a cross-store 404 link.
+        if ($return_page < 1 && (int)$this->config->get('config_store_id') === 0) {
             $return_page = (int)$this->config->get('config_return_id');
         }
         $return_url = $return_page > 0
