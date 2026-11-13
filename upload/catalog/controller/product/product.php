@@ -719,9 +719,18 @@ class ControllerProductProduct extends Controller {
 						'itemCondition' => 'https://schema.org/NewCondition',
 						'seller' => array('@id' => rtrim((string)(codecart_is_https((array)$this->request->server) ? $this->config->get('config_ssl') : $this->config->get('config_url')), '/') . '/#organization')
 					);
-				}
+                }
+                // Product-level shipping is opt-in and only for physical products
+                // covered by one unconditional, currency-matching merchant tariff.
+                if (isset($product_schema['offers']) && !empty($product_info['shipping'])) {
+                    require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+                    $offer_shipping = CodeCartMerchantSchema::offerShipping($this->config, $schema_currency);
+                    if ($offer_shipping !== null) {
+                        $product_schema['offers']['shippingDetails'] = $offer_shipping;
+                    }
+                }
 
-				$schema_images = array();
+                $schema_images = array();
 				if (!empty($data['popup'])) {
 					$schema_images[] = $data['popup'];
 				}

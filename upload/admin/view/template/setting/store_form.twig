@@ -37,6 +37,7 @@
             <li><a href="#tab-option" data-toggle="tab">{{ tab_option }}</a></li>
             <li><a href="#tab-image" data-toggle="tab">{{ tab_image }}</a></li>
             <li><a href="#tab-server" data-toggle="tab">{{ tab_server }}</a></li>
+            <li><a href="#tab-merchant-schema" data-toggle="tab"><i class="fa fa-truck"></i> {{ merchant_schema_text.merchant_schema_title }}</a></li>
           </ul>
           <div class="tab-content">
             <div class="tab-pane active" id="tab-general">
@@ -583,6 +584,9 @@
                   <p class="help-block">{{ help_catalog_fallback_image }}</p>
                 </div>
               </div>
+            </div>
+            <div class="tab-pane" id="tab-merchant-schema">
+              {% include 'setting/codecart_merchant_schema.twig' %}
             </div>
             <div class="tab-pane" id="tab-server">
               <div class="form-group">

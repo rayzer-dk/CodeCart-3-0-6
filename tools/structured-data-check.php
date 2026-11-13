@@ -89,4 +89,80 @@ $html = '<html><head></head><body></body></html>';
 $handler->injectStructuredData($route, $args, $html);
 check(strpos($html, 'application/ld+json') === false, 'global OFF works');
 
+require_once __DIR__ . '/../upload/system/library/codecart/merchant_schema.php';
+
+$settings = CodeCartMerchantSchema::defaults();
+$settings['config_store_id'] = 0;
+$settings['config_codecart_schema_store_id'] = 0;
+check(CodeCartMerchantSchema::shipping($settings, 'https://example.test/') === null, 'shipping disabled by default');
+check(CodeCartMerchantSchema::returns($settings) === null, 'returns disabled by default');
+check(CodeCartMerchantSchema::offerShipping($settings, 'UAH') === null, 'product shipping disabled by default');
+check(CodeCartMerchantSchema::errors($settings) === array(), 'empty disabled settings accepted');
+
+$settings['config_codecart_schema_shipping_status'] = 1;
+check(CodeCartMerchantSchema::errors($settings) === array('shipping'), 'incomplete shipping is rejected');
+$settings['config_codecart_schema_shipping_name'] = 'Standard';
+$settings['config_codecart_schema_shipping_countries'] = 'UA, PL';
+$settings['config_codecart_schema_shipping_currency'] = 'UAH';
+$settings['config_codecart_schema_shipping_price'] = '0.00';
+$settings['config_codecart_schema_shipping_handling_min'] = '0';
+$settings['config_codecart_schema_shipping_handling_max'] = '1';
+$settings['config_codecart_schema_shipping_transit_min'] = '1';
+$settings['config_codecart_schema_shipping_transit_max'] = '3';
+check(CodeCartMerchantSchema::validShipping($settings), 'valid shipping policy accepted');
+$shipping = CodeCartMerchantSchema::shipping($settings, 'https://example.test/', 'https://example.test/shipping');
+check($shipping['@type'] === 'ShippingService', 'organization-level ShippingService');
+check($shipping['shippingConditions'][0]['shippingRate']['value'] === 0.0, 'free shipping is zero, not missing');
+check(count($shipping['shippingConditions'][0]['shippingDestination']) === 2, 'multiple countries rendered');
+check(CodeCartMerchantSchema::offerShipping($settings, 'UAH') === null, 'offer-level shipping remains OFF');
+$settings['config_codecart_schema_shipping_offers'] = 1;
+$offer = CodeCartMerchantSchema::offerShipping($settings, 'UAH');
+check($offer['@type'] === 'OfferShippingDetails', 'explicit offer shipping enabled');
+check($offer['deliveryTime']['handlingTime']['minValue'] === 0, 'handling day range');
+check(CodeCartMerchantSchema::offerShipping($settings, 'EUR') === null, 'never claim rate in another currency');
+
+$settings['config_codecart_schema_return_status'] = 1;
+$settings['config_codecart_schema_return_countries'] = 'UA,PL';
+$settings['config_codecart_schema_return_category'] = 'finite';
+check(in_array('return', CodeCartMerchantSchema::errors($settings), true), 'missing return window rejected');
+$settings['config_codecart_schema_return_days'] = '14';
+$settings['config_codecart_schema_return_fees'] = 'ReturnFeesCustomerResponsibility';
+$settings['config_codecart_schema_return_method'] = 'ReturnByMail';
+$return = CodeCartMerchantSchema::returns($settings, 'https://example.test/returns');
+check($return['@type'] === 'MerchantReturnPolicy', 'organization-level returns');
+check($return['merchantReturnDays'] === 14, 'return window 14 days');
+check($return['merchantReturnLink'] === 'https://example.test/returns', 'return policy link');
+check(!isset($return['returnShippingFeesAmount']), 'customer-responsibility does not invent fees');
+
+$settings['config_codecart_schema_return_fees'] = 'ReturnShippingFees';
+check(in_array('return', CodeCartMerchantSchema::errors($settings), true), 'fixed return cost requires amount');
+$settings['config_codecart_schema_return_cost'] = '5.50';
+$settings['config_codecart_schema_return_currency'] = 'UAH';
+$return = CodeCartMerchantSchema::returns($settings);
+check($return['returnShippingFeesAmount']['value'] === 5.5, 'fixed return cost');
+$settings['config_codecart_schema_return_category'] = 'not_permitted';
+$return = CodeCartMerchantSchema::returns($settings);
+check(!isset($return['merchantReturnDays']) && !isset($return['returnFees']), 'not permitted has no contradictory charges');
+
+$settings['config_codecart_schema_legal_name'] = 'Example LLC';
+$settings['config_codecart_schema_vat_id'] = 'UA0123456789';
+$settings['config_codecart_schema_same_as'] = "https://example.org/company\nhttps://example.net/shop";
+$identity = CodeCartMerchantSchema::identity($settings);
+check($identity['legalName'] === 'Example LLC' && count($identity['sameAs']) === 2, 'verified merchant identity');
+
+$secondary = $settings;
+$secondary['config_store_id'] = 2;
+check(CodeCartMerchantSchema::identity($secondary) === array(), 'main store identity cannot leak into another store');
+check(CodeCartMerchantSchema::shipping($secondary, 'https://other.test/') === null, 'no cross-store shipping');
+check(CodeCartMerchantSchema::returns($secondary) === null, 'no cross-store return policy');
+check(CodeCartMerchantSchema::offerShipping($secondary, 'UAH') === null, 'no cross-store offer shipping');
+$secondary['config_codecart_schema_store_id'] = 2;
+check(CodeCartMerchantSchema::shipping($secondary, 'https://other.test/') !== null, 'secondary store policy supported');
+$secondary['config_codecart_schema_shipping_handling_min'] = '4';
+$secondary['config_codecart_schema_shipping_handling_max'] = '1';
+check(!CodeCartMerchantSchema::validShipping($secondary), 'invalid day range suppressed');
+$secondary['config_codecart_schema_shipping_handling_min'] = '0';
+$secondary['config_codecart_schema_shipping_countries'] = 'not-a-country';
+check(!CodeCartMerchantSchema::validShipping($secondary), 'invalid country list suppressed');
+
 echo "Structured data checks passed\n";

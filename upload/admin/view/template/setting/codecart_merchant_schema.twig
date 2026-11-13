@@ -1,0 +1,175 @@
+{# Shared merchant policy editor. All values are saved by the enclosing normal OpenCart form. #}
+{% set sm = merchant_schema_text %}
+{% set sv = merchant_schema_values %}
+<div class="ccp-merchant-schema">
+  <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ sm.merchant_schema_intro }}</div>
+  {% if merchant_schema_error %}<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> {{ merchant_schema_error }}</div>{% endif %}
+  {% if merchant_schema_show_master %}
+  <div class="form-group">
+    <label class="col-sm-2 control-label" for="merchant-schema-master">{{ sm.merchant_schema_store_master }}</label>
+    <div class="col-sm-10">
+      <select id="merchant-schema-master" name="config_codecart_structured_data_status" class="form-control">
+        <option value="1" {% if config_codecart_structured_data_status %}selected="selected"{% endif %}>{{ sm.merchant_schema_on }}</option>
+        <option value="0" {% if not config_codecart_structured_data_status %}selected="selected"{% endif %}>{{ sm.merchant_schema_off }}</option>
+      </select>
+      <p class="help-block">{{ sm.merchant_schema_global_note }}</p>
+    </div>
+  </div>
+  {% endif %}
+  <fieldset>
+    <legend><i class="fa fa-building-o"></i> {{ sm.merchant_schema_identity }}</legend>
+    <p class="help-block">{{ sm.merchant_schema_identity_help }}</p>
+    {% set identity_inputs = [
+      {key:'config_codecart_schema_legal_name', label:sm.merchant_schema_legal_name},
+      {key:'config_codecart_schema_vat_id', label:sm.merchant_schema_vat_id}
+    ] %}
+    {% for field in identity_inputs %}
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="{{ field.key }}">{{ field.label }}</label>
+      <div class="col-sm-10">
+        <input type="text" id="{{ field.key }}" name="{{ field.key }}" value="{{ attribute(sv, field.key) }}" class="form-control" />
+      </div>
+    </div>
+    {% endfor %}
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_same_as">{{ sm.merchant_schema_same_as }}</label>
+      <div class="col-sm-10">
+        <textarea id="config_codecart_schema_same_as" name="config_codecart_schema_same_as" rows="3" class="form-control" placeholder="https://...">{{ sv.config_codecart_schema_same_as }}</textarea>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend><i class="fa fa-truck"></i> {{ sm.merchant_schema_shipping }}</legend>
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_shipping_status">{{ sm.merchant_schema_shipping_status }}</label>
+      <div class="col-sm-10">
+        <select id="config_codecart_schema_shipping_status" name="config_codecart_schema_shipping_status" class="form-control">
+          <option value="0" {% if not sv.config_codecart_schema_shipping_status %}selected="selected"{% endif %}>{{ sm.merchant_schema_off }}</option>
+          <option value="1" {% if sv.config_codecart_schema_shipping_status %}selected="selected"{% endif %}>{{ sm.merchant_schema_on }}</option>
+        </select>
+        <p class="help-block">{{ sm.merchant_schema_shipping_status_help }}</p>
+      </div>
+    </div>
+    {% set shipping_inputs = [
+      {key:'config_codecart_schema_shipping_name',label:sm.merchant_schema_shipping_name,placeholder:''},
+      {key:'config_codecart_schema_shipping_countries',label:sm.merchant_schema_shipping_countries,placeholder:'UA, PL'},
+      {key:'config_codecart_schema_shipping_currency',label:sm.merchant_schema_shipping_currency,placeholder:'UAH'},
+      {key:'config_codecart_schema_shipping_price',label:sm.merchant_schema_shipping_price,placeholder:'0.00'}
+    ] %}
+    {% for field in shipping_inputs %}
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="{{ field.key }}">{{ field.label }}</label>
+      <div class="col-sm-10">
+        <input type="text" id="{{ field.key }}" name="{{ field.key }}" value="{{ attribute(sv, field.key) }}" class="form-control" placeholder="{{ field.placeholder }}" />
+      </div>
+    </div>
+    {% endfor %}
+    {% set day_pairs = [
+      {title:sm.merchant_schema_shipping_handling, first:'config_codecart_schema_shipping_handling_min', last:'config_codecart_schema_shipping_handling_max'},
+      {title:sm.merchant_schema_shipping_transit, first:'config_codecart_schema_shipping_transit_min', last:'config_codecart_schema_shipping_transit_max'}
+    ] %}
+    {% for pair in day_pairs %}
+    <div class="form-group">
+      <label class="col-sm-2 control-label">{{ pair.title }}</label>
+      <div class="col-sm-10">
+        <div class="row">
+          <div class="col-sm-6"><input type="number" min="0" max="9999" step="1" name="{{ pair.first }}" value="{{ attribute(sv, pair.first) }}" class="form-control" aria-label="{{ pair.title }} min" /></div>
+          <div class="col-sm-6"><input type="number" min="0" max="9999" step="1" name="{{ pair.last }}" value="{{ attribute(sv, pair.last) }}" class="form-control" aria-label="{{ pair.title }} max" /></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_shipping_info_id">{{ sm.merchant_schema_shipping_info }}</label>
+      <div class="col-sm-10">
+        <select name="config_codecart_schema_shipping_info_id" id="config_codecart_schema_shipping_info_id" class="form-control">
+          <option value="0">{{ sm.merchant_schema_none }}</option>
+          {% for info in informations %}
+          <option value="{{ info.information_id }}" {% if info.information_id == sv.config_codecart_schema_shipping_info_id %}selected="selected"{% endif %}>{{ info.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_shipping_offers">{{ sm.merchant_schema_shipping_offers }}</label>
+      <div class="col-sm-10">
+        <select name="config_codecart_schema_shipping_offers" id="config_codecart_schema_shipping_offers" class="form-control">
+          <option value="0" {% if not sv.config_codecart_schema_shipping_offers %}selected="selected"{% endif %}>{{ sm.merchant_schema_off }}</option>
+          <option value="1" {% if sv.config_codecart_schema_shipping_offers %}selected="selected"{% endif %}>{{ sm.merchant_schema_on }}</option>
+        </select>
+        <p class="help-block">{{ sm.merchant_schema_shipping_offers_help }}</p>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend><i class="fa fa-refresh"></i> {{ sm.merchant_schema_returns }}</legend>
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_return_status">{{ sm.merchant_schema_return_status }}</label>
+      <div class="col-sm-10">
+        <select name="config_codecart_schema_return_status" id="config_codecart_schema_return_status" class="form-control">
+          <option value="0" {% if not sv.config_codecart_schema_return_status %}selected="selected"{% endif %}>{{ sm.merchant_schema_off }}</option>
+          <option value="1" {% if sv.config_codecart_schema_return_status %}selected="selected"{% endif %}>{{ sm.merchant_schema_on }}</option>
+        </select>
+        <p class="help-block">{{ sm.merchant_schema_return_status_help }}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_return_countries">{{ sm.merchant_schema_return_countries }}</label>
+      <div class="col-sm-10"><input type="text" id="config_codecart_schema_return_countries" name="config_codecart_schema_return_countries" value="{{ sv.config_codecart_schema_return_countries }}" class="form-control" placeholder="UA, PL" /></div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_return_category">{{ sm.merchant_schema_return_category }}</label>
+      <div class="col-sm-10">
+        <select id="config_codecart_schema_return_category" name="config_codecart_schema_return_category" class="form-control">
+          <option value="finite" {% if sv.config_codecart_schema_return_category == 'finite' %}selected="selected"{% endif %}>{{ sm.merchant_schema_return_category_finite }}</option>
+          <option value="unlimited" {% if sv.config_codecart_schema_return_category == 'unlimited' %}selected="selected"{% endif %}>{{ sm.merchant_schema_return_category_unlimited }}</option>
+          <option value="not_permitted" {% if sv.config_codecart_schema_return_category == 'not_permitted' %}selected="selected"{% endif %}>{{ sm.merchant_schema_return_category_not_permitted }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_return_days">{{ sm.merchant_schema_return_days }}</label>
+      <div class="col-sm-10"><input type="number" min="1" max="9999" step="1" name="config_codecart_schema_return_days" id="config_codecart_schema_return_days" value="{{ sv.config_codecart_schema_return_days }}" class="form-control" /></div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_return_method">{{ sm.merchant_schema_return_method }}</label>
+      <div class="col-sm-10">
+        <select name="config_codecart_schema_return_method" id="config_codecart_schema_return_method" class="form-control">
+          {% set methods = {'':sm.merchant_schema_return_method_none, 'ReturnByMail':sm.merchant_schema_return_method_mail, 'ReturnInStore':sm.merchant_schema_return_method_store, 'ReturnAtKiosk':sm.merchant_schema_return_method_kiosk} %}
+          {% for value, label in methods %}<option value="{{ value }}" {% if value == sv.config_codecart_schema_return_method %}selected="selected"{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_return_fees">{{ sm.merchant_schema_return_fees }}</label>
+      <div class="col-sm-10">
+        <select name="config_codecart_schema_return_fees" id="config_codecart_schema_return_fees" class="form-control">
+          {% set fees = {'':sm.merchant_schema_return_fees_none, 'FreeReturn':sm.merchant_schema_return_fees_free, 'ReturnFeesCustomerResponsibility':sm.merchant_schema_return_fees_customer, 'ReturnShippingFees':sm.merchant_schema_return_fees_fixed} %}
+          {% for value, label in fees %}<option value="{{ value }}" {% if value == sv.config_codecart_schema_return_fees %}selected="selected"{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    {% set return_inputs = [
+      {key:'config_codecart_schema_return_cost',label:sm.merchant_schema_return_cost,placeholder:'0.00'},
+      {key:'config_codecart_schema_return_currency',label:sm.merchant_schema_return_currency,placeholder:'UAH'}
+    ] %}
+    {% for field in return_inputs %}
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="{{ field.key }}">{{ field.label }}</label>
+      <div class="col-sm-10"><input type="text" id="{{ field.key }}" name="{{ field.key }}" value="{{ attribute(sv, field.key) }}" class="form-control" placeholder="{{ field.placeholder }}" /></div>
+    </div>
+    {% endfor %}
+    <div class="form-group">
+      <label class="col-sm-2 control-label" for="config_codecart_schema_return_info_id">{{ sm.merchant_schema_return_info }}</label>
+      <div class="col-sm-10">
+        <select name="config_codecart_schema_return_info_id" id="config_codecart_schema_return_info_id" class="form-control">
+          <option value="0">{{ sm.merchant_schema_none }}</option>
+          {% for info in informations %}<option value="{{ info.information_id }}" {% if info.information_id == sv.config_codecart_schema_return_info_id %}selected="selected"{% endif %}>{{ info.title }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+  </fieldset>
+  <p class="help-block"><i class="fa fa-info-circle"></i> {{ sm.merchant_schema_global_note }}</p>
+</div>

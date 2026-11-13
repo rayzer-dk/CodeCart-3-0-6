@@ -41,6 +41,29 @@ class ControllerEventCodeCart extends Controller {
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) { $organization['contactPoint']['email'] = $email; }
         }
 
+        require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+        $identity = CodeCartMerchantSchema::identity($this->config);
+        if ($identity) {
+            $organization = array_merge($organization, $identity);
+        }
+        $shipping_page = (int)$this->config->get('config_codecart_schema_shipping_info_id');
+        $shipping_url = $shipping_page > 0
+            ? html_entity_decode($this->url->link('information/information', 'information_id=' . $shipping_page), ENT_QUOTES, 'UTF-8') : '';
+        $shipping = CodeCartMerchantSchema::shipping($this->config, $base, $shipping_url);
+        if ($shipping !== null) {
+            $organization['hasShippingService'] = $shipping;
+        }
+        $return_page = (int)$this->config->get('config_codecart_schema_return_info_id');
+        if ($return_page < 1) {
+            $return_page = (int)$this->config->get('config_return_id');
+        }
+        $return_url = $return_page > 0
+            ? html_entity_decode($this->url->link('information/information', 'information_id=' . $return_page), ENT_QUOTES, 'UTF-8') : '';
+        $returns = CodeCartMerchantSchema::returns($this->config, $return_url);
+        if ($returns !== null) {
+            $organization['hasMerchantReturnPolicy'] = $returns;
+        }
+
 		$graph = array(
 			$organization,
 			array(

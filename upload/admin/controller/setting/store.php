@@ -23,6 +23,10 @@ class ControllerSettingStore extends Controller {
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
 			$store_id = $this->model_setting_store->addStore($this->request->post);
+			require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+			$this->request->post = array_merge($this->request->post, CodeCartMerchantSchema::clean($this->request->post));
+			$this->request->post['config_codecart_schema_store_id'] = (int)$store_id;
+			$this->request->post['config_codecart_structured_data_status'] = !empty($this->request->post['config_codecart_structured_data_status']) ? 1 : 0;
 
 			$this->load->model('setting/setting');
 
@@ -45,6 +49,10 @@ class ControllerSettingStore extends Controller {
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
 			$this->model_setting_store->editStore($this->request->get['store_id'], $this->request->post);
+			require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+			$this->request->post = array_merge($this->request->post, CodeCartMerchantSchema::clean($this->request->post));
+			$this->request->post['config_codecart_schema_store_id'] = (int)$this->request->get['store_id'];
+			$this->request->post['config_codecart_structured_data_status'] = !empty($this->request->post['config_codecart_structured_data_status']) ? 1 : 0;
 
 			$this->load->model('setting/setting');
 
@@ -693,6 +701,24 @@ class ControllerSettingStore extends Controller {
 			$data['config_secure'] = '';
 		}
 
+
+		require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+		$data['merchant_schema_text'] = $this->load->language('setting/merchant_schema');
+		$data['merchant_schema_values'] = array();
+		foreach (CodeCartMerchantSchema::defaults() as $key => $default) {
+			if (isset($this->request->post[$key])) {
+				$data['merchant_schema_values'][$key] = $this->request->post[$key];
+			} else {
+				$data['merchant_schema_values'][$key] = (isset($store_info[$key]) ? $store_info[$key] : $default);
+			}
+		}
+		$data['merchant_schema_error'] = isset($this->error['merchant_schema']) ? $this->error['merchant_schema'] : '';
+		$data['merchant_schema_show_master'] = true;
+
+		$data['config_codecart_structured_data_status'] = isset($this->request->post['config_codecart_structured_data_status'])
+			? (int)$this->request->post['config_codecart_structured_data_status']
+			: (isset($store_info['config_codecart_structured_data_status']) ? (int)$store_info['config_codecart_structured_data_status'] : 1);
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
@@ -735,6 +761,18 @@ class ControllerSettingStore extends Controller {
 
 		if (!empty($this->request->post['config_customer_group_display']) && !in_array($this->request->post['config_customer_group_id'], $this->request->post['config_customer_group_display'])) {
 			$this->error['customer_group_display'] = $this->language->get('error_customer_group_display');
+		}
+
+
+		require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+		$schema_errors = CodeCartMerchantSchema::errors($this->request->post);
+		if ($schema_errors) {
+			$this->load->language('setting/merchant_schema');
+			$messages = array();
+			foreach ($schema_errors as $schema_error) {
+				$messages[] = $this->language->get('merchant_schema_error_' . $schema_error);
+			}
+			$this->error['merchant_schema'] = implode(' ', $messages);
 		}
 
 		if ($this->error && !isset($this->error['warning'])) {

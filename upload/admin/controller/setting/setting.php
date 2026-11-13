@@ -88,6 +88,9 @@ class ControllerSettingSetting extends Controller {
 				$this->request->post['config_seo_url'] = 1;
 			}
 
+			require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+			$this->request->post = array_merge($this->request->post, CodeCartMerchantSchema::clean($this->request->post));
+			$this->request->post['config_codecart_schema_store_id'] = 0;
 			$this->request->post['config_codecart_structured_data_status'] = !empty($this->request->post['config_codecart_structured_data_status']) ? 1 : 0;
 			$this->request->post['config_cookie_consent_status'] = !empty($this->request->post['config_cookie_consent_status']) ? 1 : 0;
 			$this->request->post['config_cookie_consent_days'] = max(30, min(365, (int)($this->request->post['config_cookie_consent_days'] ?? 180)));
@@ -1392,6 +1395,20 @@ class ControllerSettingSetting extends Controller {
 			$data['config_error_filename'] = $this->config->get('config_error_filename');
 		}
 
+
+		require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+		$data['merchant_schema_text'] = $this->load->language('setting/merchant_schema');
+		$data['merchant_schema_values'] = array();
+		foreach (CodeCartMerchantSchema::defaults() as $key => $default) {
+			if (isset($this->request->post[$key])) {
+				$data['merchant_schema_values'][$key] = $this->request->post[$key];
+			} else {
+				$data['merchant_schema_values'][$key] = ($this->config->has($key) ? $this->config->get($key) : $default);
+			}
+		}
+		$data['merchant_schema_error'] = isset($this->error['merchant_schema']) ? $this->error['merchant_schema'] : '';
+		$data['merchant_schema_show_master'] = false;
+
 		if (isset($this->request->post['config_codecart_structured_data_status'])) {
 			$data['config_codecart_structured_data_status'] = (int)$this->request->post['config_codecart_structured_data_status'];
 		} elseif ($this->config->has('config_codecart_structured_data_status')) {
@@ -1548,6 +1565,18 @@ class ControllerSettingSetting extends Controller {
 		
 		if ((utf8_strlen($this->request->post['config_encryption']) < 32) || (utf8_strlen($this->request->post['config_encryption']) > 1024)) {
 			$this->error['encryption'] = $this->language->get('error_encryption');
+		}
+
+
+		require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
+		$schema_errors = CodeCartMerchantSchema::errors($this->request->post);
+		if ($schema_errors) {
+			$this->load->language('setting/merchant_schema');
+			$messages = array();
+			foreach ($schema_errors as $schema_error) {
+				$messages[] = $this->language->get('merchant_schema_error_' . $schema_error);
+			}
+			$this->error['merchant_schema'] = implode(' ', $messages);
 		}
 
 		if ($this->error && !isset($this->error['warning'])) {
