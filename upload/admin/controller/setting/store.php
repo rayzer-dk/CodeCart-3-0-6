@@ -716,7 +716,7 @@ class ControllerSettingStore extends Controller {
 
 		$data['config_codecart_structured_data_status'] = isset($this->request->post['config_codecart_structured_data_status'])
 			? (int)$this->request->post['config_codecart_structured_data_status']
-			: (isset($store_info['config_codecart_structured_data_status']) ? (int)$store_info['config_codecart_structured_data_status'] : 1);
+			: (isset($store_info['config_codecart_structured_data_status']) ? (int)$store_info['config_codecart_structured_data_status'] : ($this->config->has('config_codecart_structured_data_status') ? (int)$this->config->get('config_codecart_structured_data_status') : 1));
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
