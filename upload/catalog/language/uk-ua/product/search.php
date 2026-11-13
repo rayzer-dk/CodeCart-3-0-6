@@ -42,3 +42,4 @@ $_['text_tax_included'] = 'З ПДВ:';
 $_['text_search_min_length'] = 'Введіть щонайменше 2 символи для пошуку.';
 
 $_['text_search_suggestion'] = 'Можливо, ви мали на увазі: %s';
+

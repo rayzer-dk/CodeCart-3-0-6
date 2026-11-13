@@ -1,3 +1,14 @@
+# CodeCart 3.0.6.0 — Build 2.3.9 (2026-11-13)
+
+Core schema 3.0.6.0; presentation schema revision 38 (was 37). Updated stores run UPDATE in `/install/` once to create the search statistics table.
+
+Storefront search, with the useful parts of Smart Search PRO (no index, no extra tables for search itself):
+- Wrong keyboard layout: `ghbdtn` finds "привет", `ыфьыгтп` finds Samsung. Words spelled in the other alphabet: `telefon` finds "телефон", `самсунг` finds Samsung.
+- Model codes ignore separators: `EOS 5D`, `eos-5d` and `EOS5D` find the same product (model, SKU, MPN). Queries that look like model codes are never re-read as another layout.
+- Spelling mistakes and unfinished words: when nothing is found, the words are compared with every word of the product, manufacturer and category names of the store (one wrong, missing, extra or swapped letter; two for long words; also when the word is cut short as well) and the results for the corrected words are shown with a "Showing results for: …" notice. Until now only a "did you mean" hint built from 400 names was offered, and it never appeared because the total was compared as a string. Leading and trailing spaces were already ignored. The word list is cached and refreshed on any product save.
+- New Catalog → "Search queries" page: what visitors search for, how often, which searches found nothing even after correction, and which were answered by a corrected spelling; 7, 30 and 90 days. The data is kept 90 days, without IP addresses, and e-mail addresses and phone numbers typed into the box are masked. Bots are not counted. The new table is part of the clean install and of the update run.
+- Checked on a clean install: `iphon`, `  iphone  `, `ipohne`, `ipone`, `samsnug`, `samsug syncmaster`, `nikn`, `kanon`, `самсунг`, `никон`, `шзрщту`, `ыфьыгтп`, `eos 5d` return products; `zzzzqq` stays empty and is listed under "No results".
+
 # CodeCart 3.0.6.0 — Build 2.3.8 (2026-11-13)
 
 Core schema 3.0.6.0; presentation schema revision 37 (unchanged).

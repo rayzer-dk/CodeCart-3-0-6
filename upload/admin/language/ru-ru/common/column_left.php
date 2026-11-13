@@ -92,6 +92,7 @@ $_['text_blog'] = 'Блог';
 $_['text_lost_urls'] = 'Потерянные адреса (404)';
 
 $_['text_public_document'] = 'Публичные документы';
+$_['text_search_query'] = 'Поисковые запросы';
 
 // CodeCart PRO: aligned locale keys
 $_['text_affiliate'] = 'Данные партнёра';

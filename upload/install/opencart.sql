@@ -10073,6 +10073,21 @@ CREATE TABLE `oc_codecart_mail_audit` (
   KEY `idx_store_date` (`store_id`,`date_added`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `oc_codecart_search_query`;
+CREATE TABLE `oc_codecart_search_query` (
+  `day` date NOT NULL,
+  `store_id` int(11) NOT NULL DEFAULT '0',
+  `language_id` int(11) NOT NULL DEFAULT '0',
+  `query_hash` char(64) NOT NULL,
+  `query_text` varchar(190) NOT NULL,
+  `searches` int(10) unsigned NOT NULL DEFAULT '0',
+  `zero_results` int(10) unsigned NOT NULL DEFAULT '0',
+  `corrected` int(10) unsigned NOT NULL DEFAULT '0',
+  `corrected_to` varchar(190) NOT NULL DEFAULT '',
+  PRIMARY KEY (`day`,`store_id`,`language_id`,`query_hash`),
+  KEY `day_zero` (`day`,`zero_results`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- CodeCart built-in public documents and download statistics (Build 2.0.7)
 CREATE TABLE `oc_codecart_public_document` (
               document_id INT UNSIGNED NOT NULL AUTO_INCREMENT,

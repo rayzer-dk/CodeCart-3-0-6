@@ -43,3 +43,4 @@ $_['text_search_suggestion'] = 'Did you mean: %s';
 
 // CodeCart PRO: aligned locale keys
 $_['text_benefits'] = 'Benefits:';
+

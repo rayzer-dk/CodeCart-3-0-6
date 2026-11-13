@@ -196,20 +196,40 @@ class ControllerProductSearch extends Controller {
 			$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
 			$data['search_correction'] = '';
 			$data['search_suggestion_href'] = '';
-			if ($product_total === 0 && utf8_strlen($search) >= 2 && !isset($this->request->get['tag'])) {
-				$corrected_search = $this->suggestSearchCorrection($search, $this->model_catalog_product->getSearchSuggestionTerms(400));
-				if ($corrected_search !== '' && utf8_strtolower($corrected_search) !== utf8_strtolower($search)) {
+			// Nothing found: try the words with spelling mistakes fixed, also for the query typed on
+			// the other keyboard layout, and show what was found for the corrected words.
+			$corrected_search = '';
+			if ((int)$product_total === 0 && utf8_strlen($search) >= 2 && !isset($this->request->get['tag'])) {
+				$vocabulary = $this->model_catalog_product->getSearchVocabulary();
+				foreach (array_merge(array($search), \CodeCart\Core\SmartSearch::alternatives($search)) as $candidate) {
+					$candidate = \CodeCart\Core\SmartSearch::correct($candidate, $vocabulary);
+					if ($candidate === '') {
+						continue;
+					}
 					$corrected_filter = $filter_data;
-					$corrected_filter['filter_name'] = $corrected_search;
+					$corrected_filter['filter_name'] = $candidate;
 					$corrected_total = $this->model_catalog_product->getTotalProducts($corrected_filter);
 					if ($corrected_total > 0) {
-						$data['search_correction'] = sprintf($this->language->get('text_search_suggestion'), $corrected_search);
-						$suggestion_url = 'search=' . rawurlencode($corrected_search);
+						$corrected_search = $candidate;
+						$filter_data = $corrected_filter;
+						$product_total = $corrected_total;
+						$data['search_correction'] = sprintf($this->language->get('text_search_corrected'), $candidate);
+						$suggestion_url = 'search=' . rawurlencode($candidate);
 						if ($description) { $suggestion_url .= '&description=true'; }
 						if ($category_id) { $suggestion_url .= '&category_id=' . (int)$category_id; }
 						if ($sub_category) { $suggestion_url .= '&sub_category=true'; }
 						$data['search_suggestion_href'] = $this->url->link('product/search', $suggestion_url);
+						break;
 					}
+				}
+			}
+
+			if ($page === 1 && !preg_match('/bot|crawl|spider|slurp|headless|preview/i', (string)(isset($this->request->server['HTTP_USER_AGENT']) ? $this->request->server['HTTP_USER_AGENT'] : '')) && isset($this->request->get['search'])) {
+				try {
+					\CodeCart\Core\SearchStats::record($this->db, (int)$this->config->get('config_store_id'), (int)$this->config->get('config_language_id'), $search, $product_total, $corrected_search);
+				} catch (\Throwable $e) {
+					// Statistics are optional and must never break the search; the table is created by the next update run.
+					$this->log->write('Search statistics: ' . $e->getMessage());
 				}
 			}
 
@@ -494,50 +514,5 @@ class ControllerProductSearch extends Controller {
 		$data['header'] = $this->load->controller('common/header');
 
 		$this->response->setOutput($this->load->view('product/search', $data));
-	}
-
-	private function suggestSearchCorrection($query, array $terms) {
-		$query = trim(preg_replace('/\s+/u', ' ', (string)$query));
-		if ($query === '') { return ''; }
-		$vocab = array();
-		foreach ($terms as $term) {
-			foreach (preg_split('/[^\p{L}\p{N}]+/u', utf8_strtolower((string)$term), -1, PREG_SPLIT_NO_EMPTY) as $word) {
-				$length = utf8_strlen($word);
-				if ($length >= 4 && $length <= 32 && !preg_match('/\d/u', $word)) { $vocab[$word] = true; }
-			}
-		}
-		if (!$vocab) { return ''; }
-		$words = preg_split('/\s+/u', $query, -1, PREG_SPLIT_NO_EMPTY);
-		$changed = false;
-		foreach ($words as &$word) {
-			$lower = utf8_strtolower($word); $length = utf8_strlen($lower);
-			if ($length < 4 || $length > 32 || preg_match('/\d/u', $lower) || isset($vocab[$lower])) { continue; }
-			$max_distance = ($length >= 8) ? 2 : 1; $best = ''; $best_distance = $max_distance + 1;
-			foreach ($vocab as $candidate => $_unused) {
-				if (abs(utf8_strlen($candidate) - $length) > $max_distance) { continue; }
-				$distance = $this->unicodeLevenshtein($lower, $candidate, $max_distance);
-				if ($distance < $best_distance) { $best = $candidate; $best_distance = $distance; if ($distance === 1) { break; } }
-			}
-			if ($best !== '' && $best_distance <= $max_distance) { $word = $best; $changed = true; }
-		}
-		unset($word);
-		return $changed ? implode(' ', $words) : '';
-	}
-
-	private function unicodeLevenshtein($a, $b, $cutoff = 2) {
-		$left = preg_split('//u', $a, -1, PREG_SPLIT_NO_EMPTY);
-		$right = preg_split('//u', $b, -1, PREG_SPLIT_NO_EMPTY);
-		if (abs(count($left) - count($right)) > $cutoff) { return $cutoff + 1; }
-		$previous = range(0, count($right));
-		foreach ($left as $i => $char_left) {
-			$current = array($i + 1); $row_min = $current[0];
-			foreach ($right as $j => $char_right) {
-				$current[$j + 1] = min($current[$j] + 1, $previous[$j + 1] + 1, $previous[$j] + ($char_left === $char_right ? 0 : 1));
-				$row_min = min($row_min, $current[$j + 1]);
-			}
-			if ($row_min > $cutoff) { return $cutoff + 1; }
-			$previous = $current;
-		}
-		return $previous[count($right)];
 	}
 }

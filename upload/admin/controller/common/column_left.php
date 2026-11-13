@@ -115,6 +115,10 @@ class ControllerCommonColumnLeft extends Controller {
 				$catalog[] = array('name' => $this->language->get('text_public_document'), 'href' => $this->url->link('catalog/public_document', 'user_token=' . $this->session->data['user_token'], true), 'children' => array());
 			}
 
+			if ($this->user->hasPermission('access', 'catalog/search_query')) {
+				$catalog[] = array('name' => $this->language->get('text_search_query'), 'href' => $this->url->link('catalog/search_query', 'user_token=' . $this->session->data['user_token'], true), 'children' => array());
+			}
+
 			if ($this->user->hasPermission('access', 'catalog/review')) {
 				$catalog[] = array(
 					'name'	   => $this->language->get('text_review'),

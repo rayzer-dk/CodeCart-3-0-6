@@ -155,3 +155,4 @@ $_['text_stock_notify'] = 'Очікують надходження';
 $_['text_lost_urls'] = 'Втрачені адреси (404)';
 
 $_['text_public_document'] = 'Публічні документи';
+$_['text_search_query'] = 'Пошукові запити';

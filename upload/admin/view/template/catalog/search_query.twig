@@ -1,0 +1,68 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        {% if can_modify %}
+        <form action="{{ clear }}" method="post" style="display:inline" onsubmit="return confirm('{{ text_clear_confirm|escape('js') }}');">
+          <button type="submit" class="btn btn-danger" data-toggle="tooltip" title="{{ button_clear }}"><i class="fa fa-trash-o"></i></button>
+        </form>
+        {% endif %}
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if success %}<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-search"></i> {{ heading_title }}</h3></div>
+      <div class="panel-body">
+        <p class="help-block">{{ text_help }}</p>
+        <div class="btn-toolbar" style="margin-bottom:14px">
+          <div class="btn-group">
+            <a href="{{ filter_all }}" class="btn btn-default{% if not zero_only %} active{% endif %}">{{ text_filter_all }}</a>
+            <a href="{{ filter_zero }}" class="btn btn-default{% if zero_only %} active{% endif %}">{{ text_filter_zero }}</a>
+          </div>
+          <div class="btn-group">
+            {% for period in periods %}<a href="{{ period.href }}" class="btn btn-default{% if period.active %} active{% endif %}">{{ period.days }} {{ text_days }}</a>{% endfor %}
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td class="text-left">{{ column_query }}</td>
+                <td class="text-right">{{ column_searches }}</td>
+                <td class="text-right">{{ column_zero }}</td>
+                <td class="text-left">{{ column_corrected }}</td>
+                <td class="text-left">{{ column_last }}</td>
+              </tr>
+            </thead>
+            <tbody>
+              {% if queries %}
+              {% for query in queries %}
+              <tr>
+                <td class="text-left">{{ query.text }}</td>
+                <td class="text-right">{{ query.searches }}</td>
+                <td class="text-right">{% if query.zero_results %}<span class="label label-danger">{{ query.zero_results }}</span>{% else %}0{% endif %}</td>
+                <td class="text-left">{% if query.corrected %}{{ query.corrected_to }} <span class="text-muted">({{ query.corrected }})</span>{% endif %}</td>
+                <td class="text-left">{{ query.last_day }}</td>
+              </tr>
+              {% endfor %}
+              {% else %}
+              <tr><td class="text-center" colspan="5">{{ text_no_results }}</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <div class="row"><div class="col-sm-6 text-left">{{ pagination }}</div><div class="col-sm-6 text-right">{{ results }}</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

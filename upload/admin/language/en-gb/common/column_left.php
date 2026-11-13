@@ -98,6 +98,7 @@ $_['text_blog'] = 'Blog';
 $_['text_lost_urls'] = 'Lost URLs (404)';
 
 $_['text_public_document'] = 'Public Documents';
+$_['text_search_query'] = 'Search queries';
 
 // CodeCart PRO: aligned locale keys
 $_['text_analytics'] = 'Analytics';

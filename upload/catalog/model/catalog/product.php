@@ -789,23 +789,29 @@ class ModelCatalogProduct extends Model {
 		return $counts;
 	}
 
-	public function getSearchSuggestionTerms($limit = 400) {
-		$limit = max(50, min(600, (int)$limit));
-		$product_limit = min(300, $limit);
-		$manufacturer_limit = min(100, max(0, $limit - $product_limit));
-		$category_limit = max(0, $limit - $product_limit - $manufacturer_limit);
-		$terms = array();
-		$query = $this->db->query("SELECT pd.name AS term FROM " . DB_PREFIX . "product p INNER JOIN " . DB_PREFIX . "product_description pd ON (pd.product_id=p.product_id AND pd.language_id='" . (int)$this->config->get('config_language_id') . "') INNER JOIN " . DB_PREFIX . "product_to_store p2s ON (p2s.product_id=p.product_id AND p2s.store_id='" . (int)$this->config->get('config_store_id') . "') WHERE p.status='1' AND p.date_available<=NOW() ORDER BY p.viewed DESC,p.date_added DESC LIMIT " . (int)$product_limit);
-		foreach ($query->rows as $row) if (trim((string)$row['term'])!=='') $terms[]=(string)$row['term'];
-		if ($manufacturer_limit) {
-			$query=$this->db->query("SELECT m.name AS term FROM " . DB_PREFIX . "manufacturer m INNER JOIN " . DB_PREFIX . "manufacturer_to_store m2s ON (m2s.manufacturer_id=m.manufacturer_id AND m2s.store_id='" . (int)$this->config->get('config_store_id') . "') ORDER BY m.sort_order,m.name LIMIT " . (int)$manufacturer_limit);
-			foreach($query->rows as $row) if(trim((string)$row['term'])!=='') $terms[]=(string)$row['term'];
+	/**
+	 * Every word of the product, manufacturer and category names of this store and language,
+	 * with how often it occurs. Cached under the "product." prefix, so any product save drops it.
+	 */
+	public function getSearchVocabulary() {
+		$language_id = (int)$this->config->get('config_language_id');
+		$store_id = (int)$this->config->get('config_store_id');
+		$key = 'product.search_vocabulary.' . $language_id . '.' . $store_id;
+		$vocabulary = $this->cache->get($key);
+
+		if (!is_array($vocabulary)) {
+			$texts = array();
+			$query = $this->db->query("SELECT pd.name AS term FROM " . DB_PREFIX . "product p INNER JOIN " . DB_PREFIX . "product_description pd ON (pd.product_id = p.product_id AND pd.language_id = '" . $language_id . "') INNER JOIN " . DB_PREFIX . "product_to_store p2s ON (p2s.product_id = p.product_id AND p2s.store_id = '" . $store_id . "') WHERE p.status = '1' AND p.date_available <= NOW() LIMIT 30000");
+			foreach ($query->rows as $row) { $texts[] = (string)$row['term']; }
+			$query = $this->db->query("SELECT m.name AS term FROM " . DB_PREFIX . "manufacturer m INNER JOIN " . DB_PREFIX . "manufacturer_to_store m2s ON (m2s.manufacturer_id = m.manufacturer_id AND m2s.store_id = '" . $store_id . "') LIMIT 2000");
+			foreach ($query->rows as $row) { $texts[] = (string)$row['term']; }
+			$query = $this->db->query("SELECT cd.name AS term FROM " . DB_PREFIX . "category c INNER JOIN " . DB_PREFIX . "category_description cd ON (cd.category_id = c.category_id AND cd.language_id = '" . $language_id . "') INNER JOIN " . DB_PREFIX . "category_to_store c2s ON (c2s.category_id = c.category_id AND c2s.store_id = '" . $store_id . "') WHERE c.status = '1' LIMIT 5000");
+			foreach ($query->rows as $row) { $texts[] = (string)$row['term']; }
+			$vocabulary = \CodeCart\Core\SmartSearch::vocabulary($texts);
+			$this->cache->set($key, $vocabulary);
 		}
-		if ($category_limit) {
-			$query=$this->db->query("SELECT cd.name AS term FROM " . DB_PREFIX . "category c INNER JOIN " . DB_PREFIX . "category_description cd ON (cd.category_id=c.category_id AND cd.language_id='" . (int)$this->config->get('config_language_id') . "') INNER JOIN " . DB_PREFIX . "category_to_store c2s ON (c2s.category_id=c.category_id AND c2s.store_id='" . (int)$this->config->get('config_store_id') . "') WHERE c.status='1' ORDER BY c.sort_order,cd.name LIMIT " . (int)$category_limit);
-			foreach($query->rows as $row) if(trim((string)$row['term'])!=='') $terms[]=(string)$row['term'];
-		}
-		return array_values(array_unique($terms));
+
+		return $vocabulary;
 	}
 
 	public function getTotalProducts($data = array()) {
@@ -881,15 +887,25 @@ class ModelCatalogProduct extends Model {
 		$tag = isset($data['filter_tag']) ? trim(preg_replace('/\s+/u', ' ', (string)$data['filter_tag'])) : '';
 
 		if ($name !== '') {
-			$name_words = preg_split('/\s+/u', $name, -1, PREG_SPLIT_NO_EMPTY);
-			$name_parts = array();
-			foreach ($name_words as $word) {
-				if (utf8_strlen($word) >= 2) {
-					$name_parts[] = "pd.name LIKE '%" . $this->db->escape($word) . "%'";
+			// The query as typed, plus the same text typed on the other keyboard layout or in Latin letters.
+			foreach (array_merge(array($name), \CodeCart\Core\SmartSearch::alternatives($name)) as $variant) {
+				$name_parts = array();
+				foreach (preg_split('/\s+/u', $variant, -1, PREG_SPLIT_NO_EMPTY) as $word) {
+					if (utf8_strlen($word) >= 2) {
+						$name_parts[] = "pd.name LIKE '%" . $this->db->escape($word) . "%'";
+					}
+				}
+				if ($name_parts) {
+					$clauses[] = '(' . implode(' AND ', $name_parts) . ')';
 				}
 			}
-			if ($name_parts) {
-				$clauses[] = '(' . implode(' AND ', $name_parts) . ')';
+
+			// "FTH 062" and "FTH-062" find the product whose model is FTH062 and the other way round.
+			$compact = \CodeCart\Core\SmartSearch::compactCode($name);
+			if ($compact !== '') {
+				foreach (array('model', 'sku', 'mpn') as $code_field) {
+					$clauses[] = "REPLACE(REPLACE(REPLACE(REPLACE(LCASE(p." . $code_field . "), '-', ''), ' ', ''), '.', ''), '/', '') = '" . $this->db->escape($compact) . "'";
+				}
 			}
 
 			// Description search is opt-in and still requires a meaningful query.
