@@ -752,10 +752,11 @@ $(document).ready(function() {
  }
  $(document).on('change','#product select[name^="option"],#product input[name^="option"]',refreshStockState);
  refreshStockState();
+ function notifyJson(t){t=String(t||'');var a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a){return {};}try{return JSON.parse(t.slice(a,b+1))||{};}catch(e){return {};}}
  $(document).on('click','#button-stock-notify',function(){
    var $b=$(this),$m=$('#stock-notify-message'); $m.removeClass('text-danger text-success').text(''); $b.prop('disabled',true);
    var data=$('#product :input[name^="option["]').serializeArray(); data.push({name:'email',value:$('#stock-notify-email').val()});
-   $.ajax({url:'{{ stock_notify_url }}',type:'post',dataType:'json',data:$.param(data),complete:function(){$b.prop('disabled',false);},success:function(j){if(j.error){$m.addClass('text-danger').text(j.error);}else if(j.success){$m.addClass('text-success').text(j.success);}},error:function(){$m.addClass('text-danger').text('{{ error_stock_notify }}');}});
+   $.ajax({url:'{{ stock_notify_url }}',type:'post',dataType:'text',data:$.param(data),complete:function(){$b.prop('disabled',false);},success:function(t){var j=notifyJson(t);if(j.error){$m.addClass('text-danger').text(j.error);}else if(j.success){$m.addClass('text-success').text(j.success);}else{$m.addClass('text-danger').text('{{ error_stock_notify }}');}},error:function(x){var j=notifyJson(x.responseText);$m.addClass('text-danger').text(j.error||('{{ error_stock_notify }} (HTTP '+x.status+')'));}});
  });
 })();
 </script>

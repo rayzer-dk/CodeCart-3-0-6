@@ -2440,3 +2440,7 @@ html.ccp-theme-dark .ccp-blog-copy code{
   background: transparent !important;
   background-image: none !important;
 }
+#product-product .ccp-product-buy-row #stock-notify-box{grid-column:1/-1;width:100%;margin:0}
+#product-product #stock-notify-box .input-group{display:flex;width:100%}
+#product-product #stock-notify-box .input-group .form-control{flex:1 1 auto;float:none;width:auto;min-width:0}
+#product-product #stock-notify-box .input-group-btn{display:block;width:auto;flex:0 0 auto}

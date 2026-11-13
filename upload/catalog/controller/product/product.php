@@ -1141,8 +1141,13 @@ class ControllerProductProduct extends Controller {
 		}
 		if (!$json) {
 			$customer_id=$this->customer->isLogged()?(int)$this->customer->getId():0;
-			$this->model_catalog_product->addStockNotification($product_id,$email,$customer_id,$selection);
-			$json['success']=$this->language->get('text_stock_notify_success');
+			try {
+				$this->model_catalog_product->addStockNotification($product_id,$email,$customer_id,$selection);
+				$json['success']=$this->language->get('text_stock_notify_success');
+			} catch (\Throwable $e) {
+				$this->log->write('Stock notify save failed: ' . $e->getMessage());
+				$json['error']=$this->language->get('error_stock_notify');
+			}
 		}
 		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
 		$this->response->setOutput(json_encode($json,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));

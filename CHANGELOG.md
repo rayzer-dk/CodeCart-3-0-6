@@ -1,3 +1,10 @@
+# CodeCart 3.0.6.0 — Build 2.3.8 (2026-11-13)
+
+Core schema 3.0.6.0; presentation schema revision 37 (unchanged).
+
+- Storefront, "notify me when in stock" box (CodeCart theme): the box sat inside the one-column cell next to the quantity field, so the e-mail field collapsed to a few pixels and could not be filled in. It now spans the full width of the purchase block. Checked in a browser on a clean install: the field is 414 px wide and the request is saved.
+- The request script no longer depends on a clean JSON reply: PHP notices or other output before the JSON (for example from a third-party module on a site with `display_errors` on) used to end in the generic "could not save" message. The script now reads the JSON out of the reply, and shows the server's own message or the HTTP status when the request fails. A database failure while saving is logged and answered with a message instead of an empty 500.
+
 # CodeCart 3.0.6.0 — Build 2.3.7 (2026-11-12)
 
 Core schema 3.0.6.0; presentation schema revision 37 (was 36). Updated stores run UPDATE in `/install/` once: the migration now also creates the Mail Audit table, which until now was created only by saving the mail settings; a clean install now ships it too (the Mail Audit history showed "structure missing, error 1146" on a fresh install).
