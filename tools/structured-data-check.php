@@ -4,6 +4,7 @@
  * Does not need the database or a running OpenCart installation.
  */
 define('DB_PREFIX', 'oc_');
+define('DIR_SYSTEM', __DIR__ . '/../upload/system/');
 define('DIR_IMAGE', sys_get_temp_dir() . '/');
 require_once __DIR__ . '/../upload/system/library/codecart/schema_types.php';
 
