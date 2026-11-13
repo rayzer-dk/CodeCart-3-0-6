@@ -23,6 +23,8 @@ jobs:
           coverage: none
       - name: Verify regression fixtures
         run: php tools/quality/source_guard_test.php
+      - name: Schema.org JSON-LD regression
+        run: php tools/structured-data-check.php
       - name: Audit all changed tracked source files
         shell: bash
         env:
