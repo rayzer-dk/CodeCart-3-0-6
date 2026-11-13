@@ -1569,7 +1569,7 @@ class ControllerSettingSetting extends Controller {
 
 
 		require_once(DIR_SYSTEM . 'library/codecart/merchant_schema.php');
-		$schema_errors = CodeCartMerchantSchema::errors($this->request->post);
+		$schema_errors = CodeCartMerchantSchema::errors(CodeCartMerchantSchema::clean($this->request->post));
 		if ($schema_errors) {
 			$this->load->language('setting/merchant_schema');
 			$messages = array();
