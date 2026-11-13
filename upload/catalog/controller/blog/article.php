@@ -395,12 +395,15 @@ class ControllerBlogArticle extends Controller {
 			
 
 			if ($this->config->get('config_codecart_structured_data_status')) {
+				require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+				$schema_type = CodeCartSchemaTypes::get($this->db, 'article', $article_id);
+				if ($schema_type === 'auto') { $schema_type = 'BlogPosting'; }
 				$schema_url = html_entity_decode($this->url->link('blog/article', 'article_id=' . (int)$article_id), ENT_QUOTES, 'UTF-8');
 				$modified_ts = strtotime((string)$article_info['date_modified']);
 				$published_ts = strtotime((string)$article_info['date_added']);
 				if (!$modified_ts || $modified_ts < 315532800) { $modified_ts = $published_ts; }
 				$article_schema = array(
-					'@type' => 'BlogPosting',
+					'@type' => $schema_type,
 					'@id' => $schema_url . '#article',
 					'mainEntityOfPage' => $schema_url,
 					'headline' => (string)$article_info['name'],
@@ -418,7 +421,9 @@ class ControllerBlogArticle extends Controller {
 					$article_schema['image'] = rtrim($schema_base, '/') . '/image/' . ltrim(str_replace('\\', '/', (string)$article_info['image']), '/');
 				}
 
-				$this->document->addStructuredData($article_schema, 'blog_article');
+				if ($schema_type !== 'none') {
+					$this->document->addStructuredData($article_schema, 'blog_article');
+				}
 
 				$schema_breadcrumbs = array();
 				$schema_position = 1;

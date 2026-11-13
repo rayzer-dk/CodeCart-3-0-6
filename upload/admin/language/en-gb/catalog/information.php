@@ -56,3 +56,15 @@ $_['error_meta_h1'] = 'HTML Tag H1 must be greater than 0 and less than 255 char
 // CodeCart PRO: aligned locale keys
 $_['help_keyword'] = 'Do not use spaces, instead replace spaces with - and make sure the keyword is globally unique.';
 $_['help_noindex'] = 'Indexing in the search engines Google,  Bing and others';
+
+// Per-page Schema.org JSON-LD settings
+$_['entry_schema_type'] = 'Schema.org page type';
+$_['help_schema_type'] = 'Choose the actual content type for this information page. Automatic uses WebPage. AboutPage is for About Us; ContactPage for contacts; FAQPage only for visible questions and answers. None disables this page's specific node; site-wide WebSite/OnlineStore and breadcrumbs remain. All types use the normal Save button.';
+$_['text_schema_auto'] = 'Automatic';
+$_['text_schema_webpage'] = 'Standard page (WebPage)';
+$_['text_schema_aboutpage'] = 'About company (AboutPage)';
+$_['text_schema_contactpage'] = 'Contacts (ContactPage)';
+$_['text_schema_faqpage'] = 'Frequently asked questions (FAQPage)';
+$_['text_schema_collectionpage'] = 'Collection or directory (CollectionPage)';
+$_['text_schema_article'] = 'Article (Article)';
+$_['text_schema_none'] = 'No page-specific markup';

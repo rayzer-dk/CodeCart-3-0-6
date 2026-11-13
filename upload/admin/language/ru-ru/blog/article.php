@@ -55,3 +55,12 @@ $_['error_unique'] = 'SEO URL должен быть уникальным!';
 $_['text_filter'] = 'Фильтр';
 $_['help_main_category'] = 'Выберите главную категорию';
 $_['text_keyword'] = 'Должен быть уникальным на всю систему, без пробелов и спецсимволов.';
+
+// Per-page Schema.org JSON-LD settings
+$_['entry_schema_type'] = 'Тип разметки Schema.org';
+$_['help_schema_type'] = 'Автоматически — BlogPosting. Article — для обычных редакционных статей, NewsArticle — для настоящих новостей. Без разметки отключает лишь тип статьи. Сохраняется обычной кнопкой.';
+$_['text_schema_auto'] = 'Автоматически';
+$_['text_schema_blogposting'] = 'Публикация блога (BlogPosting)';
+$_['text_schema_article'] = 'Статья (Article)';
+$_['text_schema_newsarticle'] = 'Новость (NewsArticle)';
+$_['text_schema_none'] = 'Без разметки этой страницы';

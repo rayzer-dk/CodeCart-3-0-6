@@ -7,6 +7,8 @@ class ModelCatalogInformation extends Model {
 		$this->db->query("INSERT INTO " . DB_PREFIX . "information SET sort_order = '" . (int)$data['sort_order'] . "', bottom = '" . (isset($data['bottom']) ? (int)$data['bottom'] : 0) . "', status = '" . (int)$data['status'] . "', noindex = '" . (int)$data['noindex'] . "'");
 
 		$information_id = $this->db->getLastId();
+		require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+		CodeCartSchemaTypes::save($this->db, 'information', $information_id, isset($data['schema_type']) ? $data['schema_type'] : 'auto');
 
 		foreach ($data['information_description'] as $language_id => $value) {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "information_description SET information_id = '" . (int)$information_id . "', language_id = '" . (int)$language_id . "', title = '" . $this->db->escape($value['title']) . "', description = '" . $this->db->escape(\CodeCart\Core\SafeRichHtml::sanitize(isset($value['description']) ? $value['description'] : '')) . "', meta_title = '" . $this->db->escape($value['meta_title']) . "', meta_h1 = '" . $this->db->escape($value['meta_h1']) . "', meta_description = '" . $this->db->escape($value['meta_description']) . "', meta_keyword = '" . $this->db->escape($value['meta_keyword']) . "'");
@@ -50,6 +52,8 @@ class ModelCatalogInformation extends Model {
 	}
 
 	public function editInformation($information_id, $data) {
+		require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+		CodeCartSchemaTypes::save($this->db, 'information', $information_id, isset($data['schema_type']) ? $data['schema_type'] : 'auto');
 		$this->db->query("UPDATE " . DB_PREFIX . "information SET sort_order = '" . (int)$data['sort_order'] . "', bottom = '" . (isset($data['bottom']) ? (int)$data['bottom'] : 0) . "', status = '" . (int)$data['status'] . "', noindex = '" . (int)$data['noindex'] . "' WHERE information_id = '" . (int)$information_id . "'");
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "information_description WHERE information_id = '" . (int)$information_id . "'");
@@ -99,6 +103,8 @@ class ModelCatalogInformation extends Model {
     }
 
 	public function deleteInformation($information_id) {
+		require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+		CodeCartSchemaTypes::delete($this->db, 'information', $information_id);
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "information` WHERE information_id = '" . (int)$information_id . "'");
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "information_description` WHERE information_id = '" . (int)$information_id . "'");
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "information_to_store` WHERE information_id = '" . (int)$information_id . "'");

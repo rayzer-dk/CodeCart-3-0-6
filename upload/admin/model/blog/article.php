@@ -7,6 +7,8 @@ class ModelBlogArticle extends Model {
 		$this->db->query("INSERT INTO " . DB_PREFIX . "article SET date_available = '1970-01-01', status = '" . (int)$data['status'] . "', noindex = '" . (int)$data['noindex'] . "', sort_order = '" . (int)$data['sort_order'] . "', date_added = NOW(), date_modified = NOW()");
 
 		$article_id = $this->db->getLastId();
+		require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+		CodeCartSchemaTypes::save($this->db, 'article', $article_id, isset($data['schema_type']) ? $data['schema_type'] : 'auto');
 
 		if (isset($data['image'])) {
 			$this->db->query("UPDATE " . DB_PREFIX . "article SET image = '" . $this->db->escape($data['image']) . "' WHERE article_id = '" . (int)$article_id . "'");
@@ -99,6 +101,8 @@ class ModelBlogArticle extends Model {
 	}
 
 	public function editArticle($article_id, $data) {
+		require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+		CodeCartSchemaTypes::save($this->db, 'article', $article_id, isset($data['schema_type']) ? $data['schema_type'] : 'auto');
 
 		$this->db->query("UPDATE " . DB_PREFIX . "article SET status = '" . (int)$data['status'] . "', noindex = '" . (int)$data['noindex'] . "', sort_order = '" . (int)$data['sort_order'] . "', date_modified = NOW() WHERE article_id = '" . (int)$article_id . "'");
 
@@ -234,6 +238,8 @@ class ModelBlogArticle extends Model {
 			$data['status'] = '0';
 			$data['noindex'] = '0';
 
+			require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+			$data['schema_type'] = CodeCartSchemaTypes::get($this->db, 'article', $article_id);
 			$data['article_description'] = $this->getArticleDescriptions($article_id);
 			$data['article_image'] = $this->getArticleImages($article_id);
 			$data['article_related'] = $this->getArticleRelated($article_id);
@@ -248,6 +254,8 @@ class ModelBlogArticle extends Model {
 	}
 
 	public function deleteArticle($article_id) {
+		require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+		CodeCartSchemaTypes::delete($this->db, 'article', $article_id);
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "article WHERE article_id = '" . (int)$article_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "article_description WHERE article_id = '" . (int)$article_id . "'");

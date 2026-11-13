@@ -68,3 +68,12 @@ $_['text_relation_button_help'] = 'Автоматично підбирає ва�
 $_['text_relation_autofill_result'] = 'Автопідбір у ручне поле додав: %a. Зараз вибрано: %t. Ліміт: %m. Натисніть «Зберегти». Auto Relation Layer генерується окремо через фонову чергу.';
 $_['text_relation_selected_count'] = 'У полі зараз вибрано: %t. Ліміт автопідбору: %m.';
 $_['error_unique'] = 'SEO URL має бути унікальним!';
+
+// Per-page Schema.org JSON-LD settings
+$_['entry_schema_type'] = 'Тип розмітки Schema.org';
+$_['help_schema_type'] = 'Автоматично — BlogPosting. Article — для звичайних редакційних статей, NewsArticle — для справжніх новин. Без розмітки вимикає тільки тип статті. Зберігається звичайною кнопкою.';
+$_['text_schema_auto'] = 'Автоматично';
+$_['text_schema_blogposting'] = 'Публікація блогу (BlogPosting)';
+$_['text_schema_article'] = 'Стаття (Article)';
+$_['text_schema_newsarticle'] = 'Новина (NewsArticle)';
+$_['text_schema_none'] = 'Без розмітки цієї сторінки';

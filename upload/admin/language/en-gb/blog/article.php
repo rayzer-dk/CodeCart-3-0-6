@@ -69,3 +69,12 @@ $_['error_unique'] = 'SEO URL must be unique!';
 $_['text_filter'] = 'Filter';
 $_['help_main_category'] = 'Select main category';
 $_['text_keyword'] = 'Do not use spaces, instead replace spaces with - and make sure the SEO URL is globally unique.';
+
+// Per-page Schema.org JSON-LD settings
+$_['entry_schema_type'] = 'Schema.org page type';
+$_['help_schema_type'] = 'Automatic uses BlogPosting. Choose Article for general editorial content or NewsArticle for genuine news reporting. None skips this article's specific node; site-wide markup and breadcrumbs remain.';
+$_['text_schema_auto'] = 'Automatic';
+$_['text_schema_blogposting'] = 'Blog post (BlogPosting)';
+$_['text_schema_article'] = 'Article (Article)';
+$_['text_schema_newsarticle'] = 'News (NewsArticle)';
+$_['text_schema_none'] = 'No page-specific markup';

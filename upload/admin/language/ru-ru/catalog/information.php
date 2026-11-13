@@ -43,3 +43,15 @@ $_['error_meta_h1'] = 'HTML-тег H1 должен содержать от 0 д�
 // CodeCart PRO: aligned locale keys
 $_['help_keyword'] = 'Должен быть уникальным во всей системе, без пробелов и спецсимволов';
 $_['help_noindex'] = 'Индексация поисковыми системами Google, Yandex, Bing и др.';
+
+// Per-page Schema.org JSON-LD settings
+$_['entry_schema_type'] = 'Тип разметки Schema.org';
+$_['help_schema_type'] = 'Выберите тип по содержанию этой страницы. Автоматически — WebPage. AboutPage — о компании; ContactPage — контакты; FAQPage — только при наличии реальных вопросов и ответов. Без разметки — отключает лишь тип этой страницы, общие WebSite/OnlineStore и хлебные крошки остаются. Сохраняется обычной кнопкой.';
+$_['text_schema_auto'] = 'Автоматически';
+$_['text_schema_webpage'] = 'Обычная страница (WebPage)';
+$_['text_schema_aboutpage'] = 'О компании (AboutPage)';
+$_['text_schema_contactpage'] = 'Контакты (ContactPage)';
+$_['text_schema_faqpage'] = 'Вопросы и ответы (FAQPage)';
+$_['text_schema_collectionpage'] = 'Подборка или каталог (CollectionPage)';
+$_['text_schema_article'] = 'Статья (Article)';
+$_['text_schema_none'] = 'Без разметки этой страницы';

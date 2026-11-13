@@ -530,6 +530,21 @@ class ControllerBlogArticle extends Controller {
 			$data['heading_title'] = $data['article_description'][$language_id]['name'];
 		}
 
+		require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+		$schema_id = isset($this->request->get['article_id']) ? (int)$this->request->get['article_id'] : 0;
+		$data['schema_type'] = isset($this->request->post['schema_type'])
+			? CodeCartSchemaTypes::normalize('article', $this->request->post['schema_type'])
+			: CodeCartSchemaTypes::get($this->db, 'article', $schema_id);
+		$data['schema_type_options'] = array(
+			'auto' => $this->language->get('text_schema_auto'),
+			'BlogPosting' => $this->language->get('text_schema_blogposting'),
+			'Article' => $this->language->get('text_schema_article'),
+			'NewsArticle' => $this->language->get('text_schema_newsarticle'),
+			'none' => $this->language->get('text_schema_none')
+		);
+		$data['entry_schema_type'] = $this->language->get('entry_schema_type');
+		$data['help_schema_type'] = $this->language->get('help_schema_type');
+
 		if (isset($this->request->post['image'])) {
 			$data['image'] = $this->request->post['image'];
 		} elseif (!empty($article_info)) {

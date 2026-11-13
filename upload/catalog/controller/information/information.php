@@ -52,17 +52,31 @@ class ControllerInformationInformation extends Controller {
 			);
 
 			if ($this->config->get('config_codecart_structured_data_status') && stripos((string)$this->document->getRobots(), 'noindex') === false) {
+				require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+				$schema_type = CodeCartSchemaTypes::get($this->db, 'information', $information_id);
+				if ($schema_type === 'auto') { $schema_type = 'WebPage'; }
 				$schema_url = $this->url->link('information/information', 'information_id=' . $information_id);
 				$is_https = codecart_is_https((array)$this->request->server);
 				$schema_base = $is_https ? $this->config->get('config_ssl') : $this->config->get('config_url');
-				$this->document->addStructuredData(array(
-					'@type' => 'WebPage',
+				$schema_page = array(
+					'@type' => $schema_type,
 					'@id' => $schema_url . '#webpage',
 					'url' => $schema_url,
 					'name' => (string)$information_info['title'],
 					'description' => trim(preg_replace('/\s+/u', ' ', strip_tags(html_entity_decode((string)$information_info['description'], ENT_QUOTES, 'UTF-8')))),
-					'isPartOf' => array('@id' => rtrim((string)$schema_base, '/') . '/#website')
-				), 'information');
+					'isPartOf' => array('@id' => rtrim((string)$schema_base, '/') . '/#website'),
+					'inLanguage' => (string)$this->language->get('code')
+				);
+				if ($schema_type === 'AboutPage' || $schema_type === 'ContactPage') {
+					$schema_page['about'] = array('@id' => rtrim((string)$schema_base, '/') . '/#organization');
+				}
+				if ($schema_type === 'Article') {
+					$schema_page['headline'] = (string)$information_info['title'];
+					$schema_page['author'] = array('@id' => rtrim((string)$schema_base, '/') . '/#organization');
+				}
+				if ($schema_type !== 'none') {
+					$this->document->addStructuredData($schema_page, 'information');
+				}
 
 				$schema_breadcrumbs = array();
 				$schema_position = 1;

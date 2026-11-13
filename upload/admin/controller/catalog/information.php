@@ -345,6 +345,24 @@ class ControllerCatalogInformation extends Controller {
 			$data['information_description'] = array();
 		}
 		
+		require_once(DIR_SYSTEM . 'library/codecart/schema_types.php');
+		$schema_id = isset($this->request->get['information_id']) ? (int)$this->request->get['information_id'] : 0;
+		$data['schema_type'] = isset($this->request->post['schema_type'])
+			? CodeCartSchemaTypes::normalize('information', $this->request->post['schema_type'])
+			: CodeCartSchemaTypes::get($this->db, 'information', $schema_id);
+		$data['schema_type_options'] = array(
+			'auto' => $this->language->get('text_schema_auto'),
+			'WebPage' => $this->language->get('text_schema_webpage'),
+			'AboutPage' => $this->language->get('text_schema_aboutpage'),
+			'ContactPage' => $this->language->get('text_schema_contactpage'),
+			'FAQPage' => $this->language->get('text_schema_faqpage'),
+			'CollectionPage' => $this->language->get('text_schema_collectionpage'),
+			'Article' => $this->language->get('text_schema_article'),
+			'none' => $this->language->get('text_schema_none')
+		);
+		$data['entry_schema_type'] = $this->language->get('entry_schema_type');
+		$data['help_schema_type'] = $this->language->get('help_schema_type');
+
 		$language_id = $this->config->get('config_language_id');
 		if (isset($data['information_description'][$language_id]['title'])) {
 			$data['heading_title'] = $data['information_description'][$language_id]['title'];

@@ -53,3 +53,15 @@ $_['error_store']            = 'Статтю неможливо видалити
 $_['error_unique'] = 'SEO URL має бути унікальним!';
 
 $_['button_generate_seo_url'] = 'Згенерувати SEO URL';
+
+// Per-page Schema.org JSON-LD settings
+$_['entry_schema_type'] = 'Тип розмітки Schema.org';
+$_['help_schema_type'] = 'Оберіть тип за змістом цієї сторінки. Автоматично — WebPage. AboutPage — про компанію; ContactPage — контакти; FAQPage — лише за наявності справжніх запитань і відповідей. Без розмітки — вимикає тільки тип цієї сторінки, загальні WebSite/OnlineStore та навігаційний ланцюжок залишаються. Зберігається звичайною кнопкою.';
+$_['text_schema_auto'] = 'Автоматично';
+$_['text_schema_webpage'] = 'Звичайна сторінка (WebPage)';
+$_['text_schema_aboutpage'] = 'Про компанію (AboutPage)';
+$_['text_schema_contactpage'] = 'Контакти (ContactPage)';
+$_['text_schema_faqpage'] = 'Запитання і відповіді (FAQPage)';
+$_['text_schema_collectionpage'] = 'Добірка або каталог (CollectionPage)';
+$_['text_schema_article'] = 'Стаття (Article)';
+$_['text_schema_none'] = 'Без розмітки цієї сторінки';

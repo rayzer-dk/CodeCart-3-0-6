@@ -247,6 +247,18 @@
               </div>
             </div>
             <div class="tab-pane" id="tab-seo">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-schema-type"><span data-toggle="tooltip" title="{{ help_schema_type }}">{{ entry_schema_type }}</span></label>
+                <div class="col-sm-10">
+                  <select name="schema_type" id="input-schema-type" class="form-control">
+                    {% for schema_value, schema_label in schema_type_options %}
+                    <option value="{{ schema_value }}"{% if schema_type == schema_value %} selected="selected"{% endif %}>{{ schema_label }}</option>
+                    {% endfor %}
+                  </select>
+                  <p class="help-block">{{ help_schema_type }}</p>
+                </div>
+              </div>
+
               <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_keyword }}</div>            
               <div class="table-responsive">
                 <table class="table table-bordered table-hover">

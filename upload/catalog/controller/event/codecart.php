@@ -12,7 +12,7 @@ class ControllerEventCodeCart extends Controller {
 		$website_id = $base . '#website';
 
 		$organization = array(
-			'@type' => 'Organization',
+			'@type' => 'OnlineStore',
 			'@id' => $organization_id,
 			'name' => (string)$this->config->get('config_name'),
 			'url' => $base
@@ -22,6 +22,24 @@ class ControllerEventCodeCart extends Controller {
 		if ($logo !== '' && is_file(DIR_IMAGE . $logo)) {
 			$organization['logo'] = $base . 'image/' . ltrim(str_replace('\\', '/', $logo), '/');
 		}
+
+        $telephone = trim((string)$this->config->get('config_telephone'));
+        $email = trim((string)$this->config->get('config_email'));
+        $address = trim(preg_replace('/\s+/u', ' ', strip_tags(html_entity_decode((string)$this->config->get('config_address'), ENT_QUOTES, 'UTF-8'))));
+        if ($telephone !== '') {
+            $organization['telephone'] = $telephone;
+        }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $organization['email'] = $email;
+        }
+        if ($address !== '') {
+            $organization['address'] = $address;
+        }
+        if ($telephone !== '' || filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $organization['contactPoint'] = array('@type' => 'ContactPoint', 'contactType' => 'customer service');
+            if ($telephone !== '') { $organization['contactPoint']['telephone'] = $telephone; }
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) { $organization['contactPoint']['email'] = $email; }
+        }
 
 		$graph = array(
 			$organization,
@@ -40,6 +58,14 @@ class ControllerEventCodeCart extends Controller {
 				$graph[] = $structured_data;
 			}
 		}
+
+		$external_nodes = $this->getExistingSchemaNodes($output);
+		if ($external_nodes) {
+			$graph = array_values(array_filter($graph, function($node) use ($external_nodes) {
+				return !$this->isDuplicateSchemaNode($node, $external_nodes);
+			}));
+		}
+		if (!$graph) { return; }
 
 		$payload = array(
 			'@context' => 'https://schema.org',
@@ -67,5 +93,64 @@ class ControllerEventCodeCart extends Controller {
             }
         }
     }
+
+    /**
+     * Suppress identical nodes already present in the rendered header, including
+     * JSON-LD produced by compatible themes or third-party extensions.
+     * Other plugins may inject JSON-LD later in the body; the global switch
+     * remains available for those cases.
+     */
+    private function getExistingSchemaNodes($html) {
+        $nodes = array();
+        if (!preg_match_all('~<script\b[^>]*\btype\s*=\s*(["\'])application/ld\+json\1[^>]*>(.*?)</script>~is', $html, $matches)) {
+            return $nodes;
+        }
+        foreach ($matches[2] as $json) {
+            $decoded = json_decode(trim($json), true);
+            if (!is_array($decoded)) {
+                continue;
+            }
+            $items = isset($decoded['@graph']) && is_array($decoded['@graph'])
+                ? $decoded['@graph'] : (isset($decoded['@type']) ? array($decoded) : $decoded);
+            foreach ((array)$items as $node) {
+                if (is_array($node) && isset($node['@type'])) {
+                    $nodes[] = $node;
+                }
+            }
+        }
+        return $nodes;
+    }
+
+    private function isDuplicateSchemaNode(array $candidate, array $existing) {
+        $types = array_map('strtolower', (array)(isset($candidate['@type']) ? $candidate['@type'] : array()));
+        $a = trim((string)(isset($candidate['@id']) ? $candidate['@id'] : ''));
+        $url = trim((string)(isset($candidate['url']) ? $candidate['url'] : ''));
+        foreach ($existing as $node) {
+            $otherTypes = array_map('strtolower', (array)$node['@type']);
+            $sameType = (bool)array_intersect($types, $otherTypes);
+            if (!$sameType && (in_array('onlinestore', $types, true) || in_array('organization', $types, true))) {
+                $sameType = (bool)array_intersect(array('organization', 'onlinestore', 'onlinebusiness'), $otherTypes);
+            }
+            if (!$sameType && (bool)array_intersect(array('article','blogposting','newsarticle'), $types)) {
+                $sameType = (bool)array_intersect(array('article','blogposting','newsarticle'), $otherTypes);
+            }
+            if (!$sameType) {
+                continue;
+            }
+            $b = trim((string)(isset($node['@id']) ? $node['@id'] : ''));
+            $otherUrl = trim((string)(isset($node['url']) ? $node['url'] : ''));
+            $sameId = $a !== '' && $b !== '' && $a === $b;
+            // Do not suppress an existing node with a different @id:
+            // other graph nodes may still refer to our stable #organization identifier.
+            $sameUrl = $url !== '' && $otherUrl !== ''
+                && rtrim($url, '/') === rtrim($otherUrl, '/')
+                && ($a === '' || $b === '' || $a === $b);
+            if ($sameId || $sameUrl) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
