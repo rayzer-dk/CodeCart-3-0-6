@@ -19,6 +19,10 @@ check(CodeCartSchemaTypes::normalize('information', 'BadType') === 'auto', 'unkn
 check(CodeCartSchemaTypes::normalize('article', 'NewsArticle') === 'NewsArticle', 'news type permitted');
 check(CodeCartSchemaTypes::normalize('article', 'AboutPage') === 'auto', 'cross-type rejected');
 
+function codecart_is_https(array $server) {
+    return !empty($server['HTTPS']) && strtolower((string)$server['HTTPS']) !== 'off';
+}
+
 class Controller {
     public $config;
     public $document;
