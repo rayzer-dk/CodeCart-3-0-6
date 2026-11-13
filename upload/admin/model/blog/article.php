@@ -306,11 +306,11 @@ class ModelBlogArticle extends Model {
 			$sql .= " AND pd.name LIKE '" . $this->db->escape($data['filter_name']) . "%'";
 		}
 
-		if (isset($data['filter_status']) && !is_null($data['filter_status'])) {
+		if (isset($data['filter_status'])) {
 			$sql .= " AND p.status = '" . (int)$data['filter_status'] . "'";
 		}
 		
-		if (isset($data['filter_noindex']) && !is_null($data['filter_noindex'])) {
+		if (isset($data['filter_noindex'])) {
 			$sql .= " AND p.noindex = '" . (int)$data['filter_noindex'] . "'";
 		}
 
@@ -483,11 +483,11 @@ class ModelBlogArticle extends Model {
 			$sql .= " AND pd.name LIKE '" . $this->db->escape($data['filter_name']) . "%'";
 		}
 
-		if (isset($data['filter_status']) && !is_null($data['filter_status'])) {
+		if (isset($data['filter_status'])) {
 			$sql .= " AND p.status = '" . (int)$data['filter_status'] . "'";
 		}
 		
-		if (isset($data['filter_noindex']) && $data['filter_noindex'] !== null) {
+		if (isset($data['filter_noindex'])) {
 			$sql .= " AND p.noindex = '" . (int)$data['filter_noindex'] . "'";
 		}
 

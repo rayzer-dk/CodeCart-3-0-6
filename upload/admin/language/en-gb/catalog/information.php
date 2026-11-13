@@ -59,7 +59,7 @@ $_['help_noindex'] = 'Indexing in the search engines Google,  Bing and others';
 
 // Per-page Schema.org JSON-LD settings
 $_['entry_schema_type'] = 'Schema.org page type';
-$_['help_schema_type'] = 'Choose the actual content type for this information page. Automatic uses WebPage. AboutPage is for About Us; ContactPage for contacts; FAQPage only for visible questions and answers. None disables this page's specific node; site-wide WebSite/OnlineStore and breadcrumbs remain. All types use the normal Save button.';
+$_['help_schema_type'] = 'Choose the actual content type for this information page. Automatic uses WebPage. AboutPage is for About Us; ContactPage for contacts; FAQPage only for visible questions and answers. None disables the page-specific node; site-wide WebSite/OnlineStore and breadcrumbs remain. All types use the normal Save button.';
 $_['text_schema_auto'] = 'Automatic';
 $_['text_schema_webpage'] = 'Standard page (WebPage)';
 $_['text_schema_aboutpage'] = 'About company (AboutPage)';
