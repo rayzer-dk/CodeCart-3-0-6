@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '39';
+    const PRESENTATION_SCHEMA_VERSION = '40';
 
     private $db;
     private $config;
@@ -205,6 +205,9 @@ class Migration {
             $this->ensureMailCampaignInfrastructure();
             $this->ensureMailAuditTable();
             $this->ensureSearchStatsTable();
+            $this->currentStep = 'catalog.product_photo_scan';
+            $this->ensureProductPhotoScanTables();
+            $this->currentStep = 'core_feature_defaults';
             $this->ensureUnicodeCollation(array('mail_campaign', 'mail_campaign_queue', 'mail_suppression', 'stock_notify'));
             // Registered cart reminders require a dedicated, per-store consent record.
             // This is schema-only; no reminder task is switched on during migration.
@@ -294,6 +297,31 @@ class Migration {
             require_once(__DIR__ . '/src/MailAudit.php');
         }
         \CodeCart\Core\MailAudit::install($this->db);
+    }
+
+    private function ensureProductPhotoScanTables() {
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_product_photo_scan` (
+            `scan_id` TINYINT UNSIGNED NOT NULL,
+            `generation` INT UNSIGNED NOT NULL DEFAULT 0,
+            `result_generation` INT UNSIGNED DEFAULT NULL,
+            `last_product_id` INT UNSIGNED NOT NULL DEFAULT 0,
+            `max_product_id` INT UNSIGNED NOT NULL DEFAULT 0,
+            `total` INT UNSIGNED NOT NULL DEFAULT 0,
+            `checked` INT UNSIGNED NOT NULL DEFAULT 0,
+            `matched` INT UNSIGNED NOT NULL DEFAULT 0,
+            `skipped` INT UNSIGNED NOT NULL DEFAULT 0,
+            `started_at` DATETIME DEFAULT NULL,
+            `finished_at` DATETIME DEFAULT NULL,
+            PRIMARY KEY (`scan_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_product_photo_match` (
+            `slot` TINYINT UNSIGNED NOT NULL,
+            `product_id` INT UNSIGNED NOT NULL,
+            `generation` INT UNSIGNED NOT NULL,
+            `image` VARCHAR(255) NOT NULL,
+            PRIMARY KEY (`product_id`, `slot`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $this->db->query("INSERT IGNORE INTO `" . DB_PREFIX . "codecart_product_photo_scan` SET scan_id = 1");
     }
 
     private function ensureSearchStatsTable() {

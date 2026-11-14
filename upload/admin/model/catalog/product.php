@@ -1170,17 +1170,143 @@ class ModelCatalogProduct extends Model {
 
 	public function getSidebarProductStats() {
 		$cache_key = 'admin.product_sidebar_stats';
+		$language_id = (int)$this->config->get('config_language_id');
 		$cached = $this->cache->get($cache_key);
-		if (is_array($cached) && isset($cached['total'], $cached['enabled'], $cached['disabled'], $cached['out_of_stock'])) { return $cached; }
-		$query = $this->db->query("SELECT COUNT(*) AS total, SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS enabled, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS disabled, SUM(CASE WHEN status = 1 AND quantity <= 0 THEN 1 ELSE 0 END) AS out_of_stock FROM `" . DB_PREFIX . "product`");
-		$stats = array(
-			'total' => (int)$query->row['total'],
-			'enabled' => (int)$query->row['enabled'],
-			'disabled' => (int)$query->row['disabled'],
-			'out_of_stock' => (int)$query->row['out_of_stock']
-		);
+		if (is_array($cached) && ($cached['language_id'] ?? null) === $language_id && isset($cached['small_image'])
+			&& ($cached['expires'] ?? 0) > time()) {
+			return $cached;
+		}
+
+		$counts = array('COUNT(*) AS total');
+		foreach (array('enabled', 'out_of_stock', 'disabled', 'no_image', 'no_category', 'no_price', 'zero_quantity', 'small_image') as $key) {
+			$counts[] = "COUNT(CASE WHEN " . $this->productStatsCondition($key) . " THEN 1 END) AS " . $key;
+		}
+		$query = $this->db->query("SELECT " . implode(', ', $counts) . " FROM " . DB_PREFIX . "product p
+			INNER JOIN " . DB_PREFIX . "product_description pd ON (pd.product_id = p.product_id AND pd.language_id = " . $language_id . ")");
+		$stats = array_map('intval', $query->row);
+		$scan = $this->db->query("SELECT result_generation FROM " . DB_PREFIX . "codecart_product_photo_scan WHERE scan_id = 1")->row;
+		$stats['photo_scan_ready'] = !empty($scan['result_generation']);
+		$stats['language_id'] = $language_id;
+		$stats['expires'] = time() + 60;
 		$this->cache->set($cache_key, $stats);
 		return $stats;
+	}
+
+	private function productStatsCondition($filter) {
+		switch ($filter) {
+			case 'enabled':
+				return "p.status = 1";
+			case 'out_of_stock':
+				return "p.status = 1 AND p.quantity <= 0";
+			case 'disabled':
+				return "p.status = 0";
+			case 'no_image':
+				return "(p.image IS NULL OR TRIM(p.image) IN ('', 'no_image.webp', 'placeholder.webp', 'no_image.png', 'placeholder.png', 'codecart_placeholders/no_photo.webp'))";
+			case 'no_category':
+				return "NOT EXISTS (SELECT 1 FROM " . DB_PREFIX . "product_to_category p2c WHERE p2c.product_id = p.product_id)";
+			case 'no_price':
+				return "p.price <= 0";
+			case 'zero_quantity':
+				return "p.quantity = 0";
+			case 'small_image':
+				return "EXISTS (SELECT 1 FROM " . DB_PREFIX . "codecart_product_photo_match pm
+					INNER JOIN " . DB_PREFIX . "codecart_product_photo_scan scan ON (scan.scan_id = 1 AND pm.slot = MOD(scan.result_generation, 2) AND pm.generation = scan.result_generation)
+					WHERE pm.product_id = p.product_id AND CAST(pm.image AS BINARY) = CAST(p.image AS BINARY))";
+			default:
+				return '';
+		}
+	}
+
+	public function scanProductPhotos(bool $start): array {
+		$scan_table = DB_PREFIX . 'codecart_product_photo_scan';
+		$match_table = DB_PREFIX . 'codecart_product_photo_match';
+		$progress = \CodeCart\Core\Transaction::run($this->db, function () use ($start, $scan_table, $match_table) {
+			$scan = $this->db->query("SELECT * FROM `" . $scan_table . "` WHERE scan_id = 1 FOR UPDATE")->row;
+			if (!$scan['started_at'] || ($start && $scan['finished_at'])) {
+				if (!$start) {
+					throw new RuntimeException('Product photo scan has not started.');
+				}
+
+				$catalog = $this->db->query("SELECT COUNT(*) AS total, COALESCE(MAX(product_id), 0) AS max_id FROM `" . DB_PREFIX . "product`")->row;
+				$generation = (int)$scan['generation'] + 1;
+				$finish = (int)$catalog['total'] === 0;
+				$this->db->query("DELETE pm FROM `" . $match_table . "` pm LEFT JOIN `" . DB_PREFIX . "product` p ON (p.product_id = pm.product_id) WHERE p.product_id IS NULL");
+				$this->db->query("UPDATE `" . $scan_table . "` SET generation = " . $generation . ", last_product_id = 0,
+					max_product_id = " . (int)$catalog['max_id'] . ", total = " . (int)$catalog['total'] . ",
+					checked = 0, matched = 0, skipped = 0, started_at = NOW(),
+					finished_at = " . ($finish ? 'NOW(), result_generation = ' . $generation : 'NULL') . " WHERE scan_id = 1");
+				return array('total' => (int)$catalog['total'], 'checked' => 0, 'matched' => 0, 'skipped' => 0, 'done' => $finish);
+			}
+
+			$progress = array('total' => (int)$scan['total'], 'checked' => (int)$scan['checked'],
+				'matched' => (int)$scan['matched'], 'skipped' => (int)$scan['skipped'], 'done' => $scan['finished_at'] !== null);
+			if ($start || $progress['done']) {
+				return $progress;
+			}
+
+			$last_id = (int)$scan['last_product_id'];
+			$max_id = (int)$scan['max_product_id'];
+			$batch = $this->db->query("SELECT p.product_id, p.image, " . $this->productStatsCondition('no_image') . " AS no_image FROM `" . DB_PREFIX . "product` p
+				WHERE p.product_id > " . $last_id . " AND p.product_id <= " . $max_id . " ORDER BY p.product_id LIMIT 101")->rows;
+			$generation = (int)$scan['generation'];
+			$slot = $generation % 2;
+			$root = realpath(DIR_IMAGE);
+			if ($root === false || !is_dir($root)) {
+				throw new RuntimeException('Product image directory is unavailable.');
+			}
+
+			$matches = array();
+			$processed = 0;
+			$deadline = microtime(true) + 1.0;
+			foreach ($batch as $product) {
+				if ($processed >= 100 || ($processed > 0 && microtime(true) >= $deadline)) {
+					break;
+				}
+
+				$last_id = (int)$product['product_id'];
+				$processed++;
+				if (!$product['no_image']) {
+					$dimensions = $this->readProductPhotoSize($root, $product['image']);
+					if ($dimensions === false) {
+						$progress['skipped']++;
+					} elseif ($dimensions[0] < 500 || $dimensions[1] < 500) {
+						$matches[] = "(" . $slot . ", " . $last_id . ", " . $generation . ", '" . $this->db->escape($product['image']) . "')";
+					}
+				}
+			}
+
+			if ($matches) {
+				$this->db->query("INSERT INTO `" . $match_table . "` (slot, product_id, generation, image) VALUES " . implode(', ', $matches) . "
+					ON DUPLICATE KEY UPDATE generation = VALUES(generation), image = VALUES(image)");
+			}
+			$progress['matched'] += count($matches);
+			$progress['checked'] += $processed;
+			$progress['done'] = $processed === count($batch);
+			$this->db->query("UPDATE `" . $scan_table . "` SET last_product_id = " . $last_id . ", checked = " . $progress['checked'] . ",
+				matched = " . $progress['matched'] . ", skipped = " . $progress['skipped'] . ",
+				finished_at = " . ($progress['done'] ? 'NOW(), result_generation = ' . $generation : 'NULL') . " WHERE scan_id = 1");
+			return $progress;
+		});
+
+		if ($start || $progress['done']) {
+			$this->cache->delete('admin.product_sidebar_stats');
+		}
+		return $progress;
+	}
+
+	private function readProductPhotoSize(string $root, string $image): array|false {
+		if (strpos($image, "\0") !== false) {
+			return false;
+		}
+
+		$path = realpath($root . DIRECTORY_SEPARATOR . $image);
+		if ($path === false || !str_starts_with($path, $root . DIRECTORY_SEPARATOR) || !is_file($path) || !is_readable($path)) {
+			return false;
+		}
+
+		// A corrupt raster or a vector file can have no readable pixel dimensions.
+		$dimensions = @getimagesize($path);
+		return $dimensions && $dimensions[0] > 0 && $dimensions[1] > 0 ? $dimensions : false;
 	}
 
 	public function getTotalProducts($data = array()) {
@@ -1216,6 +1342,10 @@ class ModelCatalogProduct extends Model {
 
 	private function buildProductFilterWhere($data, $include_name = true) {
 		$where = $include_name ? $this->buildProductNameFilter($data) : '';
+		$stats_filter = $this->productStatsCondition($data['filter_stats'] ?? '');
+		if ($stats_filter !== '') {
+			$where .= " AND " . $stats_filter;
+		}
 		if (!empty($data['filter_model'])) {
 			$where .= " AND p.model LIKE '%" . $this->db->escape((string)$data['filter_model']) . "%'";
 		}

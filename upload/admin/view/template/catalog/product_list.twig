@@ -280,6 +280,11 @@
             <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
           </div>
           <div class="panel-body">
+            {% if filter_stats %}
+            <p><span class="label label-primary"><i class="fa fa-filter" aria-hidden="true"></i> {{ filter_stats_label }}</span>
+              <button type="button" class="btn btn-link btn-xs" id="button-clear-stats-filter">{{ button_clear }}</button>
+            </p>
+            {% endif %}
             <div class="product-pagination-top">
               <div class="product-pagination-pages text-left">{{ pagination }}</div>
               <div class="product-pagination-summary text-right">{{ results }}
@@ -410,6 +415,12 @@ $('#input-product-limit').on('change', function() {
 	url.searchParams.delete('page');
 	window.location.assign(url.toString());
 });
+$('#button-clear-stats-filter').on('click', function() {
+	var url = new URL(window.location.href);
+	url.searchParams.delete('filter_stats');
+	url.searchParams.delete('page');
+	window.location.assign(url.toString());
+});
 $('#button-filter').on('click', function() {
 	var url = '';
 
@@ -487,6 +498,8 @@ $('#button-filter').on('click', function() {
 	if (filter_seo_url) { url += '&filter_seo_url=' + encodeURIComponent(filter_seo_url); }
 
 	var currentParams = new URLSearchParams(window.location.search);
+	var statsFilter = currentParams.get('filter_stats');
+	if (statsFilter) { url += '&filter_stats=' + encodeURIComponent(statsFilter); }
 	var currentSort = currentParams.get('sort');
 	var currentOrder = currentParams.get('order');
 	if (currentSort) { url += '&sort=' + encodeURIComponent(currentSort); }

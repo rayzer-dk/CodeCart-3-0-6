@@ -10082,6 +10082,29 @@ CREATE TABLE `oc_codecart_mail_audit` (
   KEY `idx_store_date` (`store_id`,`date_added`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `oc_codecart_product_photo_scan` (
+  `scan_id` TINYINT UNSIGNED NOT NULL,
+  `generation` INT UNSIGNED NOT NULL DEFAULT 0,
+  `result_generation` INT UNSIGNED DEFAULT NULL,
+  `last_product_id` INT UNSIGNED NOT NULL DEFAULT 0,
+  `max_product_id` INT UNSIGNED NOT NULL DEFAULT 0,
+  `total` INT UNSIGNED NOT NULL DEFAULT 0,
+  `checked` INT UNSIGNED NOT NULL DEFAULT 0,
+  `matched` INT UNSIGNED NOT NULL DEFAULT 0,
+  `skipped` INT UNSIGNED NOT NULL DEFAULT 0,
+  `started_at` DATETIME DEFAULT NULL,
+  `finished_at` DATETIME DEFAULT NULL,
+  PRIMARY KEY (`scan_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `oc_codecart_product_photo_match` (
+  `slot` TINYINT UNSIGNED NOT NULL,
+  `product_id` INT UNSIGNED NOT NULL,
+  `generation` INT UNSIGNED NOT NULL,
+  `image` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`product_id`, `slot`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT IGNORE INTO `oc_codecart_product_photo_scan` SET scan_id = 1;
+
 DROP TABLE IF EXISTS `oc_codecart_search_query`;
 CREATE TABLE `oc_codecart_search_query` (
   `day` date NOT NULL,

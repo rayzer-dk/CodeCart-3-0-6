@@ -133,9 +133,19 @@ $_['text_blog_category']               = 'Категорії блогу';
 $_['text_blog_review']                 = 'Відгуки блогу';
 $_['text_blog_setting']                = 'Налаштування блогу';
 $_['text_product_stats']               = 'Товари';
-$_['text_complete_status']             = 'Увімкнено'; 
-$_['text_processing_status']           = 'Немає в наявності'; 
-$_['text_other_status']                = 'Вимкнено';
+$_['text_stats_enabled'] = 'Увімкнено';
+$_['text_stats_out_of_stock'] = 'Немає в наявності';
+$_['text_stats_disabled'] = 'Вимкнено';
+$_['text_stats_no_image'] = 'Без головного фото';
+$_['text_stats_no_category'] = 'Без категорії';
+$_['text_stats_no_price'] = 'Без ціни';
+$_['text_stats_zero_quantity'] = 'Нульовий залишок';
+$_['text_stats_small_image'] = 'Фото менше 500 × 500';
+$_['button_stats_scan'] = 'Перевірити фото';
+$_['text_stats_scan_help'] = 'Перевіряються оригінали головних фото. Достатньо однієї сторони менше ніж 500 пікселів.';
+$_['text_stats_scan_progress'] = 'Перевірено %1 з %2 товарів.';
+$_['text_stats_scan_complete'] = 'Перевірено товарів: %1. Знайдено: %2. Не вдалося прочитати файлів: %3.';
+$_['text_stats_scan_error'] = 'Не вдалося перевірити фото. Натисніть кнопку ще раз, щоб повторити.';
 $_['text_scheduler'] = 'Cron / Планувальник';
 
 // CodeCart PRO: completed Ukrainian language keys.

@@ -762,42 +762,35 @@ class ControllerCommonColumnLeft extends Controller {
 				);
 			}
 
-			// Sidebar product stats
-			$data['product_total'] = 0;
-			$data['enabled_total'] = 0;
-			$data['disabled_total'] = 0;
-			$data['out_of_stock_total'] = 0;
-			$data['complete_status'] = 0;
-			$data['processing_status'] = 0;
-			$data['other_status'] = 0;
-
-			$data['statistics_status'] = false;
-
 			if ($this->user->hasPermission('access', 'catalog/product')) {
+				$args = 'user_token=' . $this->session->data['user_token'];
+				$data['product_stats'] = array();
 				try {
 					$this->load->model('catalog/product');
-
 					$stats = $this->model_catalog_product->getSidebarProductStats();
-					$data['product_total'] = $stats['total'];
-					$data['enabled_total'] = $stats['enabled'];
-					$data['disabled_total'] = $stats['disabled'];
-					$data['out_of_stock_total'] = $stats['out_of_stock'];
-
-					if ($data['product_total'] > 0) {
-						$data['complete_status'] = (int)round(($data['enabled_total'] / $data['product_total']) * 100);
-						$data['other_status'] = (int)round(($data['disabled_total'] / $data['product_total']) * 100);
+					$current = ($this->request->get['route'] ?? '') === 'catalog/product' ? ($this->request->get['filter_stats'] ?? '') : '';
+					foreach (array('enabled', 'out_of_stock', 'disabled', 'no_image', 'no_category', 'no_price', 'zero_quantity', 'small_image') as $key) {
+						$total = $key === 'out_of_stock' ? $stats['enabled'] : $stats['total'];
+						$ready = $key !== 'small_image' || $stats['photo_scan_ready'];
+						$data['product_stats'][] = array(
+							'key' => $key,
+							'label' => $this->language->get('text_stats_' . $key),
+							'count' => $stats[$key],
+							'total' => $total,
+							'percent' => $total > 0 ? (int)round(100 * $stats[$key] / $total) : 0,
+							'ready' => $ready,
+							'current' => $current === $key,
+							'href' => $this->url->link('catalog/product', $args . '&filter_stats=' . $key, true)
+						);
 					}
-
-					if ($data['enabled_total'] > 0) {
-						$data['processing_status'] = (int)round(($data['out_of_stock_total'] / $data['enabled_total']) * 100);
+					if ($this->user->hasPermission('modify', 'catalog/product')) {
+						$data['photo_scan_url'] = $this->url->link('catalog/product/photoScan', $args, true);
 					}
-
-					$data['statistics_status'] = true;
 				} catch (\Throwable $e) {
-					// Sidebar statistics are informational only. A legacy/third-party product
-					// model must not make every authenticated admin page return HTTP 500.
+					// A legacy product model or pending upgrade must not take the admin menu offline.
+					$data['product_stats'] = array();
 					if ($this->registry->has('log')) {
-						$this->log->write('Admin sidebar product statistics failure: ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+						$this->log->write('Admin sidebar product statistics failure: ' . $e->getMessage());
 					}
 				}
 			}

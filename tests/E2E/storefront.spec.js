@@ -10,6 +10,26 @@ test('storefront renders the CodeCart home page', async ({ page }) => {
   expect(html).not.toMatch(/Fatal error|Uncaught Exception|mysqli_sql_exception/i);
 });
 
+test('phone header aligns search and cart above the full-width catalog', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'Phone viewport');
+  await page.goto('/');
+
+  const search = page.locator('#search');
+  const cart = page.locator('#cart > .ccp-cart-trigger');
+  const catalog = page.locator('#menu .ccp-mobile-catalog-button');
+  await expect(cart.locator('.ccp-cart-mobile-label')).toBeVisible();
+  const [searchBox, cartBox, catalogBox] = await Promise.all([search.boundingBox(), cart.boundingBox(), catalog.boundingBox()]);
+  expect(Math.abs(searchBox.y - cartBox.y)).toBeLessThan(1);
+  expect(cartBox.x).toBeGreaterThan(searchBox.x + searchBox.width);
+  expect(catalogBox.y).toBeGreaterThanOrEqual(cartBox.y + cartBox.height);
+  expect(Math.abs(catalogBox.width - (cartBox.x + cartBox.width - searchBox.x))).toBeLessThan(1);
+
+  await catalog.click();
+  await expect(page.locator('#ccp-mobile-catalog-body')).toBeVisible();
+  await page.locator('.ccp-mobile-drawer-close').click();
+  await expect(page.locator('#ccp-mobile-catalog-body')).toBeHidden();
+});
+
 test('a purchasable product can be added to the guest cart', async ({ page }) => {
   const id = process.env.E2E_PRODUCT_ID;
   if (!id || !/^\d+$/.test(id)) {

@@ -1,3 +1,11 @@
+# CodeCart 3.0.6.0 — Build 2.3.18 (2026-11-14)
+
+- Mobile CodeCart and Default themes place search and cart on one row, with the full-width Catalog button below.
+- The admin sidebar opens filtered product lists for enabled, disabled, out-of-stock and zero-stock products, as well as products without a main photo, category or positive base price. In compact mode the indicators are available from the Products icon.
+- A manual photo scan checks original main images in batches. Products with either side below 500 px appear in a separate filter. Press the button again after a reload to resume. The previous result remains available until the new scan completes.
+
+Core schema 3.0.6.0, presentation revision 40. Run the standard backed-up UPDATE on existing stores to add the two photo scan tables.
+
 # CodeCart 3.0.6.0 — Build 2.3.17 (2026-11-14)
 
 Core schema 3.0.6.0; presentation schema revision 39 (was 38). Updated stores run UPDATE in `/install/` once: it adds indexes (see UPGRADE). On a catalog with millions of products the index build takes minutes.

@@ -47,11 +47,13 @@ class ModelUpgrade3052 extends Model {
         $migration->run();
 
         $expected = defined('CODECART_BUILD') ? (string)CODECART_BUILD : \CodeCart\Migration::VERSION;
-        $result = $this->db->query("SELECT `value` FROM `" . DB_PREFIX . "setting` WHERE `store_id` = '0' AND `key` = 'codecart_core_schema_version' LIMIT 1");
-        $actual = $result->num_rows ? (string)$result->row['value'] : '';
+        $result = $this->db->query("SELECT `key`, `value` FROM `" . DB_PREFIX . "setting` WHERE `store_id` = '0'
+            AND `key` IN ('codecart_core_schema_version', 'codecart_presentation_schema_version')");
+        $versions = array_column($result->rows, 'value', 'key');
 
-        if ($actual !== $expected) {
-            throw new \RuntimeException('CodeCart PRO core migration did not reach the expected schema version. Check the protected error log.');
+        if (($versions['codecart_core_schema_version'] ?? '') !== $expected
+            || ($versions['codecart_presentation_schema_version'] ?? '') !== \CodeCart\Migration::PRESENTATION_SCHEMA_VERSION) {
+            throw new \RuntimeException('CodeCart PRO migration did not reach the expected core and presentation schema versions. Check the protected error log.');
         }
     }
 

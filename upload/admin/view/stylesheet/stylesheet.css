@@ -630,36 +630,6 @@ input[type="checkbox"]:checked::after, .checkbox input[type="checkbox"]:checked:
     background-color: rgba(0, 0, 0, 0.1);
 }
 
-#stats {
-    border-radius: 2px;
-    color: #808b9c;
-    background: #2e3a47;
-    margin: 15px 20px;
-    padding: 5px 0;
-}
-
-#stats ul, #stats li {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-}
-
-#stats li {
-    font-size: 11px;
-    color: #9d9d9d;
-    padding: 5px 10px 5px 13px;
-    border-bottom: 1px dotted #373737;
-}
-
-#stats div:first-child {
-    margin-bottom: 4px;
-}
-
-#stats .progress {
-    height: 3px;
-    margin-bottom: 0;
-}
-
 .jqvmap-label {
     z-index: 999;
 }
@@ -1390,36 +1360,6 @@ select, input[type="text"], input[type="password"], input[type="datetime"], inpu
     background-color: rgba(0, 0, 0, 0.1);
 }
 
-#stats {
-    border-radius: 2px;
-    color: #808b9c;
-    background: #2e3a47;
-    margin: 15px 20px;
-    padding: 5px 0;
-}
-
-#stats ul, #stats li {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-}
-
-#stats li {
-    font-size: 11px;
-    color: #9d9d9d;
-    padding: 5px 10px 5px 13px;
-    border-bottom: 1px dotted #373737;
-}
-
-#stats div:first-child {
-    margin-bottom: 4px;
-}
-
-#stats .progress {
-    height: 3px;
-    margin-bottom: 0;
-}
-
 .jqvmap-label {
     z-index: 999;
 }
@@ -1841,8 +1781,7 @@ a { color: var(--ccp-admin-accent); }
   #column-left.codecart-compact #menu > li > a { padding-left: 0; padding-right: 0; text-align: center; white-space: nowrap; }
   #column-left.codecart-compact #menu > li > a .fw { font-size: 17px; width: 64px; margin: 0; line-height: 20px; }
   #column-left.codecart-compact #menu > li > a .menu-label,
-  #column-left.codecart-compact #menu > li > a.parent:after,
-  #column-left.codecart-compact #stats { display: none; }
+  #column-left.codecart-compact #menu > li > a.parent:after { display: none; }
   #column-left.codecart-compact #menu > li > ul { position: absolute; left: 64px; top: 0; width: 235px; max-height: 70vh; overflow-y: auto; background: var(--ccp-admin-submenu, #293141); box-shadow: 8px 12px 24px rgba(16,24,40,.22); z-index: 1200; }
   #column-left.codecart-compact #menu > li > ul.in { display: block; }
   #column-left.codecart-compact #menu > li { position: relative; }
@@ -1919,10 +1858,28 @@ body { font-size: 14px; }
 }
 
 
-/* CodeCart PRO admin logo + sidebar product stats */
-#stats .stats-title{display:block;margin:0 0 10px;padding:0 10px 0 13px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#cfd8e3}
-#stats li>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:10px}
-#stats li .pull-right{white-space:nowrap;font-size:11px}
+/* Product statistics in the admin sidebar. */
+#menu #menu-product-stats > a { display: none; }
+#stats { background: var(--ccp-admin-submenu, #293141); color: #d5dfe9; margin: 12px; padding: 10px; border-radius: 6px; }
+#stats .stats-title { margin: 0 0 6px; padding: 0 4px; color: inherit; font-size: 12px; font-weight: 700; }
+#stats li { list-style: none; }
+#menu #stats ul { display: block; margin: 0; padding: 0; }
+#menu #stats .stats-link { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 30px; padding: 4px; color: inherit; font-size: 12px; font-weight: 500; border-radius: 4px; }
+#menu #stats a.stats-link:hover, #menu #stats a.stats-link:focus-visible, #menu #stats a.stats-link[aria-current] { background: #151e2a; color: #fff; }
+#menu #stats [hidden] { display: none; }
+#menu #stats .stats-link::before { content: none; }
+#stats .stats-count { font-size: 11px; white-space: nowrap; }
+#stats .progress { height: 3px; margin: 0 4px 3px; background: #526071; }
+#stats .stats-scan { padding: 8px 4px 0; }
+#stats .stats-scan button { min-height: 30px; white-space: normal; }
+#stats .stats-scan p { margin: 6px 0 0; color: inherit; font-size: 11px; }
+#stats .stats-scan p:empty { margin: 0; }
+#stats.collapse { display: block; height: auto; }
+@media (min-width: 768px) {
+  #column-left.codecart-compact #stats.collapse:not(.in) { display: none; }
+  #column-left.codecart-compact #menu #menu-product-stats > a { display: block; }
+  #column-left.codecart-compact #stats { position: fixed; left: 64px; top: 60px; width: 235px; max-height: calc(100vh - 72px); max-height: calc(100dvh - 72px); overflow: auto; margin: 0; z-index: 1200; box-shadow: 8px 12px 24px rgba(16,24,40,.22); }
+}
 
 /* CodeCart PRO unified admin tab accent */
 .nav-tabs>li>a,.nav-tabs>li>a:focus,.nav-tabs>li>a:hover{border-left:0!important;border-right:0!important;border-bottom:0!important;border-top:3px solid transparent!important;box-shadow:none!important}
@@ -2403,8 +2360,6 @@ html.ccp-admin-dark #footer .ccp-footer-runtime { color: #a8b8cb; }
 #oc-search .ccp-search-example{color:#5b6778}
 .ccp-char-counter{font-size:12px;color:#5b6778}
 .ccp-notification-count{font-size:12px}
-#stats .stats-title,#stats li,#stats li .pull-right{font-size:12px}
-#stats li{color:#b4bcc6}
 #footer .ccp-footer-sep{color:#667085}
 .codecart-dashboard-chart text{font-size:12px}
 html.ccp-admin-dark .breadcrumb li a{color:#8d99a8}

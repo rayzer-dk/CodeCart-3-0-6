@@ -165,7 +165,7 @@ $(document).ready(function() {
 			return;
 		}
 
-		$('#menu > li > ul.collapse.in').each(function() {
+		$('#menu > li > .collapse.in').each(function() {
 			var selector = '#' + this.id;
 
 			if (!keepSelector || selector !== keepSelector) {

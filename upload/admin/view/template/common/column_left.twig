@@ -42,30 +42,42 @@
       </li>
     {% set i = i + 1 %}
     {% endfor %}
+    {% if product_stats %}
+    <li id="menu-product-stats">
+      <a href="#stats" class="parent collapsed" data-toggle="collapse" aria-expanded="false" aria-controls="stats" aria-label="{{ text_product_stats }}" title="{{ text_product_stats }}"><i class="fa fa-bar-chart fw" aria-hidden="true"></i><span class="menu-label">{{ text_product_stats }}</span></a>
+      <section id="stats" class="collapse" aria-label="{{ text_product_stats }}">
+        <h2 class="stats-title">{{ text_product_stats }}</h2>
+        <ul>
+          {% for stat in product_stats %}
+          <li data-stat="{{ stat.key }}">
+            <a href="{{ stat.href }}" class="stats-link"{% if stat.current %} aria-current="page"{% endif %}{% if not stat.ready %} hidden{% endif %}>
+              <span>{{ stat.label }}</span><span class="stats-count">{{ stat.count }}/{{ stat.total }} ({{ stat.percent }}%)</span>
+            </a>
+            <div class="progress" aria-hidden="true"{% if not stat.ready %} hidden{% endif %}>
+              <div class="progress-bar{% if stat.key == 'enabled' %} progress-bar-success{% elseif stat.key == 'disabled' %} progress-bar-danger{% elseif stat.key == 'out_of_stock' %} progress-bar-warning{% endif %}" style="width: {{ stat.percent }}%"></div>
+            </div>
+            {% if not stat.ready %}
+            <span class="stats-link">{{ stat.label }} <span class="stats-count">&ndash;</span></span>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% if photo_scan_url %}
+        <div class="stats-scan">
+          <button type="button" class="btn btn-default btn-xs" id="button-product-photo-scan"
+            data-url="{{ photo_scan_url }}"
+            data-progress="{{ text_stats_scan_progress|e('html_attr') }}"
+            data-complete="{{ text_stats_scan_complete|e('html_attr') }}"
+            data-error="{{ text_stats_scan_error|e('html_attr') }}">
+            <i class="fa fa-refresh" aria-hidden="true"></i> {{ button_stats_scan }}
+          </button>
+          <p>{{ text_stats_scan_help }}</p>
+          <p id="product-photo-scan-progress" role="status" aria-live="polite"></p>
+        </div>
+        <script src="view/javascript/codecart/product-photo-scan.js?v=2.3.18" defer></script>
+        {% endif %}
+      </section>
+    </li>
+    {% endif %}
   </ul>
-  {% if statistics_status %}
-  <div id="stats">
-    <div class="stats-title">{{ text_product_stats }}</div>
-    <ul>
-      <li>
-        <div>{{ text_complete_status }} <span class="pull-right">{{ enabled_total }}/{{ product_total }} ({{ complete_status }}%)</span></div>
-        <div class="progress">
-          <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ complete_status }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ complete_status }}%"> <span class="sr-only">{{ complete_status }}%</span></div>
-        </div>
-      </li>
-      <li>
-        <div>{{ text_processing_status }} <span class="pull-right">{{ out_of_stock_total }}/{{ enabled_total }} ({{ processing_status }}%)</span></div>
-        <div class="progress">
-          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="{{ processing_status }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ processing_status }}%"> <span class="sr-only">{{ processing_status }}%</span></div>
-        </div>
-      </li>
-      <li>
-        <div>{{ text_other_status }} <span class="pull-right">{{ disabled_total }}/{{ product_total }} ({{ other_status }}%)</span></div>
-        <div class="progress">
-          <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{ other_status }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ other_status }}%"> <span class="sr-only">{{ other_status }}%</span></div>
-        </div>
-      </li>
-    </ul>
-  </div>
-  {% endif %}
 </nav>

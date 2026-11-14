@@ -73,9 +73,19 @@ $_['text_zone']                 = 'Zones';
 $_['text_recurring']            = 'Recurring Profiles';
 $_['text_order_recurring']      = 'Recurring Orders';
 $_['text_product_stats']         = 'Products';
-$_['text_complete_status']      = 'Enabled';
-$_['text_processing_status']    = 'Out of Stock';
-$_['text_other_status']         = 'Disabled';
+$_['text_stats_enabled'] = 'Enabled';
+$_['text_stats_out_of_stock'] = 'Out of stock';
+$_['text_stats_disabled'] = 'Disabled';
+$_['text_stats_no_image'] = 'No main photo';
+$_['text_stats_no_category'] = 'No category';
+$_['text_stats_no_price'] = 'No price';
+$_['text_stats_zero_quantity'] = 'Zero stock';
+$_['text_stats_small_image'] = 'Photo under 500 × 500';
+$_['button_stats_scan'] = 'Scan photos';
+$_['text_stats_scan_help'] = 'Checks original main photos. Either side under 500 px qualifies.';
+$_['text_stats_scan_progress'] = 'Checked %1 of %2 products.';
+$_['text_stats_scan_complete'] = 'Checked %1 products. Found %2. Could not read %3 files.';
+$_['text_stats_scan_error'] = 'Photo scan failed. Click Scan photos to retry.';
 
 $_['text_scheduler'] = 'Cron / Scheduler';
 

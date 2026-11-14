@@ -35,7 +35,7 @@ class ControllerCatalogProduct extends Controller {
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
-			$url = '';
+			$url = $this->productStatsQuery();
 
 			if (isset($this->request->get['filter_name'])) {
 				$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -146,7 +146,7 @@ class ControllerCatalogProduct extends Controller {
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
-			$url = '';
+			$url = $this->productStatsQuery();
 
 			if (isset($this->request->get['filter_name'])) {
 				$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -251,7 +251,7 @@ class ControllerCatalogProduct extends Controller {
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
-			$url = '';
+			$url = $this->productStatsQuery();
 
 			if (isset($this->request->get['filter_name'])) {
 				$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -356,7 +356,7 @@ class ControllerCatalogProduct extends Controller {
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
-			$url = '';
+			$url = $this->productStatsQuery();
 
 			if (isset($this->request->get['filter_name'])) {
 				$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -447,7 +447,54 @@ class ControllerCatalogProduct extends Controller {
 		$this->getList();
 	}
 
+	private function productStatsFilter(): string {
+		$filter = $this->request->get['filter_stats'] ?? '';
+		return in_array($filter, array('enabled', 'out_of_stock', 'disabled', 'no_image', 'no_category',
+			'no_price', 'zero_quantity', 'small_image'), true) ? $filter : '';
+	}
+
+	private function productStatsQuery(): string {
+		$filter = $this->productStatsFilter();
+		return $filter === '' ? '' : '&filter_stats=' . $filter;
+	}
+
+	public function photoScan() {
+		$this->load->language('common/column_left');
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->addHeader('Cache-Control: no-store');
+
+		$token = $this->request->get['user_token'] ?? '';
+		$expected_token = $this->session->data['user_token'] ?? '';
+		$action = $this->request->post['action'] ?? '';
+		if (!is_string($token) || $expected_token === '' || !hash_equals($expected_token, $token)
+			|| !$this->user->hasPermission('access', 'catalog/product')
+			|| !$this->user->hasPermission('modify', 'catalog/product')) {
+			$this->response->setStatusCode(403);
+			$json = array('error' => $this->language->get('text_stats_scan_error'));
+		} elseif (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST' || !in_array($action, array('start', 'batch'), true)) {
+			$this->response->setStatusCode(400);
+			$json = array('error' => $this->language->get('text_stats_scan_error'));
+		} else {
+			try {
+				$this->load->model('catalog/product');
+				$json = $this->model_catalog_product->scanProductPhotos($action === 'start');
+				if ($json['done']) {
+					$stats = $this->model_catalog_product->getSidebarProductStats();
+					$json['result_count'] = $stats['small_image'];
+					$json['result_total'] = $stats['total'];
+				}
+			} catch (\Throwable $e) {
+				$this->log->write('Product photo scan: ' . $e->getMessage());
+				$this->response->setStatusCode(500);
+				$json = array('error' => $this->language->get('text_stats_scan_error'));
+			}
+		}
+
+		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE));
+	}
+
 	protected function getList() {
+		$filter_stats = $this->productStatsFilter();
 		if (isset($this->request->get['filter_name'])) {
 			$filter_name = $this->request->get['filter_name'];
 		} else {
@@ -646,7 +693,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['product_limit'] = $product_limit;
 		$data['product_limit_options'] = $allowed_product_limits;
 
-		$url = '';
+		$url = $this->productStatsQuery();
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -741,8 +788,8 @@ class ControllerCatalogProduct extends Controller {
 		$data['codecart_relation_status'] = (bool)$this->config->get('codecart_relation_status') && $this->user->hasPermission('modify', 'catalog/relation');
 		$data['button_relation_selected'] = $this->language->get('button_relation_selected');
 		$data['delete'] = $this->url->link('catalog/product/delete', 'user_token=' . $this->session->data['user_token'] . $url, true);
-		$data['bulk_edit'] = $this->url->link('catalog/product/bulkEdit', 'user_token=' . $this->session->data['user_token'], true);
-		$data['bulk_undo'] = $this->url->link('catalog/product/bulkUndo', 'user_token=' . $this->session->data['user_token'], true);
+		$data['bulk_edit'] = $this->url->link('catalog/product/bulkEdit', 'user_token=' . $this->session->data['user_token'] . $this->productStatsQuery(), true);
+		$data['bulk_undo'] = $this->url->link('catalog/product/bulkUndo', 'user_token=' . $this->session->data['user_token'] . $this->productStatsQuery(), true);
 		$data['bulk_undo_available'] = !empty($this->session->data['codecart_bulk_undo']['undo']);
 
 		$this->load->model('catalog/manufacturer');
@@ -759,6 +806,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['products'] = array();
 
 		$filter_data = array(
+			'filter_stats'    => $filter_stats,
 			'filter_name'	  => $filter_name,
 			'filter_model'	  => $filter_model,
 			'filter_sku'      => $filter_sku,
@@ -864,7 +912,7 @@ class ControllerCatalogProduct extends Controller {
 			$data['selected'] = array();
 		}
 
-		$url = '';
+		$url = $this->productStatsQuery();
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -946,7 +994,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['sort_noindex'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&sort=p.noindex' . $url, true);
 		$data['sort_order'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&sort=p.sort_order' . $url, true);
 
-		$url = '';
+		$url = $this->productStatsQuery();
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -1029,6 +1077,11 @@ class ControllerCatalogProduct extends Controller {
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($product_total) ? (($page - 1) * $product_limit) + 1 : 0, min($page * $product_limit, $product_total), $product_total, (int)ceil($product_total / $product_limit));
 
 		$data['text_products_per_page'] = $this->language->get('text_products_per_page');
+		$data['filter_stats'] = $filter_stats;
+		if ($filter_stats !== '') {
+			$this->load->language('common/column_left', 'product_stats');
+			$data['filter_stats_label'] = $this->language->get('product_stats')->get('text_stats_' . $filter_stats);
+		}
 		$data['filter_name'] = $filter_name;
 		$data['filter_model'] = $filter_model;
 		$data['filter_sku'] = $filter_sku;
@@ -1056,7 +1109,7 @@ class ControllerCatalogProduct extends Controller {
 		$data['filter_download_id'] = $filter_download_id;
 		$data['filter_download_name'] = $filter_download_name;
 		$data['filter_seo_url'] = $filter_seo_url;
-		$data['active_filter_count'] = count(array_filter(array($filter_name, $filter_model, $filter_sku, $filter_price_min, $filter_price_max, $filter_quantity_min, $filter_quantity_max, ($filter_status === '' ? '' : '1'), ($filter_category === null ? '' : '1'), $filter_manufacturer_id ? '1' : '', ($filter_noindex === '' ? '' : '1'), $filter_attribute_id, $filter_option_id, $filter_download_id, $filter_seo_url), function($value) { return $value !== '' && $value !== null && $value !== 0; }));
+		$data['active_filter_count'] = count(array_filter(array($filter_stats, $filter_name, $filter_model, $filter_sku, $filter_price_min, $filter_price_max, $filter_quantity_min, $filter_quantity_max, ($filter_status === '' ? '' : '1'), ($filter_category === null ? '' : '1'), $filter_manufacturer_id ? '1' : '', ($filter_noindex === '' ? '' : '1'), $filter_attribute_id, $filter_option_id, $filter_download_id, $filter_seo_url), function($value) { return $value !== '' && $value !== null && $value !== 0; }));
 
 		$data['sort'] = $sort;
 		$data['order'] = $order;
@@ -1142,7 +1195,7 @@ class ControllerCatalogProduct extends Controller {
 			$data['error_keyword'] = '';
 		}
 
-		$url = '';
+		$url = $this->productStatsQuery();
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -2078,7 +2131,7 @@ class ControllerCatalogProduct extends Controller {
 			$this->session->data['success'] = sprintf($this->language->get($success_key), count($selected));
 		}
 
-		$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'], true));
+		$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . $this->productStatsQuery(), true));
 	}
 
 	protected function validateModify() {
@@ -2097,7 +2150,7 @@ class ControllerCatalogProduct extends Controller {
                 $this->model_catalog_product->editProductStatus($product_id, 1);
             }
             $this->session->data['success'] = $this->language->get('text_success');
-            $url = '';
+            $url = $this->productStatsQuery();
             if (isset($this->request->get['page'])) {
                 $url .= '&page=' . $this->request->get['page'];
             }
@@ -2120,7 +2173,7 @@ class ControllerCatalogProduct extends Controller {
                 $this->model_catalog_product->editProductStatus($product_id, 0);
             }
             $this->session->data['success'] = $this->language->get('text_success');
-            $url = '';
+            $url = $this->productStatsQuery();
             if (isset($this->request->get['page'])) {
                 $url .= '&page=' . $this->request->get['page'];
             }
@@ -2360,7 +2413,7 @@ class ControllerCatalogProduct extends Controller {
 			$this->session->data['codecart_bulk_undo_available'] = (bool)$undo;
 		}
 
-		$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'], true));
+		$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . $this->productStatsQuery(), true));
 	}
 
 	public function bulkUndo() {
@@ -2385,7 +2438,7 @@ class ControllerCatalogProduct extends Controller {
 			$this->session->data['success'] = sprintf($this->language->get('text_bulk_undo_success'), $restored);
 		}
 
-		$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'], true));
+		$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . $this->productStatsQuery(), true));
 	}
 
 	public function seoAutocomplete() {
