@@ -2414,3 +2414,37 @@ html:not(#cc) .ccp-mobile-header-contacts .ccp-mobile-contact-line,html:not(#cc)
 @media (min-width: 768px) and (max-width: 991px) {
   #logo .ccp-logo-text, #logo .ccp-logo-text a { font-size: 22px; line-height: 1.15; }
 }
+
+/* Free shipping progress */
+.ccp-free-ship{margin:0 0 10px}
+.ccp-free-ship-text{margin:0 0 6px;font-size:13px;font-weight:600;line-height:1.35;color:var(--ccp-store-heading,#273142)}
+.ccp-free-ship-bar{height:6px;border-radius:3px;background:var(--ccp-store-border,#e5e9ef);overflow:hidden}
+.ccp-free-ship-bar>span{display:block;height:100%;border-radius:3px;background:var(--ccp-store-accent,#0b6fd3);transition:width .3s ease}
+.ccp-free-ship.is-reached .ccp-free-ship-text{color:#15803d}
+.ccp-free-ship.is-reached .ccp-free-ship-bar>span{background:#15803d}
+.ccq-cart-box>.ccp-free-ship{margin:0;padding:10px 13px 4px}
+.ccp-mini-cart-summary>.ccp-free-ship{padding:0 0 8px}
+html.ccp-theme-dark .ccp-free-ship.is-reached .ccp-free-ship-text{color:#4ade80}
+html.ccp-theme-dark .ccp-free-ship.is-reached .ccp-free-ship-bar>span{background:#4ade80}
+@media (prefers-reduced-motion:reduce){.ccp-free-ship-bar>span{transition:none}}
+
+/* Sticky buy bar (product page, mobile) */
+.ccp-sticky-buy{display:none}
+@media (max-width:767px){
+  .ccp-sticky-buy{display:flex;align-items:center;gap:12px;position:fixed;left:0;right:0;bottom:0;z-index:1040;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--ccp-store-background,#fff);border-top:1px solid var(--ccp-store-border,#e5e9ef);box-shadow:0 -6px 18px rgba(15,23,42,.10);transform:translateY(100%);visibility:hidden;transition:transform .2s ease,visibility 0s linear .2s}
+  .ccp-sticky-buy.is-visible{transform:none;visibility:visible;transition:transform .2s ease}
+  .ccp-sticky-buy-price{display:flex;flex-direction:column;justify-content:center;min-width:0;line-height:1.2}
+  .ccp-sticky-buy-old{font-size:12px;color:#5b6674;text-decoration:line-through}
+  .ccp-sticky-buy-now{font-size:18px;font-weight:700;color:var(--ccp-store-heading,#273142);white-space:nowrap}
+  .ccp-sticky-buy-now.is-special{color:var(--ccp-store-sale,#d92d20)}
+  .ccp-sticky-buy-btn{flex:1 1 auto;min-width:0;min-height:44px;margin:0}
+  .ccp-sticky-buy-btn.is-out-of-stock{cursor:not-allowed;opacity:.72}
+  .ccp-sticky-buy-btn:focus-visible{outline:2px solid var(--ccp-store-heading,#273142);outline-offset:2px}
+  body.ccp-has-sticky-buy{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  html.ccp-mobile-menu-open .ccp-sticky-buy,body.ccp-mobile-menu-open .ccp-sticky-buy,body.modal-open .ccp-sticky-buy,body.ccp-cart-drawer-open .ccp-sticky-buy,body.ccp-share-open .ccp-sticky-buy,html.mfp-helper .ccp-sticky-buy,body:has(.pswp--open) .ccp-sticky-buy,body:has(#ccp-consent:not([hidden])) .ccp-sticky-buy{visibility:hidden}
+  html.ccp-theme-dark .ccp-sticky-buy{box-shadow:0 -6px 18px rgba(0,0,0,.45)}
+  html.ccp-theme-dark .ccp-sticky-buy-old{color:#94a3b8}
+  html.ccp-theme-dark .ccp-sticky-buy-now.is-special{color:#ff8b82}
+  html.ccp-theme-dark .ccp-sticky-buy-btn:focus-visible{outline-color:#f3f6fa}
+}
+@media (max-width:767px) and (prefers-reduced-motion:reduce){.ccp-sticky-buy,.ccp-sticky-buy.is-visible{transition:none}}

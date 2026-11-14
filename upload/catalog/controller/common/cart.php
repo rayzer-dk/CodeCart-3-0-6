@@ -132,6 +132,10 @@ class ControllerCommonCart extends Controller {
 			);
 		}
 
+		$this->load->model('checkout/free_shipping');
+
+		$data['free_shipping'] = $this->model_checkout_free_shipping->getProgress();
+
 		$commerce_style = (string)$this->config->get('theme_default_commerce_style');
 		$data['commerce_style'] = $commerce_style === 'modern' ? 'modern' : 'standard';
 

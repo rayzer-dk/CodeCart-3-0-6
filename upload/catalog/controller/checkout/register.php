@@ -90,7 +90,7 @@ class ControllerCheckoutRegister extends Controller {
 		if (empty($guard['allowed'])) {
 			$this->response->setStatusCode(429);
 			$this->response->addHeader('Retry-After: ' . (int)$guard['retry_after']);
-			$json['error']['warning'] = $this->language->get('error_warning');
+			$json['error']['warning'] = $this->language->get('error_rate_limit');
 			\CodeCart\Core\MailAudit::blocked('checkout_register', 'rate_limit', isset($this->request->post['email']) ? (string)$this->request->post['email'] : '');
 		}
 

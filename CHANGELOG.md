@@ -1,3 +1,12 @@
+# CodeCart 3.0.6.0 — Build 2.3.16 (2026-11-14)
+
+Core schema 3.0.6.0; presentation schema revision 38 (unchanged).
+
+Storefront (CodeCart theme):
+- Product page on a phone: a fixed bar at the bottom with the price (and the old price when there is a special) and the Buy button appears when the real Buy button has scrolled out of view. The bar presses the real button, so options, quantity, the AJAX request and the messages are unchanged; with a required option left empty it scrolls to that option and focuses it. It is hidden while the catalog, a dialog, the cart drawer or the cookie banner is open, respects the safe area, and sets `--ccp-sticky-buy-h` on `<html>` for widgets that must move up. Checked in a browser at 360, 390 and 412 px, light and dark, on a simple product, a product with required options and a product that is out of stock.
+- Free shipping progress in the mini cart, the cart page and the quick checkout: "Add 399.00 ₴ more for free shipping" with a bar, and "Free shipping!" once reached. It appears only when the Free Shipping extension is enabled with a threshold above zero, for the shipping zone it is set for, and is built from the same sub-total the extension compares with. It follows the currency of the visitor and updates with the cart without reloading. Nothing is added to the page otherwise.
+- Registration through the checkout: after too many attempts the message said there was a problem with the order or the payment method; it now says to try later.
+
 # CodeCart 3.0.6.0 — Build 2.3.15 (2026-11-14)
 
 Core schema 3.0.6.0; presentation schema revision 38 (unchanged).

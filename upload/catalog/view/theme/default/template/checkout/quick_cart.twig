@@ -22,6 +22,7 @@
   {% for voucher in vouchers %}
   <div class="ccq-cart-voucher"><span>{{ voucher.description }}</span><strong>{{ voucher.amount }}</strong></div>
   {% endfor %}
+  {% if free_shipping %}<div class="ccp-free-ship{% if free_shipping.reached %} is-reached{% endif %}"><p class="ccp-free-ship-text">{{ free_shipping.message }}</p><div class="ccp-free-ship-bar" role="progressbar" aria-label="{{ free_shipping.message|e('html_attr') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ free_shipping.percent }}"><span style="width:{{ free_shipping.percent }}%"></span></div></div>{% endif %}
   <div class="ccq-totals">
     {% for total in totals %}<div><span>{{ total.title }}</span><strong>{{ total.text }}</strong></div>{% endfor %}
   </div>

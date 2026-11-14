@@ -363,6 +363,68 @@
       {{ content_bottom }}</div>
     {{ column_right }}</div>
 </div>
+<div class="ccp-sticky-buy" id="ccp-sticky-buy" role="region" aria-label="{{ button_cart|e('html_attr') }}">
+  {% if price %}<div class="ccp-sticky-buy-price"><span class="ccp-sticky-buy-old"{% if not special %} hidden{% endif %}>{{ price }}</span><strong class="ccp-sticky-buy-now{% if special %} is-special{% endif %}">{{ special ?: price }}</strong></div>{% endif %}
+  {% if can_buy %}<button type="button" class="btn btn-primary btn-lg ccp-sticky-buy-btn" aria-label="{{ button_cart|e('html_attr') }}"><i class="fa fa-shopping-cart"></i> {{ button_cart }}</button>{% else %}<button type="button" class="btn btn-default btn-lg ccp-sticky-buy-btn is-out-of-stock" disabled="disabled" aria-label="{{ stock|e('html_attr') }}"><i class="fa fa-ban"></i> {{ stock }}</button>{% endif %}
+</div>
+<script type="text/javascript"><!--
+(function(){
+  var $btn = $('#button-cart'), $bar = $('#ccp-sticky-buy'), $pbtn = $bar.find('.ccp-sticky-buy-btn');
+  if (!$btn.length || !$bar.length || !('IntersectionObserver' in window)) { return; }
+  var mq = window.matchMedia('(max-width: 767px)'), pending = false, inView = true, observer = null;
+  function syncButton() {
+    $pbtn.html($btn.html()).prop('disabled', $btn.prop('disabled'))
+      .toggleClass('is-out-of-stock', $btn.hasClass('is-out-of-stock'))
+      .toggleClass('is-in-cart', $btn.hasClass('is-in-cart'))
+      .toggleClass('btn-primary', $btn.hasClass('btn-primary'))
+      .toggleClass('btn-default', $btn.hasClass('btn-default'))
+      .attr('aria-label', $btn.attr('aria-label') || $.trim($btn.text()));
+  }
+  function syncPrice() {
+    var $now = $('.ccp-product-price').first(), $old = $('.ccp-product-price-old').first();
+    if (!$now.length) { return; }
+    $bar.find('.ccp-sticky-buy-now').text($now.text()).toggleClass('is-special', $now.hasClass('is-special'));
+    var oldVisible = $('.ccp-product-price-old-row').css('display') !== 'none';
+    $bar.find('.ccp-sticky-buy-old').text($old.text()).prop('hidden', !oldVisible);
+  }
+  function render() {
+    var show = mq.matches && !inView;
+    $bar.toggleClass('is-visible', show);
+    document.documentElement.style.setProperty('--ccp-sticky-buy-h', show ? $bar[0].offsetHeight + 'px' : '0px');
+  }
+  function observe() {
+    if (observer) { observer.disconnect(); observer = null; }
+    $('body').toggleClass('ccp-has-sticky-buy', mq.matches);
+    if (!mq.matches) { inView = true; render(); return; }
+    observer = new IntersectionObserver(function(entries) {
+      inView = entries[entries.length - 1].isIntersecting;
+      render();
+    }, {rootMargin: '0px 0px -' + $bar[0].offsetHeight + 'px 0px'});
+    observer.observe($btn[0]);
+  }
+  new MutationObserver(syncButton).observe($btn[0], {attributes: true, childList: true, subtree: true, characterData: true});
+  var pricing = document.querySelector('.ccp-product-pricing');
+  if (pricing) { new MutationObserver(syncPrice).observe(pricing, {attributes: true, childList: true, subtree: true, characterData: true}); }
+  $pbtn.on('click', function() {
+    if ($pbtn.prop('disabled')) { return; }
+    pending = !$btn.hasClass('is-in-cart');
+    $btn.trigger('click');
+  });
+  $(document).ajaxComplete(function(event, xhr, settings) {
+    var addUrl = window.CodeCartCartUI ? window.CodeCartCartUI.endpoint('cart-add', 'index.php?route=checkout/cart/add') : 'index.php?route=checkout/cart/add';
+    if (!pending || String(settings.url) !== addUrl) { return; }
+    pending = false;
+    var $error = $('#product .has-error').first();
+    if (!$error.length) { return; }
+    $error[0].scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center'});
+    $error.find('select, input, textarea, button').filter(':visible').first().each(function() { this.focus({preventScroll: true}); });
+  });
+  if (mq.addEventListener) { mq.addEventListener('change', observe); } else { mq.addListener(observe); }
+  syncButton();
+  syncPrice();
+  observe();
+})();
+//--></script>
 <script type="text/javascript"><!--
 $('select[name=\'recurring_id\'], input[name="quantity"]').change(function(){
 	$.ajax({

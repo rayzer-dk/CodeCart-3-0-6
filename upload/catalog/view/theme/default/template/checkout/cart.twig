@@ -94,6 +94,7 @@
       </div>
       <aside class="ccp-cart-side">
         <div class="ccp-cart-summary-card">
+          {% if free_shipping %}<div class="ccp-free-ship{% if free_shipping.reached %} is-reached{% endif %}"><p class="ccp-free-ship-text">{{ free_shipping.message }}</p><div class="ccp-free-ship-bar" role="progressbar" aria-label="{{ free_shipping.message|e('html_attr') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ free_shipping.percent }}"><span style="width:{{ free_shipping.percent }}%"></span></div></div>{% endif %}
           <div class="ccp-cart-totals">
             {% for total in totals %}<div class="ccp-cart-total-row"><span>{{ total.title }}</span><strong>{{ total.text }}</strong></div>{% endfor %}
           </div>
@@ -175,6 +176,7 @@
       {% endif %} <br/>
       <div class="row">
         <div class="col-sm-4 col-sm-offset-8">
+          {% if free_shipping %}<div class="ccp-free-ship{% if free_shipping.reached %} is-reached{% endif %}"><p class="ccp-free-ship-text">{{ free_shipping.message }}</p><div class="ccp-free-ship-bar" role="progressbar" aria-label="{{ free_shipping.message|e('html_attr') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ free_shipping.percent }}"><span style="width:{{ free_shipping.percent }}%"></span></div></div>{% endif %}
           <table class="table table-bordered">
             {% for total in totals %}
             <tr>

@@ -227,6 +227,10 @@ class ControllerCheckoutCart extends Controller {
 				);
 			}
 
+			$this->load->model('checkout/free_shipping');
+
+			$data['free_shipping'] = $this->model_checkout_free_shipping->getProgress();
+
 			$data['continue'] = $this->url->link('common/home');
 
 			$data['checkout'] = $this->url->link('checkout/checkout', '', true);

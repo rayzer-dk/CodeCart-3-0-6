@@ -121,3 +121,4 @@ $_['text_ccp_cart_recovery_save_failed'] = 'Could not save reminder consent. Che
 $_['text_ccp_cart_recovery_saved'] = 'Reminder consent and contact details have been saved.';
 
 $_['text_ccp_registered_cart_consent'] = 'I agree to receive one reminder about my unfinished order.';
+$_['error_rate_limit'] = 'Too many attempts. Please try again a little later.';

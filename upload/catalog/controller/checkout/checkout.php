@@ -237,6 +237,10 @@ class ControllerCheckoutCheckout extends Controller {
 		$data['totals'] = array();
 		foreach ($totals as $value) { $data['totals'][] = array('title' => $value['title'], 'text' => $this->currency->format($value['value'], $this->session->data['currency'])); }
 
+		$this->load->model('checkout/free_shipping');
+
+		$data['free_shipping'] = $this->model_checkout_free_shipping->getProgress();
+
 		return $this->load->view('checkout/quick_cart', $data);
 	}
 

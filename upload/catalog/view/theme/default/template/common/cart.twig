@@ -22,6 +22,7 @@
     </li>
     <li>
       <div class="ccp-mini-cart-summary">
+        {% if free_shipping %}<div class="ccp-free-ship{% if free_shipping.reached %} is-reached{% endif %}"><p class="ccp-free-ship-text">{{ free_shipping.message }}</p><div class="ccp-free-ship-bar" role="progressbar" aria-label="{{ free_shipping.message|e('html_attr') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ free_shipping.percent }}"><span style="width:{{ free_shipping.percent }}%"></span></div></div>{% endif %}
         <div class="ccp-mini-cart-totals">{% for total in totals %}<div><span>{{ total.title }}</span><strong>{{ total.text }}</strong></div>{% endfor %}</div>
         <div class="ccp-cart-links{% if quick_checkout_enabled %} ccp-cart-links-single{% endif %}">{% if not quick_checkout_enabled %}<a href="{{ cart }}" class="btn btn-default"><i class="fa fa-shopping-cart"></i> {{ text_cart }}</a>{% endif %}<a href="{{ checkout }}" class="btn btn-primary"><i class="fa fa-check"></i> {{ text_checkout }}</a></div>
       </div>
@@ -62,6 +63,7 @@
     </li>
     <li>
       <div>
+        {% if free_shipping %}<div class="ccp-free-ship{% if free_shipping.reached %} is-reached{% endif %}"><p class="ccp-free-ship-text">{{ free_shipping.message }}</p><div class="ccp-free-ship-bar" role="progressbar" aria-label="{{ free_shipping.message|e('html_attr') }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ free_shipping.percent }}"><span style="width:{{ free_shipping.percent }}%"></span></div></div>{% endif %}
         <table class="table table-bordered">
           {% for total in totals %}
           <tr>
