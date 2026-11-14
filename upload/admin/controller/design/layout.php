@@ -50,9 +50,6 @@ class ControllerDesignLayout extends Controller {
 	public function edit() {
 		$this->load->language('design/layout');
 
-        $this->document->addScript('view/javascript/jquery/Sortable.js');
-        $this->document->addScript('view/javascript/jquery/jquery-sortable.js');
-
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		$this->load->model('design/layout');
@@ -250,6 +247,10 @@ class ControllerDesignLayout extends Controller {
 	}
 
 	protected function getForm() {
+		// The form sorts module rows by dragging on both the add and the edit page.
+		$this->document->addScript('view/javascript/jquery/Sortable.js');
+		$this->document->addScript('view/javascript/jquery/jquery-sortable.js');
+
 		$data['text_form'] = !isset($this->request->get['layout_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
 		if (isset($this->error['warning'])) {

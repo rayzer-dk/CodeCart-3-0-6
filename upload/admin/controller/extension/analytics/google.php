@@ -3,6 +3,8 @@ class ControllerExtensionAnalyticsGoogle extends Controller {
 	private $error = array();
 
 	public function index() {
+		$this->request->get['store_id'] = isset($this->request->get['store_id']) ? (int)$this->request->get['store_id'] : 0;
+
 		$this->load->language('extension/analytics/google');
 
 		$this->document->setTitle($this->language->get('heading_title'));

@@ -55,7 +55,7 @@ $_['text_summary_issues'] = 'Diagnostic entries';
 $_['text_last_refresh'] = 'Last cache refresh';
 $_['text_not_available'] = 'no data';
 $_['text_log_info'] = 'Information';
-$_['text_log_help'] = 'For each OCMOD the log shows target files, matched operations, optional skips, changed files and final result. On a blocking error the whole modification is rolled back and is not included in the active cache.';
+$_['text_log_help'] = 'For each OCMOD the log shows target files, matched operations, skipped operations, changed files and the final result. As in OpenCart 3, a search line that is not found skips the remaining operations of that file only, and a target file that does not exist is skipped. The whole modification is rolled back only for error="abort", an invalid operation or invalid generated PHP.';
 $_['text_log_tail'] = 'Showing the latest part of a large ocmod.log.';
 $_['text_changed_files_title'] = 'Changed files: %s';
 

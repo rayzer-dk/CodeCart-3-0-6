@@ -224,6 +224,7 @@ $gates = [
     ['qa_notification_diagnostics.php'],
     ['tests/admin_footer_runtime_smoke.php'],
     ['tests/theme_layout_compat_smoke.php'],
+    ['tests/ocmod_legacy_anchor_smoke.php'],
     ['tests/cart_external_schema_smoke.php'],
     ['tests/cart_reminder_consent_multistore_smoke.php'],
     ['tests/cart_source_discovery_smoke.php'],

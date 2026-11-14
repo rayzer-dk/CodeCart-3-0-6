@@ -1,3 +1,18 @@
+# CodeCart 3.0.6.0 — Build 2.3.11 (2026-11-14)
+
+Core schema 3.0.6.0; presentation schema revision 38 (unchanged).
+
+Compatibility with OpenCart 3 modules (OCMOD), measured with a probe modification of 252 search lines taken from stock OpenCart 3.0.3.8 and with test modules written the way older modules are:
+- A `<file>` whose path matches nothing (a theme or an extension that is not installed) rolled back the whole modification. OpenCart 3 ignores such a file, and many modules carry operations for several themes. The file is now skipped and reported as a warning.
+- A search line that is not found, without `error="skip"`, rolled back the whole modification. OpenCart 3 drops only the remaining operations of that file and keeps the other files. This is restored; `error="abort"`, an invalid operation and invalid generated PHP still roll the modification back.
+- New table `system/config/codecart_ocmod_anchors.php`: 32 lines of OpenCart 3 that read differently in CodeCart (asset version suffix, extra class, escaped output, changed signature) are matched to the CodeCart line of the same place. On the probe 239 of 252 search lines now apply (207 before). The 13 left have no equivalent line because the code was rewritten (product list model, cart price calculation, product image block).
+- New regression test `tests/ocmod_legacy_anchor_smoke.php` (53 checks) in the release gate: an entry fails when the template or controller line it points at is edited.
+- The Modifications log help text describes the behaviour above in English, Ukrainian and Russian.
+
+Administration:
+- Design → Layouts → Add: rows could not be sorted by dragging and the page logged `sortable is not a function`; the sorting scripts were loaded on the edit page only.
+- Google Analytics and the default theme settings opened without `store_id` logged `Undefined array key "store_id"` and built links without a store; the default store is used.
+
 # CodeCart 3.0.6.0 — Build 2.3.10 (2026-11-14)
 
 Core schema 3.0.6.0; presentation schema revision 38 (unchanged).

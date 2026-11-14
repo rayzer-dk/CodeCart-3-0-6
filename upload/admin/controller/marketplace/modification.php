@@ -582,6 +582,13 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 										if (!$trim || $trim=='true') { $search=trim($search); }
 										$add=$add_element->textContent; $trim=$add_element->getAttribute('trim'); $position=$add_element->getAttribute('position'); $offset=$add_element->getAttribute('offset');
 										$offset=$offset===''?0:(int)$offset; if ($trim=='true') { $add=trim($add); }
+										if ($search !== '' && strpos($modification[$key], $search) === false) {
+											$legacy_anchor = $this->legacyAnchor($key, $search, (string)$position);
+											if ($legacy_anchor !== '' && strpos($modification[$key], $legacy_anchor) !== false) {
+												$log[]='LEGACY ANCHOR [OP '.$operation_index.']: OpenCart 3 line matched to its CodeCart equivalent';
+												$search = $legacy_anchor;
+											}
+										}
 										$add = $this->normalizeCompatibilityAdd($current_code, $current_version, $key, $search, $add);
 										$log[]='CODE: '.$search; $indexes=$index!==''?explode(',',$index):array(); $i=0; $lines=explode("\n",$modification[$key]);
 										for ($line_id=0;$line_id<count($lines);$line_id++) {
@@ -625,7 +632,15 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 											$log[]='SKIPPED OPTIONAL [OP '.$operation_index.']: search code not found';
 											continue;
 										}
-										$build_errors++; $mod_failed=true; $mod_issue=$error=='abort'?'Required search code not found (abort)':'Required search code not found'; $mod_issue_file=$key;
+										if ($error!='abort') {
+											// OpenCart 3 semantics: without error="abort" the remaining operations of this
+											// file are dropped and the other files of the modification stay applied.
+											$skipped_operations++;
+											$issues[] = array('severity'=>'warning','operation'=>$operation_index,'file'=>$key,'reason'=>'Search code not found: remaining operations for this file skipped','search'=>$search_preview);
+											$log[]='NOT FOUND [OP '.$operation_index.'] - REMAINING OPERATIONS FOR THIS FILE SKIPPED';
+											break;
+										}
+										$build_errors++; $mod_failed=true; $mod_issue='Required search code not found (abort)'; $mod_issue_file=$key;
 										$issues[] = array('severity'=>'error','operation'=>$operation_index,'file'=>$key,'reason'=>$mod_issue,'search'=>$search_preview);
 										$log[]='NOT FOUND [OP '.$operation_index.'] - ENTIRE MODIFICATION ROLLED BACK!'; break 4;
 									}
@@ -633,11 +648,11 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 							}
 						}
 						if (!$file_node_matched) {
-							$required_target=false; $optional_count=0;
-							foreach ($operations as $operation) { if ($operation->getAttribute('error') === 'skip') { $optional_count++; } else { $required_target=true; } }
+							// OpenCart 3 ignores a <file> whose path matches nothing: modules routinely carry
+							// operations for themes and extensions that are not installed on this store.
 							$missing_target = implode(' | ',$path_patterns);
-							if ($required_target) { $build_errors++; $mod_failed=true; $mod_issue='Required target file not found'; $mod_issue_file=$missing_target; $issues[] = array('severity'=>'error','operation'=>0,'file'=>$missing_target,'reason'=>$mod_issue,'search'=>''); $log[]='ERROR: '.$mod_issue.' '.$mod_issue_file; break; }
-							if ($optional_count>0) { $skipped_operations += $optional_count; $issues[] = array('severity'=>$this->isLanguageTargetFile($missing_target) ? 'info' : 'warning','operation'=>0,'file'=>$missing_target,'reason'=>$optional_count.' optional operation(s): target file not found','search'=>''); $log[]='TARGET NOT FOUND - '.$optional_count.' OPTIONAL OPERATION(S) SKIPPED: '.$missing_target; }
+							$missing_count = count($operations);
+							if ($missing_count>0) { $skipped_operations += $missing_count; $issues[] = array('severity'=>$this->isLanguageTargetFile($missing_target) ? 'info' : 'warning','operation'=>0,'file'=>$missing_target,'reason'=>$missing_count.' operation(s) skipped: target file not found','search'=>''); $log[]='TARGET NOT FOUND - '.$missing_count.' OPERATION(S) SKIPPED: '.$missing_target; }
 						}
 					}
 				}
@@ -894,6 +909,29 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 	private function shortCompatibilityMessage($message) {
 		$message = trim(preg_replace('/\s+/u', ' ', (string)$message));
 		return mb_substr($message, 0, 240, 'UTF-8');
+	}
+
+	/**
+	 * Lines of OpenCart 3.0.x that popular modules search for and that read differently
+	 * in CodeCart (asset version suffix, extra class, escaped output). Returns the
+	 * CodeCart line for the same place, or '' when there is none. Entries that are only
+	 * the beginning of a line are not offered to position="replace".
+	 */
+	private function legacyAnchor($file, $search, $position) {
+		static $anchors = null;
+		if ($anchors === null) {
+			$path = DIR_SYSTEM . 'config/codecart_ocmod_anchors.php';
+			$anchors = is_file($path) ? (array)require($path) : array();
+		}
+		$file = preg_replace('~^catalog/view/theme/[^/]+/template/~', 'catalog/view/theme/*/template/', str_replace('\\', '/', (string)$file));
+		if (!isset($anchors[$file][$search])) {
+			return '';
+		}
+		$entry = $anchors[$file][$search];
+		if ($position === 'replace' && empty($entry[1])) {
+			return '';
+		}
+		return (string)$entry[0];
 	}
 
 	private function normalizeCompatibilityAdd($code, $version, $file, $search, $add) {
