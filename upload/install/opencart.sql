@@ -2850,7 +2850,15 @@ CREATE TABLE `oc_product` (
   `date_added` datetime NOT NULL,
   `date_modified` datetime NOT NULL,
   `noindex` tinyint(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`product_id`)
+  PRIMARY KEY (`product_id`),
+  KEY `manufacturer_id` (`manufacturer_id`),
+  KEY `model` (`model`),
+  KEY `sku` (`sku`),
+  KEY `upc` (`upc`),
+  KEY `ean` (`ean`),
+  KEY `jan` (`jan`),
+  KEY `isbn` (`isbn`),
+  KEY `mpn` (`mpn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -2956,7 +2964,8 @@ CREATE TABLE `oc_product_description` (
   `meta_keyword` varchar(255) NOT NULL,
 `meta_h1` varchar(255) NOT NULL,
   PRIMARY KEY (`product_id`,`language_id`),
-  KEY `name` (`name`(191))
+  KEY `name` (`name`(191)),
+  KEY `language_name` (`language_id`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

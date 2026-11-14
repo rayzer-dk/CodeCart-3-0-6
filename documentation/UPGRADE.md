@@ -19,6 +19,7 @@ The updater preserves every store's `config_theme`, store name and configured lo
 - Twig 3: legacy `Twig_*` PHP class names used by extensions are aliased automatically, but removed template syntax is not. Before updating, check third-party themes and extension templates for `{% for ... if ... %}` (use the `filter` filter or an inner `{% if %}`), `{% spaceless %}` and `{% filter %}` (use `{% apply ... %}`) and the `sameas` test (use `same as`).
 - A `php.ini` left in the site root by older OpenCart/ocStore packages is no longer shipped and its directives are obsolete; delete it and set PHP options in the hosting panel.
 - `DB_DRIVER` `mpdo` from older ocStore installers keeps working through the bundled PDO driver; `config.php` does not need changes.
+- Product indexes: the update builds indexes on the product code columns (model, SKU, UPC, EAN, JAN, ISBN, MPN), on `manufacturer_id` and a full-length `(language_id, name)` index on product descriptions; storefront search and the administration product list read them. Building takes seconds for tens of thousands of products; on catalogs with millions of rows run the update outside peak hours. A prefix index named `language_name` from an earlier tuning is replaced; an unrelated index with that name is kept and the new one is added as `language_name_cc`.
 
 ## Repair and modernization
 

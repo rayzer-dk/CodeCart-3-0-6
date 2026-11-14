@@ -1,6 +1,10 @@
-<div id="search" class="input-group">
-  <input type="text" name="search" value="{{ search }}" placeholder="{{ text_search }}" aria-label="{{ text_search }}" class="form-control input-lg" />
-  <span class="input-group-btn">
-    <button type="button" class="btn btn-default btn-lg" title="{{ text_search }}" aria-label="{{ text_search }}"><i class="fa fa-search"></i></button>
-  </span>
+<div class="ccp-search" data-suggest-url="{{ suggest_url }}">
+  <div id="search" class="input-group">
+    <input type="text" name="search" value="{{ search }}" placeholder="{{ text_search }}" aria-label="{{ text_search }}" class="form-control input-lg" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" aria-controls="ccp-suggest-list" />
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default btn-lg" title="{{ text_search }}" aria-label="{{ text_search }}"><i class="fa fa-search"></i></button>
+    </span>
+  </div>
+  <div id="ccp-suggest-list" class="ccp-suggest" role="listbox" aria-label="{{ text_suggest_label }}" hidden></div>
+  <div id="ccp-suggest-status" class="sr-only" role="status" aria-live="polite"></div>
 </div>

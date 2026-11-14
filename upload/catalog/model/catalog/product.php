@@ -3,6 +3,10 @@
 // *	@license	GNU General Public License version 3; see LICENSE.txt
 
 class ModelCatalogProduct extends Model {
+	const SEARCH_ID_LIMIT = 10000;
+
+	private static $search_ids = array();
+
 	public function updateViewed($product_id) {
 		$this->db->query("UPDATE " . DB_PREFIX . "product SET viewed = (viewed + 1) WHERE product_id = '" . (int)$product_id . "'");
 	}
@@ -143,6 +147,7 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProducts($data = array()) {
+		$search = $this->buildSearchSource($data);
 		$sql = "SELECT p.product_id, (SELECT AVG(rating) AS total FROM " . DB_PREFIX . "review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.product_id) AS rating, (SELECT price FROM " . DB_PREFIX . "product_discount pd2 WHERE pd2.product_id = p.product_id AND pd2.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' AND pd2.quantity = '1' AND ((pd2.date_start < NOW()) AND (pd2.date_end < '1000-01-01' OR pd2.date_end > NOW())) ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS discount, (SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' AND ((ps.date_start < NOW()) AND (ps.date_end < '1000-01-01' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special";
 
 		if (!empty($data['filter_category_id'])) {
@@ -161,7 +166,7 @@ class ModelCatalogProduct extends Model {
 			$sql .= " FROM " . DB_PREFIX . "product p";
 		}
 
-		$sql .= " LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) LEFT JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "'";
+		$sql .= " LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) LEFT JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id)" . $search['join'] . " WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "'";
 
 		if (!empty($data['filter_category_id'])) {
 			if (!empty($data['filter_sub_category'])) {
@@ -194,10 +199,7 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
-		$search_condition = $this->buildSearchCondition($data);
-		if ($search_condition !== '') {
-			$sql .= " AND (" . $search_condition . ")";
-		}
+		$sql .= $search['where'];
 
 		if (!empty($data['filter_manufacturer_id'])) {
 			$sql .= " AND p.manufacturer_id = '" . (int)$data['filter_manufacturer_id'] . "'";
@@ -815,6 +817,7 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getTotalProducts($data = array()) {
+		$search = $this->buildSearchSource($data);
 		$sql = "SELECT COUNT(DISTINCT p.product_id) AS total";
 
 		if (!empty($data['filter_category_id'])) {
@@ -833,7 +836,7 @@ class ModelCatalogProduct extends Model {
 			$sql .= " FROM " . DB_PREFIX . "product p";
 		}
 
-		$sql .= " LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) LEFT JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "'";
+		$sql .= " LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) LEFT JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id)" . $search['join'] . " WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "'";
 
 		if (!empty($data['filter_category_id'])) {
 			if (!empty($data['filter_sub_category'])) {
@@ -866,10 +869,7 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
-		$search_condition = $this->buildSearchCondition($data);
-		if ($search_condition !== '') {
-			$sql .= " AND (" . $search_condition . ")";
-		}
+		$sql .= $search['where'];
 
 		if (!empty($data['filter_manufacturer_id'])) {
 			$sql .= " AND p.manufacturer_id = '" . (int)$data['filter_manufacturer_id'] . "'";
@@ -881,76 +881,109 @@ class ModelCatalogProduct extends Model {
 	}
 
 
-	private function buildSearchCondition($data) {
-		$clauses = array();
+	/**
+	 * Products matching a search are collected by one indexed lookup per kind of match
+	 * (names, codes, manufacturers, categories, tags). A single OR across all of them cannot
+	 * use any index and forces a scan of the whole catalog for every query.
+	 *
+	 * The matching ids are resolved once and passed to the listing as a PK list; the count
+	 * and the page query of one request share the result. When too many products match,
+	 * the lookups are joined as a derived table instead.
+	 *
+	 * Returns array('join' => SQL placed before WHERE, 'where' => extra WHERE condition).
+	 * Code columns are compared without LCASE(): their collation is case-insensitive, and
+	 * a function around the column would prevent the index lookup.
+	 */
+	private function buildSearchSource($data) {
+		$language_id = (int)$this->config->get('config_language_id');
+		$store_id = (int)$this->config->get('config_store_id');
+		$selects = array();
 		$name = isset($data['filter_name']) ? trim(preg_replace('/\s+/u', ' ', (string)$data['filter_name'])) : '';
 		$tag = isset($data['filter_tag']) ? trim(preg_replace('/\s+/u', ' ', (string)$data['filter_tag'])) : '';
 
 		if ($name !== '') {
 			// The query as typed, plus the same text typed on the other keyboard layout or in Latin letters.
-			foreach (array_merge(array($name), \CodeCart\Core\SmartSearch::alternatives($name)) as $variant) {
+			$name_clauses = array();
+			foreach (\CodeCart\Core\SmartSearch::wordGroups($name) as $words) {
 				$name_parts = array();
-				foreach (preg_split('/\s+/u', $variant, -1, PREG_SPLIT_NO_EMPTY) as $word) {
-					if (utf8_strlen($word) >= 2) {
-						$name_parts[] = "pd.name LIKE '%" . $this->db->escape($word) . "%'";
-					}
+				foreach ($words as $word) {
+					$name_parts[] = "pd_n.name LIKE '%" . $this->db->escape($word) . "%'";
 				}
-				if ($name_parts) {
-					$clauses[] = '(' . implode(' AND ', $name_parts) . ')';
-				}
+				$name_clauses[] = '(' . implode(' AND ', $name_parts) . ')';
 			}
-
-			// "FTH 062" and "FTH-062" find the product whose model is FTH062 and the other way round.
-			$compact = \CodeCart\Core\SmartSearch::compactCode($name);
-			if ($compact !== '') {
-				foreach (array('model', 'sku', 'mpn') as $code_field) {
-					$clauses[] = "REPLACE(REPLACE(REPLACE(REPLACE(LCASE(p." . $code_field . "), '-', ''), ' ', ''), '.', ''), '/', '') = '" . $this->db->escape($compact) . "'";
-				}
+			if ($name_clauses) {
+				$selects[] = "SELECT pd_n.product_id FROM " . DB_PREFIX . "product_description pd_n WHERE pd_n.language_id = '" . $language_id . "' AND (" . implode(' OR ', $name_clauses) . ")";
 			}
 
 			// Description search is opt-in and still requires a meaningful query.
 			if (!empty($data['filter_description']) && utf8_strlen($name) >= 2) {
-				$clauses[] = "pd.description LIKE '%" . $this->db->escape($name) . "%'";
+				$selects[] = "SELECT pd_d.product_id FROM " . DB_PREFIX . "product_description pd_d WHERE pd_d.language_id = '" . $language_id . "' AND pd_d.description LIKE '%" . $this->db->escape($name) . "%'";
 			}
 
 			// Exact identifiers stay useful even for very short stock/model codes.
 			$identifier = $this->db->escape(utf8_strtolower($name));
-			$clauses[] = "LCASE(p.model) = '" . $identifier . "'";
-			$clauses[] = "LCASE(p.sku) = '" . $identifier . "'";
-			$clauses[] = "LCASE(p.upc) = '" . $identifier . "'";
-			$clauses[] = "LCASE(p.ean) = '" . $identifier . "'";
-			$clauses[] = "LCASE(p.jan) = '" . $identifier . "'";
-			$clauses[] = "LCASE(p.isbn) = '" . $identifier . "'";
-			$clauses[] = "LCASE(p.mpn) = '" . $identifier . "'";
+			$code_clauses = array();
+			foreach (array('model', 'sku', 'upc', 'ean', 'jan', 'isbn', 'mpn') as $code_field) {
+				$code_clauses[] = "p_c." . $code_field . " = '" . $identifier . "'";
+			}
+			$selects[] = "SELECT p_c.product_id FROM " . DB_PREFIX . "product p_c WHERE " . implode(' OR ', $code_clauses);
+
+			// "FTH 062" and "FTH-062" find the product whose model is FTH062 and the other way round.
+			$compact = \CodeCart\Core\SmartSearch::compactCode($name);
+			if ($compact !== '') {
+				$compact_clauses = array();
+				foreach (array('model', 'sku', 'mpn') as $code_field) {
+					$compact_clauses[] = "REPLACE(REPLACE(REPLACE(REPLACE(LCASE(p_k." . $code_field . "), '-', ''), ' ', ''), '.', ''), '/', '') = '" . $this->db->escape($compact) . "'";
+				}
+				$selects[] = "SELECT p_k.product_id FROM " . DB_PREFIX . "product p_k WHERE " . implode(' OR ', $compact_clauses);
+			}
 
 			// Category/manufacturer substring search is useful, but only for non-trivial phrases.
 			// This prevents one-letter queries from returning entire categories.
 			if (utf8_strlen($name) >= 3) {
 				$escaped_name = $this->db->escape($name);
-				$clauses[] = "EXISTS (SELECT 1 FROM " . DB_PREFIX . "manufacturer m_search WHERE m_search.manufacturer_id = p.manufacturer_id AND m_search.name LIKE '%" . $escaped_name . "%')";
-				$clauses[] = "EXISTS (SELECT 1 FROM " . DB_PREFIX . "product_to_category p2c_search INNER JOIN " . DB_PREFIX . "category_description cd_search ON (cd_search.category_id = p2c_search.category_id AND cd_search.language_id = '" . (int)$this->config->get('config_language_id') . "') INNER JOIN " . DB_PREFIX . "category_to_store c2s_search ON (c2s_search.category_id = p2c_search.category_id AND c2s_search.store_id = '" . (int)$this->config->get('config_store_id') . "') WHERE p2c_search.product_id = p.product_id AND cd_search.name LIKE '%" . $escaped_name . "%')";
+				$selects[] = "SELECT p_m.product_id FROM " . DB_PREFIX . "product p_m WHERE p_m.manufacturer_id IN (SELECT m_search.manufacturer_id FROM " . DB_PREFIX . "manufacturer m_search WHERE m_search.name LIKE '%" . $escaped_name . "%')";
+				$selects[] = "SELECT p2c_search.product_id FROM " . DB_PREFIX . "product_to_category p2c_search WHERE p2c_search.category_id IN (SELECT cd_search.category_id FROM " . DB_PREFIX . "category_description cd_search INNER JOIN " . DB_PREFIX . "category_to_store c2s_search ON (c2s_search.category_id = cd_search.category_id AND c2s_search.store_id = '" . $store_id . "') WHERE cd_search.language_id = '" . $language_id . "' AND cd_search.name LIKE '%" . $escaped_name . "%')";
 			}
 		}
 
 		if ($tag !== '') {
-			$tag_words = preg_split('/\s+/u', $tag, -1, PREG_SPLIT_NO_EMPTY);
 			$tag_parts = array();
-			foreach ($tag_words as $word) {
+			foreach (preg_split('/\s+/u', $tag, -1, PREG_SPLIT_NO_EMPTY) as $word) {
 				if (utf8_strlen($word) >= 2) {
-					$tag_parts[] = "pd.tag LIKE '%" . $this->db->escape($word) . "%'";
+					$tag_parts[] = "pd_t.tag LIKE '%" . $this->db->escape($word) . "%'";
 				}
 			}
 			if ($tag_parts) {
-				$clauses[] = '(' . implode(' AND ', $tag_parts) . ')';
+				$selects[] = "SELECT pd_t.product_id FROM " . DB_PREFIX . "product_description pd_t WHERE pd_t.language_id = '" . $language_id . "' AND " . implode(' AND ', $tag_parts);
 			}
 		}
 
 		// A non-empty query with no meaningful searchable clause must never broaden to all products.
-		if (!$clauses && $tag !== '') {
-			return '1 = 0';
+		if (!$selects && $tag !== '') {
+			return array('join' => '', 'where' => ' AND 1 = 0');
 		}
 
-		return implode(' OR ', $clauses);
+		if (!$selects) {
+			return array('join' => '', 'where' => '');
+		}
+
+		$union = '(' . implode(') UNION (', $selects) . ')';
+		$key = md5($union);
+		if (!isset(self::$search_ids[$key])) {
+			$ids = array();
+			$query = $this->db->query($union . " LIMIT " . (self::SEARCH_ID_LIMIT + 1));
+			foreach ($query->rows as $row) {
+				$ids[] = (int)$row['product_id'];
+			}
+			self::$search_ids[$key] = count($ids) > self::SEARCH_ID_LIMIT ? false : $ids;
+		}
+
+		if (self::$search_ids[$key] === false) {
+			return array('join' => " INNER JOIN (" . $union . ") cc_search ON (cc_search.product_id = p.product_id)", 'where' => '');
+		}
+
+		return array('join' => '', 'where' => self::$search_ids[$key] ? " AND p.product_id IN (" . implode(',', self::$search_ids[$key]) . ")" : " AND 1 = 0");
 	}
 
 

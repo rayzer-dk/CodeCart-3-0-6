@@ -66,6 +66,26 @@ final class SmartSearch {
         return array_values($out);
     }
 
+    /**
+     * Words of the query as typed and of each alternative reading (see alternatives()), one list per reading.
+     * Words shorter than two characters are dropped; a reading without any word is left out.
+     */
+    public static function wordGroups($query) {
+        $groups = array();
+        foreach (array_merge(array((string)$query), self::alternatives($query)) as $reading) {
+            $words = array();
+            foreach (preg_split('/\s+/u', $reading, -1, PREG_SPLIT_NO_EMPTY) as $word) {
+                if (mb_strlen($word, 'UTF-8') >= 2) {
+                    $words[] = $word;
+                }
+            }
+            if ($words) {
+                $groups[] = $words;
+            }
+        }
+        return $groups;
+    }
+
     /** "FTH 062", "fth-062" and "FTH062" give the same value; empty if the text is not a code. */
     public static function compactCode($value) {
         $value = self::normalize($value);

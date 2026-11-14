@@ -743,25 +743,62 @@ class ModelCatalogProduct extends Model {
 		return $this->db->query($sql)->rows;
 	}
 
+	/**
+	 * Page of the product list. Only the ordered product ids are selected first, from the narrow
+	 * name index or the product table; the wide product and description rows (descriptions
+	 * included) are then read for those ids alone instead of for every product before the sort.
+	 * Equal sort values are ordered by product id so pages stay stable.
+	 */
 	public function getProducts($data = array()) {
-		$sql = "SELECT p.*, pd.* FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
-		$sql .= $this->buildProductFilterWhere($data);
+		$language_id = (int)$this->config->get('config_language_id');
+		$filter = $this->buildProductFilterWhere($data);
 
 		$sort_data = array('pd.name', 'p.model', 'p.price', 'p.quantity', 'p.status', 'p.noindex', 'p.sort_order');
-		if (isset($data['sort']) && in_array($data['sort'], $sort_data, true)) {
-			$sql .= " ORDER BY " . $data['sort'];
-		} else {
-			$sql .= " ORDER BY pd.name";
-		}
-		$sql .= (isset($data['order']) && strtoupper((string)$data['order']) === 'DESC') ? ' DESC' : ' ASC';
+		$sort = (isset($data['sort']) && in_array($data['sort'], $sort_data, true)) ? $data['sort'] : 'pd.name';
+		$direction = (isset($data['order']) && strtoupper((string)$data['order']) === 'DESC') ? 'DESC' : 'ASC';
 
+		$limit_sql = '';
 		if (isset($data['start']) || isset($data['limit'])) {
 			$start = isset($data['start']) ? max(0, (int)$data['start']) : 0;
 			$limit = isset($data['limit']) ? max(1, (int)$data['limit']) : 20;
-			$sql .= " LIMIT " . $start . "," . $limit;
+			$limit_sql = " LIMIT " . $start . "," . $limit;
 		}
 
-		return $this->db->query($sql)->rows;
+		$row_sql = "SELECT p.*, pd.* FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . $language_id . "'";
+
+		if ($limit_sql === '') {
+			return $this->db->query($row_sql . $filter . " ORDER BY " . $sort . " " . $direction . ", p.product_id " . $direction)->rows;
+		}
+
+		if ($sort === 'pd.name' && !$this->hasIndexedProductFilter($data)) {
+			// pd first: the (language_id, name) index delivers the ids already ordered.
+			$id_sql = "SELECT pd.product_id FROM " . DB_PREFIX . "product_description pd STRAIGHT_JOIN " . DB_PREFIX . "product p ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . $language_id . "'" . $filter . " ORDER BY pd.name " . $direction . ", pd.product_id " . $direction;
+		} else {
+			$id_sql = "SELECT p.product_id FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . $language_id . "'" . $filter . " ORDER BY " . $sort . " " . $direction . ", " . ($sort === 'pd.name' ? 'pd.product_id ' : 'p.product_id ') . $direction;
+		}
+
+		$ids = array();
+		foreach ($this->db->query($id_sql . $limit_sql)->rows as $row) {
+			$ids[] = (int)$row['product_id'];
+		}
+
+		if (!$ids) {
+			return array();
+		}
+
+		$rows_by_id = array();
+		foreach ($this->db->query($row_sql . " AND p.product_id IN (" . implode(',', $ids) . ")")->rows as $row) {
+			$rows_by_id[(int)$row['product_id']] = $row;
+		}
+
+		$rows = array();
+		foreach ($ids as $product_id) {
+			if (isset($rows_by_id[$product_id])) {
+				$rows[] = $rows_by_id[$product_id];
+			}
+		}
+
+		return $rows;
 	}
 
 	public function searchProductSeoUrls($filter_name, $limit = 10) {
@@ -1147,17 +1184,38 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getTotalProducts($data = array()) {
-		$sql = "SELECT COUNT(*) AS total FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
-		$sql .= $this->buildProductFilterWhere($data);
+		$language_id = (int)$this->config->get('config_language_id');
+		$product_filter = $this->buildProductFilterWhere($data, false);
+
+		if ($product_filter === '') {
+			// Nothing narrows the product table: count from the (language_id, name) index, which holds no descriptions.
+			$sql = "SELECT COUNT(*) AS total FROM " . DB_PREFIX . "product_description pd STRAIGHT_JOIN " . DB_PREFIX . "product p ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . $language_id . "'" . $this->buildProductNameFilter($data);
+		} else {
+			$sql = "SELECT COUNT(*) AS total FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . $language_id . "'" . $this->buildProductNameFilter($data) . $product_filter;
+		}
+
 		$query = $this->db->query($sql);
 		return isset($query->row['total']) ? (int)$query->row['total'] : 0;
 	}
 
-	private function buildProductFilterWhere($data) {
-		$where = '';
-		if (!empty($data['filter_name'])) {
-			$where .= " AND pd.name LIKE '%" . $this->db->escape((string)$data['filter_name']) . "%'";
+	// Manufacturer, category, attribute, option and download filters are answered by indexes and
+	// narrow the product table first; the other filters have no index.
+	private function hasIndexedProductFilter($data) {
+		foreach (array('filter_manufacturer_id', 'filter_category') as $key) {
+			if (array_key_exists($key, $data) && $data[$key] !== null && $data[$key] !== '') {
+				return true;
+			}
 		}
+
+		return !empty($data['filter_attribute_id']) || !empty($data['filter_option_id']) || !empty($data['filter_download_id']);
+	}
+
+	private function buildProductNameFilter($data) {
+		return !empty($data['filter_name']) ? " AND pd.name LIKE '%" . $this->db->escape((string)$data['filter_name']) . "%'" : '';
+	}
+
+	private function buildProductFilterWhere($data, $include_name = true) {
+		$where = $include_name ? $this->buildProductNameFilter($data) : '';
 		if (!empty($data['filter_model'])) {
 			$where .= " AND p.model LIKE '%" . $this->db->escape((string)$data['filter_model']) . "%'";
 		}

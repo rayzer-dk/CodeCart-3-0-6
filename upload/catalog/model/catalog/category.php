@@ -32,6 +32,29 @@ class ModelCatalogCategory extends Model {
 		return $out;
 	}
 
+	/**
+	 * Enabled categories of this store whose name contains the query words, also read in the other
+	 * keyboard layout or alphabet. 'path' is the full category path as used in category links.
+	 */
+	public function searchCategories($query, $limit = 3) {
+		$readings = array();
+		foreach (\CodeCart\Core\SmartSearch::wordGroups($query) as $words) {
+			$parts = array();
+			foreach ($words as $word) {
+				$parts[] = "cd.name LIKE '%" . $this->db->escape($word) . "%'";
+			}
+			$readings[] = '(' . implode(' AND ', $parts) . ')';
+		}
+
+		if (!$readings) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT c.category_id, cd.name, (SELECT GROUP_CONCAT(cp.path_id ORDER BY cp.level SEPARATOR '_') FROM " . DB_PREFIX . "category_path cp WHERE cp.category_id = c.category_id) AS path FROM " . DB_PREFIX . "category c INNER JOIN " . DB_PREFIX . "category_description cd ON (c.category_id = cd.category_id) INNER JOIN " . DB_PREFIX . "category_to_store c2s ON (c.category_id = c2s.category_id) WHERE cd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND c2s.store_id = '" . (int)$this->config->get('config_store_id') . "' AND c.status = '1' AND (" . implode(' OR ', $readings) . ") ORDER BY cd.name ASC LIMIT " . max(1, (int)$limit));
+
+		return $query->rows;
+	}
+
 	public function getCategories($parent_id = 0) {
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "category c LEFT JOIN " . DB_PREFIX . "category_description cd ON (c.category_id = cd.category_id) LEFT JOIN " . DB_PREFIX . "category_to_store c2s ON (c.category_id = c2s.category_id) WHERE c.parent_id = '" . (int)$parent_id . "' AND cd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND c2s.store_id = '" . (int)$this->config->get('config_store_id') . "'  AND c.status = '1' ORDER BY c.sort_order, LCASE(cd.name)");
 

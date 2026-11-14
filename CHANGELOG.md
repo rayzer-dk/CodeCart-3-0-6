@@ -1,3 +1,15 @@
+# CodeCart 3.0.6.0 — Build 2.3.17 (2026-11-14)
+
+Core schema 3.0.6.0; presentation schema revision 39 (was 38). Updated stores run UPDATE in `/install/` once: it adds indexes (see UPGRADE). On a catalog with millions of products the index build takes minutes.
+
+Search and product list on large catalogs (measured on 20 000 products, 3 languages, MariaDB 10.11, SQL time):
+- Storefront search was one query with a long OR (name LIKE, `LCASE(code) =` for seven code fields, EXISTS on manufacturers and categories) that could use no index and read every product together with its description. It is now separate indexed queries (name, codes, manufacturer, category, tag) combined by UNION; the matched ids are resolved once for the count and for the page. Results are unchanged: 44 queries × 3 languages (layout, transliteration, codes without separators, typos, tags, special characters, empty result) return the same totals, ids and order as before. Examples: "samsung" 1.3 s → 0.15 s, a typo 1.7 s → 0.15 s, a model code 1.2 s → 0.08 s. A search by tag still reads the descriptions (0.5–0.7 s); a tag cannot be indexed by a substring.
+- Code comparisons no longer wrap the column in `LCASE()` (the collation is case-insensitive). On a `_bin` collation the case of a code now matters.
+- Administration, Catalog → Products: the list sorted by name read every product row for the sort (0.7 s). It selects the ids through the new index first and loads the 20 rows of the page by id: 0.7 s → 0.06 s for sorting by name, 0.25 s → 0.07 s for model, price, quantity and status. The sort by product id is added as a tie-breaker, so equal values no longer come in a random order.
+- Indexes added by the migration and the clean install: `product_description (language_id, name)` and single-column indexes on `product` for manufacturer, model, SKU, UPC, EAN, JAN, ISBN and MPN. The migration is repeatable and keeps an index of the same name that it did not create.
+
+Storefront search suggestions: from two typed characters, up to 6 products (image, name, price, special) and 3 categories under the search field, plus a "all results" link and the corrected spelling when the query had a typo. Keyboard (arrows, Enter, Esc), screen reader support (combobox/listbox), dark theme, 56 px rows on a phone; at most 120 requests per minute per address; suggestions do not enter the search statistics.
+
 # CodeCart 3.0.6.0 — Build 2.3.16 (2026-11-14)
 
 Core schema 3.0.6.0; presentation schema revision 38 (unchanged).

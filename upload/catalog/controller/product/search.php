@@ -516,4 +516,98 @@ class ControllerProductSearch extends Controller {
 
 		$this->response->setOutput($this->load->view('product/search', $data));
 	}
+
+	/**
+	 * Live suggestions for the header search box: a few products and categories as JSON.
+	 * Uses the same product search as the results page; nothing is recorded in the search statistics.
+	 */
+	public function suggest() {
+		$this->load->language('product/search');
+		$this->load->language('common/search');
+
+		$json = array('products' => array(), 'categories' => array());
+		$query = isset($this->request->get['q']) && is_string($this->request->get['q']) ? utf8_substr(trim(preg_replace('/\s+/u', ' ', $this->request->get['q'])), 0, 64) : '';
+
+		if (utf8_strlen($query) >= 2) {
+			$guard = (new \CodeCart\Core\SpamService($this->registry))->consume('search_suggest', 120, 60, 0);
+
+			if (empty($guard['allowed'])) {
+				$this->response->setStatusCode(429);
+				$this->response->addHeader('Retry-After: ' . (int)$guard['retry_after']);
+				$json['retry_after'] = (int)$guard['retry_after'];
+			} else {
+				$this->load->model('catalog/product');
+				$this->load->model('catalog/category');
+				$this->load->model('tool/image');
+
+				$shown = $query;
+				list($products, $categories) = $this->suggestMatches($shown);
+
+				if (!$products && !$categories && utf8_strlen($query) >= 3) {
+					$vocabulary = $this->model_catalog_product->getSearchVocabulary();
+					foreach (array_merge(array($query), \CodeCart\Core\SmartSearch::alternatives($query)) as $candidate) {
+						$candidate = \CodeCart\Core\SmartSearch::correct($candidate, $vocabulary);
+						if ($candidate === '') {
+							continue;
+						}
+						list($products, $categories) = $this->suggestMatches($candidate);
+						if ($products || $categories) {
+							$shown = $candidate;
+							$json['notice'] = sprintf($this->language->get('text_search_corrected'), $candidate);
+							break;
+						}
+					}
+				}
+
+				$show_price = $this->customer->isLogged() || !$this->config->get('config_customer_price');
+				$image_width = 80;
+				$image_height = 80;
+
+				foreach ($products as $product) {
+					$tax_mode = isset($product['tax_display_mode']) ? $product['tax_display_mode'] : 'inherit';
+					$has_special = !is_null($product['special']) && (float)$product['special'] >= 0;
+
+					$json['products'][] = array(
+						'name'    => html_entity_decode($product['name'], ENT_QUOTES, 'UTF-8'),
+						'href'    => str_replace('&amp;', '&', $this->url->link('product/product', 'product_id=' . (int)$product['product_id'])),
+						'thumb'   => $this->model_tool_image->productImage($product['image'] ? $product['image'] : 'no_image.webp', $image_width, $image_height),
+						'price'   => $show_price ? \CodeCart\Core\TaxDisplay::primary($this->registry, $product['price'], (int)$product['tax_class_id'], $tax_mode) : false,
+						'special' => $show_price && $has_special ? \CodeCart\Core\TaxDisplay::primary($this->registry, $product['special'], (int)$product['tax_class_id'], $tax_mode) : false
+					);
+				}
+
+				foreach ($categories as $category) {
+					$json['categories'][] = array(
+						'name' => html_entity_decode($category['name'], ENT_QUOTES, 'UTF-8'),
+						'href' => str_replace('&amp;', '&', $this->url->link('product/category', 'path=' . ($category['path'] !== null && $category['path'] !== '' ? $category['path'] : (int)$category['category_id'])))
+					);
+				}
+
+				$plain = html_entity_decode($shown, ENT_QUOTES, 'UTF-8');
+				$json['image_width'] = $image_width;
+				$json['image_height'] = $image_height;
+				$json['text_products'] = $this->language->get('text_suggest_products');
+				$json['text_categories'] = $this->language->get('text_suggest_categories');
+				$json['all_href'] = str_replace('&amp;', '&', $this->url->link('product/search', 'search=' . urlencode($plain)));
+				$json['all_text'] = sprintf($this->language->get('text_suggest_all'), $plain);
+				$json['status'] = ($products || $categories) ? sprintf($this->language->get('text_suggest_count'), count($products) + count($categories)) : $this->language->get('text_suggest_none');
+			}
+		}
+
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->addHeader('X-Content-Type-Options: nosniff');
+		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+	}
+
+	private function suggestMatches($query) {
+		$products = $this->model_catalog_product->getProducts(array(
+			'filter_name' => $query,
+			'sort'        => 'p.sort_order',
+			'order'       => 'ASC',
+			'start'       => 0,
+			'limit'       => 6
+		));
+
+		return array($products, $this->model_catalog_category->searchCategories($query, 3));
+	}
 }

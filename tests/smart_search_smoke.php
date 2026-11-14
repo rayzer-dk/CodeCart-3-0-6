@@ -43,6 +43,12 @@ $words = SmartSearch::vocabulary(array('Телефон Samsung 128GB', 'теле
 $check(isset($words['телефон']) && $words['телефон'] === 2 && isset($words['samsung']) && !isset($words['128gb']), 'vocabulary counts words without digits');
 $check(SmartSearch::anonymize('write to a.b@example.com or +380 44 123 45 67') === 'write to [email] or [phone]', 'e-mail and phone are not stored');
 
+// Word lists for the LIKE conditions: the query first, then its other readings; one-letter words are dropped.
+$groups = SmartSearch::wordGroups('samsung prime  a');
+$check($groups[0] === array('samsung', 'prime') && in_array(array('самсунг', 'приме'), $groups, true), 'word groups start with the query as typed');
+$check(SmartSearch::wordGroups('') === array(), 'empty query has no word groups');
+$check(SmartSearch::wordGroups('FTH-062 12') === array(array('FTH-062', '12')), 'a technical query has a single reading');
+
 if ($failures) {
     fwrite(STDERR, 'FAIL: ' . implode('; ', $failures) . "\n");
     exit(1);

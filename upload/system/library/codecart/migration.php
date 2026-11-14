@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '38';
+    const PRESENTATION_SCHEMA_VERSION = '39';
 
     private $db;
     private $config;
@@ -148,6 +148,13 @@ class Migration {
             $this->ensureIndex('module', 'code', array('code'));
             $this->ensureIndex('article_to_blog_category', 'blog_category_id', array('blog_category_id'));
             $this->ensureIndex('product_related', 'related_id', array('related_id'));
+            // Storefront search and the manufacturer page look products up by code and manufacturer;
+            // the full-length name index serves LIKE '%word%' from the index alone and the admin name sort.
+            $this->ensureIndex('product', 'manufacturer_id', array('manufacturer_id'));
+            foreach (array('model', 'sku', 'upc', 'ean', 'jan', 'isbn', 'mpn') as $codeColumn) {
+                $this->ensureIndex('product', $codeColumn, array($codeColumn));
+            }
+            $this->ensureFullLengthIndex('product_description', 'language_name', array('language_id', 'name'));
             $this->ensureIndex('article_related', 'related_id', array('related_id'));
             $this->ensureIndex('article_related_wb', 'category_id', array('category_id'));
             $this->ensureIndex('article_related_mn', 'manufacturer_id', array('manufacturer_id'));
@@ -1498,6 +1505,68 @@ class Migration {
         }
 
         $this->db->query("ALTER TABLE `" . DB_PREFIX . $table . "` ADD INDEX `" . $name . "` (" . implode(',', $safe) . ")");
+    }
+
+    /**
+     * An index over whole column values. A prefix index (name(191)) cannot answer LIKE '%word%' or
+     * ORDER BY from the index alone. Skipped where the engine limits key length to 767/1000 bytes.
+     */
+    private function ensureFullLengthIndex($table, $name, array $columns) {
+        if (!$this->tableExists($table) || !$columns || !preg_match('/^[a-zA-Z0-9_]+$/', $name)) {
+            return;
+        }
+
+        $table_query = $this->db->query("SELECT ENGINE, ROW_FORMAT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . $this->db->escape(DB_PREFIX . $table) . "' LIMIT 1");
+        if (!$table_query->num_rows || strtoupper((string)$table_query->row['ENGINE']) !== 'INNODB' || !in_array(strtoupper((string)$table_query->row['ROW_FORMAT']), array('DYNAMIC', 'COMPRESSED'), true)) {
+            return;
+        }
+
+        $available = array();
+        foreach ($this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . $table . "`")->rows as $row) {
+            $available[(string)$row['Field']] = (string)$row['Type'];
+        }
+
+        $key_bytes = 0;
+        foreach ($columns as $column) {
+            if (!preg_match('/^[a-zA-Z0-9_]+$/', $column) || !isset($available[$column])) {
+                return;
+            }
+            $key_bytes += preg_match('/^varchar\((\d+)\)/i', $available[$column], $match) ? (int)$match[1] * 4 : 4;
+        }
+        if ($key_bytes > 3072) {
+            return;
+        }
+
+        $indexes = array();
+        foreach ($this->db->query("SHOW INDEX FROM `" . DB_PREFIX . $table . "`")->rows as $row) {
+            $indexes[(string)$row['Key_name']][(int)$row['Seq_in_index']] = array((string)$row['Column_name'], $row['Sub_part']);
+        }
+
+        $prefix_variant = false;
+        foreach ($indexes as $key_name => $index_parts) {
+            ksort($index_parts);
+            if (array_column($index_parts, 0) !== array_values($columns)) {
+                continue;
+            }
+            if (!array_filter(array_column($index_parts, 1), static function ($sub_part) { return $sub_part !== null; })) {
+                return;
+            }
+            $prefix_variant = $prefix_variant || $key_name === $name;
+        }
+
+        if (isset($indexes[$name]) && !$prefix_variant) {
+            $name = substr($name . '_cc', 0, 64);
+            if (isset($indexes[$name])) {
+                return;
+            }
+        }
+
+        $quoted = array();
+        foreach ($columns as $column) {
+            $quoted[] = '`' . $column . '`';
+        }
+
+        $this->db->query("ALTER TABLE `" . DB_PREFIX . $table . "` " . ($prefix_variant ? "DROP INDEX `" . $name . "`, " : "") . "ADD INDEX `" . $name . "` (" . implode(',', $quoted) . ")");
     }
 
     private function ensureUniqueIndexIfNoDuplicates($table, $name, array $columns) {

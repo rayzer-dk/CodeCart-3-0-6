@@ -4630,6 +4630,54 @@
           "columns": [
             "product_id"
           ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "manufacturer_id"
+          ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "model"
+          ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "sku"
+          ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "upc"
+          ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "ean"
+          ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "jan"
+          ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "isbn"
+          ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "mpn"
+          ]
         }
       ]
     },
@@ -4706,6 +4754,13 @@
         {
           "unique": false,
           "columns": [
+            "name"
+          ]
+        },
+        {
+          "unique": false,
+          "columns": [
+            "language_id",
             "name"
           ]
         }
