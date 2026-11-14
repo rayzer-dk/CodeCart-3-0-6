@@ -32,7 +32,7 @@ return array(
 		'<li><a href="#tab-server" data-toggle="tab">{{ tab_server }}</a></li>' => array('<li><a href="#tab-server" data-toggle="tab"><i class="fa fa-server"></i> {{ tab_server }}</a></li>', true),
 	),
 	'catalog/view/theme/*/template/common/header.twig' => array(
-		'<title>{{ title }}</title>' => array('<title>{{ title|e }}</title>', true),
+		'<title>{{ title }}</title>' => array('<title>{{ title_text|e }}</title>', true),
 		'<base href="{{ base }}" />' => array('<base href="{{ base|e }}" />', true),
 		'<body>' => array('<body data-ccp-cart-url=', false),
 		'<script src="catalog/view/javascript/jquery/jquery-2.1.1.min.js" type="text/javascript"></script>' => array('<script src="catalog/view/javascript/jquery/jquery-3.7.1.min.js" type="text/javascript"></script>', true),

@@ -71,8 +71,9 @@ class ControllerProductSearch extends Controller {
 			$limit = $this->config->get('theme_' . $this->config->get('config_theme') . '_product_limit');
 		}
 
-		$search_view = htmlspecialchars((string)$search, ENT_QUOTES, 'UTF-8');
-		$tag_view = htmlspecialchars((string)$tag, ENT_QUOTES, 'UTF-8');
+		// Request values are already HTML-encoded; do not encode the entities again.
+		$search_view = htmlspecialchars((string)$search, ENT_QUOTES, 'UTF-8', false);
+		$tag_view = htmlspecialchars((string)$tag, ENT_QUOTES, 'UTF-8', false);
 
 		if (isset($this->request->get['search'])) {
 			$this->document->setTitle($this->language->get('heading_title') .  ' - ' . $search_view);

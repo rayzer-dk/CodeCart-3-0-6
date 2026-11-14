@@ -9,34 +9,34 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>{{ title|e }}</title>
+<title>{{ title_text|e }}</title>
 {% if robots %}
 <meta name="robots" content="{{ robots|e }}" />
 {% endif %}
 <base href="{{ base|e }}" />
 {% if description %}
-<meta name="description" content="{{ description|e }}" />
+<meta name="description" content="{{ description_text|e }}" />
 {% endif %}
 {% if keywords %}
-<meta name="keywords" content="{{ keywords|e }}" />
+<meta name="keywords" content="{{ keywords_text|e }}" />
 {% endif %}
-<meta property="og:title" content="{{ title|e }}" />
+<meta property="og:title" content="{{ title_text|e }}" />
 <meta property="og:type" content="{{ og_type|e }}" />
 <meta property="og:url" content="{{ og_url|e }}" />
 {% if og_description %}<meta property="og:description" content="{{ og_description|e }}" />{% endif %}
 {% if og_image %}
     <meta property="og:image" content="{{ og_image|e }}" />
-    <meta property="og:image:alt" content="{{ title|e }}" />
+    <meta property="og:image:alt" content="{{ title_text|e }}" />
 {% elseif logo %}
     <meta property="og:image" content="{{ logo|e }}" />
     <meta property="og:image:alt" content="{{ name|e }}" />
 {% endif %}
 <meta property="og:site_name" content="{{ name|e }}" />
 <meta name="twitter:card" content="{% if og_image %}summary_large_image{% else %}summary{% endif %}" />
-<meta name="twitter:title" content="{{ title|e }}" />
+<meta name="twitter:title" content="{{ title_text|e }}" />
 {% if og_description %}<meta name="twitter:description" content="{{ og_description|e }}" />{% endif %}
 {% if og_image %}<meta name="twitter:image" content="{{ og_image|e }}" />
-<meta name="twitter:image:alt" content="{{ title|e }}" />{% elseif logo %}<meta name="twitter:image" content="{{ logo|e }}" />
+<meta name="twitter:image:alt" content="{{ title_text|e }}" />{% elseif logo %}<meta name="twitter:image" content="{{ logo|e }}" />
 <meta name="twitter:image:alt" content="{{ name|e }}" />{% endif %}
 {% for alternate in alternate_links %}
 <link rel="alternate" hreflang="{{ alternate.hreflang|e }}" href="{{ alternate.href|e }}" />

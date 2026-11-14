@@ -42,10 +42,15 @@ class ControllerCommonHeader extends Controller {
 		}
 
 		$data['title'] = $this->document->getTitle();
+		// Titles arrive HTML-encoded (request and catalog data); the bundled templates escape
+		// title_text themselves, so names with quotes or ampersands are encoded once.
+		$data['title_text'] = html_entity_decode((string)$data['title'], ENT_QUOTES, 'UTF-8');
 
 		$data['base'] = $server;
 		$data['description'] = $this->document->getDescription();
 		$data['keywords'] = $this->document->getKeywords();
+		$data['description_text'] = html_entity_decode((string)$data['description'], ENT_QUOTES, 'UTF-8');
+		$data['keywords_text'] = html_entity_decode((string)$data['keywords'], ENT_QUOTES, 'UTF-8');
 		$data['links'] = $this->document->getLinks();
 		$data['robots'] = $this->document->getRobots();
 		$canonical_url = $this->getCanonicalUrl($data['links']);

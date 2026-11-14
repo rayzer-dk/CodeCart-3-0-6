@@ -1,3 +1,10 @@
+# CodeCart 3.0.6.0 — Build 2.3.12 (2026-11-14)
+
+Core schema 3.0.6.0; presentation schema revision 38 (unchanged).
+
+- Storefront, page head: a product, category or page name with a quotation mark or an ampersand was encoded twice, so the browser tab, `og:title`, `twitter:title` and the search result snippet showed `30&quot;` instead of `30"`. The same happened in `meta keywords` and `meta description`. Catalog and request values are already HTML-encoded; the bundled templates now escape the decoded text once (`title_text`, `description_text`, `keywords_text`). `title`, `description` and `keywords` keep their OpenCart 3 content for third-party themes.
+- Search page: the query was encoded twice in the page title and in the heading (`&quot;x` shown for `"x`). Checked that `<script>` typed into the search box is still shown as text.
+
 # CodeCart 3.0.6.0 — Build 2.3.11 (2026-11-14)
 
 Core schema 3.0.6.0; presentation schema revision 38 (unchanged).

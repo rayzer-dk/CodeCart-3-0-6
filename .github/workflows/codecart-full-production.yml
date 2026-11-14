@@ -1,4 +1,4 @@
-name: CodeCart Full Production 2.3.11
+name: CodeCart Full Production 2.3.12
 on:
   push:
     branches: [main]
@@ -44,7 +44,7 @@ jobs:
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Build 2.3.11: refresh audited Core integrity manifest [skip ci]"
+            git commit -m "Build 2.3.12: refresh audited Core integrity manifest [skip ci]"
             git push origin HEAD:main
           fi
 
@@ -84,13 +84,13 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts
           python3 tools/package_production.py --output artifacts
-          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.11.zip
-          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.11.zip.sha256
-          unzip -tq artifacts/CodeCart-3.0.6-production-Build-2.3.11.zip
+          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.12.zip
+          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.12.zip.sha256
+          unzip -tq artifacts/CodeCart-3.0.6-production-Build-2.3.12.zip
 
       - uses: actions/upload-artifact@v7
         with:
-          name: CodeCart-3.0.6-full-2.3.11
+          name: CodeCart-3.0.6-full-2.3.12
           path: artifacts/
           retention-days: 90
           if-no-files-found: error

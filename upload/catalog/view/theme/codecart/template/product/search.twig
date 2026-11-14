@@ -14,7 +14,7 @@
     {% set class = 'col-sm-12' %}
     {% endif %}
     <div id="content" class="{{ class }}">{{ content_top }}
-      <h1>{{ heading_title|escape }}</h1>
+      <h1>{{ heading_title }}</h1>
       {% if search_correction and search_suggestion_href %}<div class="alert alert-info ccp-search-suggestion"><i class="fa fa-lightbulb-o"></i> <a href="{{ search_suggestion_href }}">{{ search_correction }}</a></div>{% endif %}
       <label class="control-label" for="input-search">{{ entry_search }}</label>
       <div class="row">
