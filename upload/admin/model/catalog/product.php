@@ -634,7 +634,7 @@ class ModelCatalogProduct extends Model {
 				}
 			}
 
-			if (isset($change['manufacturer_id']) && $change['manufacturer_id'] !== null) {
+			if (isset($change['manufacturer_id'])) {
 				$old = (int)$row['manufacturer_id'];
 				$new = (int)$change['manufacturer_id'];
 

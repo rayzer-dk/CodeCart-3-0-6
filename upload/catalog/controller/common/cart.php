@@ -6,6 +6,7 @@ class ControllerCommonCart extends Controller {
 		// Totals
 		$this->load->model('setting/extension');
 
+		/** @var array<int, array{code: string, title: string, value: float, sort_order: int|string}> $totals */
 		$totals = array();
 		$taxes = $this->cart->getTaxes();
 		$total = 0;
