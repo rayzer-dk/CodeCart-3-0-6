@@ -3,6 +3,7 @@
 $_['text_items']     = 'Cart: %s (%s)';
 $_['text_empty']     = 'Your shopping cart is empty!';
 $_['text_cart']      = 'View Cart';
+$_['text_cart_short'] = 'Cart';
 $_['text_checkout']  = 'Checkout';
 $_['text_recurring'] = 'Payment Profile';
 $_['text_close'] = 'Close';

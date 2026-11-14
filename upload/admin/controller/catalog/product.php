@@ -1079,8 +1079,10 @@ class ControllerCatalogProduct extends Controller {
 		$data['text_products_per_page'] = $this->language->get('text_products_per_page');
 		$data['filter_stats'] = $filter_stats;
 		if ($filter_stats !== '') {
-			$this->load->language('common/column_left', 'product_stats');
-			$data['filter_stats_label'] = $this->language->get('product_stats')->get('text_stats_' . $filter_stats);
+			$this->language->backup();
+			$this->load->language('common/column_left');
+			$data['filter_stats_label'] = $this->language->get('text_stats_' . $filter_stats);
+			$this->language->restore();
 		}
 		$data['filter_name'] = $filter_name;
 		$data['filter_model'] = $filter_model;
