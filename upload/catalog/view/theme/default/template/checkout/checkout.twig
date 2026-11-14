@@ -26,7 +26,7 @@
           <div class="panel-heading">
             <h4 class="panel-title">{{ text_checkout_option }}</h4>
           </div>
-          <div class="panel-collapse collapse" id="collapse-checkout-option">
+          <div class="panel-collapse collapse{% if not logged %} in{% endif %}" id="collapse-checkout-option">
             <div class="panel-body"></div>
           </div>
         </div>
@@ -115,7 +115,6 @@ $(document).ready(function() {
 
 			$('#collapse-checkout-option').parent().find('.panel-heading .panel-title').html('<a href="#collapse-checkout-option" data-toggle="collapse" data-parent="#accordion" class="accordion-toggle">{{ text_checkout_option }} <i class="fa fa-caret-down"></i></a>');
 
-			$('a[href=\'#collapse-checkout-option\']').trigger('click');
         },
         error: function(xhr, ajaxOptions, thrownError) {
             if (window.CodeCartUI) { window.CodeCartUI.error(xhr, thrownError); } else { alert(thrownError + "\r\n" + xhr.statusText); }

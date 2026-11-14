@@ -7,6 +7,8 @@
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
 }
 #ccp-product-list .table {
   width: 100%;
@@ -17,6 +19,8 @@
 }
 #ccp-product-list .table > thead > tr > td {
   padding: 7px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   border-right: 1px solid var(--ccp-admin-border, #dce2eb);
   vertical-align: middle;
@@ -49,11 +53,11 @@
   margin: 2px auto 0;
   box-sizing: border-box;
 }
-#ccp-product-list .table > thead > tr > td.ccp-col-image { width: 88px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-image { width: 104px; }
 #ccp-product-list .table > thead > tr > td.ccp-col-photo { width: 68px; }
 #ccp-product-list .table > thead > tr > td.ccp-col-model { width: 90px; }
 #ccp-product-list .table > thead > tr > td.ccp-col-price { width: 116px; }
-#ccp-product-list .table > thead > tr > td.ccp-col-quantity { width: 74px; }
+#ccp-product-list .table > thead > tr > td.ccp-col-quantity { width: 88px; }
 #ccp-product-list .table > thead > tr > td.ccp-col-status { width: 70px; }
 #ccp-product-list .table > thead > tr > td.ccp-col-index { width: 93px; }
 #ccp-product-list .table > thead > tr > td.ccp-col-action { width: 91px; }
@@ -137,7 +141,7 @@
   #ccp-product-list .panel-body { padding: 8px; }
   #ccp-product-list .table > thead > tr > td,
   #ccp-product-list .table > tbody > tr > td { padding-left: 4px; padding-right: 4px; }
-  #ccp-product-list .table > thead > tr > td.ccp-col-image { width: 80px; }
+  #ccp-product-list .table > thead > tr > td.ccp-col-image { width: 100px; }
   #ccp-product-list .table > thead > tr > td.ccp-col-price { width: 108px; }
   #ccp-product-list .table > thead > tr > td.ccp-col-model { width: 85px; }
 }

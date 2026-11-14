@@ -38,10 +38,12 @@ window.CodeCartUI = window.CodeCartUI || (function(){
 		$('.btn:disabled').each(function(){var $button=$(this);if($button.data('resetText')!==undefined){$button.button('reset');}});
 		var message=serverMessage(xhr);
 		if(!message){
-			var lang=(document.documentElement.getAttribute('lang')||'en').toLowerCase(),busy=xhr&&xhr.status===429;
-			if(lang.indexOf('uk')===0){message=busy?'Забагато запитів. Спробуйте трохи пізніше.':'Не вдалося виконати запит. Спробуйте ще раз.';}
-			else if(lang.indexOf('ru')===0){message=busy?'Слишком много запросов. Попробуйте немного позже.':'Не удалось выполнить запрос. Попробуйте ещё раз.';}
-			else{message=busy?'Too many requests. Please try again a little later.':'The request could not be completed. Please try again.';}
+			var lang=(document.documentElement.getAttribute('lang')||'en').toLowerCase(),busy=xhr&&xhr.status===429,ui=window.CodeCartI18n||{};
+			message=busy?ui.ui_request_busy:ui.ui_request_failed;
+			if(!message){
+				if(lang.indexOf('ru')===0){message=busy?'Слишком много запросов. Попробуйте немного позже.':'Не удалось выполнить запрос. Попробуйте ещё раз.';}
+				else{message=busy?'Too many requests. Please try again a little later.':'The request could not be completed. Please try again.';}
+			}
 		}
 		toast('danger',message);
 	}

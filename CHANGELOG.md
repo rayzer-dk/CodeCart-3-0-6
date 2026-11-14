@@ -1,3 +1,22 @@
+# CodeCart 3.0.6.0 — Build 2.3.14 (2026-11-14)
+
+Core schema 3.0.6.0; presentation schema revision 38 (unchanged).
+
+Layout and accessibility, from a measured audit (390, 768 and 1440 px, light and dark theme) and measured again after the change:
+- Cart on a phone: the table was wider than the screen and the price, the total and the remove button were out of view unless the "modern" commerce style was on. The card layout now applies in every style.
+- Storefront on a phone: rows stuck out of the viewport by 3 px on the category, search, sign-in and registration pages.
+- Touch targets: header controls, quantity buttons, product buttons, form fields, checkboxes and carousel controls are at least 44 px on a phone. Text smaller than 12 px was raised to 12 px.
+- Keyboard focus is visible again on the product tabs, the theme switch and the account menu (the outline was suppressed).
+- Contrast: text and button colours below 4.5:1 were adjusted in the storefront and in the administration, both themes. In the dark administration theme the Scheduler set-up block and task names were unreadable (1.08:1 and 1.31:1).
+- Form fields without a label now have one: storefront search, cart quantity, search category, agreement checkbox; in the administration the product list filters and row checkboxes, the search page and the Scheduler commands. Language flags in the administration have `alt`.
+- Checkout no longer shifts while it loads (layout shift 0.09 → below 0.001): the first step is rendered open instead of being opened by script.
+- Sign-in page has a first-level heading. Products list in the administration: the "Image" column header no longer overlaps "Name".
+- `.btn-default` in the storefront is flat like the rest of the theme; the 404 page uses the theme accent colour and radius.
+
+- Correction to build 2.3.13: the Ukrainian text of the AJAX error message was written into `common.js`, which the Ukrainian locale check of the release gate rejects. It now comes from the language files (`ui_request_failed`, `ui_request_busy`).
+
+Not changed: text links inside paragraphs and product names stay below 44 px; the registration page still shifts slightly (0.02–0.04) when custom fields arrive.
+
 # CodeCart 3.0.6.0 — Build 2.3.13 (2026-11-14)
 
 Core schema 3.0.6.0; presentation schema revision 38 (unchanged).

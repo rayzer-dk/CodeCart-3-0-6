@@ -4,7 +4,7 @@
 .codecart-scheduler-table .ccp-scheduler-task-cell { min-width: 0; vertical-align: middle; }
 .codecart-scheduler-table .ccp-scheduler-task-cell strong { font-weight: 600; color: #213552; }
 .codecart-scheduler-table .ccp-scheduler-task-cell .ccp-scheduler-task-code {
-  display: block; font-size: 11px; margin-top: 4px; color: #66768d;
+  display: block; font-size: 12px; margin-top: 4px; color: #5b6b80;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   max-width: 260px;
 }
@@ -62,7 +62,7 @@
 .codecart-scheduler-table td { vertical-align:middle!important; padding:6px 8px!important }
 .codecart-scheduler-table .ccp-task-single-line {display:flex;align-items:center;gap:5px;flex-wrap:nowrap;min-width:0;white-space:nowrap}
 .codecart-scheduler-table .ccp-task-single-line .ccp-task-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto}
-.codecart-scheduler-table .ccp-task-single-line .label{flex:0 0 auto;font-size:10px}
+.codecart-scheduler-table .ccp-task-single-line .label{flex:0 0 auto;font-size:12px}
 .codecart-scheduler-table .ccp-task-single-line .ccp-scheduler-task-help{flex:0 0 auto;margin-left:0}
 .codecart-scheduler-table td:nth-child(2) code{display:inline-block;max-width:100%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;vertical-align:middle}
 .codecart-scheduler-table td:nth-child(5),.codecart-scheduler-table td:nth-child(6){white-space:nowrap;font-size:12px}
@@ -122,6 +122,10 @@ html.ccp-admin-dark .ccp-host-technical-fields>summary{color:#b6dafc}
 .ccp-scheduler-mode-subtitle{display:block;margin-top:4px;color:#65758a;font-weight:400}
 .ccp-scheduler-no-handlers{margin:10px 0 12px}
 html.ccp-admin-dark .ccp-scheduler-host-details .ccp-host-task-helper{background:#17212b;border-color:#3b4a5b}
+html.ccp-admin-dark .ccp-scheduler-setup-details{background:#18212b;border-color:#354252}
+html.ccp-admin-dark .ccp-scheduler-setup-details>summary,html.ccp-admin-dark .ccp-scheduler-help>summary{color:#b6dafc}
+html.ccp-admin-dark .codecart-scheduler-table .ccp-scheduler-task-cell strong{color:#dce5ef}
+html.ccp-admin-dark .codecart-scheduler-table .ccp-scheduler-task-cell .ccp-scheduler-task-code{color:#9eacbc}
 
 /* Page rules moved from Twig; no inline CSS or accumulating overrides. */
 .ccp-scheduler-setup-details { margin:10px 0 0;padding:10px 12px;border:1px solid #dde6f2;border-radius:5px; background:#f9fbfe }
@@ -129,6 +133,7 @@ html.ccp-admin-dark .ccp-scheduler-host-details .ccp-host-task-helper{background
 .ccp-scheduler-setup-details[open] > summary {margin-bottom:12px}
 .ccp-scheduler-setup-details .form-group {margin-bottom:10px}
 .ccp-scheduler-setup-details .help-block {margin:6px 0}
+.ccp-scheduler-setup-details code {font-size:12px}
 .ccp-scheduler-intro{margin:6px 0 0}
 .ccp-scheduler-guide{margin:0 0 10px}
 .ccp-scheduler-empty-handlers{color:#8a5500}

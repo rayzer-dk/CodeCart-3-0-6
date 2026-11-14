@@ -22,7 +22,7 @@
           <input type="text" name="search" value="{{ search|escape }}" placeholder="{{ text_keyword }}" id="input-search" class="form-control" />
         </div>
         <div class="col-sm-3">
-          <select name="category_id" class="form-control">
+          <select name="category_id" class="form-control" aria-label="{{ text_category }}">
             <option value="0">{{ text_category }}</option>
             {% for category in categories %}
             <option value="{{ category.category_id }}"{% if category.category_id == category_id %} selected="selected"{% endif %}>{{ category.prefix }}{{ category.name }}</option>

@@ -51,7 +51,7 @@
           <br/>
           <ul class="nav nav-tabs" id="language">
             {% for language in languages %}
-            <li><a href="#language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</a></li>
+            <li><a href="#language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" alt="" /> {{ language.name }}</a></li>
             {% endfor %}
           </ul>
           <div class="tab-content">

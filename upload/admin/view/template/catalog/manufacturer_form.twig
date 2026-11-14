@@ -43,7 +43,7 @@
               </div>
               <ul class="nav nav-tabs" id="language">
                 {% for language in languages %}
-                <li><a href="#language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}</a></li>
+                <li><a href="#language{{ language.language_id }}" data-toggle="tab"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" alt="" /> {{ language.name }}</a></li>
                 {% endfor %}
               </ul>
               <div class="tab-content">
@@ -128,7 +128,7 @@
                   <tr>
                     <td class="text-left">{{ store.name }}</td>
                     <td class="text-left">{% for language in languages %}
-                      <div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
+                      <div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" alt="{{ language.name }}" /></span>
                         <input type="text" id="input-manufacturer-seo-{{ store.store_id }}-{{ language.language_id }}" name="manufacturer_seo_url[{{ store.store_id }}][{{ language.language_id }}]" value="{% if manufacturer_seo_url[store.store_id][language.language_id] %}{{ manufacturer_seo_url[store.store_id][language.language_id] }}{% endif %}" placeholder="{{ entry_keyword }}" class="form-control ccp-seo-url-input" /><span class="input-group-btn"><button type="button" class="btn btn-primary ccp-generate-seo-url" data-language-id="{{ language.language_id }}" data-source="#input-name" data-target="#input-manufacturer-seo-{{ store.store_id }}-{{ language.language_id }}" data-toggle="tooltip" title="{{ button_generate_seo_url }}" aria-label="{{ button_generate_seo_url }}"><i class="fa fa-magic"></i></button></span>
                       </div>
                       {% if error_keyword[store.store_id][language.language_id] %}

@@ -31,3 +31,5 @@ $_['ui_increase'] = 'Increase';
 $_['ui_decrease'] = 'Decrease';
 $_['ui_upload'] = 'Upload';
 $_['ui_action'] = 'Action';
+$_['ui_request_failed'] = 'The request could not be completed. Please try again.';
+$_['ui_request_busy'] = 'Too many requests. Please try again a little later.';

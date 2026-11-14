@@ -2386,3 +2386,34 @@ html.ccp-admin-dark #footer .ccp-footer-runtime { color: #a8b8cb; }
 #header .navbar-right > li.ccp-admin-theme-menu > a,
 #header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle{min-width:54px;padding-left:16px!important;padding-right:16px!important;text-align:center;font-size:20px}
 #header .navbar-right > li.ccp-admin-theme-menu > a i{width:auto}
+
+/* Accessibility: text contrast and minimum text size */
+.label{font-size:12px}
+.label-default{background-color:#5f6b7a}
+.label-success{background-color:#2e7d32}
+.label-info{background-color:#0277a8}
+.label-warning{background-color:#f0ad4e;color:#1f2937}
+.label-danger{background-color:#c0392b}
+.tile-heading{background-color:rgba(0,0,0,.16)}
+.btn-warning.ccp-developer-action,.btn-warning.ccp-developer-action:hover,.btn-warning.ccp-developer-action:focus{color:#1f2937;text-shadow:none}
+.alert-danger{color:#8c1d18}
+.alert-info a:not(.btn){color:#0a58a8}
+.ccp-footer-runtime-item>span,.ccp-footer-runtime-item>time,.ccp-world-map-empty,td>.text-muted{color:#5b6778}
+#ccp-product-list .text-danger{color:#c0392b}
+#oc-search .ccp-search-example{color:#5b6778}
+.ccp-char-counter{font-size:12px;color:#5b6778}
+.ccp-notification-count{font-size:12px}
+#stats .stats-title,#stats li,#stats li .pull-right{font-size:12px}
+#stats li{color:#b4bcc6}
+#footer .ccp-footer-sep{color:#667085}
+.codecart-dashboard-chart text{font-size:12px}
+html.ccp-admin-dark .breadcrumb li a{color:#8d99a8}
+html.ccp-admin-dark #footer .ccp-footer-runtime-item strong{color:#cbd5e1}
+html.ccp-admin-dark #footer .ccp-footer-runtime-item>span,html.ccp-admin-dark #footer .ccp-footer-runtime-item>time,html.ccp-admin-dark .ccp-dashboard-loading{color:#b4bcc6}
+html.ccp-admin-dark #footer .ccp-project-support-link{color:#ff8b8b}
+html.ccp-admin-dark #footer a:not(.btn):not(.ccp-project-support-link),html.ccp-admin-dark .help-block>a,html.ccp-admin-dark .table>thead>tr>td>a,html.ccp-admin-dark #content p>a:not(.btn){color:#79b9ff}
+html.ccp-admin-dark .alert-info a:not(.btn){color:#8cc8ff}
+html.ccp-admin-dark #ccp-product-list .text-danger{color:#ff8a80}
+html.ccp-admin-dark td>.text-muted,html.ccp-admin-dark .ccp-world-map-empty{color:#9eacbc}
+html.ccp-admin-dark #oc-search .ccp-search-example{color:#aebdcb}
+html.ccp-admin-dark #footer .ccp-footer-sep{color:#8d99a8}

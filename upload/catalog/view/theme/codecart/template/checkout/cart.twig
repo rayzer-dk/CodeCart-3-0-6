@@ -63,7 +63,7 @@
                 <span class="label label-info">{{ text_recurring_item }}</span> <small>{{ product.recurring }}</small> {% endif %}</td>
               <td class="text-left ccp-cart-product-model">{{ product.model }}</td>
               <td class="text-left ccp-cart-product-quantity"><div class="input-group btn-block">
-                  <input type="text" name="quantity[{{ product.cart_id }}]" value="{{ product.quantity|e('html_attr') }}" size="1" class="form-control ccp-cart-qty" data-cart-id="{{ product.cart_id|e('html_attr') }}" inputmode="numeric" min="0" />
+                  <input type="text" name="quantity[{{ product.cart_id }}]" value="{{ product.quantity|e('html_attr') }}" size="1" class="form-control ccp-cart-qty" aria-label="{{ column_quantity|e('html_attr') }}" data-cart-id="{{ product.cart_id|e('html_attr') }}" inputmode="numeric" min="0" />
                   <span class="input-group-btn">
                   <button type="button" data-cart-id="{{ product.cart_id|e('html_attr') }}" data-toggle="tooltip" title="{{ button_update|e('html_attr') }}" class="btn btn-primary ccp-cart-qty-update" aria-label="{{ button_update|e('html_attr') }}"><i class="fa fa-refresh"></i></button>
                   <button type="button" data-toggle="tooltip" title="{{ button_remove|e('html_attr') }}" class="btn btn-danger" onclick="cart.remove('{{ product.cart_id }}');" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times-circle"></i></button>
@@ -138,7 +138,7 @@
                 <span class="label label-info">{{ text_recurring_item }}</span> <small>{{ product.recurring }}</small> {% endif %}</td>
               <td class="text-left">{{ product.model }}</td>
               <td class="text-left"><div class="input-group btn-block" style="max-width: 200px;">
-                  <input type="text" name="quantity[{{ product.cart_id }}]" value="{{ product.quantity|e('html_attr') }}" size="1" class="form-control ccp-cart-qty" data-cart-id="{{ product.cart_id|e('html_attr') }}" inputmode="numeric" min="0" />
+                  <input type="text" name="quantity[{{ product.cart_id }}]" value="{{ product.quantity|e('html_attr') }}" size="1" class="form-control ccp-cart-qty" aria-label="{{ column_quantity|e('html_attr') }}" data-cart-id="{{ product.cart_id|e('html_attr') }}" inputmode="numeric" min="0" />
                   <span class="input-group-btn">
                   <button type="button" data-cart-id="{{ product.cart_id|e('html_attr') }}" data-toggle="tooltip" title="{{ button_update|e('html_attr') }}" class="btn btn-primary ccp-cart-qty-update" aria-label="{{ button_update|e('html_attr') }}"><i class="fa fa-refresh"></i></button>
                   <button type="button" data-toggle="tooltip" title="{{ button_remove|e('html_attr') }}" class="btn btn-danger" onclick="cart.remove('{{ product.cart_id }}');" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times-circle"></i></button>

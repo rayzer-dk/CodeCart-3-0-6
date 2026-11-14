@@ -20,6 +20,8 @@ $_['text_logged'] = 'Вы вошли как <a href="%s">%s</a> (<a href="%s">В
 
 // CodeCart PRO: aligned locale keys
 $_['ui_action'] = 'Действие';
+$_['ui_request_failed'] = 'Не удалось выполнить запрос. Попробуйте ещё раз.';
+$_['ui_request_busy'] = 'Слишком много запросов. Попробуйте немного позже.';
 $_['ui_close'] = 'Закрыть';
 $_['ui_compare'] = 'Сравнить';
 $_['ui_decrease'] = 'Уменьшить';
