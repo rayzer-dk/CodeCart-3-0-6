@@ -1,3 +1,12 @@
+# CodeCart 3.0.6.0 — Build 2.3.10 (2026-11-14)
+
+Core schema 3.0.6.0; presentation schema revision 38 (unchanged).
+
+Security, found by an audit of build 2.3.9 and checked with real requests on a clean install:
+- `install/cli_install.php` could be started over HTTP: under a web SAPI with `register_argc_argv` on, PHP fills `argv` from the query string, so the command-line installer ran without signing in. It now answers 404 unless started from the command line, as `cli.php` already did.
+- Installer UPDATE sign-in: failed attempts were counted in the session only, so dropping the cookie reset the limit and the administrator password could be guessed without the lock-out of the administration sign-in. Failures are now also counted per user name and address in the same table as the administration sign-in. Checked: five failures with a fresh session each are recorded, further attempts are refused even with the right password, and sign-in works again once the lock expires.
+- Storefront: a `code[]=x` request to the currency switch stored an array in the session and every following page of that visitor ended in error 500 until the cookie was deleted; another site could send that request from the visitor's browser. `?tracking[]=1` failed the same way. Currency, language and tracking values are now accepted only as strings, and a session that already holds a broken value recovers.
+
 # CodeCart 3.0.6.0 — Build 2.3.9 (2026-11-13)
 
 Core schema 3.0.6.0; presentation schema revision 38 (was 37). Updated stores run UPDATE in `/install/` once to create the search statistics table.

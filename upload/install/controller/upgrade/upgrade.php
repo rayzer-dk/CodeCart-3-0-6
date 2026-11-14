@@ -48,7 +48,10 @@ class ControllerUpgradeUpgrade extends Controller {
         $attempts = isset($this->session->data['codecart_upgrade_login_attempts']) ? (int)$this->session->data['codecart_upgrade_login_attempts'] : 0;
         $blockedUntil = isset($this->session->data['codecart_upgrade_login_blocked']) ? (int)$this->session->data['codecart_upgrade_login_blocked'] : 0;
 
-        if ($blockedUntil > time()) {
+        $postedUsername = isset($this->request->post['username']) ? trim((string)$this->request->post['username']) : '';
+        $protection = $this->loginProtection();
+
+        if ($blockedUntil > time() || ($protection && $postedUsername !== '' && $protection->isBlocked($postedUsername))) {
             $this->session->data['codecart_upgrade_login_error'] = $this->language->get('error_login_attempts');
         } elseif ($expected === '' || $provided === '' || !hash_equals($expected, $provided)) {
             $this->session->data['codecart_upgrade_login_error'] = $this->language->get('error_login');
@@ -66,6 +69,9 @@ class ControllerUpgradeUpgrade extends Controller {
                 unset($this->session->data['codecart_upgrade_login_attempts'], $this->session->data['codecart_upgrade_login_error'], $this->session->data['codecart_upgrade_login_blocked']);
             } else {
                 usleep(random_int(300000, 800000));
+                if ($protection && $username !== '') {
+                    $protection->recordFailure($username);
+                }
                 $attempts++;
                 $this->session->data['codecart_upgrade_login_attempts'] = $attempts;
                 if ($attempts >= 5) {
@@ -404,6 +410,24 @@ class ControllerUpgradeUpgrade extends Controller {
         }
         $this->session->data['codecart_upgrade_authorized_at'] = time();
         return true;
+    }
+
+    /**
+     * The session counter alone is reset by dropping the cookie, so failed attempts
+     * are also counted per user name and address in the table the administration
+     * sign-in uses. Stores updated from a schema without that table keep the
+     * session counter only until the migration has created it.
+     */
+    private function loginProtection() {
+        if (!$this->registry->has('db') || !defined('DB_PREFIX') || !$this->registry->has('config') || !$this->registry->has('request')) {
+            return null;
+        }
+        try {
+            $table = $this->db->query("SHOW TABLES LIKE '" . $this->db->escape(DB_PREFIX . 'codecart_admin_login_attempt') . "'");
+        } catch (\Throwable $e) {
+            return null;
+        }
+        return $table->num_rows ? new \CodeCart\Core\LoginProtection($this->registry) : null;
     }
 
     private function verifyAdministrator($username, $password) {

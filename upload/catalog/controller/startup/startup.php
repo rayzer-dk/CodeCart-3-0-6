@@ -175,11 +175,11 @@ class ControllerStartupStartup extends Controller {
 			}
 		}
 		
-		if (isset($this->session->data['language'])) {
+		if (isset($this->session->data['language']) && is_string($this->session->data['language'])) {
 			$code = $this->session->data['language'];
 		}
 				
-		if (isset($this->request->cookie['language']) && !array_key_exists($code, $languages)) {
+		if (isset($this->request->cookie['language']) && is_string($this->request->cookie['language']) && !array_key_exists($code, $languages)) {
 			$code = $this->request->cookie['language'];
 		}
 		
@@ -282,7 +282,7 @@ class ControllerStartupStartup extends Controller {
 		}
 		
 		// Tracking Code
-		if (isset($this->request->get['tracking'])) {
+		if (isset($this->request->get['tracking']) && is_string($this->request->get['tracking']) && $this->request->get['tracking'] !== '') {
 			setcookie('tracking', $this->request->get['tracking'], time() + 3600 * 24 * 1000, '/');
 		
 			$this->db->query("UPDATE `" . DB_PREFIX . "marketing` SET clicks = (clicks + 1) WHERE code = '" . $this->db->escape($this->request->get['tracking']) . "'");
@@ -295,11 +295,11 @@ class ControllerStartupStartup extends Controller {
 		
 		$currencies = $this->model_localisation_currency->getCurrencies();
 		
-		if (isset($this->session->data['currency'])) {
+		if (isset($this->session->data['currency']) && is_string($this->session->data['currency'])) {
 			$code = $this->session->data['currency'];
 		}
 		
-		if (isset($this->request->cookie['currency']) && !array_key_exists($code, $currencies)) {
+		if (isset($this->request->cookie['currency']) && is_string($this->request->cookie['currency']) && !array_key_exists($code, $currencies)) {
 			$code = $this->request->cookie['currency'];
 		}
 		

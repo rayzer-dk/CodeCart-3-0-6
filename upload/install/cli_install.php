@@ -1,4 +1,9 @@
 <?php
+// Command line only: under a web SAPI argv can be filled from the query string.
+if (PHP_SAPI !== 'cli') {
+	http_response_code(404);
+	exit;
+}
 
 //
 // Command line tool for installing opencart
