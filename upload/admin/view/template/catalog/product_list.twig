@@ -281,7 +281,7 @@
           </div>
           <div class="panel-body">
             {% if filter_stats %}
-            <p><span class="label label-primary"><i class="fa fa-filter" aria-hidden="true"></i> {{ filter_stats_label }}</span>
+            <p><span class="label label-primary"><i class="fa fa-filter" aria-hidden="true"></i> {{ filter_stats_label|e }}</span>
               <button type="button" class="btn btn-link btn-xs" id="button-clear-stats-filter">{{ button_clear }}</button>
             </p>
             {% endif %}

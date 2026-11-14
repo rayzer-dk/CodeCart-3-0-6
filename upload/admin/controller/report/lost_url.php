@@ -8,7 +8,7 @@ class ControllerReportLostUrl extends Controller {
     public function index() {
         $this->load->language('report/lost_url');
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->document->addStyle('view/stylesheet/codecart-lost-url.css');
+        $this->document->addStyle('view/stylesheet/codecart-lost-url.css?v=' . CODECART_PACKAGE_BUILD);
         $token = $this->session->data['user_token'] ?? '';
         $given = $this->request->get['user_token'] ?? '';
         if (!is_string($given) || !is_string($token) || $token === '' || !hash_equals($token, $given) || !$this->user->hasPermission('access', 'report/online')) {

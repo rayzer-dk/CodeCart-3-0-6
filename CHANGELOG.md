@@ -1,3 +1,9 @@
+# CodeCart 3.0.6.0 — Build 2.3.19 (2026-11-14)
+
+- Mobile storefront: the catalog drawer opens to 90% of the viewport, breadcrumbs are shorter, view mode buttons fit alongside the page-size selector, and standard cart cards label unit prices and line totals.
+- Administration: compact status badges, an inline photo scan control, aligned Lost URLs settings, and distinct tabs in Core / Compatibility.
+- The four minification settings switch the corresponding first-party assets. Missing or stale minified files fall back to their original sources.
+
 # CodeCart 3.0.6.0 — Build 2.3.18 (2026-11-14)
 
 - Mobile CodeCart and Default themes place search and cart on one row, with the full-width Catalog button below.

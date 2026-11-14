@@ -76,7 +76,7 @@ final class AdminAssetOptimizer {
         $candidateDiskPath = strpos($candidatePath, 'admin/') === 0 ? $candidatePath : 'admin/' . $candidatePath;
         $candidate = realpath($this->root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $candidateDiskPath));
         if (!$candidate || !is_file($candidate) || strpos($candidate, $this->root . DIRECTORY_SEPARATOR) !== 0) { return $url; }
-        if (@filemtime($candidate) < @filemtime($source)) { return $url; }
+        if (!MinifiedAsset::isCurrent($source, $candidate)) { return $url; }
 
         $query = isset($parts['query']) && $parts['query'] !== '' ? '?' . $parts['query'] : '';
         $fragment = isset($parts['fragment']) && $parts['fragment'] !== '' ? '#' . $parts['fragment'] : '';

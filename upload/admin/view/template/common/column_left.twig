@@ -50,30 +50,34 @@
         <ul>
           {% for stat in product_stats %}
           <li data-stat="{{ stat.key }}">
+            {% if stat.key == 'small_image' %}<div class="stats-photo-row">{% endif %}
             <a href="{{ stat.href }}" class="stats-link"{% if stat.current %} aria-current="page"{% endif %}{% if not stat.ready %} hidden{% endif %}>
-              <span>{{ stat.label }}</span><span class="stats-count">{{ stat.count }}/{{ stat.total }} ({{ stat.percent }}%)</span>
+              <span>{{ stat.label|e }}</span><span class="stats-count">{{ stat.count }}/{{ stat.total }} ({{ stat.percent }}%)</span>
             </a>
+            {% if not stat.ready %}
+            <span class="stats-link"><span>{{ stat.label|e }}</span><span class="stats-count">&ndash;</span></span>
+            {% endif %}
+            {% if stat.key == 'small_image' %}
+              {% if photo_scan_url %}
+              <button type="button" class="btn btn-xs stats-photo-button" id="button-product-photo-scan"
+                title="{{ button_stats_scan|e('html_attr') }}" aria-label="{{ button_stats_scan|e('html_attr') }}"
+                data-url="{{ photo_scan_url }}"
+                data-progress="{{ text_stats_scan_progress|e('html_attr') }}"
+                data-complete="{{ text_stats_scan_complete|e('html_attr') }}"
+                data-error="{{ text_stats_scan_error|e('html_attr') }}">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+              </button>
+              {% endif %}
+            </div>
+            {% endif %}
             <div class="progress" aria-hidden="true"{% if not stat.ready %} hidden{% endif %}>
               <div class="progress-bar{% if stat.key == 'enabled' %} progress-bar-success{% elseif stat.key == 'disabled' %} progress-bar-danger{% elseif stat.key == 'out_of_stock' %} progress-bar-warning{% endif %}" style="width: {{ stat.percent }}%"></div>
             </div>
-            {% if not stat.ready %}
-            <span class="stats-link">{{ stat.label }} <span class="stats-count">&ndash;</span></span>
-            {% endif %}
           </li>
           {% endfor %}
         </ul>
         {% if photo_scan_url %}
-        <div class="stats-scan">
-          <button type="button" class="btn btn-default btn-xs" id="button-product-photo-scan"
-            data-url="{{ photo_scan_url }}"
-            data-progress="{{ text_stats_scan_progress|e('html_attr') }}"
-            data-complete="{{ text_stats_scan_complete|e('html_attr') }}"
-            data-error="{{ text_stats_scan_error|e('html_attr') }}">
-            <i class="fa fa-refresh" aria-hidden="true"></i> {{ button_stats_scan }}
-          </button>
-          <p>{{ text_stats_scan_help }}</p>
-          <p id="product-photo-scan-progress" role="status" aria-live="polite"></p>
-        </div>
+        <p id="product-photo-scan-progress" role="status" aria-live="polite"></p>
         <script src="view/javascript/codecart/product-photo-scan.js?v=2.3.18" defer></script>
         {% endif %}
       </section>

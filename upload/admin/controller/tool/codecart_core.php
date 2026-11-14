@@ -717,24 +717,6 @@ class ControllerToolCodeCartCore extends Controller {
         }
         return is_string($value) ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value;
     }
-    private function runtimeInfo() {
-        $required = array('mysqli/pdo_mysql'=>(extension_loaded('mysqli') || (extension_loaded('pdo') && extension_loaded('pdo_mysql'))),'gd'=>extension_loaded('gd'),'curl'=>extension_loaded('curl'),'mbstring'=>extension_loaded('mbstring'),'dom'=>extension_loaded('dom'),'xmlwriter'=>extension_loaded('xmlwriter'),'zip'=>extension_loaded('zip'),'simplexml'=>extension_loaded('simplexml') && function_exists('simplexml_load_string'),'openssl'=>extension_loaded('openssl'),'fileinfo'=>extension_loaded('fileinfo'));
-        $optional = array('intl'=>extension_loaded('intl'),'apcu'=>extension_loaded('apcu'),'redis'=>extension_loaded('redis'),'memcached'=>extension_loaded('memcached'));
-        $rows = array(
-            array('component'=>'Version','value'=>'CodeCart PRO '.VERSION.(defined('CODECART_CHANNEL') && CODECART_CHANNEL ? ' '.CODECART_CHANNEL : ''),'state'=>'ok'),
-            array('component'=>'PHP','value'=>PHP_VERSION.' / '.PHP_SAPI,'state'=>version_compare(PHP_VERSION,'8.1.0','>=') && version_compare(PHP_VERSION,'8.6.0','<')?'ok':'missing'),
-            array('component'=>'DB','value'=>defined('DB_DRIVER')?DB_DRIVER:'','state'=>'ok')
-        );
-        try { $v=$this->db->query('SELECT VERSION() AS version'); if ($v->num_rows) $rows[]=array('component'=>'MySQL/MariaDB','value'=>(string)$v->row['version'],'state'=>'ok'); } catch (\Throwable $e) {}
-        try { $cache=$this->registry->get('cache'); if (is_object($cache) && method_exists($cache,'getActiveEngine')) { $requested=method_exists($cache,'getRequestedEngine')?(string)$cache->getRequestedEngine():(string)$cache->getActiveEngine(); $active=(string)$cache->getActiveEngine(); $fallback=method_exists($cache,'getFallbackReason')?(string)$cache->getFallbackReason():''; $rows[]=array('component'=>'Cache backend','value'=>strtoupper($requested).($active!==$requested?' → '.strtoupper($active):''),'state'=>$active!==$requested?'warning':'ok','message'=>$fallback); } } catch (\Throwable $e) {}
-        foreach ($required as $name=>$ok) $rows[]=array('component'=>$name,'value'=>$ok?'loaded':'missing','state'=>$ok?'ok':'missing');
-        foreach ($optional as $name=>$ok) $rows[]=array('component'=>$name,'value'=>$ok?'loaded':'not loaded','state'=>$ok?'ok':'optional');
-        if (extension_loaded('gd')) {
-            $rows[]=array('component'=>'GD WebP','value'=>function_exists('imagewebp')?'supported':'missing','state'=>function_exists('imagewebp')?'ok':'missing');
-            $rows[]=array('component'=>'GD AVIF','value'=>(function_exists('imageavif')&&function_exists('imagecreatefromavif'))?'supported':'not supported','state'=>(function_exists('imageavif')&&function_exists('imagecreatefromavif'))?'ok':'optional');
-        }
-        return $rows;
-    }
     private function iconCatalog() {
         $file = DIR_SYSTEM . 'config/codecart_fontawesome_core_manifest.json';
         if (!is_file($file) || !is_readable($file)) { return array(); }
@@ -869,7 +851,7 @@ class ControllerToolCodeCartCore extends Controller {
                     $ext = strtolower($m[1]);
                     $candidate = preg_replace('/\.' . $ext . '$/i', '.min.' . $ext, $path);
                     if (!$candidate || !is_file($candidate)) { continue; }
-                    if (@filemtime($candidate) < @filemtime($path)) { $stats['stale']++; continue; }
+                    if (!\CodeCart\Core\MinifiedAsset::isCurrent($path, $candidate)) { $stats['stale']++; continue; }
                     $stats['available']++;
                     $stats[$scope['key']]++;
                     if (($ext === 'css' && $scope['enabled_css']) || ($ext === 'js' && $scope['enabled_js'])) { $stats['active']++; }

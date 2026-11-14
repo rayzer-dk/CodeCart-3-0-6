@@ -26,6 +26,9 @@ class ControllerCommonHeader extends Controller {
         $data['description'] = $this->document->getDescription();
         $data['keywords'] = $this->document->getKeywords();
         $data['links'] = $this->document->getLinks();
+        $data['core_stylesheet'] = 'view/stylesheet/stylesheet.css?v=' . $data['package_build'];
+        $data['core_script'] = 'view/javascript/common.js?v=' . $data['package_build'];
+
         $data['styles'] = $this->document->getStyles();
         $data['scripts'] = $this->document->getScripts();
         $data['modern_assets'] = $this->document->getAssets('header');
@@ -34,6 +37,8 @@ class ControllerCommonHeader extends Controller {
             $data['styles'] = $assetOptimizer->styles($data['styles']);
             $data['scripts'] = $assetOptimizer->scripts($data['scripts']);
             $data['modern_assets'] = $assetOptimizer->assets($data['modern_assets']);
+            $data['core_stylesheet'] = $assetOptimizer->styles(array(array('href' => $data['core_stylesheet'])))[0]['href'];
+            $data['core_script'] = $assetOptimizer->scripts(array($data['core_script']))[0];
         } catch (\Throwable $e) {
             // Optimization is optional: admin must always fall back to original assets.
         }

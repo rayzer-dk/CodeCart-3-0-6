@@ -339,7 +339,7 @@ $_['text_minify_available'] = 'Доступно актуальних min-фай�
 
 $_['text_minify_stale'] = 'Застарілих min-файлів';
 
-$_['text_minify_active'] = 'Активно за поточними налаштуваннями';
+$_['text_minify_active'] = 'Доступні за поточними налаштуваннями';
 
 // Database modernization (web batches)
 $_['text_db_modernize'] = 'Модернізація таблиць БД (InnoDB + utf8mb4)';

@@ -1870,10 +1870,13 @@ body { font-size: 14px; }
 #menu #stats .stats-link::before { content: none; }
 #stats .stats-count { font-size: 11px; white-space: nowrap; }
 #stats .progress { height: 3px; margin: 0 4px 3px; background: #526071; }
-#stats .stats-scan { padding: 8px 4px 0; }
-#stats .stats-scan button { min-height: 30px; white-space: normal; }
-#stats .stats-scan p { margin: 6px 0 0; color: inherit; font-size: 11px; }
-#stats .stats-scan p:empty { margin: 0; }
+#stats .stats-photo-row { display: flex; align-items: center; gap: 3px; }
+#stats .stats-photo-row .stats-link { flex: 1; min-width: 0; white-space: nowrap; }
+#stats .stats-photo-row .stats-link > span:first-child { overflow: hidden; text-overflow: ellipsis; }
+#stats .stats-photo-button { flex: 0 0 26px; width: 26px; min-height: 26px; padding: 0; color: inherit; background: transparent; border: 1px solid #687b90; }
+#stats .stats-photo-button:hover, #stats .stats-photo-button:focus-visible { background: #151e2a; color: #fff; }
+#stats #product-photo-scan-progress { margin: 4px 4px 0; color: inherit; font-size: 11px; }
+#stats #product-photo-scan-progress:empty { display: none; }
 #stats.collapse { display: block; height: auto; }
 @media (min-width: 768px) {
   #column-left.codecart-compact #stats.collapse:not(.in) { display: none; }
@@ -1998,7 +2001,7 @@ html.ccp-admin-dark pre,html.ccp-admin-dark code{background:#111923;color:#d9e4e
 
 /* CodeCart PRO Admin layout, dark surfaces and compact controls. */
 .table>thead>tr>th,.table>thead>tr>td,.table>tbody>tr>td,.table>tfoot>tr>td{line-height:1.4;vertical-align:middle;overflow:visible}
-.panel-title,.nav-tabs>li>a,.btn,.label{line-height:1.35}
+.panel-title,.nav-tabs>li>a,.btn{line-height:1.35}
 #ccp-cookie-settings .ccp-color-control.input-group{margin-left:0!important;max-width:300px!important}
 .ccp-cookie-icon-control{display:flex;align-items:center;gap:9px;max-width:420px}
 .ccp-cookie-icon-control>.form-control{flex:1 1 auto;min-width:0}
@@ -2344,11 +2347,11 @@ html.ccp-admin-dark #footer .ccp-footer-runtime { color: #a8b8cb; }
 #header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle{min-width:54px;padding-left:16px!important;padding-right:16px!important;text-align:center;font-size:20px}
 #header .navbar-right > li.ccp-admin-theme-menu > a i{width:auto}
 
-/* Accessibility: text contrast and minimum text size */
-.label{font-size:12px}
+/* Compact status badges with readable contrast. */
+.label{font-size:11px;line-height:1}
 .label-default{background-color:#5f6b7a}
-.label-success{background-color:#2e7d32}
-.label-info{background-color:#0277a8}
+.label-success{background-color:#4cb64c;color:#142719}
+.label-info{background-color:#54b7d3;color:#102b39}
 .label-warning{background-color:#f0ad4e;color:#1f2937}
 .label-danger{background-color:#c0392b}
 .tile-heading{background-color:rgba(0,0,0,.16)}

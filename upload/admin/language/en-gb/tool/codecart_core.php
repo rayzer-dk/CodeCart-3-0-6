@@ -339,7 +339,7 @@ $_['text_minify_available'] = 'Up-to-date minified files available';
 
 $_['text_minify_stale'] = 'Stale minified files';
 
-$_['text_minify_active'] = 'Active with current settings';
+$_['text_minify_active'] = 'Eligible with current settings';
 
 // Database modernization (web batches)
 $_['text_db_modernize'] = 'Database table modernization (InnoDB + utf8mb4)';

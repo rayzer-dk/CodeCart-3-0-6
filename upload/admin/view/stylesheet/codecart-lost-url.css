@@ -1,6 +1,8 @@
 .ccp-lost-url-report .page-header h1{font-size:24px}
-.ccp-lost-url-report .ccp-toolbar{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.ccp-lost-url-report .ccp-toolbar{display:flex;align-items:flex-end;gap:10px 15px;flex-wrap:wrap}
 .ccp-lost-url-report .ccp-toolbar label{margin:0}
+.ccp-lost-url-report .ccp-toolbar>label{display:flex;align-items:center;gap:5px;min-height:38px}
+.ccp-lost-url-report .ccp-toolbar>label input{margin:0}
 .ccp-lost-url-report .ccp-filters{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
 .ccp-lost-url-report .ccp-filters>div{flex:1 1 180px}
 .ccp-lost-url-report .ccp-url{min-width:230px;max-width:420px;overflow-wrap:anywhere}

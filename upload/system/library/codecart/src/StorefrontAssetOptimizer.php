@@ -72,8 +72,7 @@ final class StorefrontAssetOptimizer {
         $candidate = realpath($this->root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $candidatePath));
         if (!$candidate || !is_file($candidate) || strpos($candidate, $this->root . DIRECTORY_SEPARATOR) !== 0) { return $url; }
 
-        // Never prefer an obviously stale generated companion over a newer source.
-        if (@filemtime($candidate) < @filemtime($source)) { return $url; }
+        if (!MinifiedAsset::isCurrent($source, $candidate)) { return $url; }
 
         $query = isset($parts['query']) && $parts['query'] !== '' ? '?' . $parts['query'] : '';
         $fragment = isset($parts['fragment']) && $parts['fragment'] !== '' ? '#' . $parts['fragment'] : '';

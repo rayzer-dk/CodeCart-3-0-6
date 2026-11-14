@@ -144,8 +144,8 @@
                   <button type="button" data-cart-id="{{ product.cart_id|e('html_attr') }}" data-toggle="tooltip" title="{{ button_update|e('html_attr') }}" class="btn btn-primary ccp-cart-qty-update" aria-label="{{ button_update|e('html_attr') }}"><i class="fa fa-refresh"></i></button>
                   <button type="button" data-toggle="tooltip" title="{{ button_remove|e('html_attr') }}" class="btn btn-danger" onclick="cart.remove('{{ product.cart_id }}');" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times-circle"></i></button>
                   </span></div></td>
-              <td class="text-right">{{ product.price }}</td>
-              <td class="text-right">{{ product.total }}</td>
+              <td class="text-right"><span class="ccp-cart-mobile-price-label">{{ text_unit_price }}</span>{{ product.price }}</td>
+              <td class="text-right"><span class="ccp-cart-mobile-price-label">{{ column_total }}</span>{{ product.total }}</td>
             </tr>
             {% endfor %}
             {% for voucher in vouchers %}
@@ -158,8 +158,8 @@
                   <span class="input-group-btn">
                   <button type="button" data-toggle="tooltip" title="{{ button_remove|e('html_attr') }}" class="btn btn-danger" onclick="voucher.remove('{{ voucher.key }}');" aria-label="{{ button_remove|e('html_attr') }}"><i class="fa fa-times-circle"></i></button>
                   </span></div></td>
-              <td class="text-right">{{ voucher.amount }}</td>
-              <td class="text-right">{{ voucher.amount }}</td>
+              <td class="text-right ccp-cart-voucher-price">{{ voucher.amount }}</td>
+              <td class="text-right"><span class="ccp-cart-mobile-price-label">{{ column_total }}</span>{{ voucher.amount }}</td>
             </tr>
             {% endfor %}
               </tbody>

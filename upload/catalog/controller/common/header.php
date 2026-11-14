@@ -55,14 +55,16 @@ class ControllerCommonHeader extends Controller {
 		$data['robots'] = $this->document->getRobots();
 		$canonical_url = $this->getCanonicalUrl($data['links']);
 		$data['alternate_links'] = $this->buildAlternateLinks($canonical_url, $is_https);
+		$data['core_script'] = 'catalog/view/javascript/common.js?v=' . (defined('CODECART_PACKAGE_BUILD') ? CODECART_PACKAGE_BUILD : '3.0.6.0');
 		$data['styles'] = $this->document->getStyles();
 		$data['scripts'] = $this->document->getScripts('header');
-		$data['modern_assets'] = method_exists($this->document, 'getAssets') ? $this->document->getAssets('header') : array();
+		$data['modern_assets'] = $this->document->getAssets('header');
 		try {
 			$assetOptimizer = new \CodeCart\Core\StorefrontAssetOptimizer($this->config);
 			$data['styles'] = $assetOptimizer->styles($data['styles']);
 			$data['scripts'] = $assetOptimizer->scripts($data['scripts']);
 			$data['modern_assets'] = $assetOptimizer->assets($data['modern_assets']);
+			$data['core_script'] = $assetOptimizer->scripts(array($data['core_script']))[0];
 		} catch (\Throwable $e) {
 			// Optimization is optional: storefront must always fall back to original assets.
 		}
@@ -161,16 +163,14 @@ class ControllerCommonHeader extends Controller {
 		$data['theme_custom_css'] = $custom_css;
 
 		$data['name'] = $this->config->get('config_name');
-		// OpenCart stores developer_theme=1 as the normal production default (it
-		// controls template caching). It must not force the unminified stylesheet.
-		// Serve stylesheet.css only when the minified copy is missing or was not built
-		// from the current source (for example after a merchant edited stylesheet.css).
+		// Asset minification is independent of OpenCart's template-cache setting.
 		$stylesheet_theme = (string)$this->config->get('config_theme') === 'default' ? (string)$this->config->get('theme_default_directory') : (string)$this->config->get('config_theme');
 		$stylesheet_theme = preg_replace('/[^a-zA-Z0-9_-]/', '', $stylesheet_theme);
 		$stylesheet_dir = DIR_APPLICATION . 'view/theme/' . ($stylesheet_theme !== '' ? $stylesheet_theme : 'default') . '/stylesheet/';
 		$stylesheet_source = $stylesheet_dir . 'stylesheet.css';
 		$stylesheet_min = $stylesheet_dir . 'stylesheet.min.css';
-		$data['developer_theme'] = $this->isMinifiedStylesheetStale($stylesheet_source, $stylesheet_min);
+		$data['developer_theme'] = !$this->config->get('codecart_storefront_minify_css_status')
+			|| !\CodeCart\Core\MinifiedAsset::isCurrent($stylesheet_source, $stylesheet_min);
 
 		$this->load->model('tool/image');
 		$data['product_image_options'] = array();
@@ -201,7 +201,7 @@ class ControllerCommonHeader extends Controller {
 				// A 320px logo was being downloaded for a ~190px mobile slot.
 				// Offer a smaller candidate without changing the desktop logo quality.
 				$small_logo_width = min(200, $data['logo_width']);
-				if ($small_logo_width > 0 && $small_logo_width < $data['logo_width']) {
+				if ($small_logo_width < $data['logo_width']) {
 					$small_logo_height = max(1, (int)round($data['logo_height'] * ($small_logo_width / $data['logo_width'])));
 					$small_logo = $this->model_tool_image->resize($logo_name, $small_logo_width, $small_logo_height);
 					$data['logo_srcset'] = $small_logo . ' ' . $small_logo_width . 'w, ' . $data['logo'] . ' ' . $data['logo_width'] . 'w';
@@ -243,7 +243,7 @@ class ControllerCommonHeader extends Controller {
 			$data['og_url'] = rtrim($host, '/') . '/' . ltrim($request_uri, '/');
 		}
 
-		$data['og_type'] = method_exists($this->document, 'getOgType') ? $this->document->getOgType() : 'website';
+		$data['og_type'] = $this->document->getOgType();
 		$data['og_description'] = (string)$this->document->getDescription();
 		$data['og_image'] = $this->document->getOgImage();
 		if (!$data['og_image']) {
@@ -421,48 +421,11 @@ class ControllerCommonHeader extends Controller {
 			}
 		}
 
-		if (!isset($alternates['x-default']) && $alternates) {
+		if (!isset($alternates['x-default'])) {
 			$first = reset($alternates);
 			$alternates['x-default'] = array('hreflang' => 'x-default', 'href' => $first['href']);
 		}
 
 		return array_values($alternates);
-	}
-
-
-	private function isMinifiedStylesheetStale($source, $minified) {
-		if (!is_file($minified)) {
-			return true;
-		}
-
-		if (!is_file($source)) {
-			return false;
-		}
-
-		$signature = md5($source . '|' . (int)@filemtime($source) . '|' . (int)@filesize($source) . '|' . (int)@filemtime($minified) . '|' . (int)@filesize($minified));
-		$marker = DIR_CACHE . 'codecart.stylesheet.' . $signature;
-
-		if (is_file($marker)) {
-			return trim((string)@file_get_contents($marker)) === '1';
-		}
-
-		$stale = false;
-		$head = (string)@file_get_contents($minified, false, null, 0, 256);
-
-		if (preg_match('/source stylesheet\.css sha256:([a-f0-9]{64})/', $head, $match)) {
-			$stale = !hash_equals($match[1], (string)hash_file('sha256', $source));
-		} else {
-			$stale = (int)@filemtime($source) > (int)@filemtime($minified);
-		}
-
-		foreach ((array)glob(DIR_CACHE . 'codecart.stylesheet.*') as $old) {
-			if (is_file($old) && filemtime($old) < time() - 86400) {
-				@unlink($old);
-			}
-		}
-
-		@file_put_contents($marker, $stale ? '1' : '0', LOCK_EX);
-
-		return $stale;
 	}
 }

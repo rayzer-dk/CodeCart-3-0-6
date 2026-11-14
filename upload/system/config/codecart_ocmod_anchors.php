@@ -25,8 +25,8 @@ return array(
 	),
 	'admin/view/template/common/header.twig' => array(
 		'<script type="text/javascript" src="view/javascript/jquery/jquery-2.1.1.min.js"></script>' => array('<script type="text/javascript" src="view/javascript/jquery/jquery-3.7.1.min.js"></script>', true),
-		'<script src="view/javascript/common.js" type="text/javascript"></script>' => array('<script src="view/javascript/common.js?v={{ package_build }}" type="text/javascript"></script>', true),
-		'<link type="text/css" href="view/stylesheet/stylesheet.css" rel="stylesheet" media="screen" />' => array('<link type="text/css" href="view/stylesheet/stylesheet.css?v={{ package_build }}" rel="stylesheet" media="screen" />', true),
+		'<script src="view/javascript/common.js" type="text/javascript"></script>' => array('<script src="{{ core_script|e(\'html_attr\') }}" type="text/javascript"></script>', true),
+		'<link type="text/css" href="view/stylesheet/stylesheet.css" rel="stylesheet" media="screen" />' => array('<link type="text/css" href="{{ core_stylesheet|e(\'html_attr\') }}" rel="stylesheet" media="screen" />', true),
 	),
 	'admin/view/template/setting/setting.twig' => array(
 		'<li><a href="#tab-server" data-toggle="tab">{{ tab_server }}</a></li>' => array('<li><a href="#tab-server" data-toggle="tab"><i class="fa fa-server"></i> {{ tab_server }}</a></li>', true),
@@ -36,7 +36,7 @@ return array(
 		'<base href="{{ base }}" />' => array('<base href="{{ base|e }}" />', true),
 		'<body>' => array('<body data-ccp-cart-url=', false),
 		'<script src="catalog/view/javascript/jquery/jquery-2.1.1.min.js" type="text/javascript"></script>' => array('<script src="catalog/view/javascript/jquery/jquery-3.7.1.min.js" type="text/javascript"></script>', true),
-		'<script src="catalog/view/javascript/common.js" type="text/javascript"></script>' => array('<script src="catalog/view/javascript/common.js?v=', false),
+		'<script src="catalog/view/javascript/common.js" type="text/javascript"></script>' => array('<script src="{{ core_script|', false),
 		'<link href="catalog/view/theme/default/stylesheet/stylesheet.css" rel="stylesheet">' => array('stylesheet/stylesheet.css?v=', false),
 	),
 	'catalog/view/theme/*/template/common/footer.twig' => array(

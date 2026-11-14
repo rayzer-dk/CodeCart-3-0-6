@@ -158,23 +158,26 @@ if ($debugHits) {
     pass('Debug-call sweep: clean');
 }
 
-// First-party minified theme stylesheets must be built from the current source.
-// The build writes the source SHA-256 into the first comment of stylesheet.min.css.
-$beforeStyles = count($errors);
-foreach (array('codecart', 'default') as $themeName) {
-    $cssDir = $root . '/upload/catalog/view/theme/' . $themeName . '/stylesheet/';
-    if (!is_file($cssDir . 'stylesheet.css')) {
-        continue;
-    }
-    $minHead = is_file($cssDir . 'stylesheet.min.css') ? (string)file_get_contents($cssDir . 'stylesheet.min.css', false, null, 0, 256) : '';
-    if (!preg_match('/source stylesheet\.css sha256:([a-f0-9]{64})/', $minHead, $cssMatch)) {
-        fail($errors, 'Minified stylesheet has no source hash marker: ' . $themeName);
-    } elseif (!hash_equals($cssMatch[1], hash_file('sha256', $cssDir . 'stylesheet.css'))) {
-        fail($errors, 'Minified stylesheet is stale for theme ' . $themeName . ': rebuild stylesheet.min.css from stylesheet.css');
+// Generated first-party variants must match the sources shipped in the same package.
+$beforeAssets = count($errors);
+foreach (array(
+    'catalog/view/theme/codecart/stylesheet/stylesheet.css',
+    'catalog/view/theme/default/stylesheet/stylesheet.css',
+    'admin/view/stylesheet/stylesheet.css',
+    'admin/view/javascript/common.js',
+    'catalog/view/javascript/common.js'
+) as $relative) {
+    $source = $root . '/upload/' . $relative;
+    $minified = preg_replace('/\.(css|js)$/', '.min.$1', $source);
+    $head = is_file($minified) ? (string)file_get_contents($minified, false, null, 0, 256) : '';
+    $sourceName = preg_quote(basename($source), '/');
+    if (!preg_match('/source ' . $sourceName . ' sha256:([a-f0-9]{64})/', $head, $match)
+        || !is_file($source) || !hash_equals($match[1], hash_file('sha256', $source))) {
+        fail($errors, 'Minified asset is missing or stale: ' . $relative);
     }
 }
-if (count($errors) === $beforeStyles) {
-    pass('Minified theme stylesheets are in sync with source');
+if (count($errors) === $beforeAssets) {
+    pass('Minified first-party assets are in sync with source');
 }
 
 $gates = [

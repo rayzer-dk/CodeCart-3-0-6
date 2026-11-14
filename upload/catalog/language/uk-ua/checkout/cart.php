@@ -33,6 +33,7 @@ $_['column_name']           					= 'Назва товару';
 $_['column_model']          					= 'Модель';
 $_['column_quantity']       					= 'Кількість';
 $_['column_price']          					= 'Ціна за одиницю товару';
+$_['text_unit_price'] = 'За одиницю';
 $_['column_total']          					= 'Сума';
 
 // Error
