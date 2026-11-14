@@ -1,3 +1,13 @@
+# CodeCart 3.0.6.0 — Build 2.3.15 (2026-11-14)
+
+Core schema 3.0.6.0; presentation schema revision 38 (unchanged).
+
+Mobile layout, from phone screenshots of the test site (portrait and landscape):
+- Storefront, phone: the cart button and the Catalog button now share one row (half the width each) instead of two stacked full-width bars. When the store has no catalog menu, the cart takes the whole row. The header markup gets one wrapper (`.ccp-head`) around `<header>` and the menu; nothing else in the header changed.
+- Storefront, tablet and phone in landscape (768–991 px): a text logo (no image) was set at 33 px, wrapped to three lines and ran over the menu bar; it is 22 px there.
+- Administration, phone: the header was two rows (menu and "Add" on top, icons below with an empty gap on the left). It is one row of 44 px targets (40 px under 400 px); "Add" shows the plus only under 480 px. The profile and notification menus opened inside the row and pushed the sign-out button aside; they now open as a panel under the header, in the light and the dark theme.
+- Not reproduced: an empty cart button in landscape on the test site. The text is present in the page at 915 px with an empty and with a filled cart; the screenshots show the browser's page-translation icon, which rewrites text nodes, so the cause may be outside the theme.
+
 # CodeCart 3.0.6.0 — Build 2.3.14 (2026-11-14)
 
 Core schema 3.0.6.0; presentation schema revision 38 (unchanged).

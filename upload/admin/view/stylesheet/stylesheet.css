@@ -2417,3 +2417,48 @@ html.ccp-admin-dark #ccp-product-list .text-danger{color:#ff8a80}
 html.ccp-admin-dark td>.text-muted,html.ccp-admin-dark .ccp-world-map-empty{color:#9eacbc}
 html.ccp-admin-dark #oc-search .ccp-search-example{color:#aebdcb}
 html.ccp-admin-dark #footer .ccp-footer-sep{color:#8d99a8}
+
+/* Mobile header: one row; menus open as a panel under the header instead of inside the row */
+@media (max-width: 767px) {
+  #header .container-fluid { position: relative; display: flex; align-items: center; flex-wrap: nowrap; min-height: 52px; padding: 0 4px; }
+  #header #button-menu { float: none; flex: 0 0 auto; display: flex !important; align-items: center; justify-content: center; width: 44px; height: 44px; }
+  #header .nav.pull-left { float: none !important; flex: 0 0 auto; margin: 0; }
+  #header .navbar-right { float: none !important; display: flex; flex: 1 1 auto; justify-content: flex-end; flex-wrap: nowrap; min-width: 0; margin: 0; }
+  #header .nav > li > a,
+  #header .navbar-right > li > a { display: flex; align-items: center; justify-content: center; min-width: 44px; height: 52px; padding: 0 10px !important; line-height: 1; }
+  #header .navbar-right > li.ccp-modification-refresh-menu > a,
+  #header .navbar-right > li.ccp-palette-menu > a,
+  #header .navbar-right > li.ccp-admin-theme-menu > a,
+  #header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle { min-width: 44px; padding-left: 10px !important; padding-right: 10px !important; }
+  #header .nav > li.dropdown { position: static; }
+  #header .navbar-nav .open .dropdown-menu,
+  #header .nav .open > .dropdown-menu {
+    position: absolute; top: 100%; left: 8px; right: 8px; float: none; width: auto; max-height: calc(100vh - 72px); overflow-y: auto;
+    margin: 4px 0 0; background-color: #fff; border: 1px solid #d8d8d8; border-radius: 8px; box-shadow: 0 10px 28px rgba(16, 24, 40, .18); z-index: 1100;
+  }
+  #header .navbar-nav .open .dropdown-menu > li > a { padding: 10px 16px; line-height: 1.4; white-space: normal; }
+  html.ccp-admin-dark #header .navbar-nav .open .dropdown-menu,
+  html.ccp-admin-dark #header .nav .open > .dropdown-menu { background-color: #18212b; border-color: #313d4b; }
+  html.ccp-admin-dark #header .navbar-nav .open .dropdown-menu > li > a { color: #dce5ef; }
+}
+@media (max-width: 479px) {
+  #header .ccp-new-menu .header-item { display: none; }
+  #header .nav.pull-left,
+  #header .ccp-new-menu,
+  #header .ccp-new-menu > a { width: 44px; }
+}
+@media (max-width: 400px) {
+  #header #button-menu { width: 40px; }
+  #header .nav.pull-left,
+  #header .ccp-new-menu,
+  #header .ccp-new-menu > a { width: 40px; }
+  #header .nav > li > a,
+  #header .navbar-right > li > a,
+  #header .navbar-right > li.ccp-modification-refresh-menu > a,
+  #header .navbar-right > li.ccp-palette-menu > a,
+  #header .navbar-right > li.ccp-admin-theme-menu > a,
+  #header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle { min-width: 40px; padding-left: 8px !important; padding-right: 8px !important; }
+}
+@media (max-width: 479px) {
+  #header .ccp-admin-profile > a { padding-left: 6px !important; padding-right: 6px !important; }
+}
