@@ -171,6 +171,17 @@ class ControllerStartupStartup extends Controller {
 						}
 					}
 				}
+
+				// Background requests (AJAX steps of the checkout, cart totals, live price) are sent
+				// to index.php?route=... relative to <base>, so they never carry the folder of the
+				// page that sent them. They continue in the language of that page.
+				if ($route === '' && $this->isBackgroundRequest()) {
+					$session_language = isset($this->session->data['language']) && is_string($this->session->data['language']) ? $this->session->data['language'] : '';
+					if (isset($languages[$session_language]) && !empty($languages[$session_language]['status'])) {
+						$url_language_code = $session_language;
+					}
+				}
+
 				$url_language_explicit = isset($languages[$url_language_code]);
 			}
 		}
@@ -391,5 +402,14 @@ class ControllerStartupStartup extends Controller {
                 }
             }
         }
+	}
+
+	private function isBackgroundRequest() {
+		$server = $this->request->server;
+		if (isset($server['HTTP_X_REQUESTED_WITH']) && strtolower((string)$server['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+			return true;
+		}
+		$mode = isset($server['HTTP_SEC_FETCH_MODE']) ? strtolower((string)$server['HTTP_SEC_FETCH_MODE']) : '';
+		return $mode !== '' && $mode !== 'navigate';
 	}
 }

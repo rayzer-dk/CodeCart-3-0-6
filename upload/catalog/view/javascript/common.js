@@ -21,7 +21,30 @@ window.CodeCartUI = window.CodeCartUI || (function(){
 		el.querySelector('.ccp-toast-close').addEventListener('click',function(){clearTimeout(timer);remove(el);});
 	}
 	function remove(el){if(!el||!el.parentNode)return;el.classList.remove('is-visible');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},180);}
-	function error(xhr,thrown){var text=(thrown||'Error')+(xhr&&xhr.statusText?' '+xhr.statusText:'');toast('danger',$('<div>').text(text).html());}
+	function serverMessage(xhr){
+		var json=xhr&&xhr.responseJSON;
+		if(!json&&xhr&&xhr.responseText){try{json=JSON.parse(xhr.responseText);}catch(e){json=null;}}
+		if(!json){return '';}
+		var value=json.error!==undefined?json.error:json.message;
+		if(value&&typeof value==='object'){
+			if(typeof value.warning==='string'){return value.warning;}
+			for(var key in value){if(Object.prototype.hasOwnProperty.call(value,key)&&typeof value[key]==='string'){return value[key];}}
+			return '';
+		}
+		return typeof value==='string'?value:'';
+	}
+	function error(xhr,thrown){
+		// A failed request never reaches the success handler that restores the button.
+		$('.btn:disabled').each(function(){var $button=$(this);if($button.data('resetText')!==undefined){$button.button('reset');}});
+		var message=serverMessage(xhr);
+		if(!message){
+			var lang=(document.documentElement.getAttribute('lang')||'en').toLowerCase(),busy=xhr&&xhr.status===429;
+			if(lang.indexOf('uk')===0){message=busy?'Забагато запитів. Спробуйте трохи пізніше.':'Не вдалося виконати запит. Спробуйте ще раз.';}
+			else if(lang.indexOf('ru')===0){message=busy?'Слишком много запросов. Попробуйте немного позже.':'Не удалось выполнить запрос. Попробуйте ещё раз.';}
+			else{message=busy?'Too many requests. Please try again a little later.':'The request could not be completed. Please try again.';}
+		}
+		toast('danger',message);
+	}
 	function convertAlerts(scope){
 		var $scope=scope?$(scope):$(document);
 		var $alerts=$scope.find('.alert-dismissible');

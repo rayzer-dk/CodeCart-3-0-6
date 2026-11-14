@@ -1,3 +1,13 @@
+# CodeCart 3.0.6.0 — Build 2.3.13 (2026-11-14)
+
+Core schema 3.0.6.0; presentation schema revision 38 (unchanged).
+
+Storefront, found by walking the purchase scenarios in a browser:
+- Checkout opened under a language folder (`/en/`): the page was in that language, but every step loaded by AJAX, the coupon messages and the saved `language_id` of the order used the language without a folder, so the confirmation e-mail was sent in the wrong language. Background requests go to `index.php?route=...` relative to `<base>` and never carry the folder; they now continue in the language of the page that sent them. Opening an address without a folder in the browser still selects the main language. Checked in a browser: step 2 of the checkout under `/en/` has English labels.
+- A request answered with an HTTP error (429 after too many attempts, 409 on a repeated confirmation) left the button disabled on "Loading..." and showed the raw status text twice ("Too Many Requests Too Many Requests"). The button is restored, the message sent by the server is shown, and without one a short message in the page language.
+- Product page, live price: with a special price above the quantity discount the lower price was shown struck through above the higher current one. The old price is shown only when the current price is lower.
+- Ukrainian: the sub-total and the total were both labelled "Разом"; the sub-total is now "Проміжний підсумок".
+
 # CodeCart 3.0.6.0 — Build 2.3.12 (2026-11-14)
 
 Core schema 3.0.6.0; presentation schema revision 38 (unchanged).

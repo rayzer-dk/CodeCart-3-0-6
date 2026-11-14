@@ -622,7 +622,7 @@ class ModelCatalogProduct extends Model {
 			'quantity' => $quantity,
 			'regular' => $regular,
 			'current' => $current,
-			'is_special' => ($equal === null && $special->num_rows && abs($regular - $current) > 0.00001),
+			'is_special' => ($equal === null && $special->num_rows && ($regular - $current) > 0.00001),
 			'tax_class_id' => (int)$product_query->row['tax_class_id'],
 			'tax_display_mode' => isset($product_query->row['tax_display_mode']) ? (string)$product_query->row['tax_display_mode'] : 'inherit'
 		);
