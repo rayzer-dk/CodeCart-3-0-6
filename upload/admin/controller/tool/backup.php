@@ -175,7 +175,7 @@ class ControllerToolBackup extends Controller {
 					$this->log->write('CodeCart PRO SQL restore could not disable foreign key checks: ' . $e->getMessage());
 				}
 
-				while (!feof($handle) && $i < 100 && !$json) {
+				while (!feof($handle) && $i < 100) {
 					$line_position = ftell($handle);
 					$line = fgets($handle, 1000000);
 

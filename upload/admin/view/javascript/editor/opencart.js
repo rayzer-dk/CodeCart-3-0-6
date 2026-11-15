@@ -72,14 +72,14 @@
         // that actually contain a Summernote editor. XML mode provides HTML tag/attribute
         // highlighting without adding a second editor stack to every admin request.
         loadStyle('view/javascript/codemirror/lib/codemirror.css');
-        loadStyle('view/stylesheet/codecart-editor.css');
+        loadStyle('view/stylesheet/codecart-editor.css?v=2.3.23');
         loadStyle('view/javascript/summernote/summernote.min.css');
 
         return loadScript('view/javascript/codemirror/lib/codemirror.js', function(){ return !!window.CodeMirror; })
             .then(function(){ return loadScript('view/javascript/codemirror/lib/xml.js', function(){ return !!(window.CodeMirror && window.CodeMirror.modes && window.CodeMirror.modes.xml); }); })
             .then(function(){ return loadScript('view/javascript/summernote/summernote.min.js', function(){ return !!(window.jQuery && window.jQuery.fn && window.jQuery.fn.summernote); }); })
             .then(function(){ return loadScript('view/javascript/summernote/summernote-image-attributes.js'); })
-            .then(function(){ return loadScript('view/javascript/summernote/opencart.js?v=3.0.6.0', function(){ return typeof window.CodeCartSummernoteInit === 'function'; }); })
+            .then(function(){ return loadScript('view/javascript/summernote/opencart.js?v=2.3.23', function(){ return typeof window.CodeCartSummernoteInit === 'function'; }); })
             .then(function(){
                 if (typeof window.CodeCartSummernoteInit === 'function') {
                     window.CodeCartSummernoteInit(document);

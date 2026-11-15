@@ -1,3 +1,10 @@
+# CodeCart 3.0.6.0 — Build 2.3.23 (2026-11-15)
+
+- Image Manager sorts the current folder by date, name, size, or format before pagination. The manager remembers the selected ordering.
+- The editor adds a 75% image width and adjustable horizontal and vertical spacing.
+- The production ZIP includes only the maintained payment bonus.
+- Corrected static analysis findings and the shared runtime metadata used by the analyzers.
+
 # CodeCart 3.0.6.0 — Build 2.3.22 (2026-11-15)
 
 - Abandoned Carts shows empty reminder statistics before its optional mail history table is provisioned.

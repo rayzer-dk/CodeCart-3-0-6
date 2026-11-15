@@ -4,7 +4,6 @@
 
 class ControllerBlogCategory extends Controller {
 	private $error = array();
-	private $blog_category_id = 0;
 	private $path = array();
 	private $adminCategoryTree = null;
 
@@ -162,14 +161,12 @@ class ControllerBlogCategory extends Controller {
 		if (isset($this->request->get['path'])) {
 			if ($this->request->get['path'] != '') {
 					$this->path = explode('_', $this->request->get['path']);
-					$this->blog_category_id = end($this->path);
 					$this->session->data['path'] = $this->request->get['path'];
 			} else {
 				unset($this->session->data['path']);
 			}
 		} elseif (isset($this->session->data['path'])) {
 				$this->path = explode('_', $this->session->data['path']);
-				$this->blog_category_id = end($this->path);
  		}
 		
 		$data['categories'] = $this->getCategories(0);
@@ -652,20 +649,4 @@ class ControllerBlogCategory extends Controller {
 		}
 		return $output;
 	}
-	private function getAllCategories($categories, $parent_id = 0, $parent_name = '') {
-		$output = array();
-		if (array_key_exists($parent_id, $categories)) {
-			if ($parent_name != '') {
-				$parent_name .= $this->language->get('text_separator');
-			}
-			foreach ($categories[$parent_id] as $category) {
-				$output[$category['blog_category_id']] = array(
-					'blog_category_id' => $category['blog_category_id'],
-					'name'        => $parent_name . $category['name']
-				);
-				$output += $this->getAllCategories($categories, $category['blog_category_id'], $parent_name . $category['name']);
-			}
-		}
-		return $output;
-		}
 }

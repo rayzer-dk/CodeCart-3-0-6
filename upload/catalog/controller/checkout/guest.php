@@ -483,17 +483,6 @@ class ControllerCheckoutGuest extends Controller {
 		return true;
 	}
 
-	private function checkoutFieldEnabled($field) {
-		if ($this->isDigitalCheckout()) {
-			if ($field === 'email') { return true; }
-			$key = 'config_digital_checkout_field_' . $field;
-			return $this->config->has($key) ? (bool)$this->config->get($key) : false;
-		}
-
-		$this->load->helper('codecart_checkout');
-		return codecart_checkout_field_visible($this->config, $field);
-	}
-
 	private function isDigitalCheckout() {
 		return (bool)$this->config->get('config_digital_checkout_status') && $this->cart->hasDownload() && !$this->cart->hasShipping();
 	}

@@ -191,7 +191,7 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
             );
         }
         usort($clean, function($a, $b) { return $a['sort_order'] == $b['sort_order'] ? 0 : ($a['sort_order'] < $b['sort_order'] ? -1 : 1); });
-        return array_values($clean);
+        return $clean;
     }
 
     private function cleanSecret($value, $limit) {
@@ -246,7 +246,7 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
             $chunk = @ob_get_clean();
             if (is_string($chunk) && $chunk !== '') { $unexpected = $chunk . $unexpected; }
         }
-        if ($unexpected !== '' && $this->log) {
+        if ($unexpected !== '') {
             $clean = trim(preg_replace('/\s+/', ' ', strip_tags($unexpected)));
             if (strlen($clean) > 1200) { $clean = substr($clean, 0, 1200) . '...'; }
             $this->log->write('Carrier AJAX emitted unexpected output before JSON: ' . $clean);

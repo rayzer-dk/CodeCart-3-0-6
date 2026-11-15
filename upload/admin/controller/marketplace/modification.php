@@ -451,11 +451,11 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 			$log[] = '================================================================';
 
 			foreach ($sources as $source) {
-				$xml = isset($source['xml']) ? (string)$source['xml'] : '';
-				$current_id = isset($source['modification_id']) ? (int)$source['modification_id'] : 0;
-				$current_code = isset($source['code']) ? (string)$source['code'] : '';
-				$current_name = isset($source['name']) ? (string)$source['name'] : $current_code;
-				$source_type = isset($source['source']) ? (string)$source['source'] : 'database';
+				$xml = (string)$source['xml'];
+				$current_id = $source['modification_id'];
+				$current_code = $source['code'];
+				$current_name = $source['name'];
+				$source_type = $source['source'];
 				$source_key = $current_id > 0 ? (string)$current_id : $source_type . ':' . $current_code;
 				$source_file = $source_type === 'core' ? 'system/modification.xml' : ($source_type === 'system' ? 'system/' . basename($current_code) : '');
 				$mod_failed = false;
@@ -619,7 +619,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 									if ($status) { $applied_matches++; }
 
 									if (!$status) {
-										$search_preview = $search_element ? $this->shortCompatibilityMessage((string)$search_element->textContent) : '';
+										$search_preview = $this->shortCompatibilityMessage((string)$search_element->textContent);
 										if ($this->isCodeCartCompatibilitySatisfied($current_code, $key, (string)$search_element->textContent)) {
 											$ignored_operations++;
 											$issues[] = array('severity'=>'info','operation'=>$operation_index,'file'=>$key,'reason'=>'Satisfied by CodeCart compatibility layer','search'=>$search_preview);
@@ -661,7 +661,7 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 					foreach ($modification as $changed_key=>$changed_value) {
 						$before=array_key_exists($changed_key,$recovery)?$recovery[$changed_key]:(isset($original[$changed_key])?$original[$changed_key]:null);
 						if ($before===$changed_value || substr($changed_key,-4)!=='.php') { continue; }
-						try { token_get_all($changed_value,TOKEN_PARSE); } catch (\Throwable $e) {
+						try { \PhpToken::tokenize($changed_value, TOKEN_PARSE); } catch (\Throwable $e) {
 							$build_errors++; $mod_failed=true; $mod_issue='Generated PHP syntax is invalid: '.$this->shortCompatibilityMessage($e->getMessage()); $mod_issue_file=$changed_key; $issues[] = array('severity'=>'error','operation'=>0,'file'=>$changed_key,'reason'=>$mod_issue,'search'=>''); $log[]='ERROR: '.$mod_issue.' in '.$changed_key; break;
 						}
 					}
@@ -753,8 +753,11 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
                     if (is_file($file) && !@unlink($file) && is_file($file)) {
                         throw new \RuntimeException('Unable to remove old modification file: ' . $file);
                     }
-                    if (is_dir($file) && !@rmdir($file) && is_dir($file)) {
-                        throw new \RuntimeException('Unable to remove old modification directory: ' . $file);
+                    if (is_dir($file) && !@rmdir($file)) {
+                        clearstatcache(true, $file);
+                        if (is_dir($file)) {
+                            throw new \RuntimeException('Unable to remove old modification directory: ' . $file);
+                        }
                     }
                 }
 

@@ -41,7 +41,7 @@ class ModelDesignSeoUrl extends Model {
 			$implode[] = "`store_id` = '" . (int)$data['filter_store_id'] . "'";
 		}
 				
-		if (!empty($data['filter_language_id']) && $data['filter_language_id'] !== '') {
+		if (!empty($data['filter_language_id'])) {
 			$implode[] = "`language_id` = '" . (int)$data['filter_language_id'] . "'";
 		}
 		
@@ -98,11 +98,11 @@ class ModelDesignSeoUrl extends Model {
 			$implode[] = "keyword LIKE '" . $this->db->escape($data['filter_keyword']) . "'";
 		}
 		
-		if (!empty($data['filter_store_id']) && $data['filter_store_id'] !== '') {
+		if (isset($data['filter_store_id']) && $data['filter_store_id'] !== '') {
 			$implode[] = "store_id = '" . (int)$data['filter_store_id'] . "'";
 		}
 				
-		if (!empty($data['filter_language_id']) && $data['filter_language_id'] !== '') {
+		if (!empty($data['filter_language_id'])) {
 			$implode[] = "language_id = '" . (int)$data['filter_language_id'] . "'";
 		}
 		

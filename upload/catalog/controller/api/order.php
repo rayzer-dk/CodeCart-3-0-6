@@ -49,7 +49,7 @@ class ControllerApiOrder extends Controller {
 					} else {
 						$shipping = explode('.', $this->request->post['shipping_method']);
 
-						if (!isset($shipping[0]) || !isset($shipping[1]) || !isset($this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]])) {
+						if (!isset($shipping[1]) || !isset($this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]])) {
 							$json['error'] = $this->language->get('error_shipping_method');
 						}
 					}
@@ -270,13 +270,14 @@ class ControllerApiOrder extends Controller {
 					}
 				}
 
+				/** @var array<int, array<string, mixed>> $totals Total extensions populate rows through the shared references. */
 				$sort_order = array();
 
-				foreach ($total_data['totals'] as $key => $value) {
+				foreach ($totals as $key => $value) {
 					$sort_order[$key] = $value['sort_order'];
 				}
 
-				array_multisort($sort_order, SORT_ASC, $total_data['totals']);
+				array_multisort($sort_order, SORT_ASC, $totals);
 
 				$order_data = array_merge($order_data, $total_data);
 
@@ -438,7 +439,7 @@ class ControllerApiOrder extends Controller {
 						} else {
 							$shipping = explode('.', $this->request->post['shipping_method']);
 
-							if (!isset($shipping[0]) || !isset($shipping[1]) || !isset($this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]])) {
+							if (!isset($shipping[1]) || !isset($this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]])) {
 								$json['error'] = $this->language->get('error_shipping_method');
 							}
 						}
@@ -658,13 +659,14 @@ class ControllerApiOrder extends Controller {
 						}
 					}
 
+					/** @var array<int, array<string, mixed>> $totals Total extensions populate rows through the shared references. */
 					$sort_order = array();
 
-					foreach ($total_data['totals'] as $key => $value) {
+					foreach ($totals as $key => $value) {
 						$sort_order[$key] = $value['sort_order'];
 					}
 
-					array_multisort($sort_order, SORT_ASC, $total_data['totals']);
+					array_multisort($sort_order, SORT_ASC, $totals);
 
 					$order_data = array_merge($order_data, $total_data);
 

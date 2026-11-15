@@ -103,7 +103,7 @@ class ControllerExtensionDashboardDomovyk extends Controller {
         try {
             if (class_exists('CodeCart\Core\DashboardHealth')) {
                 $performance = (new \CodeCart\Core\DashboardHealth($this->registry))->lastPerformance();
-                if (is_array($performance) && $performance) {
+                if ($performance) {
                     $data['http_compression'] = isset($performance['content_encoding']) ? strtolower((string)$performance['content_encoding']) : '';
                     $data['http_compression_server'] = isset($performance['server']) ? (string)$performance['server'] : '';
                     if (!empty($performance['cf_ray'])) { $data['http_compression_server'] = trim($data['http_compression_server'] . ' / Cloudflare'); }

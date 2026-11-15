@@ -17,7 +17,8 @@ def build(root, output):
     root_docs = {'LICENSE', 'README.md', 'README.uk.md', 'README_FIRST.txt',
                  'composer.json', 'composer.lock', 'THIRD_PARTY_DEPENDENCIES.json'}
     for name in tracked:
-        if name and (name.startswith(('upload/', 'documentation/')) or name in root_docs):
+        if name and (name.startswith(('upload/', 'documentation/')) or name in root_docs
+                     or (name.startswith('bonuses/') and name.endswith('.ocmod.zip'))):
             if (root / name).is_file():
                 selected.add(name)
     # Include newly prepared documentation before committing a release.
@@ -27,9 +28,6 @@ def build(root, output):
     if not (vendor / 'autoload.php').is_file():
         raise ValueError('Run composer install --no-dev before packaging')
     selected.update(p.relative_to(root).as_posix() for p in vendor.rglob('*') if p.is_file())
-    bonuses = root / 'bonuses'
-    if bonuses.is_dir():
-        selected.update(p.relative_to(root).as_posix() for p in bonuses.glob('*.ocmod.zip'))
     forbidden = re.compile(r'(^|/)(\.env(?:\..*)?|[^/]*\.(?:bak|old|tmp))$')
     for name in selected:
         if name in {'upload/config.php', 'upload/admin/config.php'} or forbidden.search(name) or (root / name).is_symlink():

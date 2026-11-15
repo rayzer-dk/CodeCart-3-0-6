@@ -2,13 +2,8 @@
 class ControllerStartupPermission extends Controller {
 	public function index() {
 		if (isset($this->request->get['route'])) {
-			$route = '';
-
 			$part = explode('/', $this->request->get['route']);
-
-			if (isset($part[0])) {
-				$route .= $part[0];
-			}
+			$route = $part[0];
 
 			if (isset($part[1])) {
 				$route .= '/' . $part[1];

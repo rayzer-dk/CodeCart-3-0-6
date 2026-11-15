@@ -316,8 +316,15 @@ class ControllerLocalisationOrderStatus extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		foreach ($this->request->post['order_status'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 3) || (utf8_strlen($value['name']) > 32)) {
+		$translations = $this->request->post['order_status'] ?? array();
+		if (!is_array($translations) || !$translations) {
+			$this->error['warning'] ??= $this->language->get('error_name');
+			return false;
+		}
+
+		foreach ($translations as $language_id => $value) {
+			$name = $value['name'] ?? null;
+			if (!is_string($name) || utf8_strlen($name) < 3 || utf8_strlen($name) > 32) {
 				$this->error['name'][$language_id] = $this->language->get('error_name');
 			}
 		}

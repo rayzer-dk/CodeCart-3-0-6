@@ -72,7 +72,7 @@ $raster = imagecreatetruecolor(2, 2);
 ob_start(); imagewebp($raster); $webpUri = 'data:image/webp;base64,' . base64_encode(ob_get_clean());
 ob_start(); imageavif($raster); $avifUri = 'data:image/avif;base64,' . base64_encode(ob_get_clean());
 
-$input .= '<img src="' . $webpUri . '" alt="WebP"><img src="' . $avifUri . '" alt="AVIF">';
+$input .= '<img src="' . $webpUri . '" alt="WebP" style="width:75%;margin:17px 24px"><img src="' . $avifUri . '" alt="AVIF">';
 $description = array_fill_keys(array('name','title','tag','meta_title','meta_h1','meta_description','meta_keyword','submit_text','success_text'), 'QA');
 $case = $argv[1] ?? 'product';
 if (strpos($case, 'theme-') === 0) {
@@ -109,6 +109,7 @@ if (strpos($case, 'theme-') === 0) {
             $rendered = html_entity_decode($html, ENT_QUOTES, 'UTF-8');
             richCheck(strpos($rendered, '<h2>Опис</h2>') !== false && strpos($rendered, 'onclick') === false && strpos($rendered, 'javascript:') === false, $case . ' saves safe localized extra-tab HTML');
             richCheck(strpos($rendered, $webpUri) !== false && strpos($rendered, $avifUri) !== false, $case . ' preserves inline WebP/AVIF on settings save/reopen');
+            richCheck(preg_match('/style="[^"]*width:\s*75%[^"]*margin:\s*17px\s+24px/', $rendered) === 1, $case . ' preserves editor image width and spacing');
             $post[$prefix . '_product_extra_tab_content'][$languageId] = $rendered;
         }
         if ($saved !== null) { richCheck($contents === $saved, $case . ' settings edit/save/reopen is stable'); }
@@ -139,6 +140,7 @@ foreach (array(1, 2, 3) as $languageId) {
     richCheck(strpos($rendered, '<h2>Опис</h2>') !== false && strpos($rendered, 'A &amp; B') !== false, $case . ' preserves localized rich text on add/reopen');
     richCheck(strpos($rendered, 'onclick') === false && strpos($rendered, 'javascript:') === false && strpos($rendered, 'youtube.com/embed/example') !== false, $case . ' removes active attributes/URLs and preserves trusted media');
     richCheck(strpos($rendered, $webpUri) !== false && strpos($rendered, $avifUri) !== false, $case . ' preserves inline WebP/AVIF on add/reopen');
+    richCheck(preg_match('/style="[^"]*width:\s*75%[^"]*margin:\s*17px\s+24px/', $rendered) === 1, $case . ' preserves editor image width and spacing');
     $data[$key][$languageId]['description'] = $rendered;
 }
 if ($case === 'product') {

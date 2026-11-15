@@ -1,49 +1,69 @@
 <div id="filemanager" class="modal-dialog modal-lg">
+  <style>
+    #filemanager .ccp-files-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    #filemanager .ccp-files-actions{display:flex;flex-wrap:wrap;gap:4px}
+    #filemanager .ccp-files-search{width:clamp(180px,32%,280px);max-width:100%;margin-left:auto}
+    #filemanager .ccp-files-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    #filemanager .ccp-files-tile{min-width:0}
+    #filemanager .ccp-files-tile>.thumbnail,#filemanager .ccp-files-tile>.directory{display:flex;align-items:center;justify-content:center;height:110px;margin:0 0 6px}
+    #filemanager .ccp-files-tile>.directory{border:1px solid var(--ccp-border,#d8dee6);border-radius:4px}
+    #filemanager .ccp-files-tile img{max-width:100%;max-height:100%;object-fit:contain}
+    #filemanager .ccp-files-tile label{display:flex;align-items:baseline;justify-content:center;gap:5px;margin:0;font-weight:500;text-align:left;overflow-wrap:anywhere}
+    #filemanager .ccp-files-tile label input{flex:none}
+    @media(max-width:767px){ #filemanager .ccp-files-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:430px){ #filemanager .ccp-files-search{width:100%}}
+  </style>
   <div class="modal-content">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
       <h4 class="modal-title">{{ heading_title }}</h4>
     </div>
     <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-5"><a href="{{ parent }}" data-toggle="tooltip" title="{{ button_parent }}" id="button-parent" class="btn btn-default"><i class="fa fa-level-up"></i></a> <a href="{{ refresh }}" data-toggle="tooltip" title="{{ button_refresh }}" id="button-refresh" class="btn btn-default"><i class="fa fa-refresh"></i></a>
+      <div class="ccp-files-toolbar">
+        <div class="ccp-files-actions"><a href="{{ parent }}" data-toggle="tooltip" title="{{ button_parent }}" id="button-parent" class="btn btn-default"><i class="fa fa-level-up"></i></a> <a href="{{ refresh }}" data-toggle="tooltip" title="{{ button_refresh }}" id="button-refresh" class="btn btn-default"><i class="fa fa-refresh"></i></a>
           <button type="button" data-toggle="tooltip" title="{{ button_upload }}" id="button-upload" class="btn btn-primary"><i class="fa fa-upload"></i></button>
           <button type="button" data-toggle="tooltip" title="{{ button_folder }}" id="button-folder" class="btn btn-default"><i class="fa fa-folder"></i></button>
           <button type="button" data-toggle="tooltip" title="{{ button_delete }}" id="button-delete" class="btn btn-danger"><i class="fa fa-trash-o"></i></button>
           {% if webp_supported %}<button type="button" data-toggle="tooltip" title="{{ button_webp_selected }}" id="button-webp-selected" class="btn btn-default"><i class="fa fa-file-image-o"></i></button>
           <button type="button" data-toggle="tooltip" title="{{ button_webp_all }}" id="button-webp-all" class="btn btn-default"><i class="fa fa-picture-o"></i></button>{% endif %}
         </div>
-        <div class="col-sm-7">
-          <div class="input-group">
-            <input type="text" name="search" value="{{ filter_name }}" placeholder="{{ entry_search }}" class="form-control">
+        <div class="btn-group ccp-files-sort" role="group" aria-label="{{ text_sort }}">
+          {% set sort_labels = {date: sort_date, name: sort_name, size: sort_size, format: sort_format} %}
+          {% for key, option in sort_options %}
+          <button type="button" class="btn {{ sort == key ? 'btn-info' : 'btn-default' }}" data-sort="{{ key }}" data-order="{{ sort == key ? order : option.order }}" data-toggle="tooltip" title="{{ sort_labels[key] }}" aria-label="{{ sort_labels[key] }}" aria-pressed="{{ sort == key ? 'true' : 'false' }}"><i class="fa {{ option.icon }}" aria-hidden="true"></i></button>
+          {% endfor %}
+          {% set next_order = order == 'asc' ? sort_desc : sort_asc %}
+          <button type="button" class="btn btn-default" data-sort="{{ sort }}" data-order="{{ order == 'asc' ? 'desc' : 'asc' }}" title="{{ next_order }}" aria-label="{{ next_order }}" data-toggle="tooltip"><i class="fa fa-sort-amount-{{ order }}" aria-hidden="true"></i></button>
+        </div>
+        <div class="input-group ccp-files-search">
+            <input type="search" name="search" value="{{ filter_name|e('html_attr') }}" placeholder="{{ entry_search }}" aria-label="{{ entry_search }}" class="form-control">
             <span class="input-group-btn">
-            <button type="button" data-toggle="tooltip" title="{{ button_search }}" id="button-search" class="btn btn-primary"><i class="fa fa-search"></i></button>
-            </span></div>
+            <button type="button" data-toggle="tooltip" title="{{ button_search }}" aria-label="{{ button_search }}" id="button-search" class="btn btn-primary"><i class="fa fa-search"></i></button>
+            </span>
         </div>
       </div>
       <div id="webp-progress" class="alert alert-info" style="display:none; margin-top:15px;"></div>
-      <hr />
-      {% for image in images|batch(4) %}
-      <div class="row">
-        {% for image in image %}
-        <div class="col-sm-3 col-xs-6 text-center">
+      {% if not images %}
+      <p class="text-center text-muted">{{ text_no_results }}</p>
+      {% endif %}
+      <div class="ccp-files-grid">
+        {% for image in images %}
+        <div class="ccp-files-tile text-center">
           {% if image.type == 'directory' %}
-          <div class="text-center"><a href="{{ image.href }}" class="directory" style="vertical-align: middle;"><i class="fa fa-folder fa-5x"></i></a></div>
+          <a href="{{ image.href }}" class="directory" aria-label="{{ image.name|e('html_attr') }}"><i class="fa fa-folder fa-5x" aria-hidden="true"></i></a>
           <label>
-            <input type="checkbox" name="path[]" value="{{ image.path }}" />
-            {{ image.name }}</label>
+            <input type="checkbox" name="path[]" value="{{ image.path|e('html_attr') }}" />
+            {{ image.name|e }}</label>
           {% endif %}
           {% if image.type == 'image' %}
-          <a href="{{ image.href }}" class="thumbnail"><img src="{{ image.thumb }}" alt="{{ image.name }}" title="{{ image.name }}" /></a>
+          <a href="{{ image.href|e('html_attr') }}" class="thumbnail"><img src="{{ image.thumb|e('html_attr') }}" alt="{{ image.name|e('html_attr') }}" title="{{ image.name|e('html_attr') }}" /></a>
           <label>
-            <input type="checkbox" name="path[]" value="{{ image.path }}" />
-            {{ image.name }}</label>
+            <input type="checkbox" name="path[]" value="{{ image.path|e('html_attr') }}" />
+            {{ image.name|e }}</label>
           {% endif %}
         </div>
         {% endfor %}
       </div>
-      <br/>
-      {% endfor %}
     </div>
     <div class="modal-footer ccp-filemanager-footer">
       {% if multiple %}<button type="button" id="button-select-multiple" class="btn btn-primary ccp-filemanager-select"><i class="fa fa-check"></i> {{ button_select }}</button>{% endif %}
@@ -52,9 +72,15 @@
   </div>
 </div>
 <script type="text/javascript"><!--
-try { if (window.localStorage) { window.localStorage.setItem('codecart_filemanager_directory', '{{ current_directory|escape('js') }}'); } } catch (e) {}
+try {
+	if (window.localStorage) {
+		window.localStorage.setItem('codecart_filemanager_directory', '{{ current_directory|escape('js') }}');
+		window.localStorage.setItem('codecart_filemanager_sort', '{{ sort }}');
+		window.localStorage.setItem('codecart_filemanager_order', '{{ order }}');
+	}
+} catch (e) {}
 {% if target %}
-$('a.thumbnail').on('click', function(e) {
+$('#filemanager a.thumbnail:not(.directory)').on('click', function(e) {
 	e.preventDefault();
 
 	{% if thumb %}
@@ -67,7 +93,7 @@ $('a.thumbnail').on('click', function(e) {
 });
 {% endif %}
 {% if select_event and not target %}
-$('a.thumbnail').on('click', function(e) {
+$('#filemanager a.thumbnail:not(.directory)').on('click', function(e) {
 	e.preventDefault();
 	var $link = $(this);
 	var item = {
@@ -80,13 +106,13 @@ $('a.thumbnail').on('click', function(e) {
 });
 {% endif %}
 
-$('a.directory').on('click', function(e) {
+$('#filemanager a.directory').on('click', function(e) {
 	e.preventDefault();
 
 	$('#modal-image').load($(this).attr('href'));
 });
 
-$('.pagination a').on('click', function(e) {
+$('#filemanager .pagination a').on('click', function(e) {
 	e.preventDefault();
 
 	$('#modal-image').load($(this).attr('href'));
@@ -104,16 +130,16 @@ $('#button-refresh').on('click', function(e) {
 	$('#modal-image').load($(this).attr('href'));
 });
 
-$('input[name=\'search\']').on('keydown', function(e) {
+$('#filemanager input[name=\'search\']').on('keydown', function(e) {
 	if (e.which == 13) {
 		$('#button-search').trigger('click');
 	}
 });
 
-$('#button-search').on('click', function(e) {
-	var url = 'index.php?route=common/filemanager&user_token={{ user_token }}&directory={{ directory }}';
+function searchFileManager(sort, order) {
+	var url = 'index.php?route=common/filemanager&user_token={{ user_token }}&directory={{ directory }}&sort=' + encodeURIComponent(sort) + '&order=' + encodeURIComponent(order);
 
-	var filter_name = $('input[name=\'search\']').val();
+	var filter_name = $('#filemanager input[name=\'search\']').val();
 
 	if (filter_name) {
 		url += '&filter_name=' + encodeURIComponent(filter_name);
@@ -134,6 +160,12 @@ $('#button-search').on('click', function(e) {
 	{% endif %}
 
 	$('#modal-image').load(url);
+}
+$('#button-search').on('click', function() {
+	searchFileManager('{{ sort }}', '{{ order }}');
+});
+$('#filemanager .ccp-files-sort button').on('click', function() {
+	searchFileManager(this.dataset.sort, this.dataset.order);
 });
 {% if multiple %}
 $('#button-select-multiple').on('click', function() {

@@ -117,7 +117,7 @@ class ControllerStartupSeoUrl extends Controller {
 			}
 
 			$seo_rows = array();
-			$seo_keywords = array_values(array_unique(array_filter(array_map('strval', $parts), 'strlen')));
+			$seo_keywords = array_values(array_unique(array_filter(array_map('strval', $parts), static fn (string $part): bool => $part !== '')));
 			if ($seo_keywords) {
 				$quoted = array();
 				foreach ($seo_keywords as $keyword) {
@@ -258,7 +258,7 @@ class ControllerStartupSeoUrl extends Controller {
 		}
 		// Suppress a spurious redirect if a third-party rewrite returned this URL.
 		$current_path = isset($uri_parts['path']) ? (string)$uri_parts['path'] : '/';
-		$current_query = isset($uri_parts['query']) ? $uri_parts['query'] : '';
+		$current_query = $uri_parts['query'];
 		if ($target === $current_path . ($current_query !== '' ? '?' . $current_query : '')) return false;
 		$this->response->redirect($target, 301);
 		return true;

@@ -4,7 +4,6 @@
 
 class ControllerCatalogCategory extends Controller {
 	private $error = array();
-	private $category_id = 0;
 	private $path = array();
 	private $adminCategoryTree = null;
 
@@ -205,14 +204,12 @@ class ControllerCatalogCategory extends Controller {
 		if (isset($this->request->get['path'])) {
 			if ($this->request->get['path'] != '') {
 					$this->path = explode('_', $this->request->get['path']);
-					$this->category_id = end($this->path);
 					$this->session->data['path'] = $this->request->get['path'];
 			} else {
 				unset($this->session->data['path']);
 			}
 		} elseif (isset($this->session->data['path'])) {
 				$this->path = explode('_', $this->session->data['path']);
-				$this->category_id = end($this->path);
  		}
 
 		$data['categories'] = $this->getCategories(0);
@@ -864,20 +861,4 @@ class ControllerCatalogCategory extends Controller {
 		}
 		return $output;
 	}
-	private function getAllCategories($categories, $parent_id = 0, $parent_name = '') {
-		$output = array();
-		if (array_key_exists($parent_id, $categories)) {
-			if ($parent_name != '') {
-				$parent_name .= $this->language->get('text_separator');
-			}
-			foreach ($categories[$parent_id] as $category) {
-				$output[$category['category_id']] = array(
-					'category_id' => $category['category_id'],
-					'name'        => $parent_name . $category['name']
-				);
-				$output += $this->getAllCategories($categories, $category['category_id'], $parent_name . $category['name']);
-			}
-		}
-		return $output;
-		}
 }

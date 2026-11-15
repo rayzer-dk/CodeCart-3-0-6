@@ -56,11 +56,11 @@ class ModelExtensionTotalReward extends Model {
 	public function confirm($order_info, $order_total) {
 		$this->load->language('extension/total/reward');
 		$points = 0;
-		$start = strpos($order_total['title'], '(') + 1;
+		$start = strpos($order_total['title'], '(');
 		$end = strrpos($order_total['title'], ')');
 
-		if ($start && $end) {
-			$points = (int)substr($order_total['title'], $start, $end - $start);
+		if ($start !== false && $end !== false && $end > $start) {
+			$points = (int)substr($order_total['title'], $start + 1, $end - $start - 1);
 		}
 
 		$customer_id = (int)$order_info['customer_id'];

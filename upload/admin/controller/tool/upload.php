@@ -299,7 +299,7 @@ class ControllerToolUpload extends Controller {
 				$this->response->addheader('Content-Disposition: attachment; filename="' . ($mask ? $mask : basename($file)) . '"');
 				$this->response->addheader('Content-Transfer-Encoding: binary');
 
-				$this->response->setOutput(file_get_contents($file, FILE_USE_INCLUDE_PATH, null));
+				$this->response->setOutput(file_get_contents($file, true));
 			} else {
 				$this->session->data['error'] = $this->language->get('error_file');
 

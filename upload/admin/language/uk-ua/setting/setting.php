@@ -414,7 +414,7 @@ $_['entry_schema_status'] = 'Розмітка Schema.org (JSON-LD)';
 $_['help_schema_status'] = 'Вмикає або вимикає лише вбудовану розмітку CodeCart PRO: OnlineStore, WebSite, Product/Offer, BreadcrumbList, CollectionPage, BlogPosting та інші типи сторінок. Не впливає на SeoPro, SEO URL, canonical, hreflang, sitemap, індексацію чи розмітку інших модулів. Вимикайте, якщо сторонній модуль або шаблон уже створює рівнозначну розмітку.';
 
 $_['text_storefront_appearance'] = 'Штатна вітрина (default theme)';
-$_['help_storefront_appearance'] = 'Ці кольори застосовуються тільки до штатної теми default. Сторонні теми, зокрема UniShop2, не перефарбовуються.';
+$_['help_storefront_appearance'] = 'Ці кольори застосовуються тільки до штатної теми default.';
 $_['entry_storefront_accent_color'] = 'Основний колір вітрини';
 $_['entry_storefront_accent_hover'] = 'Колір наведення вітрини';
 $_['help_storefront_accent_color'] = 'Основний акцент кнопок, посилань і штатних елементів default theme.';

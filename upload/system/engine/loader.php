@@ -102,7 +102,7 @@ final class Loader {
 	 * @param	string	$route
 	 * @param	array	$data
 	 *
-	 * @return	string
+	 * @return	mixed Rendered HTML or a result supplied by a view event.
  	*/
 	public function view($route, $data = array()) {
 		// Sanitize the call

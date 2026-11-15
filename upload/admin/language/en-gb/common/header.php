@@ -83,3 +83,7 @@ $_['ui_quick_nav'] = 'Quick navigation';
 $_['ui_quick_nav_placeholder'] = 'Go to a page (menu, settings, extensions)';
 $_['ui_quick_nav_empty'] = 'Nothing found';
 $_['ui_session_expired'] = 'Session expired. Sign in again.';
+
+$_['ui_image_spacing'] = 'Image spacing';
+$_['ui_image_spacing_horizontal'] = 'Horizontal spacing (px)';
+$_['ui_image_spacing_vertical'] = 'Vertical spacing (px)';

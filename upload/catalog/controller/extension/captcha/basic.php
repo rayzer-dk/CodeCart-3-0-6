@@ -122,7 +122,7 @@ class ControllerExtensionCaptchaBasic extends Controller {
         $duration = isset($this->request->post['duration']) ? (int)$this->request->post['duration'] : 0;
         $steps = isset($this->request->post['steps']) ? (int)$this->request->post['steps'] : 0;
 
-        if (!$challenge || empty($challenge['nonce']) || $nonce === '' || !hash_equals((string)$challenge['nonce'], $nonce) || (int)$challenge['expires'] < time()) {
+        if (!$challenge || empty($challenge['nonce']) || !hash_equals((string)$challenge['nonce'], $nonce) || (int)$challenge['expires'] < time()) {
             return $this->json($json, 400);
         }
         if ($honeypotValue !== '') {
@@ -244,7 +244,7 @@ class ControllerExtensionCaptchaBasic extends Controller {
         $nonce = isset($this->request->get['nonce']) ? (string)$this->request->get['nonce'] : '';
         $challenge = $nonce !== '' ? $this->getChallenge($nonce) : array();
 
-        if (!$challenge || empty($challenge['nonce']) || $nonce === '' || !hash_equals((string)$challenge['nonce'], $nonce) || (int)$challenge['expires'] < time()) {
+        if (!$challenge || empty($challenge['nonce']) || !hash_equals((string)$challenge['nonce'], $nonce) || (int)$challenge['expires'] < time()) {
             $this->response->setStatusCode(404);
             $this->response->setOutput('');
             return;

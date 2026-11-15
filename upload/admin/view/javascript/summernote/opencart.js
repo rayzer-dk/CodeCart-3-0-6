@@ -37,6 +37,59 @@
         });
     }
 
+    function showImageSpacing(context) {
+        var image = context.invoke('editor.restoreTarget');
+        if (!image || image.tagName !== 'IMG') {
+            return;
+        }
+
+        var ui = $.summernote.ui;
+        var labels = window.CodeCartI18n || {};
+        var $body = $('<div>');
+        var fields = [
+            { sides: ['marginLeft', 'marginRight'], label: labels.ui_image_spacing_horizontal || 'Horizontal spacing (px)' },
+            { sides: ['marginTop', 'marginBottom'], label: labels.ui_image_spacing_vertical || 'Vertical spacing (px)' }
+        ];
+        fields.forEach(function(field) {
+            var left = image.style[field.sides[0]];
+            var right = image.style[field.sides[1]];
+            field.initial = left === right && /^\d+px$/.test(left) ? left.slice(0, -2) : '';
+            field.input = $('<input type="number" class="form-control" min="0" max="200" step="1">').val(field.initial);
+            $('<label class="form-group" style="display:block">').text(field.label).append(field.input).appendTo($body);
+        });
+        var $apply = $('<button type="button" class="btn btn-primary">').text(labels.ui_save || 'Save');
+        var $dialog = ui.dialog({
+            title: labels.ui_image_spacing || 'Image spacing',
+            body: ''
+        }).render().appendTo(document.body);
+        $dialog.find('.modal-body').append($body);
+        $dialog.find('.modal-content').append($('<div class="modal-footer">').append($apply));
+
+        ui.onDialogShown($dialog, function() { fields[0].input.trigger('focus'); });
+        ui.onDialogHidden($dialog, function() { $dialog.remove(); });
+        $apply.on('click', function() {
+            var invalid = fields.find(function(field) { return !field.input[0].checkValidity(); });
+            if (invalid) {
+                invalid.input[0].reportValidity();
+                return;
+            }
+
+            context.invoke('editor.beforeCommand');
+            fields.forEach(function(field) {
+                var value = field.input.val();
+                if (value === field.initial) {
+                    return;
+                }
+                field.sides.forEach(function(side) {
+                    image.style[side] = value === '' ? '' : Number(value) + 'px';
+                });
+            });
+            context.invoke('editor.afterCommand');
+            ui.hideDialog($dialog);
+        });
+        ui.showDialog($dialog);
+    }
+
     var codeMirrorThemes = ['default', '3024-day', '3024-night', 'abcdef', 'ambiance', 'ambiance-mobile', 'base16-dark', 'base16-light', 'bespin', 'blackboard', 'cobalt', 'colorforth', 'dracula', 'eclipse', 'elegant', 'erlang-dark', 'hopscotch', 'icecoder', 'isotope', 'lesser-dark', 'liquibyte', 'material', 'mbo', 'mdn-like', 'midnight', 'monokai', 'neat', 'neo', 'night', 'paraiso-dark', 'paraiso-light', 'pastel-on-dark', 'railscasts', 'rubyblue', 'seti', 'solarized', 'the-matrix', 'tomorrow-night-bright', 'tomorrow-night-eighties', 'ttcn', 'twilight', 'vibrant-ink', 'xq-dark', 'xq-light', 'yeti', 'zenburn'];
 
     function getCodeMirrorTheme() {
@@ -179,11 +232,26 @@
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ],
                 popover: {
-                    image: [['custom', ['imageAttributes']], ['resize', ['resizeFull', 'resizeHalf', 'resizeQuarter', 'resizeNone']], ['float', ['floatLeft', 'floatRight', 'floatNone']], ['remove', ['removeMedia']]],
+                    image: [['custom', ['imageAttributes', 'ccpImageSpacing']], ['resize', ['resizeFull', 'ccpResize75', 'resizeHalf', 'resizeQuarter', 'resizeNone']], ['float', ['floatLeft', 'floatRight', 'floatNone']], ['remove', ['removeMedia']]],
                     link: [['link', ['linkDialogShow', 'unlink']]],
                     table: [['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight']], ['delete', ['deleteRow', 'deleteCol', 'deleteTable']]]
                 },
                 buttons: {
+                    ccpResize75: function() {
+                        return $.summernote.ui.button({
+                            contents: '<span class="note-fontsize-10">75%</span>',
+                            tooltip: '75%',
+                            click: function() { $element.summernote('editor.resize', '0.75'); }
+                        }).render();
+                    },
+                    ccpImageSpacing: function() {
+                        var label = (window.CodeCartI18n || {}).ui_image_spacing || 'Image spacing';
+                        return $.summernote.ui.button({
+                            contents: '<i class="fa fa-arrows" aria-hidden="true"></i>',
+                            tooltip: label,
+                            click: function() { showImageSpacing($element.data('summernote')); }
+                        }).render().attr('aria-label', label);
+                    },
                     ccpAnchor: function() {
                         var ui = $.summernote.ui;
                         return ui.button({

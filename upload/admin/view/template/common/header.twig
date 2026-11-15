@@ -29,7 +29,7 @@
 {% endfor %}
 {% if not has_store_favicon %}<link rel="icon" type="image/webp" href="view/image/favicon.webp?v={{ package_build }}" />{% endif %}
 {% if (current_route|default('')) in ['extension/module/uni_settings','extension/theme/unishop2'] %}<link href="view/stylesheet/codecart-unishop-compat.css?v={{ package_build }}" type="text/css" rel="stylesheet" media="screen" />{% endif %}
-<script src="view/javascript/editor/opencart.js?v=3.0.6.0" type="text/javascript"></script>
+<script src="view/javascript/editor/opencart.js?v={{ package_build }}" type="text/javascript"></script>
 <script>window.CodeCartI18n={{ codecart_ui_i18n|json_encode|raw }};</script>
 <script src="{{ core_script|e('html_attr') }}" type="text/javascript"></script>
 <script src="view/javascript/codecart-admin-ui.js?v={{ package_build }}" type="text/javascript"></script>

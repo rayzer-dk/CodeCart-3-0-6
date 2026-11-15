@@ -76,13 +76,9 @@ class ControllerCheckoutShippingMethod extends Controller {
             if ($product['minimum'] > $product_total) { $json['redirect'] = $this->url->link('checkout/cart'); break; }
         }
 
-        if (!isset($this->request->post['shipping_method'])) {
+        $shipping = explode('.', (string)($this->request->post['shipping_method'] ?? ''));
+        if (!isset($shipping[1], $this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]])) {
             $json['error']['warning'] = $this->language->get('error_shipping');
-        } else {
-            $shipping = explode('.', (string)$this->request->post['shipping_method']);
-            if (!isset($shipping[0], $shipping[1], $this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]])) {
-                $json['error']['warning'] = $this->language->get('error_shipping');
-            }
         }
 
         $delivery = null;
@@ -117,7 +113,7 @@ class ControllerCheckoutShippingMethod extends Controller {
                             'postcode' => isset($branch['postcode']) ? (string)$branch['postcode'] : ''
                         );
                     } catch (Exception $e) {
-                        if ($this->log) { $this->log->write('Carrier selection validation failed: ' . get_class($e)); }
+                        $this->log->write('Carrier selection validation failed: ' . get_class($e));
                         $json['error']['warning'] = $this->language->get('error_branch_invalid');
                     }
                 }

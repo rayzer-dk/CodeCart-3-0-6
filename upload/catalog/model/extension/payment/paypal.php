@@ -7,7 +7,7 @@ class ModelExtensionPaymentPayPal extends Model {
 		
 		$agree_status = $this->getAgreeStatus();
 		
-		if ($this->config->get('payment_paypal_status') && $this->config->get('payment_paypal_client_id') && $this->config->get('payment_paypal_secret') && $agree_status) {
+		if ($this->config->get('payment_paypal_client_id') && $this->config->get('payment_paypal_secret') && $agree_status) {
 			$this->load->language('extension/payment/paypal');
 
 			$country_id = isset($address['country_id']) ? (int)($address['country_id'] ?? 0) : 0;
@@ -505,6 +505,18 @@ class ModelExtensionPaymentPayPal extends Model {
 		}
 	}
 	
+	/**
+	 * PayPal dates use MySQL's DATETIME format. Malformed rows must not be charged.
+	 */
+	private function readRecurringDate(?string $value): ?DateTime {
+		if ($value === null || !preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/D', $value)) {
+			return null;
+		}
+
+		$date = DateTime::createFromFormat('!Y-m-d H:i:s', $value);
+		return $date !== false && $date->format('Y-m-d H:i:s') === $value ? $date : null;
+	}
+
 	public function cronPayment() {
 		$this->load->model('checkout/order');
 		
@@ -525,22 +537,29 @@ class ModelExtensionPaymentPayPal extends Model {
 
 				if ($paypal_order_recurring) {
 					$today = new DateTime('now');
-					$unlimited = new DateTime('9999-12-31 23:59:59');
-					$next_payment = new DateTime($paypal_order_recurring['next_payment']);
-					$trial_end = new DateTime(codecart_date_boundary($paypal_order_recurring['trial_end'], '9999-12-31 23:59:59'));
-					$subscription_end = new DateTime(codecart_date_boundary($paypal_order_recurring['subscription_end'], '9999-12-31 23:59:59'));
+					$next_payment = $this->readRecurringDate($paypal_order_recurring['next_payment']);
+					$has_trial = (int)$order_recurring['trial'] === 1;
+					$trial_end = $has_trial ? $this->readRecurringDate($paypal_order_recurring['trial_end']) : null;
+					$subscription_end = $this->readRecurringDate($paypal_order_recurring['subscription_end']);
+					if ($next_payment === null || ($has_trial && $trial_end === null) || $subscription_end === null) {
+						$this->log->write('PayPal: invalid schedule for recurring order #' . (int)$order_recurring['order_recurring_id']);
+						continue;
+					}
+					if ($next_payment >= $today) {
+						continue;
+					}
 
 					$order_info = $this->model_checkout_order->getOrder($order_recurring['order_id']);
 			
 					$paypal_order_info = $this->getPayPalOrder($order_recurring['order_id']);
 					
 					if (!empty($paypal_order_info['vault_id'])) {
-						if ((date_format($today, 'Y-m-d H:i:s') > date_format($next_payment, 'Y-m-d H:i:s')) && (date_format($trial_end, 'Y-m-d H:i:s') > date_format($today, 'Y-m-d H:i:s') || date_format($trial_end, 'Y-m-d H:i:s') == date_format($unlimited, 'Y-m-d H:i:s'))) {
+						if ($trial_end !== null && $trial_end > $today) {
 							$price = $this->currency->format($order_recurring['trial_price'], $order_info['currency_code'], false, false);
 							$frequency = $order_recurring['trial_frequency'];
 							$cycle = $order_recurring['trial_cycle'];
 							$next_payment = $this->calculateSchedule($frequency, $next_payment, $cycle);
-						} elseif ((date_format($today, 'Y-m-d H:i:s') > date_format($next_payment, 'Y-m-d H:i:s')) && (date_format($subscription_end, 'Y-m-d H:i:s') > date_format($today, 'Y-m-d H:i:s') || date_format($subscription_end, 'Y-m-d H:i:s') == date_format($unlimited, 'Y-m-d H:i:s'))) {
+						} elseif ($subscription_end > $today) {
 							$price = $this->currency->format($order_recurring['recurring_price'], $order_info['currency_code'], false, false);
 							$frequency = $order_recurring['recurring_frequency'];
 							$cycle = $order_recurring['recurring_cycle'];
@@ -663,7 +682,7 @@ class ModelExtensionPaymentPayPal extends Model {
 		$item_total += $product_price;
 				
 		$item_total = number_format($item_total, $decimal_place, '.', '');
-		$order_total = number_format($item_total, $decimal_place, '.', '');
+		$order_total = $item_total;
 				
 		$amount_info = array();
 				

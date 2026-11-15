@@ -456,11 +456,11 @@ if ($case === 'bonus') {
     define('DIR_UPLOAD', $temp . '/uploads/');
     require $root . '/upload/admin/controller/marketplace/install.php';
     require $root . '/upload/system/library/codecart/src/ExtensionInstallJournal.php';
-    $source = $root . '/bonus-source/unishop2_compatibility';
+    $source = $root . '/bonus-source/monobank_payment';
     $xml = simplexml_load_file($source . '/install.xml');
     $zip = new ZipArchive();
-    $filename = $root . '/bonuses/UniShop2_Compatibility_Pro_v' . (string)$xml->version . '.ocmod.zip';
-    commerceCheck($zip->open($filename, ZipArchive::CHECKCONS) === true, 'Bundled UniShop archive must open with consistency checks');
+    $filename = $root . '/bonuses/Monobank_Payment_Modern_Pro_v' . (string)$xml->version . '.ocmod.zip';
+    commerceCheck($zip->open($filename, ZipArchive::CHECKCONS) === true, 'Bundled payment archive must open with consistency checks');
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
         $contents = $zip->getFromIndex($i);
@@ -488,7 +488,7 @@ if ($case === 'bonus') {
     $extract->invoke($installer, $zip, DIR_UPLOAD . 'tmp-fixture');
     $installer->preflight();
     $result = json_decode($response->output, true);
-    commerceCheck(!isset($result['error']) && str_contains($result['next'] ?? '', 'marketplace/install/move'), 'Own installer public preflight must accept the bundled UniShop archive: ' . implode('; ', $log->messages));
+    commerceCheck(!isset($result['error']) && str_contains($result['next'] ?? '', 'marketplace/install/move'), 'Own installer public preflight must accept the bundled payment archive: ' . implode('; ', $log->messages));
     commerceCheck($zip->locateName('upload/') !== false && $zip->locateName('upload/index.html') === false, 'OCMOD archive must explicitly retain upload/ without a disallowed placeholder');
     commerceCheck(!is_file($source . '/upload/index.html'), 'Source tree must not recreate the invalid placeholder on the next build');
     $zip->close();

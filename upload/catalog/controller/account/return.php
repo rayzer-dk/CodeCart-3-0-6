@@ -471,11 +471,7 @@ class ControllerAccountReturn extends Controller {
             return false;
         }
 
-		if (!empty($this->request->post['order_id'])) {
-			if (!$this->request->post['order_id']) {
-				$this->error['order_id'] = $this->language->get('error_order_id');
-			}
-		} else {
+		if (empty($this->request->post['order_id'])) {
 			$this->error['order_id'] = $this->language->get('error_order_id');
 		}
 

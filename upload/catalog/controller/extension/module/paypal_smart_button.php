@@ -795,6 +795,46 @@ class ControllerExtensionModulePayPalSmartButton extends Controller {
 		$data['guest'] = isset($this->session->data['guest']) ? $this->session->data['guest'] : array();
 		$data['payment_address'] = isset($this->session->data['payment_address']) ? $this->session->data['payment_address'] : array();	
 
+		// Totals
+		$totals = array();
+		$taxes = $this->cart->getTaxes();
+		$total = 0;
+
+		// Because __call can not keep var references so we put them into an array.
+		$total_data = array(
+			'totals' => &$totals,
+			'taxes'  => &$taxes,
+			'total'  => &$total
+		);
+
+		$sort_order = array();
+
+		$results = $this->model_setting_extension->getExtensions('total');
+
+		foreach ($results as $key => $value) {
+			$sort_order[$key] = $this->config->get('total_' . $value['code'] . '_sort_order');
+		}
+
+		array_multisort($sort_order, SORT_ASC, $results);
+
+		foreach ($results as $result) {
+			if ($this->config->get('total_' . $result['code'] . '_status')) {
+				$this->load->model('extension/total/' . $result['code']);
+
+				// We have to put the totals in an array so that they pass by reference.
+				$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
+			}
+		}
+
+		/** @var array<int, array<string, mixed>> $totals Total extensions populate rows through the shared references. */
+		$sort_order = array();
+
+		foreach ($totals as $key => $value) {
+			$sort_order[$key] = $value['sort_order'];
+		}
+
+		array_multisort($sort_order, SORT_ASC, $totals);
+
 		/**
 		 * Payment methods
 		 */
@@ -839,55 +879,15 @@ class ControllerExtensionModulePayPalSmartButton extends Controller {
 
 		$data['custom_fields'] = $this->model_account_custom_field->getCustomFields();
 
-		// Totals
-		$totals = array();
-		$taxes = $this->cart->getTaxes();
-		$total = 0;
-
-		// Because __call can not keep var references so we put them into an array.
-		$total_data = array(
-			'totals' => &$totals,
-			'taxes'  => &$taxes,
-			'total'  => &$total
-		);
-
-		// Display prices
-		if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
-			$sort_order = array();
-
-			$results = $this->model_setting_extension->getExtensions('total');
-
-			foreach ($results as $key => $value) {
-				$sort_order[$key] = $this->config->get('total_' . $value['code'] . '_sort_order');
-			}
-
-			array_multisort($sort_order, SORT_ASC, $results);
-
-			foreach ($results as $result) {
-				if ($this->config->get('total_' . $result['code'] . '_status')) {
-					$this->load->model('extension/total/' . $result['code']);
-
-					// We have to put the totals in an array so that they pass by reference.
-					$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
-				}
-			}
-
-			$sort_order = array();
-
-			foreach ($totals as $key => $value) {
-				$sort_order[$key] = $value['sort_order'];
-			}
-
-			array_multisort($sort_order, SORT_ASC, $totals);
-		}
-
 		$data['totals'] = array();
 
-		foreach ($totals as $total) {
-			$data['totals'][] = array(
-				'title' => $total['title'],
-				'text'  => $this->currency->format($total['value'], $this->session->data['currency']),
-			);
+		if ($this->customer->isLogged() || !$this->config->get('config_customer_price')) {
+			foreach ($totals as $total_row) {
+				$data['totals'][] = array(
+					'title' => $total_row['title'],
+					'text'  => $this->currency->format($total_row['value'], $this->session->data['currency']),
+				);
+			}
 		}
 
 		$data['action_confirm'] = $this->url->link('extension/module/paypal_smart_button/completeOrder', '', true);
@@ -996,6 +996,7 @@ class ControllerExtensionModulePayPalSmartButton extends Controller {
 				}
 			}
 
+			/** @var array<int, array<string, mixed>> $totals Total extensions populate rows through the shared references. */
 			$sort_order = array();
 
 			foreach ($totals as $key => $value) {
@@ -1379,6 +1380,7 @@ class ControllerExtensionModulePayPalSmartButton extends Controller {
 
 			$result = $paypal->updateOrder($order_id, $order_info);
 			
+			$seller_protection_status = 'NOT_ELIGIBLE';
 			if ($transaction_method == 'authorize') {
 				$result = $paypal->setOrderAuthorize($order_id);
 
@@ -1622,7 +1624,7 @@ class ControllerExtensionModulePayPalSmartButton extends Controller {
 		} else {
 			$shipping = explode('.', $code);
 
-			if (!isset($shipping[0]) || !isset($shipping[1]) || !isset($this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]])) {
+			if (!isset($shipping[1]) || !isset($this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]])) {
 				$this->session->data['error_warning'] = $this->language->get('error_shipping');
 
 				return false;

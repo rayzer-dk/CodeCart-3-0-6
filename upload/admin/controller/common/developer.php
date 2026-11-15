@@ -151,7 +151,7 @@ class ControllerCommonDeveloper extends Controller {
 				closedir($dir);
 				rmdir($dirname);
 			} else {
-				if (!unlink($dirname) && $this->log) {
+				if (!unlink($dirname)) {
 					$this->log->write('Developer cache cleanup: unable to delete ' . $dirname);
 				}
 			}

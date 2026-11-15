@@ -13,7 +13,7 @@ class ModelLocalisationOrderStatus extends Model {
 
 		$this->cache->delete('order_status');
 		
-		return $order_status_id;
+		return $order_status_id ?? null;
 	}
 
 	public function editOrderStatus($order_status_id, $data) {

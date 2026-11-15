@@ -34,6 +34,13 @@ $_['error_webp_support'] = 'WebP conversion is unavailable: PHP GD WebP support 
 $_['error_webp_select'] = 'Select at least one JPG or PNG image.';
 
 $_['button_select'] = 'Select';
+$_['text_sort'] = 'Sort images';
+$_['sort_date'] = 'File date';
+$_['sort_name'] = 'File name';
+$_['sort_size'] = 'File size';
+$_['sort_format'] = 'File format';
+$_['sort_asc'] = 'Sort ascending';
+$_['sort_desc'] = 'Sort descending';
 
 // CodeCart PRO safe SVG
 $_['error_svg_unsafe'] = 'Unsafe SVG content was blocked. SVG files are sanitized and may not contain scripts, embedded content, CSS, event handlers or external URLs.';

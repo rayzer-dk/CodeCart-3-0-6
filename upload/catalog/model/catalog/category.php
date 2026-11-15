@@ -156,7 +156,7 @@ class ModelCatalogCategory extends Model {
 		if ($category_id < 1 || $language_id < 1) { return array(); }
 
 		$query = $this->db->query("SELECT marker.mode, lang.data FROM " . DB_PREFIX . "category_path cp INNER JOIN " . DB_PREFIX . "codecart_purchase_block marker ON (marker.owner_type='category' AND marker.owner_id=cp.path_id AND marker.language_id='0') LEFT JOIN " . DB_PREFIX . "codecart_purchase_block lang ON (lang.owner_type='category' AND lang.owner_id=cp.path_id AND lang.language_id='" . $language_id . "') WHERE cp.category_id='" . $category_id . "' ORDER BY cp.level DESC LIMIT 1");
-		if (!$query->num_rows || (int)$query->row['mode'] === 2 || !isset($query->row['data']) || $query->row['data'] === null) { return array(); }
+		if (!$query->num_rows || (int)$query->row['mode'] === 2 || !isset($query->row['data'])) { return array(); }
 		return \CodeCart\Core\PurchaseBlocks::decode($query->row['data']);
 	}
 

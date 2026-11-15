@@ -31,7 +31,7 @@ class Language {
      *
      * @param	string	$key
 	 * 
-	 * @return	string
+	 * @return	mixed A translation value, a named Language instance, or the key itself.
      */
 	public function get($key) {
 		return (isset($this->data[$key]) ? $this->data[$key] : $key);

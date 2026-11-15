@@ -187,9 +187,7 @@ class ModelSaleOrder extends Model {
 				$implode[] = "o.order_status_id = '" . (int)$order_status_id . "'";
 			}
 
-			if ($implode) {
-				$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
-			}
+			$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
 		} elseif (isset($data['filter_order_status_id']) && $data['filter_order_status_id'] !== '') {
 			$sql .= " WHERE o.order_status_id = '" . (int)$data['filter_order_status_id'] . "'";
 		} else {
@@ -369,9 +367,7 @@ class ModelSaleOrder extends Model {
 				$implode[] = "order_status_id = '" . (int)$order_status_id . "'";
 			}
 
-			if ($implode) {
-				$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
-			}
+			$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
 		} elseif (isset($data['filter_order_status_id']) && $data['filter_order_status_id'] !== '') {
 			$sql .= " WHERE order_status_id = '" . (int)$data['filter_order_status_id'] . "'";
 		} else {
@@ -483,9 +479,7 @@ class ModelSaleOrder extends Model {
 				$implode[] = "order_status_id = '" . (int)$order_status_id . "'";
 			}
 
-			if ($implode) {
-				$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
-			}
+			$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
 		} elseif (isset($data['filter_order_status_id']) && $data['filter_order_status_id'] !== '') {
 			$sql .= " WHERE order_status_id = '" . (int)$data['filter_order_status_id'] . "'";
 		} else {

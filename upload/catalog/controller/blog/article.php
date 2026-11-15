@@ -3,7 +3,6 @@
 // *	@license	GNU General Public License version 3; see LICENSE.txt
 
 class ControllerBlogArticle extends Controller {
-	private $error = array(); 
 	
 	public function index() { 
 		$this->load->language('blog/article');
@@ -527,17 +526,13 @@ class ControllerBlogArticle extends Controller {
 
 		$file = $this->resolveDownloadFile(isset($download_info['filename']) ? $download_info['filename'] : '');
 		if ($file === false) {
-			if ($this->log) {
-				$this->log->write('Blog download unavailable: article_id=' . $article_id . ', download_id=' . $download_id);
-			}
+			$this->log->write('Blog download unavailable: article_id=' . $article_id . ', download_id=' . $download_id);
 			$this->response->redirect($this->url->link('blog/article', 'article_id=' . $article_id));
 			return;
 		}
 
 		if (headers_sent()) {
-			if ($this->log) {
-				$this->log->write('Blog download aborted because response headers were already sent: article_id=' . $article_id . ', download_id=' . $download_id);
-			}
+			$this->log->write('Blog download aborted because response headers were already sent: article_id=' . $article_id . ', download_id=' . $download_id);
 			return;
 		}
 

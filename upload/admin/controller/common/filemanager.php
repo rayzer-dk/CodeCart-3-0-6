@@ -3,12 +3,29 @@ class ControllerCommonFileManager extends Controller {
 	public function index() {
 		$this->load->language('common/filemanager');
 
-		// Find which protocol to use to pass the full image link back
-		if ($this->request->server['HTTPS']) {
-			$server = HTTPS_CATALOG;
-		} else {
-			$server = HTTP_CATALOG;
+		$sort_options = array(
+			'date' => array('icon' => 'fa-calendar', 'order' => 'desc'),
+			'name' => array('icon' => 'fa-sort-alpha-asc', 'order' => 'asc'),
+			'size' => array('icon' => 'fa-hdd-o', 'order' => 'desc'),
+			'format' => array('icon' => 'fa-file-image-o', 'order' => 'asc')
+		);
+		$sort = $this->request->get['sort'] ?? $this->session->data['filemanager_sort'] ?? 'date';
+		if (!is_string($sort) || !isset($sort_options[$sort])) {
+			$sort = 'date';
 		}
+		$saved_order = $sort === ($this->session->data['filemanager_sort'] ?? '') ? ($this->session->data['filemanager_order'] ?? null) : null;
+		$order = $this->request->get['order'] ?? $saved_order ?? $sort_options[$sort]['order'];
+		if ($order !== 'asc' && $order !== 'desc') {
+			$order = $sort_options[$sort]['order'];
+		}
+		$this->session->data['filemanager_sort'] = $data['sort'] = $sort;
+		$this->session->data['filemanager_order'] = $data['order'] = $order;
+		$target = $this->request->get['target'] ?? '';
+		$data['target'] = $target = is_string($target) ? preg_replace('/[^a-zA-Z0-9_-]/', '', $target) : '';
+		$thumb = $this->request->get['thumb'] ?? '';
+		$data['thumb'] = $thumb = is_string($thumb) ? preg_replace('/[^a-zA-Z0-9_-]/', '', $thumb) : '';
+		$data['sort_options'] = $sort_options;
+		$sort_query = '&sort=' . $sort . '&order=' . $order;
 
 		if (isset($this->request->get['filter_name'])) {
 			$filter_name = rtrim(str_replace(array('*', '/', '\\'), '', $this->request->get['filter_name']), '/');
@@ -64,14 +81,15 @@ class ControllerCommonFileManager extends Controller {
 			}
 		}
 
-		// Merge directories and files
+		$this->sortImages($files, $sort, $order);
+		$this->sortImages($directories, 'name', $sort === 'name' ? $order : 'asc');
 		$images = array_merge($directories, $files);
 
 		// Get total number of files and directories
 		$image_total = count($images);
 
-		// Split the array based on current page number and max number of items per page of 10
-		$images = array_splice($images, ($page - 1) * 16, 16);
+		$page = max(1, min($page, (int)ceil($image_total / 16)));
+		$images = array_slice($images, ($page - 1) * 16, 16);
 
 		foreach ($images as $image) {
 			$name = basename($image);
@@ -79,12 +97,12 @@ class ControllerCommonFileManager extends Controller {
 			if (is_dir($image)) {
 				$url = '';
 
-				if (isset($this->request->get['target'])) {
-					$url .= '&target=' . $this->request->get['target'];
+				if ($target !== '') {
+					$url .= '&target=' . $target;
 				}
 
-				if (isset($this->request->get['thumb'])) {
-					$url .= '&thumb=' . $this->request->get['thumb'];
+				if ($thumb !== '') {
+					$url .= '&thumb=' . $thumb;
 				}
 
 				if (!empty($this->request->get['multiple'])) {
@@ -100,7 +118,7 @@ class ControllerCommonFileManager extends Controller {
 					'name'  => $name,
 					'type'  => 'directory',
 					'path'  => utf8_substr($image, utf8_strlen(DIR_IMAGE)),
-					'href'  => $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . '&directory=' . urlencode(utf8_substr($image, utf8_strlen(DIR_IMAGE . 'catalog/'))) . $url, true)
+					'href'  => $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . '&directory=' . urlencode(utf8_substr($image, utf8_strlen(DIR_IMAGE . 'catalog/'))) . $url . $sort_query, true)
 				);
 			} elseif (is_file($image)) {
 				$relative_image = utf8_substr($image, utf8_strlen(DIR_IMAGE));
@@ -136,20 +154,6 @@ class ControllerCommonFileManager extends Controller {
 			$data['filter_name'] = '';
 		}
 
-		// Return the target ID for the file manager to set the value
-		if (isset($this->request->get['target'])) {
-			$data['target'] = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$this->request->get['target']);
-		} else {
-			$data['target'] = '';
-		}
-
-		// Return the thumbnail for the file manager to show a thumbnail
-		if (isset($this->request->get['thumb'])) {
-			$data['thumb'] = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$this->request->get['thumb']);
-		} else {
-			$data['thumb'] = '';
-		}
-
 		$data['multiple'] = !empty($this->request->get['multiple']);
 		$data['select_event'] = $select_event;
 		$data['webp_supported'] = extension_loaded('gd') && function_exists('imagewebp');
@@ -165,12 +169,12 @@ class ControllerCommonFileManager extends Controller {
 			}
 		}
 
-		if (isset($this->request->get['target'])) {
-			$url .= '&target=' . $this->request->get['target'];
+		if ($target !== '') {
+			$url .= '&target=' . $target;
 		}
 
-		if (isset($this->request->get['thumb'])) {
-			$url .= '&thumb=' . $this->request->get['thumb'];
+		if ($thumb !== '') {
+			$url .= '&thumb=' . $thumb;
 		}
 
 		if (!empty($this->request->get['multiple'])) {
@@ -181,7 +185,7 @@ class ControllerCommonFileManager extends Controller {
 			$url .= '&select_event=' . urlencode($select_event);
 		}
 
-		$data['parent'] = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url, true);
+		$data['parent'] = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . $sort_query, true);
 
 		// Refresh
 		$url = '';
@@ -190,12 +194,12 @@ class ControllerCommonFileManager extends Controller {
 			$url .= '&directory=' . urlencode($this->request->get['directory']);
 		}
 
-		if (isset($this->request->get['target'])) {
-			$url .= '&target=' . $this->request->get['target'];
+		if ($target !== '') {
+			$url .= '&target=' . $target;
 		}
 
-		if (isset($this->request->get['thumb'])) {
-			$url .= '&thumb=' . $this->request->get['thumb'];
+		if ($thumb !== '') {
+			$url .= '&thumb=' . $thumb;
 		}
 
 		if (!empty($this->request->get['multiple'])) {
@@ -206,7 +210,7 @@ class ControllerCommonFileManager extends Controller {
 			$url .= '&select_event=' . urlencode($select_event);
 		}
 
-		$data['refresh'] = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url, true);
+		$data['refresh'] = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . $sort_query, true);
 
 		$url = '';
 
@@ -218,12 +222,12 @@ class ControllerCommonFileManager extends Controller {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
 		}
 
-		if (isset($this->request->get['target'])) {
-			$url .= '&target=' . $this->request->get['target'];
+		if ($target !== '') {
+			$url .= '&target=' . $target;
 		}
 
-		if (isset($this->request->get['thumb'])) {
-			$url .= '&thumb=' . $this->request->get['thumb'];
+		if ($thumb !== '') {
+			$url .= '&thumb=' . $thumb;
 		}
 
 		if (!empty($this->request->get['multiple'])) {
@@ -238,11 +242,38 @@ class ControllerCommonFileManager extends Controller {
 		$pagination->total = $image_total;
 		$pagination->page = $page;
 		$pagination->limit = 16;
-		$pagination->url = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
+		$pagination->url = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . $sort_query . '&page={page}', true);
 
 		$data['pagination'] = $pagination->render();
 
 		$this->response->setOutput($this->load->view('common/filemanager', $data));
+	}
+
+	private function sortImages(array &$paths, string $sort, string $order): void {
+		$values = array();
+		if ($sort !== 'name') {
+			foreach ($paths as $path) {
+				switch ($sort) {
+					case 'date':
+						$values[$path] = is_link($path) ? 0 : (int)@filemtime($path);
+						break;
+					case 'size':
+						$values[$path] = is_link($path) ? 0 : (int)@filesize($path);
+						break;
+					case 'format':
+						$values[$path] = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+						break;
+				}
+			}
+		}
+		usort($paths, static function (string $a, string $b) use ($values, $sort, $order): int {
+			$by_name = strnatcasecmp($a, $b) ?: strcmp($a, $b);
+			if ($sort === 'name') {
+				return $order === 'asc' ? $by_name : -$by_name;
+			}
+			$comparison = $values[$a] <=> $values[$b];
+			return ($order === 'asc' ? $comparison : -$comparison) ?: $by_name;
+		});
 	}
 
 	public function upload() {

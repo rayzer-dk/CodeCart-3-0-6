@@ -5,3 +5,7 @@
 .note-editor.codeview .note-editing-area .CodeMirror{height:320px;min-height:220px;border:0;border-radius:0;font-size:13px;line-height:1.45}
 .note-editor.codeview .note-editing-area .CodeMirror-scroll{min-height:220px}
 .note-editor.codeview .note-editing-area>.note-codable{display:none!important}
+@media (max-width: 600px) {
+    .note-image-popover { max-width: calc(100vw - 44px); }
+    .note-image-popover .popover-content { display: flex; flex-wrap: wrap; gap: 4px; }
+}

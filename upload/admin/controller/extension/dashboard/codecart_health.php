@@ -268,7 +268,6 @@ class ControllerExtensionDashboardCodeCartHealth extends Controller {
     protected function validate(){if(!$this->user->hasPermission('modify','extension/dashboard/codecart_health')){$this->error['warning']=$this->language->get('error_permission');}return !$this->error;}
 
     private function settingInt($key,$default=0){$v=$this->config->get($key);return ($v===null||$v==='')?(int)$default:(int)$v;}
-    private function languageText($key){$this->load->language('extension/dashboard/codecart_health');return $this->language->get($key);}
     private function sectionIcon($s){$m=array('commerce'=>'fa-shopping-cart','attention'=>'fa-exclamation-triangle','system'=>'fa-heartbeat','performance'=>'fa-tachometer','seo'=>'fa-search','security'=>'fa-shield','quick'=>'fa-bolt');return $m[$s]??'fa-circle';}
     private function links(){
         $t='user_token='.$this->session->data['user_token'];

@@ -67,11 +67,11 @@ class ControllerCommonHeader extends Controller {
         $data['text_admin_theme_toggle'] = $this->language->get('text_admin_theme_toggle');
         $data['codecart_ui_i18n'] = array();
         if (strpos(strtolower((string)$data['lang']), 'uk') === 0) {
-            foreach (array('ui_select_date','ui_delete','ui_close','ui_add','ui_remove','ui_edit','ui_view','ui_refresh','ui_upload','ui_download','ui_search','ui_copy','ui_filter','ui_save','ui_previous','ui_next','ui_collapse','ui_expand','ui_back','ui_continue','ui_select_image','ui_open','ui_action','ui_anchor_insert','ui_anchor_name','ui_toc_build','ui_toc_need_headings','ui_toc_title','ui_link_type','ui_link_help','ui_anchor_on_page','ui_anchor_choose','ui_anchor_help','ui_video_help') as $ui_key) {
+            foreach (array('ui_select_date','ui_delete','ui_close','ui_add','ui_remove','ui_edit','ui_view','ui_refresh','ui_upload','ui_download','ui_search','ui_copy','ui_filter','ui_previous','ui_next','ui_collapse','ui_expand','ui_back','ui_continue','ui_select_image','ui_open','ui_action','ui_anchor_insert','ui_anchor_name','ui_toc_build','ui_toc_need_headings','ui_toc_title','ui_link_type','ui_link_help','ui_anchor_on_page','ui_anchor_choose','ui_anchor_help','ui_video_help') as $ui_key) {
                 $data['codecart_ui_i18n'][$ui_key] = $this->language->get($ui_key);
             }
         }
-        foreach (array('ui_request_failed','ui_session_expired','ui_quick_nav','ui_quick_nav_placeholder','ui_quick_nav_empty') as $ui_key) {
+        foreach (array('ui_request_failed','ui_session_expired','ui_quick_nav','ui_quick_nav_placeholder','ui_quick_nav_empty','ui_save','ui_image_spacing','ui_image_spacing_horizontal','ui_image_spacing_vertical') as $ui_key) {
             $data['codecart_ui_i18n'][$ui_key] = $this->language->get($ui_key);
         }
         $data['text_refresh_modifications'] = $this->language->get('text_refresh_modifications');

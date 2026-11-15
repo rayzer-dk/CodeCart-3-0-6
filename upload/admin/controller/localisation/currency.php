@@ -121,11 +121,11 @@ class ControllerLocalisationCurrency extends Controller {
 
 		if ($this->validateRefresh()) {
 			$result = $this->model_localisation_currency->refresh();
+			$message = is_array($result) && !empty($result['message']) ? (string)$result['message'] : '';
 			if (is_array($result) && empty($result['success'])) {
-				$this->error['warning'] = !empty($result['message']) ? (string)$result['message'] : $this->language->get('error_currency_engine');
+				$this->error['warning'] = $message !== '' ? $message : $this->language->get('error_currency_engine');
 			} else {
-				$message = is_array($result) && !empty($result['message']) ? (string)$result['message'] : $this->language->get('text_success');
-				$this->session->data['success'] = $message;
+				$this->session->data['success'] = $message !== '' ? $message : $this->language->get('text_success');
 			}
 
 			$url = '';

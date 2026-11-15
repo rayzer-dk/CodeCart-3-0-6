@@ -389,14 +389,4 @@ class ModelSaleAbandonedCart extends Model {
         }
         return (int)$this->config->get('config_customer_group_id');
     }
-
-    private function applyOptionPrice($product_option_id, $product_option_value_id, &$option_price, &$option_price_equal, $allow_equal) {
-        $query = $this->db->query("SELECT price,price_prefix FROM `" . DB_PREFIX . "product_option_value` WHERE product_option_id='" . (int)$product_option_id . "' AND product_option_value_id='" . (int)$product_option_value_id . "' LIMIT 1");
-        if (!$query->num_rows) { return; }
-        $price = (float)$query->row['price'];
-        $prefix = (string)$query->row['price_prefix'];
-        if ($prefix === '+') { $option_price += $price; }
-        elseif ($prefix === '-') { $option_price -= $price; }
-        elseif ($allow_equal && $prefix === '=') { $option_price_equal = $price; }
-    }
 }

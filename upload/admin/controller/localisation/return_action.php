@@ -316,8 +316,15 @@ class ControllerLocalisationReturnAction extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		foreach ($this->request->post['return_action'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 3) || (utf8_strlen($value['name']) > 64)) {
+		$translations = $this->request->post['return_action'] ?? array();
+		if (!is_array($translations) || !$translations) {
+			$this->error['warning'] ??= $this->language->get('error_name');
+			return false;
+		}
+
+		foreach ($translations as $language_id => $value) {
+			$name = $value['name'] ?? null;
+			if (!is_string($name) || utf8_strlen($name) < 3 || utf8_strlen($name) > 64) {
 				$this->error['name'][$language_id] = $this->language->get('error_name');
 			}
 		}

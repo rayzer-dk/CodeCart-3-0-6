@@ -471,9 +471,7 @@ class ModelCheckoutOrder extends Model {
 					$order_status_id = $stock_failure_status > 0 ? $stock_failure_status : $old_order_status_id;
 					$will_process = false;
 
-					if ($this->log) {
-						$this->log->write('Order #' . (int)$order_id . ': stock finalisation rejected because available quantity changed before commit.');
-					}
+					$this->log->write('Order #' . (int)$order_id . ': stock finalisation rejected because available quantity changed before commit.');
 				}
 
 				if ($will_process) {

@@ -631,11 +631,11 @@ class ControllerSaleOrder extends Controller {
 
 			foreach ($order_totals as $order_total) {
 				// If coupon, voucher or reward points
-				$start = strpos($order_total['title'], '(') + 1;
+				$start = strpos($order_total['title'], '(');
 				$end = strrpos($order_total['title'], ')');
 
-				if ($start && $end) {
-					$data[$order_total['code']] = substr($order_total['title'], $start, $end - $start);
+				if ($start !== false && $end !== false && $end > $start) {
+					$data[$order_total['code']] = substr($order_total['title'], $start + 1, $end - $start - 1);
 				}
 			}
 

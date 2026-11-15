@@ -235,8 +235,8 @@ class ControllerApiCart extends Controller {
 				}
 			}
 
+			/** @var array<int, array<string, mixed>> $totals Total extensions populate rows through the shared array. */
 			$sort_order = array();
-
 			foreach ($totals as $key => $value) {
 				$sort_order[$key] = $value['sort_order'];
 			}

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ruleset name="CodeCart PHP Compatibility">
+    <description>Check production PHP across the supported runtime range.</description>
+    <file>upload</file>
+    <arg name="extensions" value="php"/>
+    <config name="testVersion" value="8.1-8.5"/>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/storage/*</exclude-pattern>
+    <!-- Empty installer placeholders and generated settings contain no application PHP. -->
+    <exclude-pattern>*/upload/config-dist.php</exclude-pattern>
+    <exclude-pattern>*/upload/admin/config-dist.php</exclude-pattern>
+    <exclude-pattern>*/upload/config.php</exclude-pattern>
+    <exclude-pattern>*/upload/admin/config.php</exclude-pattern>
+    <rule ref="PHPCompatibility"/>
+    <!-- The footer passes a wallet address as text, with no numeric conversion. -->
+    <rule ref="PHPCompatibility.Numbers.RemovedHexadecimalNumericStrings.Found">
+        <exclude-pattern>*/upload/admin/controller/common/footer.php</exclude-pattern>
+    </rule>
+    <!-- HTTP/3 is optional and the cURL constant is checked before it is accessed. -->
+    <rule ref="PHPCompatibility.Constants.NewConstants.curl_http_version_3Found">
+        <exclude-pattern>*/upload/system/library/codecart/src/DashboardHealth.php</exclude-pattern>
+    </rule>
+    <!-- This bundled HTML Purifier branch requires a Zend setting absent on supported PHP versions. -->
+    <rule ref="PHPCompatibility.ParameterValues.RemovedTriggerErrorLevel.Deprecated">
+        <exclude-pattern>*/upload/system/helper/HTMLPurifier.autoload.php</exclude-pattern>
+    </rule>
+    <!-- The legacy magic-quotes branch is disabled by the bundled PHP version guard. -->
+    <rule ref="PHPCompatibility.FunctionUse.RemovedFunctions.get_magic_quotes_gpcDeprecatedRemoved">
+        <exclude-pattern>*/upload/system/helper/HTMLPurifier/Config.php</exclude-pattern>
+    </rule>
+</ruleset>

@@ -88,7 +88,7 @@ class ControllerSearchSearch extends Controller {
 
     protected function normalizeExamples($value) {
         if (is_array($value)) {
-            return array_values(array_filter(array_map('trim', $value), 'strlen'));
+            return array_values(array_filter(array_map('trim', $value), static fn(string $example): bool => $example !== ''));
         }
 
         $value = trim((string)$value);
@@ -97,7 +97,7 @@ class ControllerSearchSearch extends Controller {
             return array();
         }
 
-        return array_values(array_filter(array_map('trim', explode('|', $value)), 'strlen'));
+        return array_values(array_filter(array_map('trim', explode('|', $value)), static fn(string $example): bool => $example !== ''));
     }
 
     public function search() {

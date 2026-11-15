@@ -185,7 +185,7 @@ class ControllerCommonFooter extends Controller {
 			array('icon' => 'fa-envelope', 'name' => $this->language->get('project_link_support'), 'value' => 'support@codecartpro.com', 'url' => 'mailto:support@codecartpro.com')
 		);
 
-		$data['modern_assets'] = method_exists($this->document, 'getAssets') ? $this->document->getAssets('footer') : array();
+		$data['modern_assets'] = $this->document->getAssets('footer');
 
 		return $this->load->view('common/footer', $data);
 	}

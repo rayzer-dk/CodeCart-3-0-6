@@ -91,6 +91,7 @@ class ControllerCheckoutConfirm extends Controller {
 				}
 			}
 
+			/** @var array<int, array<string, mixed>> $totals Total extensions populate rows through the shared references. */
 			$sort_order = array();
 
 			foreach ($totals as $key => $value) {

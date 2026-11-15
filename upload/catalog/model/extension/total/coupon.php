@@ -197,10 +197,10 @@ class ModelExtensionTotalCoupon extends Model {
 
 	public function confirm($order_info, $order_total) {
 		$code = '';
-		$start = strpos($order_total['title'], '(') + 1;
+		$start = strpos($order_total['title'], '(');
 		$end = strrpos($order_total['title'], ')');
-		if ($start && $end) {
-			$code = substr($order_total['title'], $start, $end - $start);
+		if ($start !== false && $end !== false && $end > $start) {
+			$code = substr($order_total['title'], $start + 1, $end - $start - 1);
 		}
 		if (!$code) {
 			return;

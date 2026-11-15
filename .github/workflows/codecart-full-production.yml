@@ -1,4 +1,4 @@
-name: CodeCart Full Production 2.3.22
+name: CodeCart Full Production 2.3.23
 on:
   push:
     branches: [main]
@@ -44,7 +44,7 @@ jobs:
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Build 2.3.22: refresh audited Core integrity manifest [skip ci]"
+            git commit -m "Build 2.3.23: refresh audited Core integrity manifest [skip ci]"
             git push origin HEAD:main
           fi
 
@@ -66,11 +66,9 @@ jobs:
           set -euo pipefail
           mkdir -p bonuses
           if [ -d bonus-source/monobank_payment ]; then
-            python3 tools/package_unishop2_bonus.py --module monobank_payment --output bonuses
+            python3 tools/package_monobank_bonus.py --output bonuses
             test -f bonuses/Monobank_Payment_Modern_Pro_v1.1.1.ocmod.zip
           fi
-          python3 tools/package_unishop2_bonus.py --output bonuses
-          test -f bonuses/UniShop2_Compatibility_Pro_v1.0.2.ocmod.zip
 
       - name: Verify bundled documentation
         shell: bash
@@ -84,13 +82,13 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts
           python3 tools/package_production.py --output artifacts
-          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.22.zip
-          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.22.zip.sha256
-          unzip -tq artifacts/CodeCart-3.0.6-production-Build-2.3.22.zip
+          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.23.zip
+          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.23.zip.sha256
+          unzip -tq artifacts/CodeCart-3.0.6-production-Build-2.3.23.zip
 
       - uses: actions/upload-artifact@v7
         with:
-          name: CodeCart-3.0.6-full-2.3.22
+          name: CodeCart-3.0.6-full-2.3.23
           path: artifacts/
           retention-days: 90
           if-no-files-found: error

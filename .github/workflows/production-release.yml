@@ -115,12 +115,9 @@ jobs:
           set -euo pipefail
           mkdir -p bonuses
           if [ -d bonus-source/monobank_payment ]; then
-            python3 tools/package_unishop2_bonus.py --module monobank_payment --output bonuses
+            python3 tools/package_monobank_bonus.py --output bonuses
             test -f bonuses/Monobank_Payment_Modern_Pro_v1.1.1.ocmod.zip
           fi
-          test -f bonus-source/unishop2_compatibility/install.xml
-          python3 tools/package_unishop2_bonus.py --output bonuses
-          test -f bonuses/UniShop2_Compatibility_Pro_v1.0.2.ocmod.zip
 
       - name: Verify current bundled documentation
         shell: bash

@@ -5,7 +5,7 @@ class ModelMarketingStockNotify extends Model {
         if (!empty($data['filter_product'])) { $where[] = "pd.name LIKE '%" . $this->db->escape($data['filter_product']) . "%'"; }
         if (!empty($data['filter_email'])) { $where[] = "sn.email LIKE '%" . $this->db->escape($data['filter_email']) . "%'"; }
         if (!empty($data['filter_status']) && in_array($data['filter_status'], array('waiting','processing','sent','failed'), true)) { $where[] = "sn.status='" . $this->db->escape($data['filter_status']) . "'"; }
-        if (isset($data['filter_store_id']) && $data['filter_store_id'] !== '' && $data['filter_store_id'] !== null) { $where[] = "sn.store_id='" . (int)$data['filter_store_id'] . "'"; }
+        if (isset($data['filter_store_id']) && $data['filter_store_id'] !== '') { $where[] = "sn.store_id='" . (int)$data['filter_store_id'] . "'"; }
         return $where ? ' WHERE ' . implode(' AND ', $where) : '';
     }
 

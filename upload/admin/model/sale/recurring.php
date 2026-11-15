@@ -128,34 +128,6 @@ class ModelSaleRecurring extends Model {
 
 		return $transactions;
 	}
-
-	private function getStatus($status) {
-		switch ($status) {
-			case 1:
-				$result = $this->language->get('text_status_inactive');
-				break;
-			case 2:
-				$result = $this->language->get('text_status_active');
-				break;
-			case 3:
-				$result = $this->language->get('text_status_suspended');
-				break;
-			case 4:
-				$result = $this->language->get('text_status_cancelled');
-				break;
-			case 5:
-				$result = $this->language->get('text_status_expired');
-				break;
-			case 6:
-				$result = $this->language->get('text_status_pending');
-				break;
-			default:
-				$result = '';
-				break;
-		}
-
-		return $result;
-	}
 	
 	public function getTotalRecurrings($data) {
 		$sql = "SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "order_recurring` `or` LEFT JOIN `" . DB_PREFIX . "order` o ON (`or`.order_id = `o`.order_id)";

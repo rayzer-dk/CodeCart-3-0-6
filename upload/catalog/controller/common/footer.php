@@ -61,14 +61,14 @@ class ControllerCommonFooter extends Controller {
 			}
 
 			$user_agent = isset($this->request->server['HTTP_USER_AGENT']) ? (string)$this->request->server['HTTP_USER_AGENT'] : '';
-			$session_id = method_exists($this->session, 'getId') ? (string)$this->session->getId() : (session_id() ?: '');
+			$session_id = (string)$this->session->getId();
 			$visitor_key = hash('sha256', $session_id !== '' ? $session_id : ($ip . '|' . $user_agent));
 			$this->model_tool_online->addOnline($visitor_key, $ip, $this->customer->getId(), $url, $referer, $user_agent);
 		}
 
 		$data['scripts'] = $this->document->getScripts('footer');
 		$data['styles'] = $this->document->getStyles('footer');
-		$data['modern_assets'] = method_exists($this->document, 'getAssets') ? $this->document->getAssets('footer') : array();
+		$data['modern_assets'] = $this->document->getAssets('footer');
 		try {
 			$assetOptimizer = new \CodeCart\Core\StorefrontAssetOptimizer($this->config);
 			$data['styles'] = $assetOptimizer->styles($data['styles']);

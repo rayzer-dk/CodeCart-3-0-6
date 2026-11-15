@@ -1,6 +1,5 @@
 <?php
 class ControllerMarketingContact extends Controller {
-	private $error = array();
 	private $templateSettingCode = 'codecart_mail_templates';
 	private $templateSettingKey = 'codecart_mail_templates';
 
@@ -300,11 +299,6 @@ class ControllerMarketingContact extends Controller {
 		}
 		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
 		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-	}
-
-	private function customerRecipient($customer) {
-		$name = trim((isset($customer['firstname']) ? $customer['firstname'] : '') . ' ' . (isset($customer['lastname']) ? $customer['lastname'] : ''));
-		return array('email' => isset($customer['email']) ? $customer['email'] : '', 'name' => $name);
 	}
 
 	private function sanitizeMailHtml($html) {

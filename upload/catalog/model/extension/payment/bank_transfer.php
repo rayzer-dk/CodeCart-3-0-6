@@ -18,7 +18,7 @@ class ModelExtensionPaymentBankTransfer extends Model {
 			$status = false;
 		} elseif (!$geo_zone_id) {
 			$status = true;
-		} elseif ($query && $query->num_rows) {
+		} elseif ($query->num_rows) {
 			$status = true;
 		} else {
 			$status = false;

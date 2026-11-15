@@ -2,7 +2,7 @@
 class ControllerEventDebug extends Controller {
 	public function before(&$route, &$args) {
 		if ($route == 'common/home') { // add the route you want to test
-			$this->session->data['debug'][$route] = microtime();		
+			$this->session->data['debug'][$route] = microtime(true);
 		}
 	}
 	
@@ -11,10 +11,10 @@ class ControllerEventDebug extends Controller {
 			if (isset($this->session->data['debug'][$route])) {
 				$log_data = array(
 					'route' => $route,
-					'time'  => microtime() - $this->session->data['debug'][$route]
+					'time'  => microtime(true) - $this->session->data['debug'][$route]
 				);
 				
-				$this->log->write($log_data);
+				$this->log->write(sprintf('%s: %.6f s', $log_data['route'], $log_data['time']));
 			}
 		}
 	}	

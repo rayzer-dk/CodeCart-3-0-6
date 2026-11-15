@@ -73,7 +73,7 @@ class ControllerExtensionModuleGoogleLogin extends Controller {
             $this->restoreCustomerSession();
             $this->response->redirect($this->url->link($return, '', true));
         } catch (Throwable $e) {
-            if ($this->log) { $this->log->write('Google Login failed: ' . get_class($e)); }
+            $this->log->write('Google Login failed: ' . get_class($e));
             $this->fail($this->language->get('error_login'));
         }
     }

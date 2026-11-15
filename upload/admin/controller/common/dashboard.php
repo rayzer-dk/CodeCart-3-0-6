@@ -42,9 +42,7 @@ class ControllerCommonDashboard extends Controller {
 				} catch (\Throwable $e) {
 					// An optional dashboard extension must never make the whole admin unusable.
 					// Log the exact failing extension and continue rendering the dashboard.
-					if ($this->log) {
-						$this->log->write('Dashboard extension failure [' . $code . '] ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
-					}
+					$this->log->write('Dashboard extension failure [' . $code . '] ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
 
 					continue;
 				}
@@ -94,9 +92,7 @@ class ControllerCommonDashboard extends Controller {
 			try {
 				$data['security'] = $this->load->controller('common/security');
 			} catch (\Throwable $e) {
-				if ($this->log) {
-					$this->log->write('Admin security panel failure ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
-				}
+				$this->log->write('Admin security panel failure ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
 				$data['security'] = '';
 			}
 		} else {

@@ -1,6 +1,5 @@
 <?php
 class ControllerMarketplaceExtension extends Controller {
-	private $error = array();
 
 	public function index() {
 		$this->load->language('marketplace/extension');

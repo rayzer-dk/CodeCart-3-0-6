@@ -25,8 +25,14 @@ function getURLVar(key) {
 
 function codecartFileManagerDirectoryParam() {
 	try {
-		var directory = window.localStorage ? window.localStorage.getItem('codecart_filemanager_directory') : '';
-		return directory ? '&directory=' + encodeURIComponent(directory) : '';
+		var directory = window.localStorage.getItem('codecart_filemanager_directory');
+		var sort = window.localStorage.getItem('codecart_filemanager_sort');
+		var order = window.localStorage.getItem('codecart_filemanager_order');
+		var params = directory ? '&directory=' + encodeURIComponent(directory) : '';
+		if (sort && order) {
+			params += '&sort=' + encodeURIComponent(sort) + '&order=' + encodeURIComponent(order);
+		}
+		return params;
 	} catch (e) {
 		return '';
 	}

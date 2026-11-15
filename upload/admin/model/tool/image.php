@@ -71,7 +71,7 @@ class ModelToolImage extends Model {
 	private function sanitizedSvgUrl($filename) {
 		$source = DIR_IMAGE . $filename;
 		$hash = @hash_file('sha256', $source);
-		if (!is_string($hash) || $hash === '') {
+		if ($hash === false) {
 			return;
 		}
 

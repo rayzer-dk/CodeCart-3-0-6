@@ -37,8 +37,7 @@ class Mail extends \stdClass {
 		if (class_exists($class)) {
 			$this->adaptor = new $class();
 		} else {
-			trigger_error('Error: Could not load mail adaptor ' . $adaptor . '!');
-			exit();
+			throw new \RuntimeException('Could not load the configured mail adaptor.');
 		}	
 	}
 	

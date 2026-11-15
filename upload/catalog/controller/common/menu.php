@@ -19,18 +19,15 @@ class ControllerCommonMenu extends Controller {
         // Build the complete category tree in one category query. Depth is capped only as a safety guard.
         $rows = $this->model_catalog_category->getAllCategories();
         $byParent = array();
-        $allIds = array();
         foreach ($rows as $row) {
             $pid = (int)$row['parent_id'];
             if (!isset($byParent[$pid])) { $byParent[$pid] = array(); }
             $byParent[$pid][] = $row;
-            $allIds[] = (int)$row['category_id'];
         }
         // Header navigation never shows product counters. Avoid an unnecessary aggregate count query here;
         // category/list modules calculate counts independently when their own setting enables them.
-        $counts = array();
         $self = $this;
-        $build = function($parentId, $path, $depth, $visited) use (&$build, &$byParent, &$counts, $self) {
+        $build = function($parentId, $path, $depth, $visited) use (&$build, &$byParent, $self) {
             if ($depth > 10 || empty($byParent[$parentId])) { return array(); }
             $items = array();
             foreach ($byParent[$parentId] as $row) {
@@ -38,7 +35,6 @@ class ControllerCommonMenu extends Controller {
                 if (isset($visited[$id])) { continue; }
                 $nextVisited = $visited; $nextVisited[$id] = true;
                 $nextPath = $path === '' ? (string)$id : $path . '_' . $id;
-                $count = isset($counts[$id]) ? (int)$counts[$id] : 0;
                 // Header navigation stays compact: product counters belong to category walls/lists, not menu labels.
                 $name = (string)$row['name'];
                 $thumb = '';
@@ -48,7 +44,7 @@ class ControllerCommonMenu extends Controller {
                 $items[] = array(
                     'category_id' => $id,
                     'name' => $name,
-                    'count' => $count,
+                    'count' => 0,
                     'thumb' => $thumb,
                     'image' => isset($row['image']) ? (string)$row['image'] : '',
                     'top' => !empty($row['top']) ? 1 : 0,

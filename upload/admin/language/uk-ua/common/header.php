@@ -81,3 +81,7 @@ $_['ui_quick_nav'] = 'Швидка навігація';
 $_['ui_quick_nav_placeholder'] = 'Перейти до сторінки (меню, налаштування, розширення)';
 $_['ui_quick_nav_empty'] = 'Нічого не знайдено';
 $_['ui_session_expired'] = 'Сесія завершилась. Увійдіть знову.';
+
+$_['ui_image_spacing'] = 'Відступи зображення';
+$_['ui_image_spacing_horizontal'] = 'Горизонтальний відступ (пкс)';
+$_['ui_image_spacing_vertical'] = 'Вертикальний відступ (пкс)';

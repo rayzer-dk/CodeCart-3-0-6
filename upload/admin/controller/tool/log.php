@@ -1,6 +1,5 @@
 <?php
 class ControllerToolLog extends Controller {
-    private $error = array();
     private $tailLimit = 1048576;
 
     public function index() {

@@ -11,6 +11,7 @@ class Cache
     /**
      * @param string $key
      * @param mixed $value
+     * @param mixed $tags The optional tags are converted to an array before reaching an adaptor.
      * @return bool
      */
     public function set($key, $value, $tags = array()) {}

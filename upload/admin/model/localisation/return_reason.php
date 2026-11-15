@@ -13,7 +13,7 @@ class ModelLocalisationReturnReason extends Model {
 
 		$this->cache->delete('return_reason');
 		
-		return $return_reason_id;
+		return $return_reason_id ?? null;
 	}
 
 	public function editReturnReason($return_reason_id, $data) {

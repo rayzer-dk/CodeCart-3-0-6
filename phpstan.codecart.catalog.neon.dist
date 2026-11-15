@@ -6,11 +6,13 @@ parameters:
         - upload/system/startup.php
         - upload/system/helper/general.php
         - upload/system/helper/utf8.php
+        - upload/system/helper/codecart_checkout.php
     dynamicConstantNames:
         - DB_PREFIX
         - DIR_SYSTEM
         - DIR_IMAGE
         - HTTP_SERVER
+        - HTTPS_SERVER
     paths:
         - upload/catalog/controller
         - upload/catalog/model

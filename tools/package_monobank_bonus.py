@@ -7,26 +7,17 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 
-PACKAGES = {
-    'unishop2_compatibility': 'UniShop2_Compatibility_Pro',
-    'monobank_payment': 'Monobank_Payment_Modern_Pro',
-}
-
-
-def build(root: Path, output: Path, module: str = 'unishop2_compatibility') -> Path:
-    if module not in PACKAGES:
-        raise ValueError('Unknown bonus module')
-    source = root / 'bonus-source' / module
+def build(root: Path, output: Path) -> Path:
+    source = root / 'bonus-source' / 'monobank_payment'
     metadata = ET.parse(source / 'install.xml').getroot()
     if metadata.tag != 'modification' or not metadata.findtext('code'):
         raise ValueError('Invalid installer metadata')
     version = metadata.findtext('version')
     if not version or len(version) != 5 or any(part not in '0123456789' for part in version.split('.')) or len(version.split('.')) != 3:
         raise ValueError('Invalid module version')
-    if module == 'monobank_payment':
-        manifest = json.loads((source / 'upload/system/extension/monobank_payment/manifest.json').read_text(encoding='utf-8'))
-        if manifest.get('version') != version or manifest.get('code') != metadata.findtext('code'):
-            raise ValueError('Bonus manifest does not match installer metadata')
+    manifest = json.loads((source / 'upload/system/extension/monobank_payment/manifest.json').read_text(encoding='utf-8'))
+    if manifest.get('version') != version or manifest.get('code') != metadata.findtext('code'):
+        raise ValueError('Bonus manifest does not match installer metadata')
     entries = {'install.xml': source / 'install.xml', 'README.md': source / 'README.md'}
     upload = source / 'upload'
     if upload.is_dir():
@@ -38,7 +29,7 @@ def build(root: Path, output: Path, module: str = 'unishop2_compatibility') -> P
                     raise ValueError('Root upload files are not accepted by the installer: ' + path.name)
                 entries[path.relative_to(source).as_posix()] = path
     output.mkdir(parents=True, exist_ok=True)
-    archive = output / (PACKAGES[module] + '_v' + version + '.ocmod.zip')
+    archive = output / (f'Monobank_Payment_Modern_Pro_v{version}.ocmod.zip')
     with tempfile.NamedTemporaryFile(dir=output, prefix='.bonus-', suffix='.zip', delete=False) as staged:
         temporary = Path(staged.name)
     try:
@@ -64,7 +55,6 @@ def build(root: Path, output: Path, module: str = 'unishop2_compatibility') -> P
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path)
-    parser.add_argument('--module', choices=sorted(PACKAGES), default='unishop2_compatibility')
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
-    print(build(root, args.output.resolve() if args.output else root / 'bonuses', args.module))
+    print(build(root, args.output.resolve() if args.output else root / 'bonuses'))

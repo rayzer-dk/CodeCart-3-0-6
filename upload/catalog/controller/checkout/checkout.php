@@ -170,7 +170,7 @@ class ControllerCheckoutCheckout extends Controller {
 		if ((string)$this->config->get('theme_default_commerce_style') !== 'modern' || !$this->config->get('config_quick_checkout_status')) { return false; }
 		if ($this->customer->isLogged() || !$this->config->get('config_checkout_guest') || $this->config->get('config_customer_price')) { return false; }
 		if ($this->cart->hasDownload()) { return false; }
-		if (method_exists($this->cart, 'hasRecurringProducts') && $this->cart->hasRecurringProducts()) { return false; }
+		if ($this->cart->hasRecurringProducts()) { return false; }
 		return true;
 	}
 
@@ -231,6 +231,7 @@ class ControllerCheckoutCheckout extends Controller {
 				$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
 			}
 		}
+		/** @var array<int, array<string, mixed>> $totals Total extensions populate rows through the shared references. */
 		$sort_order = array();
 		foreach ($totals as $key => $value) { $sort_order[$key] = $value['sort_order']; }
 		if ($totals) { array_multisort($sort_order, SORT_ASC, $totals); }

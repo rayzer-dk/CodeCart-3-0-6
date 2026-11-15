@@ -122,7 +122,6 @@ if ($original !== null) {
     while ($target->firstChild) { $target->removeChild($target->firstChild); }
     foreach ($selected as $op) { $target->appendChild($vendor->importNode($op, true)); }
 }
-$package = xml((string)file_get_contents($root . '/bonus-source/unishop2_compatibility/install.xml'));
 $normalize = static function ($code, $version, $file, $search, $add) {
     return \CodeCart\Core\Unishop2Compatibility::normalizeOcmodAdd($code, $version, $file, $search, $add);
 };
@@ -167,48 +166,22 @@ SITEMAP
 }
 PHP;
 $syntheticModel = str_replace('SITEMAP', $sitemap, $syntheticModel);
-$syntheticController = <<<'PHP'
-<?php
-class OcmodGeneratedController {
-    public function data($uniset) {
-        $result = array('qty_switch_type' => $uniset['qty_switch']['type']);
-        $data['qty_switch_type'] = $uniset['qty_switch']['type'];
-        return array($result, $data);
+$refreshModel = static function () use ($vendor, $syntheticModel, $apply, $path) {
+    $source = $syntheticModel;
+    $code = trim($vendor->getElementsByTagName('code')->item(0)->textContent);
+    $version = trim($vendor->getElementsByTagName('version')->item(0)->textContent);
+    foreach ($vendor->getElementsByTagName('operation') as $operation) {
+        list($source, $matched) = $apply($source, $operation, $code, $version, $path);
+        check($matched, 'An expected stock-sort operation did not match');
     }
-}
-PHP;
-function build(array $documents, string $model, string $controller, $apply): array {
-    $files = array('catalog/model/catalog/product.php' => $model, 'catalog/controller/extension/module/uni_new_data.php' => $controller);
-    foreach ($documents as $document) {
-        $code = trim($document->getElementsByTagName('code')->item(0)->textContent);
-        $version = trim($document->getElementsByTagName('version')->item(0)->textContent);
-        foreach ($document->getElementsByTagName('file') as $file) {
-            $path = $file->getAttribute('path');
-            foreach ($file->getElementsByTagName('operation') as $operation) {
-                list($files[$path], $matched) = $apply($files[$path], $operation, $code, $version, $path);
-                check($matched, 'An expected operation did not match: ' . $path);
-            }
-        }
-    }
-    return $files;
-}
-$first = build(array($vendor, $package), $syntheticModel, $syntheticController, $apply);
-$second = build(array($package, $vendor), $syntheticModel, $syntheticController, $apply);
-check($first === $second, 'Modifier order changes generated source');
-check($first === build(array($vendor, $package), $syntheticModel, $syntheticController, $apply), 'Repeated refresh is not deterministic');
-$twice = $first;
-foreach ($package->getElementsByTagName('file') as $file) {
-    $target = $file->getAttribute('path');
-    foreach ($file->getElementsByTagName('operation') as $operation) {
-        list($twice[$target]) = $apply($twice[$target], $operation, trim($package->getElementsByTagName('code')->item(0)->textContent), trim($package->getElementsByTagName('version')->item(0)->textContent), $target);
-    }
-}
-check($twice === $first, 'Standalone package nests fallbacks when applied twice');
-$sitemapAfter = methodSource($first[$path], 'getProductsForSitemap');
+    return $source;
+};
+$first = $refreshModel();
+check($first === $refreshModel(), 'Repeated refresh is not deterministic');
+$sitemapAfter = methodSource($first, 'getProductsForSitemap');
 check($sitemapAfter === $sitemap && strpos($sitemapAfter, '$sort_qty') === false, 'Sitemap changed or received stock sorting');
-foreach ($first as $source) { token_get_all($source, TOKEN_PARSE); }
-loadPhpFixture($first[$path]);
-loadPhpFixture($first['catalog/controller/extension/module/uni_new_data.php']);
+token_get_all($first, TOKEN_PARSE);
+loadPhpFixture($first);
 $model = new OcmodGeneratedModel();
 $model->config = new class {
     public $mode;
@@ -236,27 +209,10 @@ if (!defined('DB_PREFIX')) { define('DB_PREFIX', 'qa_'); }
 $model->getProductsForSitemap(5, 20);
 $sitemapSuffix = ' ORDER BY p.product_id ASC LIMIT 5,20';
 check(substr($model->db->sql, -strlen($sitemapSuffix)) === $sitemapSuffix, 'Sitemap SQL changed');
-$generated = new OcmodGeneratedController();
-foreach (array(null, array(), array('qty_switch' => array()), array('qty_switch' => array('type' => 'step'))) as $settings) {
-    $result = $generated->data($settings);
-    $expected = $settings['qty_switch']['type'] ?? '';
-    check($result[0]['qty_switch_type'] === $expected && $result[1]['qty_switch_type'] === $expected, 'qty_switch fallback is incorrect');
-}
-$spaced = str_replace("['qty_switch']['type']", " [ 'qty_switch' ]\t[ 'type' ]", $syntheticController);
-$withSpacing = build(array($package), $syntheticModel, $spaced, $apply);
-token_get_all($withSpacing['catalog/controller/extension/module/uni_new_data.php'], TOKEN_PARSE);
-check(substr_count($withSpacing['catalog/controller/extension/module/uni_new_data.php'], '??') === 2, 'Standalone whitespace/tab handling failed');
-
 // A regex source operation also enters the normalizer, while unknown regex anchors remain unchanged.
 $regex = xml('<operation><search regex="true"><![CDATA[~marker~]]></search><add position="replace"><![CDATA[replacement]]></add></operation>');
 list($regexResult, $matched) = $apply('marker', $regex->documentElement, 'Other extension', '1.0', $path);
 check($matched && $regexResult === 'replacement', 'Regex refresh application branch failed');
-if ($original !== null) {
-    $controllerFile = dirname($original) . '/controller/uni_new_data.php';
-    check(is_file($controllerFile), 'Private original controller fixture missing');
-    $actual = build(array($package), $syntheticModel, (string)file_get_contents($controllerFile), $apply);
-    token_get_all($actual['catalog/controller/extension/module/uni_new_data.php'], TOKEN_PARSE);
-}
 echo 'PASS ' . $checks . ' assertions; PHP ' . PHP_VERSION . '; extracted real refresh application loop; '
-    . ($original === null ? 'synthetic vendor operations' : 'two actual private vendor stock-sort operations and original private controller')
+    . ($original === null ? 'synthetic vendor operations' : 'two actual private vendor stock-sort operations')
     . '; full refresh/store runtime NOT RUN' . PHP_EOL;

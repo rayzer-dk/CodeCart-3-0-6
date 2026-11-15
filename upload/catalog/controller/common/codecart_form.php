@@ -77,7 +77,7 @@ class ControllerCommonCodecartForm extends Controller {
     public function shortcodes($payload = array()) {
         $html = is_array($payload) && isset($payload['html']) ? (string)$payload['html'] : '';
         if ($html === '' || stripos($html, '[ccp_form') === false) { return $html; }
-        $context = is_array($payload) && isset($payload['context']) && is_array($payload['context']) ? $payload['context'] : array();
+        $context = isset($payload['context']) && is_array($payload['context']) ? $payload['context'] : array();
         $self = $this;
         return preg_replace_callback('/\[ccp_form\s+([^\]]+)\]/i', function($match) use ($self, $context) {
             $attrs = array();

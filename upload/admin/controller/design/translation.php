@@ -370,22 +370,11 @@ class ControllerDesignTranslation extends Controller {
 		}
 
 		if (!empty($translation_info)) {
-			$directory = DIR_CATALOG . 'language/';
+			$translations = $this->readTranslationFile($code, $translation_info['route']);
 
-			if (is_file($directory . $code . '/' . $translation_info['route'] . '.php') && substr(str_replace('\\', '/', realpath($directory . $code . '/' . $translation_info['route'] . '.php')), 0, strlen($directory)) == str_replace('\\', '/', $directory)) {
-				$_ = array();
-
-				include($directory . $code . '/' . $translation_info['route'] . '.php');
-
-				foreach ($_ as $key => $value) {
-					if ($translation_info['key'] == $key) {
-						$data['default'] = $value;
-					}
-				}
-
-				if (empty($data['default'])) {
-					$data['default'] = $translation_info['value'];
-				}
+			if ($translations !== null) {
+				$original = $translations[$translation_info['key']] ?? '';
+				$data['default'] = !empty($original) ? $original : $translation_info['value'];
 			}
 		}
 
@@ -488,14 +477,8 @@ class ControllerDesignTranslation extends Controller {
 
 		$language_info = $this->model_localisation_language->getLanguage($language_id);
 
-		$directory = DIR_CATALOG . 'language/';
-
-		if ($language_info && is_file($directory . $language_info['code'] . '/' . $route . '.php') && substr(str_replace('\\', '/', realpath($directory . $language_info['code'] . '/' . $route . '.php')), 0, strlen($directory)) == str_replace('\\', '/', $directory)) {
-			$_ = array();
-
-			include($directory . $language_info['code'] . '/' . $route . '.php');
-
-			foreach ($_ as $key => $value) {
+		if ($language_info) {
+			foreach ($this->readTranslationFile($language_info['code'], $route) ?? array() as $key => $value) {
 				$json[] = array(
 					'key'   => $key,
 					'value' => $value
@@ -505,5 +488,19 @@ class ControllerDesignTranslation extends Controller {
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
+	}
+
+	private function readTranslationFile($code, $route): ?array {
+		$directory = DIR_CATALOG . 'language/';
+		$file = realpath($directory . $code . '/' . $route . '.php');
+
+		if ($file === false || !is_file($file) || !str_starts_with(str_replace('\\', '/', $file), str_replace('\\', '/', $directory))) {
+			return null;
+		}
+
+		$_ = array();
+		include $file;
+
+		return $_;
 	}
 }

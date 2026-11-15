@@ -54,18 +54,16 @@ class ControllerExtensionShippingCarrierChoice extends Controller {
 
         // Always keep a small per-session ceiling so carrier API credentials cannot be
         // exhausted by an accidental frontend loop even when the optional SpamService is OFF.
-        if ($this->session) {
-            $key = 'codecart_carrier_rate_' . $scope;
-            $hits = isset($this->session->data[$key]) && is_array($this->session->data[$key]) ? $this->session->data[$key] : array();
-            $cutoff = $now - $window;
-            $hits = array_values(array_filter($hits, function($timestamp) use ($cutoff) { return (int)$timestamp > $cutoff; }));
-            if (count($hits) >= $limit) {
-                $this->session->data[$key] = $hits;
-                return false;
-            }
-            $hits[] = $now;
+        $key = 'codecart_carrier_rate_' . $scope;
+        $hits = isset($this->session->data[$key]) && is_array($this->session->data[$key]) ? $this->session->data[$key] : array();
+        $cutoff = $now - $window;
+        $hits = array_values(array_filter($hits, function($timestamp) use ($cutoff) { return (int)$timestamp > $cutoff; }));
+        if (count($hits) >= $limit) {
             $this->session->data[$key] = $hits;
+            return false;
         }
+        $hits[] = $now;
+        $this->session->data[$key] = $hits;
 
         if (!class_exists('\CodeCart\Core\SpamService')) { return true; }
         try {
