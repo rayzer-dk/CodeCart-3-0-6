@@ -764,6 +764,7 @@ class ControllerCommonColumnLeft extends Controller {
 
 			if ($this->user->hasPermission('access', 'catalog/product')) {
 				$args = 'user_token=' . $this->session->data['user_token'];
+				$data['all_products_href'] = $this->url->link('catalog/product', $args, true);
 				$data['product_stats'] = array();
 				try {
 					$this->load->model('catalog/product');

@@ -46,7 +46,10 @@
     <li id="menu-product-stats">
       <a href="#stats" class="parent collapsed" data-toggle="collapse" aria-expanded="false" aria-controls="stats" aria-label="{{ text_product_stats }}" title="{{ text_product_stats }}"><i class="fa fa-bar-chart fw" aria-hidden="true"></i><span class="menu-label">{{ text_product_stats }}</span></a>
       <section id="stats" class="collapse" aria-label="{{ text_product_stats }}">
-        <h2 class="stats-title">{{ text_product_stats }}</h2>
+        <div class="stats-heading">
+          <h2 class="stats-title">{{ text_product_stats }}</h2>
+          <a href="{{ all_products_href }}" class="stats-all">{{ text_all_products }}</a>
+        </div>
         <ul>
           {% for stat in product_stats %}
           <li data-stat="{{ stat.key }}">

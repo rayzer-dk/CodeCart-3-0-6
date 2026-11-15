@@ -1,3 +1,8 @@
+# CodeCart 3.0.6.0 — Build 2.3.20 (2026-11-15)
+
+- Restored the original compact admin badges and white text on colored badges and warning buttons.
+- Added an All products link in the sidebar and next to the active product-statistics filter. Both links clear the product filters.
+
 # CodeCart 3.0.6.0 — Build 2.3.19 (2026-11-14)
 
 - Mobile storefront: the catalog drawer opens to 90% of the viewport, breadcrumbs are shorter, view mode buttons fit alongside the page-size selector, and standard cart cards label unit prices and line totals.

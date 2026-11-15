@@ -3,7 +3,7 @@
     "files": {
         ".htaccess": "2fe63d4d0fc60be3a3467cb55552b8ef65c3b15f269218633a993812f9e3a784",
         "admin/controller/catalog/category.php": "1386984340afb29e551056d48ea619b0510dc29ee9ae0b1910a8d69c48b5bc9d",
-        "admin/controller/catalog/product.php": "eb97d19b52f0d91c747f2b44e2f218c774328669584f7b912f60e8e9afd2b62a",
+        "admin/controller/catalog/product.php": "09bdef5f1c4bc252c4c15975262306677667e96ddcf078224c1b3f6365e3194c",
         "admin/controller/common/dashboard.php": "34524aa832812d23c8c9c08da548a4ad638575e15e57a541ffa4f80ae45a7a4c",
         "admin/controller/common/developer.php": "17199613d4138c01b737756534f435d885820e26b64d73a59c11c3427f2614cc",
         "admin/controller/common/footer.php": "10d6a6886cdffbfe54f1bb430f1c193201f61b9b1b5089b27e79156d3e0724ae",
@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "c481360a728d1e7841c3a9f56517b5dc6b300fdf0ebf2d132a7e583217128b37",
         "admin/controller/tool/catalog_transfer.php": "80560c947411023615e28bfa851f589cb390babaead8cd46e1e549b2b7cd4da6",
         "admin/controller/tool/codecart_core.php": "6ce47fa82b130a228e49b54a44cc2a200ca6c33582591ba7ceb8dac4e30ea604",
-        "admin/index.php": "e29ba7d9615c2d24842df72d73fc91d1a52ce546686c26f0fe54901746fa8644",
+        "admin/index.php": "8c27ba870c131f02172439edff42f0d95b06f7f04c9006dedf2ed26a570a7507",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "00b1cce6959836c789be1217a1246ecc96ce57522439f6cdf5b66f847b7bf59c",
@@ -127,7 +127,7 @@
         "admin/view/stylesheet/codecart-core.css": "9a3f78f67dbe6a8a9a84c1a6c55f1743d873514ba53cce860c84eac6beaa14bd",
         "admin/view/stylesheet/codecart-form-builder.css": "905c68dd5d2d72bd900e661869c4529f3c80552406d75832a1dd98f3c85e5d89",
         "admin/view/stylesheet/codecart-lost-url.css": "633b975d6f428001a3d0cf03faae060816052a49e4b6da35ca2845e1619a6aed",
-        "admin/view/stylesheet/stylesheet.css": "88660b3c3010836d73cd22204acbd96c5c00e48488c81b9d75a49b18937d41bf",
+        "admin/view/stylesheet/stylesheet.css": "87ef9ec75878b7739034c4ab2cd3e47286b9e49325be4bc7aa32d19ed37a2ae2",
         "admin/view/template/blog/article_form.twig": "8510e25bac50733d56c8ef60d99ec5068b037a5b6f129cd446c4584ee2375341",
         "admin/view/template/catalog/category_form.twig": "a29d02178244b82d50bb6a2ea1a1d7e9f787d3acde285fd3c1022c97a1c43c54",
         "admin/view/template/catalog/product_form.twig": "038c8a4113b3bfb8ca3c8e1b6a98e0beb4310ed205d839dd8c89ab69f1434577",
@@ -346,9 +346,9 @@
         "catalog/view/theme/default/template/product/product.twig": "61133c1184d65134ce0145d9a9735485c39a29c4024763845d47c4966554b53b",
         "catalog/view/theme/default/template/product/search.twig": "7dbcbc56cb1a70537b645f3765791f950f066c01e71a70b70a49b188f54ad0b0",
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
-        "cli.php": "9642922a51e5d15a5cfd6b51a4696b050ea985d8764ddb0dfc6166a7307b6d01",
-        "cron.php": "0a9c57224bdcbda7a78050deb7b67b96934bb7997a5062a8d034ab5342d17d0b",
-        "index.php": "878fc5fdfaeff425cd2223dafb90658b950e0c1280201d786ff6550456c8befb",
+        "cli.php": "a0eb97f1057f25b644da04326dde7cded0a9de064984bdc3eb86d9d5f5bed3d7",
+        "cron.php": "3f4ff8cf50981d6fd00640a4cf9ba8716ea79758cba04822079984dbd99bf475",
+        "index.php": "5006991685d5ab09d9c607666a385822b8b63c02c5a542953bc7aeef81ae2b9a",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "c0b6b100035063a9ec0bcd44c26370c208af21bc3eddea3d67640ae09218e859",
         "system/config/codecart_fontawesome_core_manifest.json": "09d769f4d4633c857c8097435c8f54f9cd3f789bb58b92a2954ea8c9e80896f8",
@@ -536,5 +536,5 @@
         "system/library/codecart/src/MinifiedAsset.php": "02b05cfc8901485576a22f1dd20c6f6bef7404b91b76e04be2cd831258e933b5"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.19"
+    "package_build": "2.3.20"
 }

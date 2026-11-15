@@ -73,6 +73,7 @@ $_['text_zone']                 = 'Zones';
 $_['text_recurring']            = 'Recurring Profiles';
 $_['text_order_recurring']      = 'Recurring Orders';
 $_['text_product_stats']         = 'Products';
+$_['text_all_products'] = 'All products';
 $_['text_stats_enabled'] = 'Enabled';
 $_['text_stats_out_of_stock'] = 'Out of stock';
 $_['text_stats_disabled'] = 'Disabled';

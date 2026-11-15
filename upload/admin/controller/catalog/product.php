@@ -1082,6 +1082,8 @@ class ControllerCatalogProduct extends Controller {
 			$this->language->backup();
 			$this->load->language('common/column_left');
 			$data['filter_stats_label'] = $this->language->get('text_stats_' . $filter_stats);
+			$data['text_all_products'] = $this->language->get('text_all_products');
+			$data['all_products_href'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'], true);
 			$this->language->restore();
 		}
 		$data['filter_name'] = $filter_name;

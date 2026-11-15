@@ -133,6 +133,7 @@ $_['text_blog_category']               = 'Категорії блогу';
 $_['text_blog_review']                 = 'Відгуки блогу';
 $_['text_blog_setting']                = 'Налаштування блогу';
 $_['text_product_stats']               = 'Товари';
+$_['text_all_products'] = 'Усі товари';
 $_['text_stats_enabled'] = 'Увімкнено';
 $_['text_stats_out_of_stock'] = 'Немає в наявності';
 $_['text_stats_disabled'] = 'Вимкнено';

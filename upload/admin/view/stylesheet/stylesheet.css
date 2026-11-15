@@ -1861,7 +1861,10 @@ body { font-size: 14px; }
 /* Product statistics in the admin sidebar. */
 #menu #menu-product-stats > a { display: none; }
 #stats { background: var(--ccp-admin-submenu, #293141); color: #d5dfe9; margin: 12px; padding: 10px; border-radius: 6px; }
-#stats .stats-title { margin: 0 0 6px; padding: 0 4px; color: inherit; font-size: 12px; font-weight: 700; }
+#stats .stats-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; padding: 0 4px; }
+#stats .stats-title { margin: 0; color: inherit; font-size: 12px; font-weight: 700; }
+#menu #stats .stats-all { padding: 4px 0; color: #a7d4ff; font-size: 12px; text-decoration: underline; text-underline-offset: 2px; }
+#menu #stats .stats-all:hover, #menu #stats .stats-all:focus-visible { color: #fff; }
 #stats li { list-style: none; }
 #menu #stats ul { display: block; margin: 0; padding: 0; }
 #menu #stats .stats-link { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 30px; padding: 4px; color: inherit; font-size: 12px; font-weight: 500; border-radius: 4px; }
@@ -2347,15 +2350,7 @@ html.ccp-admin-dark #footer .ccp-footer-runtime { color: #a8b8cb; }
 #header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle{min-width:54px;padding-left:16px!important;padding-right:16px!important;text-align:center;font-size:20px}
 #header .navbar-right > li.ccp-admin-theme-menu > a i{width:auto}
 
-/* Compact status badges with readable contrast. */
-.label{font-size:11px;line-height:1}
-.label-default{background-color:#5f6b7a}
-.label-success{background-color:#4cb64c;color:#142719}
-.label-info{background-color:#54b7d3;color:#102b39}
-.label-warning{background-color:#f0ad4e;color:#1f2937}
-.label-danger{background-color:#c0392b}
 .tile-heading{background-color:rgba(0,0,0,.16)}
-.btn-warning.ccp-developer-action,.btn-warning.ccp-developer-action:hover,.btn-warning.ccp-developer-action:focus{color:#1f2937;text-shadow:none}
 .alert-danger{color:#8c1d18}
 .alert-info a:not(.btn){color:#0a58a8}
 .ccp-footer-runtime-item>span,.ccp-footer-runtime-item>time,.ccp-world-map-empty,td>.text-muted{color:#5b6778}

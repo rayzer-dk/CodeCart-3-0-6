@@ -282,7 +282,7 @@
           <div class="panel-body">
             {% if filter_stats %}
             <p><span class="label label-primary"><i class="fa fa-filter" aria-hidden="true"></i> {{ filter_stats_label|e }}</span>
-              <button type="button" class="btn btn-link btn-xs" id="button-clear-stats-filter">{{ button_clear }}</button>
+              <a href="{{ all_products_href }}" class="btn btn-default btn-xs" id="button-clear-stats-filter"><i class="fa fa-times" aria-hidden="true"></i> {{ text_all_products }}</a>
             </p>
             {% endif %}
             <div class="product-pagination-top">
@@ -412,12 +412,6 @@ $('#input-product-limit').on('change', function() {
 	if (allowed.indexOf(this.value) === -1) { return; }
 	var url = new URL(window.location.href);
 	url.searchParams.set('limit', this.value);
-	url.searchParams.delete('page');
-	window.location.assign(url.toString());
-});
-$('#button-clear-stats-filter').on('click', function() {
-	var url = new URL(window.location.href);
-	url.searchParams.delete('filter_stats');
 	url.searchParams.delete('page');
 	window.location.assign(url.toString());
 });

@@ -73,6 +73,7 @@ $_['text_zone'] = 'Регионы';
 $_['text_recurring'] = 'Профили периодических платежей';
 $_['text_order_recurring'] = 'Периодические заказы';
 $_['text_product_stats'] = 'Товары';
+$_['text_all_products'] = 'Все товары';
 $_['text_stats_enabled'] = 'Включено';
 $_['text_stats_out_of_stock'] = 'Нет в наличии';
 $_['text_stats_disabled'] = 'Выключено';

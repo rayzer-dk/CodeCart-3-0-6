@@ -14,6 +14,6 @@ define('DIR_STORAGE', '/storage/');
 define('DIR_CACHE', DIR_STORAGE . 'cache/');
 define('DIR_LOGS', DIR_STORAGE . 'logs/');
 define('DB_DRIVER', 'mysqli');
-define('CODECART_PACKAGE_BUILD', '2.3.19');
+define('CODECART_PACKAGE_BUILD', '2.3.20');
 define('CODECART_UPSTREAM', 'OpenCart 3.0.5.1');
 define('VERSION', '3.0.6.0');
