@@ -6,9 +6,12 @@ namespace CodeCart\Core;
  * consent permits a reminder. A persistent ledger prevents duplicate sends.
  */
 final class AbandonedCartReminder {
+    private const HISTORY_TABLE = 'codecart_cart_reminder';
+
     private $registry;
     private $db;
     private $config;
+    private ?bool $historyTableExists = null;
 
     public function __construct($registry) {
         $this->registry = $registry;
@@ -17,7 +20,15 @@ final class AbandonedCartReminder {
     }
 
     private function table(): string {
-        return '`' . DB_PREFIX . 'codecart_cart_reminder`';
+        return '`' . DB_PREFIX . self::HISTORY_TABLE . '`';
+    }
+
+    private function hasHistoryTable(): bool {
+        if ($this->historyTableExists === null) {
+            $result = $this->db->query("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='" . $this->db->escape(DB_PREFIX . self::HISTORY_TABLE) . "' LIMIT 1");
+            $this->historyTableExists = $result->num_rows > 0;
+        }
+        return $this->historyTableExists;
     }
 
     public function install(): void {
@@ -35,6 +46,7 @@ final class AbandonedCartReminder {
             PRIMARY KEY (`reminder_id`), UNIQUE KEY `cart_key` (`cart_key`),
             KEY `customer_date` (`customer_id`,`date_added`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $this->historyTableExists = true;
     }
 
     private function active(): bool {
@@ -148,7 +160,7 @@ final class AbandonedCartReminder {
                 $keys[] = "'" . $cart['cart_key'] . "'";
             }
         }
-        if (!$keys) { return array(); }
+        if (!$keys || !$this->hasHistoryTable()) { return array(); }
         $result = $this->db->query("SELECT cart_key,status,date_sent,date_added,attempts,TIMESTAMPDIFF(SECOND,date_added,NOW()) AS age_seconds FROM " . $this->table() . " WHERE cart_key IN (" . implode(',', $keys) . ")");
         $out = array();
         foreach ($result->rows as $row) { $out[$row['cart_key']] = $row; }
@@ -156,8 +168,9 @@ final class AbandonedCartReminder {
     }
 
     public function summary(): array {
-        $q = $this->db->query("SELECT status,COUNT(*) AS total FROM " . $this->table() . " WHERE date_added>=DATE_SUB(NOW(),INTERVAL 7 DAY) GROUP BY status");
         $out = array('sent'=>0,'failed'=>0,'sending'=>0,'total'=>0);
+        if (!$this->hasHistoryTable()) { return $out; }
+        $q = $this->db->query("SELECT status,COUNT(*) AS total FROM " . $this->table() . " WHERE date_added>=DATE_SUB(NOW(),INTERVAL 7 DAY) GROUP BY status");
         foreach ($q->rows as $row) {
             if (isset($out[$row['status']])) { $out[$row['status']] = (int)$row['total']; }
             $out['total'] += (int)$row['total'];
@@ -166,6 +179,7 @@ final class AbandonedCartReminder {
     }
 
     public function historyTotal(string $status = '', string $email = ''): int {
+        if (!$this->hasHistoryTable()) { return 0; }
         return (int)($this->db->query("SELECT COUNT(*) AS total FROM " . $this->table() . $this->historyWhere($status,$email))->row['total'] ?? 0);
     }
 
@@ -177,6 +191,7 @@ final class AbandonedCartReminder {
     }
 
     public function recentHistory(int $limit = 25, int $start = 0, string $status = '', string $email = ''): array {
+        if (!$this->hasHistoryTable()) { return array(); }
         $limit = max(1,min(100,$limit));
         $start = max(0,$start);
         return $this->db->query("SELECT reminder_id,customer_id,email,origin,status,attempts,error_code,date_added,date_sent FROM " . $this->table() . $this->historyWhere($status,$email) . " ORDER BY reminder_id DESC LIMIT " . $start . ',' . $limit)->rows;

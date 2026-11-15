@@ -15,12 +15,24 @@ class FakeConfig {
 class FakeDb {
     public $sql=[];
     public $response=[];
+    public $hasReminderTable=false;
     public function escape($s) { return addslashes((string)$s); }
     public function query($sql) {
         $this->sql[]=$sql;
         $rows=[];
         if (strpos($sql,'SHOW TABLES') !== false) { $rows=[['Tables_in_db'=>'oc_codecart_cart_registered_consent']]; }
         if (strpos($sql,'SELECT consent FROM') !== false) { $rows=[['consent'=>1]]; }
+        if (strpos($sql,'INFORMATION_SCHEMA.TABLES') !== false) {
+            $rows = $this->hasReminderTable ? [['exists'=>1]] : [];
+        } elseif (strpos($sql,'`oc_codecart_cart_reminder`') !== false) {
+            if (str_starts_with($sql,'CREATE TABLE')) {
+                $this->hasReminderTable = true;
+            } elseif (!$this->hasReminderTable) {
+                throw new RuntimeException('Missing cart reminder ledger', 1146);
+            } elseif (str_contains($sql,'GROUP BY status')) {
+                $rows = [['status'=>'sent','total'=>1]];
+            }
+        }
         return (object)['rows'=>$rows,'row'=>($rows[0]??['total'=>0]),'num_rows'=>count($rows)];
     }
 }
@@ -51,6 +63,13 @@ $reminder=new \CodeCart\Core\AbandonedCartReminder(new FakeRegistry($db,$on));
 $first=$reminder->fingerprint(['customer_id'=>12,'store_id'=>1,'session_id'=>'sid','last_activity'=>'2026-10-28','quantity'=>1,'max_cart_id'=>9]);
 $second=$reminder->fingerprint(['customer_id'=>12,'store_id'=>2,'session_id'=>'sid','last_activity'=>'2026-10-28','quantity'=>1,'max_cart_id'=>9]);
 ck($first!==$second,'Idempotency key must include origin store');
+$before = count($db->sql);
+ck($reminder->history([['cart_key'=>$first]]) === [], 'A cart has no history before the optional ledger exists');
+ck($reminder->summary() === ['sent'=>0,'failed'=>0,'sending'=>0,'total'=>0], 'Missing ledger should display zero reminders');
+ck($reminder->historyTotal('sent') === 0 && $reminder->recentHistory() === [], 'Missing ledger should display an empty history page');
+ck(count($db->sql) === $before + 1 && str_contains(end($db->sql),'INFORMATION_SCHEMA.TABLES'), 'Dashboard reads must probe once without creating the ledger');
+$reminder->install();
+ck($reminder->summary() === ['sent'=>1,'failed'=>0,'sending'=>0,'total'=>1], 'Installing the ledger must make history readable in the same request');
 // Admin display cutoff and automatic reminder cutoff are deliberately independent.
 $bounds=new FakeConfig([
     'codecart_abandoned_cart_status'=>1,

@@ -1,3 +1,9 @@
+# CodeCart 3.0.6.0 — Build 2.3.22 (2026-11-15)
+
+- Abandoned Carts shows empty reminder statistics before its optional mail history table is provisioned.
+- Modifications displays the full search hint as a label and wraps the search controls on narrow screens.
+- Fixed PHPStan diagnostics in the category and product controllers and documented the Loader's controller argument contract.
+
 # CodeCart 3.0.6.0 — Build 2.3.21 (2026-11-15)
 
 - Restored the full desktop search width and aligned storefront breadcrumb icons and labels.

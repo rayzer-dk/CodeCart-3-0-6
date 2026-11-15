@@ -26,7 +26,7 @@ final class Loader {
 	 * 
 	 *
 	 * @param	string	$route
-	 * @param	array	$data
+	 * @param	mixed	$data The argument passed to the controller and its events.
 	 * @param	bool	$throw_on_failure Preserve handler errors for background callers.
 	 *
 	 * @return	mixed
