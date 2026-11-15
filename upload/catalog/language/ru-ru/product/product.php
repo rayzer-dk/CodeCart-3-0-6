@@ -66,6 +66,7 @@ $_['text_option_out_of_stock'] = 'Нет в наличии';
 // Product photo carousel
 $_['text_previous_images'] = 'Предыдущие фотографии';
 $_['text_next_images'] = 'Следующие фотографии';
+$_['text_gallery_photo'] = 'Фото %s';
 
 // CodeCart PRO: aligned locale keys
 $_['text_benefits'] = 'Преимущества:';

@@ -35,7 +35,7 @@ class ModelToolImage extends Model {
     }
 
 
-    public function getDisplaySize($filename, $width, $height) {
+    public function getDisplaySize($filename, $width, $height, $contain = false) {
         $filename = $this->resolveWithFallback((string)$filename);
         $source = DIR_IMAGE . $filename;
         $info = is_file($source) ? Image::getInfo($source) : false;
@@ -53,7 +53,7 @@ class ModelToolImage extends Model {
         }
 
         $scale = min($width / $source_width, $height / $source_height);
-        if ($this->config->get('config_theme') !== 'codecart') {
+        if (!$contain && $this->config->get('config_theme') !== 'codecart') {
             return array('width' => $width, 'height' => $height, 'filename' => $filename);
         }
         return array(

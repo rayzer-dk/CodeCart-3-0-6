@@ -16,12 +16,14 @@
     <div id="content" class="{{ class }}">{{ content_top }}
       <h1>{{ heading_title }}</h1>
       {% if thumb or description %}
-      <div class="row ccp-entity-intro"> {% if thumb %}
-        <div class="col-sm-2 ccp-entity-intro__image"><img src="{{ thumb }}" alt="{{ heading_title }}" title="{{ heading_title }}" width="{{ thumb_width }}" height="{{ thumb_height }}" class="img-thumbnail ccp-entity-intro__thumb" fetchpriority="high" /></div>
+      <div class="ccp-category-intro">
+        {% if thumb %}
+        <img src="{{ category_intro_thumb|default(thumb) }}" alt="{{ heading_title }}" width="{{ category_intro_size.width|default(thumb_width) }}" height="{{ category_intro_size.height|default(thumb_height) }}" class="ccp-category-intro__photo" fetchpriority="high" />
         {% endif %}
         {% if description %}
-        <div class="col-sm-10">{{ description }}</div>
-        {% endif %}</div>
+        <div class="ccp-category-intro__description">{{ description }}</div>
+        {% endif %}
+      </div>
       <hr>
       {% endif %}
       {% if public_documents %}<section class="cc-public-documents" style="margin:14px 0 20px;"><h3>{{ text_public_documents }}</h3><ul class="list-unstyled">{% for doc in public_documents %}<li style="margin-bottom:8px;"><a href="{{ doc.href }}" rel="nofollow"><i class="fa fa-download"></i> {{ doc.title }}</a></li>{% endfor %}</ul></section>{% endif %}

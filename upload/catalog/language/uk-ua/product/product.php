@@ -81,5 +81,6 @@ $_['text_option_out_of_stock'] = 'Немає в наявності';
 // Product photo carousel
 $_['text_previous_images'] = 'Попередні фотографії';
 $_['text_next_images'] = 'Наступні фотографії';
+$_['text_gallery_photo'] = 'Фото %s';
 
 $_['error_method_not_allowed'] = 'Цей метод запиту не дозволено.';

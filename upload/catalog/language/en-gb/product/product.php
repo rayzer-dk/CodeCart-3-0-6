@@ -82,5 +82,6 @@ $_['text_benefits'] = 'Benefits:';
 // Product photo carousel
 $_['text_previous_images'] = 'Previous images';
 $_['text_next_images'] = 'Next images';
+$_['text_gallery_photo'] = 'Photo %s';
 
 $_['error_method_not_allowed'] = 'Method not allowed.';

@@ -320,8 +320,10 @@ footer h5 {font-family:var(--ccp-store-font, -apple-system, BlinkMacSystemFont, 
 }
 /* breadcrumb */
 .breadcrumb {margin:0 0 20px 0;padding:8px 0;}
-.breadcrumb i {
+.breadcrumb > li > a > i {
 	font-size: 15px;
+	line-height: inherit;
+	vertical-align: top;
 }
 .breadcrumb > li {
 	text-shadow: none;
@@ -336,7 +338,7 @@ footer h5 {font-family:var(--ccp-store-font, -apple-system, BlinkMacSystemFont, 
 	font-weight: 900;
 	font-style: normal;
 	font-size: 11px;
-	line-height: 1;
+	line-height: 18px;
 	color: #94a3b8;
 	padding: 0 8px 0 3px;
 	margin: 0;
@@ -1445,6 +1447,7 @@ html.ccp-theme-dark .ccq-card,html.ccp-theme-dark .ccq-cart-box,html.ccp-theme-d
   #logo a{display:flex;align-items:center;width:100%;height:100%}
   #logo img{max-height:74px;max-width:100%;object-fit:contain;object-position:left center}
   #search,#cart{width:100%;margin:0}
+  .ccp-head .ccp-header-search-col .ccp-search{width:100%;min-width:0;margin:0}
 }
 .product-thumb .price{font-size:15.5px;font-weight:700;line-height:1.35;color:var(--ccp-store-heading,#263238)}
 .product-thumb .price-new{font-weight:800}
@@ -2113,7 +2116,42 @@ html.ccp-theme-dark #checkout-checkout .ccp-commerce-modern #accordion .btn-defa
  .ccp-commerce-modern .ccp-cart-product-total{font-size:13px}
 }
 
-/* Entity intro images: centered and balanced on phones (category/manufacturer pages). */
+.ccp-category-intro {
+  display: flow-root;
+}
+.ccp-category-intro__photo {
+  display: block;
+  float: left;
+  width: 38%;
+  max-width: 480px;
+  height: auto;
+  margin: 0 28px 16px 0;
+  border-radius: 6px;
+}
+.ccp-category-intro__description {
+  overflow-wrap: anywhere;
+}
+.ccp-category-intro__description img {
+  max-width: 100%;
+  height: auto;
+}
+html[dir="rtl"] .ccp-category-intro__photo {
+  float: right;
+  margin: 0 0 16px 28px;
+}
+@media (max-width: 991px) {
+  .ccp-category-intro__photo { width: 42%; }
+}
+@media (max-width: 767px) {
+  .ccp-category-intro .ccp-category-intro__photo {
+    float: none;
+    width: 100%;
+    max-width: none;
+    margin: 0 0 16px;
+  }
+}
+
+/* Manufacturer intro images. */
 .ccp-entity-intro__image{display:flex;align-items:flex-start;justify-content:center}
 .ccp-entity-intro__thumb{display:block;margin-left:auto;margin-right:auto}
 @media(max-width:767px){.ccp-entity-intro__image{float:none;width:100%;margin:0 0 12px;padding-left:15px;padding-right:15px;text-align:center}.ccp-entity-intro__thumb{max-width:min(220px,82vw);width:auto;height:auto;margin:0 auto}.ccp-entity-intro>.col-sm-10{float:none;width:100%}}
@@ -2492,3 +2530,52 @@ html.ccp-theme-dark .ccp-suggest-notice{border-bottom-color:var(--ccp-store-bord
 html.ccp-theme-dark .ccp-suggest-item,html.ccp-theme-dark .ccp-suggest-item:hover,html.ccp-theme-dark .ccp-suggest-item:focus{color:var(--ccp-store-text,#d8dee9)}
 html.ccp-theme-dark .ccp-suggest-item.is-active{background:#27313d;box-shadow:inset 3px 0 0 #69aef7}
 html.ccp-theme-dark .ccp-suggest-item.ccp-suggest-all,html.ccp-theme-dark .ccp-suggest-item.ccp-suggest-all:hover,html.ccp-theme-dark .ccp-suggest-item.ccp-suggest-all:focus{border-top-color:var(--ccp-store-border,#303a47);color:#69aef7}
+
+/* Product viewer controls sit below the zoom and swipe surface. */
+.ccp-product-photo-previews {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  display: flex;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  gap: 6px;
+  padding: 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+  transform: translateX(-50%);
+  border-radius: 8px;
+  background: #1a2028;
+  scrollbar-width: thin;
+}
+.ccp-product-photo-previews button {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  padding: 2px;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+}
+.ccp-product-photo-previews button[aria-current="true"] {
+  border-color: #8fc3ff;
+}
+.ccp-product-photo-previews button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+.ccp-product-photo-previews img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 2px;
+}
+.ccp-product-magnific .mfp-container {
+  height: calc(100% - 80px);
+}
+.ccp-product-magnific img.mfp-img {
+  max-height: calc(100vh - 80px) !important;
+}

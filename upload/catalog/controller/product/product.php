@@ -312,7 +312,8 @@ class ControllerProductProduct extends Controller {
 			$this->document->setDescription($meta_description);
 			$this->document->setKeywords($product_info['meta_keyword']);
 			$this->document->addLink($this->url->link('product/product', 'product_id=' . $this->request->get['product_id']), 'canonical');
-			$gallery_engine = in_array((string)$this->config->get('config_theme'), array('default', 'codecart'), true) ? (string)$this->config->get('theme_default_gallery_engine') : 'magnific';
+			$native_gallery = in_array((string)$this->config->get('config_theme'), array('default', 'codecart'), true);
+			$gallery_engine = $native_gallery ? (string)$this->config->get('theme_default_gallery_engine') : 'magnific';
 			if (!in_array($gallery_engine, array('photoswipe', 'magnific'), true)) {
 				$gallery_engine = 'photoswipe';
 			}
@@ -326,6 +327,9 @@ class ControllerProductProduct extends Controller {
 			} else {
 				$this->document->addScript('catalog/view/javascript/jquery/magnific/jquery.magnific-popup.min.js');
 				$this->document->addStyle('catalog/view/javascript/jquery/magnific/magnific-popup.css');
+			}
+			if ($native_gallery) {
+				$this->document->addScript('catalog/view/javascript/codecart/product-gallery.js?v=' . (defined('CODECART_PACKAGE_BUILD') ? CODECART_PACKAGE_BUILD : '2.3.21'), 'footer');
 			}
 
 			$data['text_minimum'] = sprintf($this->language->get('text_minimum'), $product_info['minimum']);
@@ -673,6 +677,7 @@ class ControllerProductProduct extends Controller {
 			}
 			$data['text_previous_images'] = $this->language->get('text_previous_images');
 			$data['text_next_images'] = $this->language->get('text_next_images');
+			$data['text_gallery_photo'] = $this->language->get('text_gallery_photo');
 			$data['text_previous_related'] = $this->language->get('text_previous_related');
 			$data['text_next_related'] = $this->language->get('text_next_related');
 

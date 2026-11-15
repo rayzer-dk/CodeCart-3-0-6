@@ -154,6 +154,12 @@ class ControllerProductCategory extends Controller {
 			$data['thumb_height'] = (int)$this->config->get('theme_' . $this->config->get('config_theme') . '_image_category_height');
 			if ($category_info['image']) {
 				$data['thumb'] = $this->model_tool_image->resize($category_info['image'], $data['thumb_width'], $data['thumb_height']);
+				if (in_array($this->config->get('config_theme'), array('codecart', 'default'), true)) {
+					$intro_width = max(760, $data['thumb_width']);
+					$intro_height = max(560, $data['thumb_height']);
+					$data['category_intro_size'] = $this->model_tool_image->getDisplaySize($category_info['image'], $intro_width, $intro_height, true);
+					$data['category_intro_thumb'] = $this->model_tool_image->resizeContain($category_info['image'], $intro_width, $intro_height, 1);
+				}
 				$og_width = max(300, (int)$this->config->get('theme_' . $this->config->get('config_theme') . '_image_popup_width'));
 				$og_height = max(300, (int)$this->config->get('theme_' . $this->config->get('config_theme') . '_image_popup_height'));
 				$this->document->setOgImage($this->model_tool_image->resize($category_info['image'], $og_width, $og_height));

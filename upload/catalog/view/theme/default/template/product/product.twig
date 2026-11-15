@@ -20,7 +20,7 @@
         {% set class = 'col-md-6' %}
         {% endif %}
         <div class="{{ class }} ccp-product-media{% if image_is_fallback %} ccp-product-media--fallback{% endif %}"> {% if thumb or images %}
-          <ul class="thumbnails">
+          <ul class="thumbnails" data-gallery-engine="{{ gallery_engine }}" data-photo-label="{{ text_gallery_photo }}">
             {% if thumb %}
             <li><a class="thumbnail ccp-main-product-image" id="ccp-main-product-image" href="{{ popup }}" title="{{ heading_title }}" data-pswp-width="{{ image_popup_width }}" data-pswp-height="{{ image_popup_height }}" data-default-href="{{ popup }}" data-default-width="{{ image_popup_width }}" data-default-height="{{ image_popup_height }}"><img id="ccp-main-product-image-img" src="{{ thumb }}" data-default-src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" width="{{ image_display_width }}" height="{{ image_display_height }}" fetchpriority="high" /></a></li>
             {% endif %}
@@ -691,44 +691,6 @@ $('#button-review').on('click', function() {
   $main.on('click',function(e){if(dragClick){e.preventDefault();e.stopImmediatePropagation();dragClick=false;}});
 })(jQuery);
 
-$(document).ready(function() {
-{% if gallery_engine == 'photoswipe' %}
-	var ccpProductLightbox = null;
-	var ccpGallerySelector = '#product-product .ccp-product-media .thumbnails';
-	if (typeof PhotoSwipeLightbox === 'function' && typeof PhotoSwipe !== 'undefined') {
-		ccpProductLightbox = new PhotoSwipeLightbox({
-			gallery: ccpGallerySelector,
-			children: 'a.thumbnail',
-			pswpModule: PhotoSwipe,
-			bgOpacity: 0.92,
-			wheelToZoom: true,
-			preload: [1, 2],
-			showHideAnimationType: 'none',
-			showAnimationDuration: 0,
-			hideAnimationDuration: 0,
-			imageClickAction: 'zoom-or-close',
-			tapAction: 'toggle-controls',
-			doubleTapAction: 'zoom'
-		});
-		// Product thumbnails are fixed-size catalog crops. Using them as PhotoSwipe
-		// msrc placeholders gives additional photos the wrong aspect ratio and causes
-		// a visible resize/jump when the full image arrives. Reserve the slide from
-		// data-pswp-width/height and wait for the real image instead.
-		ccpProductLightbox.addFilter('itemData', function(itemData) {
-			itemData.msrc = null;
-			return itemData;
-		});
-		ccpProductLightbox.init();
-	}
-{% else %}
-	$('.thumbnails').magnificPopup({
-		type:'image',
-		delegate: 'a',
-		gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] },
-		image: { verticalFit: true }
-	});
-{% endif %}
-});
 //--></script> 
 
 <script>

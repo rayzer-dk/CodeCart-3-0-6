@@ -1,3 +1,9 @@
+# CodeCart 3.0.6.0 — Build 2.3.21 (2026-11-15)
+
+- Restored the full desktop search width and aligned storefront breadcrumb icons and labels.
+- Added previews to both full-screen product photo viewers and corrected the starting photo after selecting a gallery thumbnail or option.
+- Category images use the full content width on mobile. On desktop, descriptions wrap around the image.
+
 # CodeCart 3.0.6.0 — Build 2.3.20 (2026-11-15)
 
 - Restored the original compact admin badges and white text on colored badges and warning buttons.
