@@ -12,7 +12,7 @@
             return $.Deferred().resolve().promise();
         }
         if (!languageLoads[lang]) {
-            languageLoads[lang] = $.getScript('view/javascript/summernote/lang/summernote-' + encodeURIComponent(lang) + '.min.js?v=3.0.6.0');
+            languageLoads[lang] = $.getScript('view/javascript/summernote/lang/summernote-' + encodeURIComponent(lang) + '.min.js?v=2.3.24');
         }
         return languageLoads[lang];
     }
@@ -27,8 +27,9 @@
         $('#modal-image').remove();
         $(document).off(eventName + '.summernote').one(eventName + '.summernote', function(e, images) {
             var item = images && images.length ? images[0] : null;
-            if (item && item.href) {
-                $(element).summernote('insertImage', item.href);
+            var source = item && (item.source || item.href);
+            if (source) {
+                $(element).summernote('insertImage', source);
             }
         });
         $.get('index.php?route=common/filemanager&user_token=' + encodeURIComponent(getURLVar('user_token')) + '&select_event=' + encodeURIComponent(eventName) + (typeof codecartFileManagerDirectoryParam === 'function' ? codecartFileManagerDirectoryParam() : ''), function(html) {

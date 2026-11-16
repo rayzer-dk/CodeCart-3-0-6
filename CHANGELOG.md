@@ -1,3 +1,9 @@
+# CodeCart 3.0.6.0 — Build 2.3.24 (2026-11-16)
+
+- Added a scrollable image manager grid and 16, 32, 64 and 128 entries per page. Sort controls show the selected field and direction.
+- The rich text editor inserts original raster images from the media library and translates image options into Ukrainian and Russian.
+- Storefront page titles use the theme accent in light mode and a lighter blue in dark mode.
+
 # CodeCart 3.0.6.0 — Build 2.3.23 (2026-11-15)
 
 - Image Manager sorts the current folder by date, name, size, or format before pagination. The manager remembers the selected ordering.

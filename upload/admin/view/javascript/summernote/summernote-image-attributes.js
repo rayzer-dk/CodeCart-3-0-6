@@ -41,6 +41,11 @@
         role:'Role',
         href:'URL',
         target:'Target',
+        targetSelf:'Current window',
+        targetBlank:'New tab',
+        targetTop:'Top-level window',
+        targetParent:'Parent frame',
+        apply:'Apply',
         linkClass:'Class',
         linkRole:'Role',
         rel:'Rel',
@@ -371,10 +376,10 @@
               '<dd><input type="text" id="note-image-attributes-link-href" class="note-image-attributes-href form-control"></dd>'+
               '<dt><label for="note-image-attributes-link-target">'+lang.imageAttributes.target+'</label></dt>'+
               '<dd><select id="note-image-attributes-link-target" class="note-image-attributes-target form-control">'+
-                '<option value="_self">Self</option>'+
-                '<option value="_blank">Blank</option>'+
-                '<option value="_top">Top</option>'+
-                '<option value="_parent">Parent</option>'+
+                '<option value="_self">'+lang.imageAttributes.targetSelf+'</option>'+
+                '<option value="_blank">'+lang.imageAttributes.targetBlank+'</option>'+
+                '<option value="_top">'+lang.imageAttributes.targetTop+'</option>'+
+                '<option value="_parent">'+lang.imageAttributes.targetParent+'</option>'+
               '</select></dd>';
           }
           if (options.displayFields.linkExtra) {
@@ -463,10 +468,10 @@
               '<label for="note-image-attributes-link-target" class="control-label col-xs-2">'+lang.imageAttributes.target+'</label>'+
               '<div class="input-group col-xs-10">'+
                 '<select id="note-image-attributes-link-target" class="note-image-attributes-target form-control">'+
-                  '<option value="_self">Self</option>'+
-                  '<option value="_blank">Blank</option>'+
-                  '<option value="_top">Top</option>'+
-                  '<option value="_parent">Parent</option>'+
+                  '<option value="_self">'+lang.imageAttributes.targetSelf+'</option>'+
+                  '<option value="_blank">'+lang.imageAttributes.targetBlank+'</option>'+
+                  '<option value="_top">'+lang.imageAttributes.targetTop+'</option>'+
+                  '<option value="_parent">'+lang.imageAttributes.targetParent+'</option>'+
                 '</select>'+
               '</div>'+
             '</div>';
@@ -509,7 +514,7 @@
         this.$dialog=ui.dialog({
           title:lang.imageAttributes.dialogTitle,
           body:body,
-          footer:'<button href="#" class="btn btn-primary note-image-attributes-btn">OK</button>'
+          footer:'<button href="#" class="btn btn-primary note-image-attributes-btn">'+lang.imageAttributes.apply+'</button>'
         }).render().appendTo($container);
       };
       this.destroy=function(){

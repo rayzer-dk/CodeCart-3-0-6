@@ -24,7 +24,46 @@ var __webpack_exports__ = {};
 (function ($) {
   $.extend(true, $.summernote.lang, {
     'uk-UA': {
+      output: { noSelection: 'Нічого не вибрано' },
+      imageAttributes: {
+        dialogTitle: 'Властивості зображення',
+        tooltip: 'Властивості зображення',
+        pluginImageTitle: 'Властивості зображення',
+        pluginLinkTitle: 'Властивості посилання',
+        title: 'Назва',
+        src: 'Джерело',
+        srcHelp: 'Вибраний файл замінить зображення й буде вбудований у текст.',
+        alt: 'Альтернативний текст',
+        class: 'CSS-клас',
+        classSelect: 'Вибрати клас',
+        style: 'Стиль',
+        role: 'Роль',
+        href: 'URL',
+        target: 'Відкривати',
+        targetSelf: 'У поточному вікні',
+        targetBlank: 'У новій вкладці',
+        targetTop: 'У головному вікні',
+        targetParent: 'У батьківському фреймі',
+        apply: 'Застосувати',
+        linkClass: 'CSS-клас',
+        linkRole: 'Роль',
+        rel: 'Зв’язок (rel)',
+        relBlank: 'Без атрибута rel',
+        relAlternate: 'Альтернативна версія',
+        relAuthor: 'Автор документа',
+        relBookmark: 'Постійне посилання',
+        relHelp: 'Довідка',
+        relLicense: 'Ліцензія',
+        relNext: 'Наступний документ',
+        relNofollow: 'Не переходити (nofollow)',
+        relNoreferrer: 'Не передавати джерело переходу',
+        relPrefetch: 'Попередньо завантажити',
+        relPrev: 'Попередній документ',
+        relSearch: 'Пошук по сайту',
+        relTag: 'Тег документа'
+      },
       font: {
+        sizeunit: 'Одиниця розміру шрифту',
         bold: 'Напівжирний',
         italic: 'Курсив',
         underline: 'Підкреслений',
@@ -37,6 +76,7 @@ var __webpack_exports__ = {};
         size: 'Розмір шрифту'
       },
       image: {
+        resizeNone: 'Початковий розмір',
         image: 'Картинка',
         insert: 'Вставити картинку',
         resizeFull: 'Відновити розмір',
@@ -118,6 +158,7 @@ var __webpack_exports__ = {};
         justify: 'Розтягнути по ширині'
       },
       color: {
+        cpSelect: 'Вибрати колір',
         recent: 'Останній колір',
         more: 'Ще кольори',
         background: 'Колір фону',
@@ -137,6 +178,7 @@ var __webpack_exports__ = {};
         extraKeys: 'Додаткові комбінації'
       },
       help: {
+        escape: 'Вийти',
         'insertParagraph': 'Вставити новий абзац',
         'undo': 'Скасувати останню дію',
         'redo': 'Повторити останню дію',

@@ -24,7 +24,46 @@ var __webpack_exports__ = {};
 (function ($) {
   $.extend(true, $.summernote.lang, {
     'ru-RU': {
+      output: { noSelection: 'Ничего не выбрано' },
+      imageAttributes: {
+        dialogTitle: 'Свойства изображения',
+        tooltip: 'Свойства изображения',
+        pluginImageTitle: 'Свойства изображения',
+        pluginLinkTitle: 'Свойства ссылки',
+        title: 'Заголовок',
+        src: 'Источник',
+        srcHelp: 'Выбранный файл заменит изображение и будет встроен в текст.',
+        alt: 'Альтернативный текст',
+        class: 'CSS-класс',
+        classSelect: 'Выбрать класс',
+        style: 'Стиль',
+        role: 'Роль',
+        href: 'URL',
+        target: 'Открывать',
+        targetSelf: 'В текущем окне',
+        targetBlank: 'В новой вкладке',
+        targetTop: 'В главном окне',
+        targetParent: 'В родительском фрейме',
+        apply: 'Применить',
+        linkClass: 'CSS-класс',
+        linkRole: 'Роль',
+        rel: 'Связь (rel)',
+        relBlank: 'Без атрибута rel',
+        relAlternate: 'Альтернативная версия',
+        relAuthor: 'Автор документа',
+        relBookmark: 'Постоянная ссылка',
+        relHelp: 'Справка',
+        relLicense: 'Лицензия',
+        relNext: 'Следующий документ',
+        relNofollow: 'Не переходить (nofollow)',
+        relNoreferrer: 'Не передавать источник перехода',
+        relPrefetch: 'Загрузить заранее',
+        relPrev: 'Предыдущий документ',
+        relSearch: 'Поиск по сайту',
+        relTag: 'Тег документа'
+      },
       font: {
+        sizeunit: 'Единица размера шрифта',
         bold: 'Полужирный',
         italic: 'Курсив',
         underline: 'Подчёркнутый',
@@ -37,6 +76,7 @@ var __webpack_exports__ = {};
         size: 'Размер шрифта'
       },
       image: {
+        resizeNone: 'Исходный размер',
         image: 'Картинка',
         insert: 'Вставить картинку',
         resizeFull: 'Восстановить размер',
@@ -118,6 +158,7 @@ var __webpack_exports__ = {};
         justify: 'Растянуть по ширине'
       },
       color: {
+        cpSelect: 'Выбрать цвет',
         recent: 'Последний цвет',
         more: 'Еще цвета',
         background: 'Цвет фона',
@@ -137,6 +178,7 @@ var __webpack_exports__ = {};
         extraKeys: 'Дополнительные комбинации'
       },
       help: {
+        escape: 'Выйти',
         'insertParagraph': 'Вставить новый абзац',
         'undo': 'Отменить последнюю команду',
         'redo': 'Повторить последнюю команду',

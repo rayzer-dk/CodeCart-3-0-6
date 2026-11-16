@@ -20,12 +20,19 @@ class ControllerCommonFileManager extends Controller {
 		}
 		$this->session->data['filemanager_sort'] = $data['sort'] = $sort;
 		$this->session->data['filemanager_order'] = $data['order'] = $order;
+		$data['page_sizes'] = array(16, 32, 64, 128);
+		$requested_size = $this->request->get['limit'] ?? $this->session->data['filemanager_limit'] ?? 16;
+		$limit = filter_var($requested_size, FILTER_VALIDATE_INT);
+		if (!in_array($limit, $data['page_sizes'], true)) {
+			$limit = 16;
+		}
+		$this->session->data['filemanager_limit'] = $data['limit'] = $limit;
 		$target = $this->request->get['target'] ?? '';
 		$data['target'] = $target = is_string($target) ? preg_replace('/[^a-zA-Z0-9_-]/', '', $target) : '';
 		$thumb = $this->request->get['thumb'] ?? '';
 		$data['thumb'] = $thumb = is_string($thumb) ? preg_replace('/[^a-zA-Z0-9_-]/', '', $thumb) : '';
 		$data['sort_options'] = $sort_options;
-		$sort_query = '&sort=' . $sort . '&order=' . $order;
+		$sort_query = '&sort=' . $sort . '&order=' . $order . '&limit=' . $limit;
 
 		if (isset($this->request->get['filter_name'])) {
 			$filter_name = rtrim(str_replace(array('*', '/', '\\'), '', $this->request->get['filter_name']), '/');
@@ -67,14 +74,14 @@ class ControllerCommonFileManager extends Controller {
 		if ($catalog_root !== '' && $directory_real !== '' &&
 			($directory_real === $catalog_root || strpos($directory_real, $catalog_root . '/') === 0)) {
 			// Get directories
-			$directories = glob($directory . '/' . $filter_name . '*', GLOB_ONLYDIR);
+			$directories = glob($directory . '/' . $filter_name . '*', GLOB_ONLYDIR | GLOB_NOSORT);
 
 			if (!$directories) {
 				$directories = array();
 			}
 
 			// Get files
-			$files = safe_glob($directory . '/' . $filter_name . '*.{jpg,jpeg,png,gif,webp,avif,svg,JPG,JPEG,PNG,GIF,WEBP,AVIF,SVG}', GLOB_BRACE);
+			$files = safe_glob($directory . '/' . $filter_name . '*.{jpg,jpeg,png,gif,webp,avif,svg,JPG,JPEG,PNG,GIF,WEBP,AVIF,SVG}', GLOB_BRACE | GLOB_NOSORT);
 
 			if (!$files) {
 				$files = array();
@@ -88,12 +95,12 @@ class ControllerCommonFileManager extends Controller {
 		// Get total number of files and directories
 		$image_total = count($images);
 
-		$page = max(1, min($page, (int)ceil($image_total / 16)));
-		$images = array_slice($images, ($page - 1) * 16, 16);
+		$page = max(1, min($page, (int)ceil($image_total / $limit)));
+		$images = array_slice($images, ($page - 1) * $limit, $limit);
+		$image_base = (!empty($this->request->server['HTTPS']) && strtolower((string)$this->request->server['HTTPS']) !== 'off') ? HTTPS_CATALOG : HTTP_CATALOG;
 
 		foreach ($images as $image) {
 			$name = basename($image);
-
 			if (is_dir($image)) {
 				$url = '';
 
@@ -126,12 +133,17 @@ class ControllerCommonFileManager extends Controller {
 				if (!$preview) {
 					continue;
 				}
+				$source = $preview;
+				if ($select_event === 'codecart:editor-image-selected' && !is_link($image) && strtolower(pathinfo($image, PATHINFO_EXTENSION)) !== 'svg') {
+					$source = rtrim($image_base, '/') . '/image/' . implode('/', array_map('rawurlencode', explode('/', $relative_image)));
+				}
 				$data['images'][] = array(
 					'thumb' => $preview,
 					'name'  => $name,
 					'type'  => 'image',
 					'path'  => $relative_image,
-					'href'  => $preview
+					'href'  => $preview,
+					'source' => $source
 				);
 			}
 		}
@@ -241,7 +253,7 @@ class ControllerCommonFileManager extends Controller {
 		$pagination = new Pagination();
 		$pagination->total = $image_total;
 		$pagination->page = $page;
-		$pagination->limit = 16;
+		$pagination->limit = $limit;
 		$pagination->url = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . $sort_query . '&page={page}', true);
 
 		$data['pagination'] = $pagination->render();
@@ -267,12 +279,14 @@ class ControllerCommonFileManager extends Controller {
 			}
 		}
 		usort($paths, static function (string $a, string $b) use ($values, $sort, $order): int {
-			$by_name = strnatcasecmp($a, $b) ?: strcmp($a, $b);
-			if ($sort === 'name') {
-				return $order === 'asc' ? $by_name : -$by_name;
+			if ($sort !== 'name') {
+				$comparison = $values[$a] <=> $values[$b];
+				if ($comparison !== 0) {
+					return $order === 'asc' ? $comparison : -$comparison;
+				}
 			}
-			$comparison = $values[$a] <=> $values[$b];
-			return ($order === 'asc' ? $comparison : -$comparison) ?: $by_name;
+			$by_name = strnatcasecmp($a, $b) ?: strcmp($a, $b);
+			return $sort === 'name' && $order === 'desc' ? -$by_name : $by_name;
 		});
 	}
 

@@ -35,12 +35,16 @@ $_['error_webp_select'] = 'Select at least one JPG or PNG image.';
 
 $_['button_select'] = 'Select';
 $_['text_sort'] = 'Sort images';
-$_['sort_date'] = 'File date';
-$_['sort_name'] = 'File name';
-$_['sort_size'] = 'File size';
-$_['sort_format'] = 'File format';
-$_['sort_asc'] = 'Sort ascending';
-$_['sort_desc'] = 'Sort descending';
+$_['entry_page_size'] = 'Entries per page';
+$_['text_sort_reverse'] = 'Reverse order';
+$_['sort_date_asc'] = 'Date modified: oldest first';
+$_['sort_date_desc'] = 'Date modified: newest first';
+$_['sort_name_asc'] = 'Name: A–Z';
+$_['sort_name_desc'] = 'Name: Z–A';
+$_['sort_size_asc'] = 'File size: smallest first';
+$_['sort_size_desc'] = 'File size: largest first';
+$_['sort_format_asc'] = 'Format: A–Z';
+$_['sort_format_desc'] = 'Format: Z–A';
 
 // CodeCart PRO safe SVG
 $_['error_svg_unsafe'] = 'Unsafe SVG content was blocked. SVG files are sanitized and may not contain scripts, embedded content, CSS, event handlers or external URLs.';

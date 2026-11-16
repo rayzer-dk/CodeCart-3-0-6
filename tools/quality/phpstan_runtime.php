@@ -20,6 +20,6 @@ define('DIR_UPLOAD', DIR_STORAGE . 'upload/');
 define('DIR_MODIFICATION', DIR_STORAGE . 'modification/');
 define('DB_DRIVER', 'mysqli');
 define('DB_DATABASE', 'opencart');
-define('CODECART_PACKAGE_BUILD', '2.3.23');
+define('CODECART_PACKAGE_BUILD', '2.3.24');
 define('CODECART_UPSTREAM', 'OpenCart 3.0.5.1');
 define('VERSION', '3.0.6.0');
