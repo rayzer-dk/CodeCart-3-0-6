@@ -227,10 +227,7 @@
                 </div>
               </div>
             </div>
-            <div class="form-group">
-              <label class="col-sm-2 control-label" for="input-h1-color"><span data-toggle="tooltip" title="{{ help_h1_color }}">{{ entry_h1_color }}</span></label>
-              <div class="col-sm-10"><div class="input-group ccp-color-control"><span class="input-group-addon"><input type="color" id="input-h1-color-picker" class="ccp-color-picker" data-target="#input-h1-color" value="{{ theme_default_h1_color }}" title="{{ entry_h1_color }}" /></span><input type="text" name="theme_default_h1_color" value="{{ theme_default_h1_color }}" id="input-h1-color" class="form-control ccp-color-hex" data-picker="#input-h1-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" /></div></div>
-            </div>
+            {% include 'setting/storefront_h1_colors.twig' with {h1_settings_prefix: 'theme_default_', h1_accent_color: theme_default_accent_color} %}
             <div class="form-group">
               <label class="col-sm-2 control-label" for="input-h2-color"><span data-toggle="tooltip" title="{{ help_h2_color }}">{{ entry_h2_color }}</span></label>
               <div class="col-sm-10"><div class="input-group ccp-color-control"><span class="input-group-addon"><input type="color" id="input-h2-color-picker" class="ccp-color-picker" data-target="#input-h2-color" value="{{ theme_default_h2_color }}" title="{{ entry_h2_color }}" /></span><input type="text" name="theme_default_h2_color" value="{{ theme_default_h2_color }}" id="input-h2-color" class="form-control ccp-color-hex" data-picker="#input-h2-color-picker" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" autocomplete="off" /></div></div>
@@ -672,6 +669,13 @@
     var $input = $(input);
     var picker = $input.data('picker');
     var color = normalizeHex($input.val());
+    var defaultColor = $input.data('default-color');
+
+    if (defaultColor && !$.trim($input.val())) {
+      $input.val('').removeClass('is-invalid');
+      if (picker) $(picker).val(defaultColor);
+      return;
+    }
 
     if (color) {
       $input.val(color).removeClass('is-invalid');

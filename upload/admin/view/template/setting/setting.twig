@@ -1509,6 +1509,7 @@
                     </div>
                   </div>
                 </div>
+                {% include 'setting/storefront_h1_colors.twig' with {h1_settings_prefix: storefront_h1_prefix, h1_accent_color: theme_default_accent_color} %}
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-storefront-background"><span data-toggle="tooltip" title="{{ help_storefront_background_color }}">{{ entry_storefront_background_color }}</span></label>
                   <div class="col-sm-10">
@@ -2055,6 +2056,13 @@ $('select[name=\'config_country_id\']').trigger('change');
     var $input = $(input);
     var picker = $input.data('picker');
     var color = normalizeHex($input.val());
+    var defaultColor = $input.data('default-color');
+
+    if (defaultColor && !$.trim($input.val())) {
+      $input.val('').removeClass('is-invalid');
+      if (picker) $(picker).val(defaultColor);
+      return;
+    }
 
     if (color) {
       $input.val(color).removeClass('is-invalid');

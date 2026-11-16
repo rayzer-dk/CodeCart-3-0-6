@@ -20,11 +20,7 @@ class ControllerMarketplaceExtension extends Controller {
 
 		$data['user_token'] = $this->session->data['user_token'];
 
-		if (isset($this->request->get['type'])) {
-			$data['type'] = $this->request->get['type'];
-		} else {
-			$data['type'] = '';
-		}
+		$data['type'] = '';
 		
 		$data['categories'] = array();
 		
@@ -58,6 +54,19 @@ class ControllerMarketplaceExtension extends Controller {
 					'href' => $this->url->link('extension/extension/' . $extension, 'user_token=' . $this->session->data['user_token'], true)
 				);
 			}
+		}
+
+		$data['extension_content'] = '';
+		$allowed_types = array_column($data['categories'], 'code');
+		$requested_type = $this->request->get['type'] ?? '';
+		if ($allowed_types) {
+			$data['type'] = in_array($requested_type, $allowed_types, true) ? $requested_type : $allowed_types[0];
+			$content = $this->load->controller('extension/extension/' . $data['type']);
+			if (!is_string($content)) {
+				$content = $this->response->getOutput();
+			}
+			$data['extension_content'] = is_string($content) ? $content : '';
+			$this->load->language('marketplace/extension');
 		}
 
 		$data['header'] = $this->load->controller('common/header');

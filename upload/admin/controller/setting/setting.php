@@ -8,6 +8,11 @@ class ControllerSettingSetting extends Controller {
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		$this->load->model('setting/setting');
+		$theme_default = $this->model_setting_setting->getSetting('theme_default', 0);
+		$use_codecart_titles = $this->config->get('config_theme') === 'codecart';
+		$h1_prefix = $use_codecart_titles ? 'theme_codecart_' : 'theme_default_';
+		$h1_settings = $use_codecart_titles ? $this->model_setting_setting->getSetting('theme_codecart', 0) : $theme_default;
+		$h1 = \CodeCart\Core\StorefrontH1Colors::fromSettings($h1_settings, $h1_prefix, $this->request->post);
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
 			// Single built-in editor: local Summernote with its native plain Code View. Keep config_editor for legacy compatibility.
@@ -131,7 +136,6 @@ class ControllerSettingSetting extends Controller {
 			if (!in_array($cache_engine, array('file','apcu','memcached','redis'), true)) { $cache_engine = 'file'; }
 			$this->model_setting_setting->setSettingValue('codecart_core', 'codecart_cache_engine', $cache_engine, 0);
 
-			$theme_default = $this->model_setting_setting->getSetting('theme_default', 0);
 			$theme_default['theme_default_accent_color'] = $this->request->post['theme_default_accent_color'];
 			$theme_default['theme_default_accent_hover'] = $this->request->post['theme_default_accent_hover'];
 			$theme_default['theme_default_button_color'] = $this->request->post['theme_default_button_color'];
@@ -153,7 +157,18 @@ class ControllerSettingSetting extends Controller {
 			$theme_default['theme_default_footer_text_color'] = $this->request->post['theme_default_footer_text_color'];
 			$theme_default['theme_default_footer_link_color'] = $this->request->post['theme_default_footer_link_color'];
 			$theme_default['theme_default_footer_heading_color'] = $this->request->post['theme_default_footer_heading_color'];
+			if (!$use_codecart_titles) {
+				$theme_default['theme_default_h1_color'] = $h1['light'] !== '' ? $h1['light'] : '#273142';
+				$theme_default['theme_default_h1_light_color'] = $h1['light'];
+				$theme_default['theme_default_h1_dark_color'] = $h1['dark'];
+			}
 			$this->model_setting_setting->editSetting('theme_default', $theme_default, 0);
+
+			if ($use_codecart_titles) {
+				$this->model_setting_setting->setSettingValue('theme_codecart', 'theme_codecart_h1_color', $h1['light'] !== '' ? $h1['light'] : '#273142', 0);
+				$this->model_setting_setting->setSettingValue('theme_codecart', 'theme_codecart_h1_light_color', $h1['light'], 0);
+				$this->model_setting_setting->setSettingValue('theme_codecart', 'theme_codecart_h1_dark_color', $h1['dark'], 0);
+			}
 
 //			if ($this->config->get('config_currency_auto')) {
 //				$this->load->model('localisation/currency');
@@ -390,7 +405,6 @@ class ControllerSettingSetting extends Controller {
 		}
 
 
-		$theme_default = $this->model_setting_setting->getSetting('theme_default', 0);
 		foreach (array(
 			'theme_default_accent_color' => '#0b6fd3',
 			'theme_default_accent_hover' => '#095eb4',
@@ -422,6 +436,9 @@ class ControllerSettingSetting extends Controller {
 				$data[$color_key] = $color_default;
 			}
 		}
+		$data['storefront_h1_colors'] = $h1;
+		$data['storefront_h1_prefix'] = $h1_prefix;
+		$data['storefront_h1_dark_default'] = \CodeCart\Core\StorefrontH1Colors::DARK_DEFAULT;
 
 		if (isset($this->request->post['config_layout_id'])) {
 			$data['config_layout_id'] = $this->request->post['config_layout_id'];

@@ -41,7 +41,8 @@ $_['action_pre_action']  = array(
 	'startup/maintenance',
 	'startup/seo_url',
 	// Needs the route decoded from SEO URLs; must run before any page renders its header.
-	'startup/startup/cartRecovery'
+	'startup/startup/cartRecovery',
+	'startup/codecart_ai_ready'
 );
 
 // Action Events

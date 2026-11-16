@@ -84,7 +84,7 @@ html.ccp-admin-dark #extension .ccp-extension-table .text-muted {color:#a1b0c0;}
             </div>
           </div>
         </fieldset>
-        <div id="extension"></div>
+        <div id="extension">{{ extension_content }}</div>
       </div>
     </div>
   </div>
@@ -114,7 +114,7 @@ $('select[name="type"]').on('change', function() {
 	});
 });
 
-$('select[name="type"]').trigger('change');
+{% if not extension_content %}$('select[name="type"]').trigger('change');{% endif %}
 
 $('#extension').on('click', '.btn-success', function(e) {
 	e.preventDefault();
@@ -182,4 +182,4 @@ $('#extension').on('click', '.btn-danger, .btn-warning', function(e) {
 //--></script>
   {% endif %}
 </div>
-{{ footer }} 
+{{ footer }}

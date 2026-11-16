@@ -122,6 +122,14 @@ class ControllerCommonHeader extends Controller {
 		$data['theme_font_key'] = $font_key;
 		$active_theme = strtolower(trim((string)$this->config->get('config_theme')));
 		if ($active_theme === '') { $active_theme = 'default'; }
+		$title_prefix = $active_theme === 'codecart' ? 'theme_codecart_' : 'theme_default_';
+		$light_title = \CodeCart\Core\StorefrontH1Colors::lightOverride(
+			$this->config->get($title_prefix . 'h1_light_color'),
+			$this->config->get($title_prefix . 'h1_color')
+		);
+		$dark_title = \CodeCart\Core\StorefrontH1Colors::normalize($this->config->get($title_prefix . 'h1_dark_color'));
+		$data['theme_page_title_color'] = $light_title !== '' ? $light_title : $data['theme_accent_color'];
+		$data['theme_page_title_dark_color'] = $dark_title ?: \CodeCart\Core\StorefrontH1Colors::DARK_DEFAULT;
 		$theme_directory = trim((string)$this->config->get('theme_' . $active_theme . '_directory'));
 		if ($theme_directory === '') { $theme_directory = $active_theme; }
 		$is_default_theme = in_array($active_theme, array('default', 'codecart'), true) && in_array($theme_directory, array('default', 'codecart'), true);

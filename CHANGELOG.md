@@ -1,3 +1,9 @@
+# CodeCart 3.0.6.0 — Build 2.3.25 (2026-11-16)
+
+- Storefront Appearance lets merchants set separate page title colors for light and dark mode.
+- AI Ready provides an optional read-only WebMCP search tool for the main storefront. It defaults to disabled and supports a Chrome Origin Trial token.
+- Core settings and the extension list render their initial content in the first response to prevent late layout shifts.
+
 # CodeCart 3.0.6.0 — Build 2.3.24 (2026-11-16)
 
 - Added a scrollable image manager grid and 16, 32, 64 and 128 entries per page. Sort controls show the selected field and direction.

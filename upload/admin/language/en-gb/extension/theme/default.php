@@ -150,8 +150,10 @@ $_['help_header_phone'] = 'Shows the configured store telephone in the storefron
 $_['entry_header_email'] = 'Show email in header';
 $_['help_header_email'] = 'Shows the configured store email address in the storefront header.';
 
-$_['entry_h1_color'] = 'H1 heading color';
-$_['help_h1_color'] = 'Color used specifically for H1 headings. Falls back to the general heading color when unset.';
+$_['entry_h1_color'] = 'H1 color in light mode';
+$_['entry_h1_dark_color'] = 'H1 color in dark mode';
+$_['help_h1_color'] = 'Leave blank to use the storefront accent color for page titles.';
+$_['help_h1_dark_color'] = 'Leave blank to use the default dark-mode heading color.';
 $_['entry_h2_color'] = 'H2 heading color';
 $_['help_h2_color'] = 'Color used specifically for H2 headings. Falls back to the general heading color when unset.';
 

@@ -14,6 +14,8 @@ class ControllerExtensionThemeCodecart extends Controller {
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		$this->load->model('setting/setting');
+		$setting_info = $this->model_setting_setting->getSetting('theme_codecart', $store_id);
+		$h1 = \CodeCart\Core\StorefrontH1Colors::fromSettings($setting_info, 'theme_codecart_', $this->request->post);
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
 			foreach ($this->imageOptionFields() as $key => $field) {
@@ -101,7 +103,6 @@ class ControllerExtensionThemeCodecart extends Controller {
 				'theme_codecart_cart_button_text_color' => '#ffffff',
 				'theme_codecart_text_color' => '#3d4652',
 				'theme_codecart_heading_color' => '#273142',
-				'theme_codecart_h1_color' => '#273142',
 				'theme_codecart_h2_color' => '#273142',
 				'theme_codecart_background_color' => '#ffffff',
 				'theme_codecart_surface_color' => '#f7f9fb',
@@ -116,6 +117,9 @@ class ControllerExtensionThemeCodecart extends Controller {
 				}
 			}
 
+			$this->request->post['theme_codecart_h1_color'] = $h1['light'] !== '' ? $h1['light'] : '#273142';
+			$this->request->post['theme_codecart_h1_light_color'] = $h1['light'];
+			$this->request->post['theme_codecart_h1_dark_color'] = $h1['dark'];
 			$this->model_setting_setting->editSetting('theme_codecart', $this->request->post, $store_id);
 
 			// CodeCart PRO compatibility alias: core storefront features from the OpenCart 3 legacy layer
@@ -132,7 +136,9 @@ class ControllerExtensionThemeCodecart extends Controller {
 				foreach ($this->request->post as $key => $value) {
 					if (strpos((string)$key, 'theme_codecart_') === 0) {
 						$legacy_key = 'theme_default_' . substr((string)$key, 15);
-						if ($legacy_key === 'theme_default_directory' || $legacy_key === 'theme_default_status') { continue; }
+						if (in_array($legacy_key, array('theme_default_directory', 'theme_default_status', 'theme_default_h1_color', 'theme_default_h1_light_color', 'theme_default_h1_dark_color'), true)) {
+							continue;
+						}
 						$legacy_theme_settings[$legacy_key] = $value;
 					}
 				}
@@ -250,14 +256,13 @@ class ControllerExtensionThemeCodecart extends Controller {
 		$data['action'] = $this->url->link('extension/theme/codecart', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $store_id, true);
 
 		$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=theme', true);
-		foreach (array('text_theme_modes','entry_dark_mode','help_dark_mode','entry_dark_mode_default','help_dark_mode_default','entry_datetimepicker_theme','help_datetimepicker_theme','entry_gallery_engine','help_gallery_engine','entry_header_phone','help_header_phone','entry_header_email','help_header_email','entry_header_menu_mode','help_header_menu_mode','text_header_menu_horizontal','text_header_menu_vertical','entry_header_information','help_header_information','entry_header_products','help_header_products','entry_header_custom_links','help_header_custom_links','entry_custom_link_title','entry_custom_link_url','entry_custom_link_sort','button_custom_link_add','entry_header_product_search','text_menu_products','entry_custom_css','help_custom_css','text_custom_css_help','entry_border_radius','help_border_radius','entry_h1_color','help_h1_color','entry_h2_color','help_h2_color','entry_product_card_content','help_product_card_content','text_product_card_description','text_product_card_attributes','entry_option_image_switch_status','help_option_image_switch_status','entry_purchase_blocks_status','help_purchase_blocks_status','text_font_preview','text_product_extra_tab','entry_product_extra_tab_status','help_product_extra_tab_status','entry_product_extra_tab_title','entry_product_extra_tab_content') as $language_key) {
+		foreach (array('text_theme_modes','entry_dark_mode','help_dark_mode','entry_dark_mode_default','help_dark_mode_default','entry_datetimepicker_theme','help_datetimepicker_theme','entry_gallery_engine','help_gallery_engine','entry_header_phone','help_header_phone','entry_header_email','help_header_email','entry_header_menu_mode','help_header_menu_mode','text_header_menu_horizontal','text_header_menu_vertical','entry_header_information','help_header_information','entry_header_products','help_header_products','entry_header_custom_links','help_header_custom_links','entry_custom_link_title','entry_custom_link_url','entry_custom_link_sort','button_custom_link_add','entry_header_product_search','text_menu_products','entry_custom_css','help_custom_css','text_custom_css_help','entry_border_radius','help_border_radius','entry_h1_color','help_h1_color','entry_h1_dark_color','help_h1_dark_color','entry_h2_color','help_h2_color','entry_product_card_content','help_product_card_content','text_product_card_description','text_product_card_attributes','entry_option_image_switch_status','help_option_image_switch_status','entry_purchase_blocks_status','help_purchase_blocks_status','text_font_preview','text_product_extra_tab','entry_product_extra_tab_status','help_product_extra_tab_status','entry_product_extra_tab_title','entry_product_extra_tab_content') as $language_key) {
 			$data[$language_key] = $this->language->get($language_key);
 		}
 		$data['catalog_ajax_check'] = str_replace('&amp;', '&', $this->url->link('extension/theme/codecart/catalogAjaxCheck', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . (isset($this->request->get['store_id']) ? (int)$this->request->get['store_id'] : 0), true));
 
-		if (isset($this->request->get['store_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
-			$setting_info = $this->model_setting_setting->getSetting('theme_codecart', $store_id);
-		}
+		$data['storefront_h1_colors'] = $h1;
+		$data['storefront_h1_dark_default'] = \CodeCart\Core\StorefrontH1Colors::DARK_DEFAULT;
 		
 		if (isset($this->request->post['theme_codecart_directory'])) {
 			$data['theme_codecart_directory'] = $this->request->post['theme_codecart_directory'];
@@ -306,7 +311,6 @@ class ControllerExtensionThemeCodecart extends Controller {
 				'theme_codecart_cart_button_text_color' => '#ffffff',
 			'theme_codecart_text_color' => '#3d4652',
 			'theme_codecart_heading_color' => '#273142',
-				'theme_codecart_h1_color' => '#273142',
 				'theme_codecart_h2_color' => '#273142',
 			'theme_codecart_background_color' => '#ffffff',
 			'theme_codecart_surface_color' => '#f7f9fb',

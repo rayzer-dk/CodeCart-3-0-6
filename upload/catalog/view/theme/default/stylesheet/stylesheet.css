@@ -2583,10 +2583,10 @@ html.ccp-theme-dark .ccp-suggest-item.ccp-suggest-all,html.ccp-theme-dark .ccp-s
 #content > h1,
 .ccp-product-summary-card > h1,
 .ccp-blog-article-content > h1 {
-	color: var(--ccp-store-accent, #0b6fd3);
+	color: var(--ccp-store-page-title, var(--ccp-store-accent, #0b6fd3));
 }
 html.ccp-theme-dark #content > h1,
 html.ccp-theme-dark .ccp-product-summary-card > h1,
 html.ccp-theme-dark .ccp-blog-article-content > h1 {
-	color: #8fc3ff !important;
+	color: var(--ccp-store-page-title-dark, #8fc3ff) !important;
 }

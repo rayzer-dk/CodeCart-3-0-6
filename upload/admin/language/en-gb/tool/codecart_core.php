@@ -522,3 +522,11 @@ $_['cmp_cache'] = 'File / APCu / Memcached / Redis + fallback';
 $_['cmp_file'] = 'File';
 $_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + FA4 compatibility';
 $_['cmp_summernote'] = 'Summernote 0.9.1 local';
+
+$_['text_ai_ready'] = 'AI Ready / WebMCP';
+$_['entry_webmcp_status'] = 'Enable WebMCP';
+$_['help_webmcp_status'] = 'Allows supported browsers to search the main storefront’s public catalogue for product names and links.';
+$_['entry_webmcp_origin_trial'] = 'Chrome Origin Trial token';
+$_['help_webmcp_origin_trial'] = 'Optional for local testing. On HTTPS, paste the token issued by Chrome for this storefront domain.';
+$_['text_webmcp_docs'] = 'Chrome setup instructions';
+$_['error_webmcp_origin_trial'] = 'Enter a valid Chrome Origin Trial token format.';

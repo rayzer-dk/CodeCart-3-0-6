@@ -47,7 +47,8 @@ class ControllerToolCodeCartCore extends Controller {
         $data['button_phpinfo_download'] = $this->language->get('button_phpinfo_download');
         $data['cookie_settings_link'] = $this->url->link('setting/setting','user_token='.$this->session->data['user_token'].'&tab=option',true) . '#ccp-cookie-settings';
         $data['user_token'] = $this->session->data['user_token'];
-        $data['active_tab'] = isset($this->request->get['tab']) && preg_match('/^[a-z0-9_-]+$/i',(string)$this->request->get['tab']) ? (string)$this->request->get['tab'] : 'runtime';
+        $tab = $this->request->get['tab'] ?? '';
+        $data['active_tab'] = in_array($tab, array('runtime', 'performance', 'architecture', 'security', 'privacy', 'schema', 'extensions', 'icons', 'about'), true) ? $tab : 'runtime';
 
         $data['success'] = isset($this->session->data['success']) ? $this->session->data['success'] : '';
         unset($this->session->data['success']);
@@ -63,6 +64,12 @@ class ControllerToolCodeCartCore extends Controller {
         $data['codecart_admin_minify_css_status'] = (int)$this->config->get('codecart_admin_minify_css_status');
         $data['codecart_admin_minify_js_status'] = (int)$this->config->get('codecart_admin_minify_js_status');
         $data['minify_stats'] = $this->assetMinificationStats();
+
+        foreach (array('text_ai_ready', 'entry_webmcp_status', 'help_webmcp_status', 'entry_webmcp_origin_trial', 'help_webmcp_origin_trial', 'text_webmcp_docs') as $key) {
+            $data[$key] = $this->language->get($key);
+        }
+        $data['codecart_webmcp_status'] = (bool)$this->config->get('codecart_webmcp_status');
+        $data['codecart_webmcp_origin_trial'] = (string)$this->config->get('codecart_webmcp_origin_trial');
 
         $securityDefaults = array(
             'codecart_admin_login_protection_status'=>1,'codecart_admin_login_max_attempts'=>5,'codecart_admin_login_window_minutes'=>15,'codecart_security_audit_retention_days'=>90,'codecart_gdpr_retention_days'=>365,
@@ -247,6 +254,23 @@ class ControllerToolCodeCartCore extends Controller {
             $value = !empty($this->request->post['codecart_api_v1_status']) ? '1' : '0';
             $this->upsertSetting('codecart_core','codecart_api_v1_status',$value);
             $this->config->set('codecart_api_v1_status',$value);
+            $this->session->data['success'] = $this->language->get('text_settings_saved');
+            return;
+        }
+        if ($action === 'save_ai_ready') {
+            $status = $this->request->post['codecart_webmcp_status'] ?? '';
+            $token = $this->request->post['codecart_webmcp_origin_trial'] ?? '';
+            if (!in_array($status, array('0', '1'), true) || !is_string($token)) {
+                throw new \InvalidArgumentException($this->language->get('error_action'));
+            }
+
+            $token = trim($token);
+            if ($token !== '' && !preg_match('~\A[A-Za-z0-9+/_-]{1,2046}={0,2}\z~', $token)) {
+                throw new \InvalidArgumentException($this->language->get('error_webmcp_origin_trial'));
+            }
+
+            $this->upsertSetting('codecart_core', 'codecart_webmcp_origin_trial', $token);
+            $this->upsertSetting('codecart_core', 'codecart_webmcp_status', $status);
             $this->session->data['success'] = $this->language->get('text_settings_saved');
             return;
         }

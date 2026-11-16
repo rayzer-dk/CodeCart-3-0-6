@@ -522,3 +522,11 @@ $_['cmp_cache'] = 'File / APCu / Memcached / Redis + fallback';
 $_['cmp_file'] = 'Файли';
 $_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + сумісність із FA4';
 $_['cmp_summernote'] = 'Summernote 0.9.1 локально';
+
+$_['text_ai_ready'] = 'AI Ready / WebMCP';
+$_['entry_webmcp_status'] = 'Увімкнути WebMCP';
+$_['help_webmcp_status'] = 'У підтримуваних браузерах додає пошук назв і посилань у публічному каталозі основного магазину.';
+$_['entry_webmcp_origin_trial'] = 'Токен Chrome Origin Trial';
+$_['help_webmcp_origin_trial'] = 'Для локальної перевірки поле можна залишити порожнім. Для HTTPS вкажіть токен Chrome, виданий для домену цієї вітрини.';
+$_['text_webmcp_docs'] = 'Інструкція Chrome';
+$_['error_webmcp_origin_trial'] = 'Перевірте формат токена Chrome Origin Trial.';
