@@ -51,7 +51,7 @@ class ModelExtensionCurrencyEcb extends Model {
 
         $default = strtoupper(trim((string)$this->config->get('config_currency')));
         if ($default === '') { $default = 'EUR'; }
-        if ($default === 'UAH' && (!isset($rates['UAH']) || $rates['UAH'] <= 0)) {
+        if ($default === 'UAH' && !isset($rates['UAH'])) {
             $uahPerEur = $this->fetchNbuUahPerEur();
             if ($uahPerEur > 0) {
                 // ECB quotes currencies per EUR; NBU's EUR rate is UAH per EUR, so the
@@ -59,7 +59,7 @@ class ModelExtensionCurrencyEcb extends Model {
                 $rates['UAH'] = $uahPerEur;
             }
         }
-        if (!isset($rates[$default]) || $rates[$default] <= 0) {
+        if (!isset($rates[$default])) {
             $this->log->write('ECB currency refresh skipped: base currency ' . $default . ' is unavailable.');
             return false;
         }
@@ -69,7 +69,7 @@ class ModelExtensionCurrencyEcb extends Model {
             $this->db->beginTransaction();
             foreach ($currencies->rows as $currency) {
                 $code = strtoupper((string)$currency['code']);
-                if (!isset($rates[$code]) || $rates[$code] <= 0) { continue; }
+                if (!isset($rates[$code])) { continue; }
                 $value = $rates[$code] / $rates[$default];
                 $this->db->query("UPDATE `" . DB_PREFIX . "currency` SET value = '" . (float)$value . "', date_modified = NOW() WHERE code = '" . $this->db->escape($code) . "'");
             }
