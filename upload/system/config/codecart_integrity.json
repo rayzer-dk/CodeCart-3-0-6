@@ -535,7 +535,7 @@
         "system/library/codecart/src/SmartSearch.php": "a68aa18112c005815de62a96acb4c5f07fc09ef0aaf9e8740eee40f4744d61cf",
         "system/library/codecart/src/MinifiedAsset.php": "02b05cfc8901485576a22f1dd20c6f6bef7404b91b76e04be2cd831258e933b5",
         "system/library/codecart/src/StorefrontH1Colors.php": "2f48bdfc3c34ca3b7d552bb0cc19bb35e6ea2d6be0fe7ece3d4217a71bb2063f",
-        "codecart-sw.js": "2bec6997795f6ec1b0f7e805d7a5a2ec3a5844ebd73ebf295610c7338af199cc",
+        "codecart-sw.js": "bb93a2470e3ae31af38b9543a77c493d0803df5ef623b7fd386402e7b59d1364",
         "catalog/view/javascript/codecart/workbox/register.js": "0b47171f210deacfbc8f8706a6eb9ffc7cf3529228726d578062d808aba1be13",
         "admin/language/uk-ua/setting/setting.php": "e862acb1cfa492e181c338978140f8e1f1a22000ad24689f18eb155b41b73399",
         "admin/language/uk-ua/setting/store.php": "5737ea2d61a1317e57e4bfc20ce1f088b09fa3857b6662860bef018e8d2dd80e",

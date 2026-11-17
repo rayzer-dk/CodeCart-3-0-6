@@ -22,7 +22,8 @@ const expiration = (maxEntries, days) => new workbox.expiration.ExpirationPlugin
   maxEntries, maxAgeSeconds: days * 86400, purgeOnQuotaError: true,
 });
 
-// Only publicly served, explicitly revisioned JS and CSS. Unversioned assets always hit the server.
+// Only public JS/CSS with a revision marker; stale-while-revalidate avoids pinning
+// outdated OpenCart assets when a third-party module reuses its v= query value.
 workbox.routing.registerRoute(({ url, request }) => {
   if (request.method !== 'GET' || !['script', 'style'].includes(request.destination)) return false;
   const path = ownPath(url);
@@ -30,7 +31,7 @@ workbox.routing.registerRoute(({ url, request }) => {
   if (Array.from(url.searchParams.keys()).length !== 1) return false;
   const revision = url.searchParams.get('v');
   return revision !== null && /^[a-z0-9._-]{1,64}$/i.test(revision);
-}, new workbox.strategies.CacheFirst({
+}, new workbox.strategies.StaleWhileRevalidate({
   cacheName: versionedCache,
   plugins: [cacheResponse(), expiration(120, 30)],
 }));
