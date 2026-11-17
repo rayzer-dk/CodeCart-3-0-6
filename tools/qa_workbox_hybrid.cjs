@@ -43,7 +43,7 @@ assert.match(startup, /config_codecart_workbox_status' => 0/);
 assert.match(startup, /config_codecart_workbox_used' => 0/);
 assert.match(startup, /foreach \(\$workbox_flags as \$key => \$enabled\)/);
 assert.match(registration, /getRegistration/);
-assert.match(registration, /scriptURL !== workerUrl\.href/);
+assert.match(registration, /owned\.indexOf\(worker\.scriptURL\) === -1/);
 assert.doesNotMatch(worker, /skipWaiting\s*\(/);
 assert.doesNotMatch(worker, /(?:navigation|navigate).*CacheFirst/i);
 assert.match(worker, /workbox\.routing\.registerRoute/);
