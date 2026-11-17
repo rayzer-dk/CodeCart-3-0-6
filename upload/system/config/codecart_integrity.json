@@ -543,7 +543,7 @@
         "admin/language/ru-ru/setting/store.php": "3b4430c5c9bccfe968a4eafe267f4b1c37697ce3c1794e366e358b519c884db7",
         "admin/language/en-gb/setting/setting.php": "8b257cd69d4064d3dee8d50158e8b2cd96ee7d6ec2d99cf8f88168d872914ddc",
         "admin/language/en-gb/setting/store.php": "ef3a621712e42e22b375dccda9b8dac94004aa02016c64fdf674873092c0d18f",
-        "catalog/controller/common/pwa.php": "194fbea727e029e2b1f2a586b2f09fe48580922d8bfb1ae298e72161cb514c3f",
+        "catalog/controller/common/pwa.php": "e91f7be51abc75549f04318b746025aa403b05b6fe4e865eaf35c7ba5d34b50a",
         "codecart-app-sw.js": "4aed176ffc45a2f2b742cef593586ea1ae84b40bb71cd4624ec2c63a79800f41"
     },
     "version": "3.0.6.0",
