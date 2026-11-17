@@ -54,7 +54,9 @@ class ControllerStartupStartup extends Controller {
 		// Read the two overrides from the settings already fetched: no extra query.
 		$workbox_flags = $store_id > 0 ? array(
 			'config_codecart_workbox_status' => 0,
-			'config_codecart_workbox_used' => 0
+			'config_codecart_workbox_used' => 0,
+			'config_codecart_pwa_status' => 0,
+			'config_codecart_pwa_used' => 0
 		) : array();
 
 		foreach ($query->rows as $result) {

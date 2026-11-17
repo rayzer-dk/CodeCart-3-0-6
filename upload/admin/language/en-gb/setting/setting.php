@@ -596,3 +596,7 @@ $_['help_codecart_quick_price_edit'] = 'Enable quick editing of base price and s
 $_['entry_codecart_workbox'] = 'Workbox caching';
 $_['help_codecart_workbox'] = 'Optional caching of public, revisioned CSS/JavaScript, fonts and images only. Prices, stock, cart, checkout, accounts and HTML are never cached. OFF by default. Requires HTTPS, a complete production archive with local Workbox libraries and no competing root Service Worker. Commerce data remains server-owned; IndexedDB does not duplicate it.';
 $_['text_codecart_workbox_library_missing'] = 'Local Workbox libraries are missing. You can save the setting, but browser caching cannot start until the complete production package is installed.';
+
+// Installable storefront progressive web app (separate from Workbox caching).
+$_['entry_codecart_pwa'] = 'Install store as app (PWA)';
+$_['help_codecart_pwa'] = 'Enables a web app manifest and store icons for installing on Android, iPhone, Windows and macOS. HTTPS is required. Independent of Workbox caching: prices, stock and checkout remain server-controlled and online. OFF by default.';

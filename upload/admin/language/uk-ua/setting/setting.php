@@ -592,3 +592,7 @@ $_['help_codecart_quick_price_edit'] = 'У списку «Каталог → Т�
 $_['entry_codecart_workbox'] = 'Кешування Workbox';
 $_['help_codecart_workbox'] = 'Необов’язкове кешування лише публічних версіонованих CSS/JavaScript, шрифтів і зображень. Ціни, залишки, кошик, оформлення замовлень, особистий кабінет та HTML ніколи не кешуються. Вимкнено за замовчуванням. Потрібен HTTPS, повний production-архів із локальними бібліотеками Workbox та відсутність стороннього Service Worker у корені сайту. Дані магазину залишаються на сервері; IndexedDB не дублює їх.';
 $_['text_codecart_workbox_library_missing'] = 'Локальні бібліотеки Workbox відсутні. Зберегти налаштування можна, але кешування не запуститься до встановлення повного production-архіву.';
+
+// Installable storefront progressive web app (separate from Workbox caching).
+$_['entry_codecart_pwa'] = 'Встановлення магазину як застосунку (PWA)';
+$_['help_codecart_pwa'] = 'Додає маніфест застосунку та іконки магазину для встановлення на Android, iPhone, Windows і macOS. Потрібен HTTPS. Працює незалежно від кешування Workbox: ціни, залишки та замовлення завжди оновлюються з сервера. За замовчуванням вимкнено.';

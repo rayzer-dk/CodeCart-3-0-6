@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'upload/codecart-sw.js'
+      - 'upload/codecart-app-sw.js'
+      - 'upload/catalog/controller/common/pwa.php'
       - 'upload/.htaccess'
       - 'upload/admin/controller/setting/**'
       - 'upload/catalog/controller/common/header.php'
@@ -33,6 +35,7 @@ jobs:
       - name: Static worker and option contracts
         run: |
           node --check upload/codecart-sw.js
+          node --check upload/codecart-app-sw.js
           node --check upload/catalog/view/javascript/codecart/workbox/register.js
           node tools/qa_workbox_hybrid.cjs
       - name: Download and verify pinned Workbox locally
@@ -46,9 +49,12 @@ jobs:
         with:
           php-version: '8.4'
           coverage: none
+          extensions: gd
       - name: PHP syntax checks
         run: |
           php -l upload/catalog/controller/common/header.php
+          php -l upload/catalog/controller/common/pwa.php
+          php tests/pwa_install_smoke.php
           php -l upload/admin/controller/setting/setting.php
           php -l upload/admin/controller/setting/store.php
           for locale in en-gb ru-ru uk-ua; do
