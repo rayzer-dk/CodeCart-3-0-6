@@ -27,6 +27,8 @@ class ControllerSettingStore extends Controller {
 			$this->request->post = array_merge($this->request->post, CodeCartMerchantSchema::clean($this->request->post));
 			$this->request->post['config_codecart_schema_store_id'] = (int)$store_id;
 			$this->request->post['config_codecart_structured_data_status'] = !empty($this->request->post['config_codecart_structured_data_status']) ? 1 : 0;
+			$this->request->post['config_codecart_workbox_status'] = !empty($this->request->post['config_codecart_workbox_status']) ? 1 : 0;
+			$this->request->post['config_codecart_workbox_used'] = $this->request->post['config_codecart_workbox_status'];
 
 			$this->load->model('setting/setting');
 
@@ -53,8 +55,10 @@ class ControllerSettingStore extends Controller {
 			$this->request->post = array_merge($this->request->post, CodeCartMerchantSchema::clean($this->request->post));
 			$this->request->post['config_codecart_schema_store_id'] = (int)$this->request->get['store_id'];
 			$this->request->post['config_codecart_structured_data_status'] = !empty($this->request->post['config_codecart_structured_data_status']) ? 1 : 0;
-
+			$this->request->post['config_codecart_workbox_status'] = !empty($this->request->post['config_codecart_workbox_status']) ? 1 : 0;
 			$this->load->model('setting/setting');
+			$previous_workbox = $this->model_setting_setting->getSetting('config', (int)$this->request->get['store_id']);
+			$this->request->post['config_codecart_workbox_used'] = (!empty($previous_workbox['config_codecart_workbox_used']) || $this->request->post['config_codecart_workbox_status']) ? 1 : 0;
 
 			$this->model_setting_setting->editSetting('config', $this->request->post, $this->request->get['store_id']);
 
@@ -717,6 +721,14 @@ class ControllerSettingStore extends Controller {
 		$data['config_codecart_structured_data_status'] = isset($this->request->post['config_codecart_structured_data_status'])
 			? (int)$this->request->post['config_codecart_structured_data_status']
 			: (isset($store_info['config_codecart_structured_data_status']) ? (int)$store_info['config_codecart_structured_data_status'] : ($this->config->has('config_codecart_structured_data_status') ? (int)$this->config->get('config_codecart_structured_data_status') : 1));
+
+		$data['config_codecart_workbox_status'] = isset($this->request->post['config_codecart_workbox_status'])
+			? (int)$this->request->post['config_codecart_workbox_status']
+			: (int)($store_info['config_codecart_workbox_status'] ?? 0);
+		$data['codecart_workbox_library_ready'] = is_file(DIR_CATALOG . 'view/javascript/codecart/workbox/v7.4.1/workbox-sw.js');
+		$data['entry_codecart_workbox'] = $this->language->get('entry_codecart_workbox');
+		$data['help_codecart_workbox'] = $this->language->get('help_codecart_workbox');
+		$data['text_codecart_workbox_library_missing'] = $this->language->get('text_codecart_workbox_library_missing');
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');

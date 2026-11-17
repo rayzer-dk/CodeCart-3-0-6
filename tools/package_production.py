@@ -11,6 +11,12 @@ import zlib
 
 
 def build(root, output):
+    # Build-time only: ship pinned Workbox locally, never fetch its code in a visitor browser.
+    # The storefront remains inactive until a complete production archive is deployed.
+    subprocess.run(['node', str(root / 'tools/vendor_workbox.mjs')], cwd=root, check=True)
+    workbox = root / 'upload/catalog/view/javascript/codecart/workbox/v7.4.1'
+    if not (workbox / 'SHA256.json').is_file():
+        raise ValueError('Verified Workbox runtime is missing')
     tracked = subprocess.check_output(
         ['git', 'ls-files', '-z'], cwd=root).decode('utf-8').split('\0')
     selected = set()
@@ -21,6 +27,7 @@ def build(root, output):
                      or (name.startswith('bonuses/') and name.endswith('.ocmod.zip'))):
             if (root / name).is_file():
                 selected.add(name)
+    selected.update(p.relative_to(root).as_posix() for p in workbox.rglob('*') if p.is_file())
     # Include newly prepared documentation before committing a release.
     selected.update(p.relative_to(root).as_posix() for p in (root / 'documentation').rglob('*') if p.is_file())
     selected.update(n for n in root_docs if (root / n).is_file())

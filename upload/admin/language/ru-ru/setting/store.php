@@ -136,3 +136,8 @@ $_['error_image_wishlist'] = 'Необходимо указать размер �
 $_['error_limit'] = 'Укажите количество!';
 $_['help_product_description_length'] = 'Количество символов в описании товара в категориях, у производителей и т. п.';
 $_['help_product_limit'] = 'Количество элементов на одной странице товаров, категорий и т. п.';
+
+// Optional storefront Workbox static caching (independent of OpenCart server cache).
+$_['entry_codecart_workbox'] = 'Кеширование Workbox';
+$_['help_codecart_workbox'] = 'Необязательное кеширование только публичных версионированных CSS/JavaScript, шрифтов и изображений. Цены, остатки, корзина, оформление заказов, личный кабинет и HTML никогда не кешируются. Выключено по умолчанию. Требуются HTTPS, полный production-архив с локальными библиотеками Workbox и отсутствие стороннего Service Worker в корне сайта. Данные магазина остаются на сервере; IndexedDB их не дублирует.';
+$_['text_codecart_workbox_library_missing'] = 'Локальные библиотеки Workbox отсутствуют. Настройки можно сохранить, но кеширование не запустится до установки полного production-архива.';

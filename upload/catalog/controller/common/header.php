@@ -55,6 +55,11 @@ class ControllerCommonHeader extends Controller {
 		$data['robots'] = $this->document->getRobots();
 		$canonical_url = $this->getCanonicalUrl($data['links']);
 		$data['alternate_links'] = $this->buildAlternateLinks($canonical_url, $is_https);
+		// Browser-only static asset caching; absent libraries or HTTP keep the feature inert.
+		$data['codecart_workbox_used'] = (int)$this->config->get('config_codecart_workbox_used') === 1;
+		$data['codecart_workbox_enabled'] = $is_https
+			&& (int)$this->config->get('config_codecart_workbox_status') === 1
+			&& is_file(DIR_APPLICATION . 'view/javascript/codecart/workbox/v7.4.1/workbox-sw.js');
 		$data['core_script'] = 'catalog/view/javascript/common.js?v=' . (defined('CODECART_PACKAGE_BUILD') ? CODECART_PACKAGE_BUILD : '3.0.6.0');
 		$data['styles'] = $this->document->getStyles();
 		$data['scripts'] = $this->document->getScripts('header');

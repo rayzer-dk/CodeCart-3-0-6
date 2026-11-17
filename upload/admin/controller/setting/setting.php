@@ -19,6 +19,8 @@ class ControllerSettingSetting extends Controller {
 			$this->request->post['config_editor'] = 'summernote';
 			$this->request->post['codecart_internal_linking_status'] = !empty($this->request->post['codecart_internal_linking_status']) ? 1 : 0;
 			$this->request->post['config_codecart_quick_price_edit'] = !empty($this->request->post['config_codecart_quick_price_edit']) ? 1 : 0;
+			$this->request->post['config_codecart_workbox_status'] = !empty($this->request->post['config_codecart_workbox_status']) ? 1 : 0;
+			$this->request->post['config_codecart_workbox_used'] = ((int)$this->config->get('config_codecart_workbox_used') === 1 || $this->request->post['config_codecart_workbox_status'] === 1) ? 1 : 0;
 			foreach (array(
 				'config_admin_accent_color' => '#0b6fd3',
 				'config_admin_sidebar_color' => '#1f2937',
@@ -1371,6 +1373,13 @@ class ControllerSettingSetting extends Controller {
 			$data['config_encryption'] = $this->config->get('config_encryption');
 		}
 
+        $data['config_codecart_workbox_status'] = isset($this->request->post['config_codecart_workbox_status'])
+            ? (int)$this->request->post['config_codecart_workbox_status']
+            : (int)$this->config->get('config_codecart_workbox_status');
+        $data['codecart_workbox_library_ready'] = is_file(DIR_CATALOG . 'view/javascript/codecart/workbox/v7.4.1/workbox-sw.js');
+        $data['entry_codecart_workbox'] = $this->language->get('entry_codecart_workbox');
+        $data['help_codecart_workbox'] = $this->language->get('help_codecart_workbox');
+        $data['text_codecart_workbox_library_missing'] = $this->language->get('text_codecart_workbox_library_missing');
         if (isset($this->request->post['codecart_cache_engine'])) {
             $data['codecart_cache_engine'] = strtolower((string)$this->request->post['codecart_cache_engine']);
         } else {

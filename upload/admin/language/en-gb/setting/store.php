@@ -147,3 +147,8 @@ $_['error_image_compare'] = 'Compare Image Size dimensions required!';
 $_['error_image_wishlist'] = 'Wish List Image Size dimensions required!';
 $_['error_image_cart'] = 'Cart Image Size dimensions required!';
 $_['error_image_location'] = 'Store Image Size dimensions required!';
+
+// Optional storefront Workbox static caching (independent of OpenCart server cache).
+$_['entry_codecart_workbox'] = 'Workbox caching';
+$_['help_codecart_workbox'] = 'Optional caching of public, revisioned CSS/JavaScript, fonts and images only. Prices, stock, cart, checkout, accounts and HTML are never cached. OFF by default. Requires HTTPS, a complete production archive with local Workbox libraries and no competing root Service Worker. Commerce data remains server-owned; IndexedDB does not duplicate it.';
+$_['text_codecart_workbox_library_missing'] = 'Local Workbox libraries are missing. You can save the setting, but browser caching cannot start until the complete production package is installed.';
