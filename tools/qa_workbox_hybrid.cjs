@@ -23,6 +23,8 @@ for (const twig of [
   assert.match(text, /data-ccp-workbox=/);
   assert.match(text, /if codecart_workbox_enabled/);
   assert.match(text, /elseif codecart_workbox_used/);
+  assert.match(text, /data-ccp-pwa-install/);
+  assert.match(text, /data-ccp-pwa-ios-help/);
 }
 assert.match(header, /config_codecart_workbox_status/);
 assert.match(header, /config_codecart_pwa_status/);
@@ -34,6 +36,11 @@ assert.match(pwa, /192x192/);
 assert.match(pwa, /512x512/);
 assert.match(pwa, /Content-Type: image\/png/);
 assert.match(registration, /codecart-app-sw\.js/);
+assert.match(registration, /beforeinstallprompt/);
+assert.match(registration, /appinstalled/);
+assert.match(registration, /navigator\.standalone|navigator\.standalone/);
+assert.match(registration, /Add to Home Screen/);
+assert.match(registration, /document\.createElement\('button'\)/);
 assert.match(appWorker, /fetch\(event.request\)/);
 assert.doesNotMatch(appWorker, /caches\.open|cache\.put/);
 assert.match(header, /codecart_workbox_used/);

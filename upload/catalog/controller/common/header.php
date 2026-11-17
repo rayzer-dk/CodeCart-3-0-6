@@ -232,6 +232,9 @@ class ControllerCommonHeader extends Controller {
 
 		$this->load->language('common/header');
 		$data['text_theme_toggle'] = $this->language->get('text_theme_toggle');
+		$data['text_pwa_install'] = $this->language->get('text_pwa_install');
+		$data['text_pwa_ios_help'] = $this->language->get('text_pwa_ios_help');
+		$data['text_pwa_mac_help'] = $this->language->get('text_pwa_mac_help');
 		if ($data['text_theme_toggle'] === 'text_theme_toggle' || $data['text_theme_toggle'] === '') { $data['text_theme_toggle'] = 'Switch theme'; }
 		$data['cart_add_url'] = $this->url->link('checkout/cart/add', '', true);
 		$data['cart_edit_url'] = $this->url->link('checkout/cart/edit', '', true);

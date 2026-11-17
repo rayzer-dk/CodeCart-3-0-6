@@ -33,3 +33,7 @@ $_['ui_upload'] = 'Upload';
 $_['ui_action'] = 'Action';
 $_['ui_request_failed'] = 'The request could not be completed. Please try again.';
 $_['ui_request_busy'] = 'Too many requests. Please try again a little later.';
+
+$_['text_pwa_install'] = 'Install app';
+$_['text_pwa_ios_help'] = 'Safari: tap Share, then Add to Home Screen.';
+$_['text_pwa_mac_help'] = 'Safari on Mac: choose File → Add to Dock.';
