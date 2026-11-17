@@ -14,6 +14,14 @@ Options -Indexes
  AddType font/woff2 .woff2
 </IfModule>
 
+# Revalidate the opt-in Service Worker on every deployment. Browser caches stay separate
+# from the PHP/OpenCart cache, and Cloudflare should bypass HTML/worker caching.
+<IfModule mod_headers.c>
+ <Files "codecart-sw.js">
+  Header always set Cache-Control "no-cache, no-store, must-revalidate"
+ </Files>
+</IfModule>
+
 # Безпечні базові HTTP-заголовки. HSTS/CSP/X-Frame-Options залежать від конкретного сервера,
 # оскільки глобальні значення можуть порушити роботу платіжних віджетів, iframe та reverse proxy.
 <IfModule mod_headers.c>

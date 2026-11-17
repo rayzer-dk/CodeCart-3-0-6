@@ -1,0 +1,57 @@
+name: Workbox Hybrid QA
+on:
+  pull_request:
+    paths:
+      - 'upload/codecart-sw.js'
+      - 'upload/.htaccess'
+      - 'upload/admin/controller/setting/**'
+      - 'upload/catalog/controller/common/header.php'
+      - 'upload/catalog/view/javascript/codecart/workbox/**'
+      - 'upload/catalog/view/theme/**/template/common/header.twig'
+      - 'tools/vendor_workbox.mjs'
+      - 'tools/package_production.py'
+      - 'tools/qa_workbox_hybrid.cjs'
+      - '.github/workflows/workbox-hybrid-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'upload/codecart-sw.js'
+      - 'upload/catalog/view/javascript/codecart/workbox/**'
+      - 'tools/vendor_workbox.mjs'
+      - '.github/workflows/workbox-hybrid-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  worker-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Static worker and option contracts
+        run: |
+          node --check upload/codecart-sw.js
+          node --check upload/catalog/view/javascript/codecart/workbox/register.js
+          node tools/qa_workbox_hybrid.cjs
+      - name: Download and verify pinned Workbox locally
+        run: node tools/vendor_workbox.mjs
+      - name: Check verified runtime presence
+        run: |
+          test -s upload/catalog/view/javascript/codecart/workbox/v7.4.1/workbox-sw.js
+          test -s upload/catalog/view/javascript/codecart/workbox/v7.4.1/LICENSE
+          test -s upload/catalog/view/javascript/codecart/workbox/v7.4.1/SHA256.json
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - name: PHP syntax checks
+        run: |
+          php -l upload/catalog/controller/common/header.php
+          php -l upload/admin/controller/setting/setting.php
+          php -l upload/admin/controller/setting/store.php
+          for locale in en-gb ru-ru uk-ua; do
+            php -l "upload/admin/language/$locale/setting/setting.php"
+            php -l "upload/admin/language/$locale/setting/store.php"
+          done
