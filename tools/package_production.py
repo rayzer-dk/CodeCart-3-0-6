@@ -19,6 +19,10 @@ def build(root, output):
     workbox = root / 'upload/catalog/view/javascript/codecart/workbox/v7.4.1'
     if not (workbox / 'SHA256.json').is_file():
         raise ValueError('Verified Workbox runtime is missing')
+    # Documentation ZIP is derived from tracked sources and has just been rebuilt.
+    # Refresh the signed-off file hash manifest AFTER every generated asset exists.
+    # Every other file is still checked byte-for-byte by the packaging guard below.
+    subprocess.run(['php', str(root / 'tools/refresh_integrity.php')], cwd=root, check=True)
     tracked = subprocess.check_output(
         ['git', 'ls-files', '-z'], cwd=root).decode('utf-8').split('\0')
     selected = set()
