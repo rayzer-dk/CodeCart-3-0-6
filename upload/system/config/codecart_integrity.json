@@ -212,7 +212,7 @@
         "catalog/controller/startup/security_headers.php": "12661c6bf9b0ec7bd3d813423dece647c14ebfbf7cc48045b05f8c42575c49de",
         "catalog/controller/startup/seo_url.php": "80cf6a3f2a83550c40df967c5a3a75e3b3805948fe731995083c9eb28f60ef7b",
         "catalog/controller/startup/session.php": "501a80b9c4032b433ddb28d6c0c28ae82d16a77d39367745b566e78af4af3145",
-        "catalog/controller/startup/startup.php": "30a9992ae47c49db3dd43ca6f8df886778abca7ad616aa7b9901232b56f60877",
+        "catalog/controller/startup/startup.php": "c1c0198b110e9ffc5204d4199e17fb420b605bb4e17fc632536ac207abe65c89",
         "catalog/language/en-gb/checkout/cart.php": "c9a36eb4982473b56dc5caef40b670a19841faf6d04df71ab2eda1af9421c2a9",
         "catalog/language/en-gb/common/cart.php": "353c09850fbe29bc6ef86fc55ea794dbf96f718ac16a4a03def061f271831373",
         "catalog/language/en-gb/common/menu.php": "453c77841d360c71b6461cd7d1da24a85a965f2d0a71e200f8a080ce20258666",

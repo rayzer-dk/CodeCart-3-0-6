@@ -48,14 +48,27 @@ class ControllerStartupStartup extends Controller {
 		}
 		
 		// Settings
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "setting` WHERE store_id = '0' OR store_id = '" . (int)$this->config->get('config_store_id') . "' ORDER BY store_id ASC");
-		
+		$store_id = (int)$this->config->get('config_store_id');
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "setting` WHERE store_id = '0' OR store_id = '" . $store_id . "' ORDER BY store_id ASC");
+		// New Workbox options must never be inherited from store 0 by secondary shops.
+		// Read the two overrides from the settings already fetched: no extra query.
+		$workbox_flags = $store_id > 0 ? array(
+			'config_codecart_workbox_status' => 0,
+			'config_codecart_workbox_used' => 0
+		) : array();
+
 		foreach ($query->rows as $result) {
 			if (!$result['serialized']) {
 				$this->config->set($result['key'], $result['value']);
 			} else {
 				$this->config->set($result['key'], json_decode($result['value'], true));
 			}
+			if ($workbox_flags && (int)$result['store_id'] === $store_id && isset($workbox_flags[$result['key']])) {
+				$workbox_flags[$result['key']] = (int)$result['value'] === 1 ? 1 : 0;
+			}
+		}
+		foreach ($workbox_flags as $key => $enabled) {
+			$this->config->set($key, $enabled);
 		}
 
 		// Storefront image URLs may vary between original format and WebP/AVIF based on Accept.

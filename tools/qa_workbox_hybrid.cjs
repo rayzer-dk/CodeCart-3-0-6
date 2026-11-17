@@ -11,6 +11,7 @@ const registration = get('upload/catalog/view/javascript/codecart/workbox/regist
 const header = get('upload/catalog/controller/common/header.php');
 const setting = get('upload/admin/controller/setting/setting.php');
 const store = get('upload/admin/controller/setting/store.php');
+const startup = get('upload/catalog/controller/startup/startup.php');
 
 for (const twig of [
   'upload/catalog/view/theme/default/template/common/header.twig',
@@ -25,6 +26,9 @@ assert.match(header, /config_codecart_workbox_status/);
 assert.match(header, /codecart_workbox_used/);
 assert.match(setting, /config_codecart_workbox_used/);
 assert.match(store, /config_codecart_workbox_used/);
+assert.match(startup, /config_codecart_workbox_status' => 0/);
+assert.match(startup, /config_codecart_workbox_used' => 0/);
+assert.match(startup, /foreach \(\$workbox_flags as \$key => \$enabled\)/);
 assert.match(registration, /getRegistration/);
 assert.match(registration, /scriptURL !== workerUrl\.href/);
 assert.doesNotMatch(worker, /skipWaiting\s*\(/);
