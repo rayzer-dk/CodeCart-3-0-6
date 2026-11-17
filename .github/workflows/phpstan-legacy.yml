@@ -11,6 +11,7 @@ on:
       - '.github/workflows/phpstan-legacy.yml'
   pull_request:
     paths:
+      - 'upload/**/*.php'
       - 'phpstan.codecart.*.neon.dist'
       - 'tools/quality/**'
       - '.github/workflows/phpstan-legacy.yml'

@@ -78,9 +78,9 @@ class ControllerCommonPwa extends Controller {
         if ($root && $source && strpos($source, $root . DIRECTORY_SEPARATOR) === 0
             && is_file($source) && filesize($source) <= 8 * 1024 * 1024) {
             $info = @getimagesize($source);
-            if (is_array($info) && ($info[0] ?? 0) > 0 && ($info[1] ?? 0) > 0
-                && ($info[0] ?? 0) <= 2048 && ($info[1] ?? 0) <= 2048) {
-                switch ($info[2] ?? 0) {
+            if (is_array($info) && $info[0] > 0 && $info[1] > 0
+                && $info[0] <= 2048 && $info[1] <= 2048) {
+                switch ($info[2]) {
                     case IMAGETYPE_PNG:  $image = @imagecreatefrompng($source); break;
                     case IMAGETYPE_JPEG: $image = @imagecreatefromjpeg($source); break;
                     case IMAGETYPE_GIF:  $image = @imagecreatefromgif($source); break;
