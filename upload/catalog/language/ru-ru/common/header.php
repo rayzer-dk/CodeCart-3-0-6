@@ -33,3 +33,7 @@ $_['ui_select_date'] = 'Выбрать дату';
 $_['ui_share'] = 'Поделиться';
 $_['ui_upload'] = 'Загрузить';
 $_['ui_wishlist'] = 'В закладки';
+
+$_['text_pwa_install'] = 'Установить приложение';
+$_['text_pwa_ios_help'] = 'Safari: нажмите «Поделиться», затем «На экран Домой».';
+$_['text_pwa_mac_help'] = 'Safari на Mac: меню «Файл» → «Добавить в Dock».';

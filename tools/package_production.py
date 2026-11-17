@@ -9,10 +9,18 @@ import sys
 import zipfile
 import zlib
 
+from check_documentation_archive import check as check_documentation_archive
+
 
 def build(root, output):
     # Bundle current documentation sources (the repository copy may predate newer guides).
     subprocess.run([sys.executable, str(root / 'tools/package_documentation.py')], cwd=root, check=True)
+    # Documentation ZIP is a derived source artifact: verify every member before
+    # including it. Its checksum must be refreshed in the deployed integrity
+    # manifest, never silently accepted from a stale repository copy.
+    documentation_errors = check_documentation_archive(root)
+    if documentation_errors:
+        raise ValueError('Documentation archive verification failed: ' + '; '.join(documentation_errors))
     # Build-time only: ship pinned Workbox locally, never fetch its code in a visitor browser.
     # The storefront remains inactive until a complete production archive is deployed.
     subprocess.run(['node', str(root / 'tools/vendor_workbox.mjs')], cwd=root, check=True)
@@ -56,6 +64,18 @@ def build(root, output):
     manifest = json.loads((root / 'upload/system/config/codecart_integrity.json').read_text(encoding='utf-8'))
     if manifest.get('package_build') != version[1]:
         raise ValueError('Integrity manifest package build is stale')
+    derived_documentation = 'admin/view/documentation/CodeCart_PRO_Documentation.zip'
+    if derived_documentation not in manifest['files']:
+        raise ValueError('Documentation ZIP is missing from the integrity manifest')
+    # The generated documentation has just been verified against current sources.
+    # Update only its digest; every other shipped Core file remains checked against
+    # the original curated manifest without any exceptions.
+    manifest['files'][derived_documentation] = hashlib.sha256(
+        (root / 'upload' / derived_documentation).read_bytes()
+    ).hexdigest()
+    deployed_integrity = (
+        json.dumps(manifest, indent=4, ensure_ascii=False) + '\n'
+    ).encode('utf-8')
     for name, digest in manifest['files'].items():
         if 'upload/' + name not in selected or hashlib.sha256((root / 'upload' / name).read_bytes()).hexdigest() != digest:
             raise ValueError('Integrity mismatch: ' + name)
@@ -64,7 +84,8 @@ def build(root, output):
     entries = {}
     with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for name in sorted(selected):
-            data = (root / name).read_bytes()
+            data = (deployed_integrity if name == 'upload/system/config/codecart_integrity.json'
+                    else (root / name).read_bytes())
             digest = hashlib.sha256(data).hexdigest()
             relative = name.removeprefix('upload/')
             if name.startswith('upload/') and relative in manifest['files'] and digest != manifest['files'][relative]:
