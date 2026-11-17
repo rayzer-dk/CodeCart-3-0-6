@@ -12,6 +12,8 @@ const header = get('upload/catalog/controller/common/header.php');
 const setting = get('upload/admin/controller/setting/setting.php');
 const store = get('upload/admin/controller/setting/store.php');
 const startup = get('upload/catalog/controller/startup/startup.php');
+const pwa = get('upload/catalog/controller/common/pwa.php');
+const appWorker = get('upload/codecart-app-sw.js');
 
 for (const twig of [
   'upload/catalog/view/theme/default/template/common/header.twig',
@@ -23,6 +25,17 @@ for (const twig of [
   assert.match(text, /elseif codecart_workbox_used/);
 }
 assert.match(header, /config_codecart_workbox_status/);
+assert.match(header, /config_codecart_pwa_status/);
+assert.match(setting, /config_codecart_pwa_used/);
+assert.match(store, /config_codecart_pwa_used/);
+assert.match(startup, /config_codecart_pwa_status' => 0/);
+assert.match(pwa, /application\/manifest\+json/);
+assert.match(pwa, /192x192/);
+assert.match(pwa, /512x512/);
+assert.match(pwa, /Content-Type: image\/png/);
+assert.match(registration, /codecart-app-sw\.js/);
+assert.match(appWorker, /fetch\(event.request\)/);
+assert.doesNotMatch(appWorker, /caches\.open|cache\.put/);
 assert.match(header, /codecart_workbox_used/);
 assert.match(setting, /config_codecart_workbox_used/);
 assert.match(store, /config_codecart_workbox_used/);
@@ -30,7 +43,7 @@ assert.match(startup, /config_codecart_workbox_status' => 0/);
 assert.match(startup, /config_codecart_workbox_used' => 0/);
 assert.match(startup, /foreach \(\$workbox_flags as \$key => \$enabled\)/);
 assert.match(registration, /getRegistration/);
-assert.match(registration, /scriptURL !== workerUrl\.href/);
+assert.match(registration, /owned\.indexOf\(worker\.scriptURL\) === -1/);
 assert.doesNotMatch(worker, /skipWaiting\s*\(/);
 assert.doesNotMatch(worker, /(?:navigation|navigate).*CacheFirst/i);
 assert.match(worker, /workbox\.routing\.registerRoute/);

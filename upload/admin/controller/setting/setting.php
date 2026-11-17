@@ -20,6 +20,8 @@ class ControllerSettingSetting extends Controller {
 			$this->request->post['codecart_internal_linking_status'] = !empty($this->request->post['codecart_internal_linking_status']) ? 1 : 0;
 			$this->request->post['config_codecart_quick_price_edit'] = !empty($this->request->post['config_codecart_quick_price_edit']) ? 1 : 0;
 			$this->request->post['config_codecart_workbox_status'] = !empty($this->request->post['config_codecart_workbox_status']) ? 1 : 0;
+			$this->request->post['config_codecart_pwa_status'] = !empty($this->request->post['config_codecart_pwa_status']) ? 1 : 0;
+			$this->request->post['config_codecart_pwa_used'] = ((int)$this->config->get('config_codecart_pwa_used') === 1 || $this->request->post['config_codecart_pwa_status'] === 1) ? 1 : 0;
 			$this->request->post['config_codecart_workbox_used'] = ((int)$this->config->get('config_codecart_workbox_used') === 1 || $this->request->post['config_codecart_workbox_status'] === 1) ? 1 : 0;
 			foreach (array(
 				'config_admin_accent_color' => '#0b6fd3',
@@ -1373,6 +1375,11 @@ class ControllerSettingSetting extends Controller {
 			$data['config_encryption'] = $this->config->get('config_encryption');
 		}
 
+        $data['config_codecart_pwa_status'] = isset($this->request->post['config_codecart_pwa_status'])
+            ? (int)$this->request->post['config_codecart_pwa_status']
+            : (int)$this->config->get('config_codecart_pwa_status');
+        $data['entry_codecart_pwa'] = $this->language->get('entry_codecart_pwa');
+        $data['help_codecart_pwa'] = $this->language->get('help_codecart_pwa');
         $data['config_codecart_workbox_status'] = isset($this->request->post['config_codecart_workbox_status'])
             ? (int)$this->request->post['config_codecart_workbox_status']
             : (int)$this->config->get('config_codecart_workbox_status');

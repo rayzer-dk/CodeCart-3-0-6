@@ -56,6 +56,10 @@ class ControllerCommonHeader extends Controller {
 		$canonical_url = $this->getCanonicalUrl($data['links']);
 		$data['alternate_links'] = $this->buildAlternateLinks($canonical_url, $is_https);
 		// Browser-only static asset caching; absent libraries or HTTP keep the feature inert.
+		$data['codecart_pwa_enabled'] = $is_https && (int)$this->config->get('config_codecart_pwa_status') === 1;
+		$data['codecart_pwa_used'] = (int)$this->config->get('config_codecart_pwa_used') === 1;
+		$data['codecart_pwa_manifest_url'] = $server . 'index.php?route=common/pwa/manifest';
+		$data['codecart_pwa_icon_url'] = $server . 'index.php?route=common/pwa/icon&size=180';
 		$data['codecart_workbox_used'] = (int)$this->config->get('config_codecart_workbox_used') === 1;
 		$data['codecart_workbox_enabled'] = $is_https
 			&& (int)$this->config->get('config_codecart_workbox_status') === 1

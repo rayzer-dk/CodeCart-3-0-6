@@ -1624,6 +1624,16 @@
                   </div>
                 </div>
                 <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-codecart-pwa"><span data-toggle="tooltip" title="{{ help_codecart_pwa }}">{{ entry_codecart_pwa }}</span></label>
+                <div class="col-sm-10">
+                  <select class="form-control" id="input-codecart-pwa" name="config_codecart_pwa_status">
+                    <option value="0"{% if not config_codecart_pwa_status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                    <option value="1"{% if config_codecart_pwa_status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                  </select>
+                  <p class="help-block">{{ help_codecart_pwa }}</p>
+                </div>
+              </div>
+              <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-codecart-workbox"><span data-toggle="tooltip" title="{{ help_codecart_workbox }}">{{ entry_codecart_workbox }}</span></label>
                   <div class="col-sm-10">
                     <select class="form-control" id="input-codecart-workbox" name="config_codecart_workbox_status">

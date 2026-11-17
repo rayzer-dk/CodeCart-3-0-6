@@ -3,7 +3,7 @@
 <!--[if IE 8 ]><html dir="{{ direction }}" lang="{{ lang }}" class="ie8"><![endif]-->
 <!--[if IE 9 ]><html dir="{{ direction }}" lang="{{ lang }}" class="ie9"><![endif]-->
 <!--[if (gt IE 9)|!(IE)]><!-->
-<html dir="{{ direction }}" lang="{{ lang }}" data-ccp-picker-theme="{{ theme_datetimepicker_theme }}" data-ccp-workbox="{{ codecart_workbox_enabled ? '1' : '0' }}">
+<html dir="{{ direction }}" lang="{{ lang }}" data-ccp-picker-theme="{{ theme_datetimepicker_theme }}" data-ccp-workbox="{{ codecart_workbox_enabled ? '1' : '0' }}" data-ccp-pwa="{{ codecart_pwa_enabled ? '1' : '0' }}">
 <!--<![endif]-->
 <head>
 <meta charset="UTF-8" />
@@ -14,6 +14,13 @@
 <meta name="robots" content="{{ robots|e }}" />
 {% endif %}
 <base href="{{ base|e }}" />
+{% if codecart_pwa_enabled %}
+<link rel="manifest" href="{{ codecart_pwa_manifest_url|e('html_attr') }}" crossorigin="use-credentials" />
+<meta name="theme-color" content="#0b6fd3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="apple-touch-icon" sizes="180x180" href="{{ codecart_pwa_icon_url|e('html_attr') }}" />
+{% endif %}
 {% if description %}
 <meta name="description" content="{{ description_text|e }}" />
 {% endif %}
@@ -65,11 +72,10 @@
 <script>window.CodeCartI18n={{ codecart_ui_i18n|json_encode|raw }};</script>
 <script src="{{ core_script|e('html_attr') }}" type="text/javascript"></script>
 
-{% if codecart_workbox_enabled %}
-<script src="catalog/view/javascript/codecart/workbox/register.js?v=3.0.6.0-hybrid1" defer></script>
-{% elseif codecart_workbox_used %}
-{# One-time safety cleanup on visitors previously exposed to the opt-in worker.
-   Never unregister other modules' workers or clear their caches. #}
+{% if codecart_workbox_enabled or codecart_pwa_enabled %}
+<script src="catalog/view/javascript/codecart/workbox/register.js?v=3.0.6.0-pwa1" defer></script>
+{% elseif codecart_workbox_used or codecart_pwa_used %}
+{# Clear only workers and cache entries previously installed by CodeCart. #}
 <script>
 (function () {
   if (!('serviceWorker' in navigator)) return;
@@ -80,19 +86,22 @@
     catch (error) { return; }
     if (root.origin !== window.location.origin) return;
     var scope = new URL('./', root);
-    var worker = new URL('codecart-sw.js', root);
+    var allowed = [
+      new URL('codecart-sw.js', root).href,
+      new URL('codecart-app-sw.js', root).href
+    ];
     navigator.serviceWorker.getRegistration(scope.href).then(function (registration) {
       if (!registration || registration.scope !== scope.href) return;
       var scripts = [registration.active, registration.waiting, registration.installing].filter(Boolean);
-      if (!scripts.length || scripts.some(function (script) { return script.scriptURL !== worker.href; })) return;
-      return registration.unregister().then(function () {
-        if (!('caches' in window)) return;
-        var prefix = 'ccp-workbox-' + encodeURIComponent(scope.pathname) + '-';
-        return window.caches.keys().then(function (keys) {
-          return Promise.all(keys.filter(function (key) {
-            return key.indexOf(prefix) === 0;
-          }).map(function (key) { return window.caches.delete(key); }));
-        });
+      if (!scripts.length || scripts.some(function (script) { return allowed.indexOf(script.scriptURL) === -1; })) return;
+      return registration.unregister();
+    }).then(function () {
+      if (!('caches' in window)) return;
+      var prefix = 'ccp-workbox-' + encodeURIComponent(scope.pathname) + '-';
+      return window.caches.keys().then(function (keys) {
+        return Promise.all(keys.filter(function (key) {
+          return key.indexOf(prefix) === 0;
+        }).map(function (key) { return window.caches.delete(key); }));
       });
     }).catch(function () {});
   }, { once: true });

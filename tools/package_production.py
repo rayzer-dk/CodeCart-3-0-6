@@ -11,6 +11,8 @@ import zlib
 
 
 def build(root, output):
+    # Bundle current documentation sources (the repository copy may predate newer guides).
+    subprocess.run([sys.executable, str(root / 'tools/package_documentation.py')], cwd=root, check=True)
     # Build-time only: ship pinned Workbox locally, never fetch its code in a visitor browser.
     # The storefront remains inactive until a complete production archive is deployed.
     subprocess.run(['node', str(root / 'tools/vendor_workbox.mjs')], cwd=root, check=True)
