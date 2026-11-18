@@ -97,6 +97,86 @@ final class SmartSearch {
         return strtolower($value);
     }
 
+    /**
+     * Unicode search terms shared by the indexer and the query path.
+     * Split letter/digit boundaries so 220В also matches a separate 220 attribute.
+     * Keep decimal values such as 1.5 and 1,5 equivalent.
+     */
+    public static function searchTerms($text) {
+        $text = self::lower(html_entity_decode(strip_tags((string)$text), ENT_QUOTES, 'UTF-8'));
+        $text = preg_replace('/(?<=\p{L})(?=\p{N})|(?<=\p{N})(?=\p{L})/u', ' ', $text);
+        preg_match_all('/[\p{L}\p{N}]+(?:[.,]\d+)?/u', $text, $matches);
+        $terms = array();
+        foreach ($matches[0] as $part) {
+            $part = str_replace(',', '.', $part);
+            $length = mb_strlen($part, 'UTF-8');
+            if ($length >= 2 && $length <= 32) {
+                $terms[$part] = $part;
+            }
+        }
+        return array_values($terms);
+    }
+
+    /**
+     * One equivalence group per line: "насос, помпа, pump".
+     * Only single words are accepted to avoid unsafe phrase rewriting.
+     */
+    public static function parseSynonyms($text) {
+        $synonyms = array();
+        foreach (array_slice(preg_split('/\r\n|\r|\n/', (string)$text), 0, 150) as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#') {
+                continue;
+            }
+            $terms = array();
+            foreach (array_slice(preg_split('/[,;|=]+/u', $line), 0, 8) as $term) {
+                $term = self::normalize($term);
+                if (preg_match('/^[\p{L}][\p{L}\p{N}-]{1,31}$/u', $term)) {
+                    $terms[$term] = $term;
+                }
+            }
+            if (count($terms) < 2) {
+                continue;
+            }
+            foreach ($terms as $term) {
+                if (!isset($synonyms[$term])) {
+                    $synonyms[$term] = array();
+                }
+                foreach ($terms as $equivalent) {
+                    $synonyms[$term][$equivalent] = $equivalent;
+                }
+                $synonyms[$term] = array_slice(array_values($synonyms[$term]), 0, 12);
+            }
+        }
+        return $synonyms;
+    }
+
+    /** At most eight single-word alternatives per reading; original always comes first. */
+    public static function synonymWordGroups($query, array $synonyms) {
+        $words = preg_split('/\s+/u', self::normalize($query), -1, PREG_SPLIT_NO_EMPTY);
+        if (!$words || count($words) > 6) {
+            return array();
+        }
+        $groups = array();
+        foreach ($words as $i => $word) {
+            if (!isset($synonyms[$word])) {
+                continue;
+            }
+            foreach ($synonyms[$word] as $equivalent) {
+                if ($equivalent === $word) {
+                    continue;
+                }
+                $variant = $words;
+                $variant[$i] = $equivalent;
+                $groups[] = $variant;
+                if (count($groups) >= 8) {
+                    return $groups;
+                }
+            }
+        }
+        return $groups;
+    }
+
     /** "FTH 062", "fth-062" and "FTH062" give the same value; empty if the text is not a code. */
     public static function compactCode($value) {
         $value = self::normalize($value);
