@@ -1,6 +1,9 @@
 <?php
 namespace CodeCart\Core;
 
+// The scheduler is also used standalone by release/CLI smoke harnesses.
+require_once __DIR__ . '/SchedulerSchedule.php';
+
 final class Scheduler {
     private $registry;
     private $db;
