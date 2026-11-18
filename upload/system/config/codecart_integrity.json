@@ -2,8 +2,8 @@
     "algorithm": "sha256",
     "files": {
         ".htaccess": "daf0885edbfcf95f9a91d6fd1bc6cdec43cb9944bf2f90dfbc12f301925313d7",
-        "admin/controller/catalog/category.php": "2e6b3735785a74ae3360a7be2929d66ef0190f8569a0a4a77a18fb508ecef0d7",
-        "admin/controller/catalog/product.php": "09bdef5f1c4bc252c4c15975262306677667e96ddcf078224c1b3f6365e3194c",
+        "admin/controller/catalog/category.php": "79c75516779e693f0730b3ae48542f19219f48bffd8b312fab9c8d246ea2e145",
+        "admin/controller/catalog/product.php": "a597e0fa6af0aef7577370bbaebc1df044997e915960bc6d1b81811793b785b4",
         "admin/controller/common/dashboard.php": "6f5a50e511b4d3aad511a08a91dae5e6a6ca074eae4b4dcb3f4883c7a3ed0088",
         "admin/controller/common/developer.php": "d90f2b706a491fa6ba4b7c9575a90abeffd2f0ece894b5603673ea1d65594003",
         "admin/controller/common/footer.php": "ed767889e69bc2a08b58ebded8fc8b40afe9c11e78fe9a9fc1135c226253f935",
@@ -545,7 +545,8 @@
         "admin/language/en-gb/setting/store.php": "ef3a621712e42e22b375dccda9b8dac94004aa02016c64fdf674873092c0d18f",
         "catalog/controller/common/pwa.php": "e91f7be51abc75549f04318b746025aa403b05b6fe4e865eaf35c7ba5d34b50a",
         "codecart-app-sw.js": "4aed176ffc45a2f2b742cef593586ea1ae84b40bb71cd4624ec2c63a79800f41",
-        "system/library/codecart/src/SearchIndex.php": "7540090c1ac0fb72aa2305fe018de03f42b43ccb29ef67a13963acb15439e995"
+        "system/library/codecart/src/SearchIndex.php": "7540090c1ac0fb72aa2305fe018de03f42b43ccb29ef67a13963acb15439e995",
+        "system/library/codecart/src/CatalogQuality.php": "c487c4e1cc830d73da5e8706d695050616bc55a16fd088994c922c2485603180"
     },
     "version": "3.0.6.0",
     "package_build": "2.3.25"
