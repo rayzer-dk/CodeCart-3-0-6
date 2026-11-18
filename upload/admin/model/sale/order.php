@@ -291,32 +291,22 @@ class ModelSaleOrder extends Model {
 	}
 
 	/**
-	 * One indexed query for the first product image of every visible order.
-	 * Keeps the order list inexpensive even with large order histories.
+	 * Count ordered units and product lines for the current orders list page.
+	 * A single grouped query per batch avoids per-order queries or image joins.
 	 */
-	public function getFirstProductImagesByOrderIds(array $order_ids) {
-		$ids = array_values(array_unique(array_filter(array_map('intval', $order_ids))));
-		if (!$ids) { return array(); }
-		$ids = array_slice($ids, 0, 100);
-		$rows = $this->db->query("SELECT op.order_id, op.name, op.product_id, p.image
-			FROM `" . DB_PREFIX . "order_product` op
-			LEFT JOIN `" . DB_PREFIX . "product` p ON p.product_id = op.product_id
-			WHERE op.order_id IN (" . implode(',', $ids) . ")
-			AND op.order_product_id = (
-				SELECT MIN(op2.order_product_id)
-				FROM `" . DB_PREFIX . "order_product` op2
-				WHERE op2.order_id = op.order_id
-			)
-			ORDER BY op.order_id")->rows;
-		$images = array();
-		foreach ($rows as $row) {
-			$images[(int)$row['order_id']] = array(
-				'image' => (string)$row['image'],
-				'name' => (string)$row['name'],
-				'product_id' => (int)$row['product_id']
-			);
+	public function getProductCountsForOrderIds(array $order_ids): array {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $order_ids), static function ($id) { return $id > 0; })));
+		$counts = array();
+		foreach (array_chunk($ids, 500) as $batch) {
+			$query = $this->db->query("SELECT order_id, COUNT(*) AS positions, COALESCE(SUM(quantity), 0) AS units FROM `" . DB_PREFIX . "order_product` WHERE order_id IN (" . implode(',', $batch) . ") GROUP BY order_id");
+			foreach ($query->rows as $row) {
+				$counts[(int)$row['order_id']] = array(
+					'units' => max(0, (int)$row['units']),
+					'positions' => max(0, (int)$row['positions'])
+				);
+			}
 		}
-		return $images;
+		return $counts;
 	}
 
 	public function getOrderProducts($order_id) {
