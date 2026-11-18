@@ -36,7 +36,7 @@ $check(strpos($js, "--cc-quality-percent") !== false, 'score drives gauge fill')
 $check(strpos($js, ".cc-quality-count-number") !== false, 'count change preserves action arrow');
 $check(strpos($css, '.cc-quality-count[hidden]') !== false, 'counter does not flash before async data loads');
 
-$tool = file_get_contents($root . 'tools/restore_ocstore_demo_category_photos.php');
+$tool = file_get_contents($root . 'upload/system/cli/restore_ocstore_demo_category_photos.php');
 $check(strpos($tool, '$backupConfirmed') !== false && strpos($tool, 'if (!$apply)') !== false, 'demo image repair is opt-in');
 $check(strpos($tool, "image IS NULL OR image = ''") !== false, 'demo image repair does not overwrite merchant image paths');
 $check(strpos($tool, 'array_keys($actual) !== array_keys($map)') !== false, 'only original demo structure may be repaired');
