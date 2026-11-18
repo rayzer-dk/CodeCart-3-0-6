@@ -1,0 +1,10 @@
+# Additional first-party CodeCart Core and bundled bonus module inventory.
+# This deliberately stays advisory: legacy dynamic OpenCart dependencies need runtime verification.
+includes:
+    - phpstan.codecart.catalog.dead-code.neon.dist
+
+parameters:
+    paths:
+        - upload/system/library/codecart/src
+        - bonus-source/monobank_payment/upload
+    tmpDir: build/phpstan-cache/extra-dead-code

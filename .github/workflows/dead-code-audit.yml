@@ -67,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           printf '### PHPStan dead-code inventory (advisory)\n\n' >> "$GITHUB_STEP_SUMMARY"
-          for app in catalog admin; do
+          for app in catalog admin extra; do
             set +e
             tools/quality/vendor/bin/phpstan analyse \
               -c "phpstan.codecart.${app}.dead-code.neon.dist" \
