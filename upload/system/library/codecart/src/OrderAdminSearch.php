@@ -8,10 +8,10 @@ final class OrderAdminSearch {
     }
     private static function phoneSql(): string {
         $expr = "COALESCE(o.telephone, '')";
-        foreach (array(' ', '-', '(', ')', '+', '.', '/') as $ch) {
+        foreach (array(' ', '-', '(', ')', '+', '.', '/', "\u{00A0}", "\u{2009}", "\u{2011}", "\u{2013}", "\u{2014}") as $ch) {
             $expr = "REPLACE(" . $expr . ", '" . $ch . "', '')";
         }
-        return "REPLACE(REPLACE(" . $expr . ", CHAR(9), ''), CHAR(13), '')";
+        return "REPLACE(REPLACE(REPLACE(" . $expr . ", CHAR(9), ''), CHAR(10), ''), CHAR(13), '')";
     }
     public static function where($db, array $data): string {
         $sql = '';
@@ -55,7 +55,8 @@ final class OrderAdminSearch {
             $sql .= " AND EXISTS (SELECT 1 FROM `" . DB_PREFIX . "order_product` op "
                 . "LEFT JOIN `" . DB_PREFIX . "product` p ON p.product_id = op.product_id "
                 . "WHERE op.order_id = o.order_id AND (LOCATE('" . $term . "', LOWER(op.name)) > 0 "
-                . "OR LOCATE('" . $term . "', LOWER(op.model)) > 0 OR LOCATE('" . $term . "', LOWER(p.sku)) > 0))";
+                . "OR LOCATE('" . $term . "', LOWER(op.model)) > 0 OR LOCATE('" . $term . "', LOWER(op.sku)) > 0 "
+                . "OR LOCATE('" . $term . "', LOWER(p.sku)) > 0))";
         }
         foreach (array('filter_shipping_method' => 'shipping_method', 'filter_payment_method' => 'payment_method') as $filter => $col) {
             if (isset($data[$filter]) && is_string($data[$filter]) && $data[$filter] !== '') {

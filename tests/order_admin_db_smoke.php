@@ -69,7 +69,7 @@ try {
     };
     $first = $insertOrder(array());
     $second = $insertOrder(array(
-        'email'=>'partial-qa@example.test', 'telephone'=>'0958993986',
+        'email'=>'partial-qa@example.test', 'telephone'=>"095\u{2011}899\u{00A0}39 86",
         'payment_method'=>'Card', 'payment_code'=>'card',
         'shipping_method'=>'Courier', 'shipping_code'=>'courier', 'total'=>'100.0000'
     ));
@@ -86,6 +86,7 @@ try {
     $matches = $model->getOrders(array('filter_phone'=>'+38 (095) 899-39-86'));
     assertDb(count($matches) === 2 && (int)$matches[0]['order_id'] === $first, 'Full phone must outrank country-code variation');
     assertDb($model->getTotalOrders(array('filter_product'=>'separator')) === 1, 'Product filtering must return unique orders');
+    assertDb($model->getTotalOrders(array('filter_product'=>'QA-106')) === 1, 'Deleted products must be searchable by order SKU snapshot');
     assertDb($model->getTotalOrders(array('filter_total_min'=>'29800', 'filter_total_max'=>'29900')) === 1, 'Amount range');
     assertDb($model->getTotalOrders(array('filter_shipping_method'=>'Nova Poshta')) === 1, 'Shipping filter');
     assertDb($model->getTotalOrders(array('filter_payment_method'=>'Bank transfer')) === 1, 'Payment filter');

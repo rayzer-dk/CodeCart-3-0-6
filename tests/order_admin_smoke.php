@@ -12,6 +12,8 @@ $rank=\CodeCart\Core\OrderAdminSearch::ranking($db,$filters);
 checkOrder(\CodeCart\Core\OrderAdminSearch::digits($filters['filter_phone'])==='380958993986','phone digits');
 checkOrder(strpos($sql,"o.total >= '100.50'")!==false && strpos($sql,"o.total <= '200.75'")!==false,'range');
 checkOrder(strpos($sql,'AND EXISTS (SELECT 1')!==false && strpos($sql,'op.order_id = o.order_id')!==false,'item filter');
+checkOrder(strpos($sql,'LOWER(op.sku)')!==false,'historical order SKU');
+checkOrder(strpos($sql,'CHAR(10)')!==false && strpos($sql,"\u{2011}")!==false,'phone separators');
 checkOrder(strpos($rank,'THEN 0')!==false && strpos($rank,'THEN 1')!==false,'rank');
 checkOrder(\CodeCart\Core\OrderAdminSearch::amount('abc')==='','invalid numeric');
 checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array('filter_total'=>'315')),"o.total >= '315'")!==false,'old exact amount');
