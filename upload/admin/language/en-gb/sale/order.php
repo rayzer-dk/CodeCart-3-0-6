@@ -160,4 +160,4 @@ $_['text_order_preview'] = 'Show products';
 $_['text_order_preview_loading'] = 'Loading...';
 $_['text_order_preview_empty'] = 'No products in this order';
 $_['text_order_preview_error'] = 'Unable to load order products';
-$_['help_order_phone'] = 'At least 4 digits; exact matches rank before partial matches.';
+$_['help_order_phone'] = 'At least 4 digits; exact numbers rank first. At least 9 digits also tolerates one wrong digit or adjacent digit swap.';

@@ -14,7 +14,11 @@ checkOrder(strpos($sql,"o.total >= '100.50'")!==false && strpos($sql,"o.total <=
 checkOrder(strpos($sql,'AND EXISTS (SELECT 1')!==false && strpos($sql,'op.order_id = o.order_id')!==false,'item filter');
 checkOrder(strpos($sql,'LOWER(op.sku)')!==false,'historical order SKU');
 checkOrder(strpos($sql,'CHAR(10)')!==false && strpos($sql,"\u{2011}")!==false,'phone separators');
-checkOrder(strpos($rank,'THEN 0')!==false && strpos($rank,'THEN 1')!==false,'rank');
+checkOrder(strpos($rank,'THEN 0')!==false && strpos($rank,'THEN 1')!==false && strpos($rank,'THEN 3')!==false,'rank');
+$fuzzySql = \CodeCart\Core\OrderAdminSearch::where($db,array('filter_phone'=>'0958993986'));
+checkOrder(strpos($fuzzySql,"LIKE '958_93986'")!==false,'one wrong digit');
+checkOrder(strpos($fuzzySql,"RIGHT(")!==false,'bounded national suffix');
+checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array('filter_phone'=>'1234')), " LIKE '")===false,'no fuzzy for short terms');
 checkOrder(\CodeCart\Core\OrderAdminSearch::amount('abc')==='','invalid numeric');
 checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array('filter_total'=>'315')),"o.total >= '315'")!==false,'old exact amount');
 checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array()),'telephone')===false,'no normal-list phone work');

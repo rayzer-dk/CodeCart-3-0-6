@@ -13,6 +13,30 @@ final class OrderAdminSearch {
         }
         return "REPLACE(REPLACE(REPLACE(" . $expr . ", CHAR(9), ''), CHAR(10), ''), CHAR(13), '')";
     }
+    /**
+     * Restrict typo tolerance to a 9-digit national number: one substituted
+     * digit or one adjacent transposition. No unrestricted Levenshtein scans.
+     * These bounded predicates are generated ONLY on an explicit phone search.
+     */
+    private static function phoneFuzzy($expr, string $phone): string {
+        if (strlen($phone) < 9 || strlen($phone) > 15) { return ''; }
+        $last = substr($phone, -9);
+        $terms = array();
+        for ($i = 0; $i < 9; $i++) {
+            $candidate = $last;
+            $candidate[$i] = '_'; // SQL LIKE wildcard: exactly one different digit.
+            $terms[] = "RIGHT(" . $expr . ", 9) LIKE '" . $candidate . "'";
+        }
+        for ($i = 0; $i < 8; $i++) {
+            if ($last[$i] === $last[$i+1]) { continue; }
+            $swapped = $last;
+            $swapped[$i] = $last[$i+1];
+            $swapped[$i+1] = $last[$i];
+            $terms[] = "RIGHT(" . $expr . ", 9) = '" . $swapped . "'";
+        }
+        return '(' . implode(' OR ', $terms) . ')';
+    }
+
     public static function where($db, array $data): string {
         $sql = '';
         if (!empty($data['filter_order_id'])) { $sql .= " AND o.order_id = '" . (int)$data['filter_order_id'] . "'"; }
@@ -48,6 +72,8 @@ final class OrderAdminSearch {
             $conditions = array("LOCATE('" . $phone . "', " . $expr . ") > 0");
             if (strlen($phone) >= 9) { $conditions[] = "RIGHT(" . $expr . ", 9) = '" . substr($phone, -9) . "'"; }
             if (strlen($phone) >= 7) { $conditions[] = "RIGHT(" . $expr . ", 7) = '" . substr($phone, -7) . "'"; }
+            $fuzzy = self::phoneFuzzy($expr, $phone);
+            if ($fuzzy !== '') { $conditions[] = $fuzzy; }
             $sql .= " AND (" . implode(' OR ', $conditions) . ")";
         }
         if (!empty($data['filter_product'])) {
@@ -73,7 +99,9 @@ final class OrderAdminSearch {
             $rank = "CASE WHEN " . $expr . " = '" . $phone . "' THEN 0";
             if (strlen($phone) >= 9) { $rank .= " WHEN RIGHT(" . $expr . ", 9) = '" . substr($phone, -9) . "' THEN 1"; }
             if (strlen($phone) >= 7) { $rank .= " WHEN RIGHT(" . $expr . ", 7) = '" . substr($phone, -7) . "' THEN 2"; }
-            $keys[] = $rank . " ELSE 3 END ASC";
+            $fuzzy = self::phoneFuzzy($expr, $phone);
+            if ($fuzzy !== '') { $rank .= " WHEN " . $fuzzy . " THEN 3"; }
+            $keys[] = $rank . " ELSE 4 END ASC";
         }
         if (!empty($data['filter_email'])) {
             $email = $db->escape(mb_strtolower(trim((string)$data['filter_email']), 'UTF-8'));
