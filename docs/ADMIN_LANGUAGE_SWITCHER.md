@@ -10,8 +10,8 @@ Other languages appear only if they are enabled in the language table and their
 admin PHP language pack and PNG flag are installed.
 
 A choice is stored per authenticated user in `codecart_admin_language` and persists
-across logins and devices. The table is created by core migration
-`PRESENTATION_SCHEMA_VERSION = 42`. Until migration succeeds the default configured
+across logins and devices. The table is part of the clean-install SQL and is created on existing stores by
+core migration `PRESENTATION_SCHEMA_VERSION = 42`. Until migration succeeds the default configured
 admin language is used and the authenticated save action reports a failure.
 
 The POST-only route `common/language` requires a valid admin session, matching

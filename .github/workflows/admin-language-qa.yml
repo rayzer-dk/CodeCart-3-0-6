@@ -14,6 +14,7 @@ on:
       - 'upload/admin/language/**'
       - 'upload/system/library/codecart/src/AdminLanguagePreference.php'
       - 'upload/system/library/codecart/migration.php'
+      - 'upload/install/opencart.sql'
       - 'tests/admin_language_switch_smoke.php'
       - '.github/workflows/admin-language-qa.yml'
 

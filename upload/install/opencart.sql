@@ -3816,6 +3816,16 @@ CREATE TABLE `oc_codecart_scheduler_history` (
   KEY `date_added` (`date_added`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Per-administrator admin-interface language preference (new installs).
+-- Existing stores receive the same idempotent table through Migration 42.
+DROP TABLE IF EXISTS `oc_codecart_admin_language`;
+CREATE TABLE `oc_codecart_admin_language` (
+  `user_id` int(11) NOT NULL,
+  `language_code` varchar(16) NOT NULL,
+  `date_modified` datetime NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `oc_codecart_scheduler_heartbeat`;
 CREATE TABLE `oc_codecart_scheduler_heartbeat` (
   `source` varchar(16) NOT NULL,
