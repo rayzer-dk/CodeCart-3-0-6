@@ -5,6 +5,33 @@ require_once (defined('DIR_SYSTEM') ? DIR_SYSTEM : dirname(__DIR__, 3) . '/syste
 // *	@license	GNU General Public License version 3; see LICENSE.txt
 
 class ModelCatalogProduct extends Model {
+	/**
+	 * Existing OpenCart product_option.value is a shared legacy fallback.
+	 * Only text and textarea defaults are localized; dates, uploads and fixed
+	 * option choices remain format-neutral or already have language tables.
+	 */
+	private function saveOptionTranslations($product_option_id, array $option) {
+		if ((int)$this->config->get('codecart_presentation_schema_version') < 46
+			|| $product_option_id < 1 || !in_array($option['type'] ?? '', array('text', 'textarea'), true)
+			|| !isset($option['localized_value']) || !is_array($option['localized_value'])) {
+			return;
+		}
+		$allowed = array();
+		foreach ($this->db->query("SELECT language_id FROM `" . DB_PREFIX . "language` WHERE status = '1'")->rows as $row) {
+			$allowed[(int)$row['language_id']] = true;
+		}
+		foreach ($option['localized_value'] as $language_id => $value) {
+			$language_id = (int)$language_id;
+			if ($language_id < 1 || !isset($allowed[$language_id]) || !is_string($value) || strlen($value) > 65000) { continue; }
+			if (trim($value) === '') {
+				$this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_product_option_translation` WHERE product_option_id = '" . (int)$product_option_id . "' AND language_id = '" . $language_id . "'");
+			} else {
+				$this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_product_option_translation` SET product_option_id = '" . (int)$product_option_id . "', language_id = '" . $language_id . "', value = '" . $this->db->escape($value) . "' ON DUPLICATE KEY UPDATE value = VALUES(value)");
+			}
+		}
+	}
+
+
 	public function addProduct($data) {
 		$product_id = \CodeCart\Core\Transaction::run($this->db, function () use ($data) {
 			return $this->insertProduct($data);
@@ -78,6 +105,7 @@ class ModelCatalogProduct extends Model {
 					}
 				} else {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "product_option SET product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', value = '" . $this->db->escape($product_option['value']) . "', required = '" . (int)$product_option['required'] . "'");
+					$this->saveOptionTranslations((int)$this->db->getLastId(), $product_option);
 				}
 			}
 		}
@@ -231,6 +259,12 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
+		$obsoleteOptionIds = array();
+		if ((int)$this->config->get('codecart_presentation_schema_version') >= 46) {
+			foreach ($this->db->query("SELECT product_option_id FROM `" . DB_PREFIX . "product_option` WHERE product_id = '" . (int)$product_id . "'")->rows as $existing) {
+				$obsoleteOptionIds[] = (int)$existing['product_option_id'];
+			}
+		}
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option_value WHERE product_id = '" . (int)$product_id . "'");
 
@@ -248,10 +282,21 @@ class ModelCatalogProduct extends Model {
 					}
 				} else {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "product_option SET product_option_id = '" . (int)$product_option['product_option_id'] . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', value = '" . $this->db->escape($product_option['value']) . "', required = '" . (int)$product_option['required'] . "'");
+					$this->saveOptionTranslations(!empty($product_option['product_option_id']) ? (int)$product_option['product_option_id'] : (int)$this->db->getLastId(), $product_option);
 				}
 			}
 		}
 
+		if ($obsoleteOptionIds) {
+			$survivors = array();
+			foreach ($this->db->query("SELECT product_option_id FROM `" . DB_PREFIX . "product_option` WHERE product_id = '" . (int)$product_id . "'")->rows as $saved) {
+				$survivors[(int)$saved['product_option_id']] = true;
+			}
+			$deleted = array_values(array_filter($obsoleteOptionIds, function ($id) use ($survivors) { return !isset($survivors[$id]); }));
+			if ($deleted) {
+				$this->db->query("DELETE FROM `" . DB_PREFIX . "codecart_product_option_translation` WHERE product_option_id IN (" . implode(',', $deleted) . ")");
+			}
+		}
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "product_recurring` WHERE product_id = '" . (int)$product_id . "'");
 
 		if (isset($data['product_recurring'])) {
@@ -431,6 +476,9 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_discount WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_image WHERE product_id = '" . (int)$product_id . "'");
+		if ((int)$this->config->get('codecart_presentation_schema_version') >= 46) {
+			$this->db->query("DELETE t FROM `" . DB_PREFIX . "codecart_product_option_translation` t INNER JOIN `" . DB_PREFIX . "product_option` po ON po.product_option_id = t.product_option_id WHERE po.product_id = '" . (int)$product_id . "'");
+		}
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option_value WHERE product_id = '" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "'");
@@ -937,6 +985,13 @@ class ModelCatalogProduct extends Model {
 
 		$values = array();
 		$product_option_ids = array_map('intval', array_column($product_option_query->rows, 'product_option_id'));
+		$localizedDefaults = array();
+		if ($product_option_ids && (int)$this->config->get('codecart_presentation_schema_version') >= 46) {
+			$translations = $this->db->query("SELECT product_option_id, language_id, value FROM `" . DB_PREFIX . "codecart_product_option_translation` WHERE product_option_id IN (" . implode(',', $product_option_ids) . ")")->rows;
+			foreach ($translations as $row) {
+				$localizedDefaults[(int)$row['product_option_id']][(int)$row['language_id']] = (string)$row['value'];
+			}
+		}
 		if ($product_option_ids) {
 			$product_option_value_query = $this->db->query("SELECT pov.*, ovd.name FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (pov.option_value_id = ovd.option_value_id AND ovd.language_id = '" . $language_id . "') WHERE pov.product_option_id IN (" . implode(',', $product_option_ids) . ") ORDER BY ov.sort_order ASC");
 
@@ -966,6 +1021,7 @@ class ModelCatalogProduct extends Model {
 				'name'                 => $product_option['name'],
 				'type'                 => $product_option['type'],
 				'value'                => $product_option['value'],
+				'localized_value'      => $localizedDefaults[(int)$product_option['product_option_id']] ?? array(),
 				'required'             => $product_option['required']
 			);
 		}
