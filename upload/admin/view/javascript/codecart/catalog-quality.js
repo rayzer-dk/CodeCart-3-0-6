@@ -44,7 +44,7 @@
       var observer = null;
 
       function add(chip) {
-        if (!enabled || chip.dataset.qualityLoaded === '1' || chip.dataset.qualityQueued === '1') { return; }
+        if (!enabled || chip.dataset.qualityLoaded === '1' || (chip.dataset.qualityQueued === '1' || chip.dataset.qualityQueued === '2')) { return; }
         if (!/^[1-9][0-9]*$/.test(chip.getAttribute('data-quality-id'))) { return; }
         chip.dataset.qualityQueued = '1';
         pending.push(chip);
@@ -57,7 +57,7 @@
         scheduled = null;
         if (!enabled || busy || !pending.length) { return; }
         var batch = pending.splice(0, 40);
-        batch.forEach(function (chip) { chip.dataset.qualityQueued = '0'; });
+        batch.forEach(function (chip) { chip.dataset.qualityQueued = '2'; });
         var ids = batch.map(function (chip) { return chip.getAttribute('data-quality-id'); });
         busy = true;
         var join = url.indexOf('?') === -1 ? '?' : '&';
