@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '42';
+    const PRESENTATION_SCHEMA_VERSION = '43';
 
     private $db;
     private $config;
@@ -2122,6 +2122,9 @@ class Migration {
             `route` varchar(255) NOT NULL,
             `args` mediumtext NOT NULL,
             `interval_seconds` int(11) NOT NULL DEFAULT '3600',
+            `schedule_mode` varchar(12) NOT NULL DEFAULT 'interval',
+            `schedule_days` tinyint unsigned NOT NULL DEFAULT '127',
+            `schedule_time` char(5) NOT NULL DEFAULT '03:00',
             `status` tinyint(1) NOT NULL DEFAULT '1',
             `date_last` datetime DEFAULT NULL,
             `date_next` datetime NOT NULL,
@@ -2134,6 +2137,16 @@ class Migration {
             UNIQUE KEY `code` (`code`),
             KEY `due` (`status`,`date_next`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        // Additive upgrade. Existing task data, state and next run are not reset.
+        foreach (array(
+            'schedule_mode' => "varchar(12) NOT NULL DEFAULT 'interval'",
+            'schedule_days' => "tinyint unsigned NOT NULL DEFAULT '127'",
+            'schedule_time' => "char(5) NOT NULL DEFAULT '03:00'"
+        ) as $column => $definition) {
+            if (!$this->columnExists('codecart_scheduler', $column)) {
+                $this->db->query("ALTER TABLE `" . DB_PREFIX . "codecart_scheduler` ADD `" . $column . "` " . $definition);
+            }
+        }
 
         $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_queue` (
             `queue_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,

@@ -27,7 +27,7 @@ final class Scheduler {
     }
 
     /** Admin-only creation: never upsert or overwrite a pre-existing system task. */
-    public function createTask(string $code, string $route, int $interval, bool $status, array $args = array()): void {
+    public function createTask(string $code, string $route, int $interval, bool $status, array $args = array(), array $schedule = array()): void {
         $code = $this->normalizeCode($code);
         $route = $this->normalizeRoute($route);
         if (strpos($code, 'core.') === 0) {
@@ -40,10 +40,12 @@ final class Scheduler {
             throw new \InvalidArgumentException('Scheduler task code or handler is already registered.');
         }
         // The DB unique key on `code` also prevents simultaneous duplicate inserts.
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', status = '" . (int)$status . "', date_next = NOW(), date_added = NOW(), date_modified = NOW()");
+        $schedule = SchedulerSchedule::normalize($schedule);
+        $next = $this->nextExpression($schedule, $interval, true);
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', schedule_mode = '" . $schedule['schedule_mode'] . "', schedule_days = '" . $schedule['schedule_days'] . "', schedule_time = '" . $schedule['schedule_time'] . "', status = '" . (int)$status . "', date_next = " . $next . ", date_added = NOW(), date_modified = NOW()");
     }
 
-    public function save(int $schedulerId, string $code, string $route, int $interval, bool $status, array $args = array()): void {
+    public function save(int $schedulerId, string $code, string $route, int $interval, bool $status, array $args = array(), array $schedule = null): void {
         $schedulerId = max(1, $schedulerId);
         $existing = $this->getTask($schedulerId);
         if (!$existing) {
@@ -64,8 +66,9 @@ final class Scheduler {
             throw new \RuntimeException('Scheduler code already exists.');
         }
 
-        $next = (!$existing['status'] && $status) ? "NOW()" : "DATE_ADD(NOW(), INTERVAL " . (int)$interval . " SECOND)";
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', status = '" . (int)$status . "', date_next = " . $next . ", date_modified = NOW() WHERE scheduler_id = '" . (int)$schedulerId . "'");
+        $schedule = SchedulerSchedule::normalize($schedule === null ? $existing : $schedule);
+        $next = $this->nextExpression($schedule, $interval, !$existing['status'] && $status);
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', schedule_mode = '" . $schedule['schedule_mode'] . "', schedule_days = '" . $schedule['schedule_days'] . "', schedule_time = '" . $schedule['schedule_time'] . "', status = '" . (int)$status . "', date_next = " . $next . ", date_modified = NOW() WHERE scheduler_id = '" . (int)$schedulerId . "'");
     }
 
     public function unregister(string $code): void {
@@ -85,10 +88,11 @@ final class Scheduler {
     }
 
     public function setStatus(int $schedulerId, bool $status): void {
-        if (!$this->getTask($schedulerId)) {
+        $task = $this->getTask($schedulerId);
+        if (!$task) {
             throw new \RuntimeException('Scheduler task not found.');
         }
-        $next = $status ? ', date_next = NOW()' : '';
+        $next = $status ? ', date_next = ' . $this->nextExpression(SchedulerSchedule::normalize($task), (int)$task['interval_seconds'], true) : '';
         $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET status = '" . (int)$status . "'" . $next . ", date_modified = NOW() WHERE scheduler_id = '" . (int)$schedulerId . "'");
     }
 
@@ -131,7 +135,7 @@ final class Scheduler {
     }
 
     public function listTasks(): array {
-        $query = $this->db->query("SELECT scheduler_id, code, route, args, interval_seconds, status, date_last, date_next, last_duration_ms, last_status, last_message, date_added, date_modified FROM `" . DB_PREFIX . "codecart_scheduler` ORDER BY code ASC");
+        $query = $this->db->query("SELECT scheduler_id, code, route, args, interval_seconds, status, date_last, date_next, last_duration_ms, last_status, last_message, date_added, date_modified, schedule_mode, schedule_days, schedule_time FROM `" . DB_PREFIX . "codecart_scheduler` ORDER BY code ASC");
         return $query->rows;
     }
 
@@ -201,8 +205,8 @@ final class Scheduler {
         }
 
         $duration = (int)round((microtime(true) - $started) * 1000);
-        $nextSeconds = $this->normalizeInterval((int)$job['interval_seconds']);
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET date_last = NOW(), date_next = DATE_ADD(NOW(), INTERVAL " . (int)$nextSeconds . " SECOND), last_duration_ms = '" . (int)$duration . "', last_status = '" . ($ok ? 'success' : 'error') . "', last_message = '" . $this->db->escape($this->scrubDiagnostic($message)) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$job['scheduler_id'] . "'");
+        $next = $this->nextExpression(SchedulerSchedule::normalize($job), (int)$job['interval_seconds']);
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET date_last = NOW(), date_next = " . $next . ", last_duration_ms = '" . (int)$duration . "', last_status = '" . ($ok ? 'success' : 'error') . "', last_message = '" . $this->db->escape($this->scrubDiagnostic($message)) . "', date_modified = NOW() WHERE scheduler_id = '" . (int)$job['scheduler_id'] . "'");
 
         try {
             $notice = new SystemNotification($this->registry);
@@ -335,6 +339,17 @@ final class Scheduler {
             throw new \InvalidArgumentException('Invalid scheduler arguments.');
         }
         return $payload;
+    }
+
+    private function nextExpression(array $schedule, int $interval, bool $immediateInterval = false): string {
+        if ($schedule['schedule_mode'] === 'weekly') {
+            $config = $this->registry->get('config');
+            $timezone = $config ? SchedulerSchedule::timezone($config->get('config_timezone')) : 'UTC';
+            $delay = SchedulerSchedule::nextDelay($schedule, $timezone);
+            return "DATE_ADD(NOW(), INTERVAL " . (int)$delay . " SECOND)";
+        }
+        if ($immediateInterval) { return 'NOW()'; }
+        return "DATE_ADD(NOW(), INTERVAL " . (int)$this->normalizeInterval($interval) . " SECOND)";
     }
 
     private function normalizeInterval(int $interval): int {
