@@ -931,9 +931,15 @@ class ModelCatalogProduct extends Model {
 		$tag = isset($data['filter_tag']) ? trim(preg_replace('/\s+/u', ' ', (string)$data['filter_tag'])) : '';
 
 		if ($name !== '') {
-			// The query as typed, plus the same text typed on the other keyboard layout or in Latin letters.
+			// Synonyms are language-scoped, opt-in, and never replace the user's original query.
+			$synonym_text = (string)$this->config->get('codecart_search_synonyms_' . $language_id);
+			$synonyms = $synonym_text !== '' ? \CodeCart\Core\SmartSearch::parseSynonyms($synonym_text) : array();
 			$name_clauses = array();
-			foreach (\CodeCart\Core\SmartSearch::wordGroups($name) as $words) {
+			$readings = \CodeCart\Core\SmartSearch::wordGroups($name);
+			if ($synonyms) {
+				$readings = array_merge($readings, \CodeCart\Core\SmartSearch::synonymWordGroups($name, $synonyms));
+			}
+			foreach ($readings as $words) {
 				$name_parts = array();
 				foreach ($words as $word) {
 					$name_parts[] = "pd_n.name LIKE '%" . $this->escapeSearchLike($word) . "%' ESCAPE '='";
@@ -942,6 +948,15 @@ class ModelCatalogProduct extends Model {
 			}
 			if ($name_clauses) {
 				$selects[] = "SELECT pd_n.product_id FROM " . DB_PREFIX . "product_description pd_n WHERE pd_n.language_id = '" . $language_id . "' AND (" . implode(' OR ', $name_clauses) . ")";
+			}
+
+			// A completed, explicitly enabled index can match words across titles,
+			// attributes, tags and codes without scanning every attribute value.
+			if ($this->config->get('codecart_search_index_status') && $this->config->get('codecart_search_attributes_status')) {
+				$indexed = \CodeCart\Core\SearchIndex::matchingSelect($this->db, $store_id, $language_id, $name, $synonyms);
+				if ($indexed !== '') {
+					$selects[] = $indexed;
+				}
 			}
 
 			// Description search is opt-in and still requires a meaningful query.
