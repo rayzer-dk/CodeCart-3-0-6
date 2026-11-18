@@ -10,7 +10,7 @@ on:
       - 'upload/admin/view/stylesheet/codecart-catalog-quality.css'
       - 'upload/admin/controller/catalog/category.php'
       - 'upload/catalog/view/theme/*/template/product/category.twig'
-      - 'tools/restore_ocstore_demo_category_photos.php'
+      - 'upload/system/cli/restore_ocstore_demo_category_photos.php'
       - 'tests/catalog_quality_smoke.php'
       - 'tests/admin_layout_demo_images_smoke.php'
       - '.github/workflows/admin-catalog-layout-qa.yml'
@@ -21,7 +21,7 @@ on:
       - 'upload/admin/view/javascript/codecart/catalog-quality.js'
       - 'upload/admin/view/stylesheet/codecart-catalog-quality.css'
       - 'upload/admin/controller/catalog/category.php'
-      - 'tools/restore_ocstore_demo_category_photos.php'
+      - 'upload/system/cli/restore_ocstore_demo_category_photos.php'
       - 'tests/catalog_quality_smoke.php'
       - 'tests/admin_layout_demo_images_smoke.php'
   workflow_dispatch:
@@ -46,7 +46,7 @@ jobs:
       - name: PHP syntax
         run: |
           php -l upload/admin/controller/catalog/category.php
-          php -l tools/restore_ocstore_demo_category_photos.php
+          php -l upload/system/cli/restore_ocstore_demo_category_photos.php
           php -l tests/admin_layout_demo_images_smoke.php
           php -l tests/catalog_quality_smoke.php
       - name: Static layout, images and quality regressions
