@@ -96,6 +96,8 @@ class ControllerCatalogSearchQuery extends Controller {
 		$data['clear'] = $this->url->link('catalog/search_query/clear', $token, true);
 		$data['can_modify'] = $this->user->hasPermission('modify', 'catalog/search_query');
 
+		$data['error_warning'] = isset($this->session->data['error_warning']) ? $this->session->data['error_warning'] : '';
+		unset($this->session->data['error_warning']);
 		$data['success'] = '';
 		if (isset($this->session->data['success'])) {
 			$data['success'] = $this->session->data['success'];
