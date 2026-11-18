@@ -1121,13 +1121,13 @@ class ControllerSaleOrder extends Controller {
 				$order_info['shipping_company'], $order_info['shipping_address_1'],
 				$order_info['shipping_address_2'], $order_info['shipping_city'] . ' ' . $order_info['shipping_postcode'],
 				$order_info['shipping_zone'], $order_info['shipping_country']
-			), 'strlen')));
+			), static function($part): bool { return trim((string)$part) !== ''; })));
 			$data['payment_address_copy'] = trim(implode("\n", array_filter(array(
 				$order_info['payment_firstname'] . ' ' . $order_info['payment_lastname'],
 				$order_info['payment_company'], $order_info['payment_address_1'],
 				$order_info['payment_address_2'], $order_info['payment_city'] . ' ' . $order_info['payment_postcode'],
 				$order_info['payment_zone'], $order_info['payment_country']
-			), 'strlen')));
+			), static function($part): bool { return trim((string)$part) !== ''; })));
 
 			// Uploaded files
 			$this->load->model('tool/upload');
