@@ -33,7 +33,7 @@ final class SearchIndex {
     }
 
     public static function state($db, $storeId, $languageId) {
-        $query = $db->query("SELECT generation, last_product_id AS cursor, indexed, ready FROM " . DB_PREFIX . "codecart_search_index_state WHERE store_id = '" . (int)$storeId . "' AND language_id = '" . (int)$languageId . "' LIMIT 1");
+        $query = $db->query("SELECT generation, last_product_id AS `cursor`, indexed, ready FROM " . DB_PREFIX . "codecart_search_index_state WHERE store_id = '" . (int)$storeId . "' AND language_id = '" . (int)$languageId . "' LIMIT 1");
         return $query->num_rows ? $query->row : array('generation' => 0, 'cursor' => 0, 'indexed' => 0, 'ready' => 0);
     }
 
