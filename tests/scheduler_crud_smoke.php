@@ -98,6 +98,7 @@ $controller->request = (object)array('post'=>array(
 $controller->session = (object)array('data'=>array());
 $controller->language = new SmokeLanguage();
 $method = (new ReflectionClass($controller))->getMethod('processAction');
+$method->setAccessible(true); // Required by PHP 7.4; harmless on newer versions.
 $method->invoke($controller, $adminScheduler);
 expect(count($adminDB->tasks) === 1, 'Admin save failed to create a task');
 expect($adminDB->tasks[1]['code'] === 'custom.health' && $adminDB->tasks[1]['route'] === 'cron/health', 'Automatic code/route generation failed');
