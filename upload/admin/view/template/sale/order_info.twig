@@ -61,11 +61,11 @@
             </tr>
             <tr>
               <td><button data-toggle="tooltip" title="{{ text_email }}" class="btn btn-info btn-xs"><i class="fa fa-envelope fa-fw"></i></button></td>
-              <td><a href="mailto:{{ email }}">{{ email }}</a></td>
+              <td><a href="mailto:{{ email }}">{{ email }}</a> <button type="button" class="btn btn-default btn-xs ccp-order-copy" data-copy-text="{{ email|e('html_attr') }}" title="{{ text_copy }}" aria-label="{{ text_copy }}"><i class="fa fa-copy"></i></button></td>
             </tr>
             <tr>
               <td><button data-toggle="tooltip" title="{{ text_telephone }}" class="btn btn-info btn-xs"><i class="fa fa-phone fa-fw"></i></button></td>
-              <td>{{ telephone }}</td>
+              <td>{{ telephone }} <button type="button" class="btn btn-default btn-xs ccp-order-copy" data-copy-text="{{ telephone|e('html_attr') }}" title="{{ text_copy }}" aria-label="{{ text_copy }}"><i class="fa fa-copy"></i></button></td>
             </tr>
           </table>
         </div>
@@ -128,9 +128,9 @@
         <table class="table table-bordered">
           <thead>
             <tr>
-              <td style="width: 50%;" class="text-left">{{ text_payment_address }}</td>
+              <td style="width: 50%;" class="text-left">{{ text_payment_address }} <button type="button" class="btn btn-default btn-xs ccp-order-copy" data-copy-text="{{ payment_address_copy|e('html_attr') }}" title="{{ text_copy }}" aria-label="{{ text_copy }}"><i class="fa fa-copy"></i></button></td>
               {% if shipping_method %}
-                <td style="width: 50%;" class="text-left">{{ text_shipping_address }}</td>
+                <td style="width: 50%;" class="text-left">{{ text_shipping_address }} <button type="button" class="btn btn-default btn-xs ccp-order-copy" data-copy-text="{{ shipping_address_copy|e('html_attr') }}" title="{{ text_copy }}" aria-label="{{ text_copy }}"><i class="fa fa-copy"></i></button></td>
               {% endif %} </tr>
           </thead>
           <tbody>
@@ -144,6 +144,7 @@
         <table class="table table-bordered">
           <thead>
             <tr>
+              <td class="text-center ccp-order-photo-cell">{{ column_image }}</td>
               <td class="text-left">{{ column_product }}</td>
               <td class="text-left">{{ column_model }}</td>
               <td class="text-right">{{ column_quantity }}</td>
@@ -155,6 +156,7 @@
 
             {% for product in products %}
               <tr>
+                <td class="text-center ccp-order-photo-cell"><a href="{{ product.href }}"><img class="ccp-order-photo img-thumbnail" src="{{ product.image }}" alt="{{ product.name }}" width="40" height="40" loading="lazy" /></a></td>
                 <td class="text-left"><a href="{{ product.href }}">{{ product.name }}</a> {% for option in product.option %}
                     <br/>
                     {% if option.type != 'file' %}
@@ -171,6 +173,7 @@
             {% endfor %}
             {% for voucher in vouchers %}
               <tr>
+                <td class="text-center ccp-order-photo-cell"></td>
                 <td class="text-left"><a href="{{ voucher.href }}">{{ voucher.description }}</a></td>
                 <td class="text-left"></td>
                 <td class="text-right">1</td>
@@ -180,7 +183,7 @@
             {% endfor %}
             {% for total in totals %}
               <tr>
-                <td colspan="4" class="text-right">{{ total.title }}</td>
+                <td colspan="5" class="text-right">{{ total.title }}</td>
                 <td class="text-right">{{ total.text }}</td>
               </tr>
             {% endfor %}
@@ -586,4 +589,28 @@
   });
   //--></script>
 </div>
-{{ footer }} 
+<script>
+(function($) {
+  $(document).on('click', '.ccp-order-copy', function() {
+    var button = this, value = $(button).attr('data-copy-text') || '';
+    function feedback() {
+      $(button).find('i').removeClass('fa-copy').addClass('fa-check');
+      $(button).attr('title', '{{ text_copied|e('js') }}').attr('aria-label', '{{ text_copied|e('js') }}');
+      setTimeout(function() {
+        $(button).find('i').removeClass('fa-check').addClass('fa-copy');
+        $(button).attr('title','{{ text_copy|e('js') }}').attr('aria-label','{{ text_copy|e('js') }}');
+      }, 1500);
+    }
+    function fallback() {
+      var area = $('<textarea readonly></textarea>').val(value).css({position:'fixed',left:'-9999px'}).appendTo('body');
+      area[0].select();
+      try { if (document.execCommand('copy')) { feedback(); } }
+      finally { area.remove(); }
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(value).then(feedback).catch(fallback);
+    } else { fallback(); }
+  });
+})(jQuery);
+</script>
+{{ footer } 
