@@ -176,88 +176,59 @@ class ModelSaleOrder extends Model {
 	}
 
 	public function getOrders($data = array()) {
-		$sql = "SELECT o.order_id, CONCAT(o.firstname, ' ', o.lastname) AS customer, (SELECT os.name FROM " . DB_PREFIX . "order_status os WHERE os.order_status_id = o.order_status_id AND os.language_id = '" . (int)$this->config->get('config_language_id') . "') AS order_status, o.shipping_code, o.total, o.currency_code, o.currency_value, o.date_added, o.date_modified FROM `" . DB_PREFIX . "order` o";
-
-		if (!empty($data['filter_order_status'])) {
-			$implode = array();
-
-			$order_statuses = explode(',', $data['filter_order_status']);
-
-			foreach ($order_statuses as $order_status_id) {
-				$implode[] = "o.order_status_id = '" . (int)$order_status_id . "'";
-			}
-
-			$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
-		} elseif (isset($data['filter_order_status_id']) && $data['filter_order_status_id'] !== '') {
-			$sql .= " WHERE o.order_status_id = '" . (int)$data['filter_order_status_id'] . "'";
-		} else {
-			$sql .= " WHERE o.order_status_id > '0'";
-		}
-
-		if (!empty($data['filter_order_id'])) {
-			$sql .= " AND o.order_id = '" . (int)$data['filter_order_id'] . "'";
-		}
-
-		if (!empty($data['filter_customer'])) {
-			$sql .= " AND CONCAT(o.firstname, ' ', o.lastname) LIKE '%" . $this->db->escape($data['filter_customer']) . "%'";
-		}
-
-		if (!empty($data['filter_date_added'])) {
-			$sql .= " AND o.date_added >= '" . $this->db->escape($data['filter_date_added'] . ' 00:00:00') . "' AND o.date_added < DATE_ADD('" . $this->db->escape($data['filter_date_added'] . ' 00:00:00') . "', INTERVAL 1 DAY)";
-		}
-
-		if (!empty($data['filter_date_start'])) {
-			$sql .= " AND o.date_added >= '" . $this->db->escape($data['filter_date_start'] . ' 00:00:00') . "'";
-		}
-
-		if (!empty($data['filter_date_end'])) {
-			$sql .= " AND o.date_added < DATE_ADD('" . $this->db->escape($data['filter_date_end'] . ' 00:00:00') . "', INTERVAL 1 DAY)";
-		}
-
-		if (!empty($data['filter_date_modified'])) {
-			$sql .= " AND DATE(o.date_modified) = DATE('" . $this->db->escape($data['filter_date_modified']) . "')";
-		}
-
-		if (!empty($data['filter_total'])) {
-			$sql .= " AND o.total = '" . (float)$data['filter_total'] . "'";
-		}
-
-		$sort_data = array(
-			'o.order_id',
-			'customer',
-			'order_status',
-			'o.date_added',
-			'o.date_modified',
-			'o.total'
-		);
-
-		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
-			$sql .= " ORDER BY " . $data['sort'];
-		} else {
-			$sql .= " ORDER BY o.order_id";
-		}
-
-		if (isset($data['order']) && ($data['order'] == 'DESC')) {
-			$sql .= " DESC";
-		} else {
-			$sql .= " ASC";
-		}
-
+		$sql = "SELECT o.order_id, CONCAT(o.firstname, ' ', o.lastname) AS customer, "
+			. "(SELECT os.name FROM " . DB_PREFIX . "order_status os WHERE os.order_status_id = o.order_status_id "
+			. "AND os.language_id = '" . (int)$this->config->get('config_language_id') . "') AS order_status, "
+			. "o.shipping_code, o.total, o.currency_code, o.currency_value, o.date_added, o.date_modified "
+			. "FROM `" . DB_PREFIX . "order` o WHERE " . $this->orderStatusCondition($data)
+			. \CodeCart\Core\OrderAdminSearch::where($this->db, $data);
+		$allowed = array('o.order_id','customer','order_status','o.date_added','o.date_modified','o.total');
+		$sort = isset($data['sort']) && in_array($data['sort'], $allowed, true) ? $data['sort'] : 'o.order_id';
+		$direction = isset($data['order']) && $data['order'] === 'ASC' ? 'ASC' : 'DESC';
+		$sql .= " ORDER BY " . \CodeCart\Core\OrderAdminSearch::ranking($this->db, $data)
+			. $sort . " " . $direction . ", o.order_id DESC";
 		if (isset($data['start']) || isset($data['limit'])) {
-			if ($data['start'] < 0) {
-				$data['start'] = 0;
-			}
-
-			if ($data['limit'] < 1) {
-				$data['limit'] = 20;
-			}
-
-			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+			$sql .= " LIMIT " . max(0, (int)(isset($data['start']) ? $data['start'] : 0))
+				. "," . max(1, min(500, (int)(isset($data['limit']) ? $data['limit'] : 20)));
 		}
+		return $this->db->query($sql)->rows;
+	}
 
-		$query = $this->db->query($sql);
+	private function orderStatusCondition(array $data): string {
+		if (!empty($data['filter_order_status'])) {
+			$ids = array_map('intval', explode(',', (string)$data['filter_order_status']));
+			return "o.order_status_id IN (" . implode(',', $ids) . ")";
+		}
+		if (isset($data['filter_order_status_id']) && $data['filter_order_status_id'] !== '') {
+			return "o.order_status_id = '" . (int)$data['filter_order_status_id'] . "'";
+		}
+		return "o.order_status_id > '0'";
+	}
 
-		return $query->rows;
+	/** Existing order method labels, including installed extensions and historical snapshots. */
+	public function getOrderMethodChoices(string $column): array {
+		if (!in_array($column, array('shipping_method','payment_method'), true)) {
+			throw new \InvalidArgumentException('Unsupported method column.');
+		}
+		$sql = "SELECT DISTINCT `" . $column . "` AS name FROM `" . DB_PREFIX . "order` "
+			. "WHERE order_status_id > 0 AND `" . $column . "` <> '' ORDER BY `" . $column . "` ASC LIMIT 150";
+		$methods = array();
+		foreach ($this->db->query($sql)->rows as $row) {
+			$methods[] = (string)$row['name'];
+		}
+		return $methods;
+	}
+
+	/** Fast order-id lookup for the expandable row, never queried for every list row. */
+	public function getOrderPreview(int $orderId): array {
+		$head = $this->db->query("SELECT order_id, currency_code, currency_value FROM `" . DB_PREFIX . "order` "
+			. "WHERE order_id = '" . $orderId . "' AND order_status_id > 0 LIMIT 1");
+		if (!$head->num_rows) { return array(); }
+		$items = $this->db->query("SELECT op.order_product_id, op.product_id, op.name, op.model, "
+			. "op.quantity, op.price, op.total, op.tax, p.image AS product_image "
+			. "FROM `" . DB_PREFIX . "order_product` op LEFT JOIN `" . DB_PREFIX . "product` p ON p.product_id = op.product_id "
+			. "WHERE op.order_id = '" . $orderId . "' ORDER BY op.order_product_id ASC LIMIT 100")->rows;
+		return array('order' => $head->row, 'products' => $items);
 	}
 
 	public function getOrdersForExport($data = array()) {
@@ -312,7 +283,7 @@ class ModelSaleOrder extends Model {
 	}
 
 	public function getOrderProducts($order_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
+		$query = $this->db->query("SELECT op.*, p.image AS product_image FROM `" . DB_PREFIX . "order_product` op LEFT JOIN `" . DB_PREFIX . "product` p ON p.product_id = op.product_id WHERE op.order_id = '" . (int)$order_id . "' ORDER BY op.order_product_id");
 
 		return $query->rows;
 	}
@@ -356,55 +327,10 @@ class ModelSaleOrder extends Model {
 	}
 	
 	public function getTotalOrders($data = array()) {
-		$sql = "SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order`";
-
-		if (!empty($data['filter_order_status'])) {
-			$implode = array();
-
-			$order_statuses = explode(',', $data['filter_order_status']);
-
-			foreach ($order_statuses as $order_status_id) {
-				$implode[] = "order_status_id = '" . (int)$order_status_id . "'";
-			}
-
-			$sql .= " WHERE (" . implode(" OR ", $implode) . ")";
-		} elseif (isset($data['filter_order_status_id']) && $data['filter_order_status_id'] !== '') {
-			$sql .= " WHERE order_status_id = '" . (int)$data['filter_order_status_id'] . "'";
-		} else {
-			$sql .= " WHERE order_status_id > '0'";
-		}
-
-		if (!empty($data['filter_order_id'])) {
-			$sql .= " AND order_id = '" . (int)$data['filter_order_id'] . "'";
-		}
-
-		if (!empty($data['filter_customer'])) {
-			$sql .= " AND CONCAT(firstname, ' ', lastname) LIKE '%" . $this->db->escape($data['filter_customer']) . "%'";
-		}
-
-		if (!empty($data['filter_date_added'])) {
-			$sql .= " AND date_added >= '" . $this->db->escape($data['filter_date_added'] . ' 00:00:00') . "' AND date_added < DATE_ADD('" . $this->db->escape($data['filter_date_added'] . ' 00:00:00') . "', INTERVAL 1 DAY)";
-		}
-
-		if (!empty($data['filter_date_start'])) {
-			$sql .= " AND date_added >= '" . $this->db->escape($data['filter_date_start'] . ' 00:00:00') . "'";
-		}
-
-		if (!empty($data['filter_date_end'])) {
-			$sql .= " AND date_added < DATE_ADD('" . $this->db->escape($data['filter_date_end'] . ' 00:00:00') . "', INTERVAL 1 DAY)";
-		}
-
-		if (!empty($data['filter_date_modified'])) {
-			$sql .= " AND DATE(date_modified) = DATE('" . $this->db->escape($data['filter_date_modified']) . "')";
-		}
-
-		if (!empty($data['filter_total'])) {
-			$sql .= " AND total = '" . (float)$data['filter_total'] . "'";
-		}
-
-		$query = $this->db->query($sql);
-
-		return $query->row['total'];
+		$sql = "SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` o WHERE " . $this->orderStatusCondition($data)
+			. \CodeCart\Core\OrderAdminSearch::where($this->db, $data);
+		$result = $this->db->query($sql);
+		return isset($result->row['total']) ? (int)$result->row['total'] : 0;
 	}
 
 	public function getTotalOrdersByStoreId($store_id) {
