@@ -72,3 +72,7 @@ $_['text_gallery_photo'] = 'Фото %s';
 $_['text_benefits'] = 'Преимущества:';
 
 $_['error_method_not_allowed'] = 'Этот метод запроса не разрешен.';
+$_['entry_condition'] = 'Состояние товара';
+$_['text_condition_new'] = 'Новый';
+$_['text_condition_refurbished'] = 'Восстановленный';
+$_['text_condition_used'] = 'Б/у';
