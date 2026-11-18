@@ -13,7 +13,7 @@ foreach (array('uk-ua','ru-ru','en-gb') as $locale) {
     assertCustomField(is_file($localeFile), 'Missing custom-field admin locale ' . $locale);
     $language = file_get_contents($localeFile);
     foreach (array('entry_localized_value','help_localized_default_value','text_legacy_value_fallback') as $key) {
-        assertCustomField(strpos($language, "$_['" . $key . "']") !== false, 'Missing localized key: ' . $locale . '/' . $key);
+        assertCustomField(strpos($language, chr(36) . "_['" . $key . "']") !== false, 'Missing localized key: ' . $locale . '/' . $key);
     }
 }
 assertCustomField(strpos($form, 'name="custom_field_description[{{ language.language_id }}][default_value]"') !== false, 'Per-language field missing');
