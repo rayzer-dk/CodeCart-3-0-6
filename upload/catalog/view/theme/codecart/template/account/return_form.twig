@@ -57,45 +57,41 @@
           <div class="form-group required">
             <label class="col-sm-2 control-label" for="input-order-id">{{ entry_order_id }}</label>
             <div class="col-sm-10">
-              <input type="text" name="order_id" value="{{ order_id }}" placeholder="{{ entry_order_id }}" id="input-order-id" class="form-control" />
+              <input type="text" name="order_id" value="{{ order_id|escape }}" placeholder="{{ entry_order_id }}" id="input-order-id" class="form-control" />
               {% if error_order_id %}
               <div class="text-danger">{{ error_order_id }}</div>
-              {% endif %} </div>
+              {% endif %}
+              <button type="submit" name="lookup_order" value="1" formnovalidate class="btn btn-default" style="margin-top:8px;"><i class="fa fa-search" aria-hidden="true"></i> {{ button_lookup_order }}</button>
+            </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-date-ordered">{{ entry_date_ordered }}</label>
-            <div class="col-sm-3">
-              <div class="input-group date">
-                <input type="text" name="date_ordered" value="{{ date_ordered }}" placeholder="{{ entry_date_ordered }}" data-date-format="YYYY-MM-DD" id="input-date-ordered" class="form-control" />
-                <span class="input-group-btn">
-                <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
-                </span></div>
-            </div>
+            <label class="col-sm-2 control-label">{{ entry_date_ordered }}</label>
+            <div class="col-sm-10"><p class="form-control-static">{{ date_ordered|escape }}</p></div>
           </div>
         </fieldset>
         <fieldset>
           <legend>{{ text_product }}</legend>
           <div class="form-group required">
-            <label class="col-sm-2 control-label" for="input-product">{{ entry_product }}</label>
+            <label class="col-sm-2 control-label" for="input-order-product">{{ entry_product }}</label>
             <div class="col-sm-10">
-              <input type="text" name="product" value="{{ product|escape }}" placeholder="{{ entry_product }}" id="input-product" class="form-control" />
-              <input type="hidden" name="product_id" value="{{ product_id }}" />
-              {% if error_product %}
-              <div class="text-danger">{{ error_product }}</div>
-              {% endif %} </div>
-          </div>
-          <div class="form-group required">
-            <label class="col-sm-2 control-label" for="input-model">{{ entry_model }}</label>
-            <div class="col-sm-10">
-              <input type="text" name="model" value="{{ model|escape }}" placeholder="{{ entry_model }}" id="input-model" class="form-control" />
-              {% if error_model %}
-              <div class="text-danger">{{ error_model }}</div>
-              {% endif %} </div>
+              {% if order_products %}
+              <select name="order_product_id" id="input-order-product" class="form-control" required>
+                <option value="0">{{ text_choose_product }}</option>
+                {% for line in order_products %}
+                <option value="{{ line.order_product_id }}"{% if line.order_product_id == order_product_id %} selected="selected"{% endif %}>{{ line.name|escape }} ({{ line.model|escape }}, {{ line.quantity }} ×)</option>
+                {% endfor %}
+              </select>
+              {% else %}
+              <p class="form-control-static">{{ text_lookup_hint }}</p>
+              {% endif %}
+              {% if error_product %}<div class="text-danger">{{ error_product }}</div>{% endif %}
+            </div>
           </div>
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-quantity">{{ entry_quantity }}</label>
             <div class="col-sm-10">
-              <input type="text" name="quantity" value="{{ quantity }}" placeholder="{{ entry_quantity }}" id="input-quantity" class="form-control" />
+              <input type="number" name="quantity" min="1" step="1" value="{{ quantity|escape }}" placeholder="{{ entry_quantity }}" id="input-quantity" class="form-control" />
+              {% if error_quantity %}<div class="text-danger">{{ error_quantity }}</div>{% endif %}
             </div>
           </div>
           <div class="form-group required">
@@ -168,10 +164,4 @@
       {{ content_bottom }}</div>
     {{ column_right }}</div>
 </div>
-<script type="text/javascript"><!--
-$('.date').datetimepicker({
-	language: '{{ datepicker }}',
-	pickTime: false
-});
-//--></script> 
 {{ footer }} 

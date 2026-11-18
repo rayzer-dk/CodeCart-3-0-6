@@ -42,8 +42,8 @@
           </thead>
           <tbody>
             <tr>
-              <td class="text-left">{{ product }}</td>
-              <td class="text-left">{{ model }}</td>
+              <td class="text-left">{{ product|escape }}</td>
+              <td class="text-left">{{ model|escape }}</td>
               <td class="text-right">{{ quantity }}</td>
             </tr>
           </tbody>
@@ -61,9 +61,9 @@
           </thead>
           <tbody>
             <tr>
-              <td class="text-left">{{ reason }}</td>
+              <td class="text-left">{{ reason|escape }}</td>
               <td class="text-left">{{ opened }}</td>
-              <td class="text-left">{{ action }}</td>
+              <td class="text-left">{{ action|escape }}</td>
             </tr>
           </tbody>
         </table>

@@ -152,7 +152,7 @@ class ControllerAccountReturn extends Controller {
 			$data['quantity'] = $return_info['quantity'];
 			$data['reason'] = $return_info['reason'];
 			$data['opened'] = $return_info['opened'] ? $this->language->get('text_yes') : $this->language->get('text_no');
-			$data['comment'] = nl2br($return_info['comment']);
+			$data['comment'] = nl2br(htmlspecialchars((string)$return_info['comment'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
 			$data['action'] = $return_info['action'];
 
 			$data['histories'] = array();
@@ -163,7 +163,7 @@ class ControllerAccountReturn extends Controller {
 				$data['histories'][] = array(
 					'date_added' => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
 					'status'     => $result['status'],
-					'comment'    => nl2br($result['comment'])
+					'comment'    => nl2br(htmlspecialchars((string)$result['comment'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'))
 				);
 			}
 
@@ -226,7 +226,60 @@ class ControllerAccountReturn extends Controller {
 
 		$this->load->model('account/return');
 
-		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+		$is_post = $this->request->server['REQUEST_METHOD'] === 'POST';
+		$is_lookup = $is_post && isset($this->request->post['lookup_order']);
+		$order_info = false;
+		$order_products = array();
+
+		if ($is_post) {
+			if ($is_lookup) {
+				$guard = (new \CodeCart\Core\SpamService($this->registry))->consume('return_order_lookup', 20, 3600, 4);
+				if (empty($guard['allowed'])) {
+					$this->error['warning'] = $this->language->get('error_rate');
+				}
+			}
+
+			if (!isset($this->error['warning'])) {
+				$order_info = $this->model_account_return->getReturnOrder(
+					isset($this->request->post['order_id']) ? $this->request->post['order_id'] : 0,
+					isset($this->request->post['email']) ? $this->request->post['email'] : ''
+				);
+				if ($order_info) {
+					$order_products = $this->model_account_return->getReturnOrderProducts((int)$order_info['order_id']);
+					$this->request->post['date_ordered'] = date('Y-m-d', strtotime($order_info['date_added']));
+				} else {
+					$this->error['order_id'] = $this->language->get('error_order_match');
+				}
+			}
+
+			if (!$is_lookup && $order_info) {
+				$selected_id = isset($this->request->post['order_product_id']) ? (int)$this->request->post['order_product_id'] : 0;
+				$selected = null;
+				foreach ($order_products as $line) {
+					if ((int)$line['order_product_id'] === $selected_id) {
+						$selected = $line;
+						break;
+					}
+				}
+				if (!$selected) {
+					$this->error['product'] = $this->language->get('error_choose_product');
+				} else {
+					$quantity = isset($this->request->post['quantity']) ? trim((string)$this->request->post['quantity']) : '';
+					if (!preg_match('/^[1-9][0-9]*$/D', $quantity) || (int)$quantity > (int)$selected['quantity']) {
+						$this->error['quantity'] = $this->language->get('error_return_quantity');
+					} else {
+						// Persist the purchased line, not user-supplied product metadata.
+						$this->request->post['product_id'] = (int)$selected['product_id'];
+						$this->request->post['product'] = (string)$selected['name'];
+						$this->request->post['model'] = (string)$selected['model'];
+						$this->request->post['customer_id'] = (int)$order_info['customer_id'];
+						$this->request->post['quantity'] = (int)$quantity;
+					}
+				}
+			}
+		}
+
+		if ($is_post && !$is_lookup && $this->validate()) {
 			$this->model_account_return->addReturn($this->request->post);
 
 			if ((string)$this->config->get('config_captcha') === 'basic') { $this->load->controller('extension/captcha/basic/consume'); }
@@ -236,8 +289,6 @@ class ControllerAccountReturn extends Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 		$this->document->setRobots('noindex,follow');
-		$this->document->addScript('catalog/view/javascript/datetimepicker/codecart-native-datetimepicker.js?v=3.0.6.0-dtp187');
-		$this->document->addStyle('catalog/view/javascript/datetimepicker/codecart-native-datetimepicker.css?v=3.0.6.0-dtp187');
 
 		$data['breadcrumbs'] = array();
 
@@ -314,8 +365,11 @@ class ControllerAccountReturn extends Controller {
 
 		$this->load->model('account/order');
 
-		if (isset($this->request->get['order_id'])) {
+		if (!$is_post && $this->customer->isLogged() && isset($this->request->get['order_id'])) {
 			$order_info = $this->model_account_order->getOrder($this->request->get['order_id']);
+			if ($order_info) {
+				$order_products = $this->model_account_return->getReturnOrderProducts((int)$order_info['order_id']);
+			}
 		}
 
 		$this->load->model('catalog/product');
@@ -331,6 +385,21 @@ class ControllerAccountReturn extends Controller {
 		} else {
 			$data['order_id'] = '';
 		}
+
+		$data['order_products'] = $order_products;
+		$data['order_product_id'] = isset($this->request->post['order_product_id']) ? (int)$this->request->post['order_product_id'] : (isset($this->request->get['order_product_id']) ? (int)$this->request->get['order_product_id'] : 0);
+		if (!$data['order_product_id'] && !$is_post && !empty($this->request->get['product_id'])) {
+			foreach ($order_products as $line) {
+				if ((int)$line['product_id'] === (int)$this->request->get['product_id']) {
+					$data['order_product_id'] = (int)$line['order_product_id'];
+					break;
+				}
+			}
+		}
+		$data['button_lookup_order'] = $this->language->get('button_lookup_order');
+		$data['text_lookup_hint'] = $this->language->get('text_lookup_hint');
+		$data['text_choose_product'] = $this->language->get('text_choose_product');
+		$data['error_quantity'] = isset($this->error['quantity']) ? $this->error['quantity'] : '';
 
 		if (isset($this->request->post['product_id'])) {
 			$data['product_id'] = $this->request->post['product_id'];
@@ -515,11 +584,8 @@ class ControllerAccountReturn extends Controller {
 			$this->error['product'] = $this->language->get('error_product');
 		}
 
-		if (!empty($this->request->post['model'])) {
-			if ((utf8_strlen($this->request->post['model']) < 1) || (utf8_strlen($this->request->post['model']) > 64)) {
-				$this->error['model'] = $this->language->get('error_model');
-			}
-		} else {
+		// Historic order lines may have an empty model; no free-text model is accepted.
+		if (isset($this->request->post['model']) && utf8_strlen((string)$this->request->post['model']) > 64) {
 			$this->error['model'] = $this->language->get('error_model');
 		}
 

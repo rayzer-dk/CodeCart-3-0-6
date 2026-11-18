@@ -63,3 +63,4 @@ $_['error_product']        = 'Product Name must be greater than 3 and less than 
 $_['error_model']          = 'Product Model must be greater than 3 and less than 64 characters!';
 $_['error_reason'] = 'Please select a return reason!';
 $_['text_filter'] = 'Filter';
+$_['error_invalid_history'] = 'Unable to update return history. Check the request, status and comment length (up to 3000 characters).';

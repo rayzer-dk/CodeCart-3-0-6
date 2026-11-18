@@ -66,3 +66,4 @@ $_['error_model']         = 'Модель має містити від 3 до 64
 // CodeCart PRO: completed Ukrainian language keys.
 $_['text_history_add'] = 'Додати до історії';
 $_['error_reason'] = 'Виберіть причину повернення!';
+$_['error_invalid_history'] = 'Не вдалося оновити історію. Перевірте заявку, статус та довжину коментаря (до 3000 символів).';

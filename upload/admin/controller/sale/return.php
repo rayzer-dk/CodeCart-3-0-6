@@ -878,7 +878,7 @@ class ControllerSaleReturn extends Controller {
 			$data['histories'][] = array(
 				'notify'     => $result['notify'] ? $this->language->get('text_yes') : $this->language->get('text_no'),
 				'status'     => $result['status'],
-				'comment'    => nl2br($result['comment']),
+				'comment'    => nl2br(htmlspecialchars((string)$result['comment'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')),
 				'date_added' => date($this->language->get('date_format_short'), strtotime($result['date_added']))
 			);
 		}
@@ -905,12 +905,30 @@ class ControllerSaleReturn extends Controller {
 
 		if (!$this->user->hasPermission('modify', 'sale/return')) {
 			$json['error'] = $this->language->get('error_permission');
+		} elseif ($this->request->server['REQUEST_METHOD'] !== 'POST') {
+			$json['error'] = $this->language->get('error_invalid_history');
 		} else {
 			$this->load->model('sale/return');
+			$this->load->model('localisation/return_status');
 
-			$this->model_sale_return->addReturnHistory($this->request->get['return_id'], $this->request->post['return_status_id'], $this->request->post['comment'], $this->request->post['notify']);
+			$return_id = isset($this->request->get['return_id']) ? (int)$this->request->get['return_id'] : 0;
+			$status_id = isset($this->request->post['return_status_id']) ? (int)$this->request->post['return_status_id'] : 0;
+			$comment = isset($this->request->post['comment']) ? trim((string)$this->request->post['comment']) : '';
+			$notify = !empty($this->request->post['notify']) ? 1 : 0;
+			$valid_status = false;
+			foreach ($this->model_localisation_return_status->getReturnStatuses() as $status) {
+				if ((int)$status['return_status_id'] === $status_id) {
+					$valid_status = true;
+					break;
+				}
+			}
 
-			$json['success'] = $this->language->get('text_success');
+			if ($return_id < 1 || !$this->model_sale_return->getReturn($return_id) || !$valid_status || utf8_strlen($comment) > 3000) {
+				$json['error'] = $this->language->get('error_invalid_history');
+			} else {
+				$this->model_sale_return->addReturnHistory($return_id, $status_id, $comment, $notify);
+				$json['success'] = $this->language->get('text_success');
+			}
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
