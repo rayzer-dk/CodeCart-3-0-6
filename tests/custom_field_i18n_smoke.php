@@ -17,6 +17,11 @@ foreach (array('uk-ua','ru-ru','en-gb') as $locale) {
     }
 }
 assertCustomField(strpos($form, 'name="custom_field_description[{{ language.language_id }}][default_value]"') !== false, 'Per-language field missing');
+$controller = file_get_contents($root . 'admin/controller/customer/custom_field.php');
+foreach (array('entry_localized_value','text_legacy_value_fallback','help_localized_default_value') as $key) {
+    assertCustomField(strpos($controller, "['" . $key . "'] = " . '$this->language->get') !== false,
+        'Controller does not expose localized Twig key: ' . $key);
+}
 assertCustomField(strpos($form, "default_value is not null ? custom_field_description[language.language_id].default_value : ''") !== false, 'Untranslated field must not silently copy old shared text into every language');
 assertCustomField(strpos($form, 'name="custom_field_value[{{ custom_field_value_row }}][custom_field_value_id]"') !== false, 'Localized select/radio/checkbox choices missing');
 assertCustomField(strpos($adminModel, "trim(\$value['default_value']) !== ''") !== false, 'Empty translations must fall back to legacy default');

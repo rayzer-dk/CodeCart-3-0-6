@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'upload/admin/model/customer/custom_field.php'
+      - 'upload/admin/controller/customer/custom_field.php'
       - 'upload/admin/view/template/customer/custom_field_form.twig'
       - 'upload/admin/language/**/customer/custom_field.php'
       - 'upload/catalog/model/account/custom_field.php'
@@ -32,6 +33,7 @@ jobs:
           coverage: none
       - name: PHP syntax and translation regression
         run: |
+          php -l upload/admin/controller/customer/custom_field.php
           php -l upload/admin/model/customer/custom_field.php
           php -l upload/catalog/model/account/custom_field.php
           php -l tests/custom_field_i18n_smoke.php
