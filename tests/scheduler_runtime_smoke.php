@@ -2,6 +2,7 @@
 /** Focused regression: no false-green queue or scheduler statuses, real Cron heartbeat and task history. */
 define('DB_PREFIX','oc_');
 define('DB_DATABASE','scheduler_runtime_smoke');
+require_once dirname(__DIR__) . '/upload/system/library/codecart/src/SchedulerSchedule.php';
 require_once dirname(__DIR__) . '/upload/system/library/codecart/src/Scheduler.php';
 require_once dirname(__DIR__) . '/upload/system/library/codecart/src/Queue.php';
 class TestRows {

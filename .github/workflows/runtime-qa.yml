@@ -208,6 +208,7 @@ jobs:
           set -euo pipefail
           php -l tests/order_admin_db_smoke.php
           php tests/order_admin_db_smoke.php
+          php tests/scheduler_schedule_smoke.php
 
       - name: Cart and checkout smoke
         shell: bash

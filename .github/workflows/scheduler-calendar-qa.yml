@@ -1,0 +1,47 @@
+name: CodeCart Scheduler Calendar QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/system/library/codecart/src/Scheduler.php'
+      - 'upload/system/library/codecart/src/SchedulerSchedule.php'
+      - 'upload/system/library/codecart/migration.php'
+      - 'upload/install/opencart.sql'
+      - 'upload/admin/controller/tool/scheduler.php'
+      - 'upload/admin/view/template/tool/scheduler.twig'
+      - 'upload/admin/view/javascript/codecart-scheduler.js'
+      - 'tests/scheduler_schedule_smoke.php'
+      - 'tests/scheduler_crud_smoke.php'
+      - 'tests/scheduler_runtime_smoke.php'
+      - '.github/workflows/scheduler-calendar-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  calendar:
+    name: Scheduler / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Syntax, tasks, DST and migration smoke
+        run: |
+          php -l upload/system/library/codecart/src/Scheduler.php
+          php -l upload/system/library/codecart/src/SchedulerSchedule.php
+          php -l upload/system/library/codecart/migration.php
+          php -l upload/admin/controller/tool/scheduler.php
+          php -l tests/scheduler_schedule_smoke.php
+          php tests/scheduler_schedule_smoke.php
+          php tests/scheduler_crud_smoke.php
+          php tests/scheduler_runtime_smoke.php
