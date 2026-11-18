@@ -128,15 +128,16 @@
             </div>
           </div>
           <div class="form-group" id="display-localized-default">
-            <label class="col-sm-2 control-label">{{ entry_value }}</label>
+            <label class="col-sm-2 control-label">{{ entry_localized_value }}</label>
             <div class="col-sm-10">
               {% for language in languages %}
               <div class="input-group ccp-custom-field-translation">
                 <span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" alt="{{ language.name }}" title="{{ language.name }}" /></span>
-                <textarea rows="2" name="custom_field_description[{{ language.language_id }}][default_value]" class="form-control" aria-label="{{ entry_value }} — {{ language.name }}" placeholder="{{ entry_value }} — {{ language.name }}">{{ (custom_field_description[language.language_id] is defined and custom_field_description[language.language_id].default_value is not null ? custom_field_description[language.language_id].default_value : value)|e('html') }}</textarea>
+                <textarea rows="2" name="custom_field_description[{{ language.language_id }}][default_value]" class="form-control" aria-label="{{ entry_localized_value }} — {{ language.name }}" placeholder="{{ entry_localized_value }} — {{ language.name }}">{{ (custom_field_description[language.language_id] is defined and custom_field_description[language.language_id].default_value is not null ? custom_field_description[language.language_id].default_value : '')|e('html') }}</textarea>
               </div>
               {% endfor %}
               <small class="help-block">{{ help_localized_default_value }}</small>
+              {% if value %}<small class="help-block">{{ text_legacy_value_fallback }}: {{ value }}</small>{% endif %}
             </div>
           </div>
           <div class="form-group" id="display-validation">

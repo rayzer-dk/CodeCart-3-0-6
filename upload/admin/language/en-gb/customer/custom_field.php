@@ -53,4 +53,7 @@ $_['error_permission']     = 'Warning: You do not have permission to modify cust
 $_['error_name']           = 'Custom Field Name must be between 1 and 128 characters!';
 $_['error_type']           = 'Warning: Custom Field Values required!';
 $_['error_custom_value']   = 'Custom Value Name must be between 1 and 128 characters!';
-$_['help_localized_default_value'] = 'Enter a separate default text for each storefront language. Existing shared text remains until a translation is saved.';
+$_['help_localized_default_value'] = 'Enter a separate value for each storefront language. When a translation is empty, the previous shared value is used if available. Text entered by customers is not translated automatically.';
+
+$_['entry_localized_value'] = 'Value for each language';
+$_['text_legacy_value_fallback'] = 'Legacy shared fallback';
