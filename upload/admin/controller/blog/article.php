@@ -1052,11 +1052,12 @@ class ControllerBlogArticle extends Controller {
 		} else {
 			try {
 				require_once(DIR_SYSTEM . 'library/codecart/src/AdminCategoryTreeEditor.php');
-				$json['value'] = \CodeCart\\Core\\AdminCategoryTreeEditor::quickSort($this->registry, 'article', (int)$post['id'], (int)$post['value'], (int)$post['expected']);
+				$json['value'] = \CodeCart\Core\AdminCategoryTreeEditor::quickSort($this->registry, 'article', (int)$post['id'], (int)$post['value'], (int)$post['expected']);
 				$json['success'] = true;
 			} catch (\Throwable $e) {
+				$this->log->write('Article sort update: ' . $e->getMessage());
 				$this->response->setStatusCode(409);
-				$json['error'] = $e->getMessage();
+				$json['error'] = $this->language->get('tree_error');
 			}
 		}
 		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
