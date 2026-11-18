@@ -49,6 +49,7 @@ ensure(strpos(end($db->queries),'heartbeat')!==false,'Visitor heartbeat not reco
 $db2=new TestDb();$loader2=new TestLoad();$registry2=new TestRegistry($db2,$loader2);
 $queue=new \CodeCart\Core\Queue($registry2);
 $reflection=new ReflectionMethod($queue,'executeClaimedJob');
+$reflection->setAccessible(true); // PHP 7.4 requires access for private method tests.
 $job=array('queue_id'=>3,'code'=>'demo','route'=>'cron/demo','args'=>'{}','attempts'=>1,'max_attempts'=>3);
 foreach (array(array('status'=>'error','failed'=>1),array('failed'=>2),array('success'=>false),null,false) as $failure) {
     $loader2->result=$failure;

@@ -118,4 +118,18 @@ $controller->request->post['available_handler'] = 'cron/health';
 $controller->request->post['interval_seconds'] = '60';
 try { $method->invoke($controller, $adminScheduler); throw new RuntimeException('Too-frequent new task accepted'); }
 catch (InvalidArgumentException $e) { expect($e->getMessage() === 'error_duplicate_code' || $e->getMessage() === 'error_interval', 'Unexpected fast-task validation'); }
-echo "OK: create, duplicate safety, reserved codes, next run, admin POST create/duplicate.\n";
+// Calendar edit must use an existing registered handler and persist a weekday bitmask.
+$controller->request->post = array(
+    'scheduler_action'=>'save','scheduler_id'=>'1','available_handler'=>'',
+    'code'=>'custom.health','route'=>'cron/health','interval_seconds'=>'3600','status'=>'1',
+    'args'=>'{}','schedule_mode'=>'weekly','schedule_days'=>array('1','5'),'schedule_time'=>'03:15'
+);
+$method->invoke($controller, $adminScheduler);
+$calendarSaves = array_filter($adminDB->queries, function($sql) {
+    return strpos($sql, "UPDATE `oc_codecart_scheduler` SET code = 'custom.health'") === 0
+        && strpos($sql, "schedule_mode = 'weekly'") !== false
+        && strpos($sql, "schedule_days = '17'") !== false
+        && strpos($sql, "schedule_time = '03:15'") !== false;
+});
+expect(count($calendarSaves) === 1, 'Admin weekday schedule was not stored');
+echo "OK: create, duplicate safety, reserved codes, next run, weekday edit and admin POST create/duplicate.\n";
