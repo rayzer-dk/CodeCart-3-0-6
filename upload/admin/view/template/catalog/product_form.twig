@@ -615,19 +615,23 @@
                             </select>
                           </div>
                         </div>
-                        {% if product_option.type == 'text' %}
+                        {% if product_option.type == 'text' or product_option.type == 'textarea' %}
                           <div class="form-group">
-                            <label class="col-sm-2 control-label" for="input-value{{ option_row }}">{{ entry_option_value }}</label>
+                            <label class="col-sm-2 control-label">{{ entry_localized_option_value }}</label>
                             <div class="col-sm-10">
-                              <input type="text" name="product_option[{{ option_row }}][value]" value="{{ product_option.value }}" placeholder="{{ entry_option_value }}" id="input-value{{ option_row }}" class="form-control"/>
-                            </div>
-                          </div>
-                        {% endif %}
-                        {% if product_option.type == 'textarea' %}
-                          <div class="form-group">
-                            <label class="col-sm-2 control-label" for="input-value{{ option_row }}">{{ entry_option_value }}</label>
-                            <div class="col-sm-10">
-                              <textarea name="product_option[{{ option_row }}][value]" rows="5" placeholder="{{ entry_option_value }}" id="input-value{{ option_row }}" class="form-control">{{ product_option.value }}</textarea>
+                              {# The historical shared value is never overwritten by language-specific inputs. #}
+                              <input type="hidden" name="product_option[{{ option_row }}][value]" value="{{ product_option.value }}" />
+                              {% for language in languages %}
+                                <div class="input-group" style="margin-bottom: 7px; max-width: 850px;">
+                                  <span class="input-group-addon" style="min-width: 115px; text-align: left;">{{ language.name }}</span>
+                                  {% if product_option.type == 'textarea' %}
+                                    <textarea class="form-control" rows="3" name="product_option[{{ option_row }}][localized_value][{{ language.language_id }}]" aria-label="{{ entry_localized_option_value }} — {{ language.name }}">{{ product_option.localized_value[language.language_id]|default('') }}</textarea>
+                                  {% else %}
+                                    <input class="form-control" type="text" name="product_option[{{ option_row }}][localized_value][{{ language.language_id }}]" value="{{ product_option.localized_value[language.language_id]|default('') }}" aria-label="{{ entry_localized_option_value }} — {{ language.name }}" />
+                                  {% endif %}
+                                </div>
+                              {% endfor %}
+                              <p class="help-block">{{ help_localized_option_value }}{% if product_option.value %} ({{ product_option.value }}){% endif %}</p>
                             </div>
                           </div>
                         {% endif %}
@@ -1534,17 +1538,23 @@ $('#article-related').delegate('.fa-minus-circle', 'click', function() {
 		  html += '	  </select></div>';
 		  html += '	</div>';
 
-		  if (item['type'] == 'text') {
+		  if (item['type'] == 'text' || item['type'] == 'textarea') {
 			  html += '	<div class="form-group">';
-			  html += '	  <label class="col-sm-2 control-label" for="input-value' + option_row + '">{{ entry_option_value }}</label>';
-			  html += '	  <div class="col-sm-10"><input type="text" name="product_option[' + option_row + '][value]" value="" placeholder="{{ entry_option_value }}" id="input-value' + option_row + '" class="form-control" /></div>';
-			  html += '	</div>';
-		  }
-
-		  if (item['type'] == 'textarea') {
-			  html += '	<div class="form-group">';
-			  html += '	  <label class="col-sm-2 control-label" for="input-value' + option_row + '">{{ entry_option_value }}</label>';
-			  html += '	  <div class="col-sm-10"><textarea name="product_option[' + option_row + '][value]" rows="5" placeholder="{{ entry_option_value }}" id="input-value' + option_row + '" class="form-control"></textarea></div>';
+			  html += '	  <label class="col-sm-2 control-label">{{ entry_localized_option_value|e('js') }}</label>';
+			  html += '	  <div class="col-sm-10">';
+			  html += '	    <input type="hidden" name="product_option[' + option_row + '][value]" value="" />';
+			  {% for language in languages %}
+			  html += '	    <div class="input-group" style="margin-bottom:7px;max-width:850px;">';
+			  html += '	      <span class="input-group-addon" style="min-width:115px;text-align:left;">{{ language.name|e('js') }}</span>';
+			  if (item['type'] == 'textarea') {
+				  html += '	      <textarea class="form-control" rows="3" name="product_option[' + option_row + '][localized_value][{{ language.language_id }}]" aria-label="{{ entry_localized_option_value|e('js') }} — {{ language.name|e('js') }}"></textarea>';
+			  } else {
+				  html += '	      <input class="form-control" type="text" name="product_option[' + option_row + '][localized_value][{{ language.language_id }}]" value="" aria-label="{{ entry_localized_option_value|e('js') }} — {{ language.name|e('js') }}" />';
+			  }
+			  html += '	    </div>';
+			  {% endfor %}
+			  html += '	    <p class="help-block">{{ help_localized_option_value|e('js') }}</p>';
+			  html += '	  </div>';
 			  html += '	</div>';
 		  }
 
