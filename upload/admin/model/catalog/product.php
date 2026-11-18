@@ -173,7 +173,6 @@ class ModelCatalogProduct extends Model {
 		$this->savePurchaseBlocks('product', $product_id, $data);
 
 		$this->cache->delete('product');
-		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 		
@@ -357,7 +356,6 @@ class ModelCatalogProduct extends Model {
 		$this->savePurchaseBlocks('product', $product_id, $data);
 
 		$this->cache->delete('product');
-		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 		
@@ -370,7 +368,6 @@ class ModelCatalogProduct extends Model {
         $this->db->query("UPDATE " . DB_PREFIX . "product SET status = '" . (int)$status . "', date_modified = NOW() WHERE product_id = '" . (int)$product_id . "'");
         
 		$this->cache->delete('product');
-		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 		
@@ -552,7 +549,6 @@ class ModelCatalogProduct extends Model {
 		if (!$query->num_rows) { return false; }
 		$this->db->query("UPDATE `" . DB_PREFIX . "product` SET price = '" . $this->db->escape((string)$price) . "', date_modified = NOW() WHERE product_id = '" . $product_id . "'");
 		$this->cache->delete('product');
-		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		return true;
 	}
 
@@ -585,7 +581,7 @@ class ModelCatalogProduct extends Model {
 		$updated = (int)$this->db->countAffected();
 		if ($updated) {
 			$this->cache->delete('product');
-		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
+			\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 			$this->cache->delete('admin.product_sidebar_stats');
 		}
 		return $updated > 0;
