@@ -203,7 +203,7 @@ class ControllerBlogCategory extends Controller {
 		$this->load->language('catalog/quality');
 		$data['quality_endpoint'] = str_replace('&amp;', '&', $this->url->link('blog/category/quality', 'user_token=' . $this->session->data['user_token'], true));
 		$data['quality_toggle'] = $this->language->get('quality_toggle');
-		$data['quality_count_label'] = $this->language->get('quality_count');
+		$data['quality_count_label'] = $this->language->get('quality_article_count');
 
 		$this->response->setOutput($this->load->view('blog/category_list', $data));
 	}
