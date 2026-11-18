@@ -6,6 +6,9 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/runtime-qa.yml'
+      - 'tests/order_admin_db_smoke.php'
+      - 'upload/admin/model/sale/order.php'
+      - 'upload/system/library/codecart/src/OrderAdminSearch.php'
       - 'upload/install/opencart.sql'
       - 'upload/admin/controller/common/language.php'
       - 'upload/admin/controller/common/header.php'
@@ -196,6 +199,15 @@ jobs:
             echo "PASS: admin language switch persisted without global language changes\n";
           '
 
+
+      - name: Order admin SQL integration (real DB, rolled back)
+        shell: bash
+        env:
+          CODECART_ORDER_DB_SMOKE: '1'
+        run: |
+          set -euo pipefail
+          php -l tests/order_admin_db_smoke.php
+          php tests/order_admin_db_smoke.php
 
       - name: Cart and checkout smoke
         shell: bash
