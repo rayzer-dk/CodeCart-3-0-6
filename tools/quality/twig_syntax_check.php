@@ -38,4 +38,5 @@ if (!is_dir(dirname($report))) {
 file_put_contents($report, "Twig templates: $count; diagnostics: " . count($errors) . PHP_EOL . implode(PHP_EOL, $errors) . PHP_EOL);
 echo "Twig templates: $count; diagnostics: " . count($errors) . PHP_EOL;
 echo implode(PHP_EOL, array_slice($errors, 0, 50)) . PHP_EOL;
-// Existing templates are inventoried; do not fail the release gate while triaging.
+// Syntax errors are deterministic and must block CI; PHP/Twig context hints remain advisory.
+exit($errors === [] ? 0 : 1);
