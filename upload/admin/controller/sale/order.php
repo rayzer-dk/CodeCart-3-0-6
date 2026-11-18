@@ -352,7 +352,7 @@ class ControllerSaleOrder extends Controller {
 		$data['delete'] = str_replace('&amp;', '&', $this->url->link('sale/order/delete', 'user_token=' . $this->session->data['user_token'] . $url, true));
 
 		$data['orders'] = array();
-		$data['column_image'] = $this->language->get('column_image');
+		$data['text_order_units_label'] = $this->language->get('text_order_units_label');
 
 		$filter_data = array(
 			'filter_order_id'        => $filter_order_id,
@@ -383,20 +383,20 @@ class ControllerSaleOrder extends Controller {
 
 		$results = $this->model_sale_order->getOrders($filter_data);
 
-		// Load preview images in one query for this page, never one query per row.
-		$firstImages = $this->model_sale_order->getFirstProductImagesByOrderIds(array_column($results, 'order_id'));
-		$this->load->model('tool/image');
-		$emptyThumb = $this->model_tool_image->resize('no_image.webp', 40, 40);
+		// Count all ordered units (quantity sum), not just distinct product rows.
+		// This fetch is scoped to the visible orders and is independent of the live catalog.
+		$orderCounts = $this->model_sale_order->getProductCountsForOrderIds(array_column($results, 'order_id'));
 
 		foreach ($results as $result) {
-			$imageData = $firstImages[(int)$result['order_id']] ?? array();
-			$path = isset($imageData['image']) ? (string)$imageData['image'] : '';
-			$thumb = $path !== '' && is_file(DIR_IMAGE . $path)
-				? $this->model_tool_image->resize($path, 40, 40) : $emptyThumb;
+			$counts = $orderCounts[(int)$result['order_id']] ?? array('units' => 0, 'positions' => 0);
 			$data['orders'][] = array(
 				'order_id'      => $result['order_id'],
-				'product_thumb' => $thumb,
-				'product_thumb_name' => isset($imageData['name']) ? (string)$imageData['name'] : '',
+				'product_units' => $counts['units'],
+				'product_count_tooltip' => sprintf(
+					$this->language->get('text_order_product_count'),
+					$counts['units'],
+					$counts['positions']
+				),
 				'customer'      => $result['customer'],
 				'order_status'  => $result['order_status'] ? $result['order_status'] : $this->language->get('text_missing'),
 				'total'         => $this->currency->format($result['total'], $result['currency_code'], $result['currency_value']),
