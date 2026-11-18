@@ -78,8 +78,14 @@
             }
             var percentage = Math.max(0, Math.min(100, Math.round(info.percent)));
             var badge = chip.querySelector('.cc-quality-score');
-            badge.textContent = percentage + '%';
-            badge.className = 'cc-quality-score ' + (percentage >= 100 ? 'is-complete' : percentage >= 70 ? 'is-partial' : 'is-low');
+            if (badge) {
+              badge.textContent = percentage + '%';
+              badge.style.setProperty('--cc-quality-percent', percentage + '%');
+              badge.className = 'cc-quality-score ' + (
+                percentage >= 90 ? 'is-complete' :
+                percentage >= 70 ? 'is-good' :
+                percentage >= 40 ? 'is-medium' : 'is-low');
+            }
             var missing = Array.isArray(info.missing) ? info.missing : [];
             var message = percentage + '% (' + info.complete + '/' + info.total + ')';
             if (missing.length) { message += '\n' + missing.join('\n'); }
@@ -88,7 +94,12 @@
             if (typeof info.count === 'number') {
               var counter = chip.querySelector('.cc-quality-count');
               if (counter) {
-                counter.textContent = info.count.toLocaleString();
+                var countValue = counter.querySelector('.cc-quality-count-number');
+                if (countValue) {
+                  countValue.textContent = info.count.toLocaleString();
+                } else {
+                  counter.textContent = info.count.toLocaleString();
+                }
                 counter.title = countLabel;
                 counter.hidden = false;
               }
