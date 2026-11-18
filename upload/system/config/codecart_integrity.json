@@ -373,7 +373,7 @@
         "system/library/cart/currency.php": "c7e4776619dd1098c1ffd4551cca8b217e41fcb6eaecc99080352ee0a3433df7",
         "system/library/cart/tax.php": "64bf2bf6ce7387480583fc8df3554bee1d5c84fc7a7ae39cb6481652af61eb9b",
         "system/library/codecart/assets/default-logo.webp": "810993168d33da8d54d9f0e56a22d5572a3e88d994b76e9be42059b5835d6140",
-        "system/library/codecart/migration.php": "7f9e2cb9988d68c2a3114048b28f9e429f47754f296e0c7a0995294d1507d0f8",
+        "system/library/codecart/migration.php": "ba115cbb207f8154f12d9c48c9eb709601d3bcd1db6e2e51e255912bc6535293",
         "system/library/codecart/psr4.php": "076111a8df68d9dfae36ff57d50fa711c3b761d4d8b71d7eb3f2a91317a12bb7",
         "system/library/codecart/src/ApiV1.php": "5f02da531653e07833da723d7c5f75d7723d77ae168eb295381d80030832560f",
         "system/library/codecart/src/AssetManager.php": "749d5d1d82f7222b9e3b7a6e90603f3320fbb85257e7d451c59b7b1b300b7be9",
