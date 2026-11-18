@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '45';
+    const PRESENTATION_SCHEMA_VERSION = '46';
 
     private $db;
     private $config;
@@ -90,6 +90,7 @@ class Migration {
             $this->ensureProductTaxDisplayMode();
             $this->ensureProductCondition();
             $this->ensureCustomFieldDefaultTranslations();
+            $this->ensureProductOptionTranslations();
             $this->ensureProductExtraTabTable();
             $this->ensurePurchaseBlockTable();
             $this->ensureFormBuilderTables();
@@ -986,6 +987,21 @@ class Migration {
             !$this->columnExists('custom_field_description', 'default_value')) {
             $this->db->query("ALTER TABLE `" . DB_PREFIX . "custom_field_description` ADD `default_value` TEXT NULL DEFAULT NULL AFTER `name`");
         }
+    }
+
+    /**
+     * Localized defaults for text/textarea product options. Unlike selectable
+     * option values, native product_option.value has no language_id.
+     * The historical shared value remains untouched as a fallback.
+     */
+    private function ensureProductOptionTranslations() {
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_product_option_translation` (
+            `product_option_id` int(11) NOT NULL,
+            `language_id` int(11) NOT NULL,
+            `value` text NOT NULL,
+            PRIMARY KEY (`product_option_id`,`language_id`),
+            KEY `language_id` (`language_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }
 
     private function ensureProductTaxDisplayMode() {
