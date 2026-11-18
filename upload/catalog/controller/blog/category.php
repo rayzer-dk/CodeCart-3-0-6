@@ -58,13 +58,13 @@ class ControllerBlogCategory extends Controller {
 			'href' => $this->url->link('common/home')
 		);
 		
-		$configblog_name = $this->config->get('configblog_name');
-		
-		if (!empty($configblog_name)) {
-			$name = $this->config->get('configblog_name');
-		} else {
-			$name = $this->language->get('text_blog');
-		}
+		require_once(DIR_SYSTEM . 'library/codecart/src/BlogLocaleSeo.php');
+		$name = \CodeCart\Core\BlogLocaleSeo::resolve(
+			$this->config,
+			(int)$this->config->get('config_language_id'),
+			'name',
+			$this->language->get('text_blog')
+		);
 		
 		$data['breadcrumbs'][] = array(
 			'text' => $name,
