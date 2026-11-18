@@ -7,13 +7,13 @@ class ControllerBlogMenu extends Controller {
 
 		$this->load->language('blog/menu');
 		
-		$configblog_name = $this->config->get('configblog_name');
-		
-		if (!empty($configblog_name)) {
-			$data['text_blog'] = $this->config->get('configblog_name');
-		} else {
-			$data['text_blog'] = $this->language->get('text_blog');
-		}
+		require_once(DIR_SYSTEM . 'library/codecart/src/BlogLocaleSeo.php');
+		$data['text_blog'] = \CodeCart\Core\BlogLocaleSeo::resolve(
+			$this->config,
+			(int)$this->config->get('config_language_id'),
+			'name',
+			$this->language->get('text_blog')
+		);
 
 		$data['text_all'] = $this->language->get('text_all');
 
