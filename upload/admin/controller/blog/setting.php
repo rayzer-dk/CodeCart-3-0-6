@@ -11,11 +11,25 @@ class ControllerBlogSetting extends Controller {
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		$this->load->model('setting/setting');
+		require_once(DIR_SYSTEM . 'library/codecart/src/BlogLocaleSeo.php');
+		$this->load->model('localisation/language');
+		$blog_languages = $this->model_localisation_language->getLanguages();
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
 			$this->request->post['configblog_show_date'] = !empty($this->request->post['configblog_show_date']) ? 1 : 0;
 			$this->request->post['configblog_show_reviews'] = !empty($this->request->post['configblog_show_reviews']) ? 1 : 0;
 			$this->request->post['configblog_show_views'] = !empty($this->request->post['configblog_show_views']) ? 1 : 0;
+			$language_ids = array();
+			foreach ($blog_languages as $blog_language) {
+				if (!empty($blog_language['status'])) {
+					$language_ids[] = (int)$blog_language['language_id'];
+				}
+			}
+			$this->request->post['configblog_localized'] = \CodeCart\Core\BlogLocaleSeo::sanitize(
+				isset($this->request->post['configblog_localized']) ? $this->request->post['configblog_localized'] : array(),
+				$this->config->get('configblog_localized'),
+				$language_ids
+			);
 			$this->model_setting_setting->editSetting('configblog', $this->request->post);
 
 			$this->session->data['success'] = $this->language->get('text_success');
@@ -56,6 +70,28 @@ class ControllerBlogSetting extends Controller {
 		$data['entry_meta_title'] = $this->language->get('entry_meta_title');
 		$data['entry_meta_description'] = $this->language->get('entry_meta_description');
 		$data['entry_meta_keyword'] = $this->language->get('entry_meta_keyword');
+		$data['text_blog_language_seo'] = $this->language->get('text_blog_language_seo');
+		$data['help_blog_language_seo'] = $this->language->get('help_blog_language_seo');
+		$data['blog_languages'] = array();
+		foreach ($blog_languages as $blog_language) {
+			if (!empty($blog_language['status']) && (int)$blog_language['language_id'] > 0) {
+				$data['blog_languages'][] = $blog_language;
+			}
+		}
+		$localized_input = isset($this->request->post['configblog_localized'])
+			? $this->request->post['configblog_localized'] : $this->config->get('configblog_localized');
+		$data['blog_localized'] = \CodeCart\Core\BlogLocaleSeo::sanitize(
+			$localized_input,
+			$this->config->get('configblog_localized'),
+			array_column($data['blog_languages'], 'language_id')
+		);
+		foreach ($data['blog_languages'] as $blog_language) {
+			$locale_id = (int)$blog_language['language_id'];
+			if (!isset($data['blog_localized'][$locale_id])) {
+				$data['blog_localized'][$locale_id] = array_fill_keys(\CodeCart\Core\BlogLocaleSeo::fields(), '');
+			}
+		}
+
 
 		$data['help_comment'] = $this->language->get('help_comment');
 		$data['help_article_limit'] = $this->language->get('help_article_limit');
