@@ -10,6 +10,7 @@ class ModelCatalogProduct extends Model {
 
 		// The body clears these inside the transaction; clear again now that the data is committed.
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 
 		return $product_id;
@@ -21,6 +22,7 @@ class ModelCatalogProduct extends Model {
 		});
 
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 	}
 
@@ -171,6 +173,7 @@ class ModelCatalogProduct extends Model {
 		$this->savePurchaseBlocks('product', $product_id, $data);
 
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 		
@@ -354,6 +357,7 @@ class ModelCatalogProduct extends Model {
 		$this->savePurchaseBlocks('product', $product_id, $data);
 
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 		
@@ -366,6 +370,7 @@ class ModelCatalogProduct extends Model {
         $this->db->query("UPDATE " . DB_PREFIX . "product SET status = '" . (int)$status . "', date_modified = NOW() WHERE product_id = '" . (int)$product_id . "'");
         
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 		
@@ -445,6 +450,7 @@ class ModelCatalogProduct extends Model {
 		try { (new \CodeCart\Core\RelationLayer($this->registry))->purgeEntity('product', (int)$product_id); } catch (\Throwable $e) { $this->log->write('Relation purge product: ' . $e->getMessage()); }
 
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 		
@@ -546,6 +552,7 @@ class ModelCatalogProduct extends Model {
 		if (!$query->num_rows) { return false; }
 		$this->db->query("UPDATE `" . DB_PREFIX . "product` SET price = '" . $this->db->escape((string)$price) . "', date_modified = NOW() WHERE product_id = '" . $product_id . "'");
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		return true;
 	}
 
@@ -578,6 +585,7 @@ class ModelCatalogProduct extends Model {
 		$updated = (int)$this->db->countAffected();
 		if ($updated) {
 			$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 			$this->cache->delete('admin.product_sidebar_stats');
 		}
 		return $updated > 0;
@@ -721,6 +729,7 @@ class ModelCatalogProduct extends Model {
 
 	private function clearBulkCaches() {
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 
@@ -1112,6 +1121,7 @@ class ModelCatalogProduct extends Model {
 		}
 
 		$this->cache->delete('product');
+		\CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
 		$this->cache->delete('admin.product_sidebar_stats');
 		$this->cache->deleteTag('catalog.category_counts', 'category_product_counts');
 		return true;
