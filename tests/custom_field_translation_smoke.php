@@ -60,7 +60,8 @@ $sql = file_get_contents($base . 'install/opencart.sql');
 fieldCheck(strpos($form, 'custom_field_description[{{ language.language_id }}][default_value]') !== false, 'Admin multilingual input missing');
 fieldCheck(strpos($admin, 'default_value = ') !== false, 'Admin model does not persist default language text');
 fieldCheck(strpos($admin, 'COALESCE(VALUES(default_value), default_value)') !== false, 'Unsubmitted language defaults must survive updates');
-fieldCheck(strpos($migration, "const PRESENTATION_SCHEMA_VERSION = '45'") !== false, 'Migration revision missing');
+preg_match("/const PRESENTATION_SCHEMA_VERSION = '([0-9]+)'/", $migration, $schemaRevision);
+fieldCheck(isset($schemaRevision[1]) && (int)$schemaRevision[1] >= 45, 'Migration revision missing');
 fieldCheck(strpos($migration, "ensureCustomFieldDefaultTranslations();") !== false, 'Migration not called');
 fieldCheck(strpos($sql, '`default_value` text NULL DEFAULT NULL') !== false, 'Fresh install schema missing');
 foreach (array('uk-ua','ru-ru','en-gb') as $code) {
