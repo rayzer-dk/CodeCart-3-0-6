@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '44';
+    const PRESENTATION_SCHEMA_VERSION = '45';
 
     private $db;
     private $config;
@@ -89,6 +89,7 @@ class Migration {
             $this->ensureMainCategoryCompatibility();
             $this->ensureProductTaxDisplayMode();
             $this->ensureProductCondition();
+            $this->ensureCustomFieldDefaultTranslations();
             $this->ensureProductExtraTabTable();
             $this->ensurePurchaseBlockTable();
             $this->ensureFormBuilderTables();
@@ -976,6 +977,14 @@ class Migration {
         $columns = $this->columnMap('product');
         if (!isset($columns['condition'])) {
             $this->db->query("ALTER TABLE `" . DB_PREFIX . "product` ADD `condition` VARCHAR(12) NOT NULL DEFAULT 'new' AFTER `shipping`");
+        }
+    }
+
+    private function ensureCustomFieldDefaultTranslations() {
+        // Null means the historical shared custom_field.value. Merchant data is preserved.
+        if ($this->tableExists('custom_field_description') &&
+            !$this->columnExists('custom_field_description', 'default_value')) {
+            $this->db->query("ALTER TABLE `" . DB_PREFIX . "custom_field_description` ADD `default_value` TEXT NULL DEFAULT NULL AFTER `name`");
         }
     }
 

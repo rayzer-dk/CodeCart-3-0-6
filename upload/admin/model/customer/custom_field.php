@@ -6,7 +6,7 @@ class ModelCustomerCustomField extends Model {
 		$custom_field_id = $this->db->getLastId();
 
 		foreach ($data['custom_field_description'] as $language_id => $value) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "custom_field_description SET custom_field_id = '" . (int)$custom_field_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "'");
+			$this->db->query("INSERT INTO " . DB_PREFIX . "custom_field_description SET custom_field_id = '" . (int)$custom_field_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "', default_value = " . (isset($value['default_value']) && is_string($value['default_value']) ? "'" . $this->db->escape($value['default_value']) . "'" : "NULL"));
 		}
 
 		if (isset($data['custom_field_customer_group'])) {
@@ -38,7 +38,7 @@ class ModelCustomerCustomField extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "custom_field_description WHERE custom_field_id = '" . (int)$custom_field_id . "'");
 
 		foreach ($data['custom_field_description'] as $language_id => $value) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "custom_field_description SET custom_field_id = '" . (int)$custom_field_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "'");
+			$this->db->query("INSERT INTO " . DB_PREFIX . "custom_field_description SET custom_field_id = '" . (int)$custom_field_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "', default_value = " . (isset($value['default_value']) && is_string($value['default_value']) ? "'" . $this->db->escape($value['default_value']) . "'" : "NULL"));
 		}
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "custom_field_customer_group WHERE custom_field_id = '" . (int)$custom_field_id . "'");
@@ -143,7 +143,7 @@ class ModelCustomerCustomField extends Model {
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "custom_field_description WHERE custom_field_id = '" . (int)$custom_field_id . "'");
 
 		foreach ($query->rows as $result) {
-			$custom_field_data[$result['language_id']] = array('name' => $result['name']);
+			$custom_field_data[$result['language_id']] = array('name' => $result['name'], 'default_value' => $result['default_value']);
 		}
 
 		return $custom_field_data;

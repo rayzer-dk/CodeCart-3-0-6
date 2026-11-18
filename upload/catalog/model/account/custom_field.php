@@ -1,18 +1,22 @@
 <?php
 class ModelAccountCustomField extends Model {
 	public function getCustomField($custom_field_id) {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "custom_field` cf LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cf.custom_field_id = '" . (int)$custom_field_id . "' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$query = $this->db->query("SELECT cf.*, cfd.name, cfd.default_value FROM `" . DB_PREFIX . "custom_field` cf LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cf.custom_field_id = '" . (int)$custom_field_id . "' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
 
-		return $query->row;
+        $row = $query->row;
+        if ($row && in_array($row['type'], array('text', 'textarea'), true) && $row['default_value'] !== null) {
+            $row['value'] = $row['default_value'];
+        }
+        return $row;
 	}
 
 	public function getCustomFields($customer_group_id = 0) {
 		$custom_field_data = array();
 
 		if (!$customer_group_id) {
-			$custom_field_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "custom_field` cf LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cf.status = '1' ORDER BY cf.sort_order ASC");
+			$custom_field_query = $this->db->query("SELECT cf.*, cfd.name, cfd.default_value FROM `" . DB_PREFIX . "custom_field` cf LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cf.status = '1' ORDER BY cf.sort_order ASC");
 		} else {
-			$custom_field_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "custom_field_customer_group` cfcg LEFT JOIN `" . DB_PREFIX . "custom_field` cf ON (cfcg.custom_field_id = cf.custom_field_id) LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cfcg.customer_group_id = '" . (int)$customer_group_id . "' ORDER BY cf.sort_order ASC");
+			$custom_field_query = $this->db->query("SELECT cf.*, cfcg.required, cfd.name, cfd.default_value FROM `" . DB_PREFIX . "custom_field_customer_group` cfcg LEFT JOIN `" . DB_PREFIX . "custom_field` cf ON (cfcg.custom_field_id = cf.custom_field_id) LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cfcg.customer_group_id = '" . (int)$customer_group_id . "' ORDER BY cf.sort_order ASC");
 		}
 
 		foreach ($custom_field_query->rows as $custom_field) {
@@ -34,7 +38,7 @@ class ModelAccountCustomField extends Model {
 				'custom_field_value' => $custom_field_value_data,
 				'name'               => $custom_field['name'],
 				'type'               => $custom_field['type'],
-				'value'              => $custom_field['value'],
+				'value'              => in_array($custom_field['type'], array('text', 'textarea'), true) && $custom_field['default_value'] !== null ? $custom_field['default_value'] : $custom_field['value'],
 				'validation'         => $custom_field['validation'],
 				'location'           => $custom_field['location'],
 				'required'           => empty($custom_field['required']) || $custom_field['required'] == 0 ? false : true,

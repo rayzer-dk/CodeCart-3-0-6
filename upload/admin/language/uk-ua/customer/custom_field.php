@@ -57,3 +57,5 @@ $_['error_custom_value']    = 'Значення має містити від 3 �
 
 // CodeCart PRO: completed Ukrainian language keys.
 $_['entry_validation'] = 'Перевірка';
+
+$_['help_localized_default_value'] = 'Вкажіть значення для кожної мови вітрини. Поки переклад не збережено, використовується попередній спільний текст.';
