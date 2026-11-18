@@ -944,20 +944,21 @@ class ControllerCatalogCategory extends Controller {
 				if ($action === 'sort') {
 					$sort = $number($raw['value'] ?? null);
 					$old = $number($raw['expected'] ?? null);
-					if ($sort === null || $old === null) { throw new \\InvalidArgumentException('Invalid sort value.'); }
-					$out['value'] = \\CodeCart\\Core\\AdminCategoryTreeEditor::quickSort($this->registry, 'catalog', $id, $sort, $old);
+					if ($sort === null || $old === null) { throw new \InvalidArgumentException('Invalid sort value.'); }
+					$out['value'] = \CodeCart\Core\AdminCategoryTreeEditor::quickSort($this->registry, 'catalog', $id, $sort, $old);
 				} else {
 					$parentRaw = isset($raw['parent_id']) && is_string($raw['parent_id']) ? $raw['parent_id'] : '';
-					if (!preg_match('/^(0|[1-9][0-9]{0,9})$/D', $parentRaw)) { throw new \\InvalidArgumentException('Invalid destination.'); }
-					$out['moved'] = \\CodeCart\\Core\\AdminCategoryTreeEditor::move($this->registry, 'catalog', $id, (int)$parentRaw);
+					if (!preg_match('/^(0|[1-9][0-9]{0,9})$/D', $parentRaw)) { throw new \InvalidArgumentException('Invalid destination.'); }
+					$out['moved'] = \CodeCart\Core\AdminCategoryTreeEditor::move($this->registry, 'catalog', $id, (int)$parentRaw);
 				}
 				$out['success'] = true;
-			} catch (\\InvalidArgumentException $e) {
+			} catch (\InvalidArgumentException $e) {
 				$this->response->setStatusCode(422);
 				$out['error'] = $e->getMessage();
-			} catch (\\Throwable $e) {
+			} catch (\Throwable $e) {
+				$this->log->write('Category tree catalog update: ' . $e->getMessage());
 				$this->response->setStatusCode(409);
-				$out['error'] = $e->getMessage();
+				$out['error'] = $this->language->get('tree_error');
 			}
 		}
 		$this->response->setOutput(json_encode($out, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
