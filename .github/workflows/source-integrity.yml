@@ -32,6 +32,7 @@ jobs:
           php tests/smart_search_index_smoke.php
           php tests/catalog_quality_smoke.php
           php tests/blog_landing_locale_smoke.php
+          php tests/product_condition_smoke.php
       - name: Audit all changed tracked source files
         shell: bash
         env:
@@ -103,6 +104,10 @@ jobs:
           php -l upload/system/library/codecart/src/SearchIndex.php
           php -l upload/system/library/codecart/src/CatalogQuality.php
           php -l upload/system/library/codecart/src/BlogLocaleSeo.php
+          php -l upload/system/library/codecart/src/ProductCondition.php
+          php -l upload/system/library/codecart/migration.php
+          php -l upload/admin/model/catalog/product.php
+          php -l upload/catalog/controller/extension/feed/google_base.php
           php -l upload/admin/controller/blog/setting.php
           php -l upload/catalog/controller/blog/latest.php
           php -l upload/catalog/controller/blog/menu.php
@@ -114,3 +119,4 @@ jobs:
           php tests/smart_search_index_smoke.php
           php tests/catalog_quality_smoke.php
           php tests/blog_landing_locale_smoke.php
+          php tests/product_condition_smoke.php
