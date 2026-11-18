@@ -1,0 +1,51 @@
+name: CodeCart Custom Field Localization QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/admin/model/customer/custom_field.php'
+      - 'upload/admin/view/template/customer/custom_field_form.twig'
+      - 'upload/catalog/model/account/custom_field.php'
+      - 'upload/admin/language/**/customer/custom_field.php'
+      - 'upload/system/library/codecart/migration.php'
+      - 'upload/install/opencart.sql'
+      - 'upload/admin/view/template/common/header.twig'
+      - 'upload/admin/view/javascript/codecart-header-overflow.js'
+      - 'tests/custom_field_translation_smoke.php'
+      - 'tests/E2E/admin-mobile-overflow.spec.js'
+      - '.github/workflows/custom-field-i18n-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    name: Custom fields / PHP ${{ matrix.php }}
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Syntax and three-language defaults
+        run: |
+          php -l upload/admin/model/customer/custom_field.php
+          php -l upload/catalog/model/account/custom_field.php
+          php -l upload/system/library/codecart/migration.php
+          php -l tests/custom_field_translation_smoke.php
+          php tests/custom_field_translation_smoke.php
+          php tools/i18n-check.php
+          php tools/i18n-coverage-check.php
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Header JavaScript syntax
+        run: node --check upload/admin/view/javascript/codecart-header-overflow.js
