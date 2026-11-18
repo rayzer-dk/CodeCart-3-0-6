@@ -1300,13 +1300,13 @@ class ModelCatalogProduct extends Model {
 		return $progress;
 	}
 
-	private function readProductPhotoSize(string $root, string $image): array|false {
+	private function readProductPhotoSize(string $root, string $image) {
 		if (strpos($image, "\0") !== false) {
 			return false;
 		}
 
 		$path = realpath($root . DIRECTORY_SEPARATOR . $image);
-		if ($path === false || !str_starts_with($path, $root . DIRECTORY_SEPARATOR) || !is_file($path) || !is_readable($path)) {
+		if ($path === false || strpos($path, $root . DIRECTORY_SEPARATOR) !== 0 || !is_file($path) || !is_readable($path)) {
 			return false;
 		}
 
