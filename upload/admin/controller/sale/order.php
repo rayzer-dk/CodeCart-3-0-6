@@ -352,6 +352,8 @@ class ControllerSaleOrder extends Controller {
 		$data['delete'] = str_replace('&amp;', '&', $this->url->link('sale/order/delete', 'user_token=' . $this->session->data['user_token'] . $url, true));
 
 		$data['orders'] = array();
+		// This label is still used inside the expandable product preview.
+		$data['column_image'] = $this->language->get('column_image');
 		$data['text_order_units_label'] = $this->language->get('text_order_units_label');
 
 		$filter_data = array(
