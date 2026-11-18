@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '40';
+    const PRESENTATION_SCHEMA_VERSION = '41';
 
     private $db;
     private $config;
@@ -88,6 +88,7 @@ class Migration {
             $this->currentStep = 'commerce_columns';
             $this->ensureMainCategoryCompatibility();
             $this->ensureProductTaxDisplayMode();
+            $this->ensureProductCondition();
             $this->ensureProductExtraTabTable();
             $this->ensurePurchaseBlockTable();
             $this->ensureFormBuilderTables();
@@ -961,6 +962,18 @@ class Migration {
         $query = $this->db->query("SELECT setting_id FROM `" . DB_PREFIX . "setting` WHERE store_id = '0' AND code = 'config' AND `key` = 'config_currency_trim_zeros' LIMIT 1");
         if (!$query->num_rows) {
             $this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET store_id = '0', code = 'config', `key` = 'config_currency_trim_zeros', value = '0', serialized = '0'");
+        }
+    }
+
+    /**
+     * Add a single low-cost, language-independent condition field.
+     * Existing products retain the same 'new' value as all pre-upgrade feeds.
+     */
+    private function ensureProductCondition() {
+        if (!$this->tableExists('product')) { return; }
+        $columns = $this->columnMap('product');
+        if (!isset($columns['condition'])) {
+            $this->db->query("ALTER TABLE `" . DB_PREFIX . "product` ADD `condition` VARCHAR(12) NOT NULL DEFAULT 'new' AFTER `shipping`");
         }
     }
 
