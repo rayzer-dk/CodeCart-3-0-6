@@ -84,3 +84,7 @@ $_['text_next_images'] = 'Наступні фотографії';
 $_['text_gallery_photo'] = 'Фото %s';
 
 $_['error_method_not_allowed'] = 'Цей метод запиту не дозволено.';
+$_['entry_condition'] = 'Стан товару';
+$_['text_condition_new'] = 'Новий';
+$_['text_condition_refurbished'] = 'Відновлений';
+$_['text_condition_used'] = 'Б/в';
