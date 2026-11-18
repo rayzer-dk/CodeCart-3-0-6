@@ -85,6 +85,8 @@ try {
     }
     $matches = $model->getOrders(array('filter_phone'=>'+38 (095) 899-39-86'));
     assertDb(count($matches) === 2 && (int)$matches[0]['order_id'] === $first, 'Full phone must outrank country-code variation');
+    assertDb($model->getTotalOrders(array('filter_phone'=>'0958993987')) === 2, 'One incorrect digit must find both close national numbers');
+    assertDb($model->getTotalOrders(array('filter_phone'=>'0958993896')) === 2, 'Adjacent digit transposition must match national numbers');
     assertDb($model->getTotalOrders(array('filter_product'=>'separator')) === 1, 'Product filtering must return unique orders');
     assertDb($model->getTotalOrders(array('filter_product'=>'QA-106')) === 1, 'Deleted products must be searchable by order SKU snapshot');
     assertDb($model->getTotalOrders(array('filter_total_min'=>'29800', 'filter_total_max'=>'29900')) === 1, 'Amount range');
