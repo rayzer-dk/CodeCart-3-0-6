@@ -389,20 +389,10 @@ class ControllerSaleOrder extends Controller {
 		// This fetch is scoped to the visible orders and is independent of the live catalog.
 		$orderIds = array_column($results, 'order_id');
 		$orderCounts = $this->model_sale_order->getProductCountsForOrderIds($orderIds);
-		$orderImages = $this->model_sale_order->getFirstProductImagesByOrderIds($orderIds);
-		$this->load->model('tool/image');
-		$emptyThumb = $this->model_tool_image->resize('no_image.webp', 36, 36);
-
 		foreach ($results as $result) {
 			$counts = $orderCounts[(int)$result['order_id']] ?? array('units' => 0, 'positions' => 0);
-			$source = $orderImages[(int)$result['order_id']] ?? array('image' => '', 'name' => '');
-			$image = (string)$source['image'];
-			$thumb = $image !== '' && is_file(DIR_IMAGE . $image)
-				? $this->model_tool_image->resize($image, 36, 36) : $emptyThumb;
-			$data['orders'][] = array(
+		$data['orders'][] = array(
 				'order_id'      => $result['order_id'],
-				'product_thumb' => $thumb,
-				'product_thumb_name' => (string)$source['name'],
 				'product_units' => $counts['units'],
 				'product_count_tooltip' => sprintf(
 					$this->language->get('text_order_product_count'),
