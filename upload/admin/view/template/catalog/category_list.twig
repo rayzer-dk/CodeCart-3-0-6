@@ -61,9 +61,9 @@
                     <input type="checkbox" name="selected[]" value="{{ category.category_id }}" />
                     {% endif %}</td>
 				  {% if category.href %}
-                  <td class="left">{{ category.indent }}<a href="{{ category.href }}">{{ category.name }}</a> <span class="cc-quality" data-quality-id="{{ category.category_id }}"><span class="cc-quality-score">···</span><span class="cc-quality-count" hidden></span></span>&nbsp;<i class="fa fa-sort-desc"></i></td>
+                  <td class="left">{{ category.indent }}<a href="{{ category.href }}">{{ category.name }}</a> <span class="cc-quality" data-quality-id="{{ category.category_id }}"><span class="cc-quality-score">···</span><a href="{{ category.products_href }}" class="cc-quality-count cc-quality-count-link" title="{{ quality_count_label }}" aria-label="{{ quality_count_label }}: {{ category.name|striptags }}" hidden><span class="cc-quality-count-number"></span><i class="fa fa-arrow-right" aria-hidden="true"></i></a></span>&nbsp;<i class="fa fa-sort-desc"></i></td>
 					{% else %}
-                  <td class="left">{{ category.indent }}{{ category.name }} <span class="cc-quality" data-quality-id="{{ category.category_id }}"><span class="cc-quality-score">···</span><span class="cc-quality-count" hidden></span></span></td>
+                  <td class="left">{{ category.indent }}{{ category.name }} <span class="cc-quality" data-quality-id="{{ category.category_id }}"><span class="cc-quality-score">···</span><a href="{{ category.products_href }}" class="cc-quality-count cc-quality-count-link" title="{{ quality_count_label }}" aria-label="{{ quality_count_label }}: {{ category.name|striptags }}" hidden><span class="cc-quality-count-number"></span><i class="fa fa-arrow-right" aria-hidden="true"></i></a></span></td>
                   {% endif %}
                   <td class="text-right">{{ category.sort_order }}</td>
 				  <td class="text-right">{{ category.noindex }}</td>
