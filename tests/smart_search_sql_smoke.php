@@ -25,7 +25,7 @@ class SearchSqlDb {
 
 class SearchSqlConfig {
     public function get($key) {
-        return 1;
+        return strpos((string)$key, 'codecart_search_') === 0 ? 0 : 1;
     }
 }
 
