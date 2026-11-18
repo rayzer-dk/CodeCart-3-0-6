@@ -1,4 +1,5 @@
 <?php
+require_once (defined('DIR_SYSTEM') ? DIR_SYSTEM : dirname(__DIR__, 3) . '/system/') . 'library/codecart/src/SearchIndex.php';
 // *	@source		See SOURCE.txt for source and other copyright.
 // *	@license	GNU General Public License version 3; see LICENSE.txt
 
