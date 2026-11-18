@@ -85,3 +85,7 @@ $_['text_next_images'] = 'Next images';
 $_['text_gallery_photo'] = 'Photo %s';
 
 $_['error_method_not_allowed'] = 'Method not allowed.';
+$_['entry_condition'] = 'Product condition';
+$_['text_condition_new'] = 'New';
+$_['text_condition_refurbished'] = 'Refurbished';
+$_['text_condition_used'] = 'Used';
