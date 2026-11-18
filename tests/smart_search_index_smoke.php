@@ -21,7 +21,7 @@ class SearchIndexFakeDb {
 
     public function query($sql) {
         $this->queries[] = $sql;
-        if (strpos($sql, 'SELECT generation, cursor, indexed, ready FROM oc_codecart_search_index_state') === 0) {
+        if (strpos($sql, 'SELECT generation, last_product_id AS cursor, indexed, ready FROM oc_codecart_search_index_state') === 0) {
             return $this->result(array($this->state));
         }
         if (strpos($sql, 'INSERT INTO oc_codecart_search_index_state SET') === 0) {
@@ -44,8 +44,8 @@ class SearchIndexFakeDb {
                 array('product_id' => 7, 'text' => '1,5 кВт', 'attribute_name' => 'Потужність')
             ));
         }
-        if (strpos($sql, 'UPDATE oc_codecart_search_index_state SET cursor =') === 0) {
-            if (preg_match("/cursor = '(\d+)', indexed = '(\d+)', ready = '(\d+)'/", $sql, $m)) {
+        if (strpos($sql, 'UPDATE oc_codecart_search_index_state SET last_product_id =') === 0) {
+            if (preg_match("/last_product_id = '(\d+)', indexed = '(\d+)', ready = '(\d+)'/", $sql, $m)) {
                 $this->state['cursor'] = (int)$m[1];
                 $this->state['indexed'] = (int)$m[2];
                 $this->state['ready'] = (int)$m[3];
