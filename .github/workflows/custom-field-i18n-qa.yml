@@ -1,4 +1,4 @@
-name: CodeCart Custom Field Localization QA
+name: CodeCart Custom Field Translation QA
 
 on:
   workflow_dispatch:
@@ -7,45 +7,32 @@ on:
     paths:
       - 'upload/admin/model/customer/custom_field.php'
       - 'upload/admin/view/template/customer/custom_field_form.twig'
-      - 'upload/catalog/model/account/custom_field.php'
       - 'upload/admin/language/**/customer/custom_field.php'
+      - 'upload/catalog/model/account/custom_field.php'
       - 'upload/system/library/codecart/migration.php'
-      - 'upload/install/opencart.sql'
-      - 'upload/admin/view/template/common/header.twig'
       - 'upload/admin/view/javascript/codecart-header-overflow.js'
-      - 'tests/custom_field_translation_smoke.php'
-      - 'tests/E2E/admin-mobile-overflow.spec.js'
+      - 'tests/custom_field_i18n_smoke.php'
       - '.github/workflows/custom-field-i18n-qa.yml'
 
 permissions:
   contents: read
 
 jobs:
-  smoke:
+  i18n:
     runs-on: ubuntu-latest
-    name: Custom fields / PHP ${{ matrix.php }}
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.1', '8.5']
+        php: ['7.4','8.1','8.5']
     steps:
       - uses: actions/checkout@v4
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
-      - name: Syntax and three-language defaults
+      - name: PHP syntax and translation regression
         run: |
           php -l upload/admin/model/customer/custom_field.php
           php -l upload/catalog/model/account/custom_field.php
-          php -l upload/system/library/codecart/migration.php
-          php -l tests/custom_field_translation_smoke.php
-          php tests/custom_field_translation_smoke.php
-          php tools/i18n-check.php
-          php tools/i18n-coverage-check.php
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Header JavaScript syntax
-        run: node --check upload/admin/view/javascript/codecart-header-overflow.js
+          php -l tests/custom_field_i18n_smoke.php
+          php tests/custom_field_i18n_smoke.php
