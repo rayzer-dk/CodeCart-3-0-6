@@ -6,6 +6,8 @@ class ControllerExtensionModuleSettingsCleaner extends Controller {
         }
         $this->load->model('extension/module/settings_cleaner');
         $this->model_extension_module_settings_cleaner->install();
+        $this->load->model('extension/module/settings_cleaner_files');
+        $this->model_extension_module_settings_cleaner_files->install();
     }
 
     public function uninstall() {
@@ -14,6 +16,8 @@ class ControllerExtensionModuleSettingsCleaner extends Controller {
         }
         $this->load->model('extension/module/settings_cleaner');
         $this->model_extension_module_settings_cleaner->uninstall();
+        $this->load->model('extension/module/settings_cleaner_files');
+        $this->model_extension_module_settings_cleaner_files->uninstall();
     }
 
     public function index() {
@@ -22,7 +26,13 @@ class ControllerExtensionModuleSettingsCleaner extends Controller {
         $this->document->setTitle($this->language->get('heading_title'));
         $token = 'user_token=' . $this->session->data['user_token'];
         $route = 'extension/module/settings_cleaner';
+        $tab = isset($this->request->get['tab']) && in_array($this->request->get['tab'], array('settings', 'payments', 'files', 'integrations', 'backups'), true)
+            ? $this->request->get['tab'] : 'settings';
         $error = '';
+        if ($tab !== 'settings' || (isset($this->request->post['action']) && in_array($this->request->post['action'], array('quarantine', 'restore_files'), true))) {
+            $this->load->model('extension/module/settings_cleaner_files');
+            $this->model_extension_module_settings_cleaner_files->install();
+        }
 
         if (isset($this->request->server['REQUEST_METHOD']) && $this->request->server['REQUEST_METHOD'] === 'POST') {
             if (!$this->user->hasPermission('modify', $route)) {
@@ -42,14 +52,25 @@ class ControllerExtensionModuleSettingsCleaner extends Controller {
                     } elseif ($action === 'restore') {
                         $restored = $this->model_extension_module_settings_cleaner->restoreBackup(isset($this->request->post['backup_id']) ? $this->request->post['backup_id'] : 0);
                         $this->session->data['success'] = sprintf($this->language->get('text_restored'), $restored);
+                    } elseif ($action === 'quarantine') {
+                        $code = isset($this->request->post['payment_code']) ? (string)$this->request->post['payment_code'] : '';
+                        if (!isset($this->request->post['confirm']) || $this->request->post['confirm'] !== $code) {
+                            throw new RuntimeException('confirmation_required');
+                        }
+                        $saved = $this->model_extension_module_settings_cleaner_files->quarantinePayment($code, $this->user->getId());
+                        $this->session->data['success'] = sprintf($this->language->get('text_files_quarantined'), $saved['removed'], $saved['backup_id']);
+                    } elseif ($action === 'restore_files') {
+                        $restored = $this->model_extension_module_settings_cleaner_files->restoreFileBackup(isset($this->request->post['file_backup_id']) ? $this->request->post['file_backup_id'] : 0);
+                        $this->session->data['success'] = sprintf($this->language->get('text_files_restored'), $restored);
                     } else {
                         throw new RuntimeException('invalid_selection');
                     }
-                    $this->response->redirect($this->url->link($route, $token . '&scan=1', true));
+                    $target = in_array($action, array('quarantine', 'restore_files'), true) ? '&tab=payments' : '&tab=settings&scan=1';
+                    $this->response->redirect($this->url->link($route, $token . $target, true));
                     return;
                 } catch (Throwable $exception) {
                     $key = 'error_' . $exception->getMessage();
-                    $known = array('error_invalid_selection', 'error_selection_changed', 'error_restore_conflict', 'error_missing_backup', 'error_already_restored', 'error_confirmation_required', 'error_scan_limit');
+                    $known = array('error_invalid_selection', 'error_selection_changed', 'error_restore_conflict', 'error_missing_backup', 'error_already_restored', 'error_confirmation_required', 'error_scan_limit', 'error_not_safe', 'error_unsafe_path', 'error_file_changed', 'error_size');
                     $error = in_array($key, $known, true) ? $this->language->get($key) : $this->language->get('error_operation');
                 }
             }
@@ -57,8 +78,18 @@ class ControllerExtensionModuleSettingsCleaner extends Controller {
 
         $data = array();
         $data['heading_title'] = $this->language->get('heading_title');
+        $data['tab'] = $tab;
+        $data['tabs'] = array();
+        foreach (array('settings', 'payments', 'files', 'integrations', 'backups') as $name) {
+            $data['tabs'][] = array('name' => $name, 'title' => $this->language->get('tab_' . $name),
+                'href' => $this->url->link($route, $token . '&tab=' . $name, true));
+        }
         $translations = array('text_home','text_extension','text_intro','text_scan','text_all','text_candidate','text_protected','text_review','text_unknown','text_status','text_reason','text_search','text_filter','text_found','text_limit','text_incomplete','text_no_results','text_delete','text_confirm','text_confirm_delete','text_backup','text_restore','text_restore_confirm','text_backup_id','text_date','text_user','text_rows','text_restored_rows','text_reasons_system','text_reasons_custom','text_reasons_installed','text_reasons_file','text_reasons_module_reference','text_reasons_incomplete','text_reasons_missing','text_reasons_parent_extension','text_reasons_modification_reference','column_id','column_store','column_code','column_key','column_status','column_reason','text_select_all','button_cancel');
         foreach ($translations as $key) {
+            $data[$key] = $this->language->get($key);
+        }
+        $additional = array('text_payment_intro','text_payment_hint','text_payment_safety','text_quarantine','text_files_quarantined','text_files_restored','text_file_intro','text_integrations_intro','text_native_payment','text_file_backups','text_restore_files','text_payment_code','text_files_count','text_size_kb','text_order_count','text_payment_status','text_payment_installed','text_payment_uninstalled','text_file_reasons_installed','text_file_reasons_incomplete','text_file_reasons_orders','text_file_reasons_settings','text_file_reasons_references','text_file_reasons_package','text_file_reasons_theme','text_file_reasons_no_files','text_file_reasons_size','text_candidate_file','text_review_file','text_archive_confirm','text_restore_file_confirm','text_file_notice','text_warning_upgrade','column_file_path','column_owner','column_file_status','text_open_payment_list','text_read_only', 'tab_settings', 'tab_payments', 'tab_files', 'tab_integrations', 'tab_backups', 'text_enabled', 'text_disabled');
+        foreach ($additional as $key) {
             $data[$key] = $this->language->get($key);
         }
         $data['error_warning'] = $error;
@@ -73,7 +104,7 @@ class ControllerExtensionModuleSettingsCleaner extends Controller {
         $data['action'] = $this->url->link($route, $token . '&scan=1', true);
         $data['cancel'] = $this->url->link('marketplace/extension', $token . '&type=module', true);
         $data['user_token'] = $this->session->data['user_token'];
-        $data['scanned'] = isset($this->request->get['scan']) && $this->request->get['scan'] === '1';
+        $data['scanned'] = $tab === 'settings' && isset($this->request->get['scan']) && $this->request->get['scan'] === '1';
         $data['filter_status'] = isset($this->request->get['status']) && in_array($this->request->get['status'], array('candidate','protected','review','unknown','all'), true) ? $this->request->get['status'] : 'candidate';
         $data['search'] = isset($this->request->get['search']) ? utf8_substr(trim((string)$this->request->get['search']), 0, 100) : '';
         $data['sort'] = isset($this->request->get['sort']) && in_array($this->request->get['sort'], array('setting_id','store_id','code','key','status'), true) ? $this->request->get['sort'] : 'code';
@@ -126,7 +157,31 @@ class ControllerExtensionModuleSettingsCleaner extends Controller {
             $pagination->url = $this->url->link($route, $token . $queryParams . '&sort=' . $data['sort'] . '&order=' . $data['order'] . '&page={page}', true);
             $data['pagination'] = $pagination->render();
         }
-        $data['backups'] = $this->model_extension_module_settings_cleaner->getBackups();
+        $data['backups'] = $tab === 'backups' ? $this->model_extension_module_settings_cleaner->getBackups() : array();
+        $data['payment_list_url'] = $this->url->link('marketplace/extension', $token . '&type=payment', true);
+        $data['payments'] = array();
+        $data['file_inventory'] = array();
+        $data['file_backups'] = array();
+        $data['integrations'] = array();
+        if ($tab === 'payments') {
+            $data['payments'] = $this->model_extension_module_settings_cleaner_files->scanPayments();
+            foreach ($data['payments'] as &$payment) {
+                $labels = array();
+                foreach ($payment['reasons'] as $reason) {
+                    $labels[] = $this->language->get('text_file_reasons_' . $reason);
+                }
+                $payment['reason_label'] = implode('; ', $labels);
+                $payment['size_kb'] = round($payment['size'] / 1024, 1);
+            }
+            unset($payment);
+            $data['file_backups'] = $this->model_extension_module_settings_cleaner_files->getFileBackups();
+        } elseif ($tab === 'files') {
+            $data['file_inventory'] = array_slice($this->model_extension_module_settings_cleaner_files->scanExtensionControllers(), 0, 500);
+        } elseif ($tab === 'integrations') {
+            $data['integrations'] = $this->model_extension_module_settings_cleaner_files->scanIntegrations();
+        } elseif ($tab === 'backups') {
+            $data['file_backups'] = $this->model_extension_module_settings_cleaner_files->getFileBackups();
+        }
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');

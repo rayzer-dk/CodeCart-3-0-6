@@ -9,6 +9,10 @@
     {% if error_warning %}<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>{% endif %}
     {% if success %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ success }}</div>{% endif %}
     <div class="alert alert-info">{{ text_intro }}</div>
+    <ul class="nav nav-tabs sc-tabs" role="tablist">
+      {% for item in tabs %}<li{% if item.name == tab %} class="active"{% endif %}><a href="{{ item.href }}">{{ item.title }}</a></li>{% endfor %}
+    </ul>
+    {% if tab == 'settings' %}
     <div class="panel panel-default">
       <div class="panel-heading"><h3 class="panel-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.3-4.3"/><circle cx="11" cy="11" r="8"/></svg> {{ text_scan }}</h3></div>
       <div class="panel-body">
@@ -66,6 +70,8 @@
         {% endif %}
       </div>
     </div>
+    {% endif %}
+    {% if tab == 'backups' %}
     <div class="panel panel-default">
       <div class="panel-heading"><h3 class="panel-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18v16H3zM3 9h18"/><path d="M8 14h8"/></svg> {{ text_backup }}</h3></div>
       <div class="panel-body table-responsive">
@@ -76,10 +82,65 @@
         </tr>{% else %}<tr><td colspan="6" class="text-center text-muted">{{ text_no_results }}</td></tr>{% endfor %}</tbody></table>
       </div>
     </div>
+    {% endif %}
+    {% if tab == 'payments' %}
+      <div class="alert alert-warning">{{ text_payment_intro }} <a href="{{ payment_list_url }}">{{ text_open_payment_list }}</a></div>
+      <div class="panel panel-default">
+        <div class="panel-heading"><h3 class="panel-title">{{ tab_payments }}</h3></div>
+        <div class="panel-body">
+          <div class="table-responsive"><table class="table table-hover table-bordered sc-table">
+            <thead><tr><th>{{ text_payment_code }}</th><th>{{ text_payment_status }}</th><th>{{ text_order_count }}</th><th>{{ text_files_count }}</th><th>{{ text_size_kb }}</th><th>{{ column_reason }}</th><th></th></tr></thead>
+            <tbody>{% for payment in payments %}<tr>
+              <td><code>{{ payment.code|e }}</code></td>
+              <td><span class="label {{ payment.installed ? 'label-success' : 'label-default' }}">{{ payment.installed ? text_payment_installed : text_payment_uninstalled }}</span></td>
+              <td>{{ payment.orders }}</td><td>
+                {% if payment.files %}<details><summary>{{ payment.files|length }}</summary><div class="sc-payment-files">{% for path in payment.files %}<div><code>{{ path.path|e }}</code></div>{% endfor %}</div></details>{% else %}0{% endif %}
+              </td><td>{{ payment.size_kb }}</td>
+              <td>{% if payment.status == 'candidate' %}<span class="label label-warning">{{ text_candidate_file }}</span>{% else %}<span class="label label-info">{{ text_review_file }}</span> {{ payment.reason_label }}</td>{% endif %}
+              <td>{% if payment.status == 'candidate' %}
+                <form class="sc-quarantine" method="post" action="{{ action }}" onsubmit="return confirm({{ text_archive_confirm|json_encode|raw }});">
+                  <input type="hidden" name="action" value="quarantine" />
+                  <input type="hidden" name="payment_code" value="{{ payment.code|e('html_attr') }}" />
+                  <label class="sr-only" for="archive-{{ payment.code }}">{{ text_payment_code }}</label>
+                  <input class="form-control input-sm" id="archive-{{ payment.code }}" name="confirm" required autocomplete="off" placeholder="{{ payment.code|e('html_attr') }}" />
+                  <button class="btn btn-danger btn-sm" type="submit">{{ text_quarantine }}</button>
+                </form>
+              {% endif %}</td>
+            </tr>{% else %}<tr><td colspan="7" class="text-center">{{ text_no_results }}</td></tr>{% endfor %}</tbody>
+          </table></div>
+          <p class="text-muted">{{ text_payment_hint }}</p>
+        </div>
+      </div>
+      <div class="alert alert-info">{{ text_payment_safety }}</div>
+    {% elseif tab == 'files' %}
+      <div class="alert alert-info">{{ text_file_intro }}</div>
+      <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">{{ tab_files }}</h3></div><div class="panel-body table-responsive">
+        <table class="table table-bordered table-hover sc-table"><thead><tr><th>{{ column_file_path }}</th><th>{{ column_owner }}</th><th>{{ column_file_status }}</th></tr></thead>
+          <tbody>{% for file in file_inventory %}<tr><td><code>{{ file.path|e }}</code></td><td><code>{{ file.code|e }}</code></td><td>{{ file.status == 'installed' ? text_payment_installed : text_read_only }}</td></tr>{% else %}<tr><td colspan="3">{{ text_no_results }}</td></tr>{% endfor %}</tbody>
+        </table>
+      </div></div>
+    {% elseif tab == 'integrations' %}
+      <div class="alert alert-info">{{ text_integrations_intro }}</div>
+      <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title">{{ tab_integrations }}</h3></div><div class="panel-body table-responsive">
+        <table class="table table-bordered table-hover sc-table"><thead><tr><th>{{ column_id }}</th><th>{{ column_owner }}</th><th>{{ column_file_status }}</th></tr></thead>
+        <tbody>{% for item in integrations %}<tr><td>{{ item.id }}</td><td><code>{{ item.code|e }}</code></td><td>{{ item.kind|e }} · {{ item.status ? text_enabled : text_disabled }}</td></tr>{% else %}<tr><td colspan="3">{{ text_no_results }}</td></tr>{% endfor %}</tbody></table>
+      </div></div>
+    {% endif %}
+    {% if tab == 'payments' or tab == 'backups' %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title">{{ text_file_backups }}</h3></div>
+      <div class="panel-body table-responsive"><table class="table table-bordered table-hover sc-table">
+        <thead><tr><th>{{ text_backup_id }}</th><th>{{ text_payment_code }}</th><th>{{ text_date }}</th><th>{{ text_user }}</th><th>{{ text_files_count }}</th><th>{{ text_restored_rows }}</th><th></th></tr></thead>
+        <tbody>{% for backup in file_backups %}<tr><td>{{ backup.file_backup_id }}</td><td><code>{{ backup.code|e }}</code></td><td>{{ backup.date_added }}</td><td>{{ backup.user_id }}</td><td>{{ backup.file_count }}</td><td>{{ backup.restored_count }}</td>
+          <td>{% if backup.restored_count < backup.file_count %}<form method="post" action="{{ action }}" onsubmit="return confirm({{ text_restore_file_confirm|json_encode|raw }});"><input type="hidden" name="action" value="restore_files" /><input type="hidden" name="file_backup_id" value="{{ backup.file_backup_id }}" /><button type="submit" class="btn btn-default btn-sm">{{ text_restore_files }}</button></form>{% endif %}</td>
+          </tr>{% else %}<tr><td colspan="7">{{ text_no_results }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    {% endif %}
   </div>
 </div>
 <style>
-.sc-page .panel-title svg,.sc-page .btn svg{vertical-align:-3px;margin-right:4px}
+.sc-page .sc-tabs{margin:0 0 18px}.sc-page .sc-payment-files{max-width:370px;padding:7px 0;overflow-wrap:anywhere}.sc-page .sc-payment-files div{margin:4px 0}.sc-page .sc-quarantine{display:flex;gap:6px;align-items:center;min-width:250px}.sc-page .sc-quarantine .form-control{max-width:120px}.sc-page .panel-title svg,.sc-page .btn svg{vertical-align:-3px;margin-right:4px}
 .sc-page .sc-filters{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
 .sc-page .sc-filters .form-group{margin:0;min-width:160px}
 .sc-page .sc-filters .sc-search{flex:1;min-width:220px}
