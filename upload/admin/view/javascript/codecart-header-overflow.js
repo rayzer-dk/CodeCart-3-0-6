@@ -50,6 +50,20 @@
       if (node.classList.contains('ccp-notification-menu')) { return 4; }
       return 10;
     }
+    function overflows() {
+      var parent = nav.parentElement;
+      if (!parent) { return false; }
+      var rightEdge = Math.min(window.innerWidth, parent.getBoundingClientRect().right) - 3;
+      var navRect = nav.getBoundingClientRect();
+      // With flex:nowrap the right navigation can grow *outside* the parent;
+      // in that case scrollWidth == clientWidth and is not an overflow signal.
+      var last = Array.prototype.slice.call(nav.children).filter(function (item) {
+        return !item.hidden && item.getBoundingClientRect().width > 0;
+      }).pop();
+      var lastRight = last ? last.getBoundingClientRect().right : navRect.right;
+      return nav.scrollWidth > nav.clientWidth + 1 ||
+        navRect.right > rightEdge + 1 || lastRight > rightEdge + 1;
+    }
     function refresh() {
       if (busy) { return; }
       busy = true;
@@ -61,12 +75,12 @@
         });
         more.hidden = true;
         if (!window.matchMedia('(max-width: 767px)').matches) { return; }
-        if (nav.scrollWidth <= nav.clientWidth + 1) { return; }
+        if (!overflows()) { return; }
 
         more.hidden = false;
         var candidates = tracked.filter(function (node) { return !isPinned(node); });
         candidates.sort(function (a, b) { return rank(a) - rank(b); });
-        for (var i = 0; i < candidates.length && nav.scrollWidth > nav.clientWidth + 1; i++) {
+        for (var i = 0; i < candidates.length && overflows(); i++) {
           var node = candidates[i];
           label(node, false);
           box.appendChild(node);
