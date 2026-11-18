@@ -163,9 +163,9 @@
         "catalog/controller/api/v1/health.php": "ec81aaf58c94c89b16f1e307602a0098e3c25091bd0b79c5c2ff2fdcc9bdf0a0",
         "catalog/controller/api/v1/product.php": "963e6bbcd381188bbb104b6d0aecb859010d437156c975f82fe24f80066f678c",
         "catalog/controller/api/v1/search.php": "ebe7b383f9eb8d329a7857b8660c84996e219cf8cd3acd15db447710af3fd46f",
-        "catalog/controller/blog/article.php": "0e460389250c7f376a7ab96f514a9cfe00103bf4a3250d2e4964e3a3c280848b",
-        "catalog/controller/blog/category.php": "6517b01761a69657f8e5d1da8d1b2e5ca4e7da45a408f3d3a5436e76485df2a7",
-        "catalog/controller/blog/latest.php": "9b5c730f02eb5f79d649cb9841b360527827ed340b1ed91bb86058ca04141985",
+        "catalog/controller/blog/article.php": "5688c13823448cf669838b8ccc1b9fb2e4f7317339cfcb1c58d6d1bd5362c057",
+        "catalog/controller/blog/category.php": "b050031678c86bb25ad74c6b122a6d9e189e60e61fb7c6572892aaebe11fe815",
+        "catalog/controller/blog/latest.php": "89b3104dd0c076a3eacb9c260575ae159572d83484ed060023c852c3577d1186",
         "catalog/controller/checkout/checkout.php": "ee3423dc933dee156a137c2dc8372eb20a3cf615afed279591add39222a759a9",
         "catalog/controller/checkout/confirm.php": "1aed03c44d86f01370a8147c328faddce086159e4ecb3efca7c7c4e59758ebad",
         "catalog/controller/checkout/guest.php": "b6416b92ed64f0a984ca4dc1a9fe609a9f4850ce8e2c5cad95d24a05ba5649a0",
@@ -546,7 +546,11 @@
         "catalog/controller/common/pwa.php": "e91f7be51abc75549f04318b746025aa403b05b6fe4e865eaf35c7ba5d34b50a",
         "codecart-app-sw.js": "4aed176ffc45a2f2b742cef593586ea1ae84b40bb71cd4624ec2c63a79800f41",
         "system/library/codecart/src/SearchIndex.php": "7540090c1ac0fb72aa2305fe018de03f42b43ccb29ef67a13963acb15439e995",
-        "system/library/codecart/src/CatalogQuality.php": "c487c4e1cc830d73da5e8706d695050616bc55a16fd088994c922c2485603180"
+        "system/library/codecart/src/CatalogQuality.php": "c487c4e1cc830d73da5e8706d695050616bc55a16fd088994c922c2485603180",
+        "catalog/controller/blog/menu.php": "1d4e6d85e059989bcac9a001b2d5da874a45fccdce322a1002f2ae869786e010",
+        "admin/controller/blog/setting.php": "cf09877f4b55c2a01961aa09b6cec408b04dc6ce2a692197812467bac9b7edb9",
+        "system/library/codecart/src/BlogLocaleSeo.php": "a0605dc05edb925849ca06a80c4eaf78362aa13153dfd1449e088215c18912bb",
+        "admin/view/template/blog/setting.twig": "931ab8e2f2f300da77bc64ef63f2fe32abc84337eabf48a889b02c9935f84c7f"
     },
     "version": "3.0.6.0",
     "package_build": "2.3.25"
