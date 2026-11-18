@@ -107,7 +107,25 @@ foreach ($routes as $route => $rowId) {
     $check(strpos($template, '{{ ' . $rowId . ' }}') !== false, $route . ' uses existing entity IDs');
     $check(strpos($controller, 'public function quality()') !== false, $route . ' shares permission-scoped route');
     $check(strpos($controller, 'quality_endpoint') !== false, $route . ' wires endpoint without an extra admin route');
+    $check((bool)preg_match('/\\{\\{\\s*column_left\\s*\\}\\}\\s*<div id="content">/', $template), $route . ' keeps content adjacent to sidebar; external CSS/JS cannot split the layout');
 }
+
+$base = dirname(__DIR__) . '/upload/';
+$categoryTemplate = file_get_contents($base . 'admin/view/template/catalog/category_list.twig');
+$categoryController = file_get_contents($base . 'admin/controller/catalog/category.php');
+$productController = file_get_contents($base . 'admin/controller/catalog/product.php');
+$productModel = file_get_contents($base . 'admin/model/catalog/product.php');
+$qualityCss = file_get_contents($base . 'admin/view/stylesheet/codecart-catalog-quality.css');
+$qualityJs = file_get_contents($base . 'admin/view/javascript/codecart/catalog-quality.js');
+
+$check(strpos($categoryController, "'products_href'") !== false, 'category exposes an authorized product-filter link');
+$check(strpos($categoryController, "'&filter_category='") !== false, 'category link uses the existing product category filter parameter');
+$check(strpos($categoryTemplate, 'href="{{ category.products_href }}"') !== false, 'category count arrow opens its filtered product list');
+$check(strpos($categoryTemplate, 'cc-quality-count-number') !== false, 'category count keeps its arrow icon when the asynchronous count loads');
+$check(strpos($productController, "'filter_category'") !== false && strpos($productModel, "filter_category") !== false, 'product list recognizes category filters');
+$check(strpos($qualityCss, 'conic-gradient(') !== false, 'quality percentage uses a circular gauge');
+$check(strpos($qualityJs, "style.setProperty('--cc-quality-percent'") !== false, 'quality response drives circular percentage dynamically');
+$check(strpos($qualityJs, "querySelector('.cc-quality-count-number')") !== false, 'count arrow is preserved after rendering');
 
 if ($errors) {
     fwrite(STDERR, 'FAIL: ' . implode('; ', $errors) . "\n");
