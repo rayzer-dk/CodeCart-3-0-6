@@ -1,5 +1,7 @@
 {{ header }}{{ column_left }}
-<div id="content">
+<div id="content" data-cc-tree-url="{{ category_tree_edit_url }}" data-cc-tree-error="{{ tree_error }}">
+<link rel="stylesheet" href="view/stylesheet/codecart-category-tree.css?v=1.0.0" />
+<script src="view/javascript/codecart/category-tree.js?v=1.0.0" defer></script>
 <link rel="stylesheet" href="view/stylesheet/codecart-catalog-quality.css?v=3.0.6.2" />
 <script src="view/javascript/codecart/catalog-quality.js?v=3.0.6.2" defer></script>
 <style>
@@ -111,6 +113,7 @@
                       <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
                       <td class="text-center">{{ column_image }}</td>
                       <td class="text-left">{% if sort == 'pd.name' %} <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a> {% else %} <a href="{{ sort_name }}">{{ column_name }}</a> {% endif %}</td>
+                      <td class="text-right">{{ tree_sort }}</td>
                       <td class="text-left">{% if sort == 'p.status' %} <a href="{{ sort_status }}" class="{{ order|lower }}">{{ column_status }}</a> {% else %} <a href="{{ sort_status }}">{{ column_status }}</a> {% endif %}</td>
                       <td class="text-left">{% if sort == 'p.noindex' %} <a href="{{ sort_noindex }}" class="{{ order|lower }}">{{ column_noindex }}</a> {% else %} <a href="{{ sort_noindex }}">{{ column_noindex }}</a> {% endif %}</td>
                       <td class="text-left">{% if sort == 'p.date_added' %} <a href="{{ sort_date_added }}" class="{{ order|lower }}">{{ column_date_added }}</a> {% else %} <a href="{{ sort_date_added }}">{{ column_date_added }}</a> {% endif %}</td>
@@ -129,6 +132,7 @@
                       {% endif %}</td>
                     <td class="text-center">{% if article.image %} <img src="{{ article.image }}" alt="{{ article.name }}" class="img-thumbnail codecart-blog-list-thumb" width="48" height="48" loading="lazy" /> {% else %} <span class="img-thumbnail list"><i class="fa fa-camera fa-2x"></i></span> {% endif %}</td>
                     <td class="text-left">{{ article.name }} <span class="cc-quality" data-quality-id="{{ article.article_id }}"><span class="cc-quality-score">···</span><span class="cc-quality-count" hidden></span></span></td>
+                    <td class="text-right"><input type="number" class="cc-category-sort" data-cc-sort-id="{{ article.article_id }}" data-cc-sort-expected="{{ article.sort_order }}" value="{{ article.sort_order }}" min="-999999" max="999999" step="1" title="{{ tree_sort }}" aria-label="{{ tree_sort }}: {{ article.name|striptags }}" /></td>
                     <td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.status_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="status" aria-checked="{{ article.status_value ? 'true' : 'false' }}" aria-label="{{ column_status }}: {{ article.status }}" title="{{ article.status }}" data-caption="{{ column_status }}" data-on="{{ text_enabled }}" data-off="{{ text_disabled }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.status }}{% endif %}</td>
 					<td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.noindex_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="noindex" aria-checked="{{ article.noindex_value ? 'true' : 'false' }}" aria-label="{{ column_noindex }}: {{ article.noindex }}" title="{{ article.noindex }}" data-caption="{{ column_noindex }}" data-on="{{ text_enabled }}" data-off="{{ text_disabled }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.noindex }}{% endif %}</td>
                     <td class="text-left">{{ article.date_added }}</td>
@@ -140,7 +144,7 @@
                   {% endfor %}
                   {% else %}
                   <tr>
-                    <td class="text-center" colspan="7">{{ text_no_results }}</td>
+                    <td class="text-center" colspan="8">{{ text_no_results }}</td>
                   </tr>
                   {% endif %}
                     </tbody>
