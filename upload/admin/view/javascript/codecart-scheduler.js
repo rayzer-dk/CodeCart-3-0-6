@@ -36,6 +36,28 @@
     var $frequency = $('#input-scheduler-frequency');
     var $interval = $('#input-scheduler-interval');
     var $customInterval = $('#scheduler-custom-interval');
+    var $scheduleMode = $('#input-scheduler-mode');
+    var $calendar = $('#ccp-scheduler-calendar');
+    var $frequencyGroup = $('#ccp-scheduler-frequency-group');
+    var $scheduleTime = $('#input-scheduler-time');
+    var $weekdays = $calendar.find('input[name="schedule_days[]"]');
+
+    function updateScheduleMode() {
+      var weekly = $scheduleMode.val() === 'weekly';
+      $calendar.toggle(weekly);
+      $frequencyGroup.toggle(!weekly);
+      $scheduleTime.prop('required', weekly);
+    }
+    function setSchedule(mode, days, time) {
+      $scheduleMode.val(mode === 'weekly' ? 'weekly' : 'interval');
+      var mask = parseInt(days, 10);
+      if (isNaN(mask)) { mask = 127; }
+      $weekdays.each(function() { $(this).prop('checked', (mask & (1 << (parseInt(this.value,10) - 1))) !== 0); });
+      $scheduleTime.val(time || '03:00');
+      updateScheduleMode();
+    }
+    $scheduleMode.on('change', updateScheduleMode);
+    $weekdays.on('change', function() { $calendar.toggleClass('ccp-scheduler-days-empty', !$weekdays.filter(':checked').length); });
 
     function setFrequency(seconds) {
       var value = String(parseInt(seconds, 10) || 3600);
@@ -54,6 +76,7 @@
       }
     });
     setFrequency($interval.val());
+    updateScheduleMode();
     if (+$form.find('input[name="scheduler_id"]').val() > 0) { $('#ccp-scheduler-handler-group').hide(); $interval.attr('min', '60'); }
     else { $interval.attr('min', '300'); }
 
@@ -65,6 +88,7 @@
       $('#ccp-scheduler-handler-group').show();
       $interval.attr('min', '300');
       setFrequency(3600);
+      setSchedule('interval', 127, '03:00');
       $form.find('textarea[name="args"]').val('{}');
       $form.find('select[name="status"]').val('1');
       $panel.find('.ccp-scheduler-form-error').hide();
@@ -90,6 +114,7 @@
       $interval.attr('min', '60');
       $form.find('input[name="route"]').val(task.route);
       setFrequency(task.interval_seconds);
+      setSchedule(task.schedule_mode, task.schedule_days, task.schedule_time);
       $form.find('textarea[name="args"]').val(task.args || '{}');
       $form.find('select[name="status"]').val(String(task.status));
       $panel.find('.ccp-scheduler-form-error').hide();

@@ -19,3 +19,23 @@ The schedule interval is a minimum delay between executions; a job cannot run mo
 ## Upgrade / diagnosis
 
 Create and verify full backups of all site files and the database before updating. Apply files, let CodeCart's migration add the two observability tables, and validate one server-driven run. Check the server heartbeat and the journal for a recent `cli` or `web` entry. If the heartbeat is unavailable, verify the single hosting Cron job and the PHP executable independently. Do not disclose the Cron authentication key or encrypted arguments in support logs.
+
+## Calendar schedules (store timezone)
+
+A task can use the original interval (existing tasks remain unchanged), or run on
+selected weekdays at HH:MM local **store** time. Select all seven weekdays for a
+daily schedule. The UI shows the configured store timezone. A server Cron call
+is still required once every five minutes; the actual run may be up to five
+minutes after the chosen local time. No extra system cron or shell jobs are
+installed. Weekday schedules survive upgrades and are stored per task.
+
+The next run is computed in the configured IANA timezone, including daylight
+saving transitions. Nonexistent local times on the spring transition are skipped;
+ambiguous times on the autumn transition are scheduled once. The persisted
+`date_next` is computed relative to SQL NOW(), so PHP and DB timezone settings
+need not match. Paused tasks do not execute, and re-enabling a calendar task
+calculates its next chosen time instead of running it immediately.
+
+Database fields: `schedule_mode`, `schedule_days` (Monday bit 0 through Sunday
+bit 6), `schedule_time`. Presentation schema migration 43 adds these with
+safe defaults and preserves existing intervals and next execution dates.

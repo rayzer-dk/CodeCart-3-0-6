@@ -54,7 +54,7 @@
             <tr data-scheduler-id="{{ job.scheduler_id }}">
               <td class="ccp-scheduler-task-cell"><div class="ccp-task-single-line"><strong class="ccp-task-name" title="{{ job.display_name|e('html_attr') }} — {{ job.code|e('html_attr') }}">{{ job.display_name }}</strong>{% if job.is_core %}<span class="label label-info" title="{{ text_core_task }}">{{ text_core_task }}</span>{% endif %}{% if job.description %}<span class="ccp-scheduler-task-help" data-toggle="tooltip" title="{{ job.description|e('html_attr') }}"><i class="fa fa-question-circle"></i></span>{% endif %}</div></td>
               <td title="{{ job.route|e('html_attr') }}"><code>{{ job.route }}</code></td>
-              <td title="{{ job.interval_seconds }} s">{{ job.interval_text }}</td>
+              <td title="{{ job.schedule_title|e('html_attr') }}">{{ job.interval_text }}{% if job.schedule_mode == 'weekly' %} <i class="fa fa-calendar text-muted" aria-hidden="true"></i>{% endif %}</td>
               <td>{% if job.status %}<span class="label label-success">{{ text_enabled }}</span>{% else %}<span class="label label-default">{{ text_disabled }}</span>{% endif %}</td>
               <td>{{ job.date_last ?: '—' }}</td>
               <td>{% if job.status %}{{ job.date_next ?: '—' }}{% else %}<span class="text-muted" title="{{ text_task_paused }}">—</span>{% endif %}</td>
@@ -90,7 +90,19 @@
             <small class="help-block">{{ text_handler_select_help }}</small>
             {% if not available_handlers %}<div class="ccp-scheduler-empty-handlers help-block"><i class="fa fa-info-circle"></i> {{ text_no_free_handler }}</div>{% endif %}
           </div></div>
-          <div class="form-group required"><label class="col-sm-2 control-label" for="input-scheduler-frequency">{{ text_interval_preset }}</label><div class="col-sm-10">
+          <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-mode">{{ entry_schedule_mode }}</label><div class="col-sm-10"><select name="schedule_mode" id="input-scheduler-mode" class="form-control">
+            <option value="interval" {{ edit_task.schedule_mode != 'weekly' ? 'selected' : '' }}>{{ text_schedule_interval }}</option>
+            <option value="weekly" {{ edit_task.schedule_mode == 'weekly' ? 'selected' : '' }}>{{ text_schedule_weekly }}</option>
+          </select></div></div>
+          <div class="ccp-scheduler-calendar" id="ccp-scheduler-calendar">
+            <div class="form-group"><label class="col-sm-2 control-label">{{ entry_schedule_days }}</label><div class="col-sm-10"><div class="ccp-scheduler-weekdays" role="group" aria-label="{{ entry_schedule_days }}">
+              {% for weekday in schedule_weekdays %}
+              <label class="ccp-scheduler-weekday"><input type="checkbox" name="schedule_days[]" value="{{ weekday.number }}" {{ weekday.number in edit_task.selected_weekdays ? 'checked' : '' }}> {{ weekday.label }}</label>
+              {% endfor %}
+            </div></div></div>
+            <div class="form-group"><label class="col-sm-2 control-label" for="input-scheduler-time">{{ entry_schedule_time }}</label><div class="col-sm-10"><input type="time" id="input-scheduler-time" name="schedule_time" value="{{ edit_task.schedule_time }}" class="form-control ccp-scheduler-time" step="60"><small class="help-block"><i class="fa fa-globe" aria-hidden="true"></i> {{ text_schedule_timezone }}: {{ schedule_timezone }}. {{ text_schedule_clock_help }}</small></div></div>
+          </div>
+          <div class="form-group required" id="ccp-scheduler-frequency-group"><label class="col-sm-2 control-label" for="input-scheduler-frequency">{{ text_interval_preset }}</label><div class="col-sm-10">
             <select id="input-scheduler-frequency" class="form-control">
               {% for preset in frequency_presets %}
               <option value="{{ preset.seconds }}" {{ edit_task.interval_seconds == preset.seconds ? 'selected' : '' }}>{{ preset.label }}</option>
@@ -240,7 +252,7 @@
 
   </div>
 </div>
-<script src="view/javascript/codecart-scheduler.js?v=3.0.6.6"></script>
+<script src="view/javascript/codecart-scheduler.js?v=3.0.6.7"></script>
 <script>
 $('.js-reveal').on('click',function(){var el=document.getElementById($(this).data('target'));if(!el)return;el.type=el.type==='password'?'text':'password';$(this).find('i').toggleClass('fa-eye fa-eye-slash');});
 $('.js-copy').on('click',function(){var el=document.getElementById($(this).data('target'));el.select();el.setSelectionRange(0,99999);if(navigator.clipboard){navigator.clipboard.writeText(el.value);}else{document.execCommand('copy');}});

@@ -147,3 +147,17 @@ html.ccp-admin-dark .codecart-scheduler-table .ccp-scheduler-task-cell .ccp-sche
 .codecart-scheduler-table .ccp-scheduler-result { white-space: nowrap; }
 .ccp-scheduler-status .ccp-scheduler-source { color: #526c80; margin-left: 4px; }
 .ccp-scheduler-history-table .label { display: inline-block; white-space: nowrap; }
+
+/* Two scheduling modes, kept inside the existing inline task editor. */
+#input-scheduler-mode{max-width:300px}
+.ccp-scheduler-calendar{padding-top:2px}
+.ccp-scheduler-weekdays{display:flex;flex-wrap:wrap;gap:6px 9px;align-items:center;min-height:34px}
+.ccp-scheduler-weekday{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #d7e2ec;border-radius:4px;background:#f8fbff;font-weight:500;cursor:pointer;margin:0}
+.ccp-scheduler-weekday:has(input:checked){border-color:#3984d7;background:#edf6ff}
+.ccp-scheduler-weekday input{margin:0}
+.ccp-scheduler-time{max-width:185px}
+.ccp-scheduler-calendar .help-block{margin-top:6px;line-height:1.45}
+.ccp-scheduler-days-empty .ccp-scheduler-weekdays{outline:1px solid #b74b42;outline-offset:3px;border-radius:2px}
+html.ccp-admin-dark .ccp-scheduler-weekday{background:#202d40;color:#dce9f7;border-color:#485a6f}
+html.ccp-admin-dark .ccp-scheduler-weekday:has(input:checked){background:#233f60;border-color:#5d9ad7}
+@media(max-width:767px){.ccp-scheduler-weekdays{gap:5px}.ccp-scheduler-weekday{padding:7px 9px}}

@@ -205,3 +205,23 @@ $_['text_scheduler_visitor_none'] = 'No visitor-triggered runs yet.';
 $_['text_interval_short_day'] = '%d d';
 $_['text_task_core_backup_database'] = 'Database backup';
 $_['text_task_core_backup_database_description'] = 'Saves a verified SQL copy of the database to the private storage backup folder and keeps the newest copies (argument keep, default 7). Disabled until enabled; run it from a server Cron.';
+
+// Store-local calendar schedule, independent of the server cron expression.
+$_['entry_schedule_mode'] = 'Schedule type';
+$_['text_schedule_interval'] = 'By interval';
+$_['text_schedule_weekly'] = 'Days and time';
+$_['entry_schedule_days'] = 'Weekdays';
+$_['entry_schedule_time'] = 'Run at';
+$_['text_schedule_daily'] = 'Every day';
+$_['text_schedule_timezone'] = 'Store timezone';
+$_['text_schedule_clock_help'] = 'Runs on the next server Cron tick (every 5 minutes).';
+$_['error_schedule_days'] = 'Select at least one weekday.';
+$_['error_schedule_time'] = 'Enter a valid HH:MM time.';
+$_['error_schedule_mode'] = 'Unknown schedule type.';
+$_['text_schedule_weekday_1'] = 'Mon';
+$_['text_schedule_weekday_2'] = 'Tue';
+$_['text_schedule_weekday_3'] = 'Wed';
+$_['text_schedule_weekday_4'] = 'Thu';
+$_['text_schedule_weekday_5'] = 'Fri';
+$_['text_schedule_weekday_6'] = 'Sat';
+$_['text_schedule_weekday_7'] = 'Sun';

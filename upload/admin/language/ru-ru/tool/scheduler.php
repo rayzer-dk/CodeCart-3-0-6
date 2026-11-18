@@ -206,3 +206,23 @@ $_['text_scheduler_visitor_none'] = 'Во время посещений зада
 $_['text_interval_short_day'] = '%d дн.';
 $_['text_task_core_backup_database'] = 'Резервная копия базы данных';
 $_['text_task_core_backup_database_description'] = 'Сохраняет проверенную SQL-копию базы в закрытую папку резервных копий хранилища и оставляет последние копии (аргумент keep, по умолчанию 7). Выключена, пока не включена; запускайте через серверный Cron.';
+
+// Store-local calendar schedule, independent of the server cron expression.
+$_['entry_schedule_mode'] = 'Тип расписания';
+$_['text_schedule_interval'] = 'По интервалу';
+$_['text_schedule_weekly'] = 'По дням и времени';
+$_['entry_schedule_days'] = 'Дни недели';
+$_['entry_schedule_time'] = 'Время запуска';
+$_['text_schedule_daily'] = 'Ежедневно';
+$_['text_schedule_timezone'] = 'Часовой пояс магазина';
+$_['text_schedule_clock_help'] = 'Задача запускается ближайшим серверным Cron (каждые 5 минут).';
+$_['error_schedule_days'] = 'Выберите хотя бы один день недели.';
+$_['error_schedule_time'] = 'Укажите корректное время в формате ЧЧ:ММ.';
+$_['error_schedule_mode'] = 'Неизвестный тип расписания.';
+$_['text_schedule_weekday_1'] = 'Пн';
+$_['text_schedule_weekday_2'] = 'Вт';
+$_['text_schedule_weekday_3'] = 'Ср';
+$_['text_schedule_weekday_4'] = 'Чт';
+$_['text_schedule_weekday_5'] = 'Пт';
+$_['text_schedule_weekday_6'] = 'Сб';
+$_['text_schedule_weekday_7'] = 'Вс';
