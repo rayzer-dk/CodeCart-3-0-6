@@ -225,3 +225,9 @@ $_['text_schedule_weekday_4'] = 'Чт';
 $_['text_schedule_weekday_5'] = 'Пт';
 $_['text_schedule_weekday_6'] = 'Сб';
 $_['text_schedule_weekday_7'] = 'Нд';
+
+// Native restricted Cron expression
+$_['text_schedule_cron'] = 'Cron-вираз (5 полів)';
+$_['entry_schedule_expression'] = 'Вираз Cron';
+$_['text_schedule_cron_help'] = 'Хвилини Години День Місяць День тижня. Діапазони, кроки та списки; реальний запуск не частіше кожних 5 хвилин.';
+$_['error_schedule_expression'] = 'Вкажіть коректний Cron-вираз з п\'яти полів.';

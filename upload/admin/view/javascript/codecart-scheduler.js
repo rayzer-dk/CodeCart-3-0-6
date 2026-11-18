@@ -40,16 +40,21 @@
     var $calendar = $('#ccp-scheduler-calendar');
     var $frequencyGroup = $('#ccp-scheduler-frequency-group');
     var $scheduleTime = $('#input-scheduler-time');
+    var $cronGroup = $('#ccp-scheduler-expression-group');
+    var $cronExpression = $('#input-scheduler-expression');
     var $weekdays = $calendar.find('input[name="schedule_days[]"]');
 
     function updateScheduleMode() {
       var weekly = $scheduleMode.val() === 'weekly';
       $calendar.toggle(weekly);
-      $frequencyGroup.toggle(!weekly);
+      $frequencyGroup.toggle(!weekly && $scheduleMode.val() !== 'cron');
+      $cronGroup.toggle($scheduleMode.val() === 'cron');
+      $cronExpression.prop('required', $scheduleMode.val() === 'cron');
       $scheduleTime.prop('required', weekly);
     }
-    function setSchedule(mode, days, time) {
-      $scheduleMode.val(mode === 'weekly' ? 'weekly' : 'interval');
+    function setSchedule(mode, days, time, expression) {
+      $scheduleMode.val(mode === 'weekly' || mode === 'cron' ? mode : 'interval');
+      $cronExpression.val(expression || '');
       var mask = parseInt(days, 10);
       if (isNaN(mask)) { mask = 127; }
       $weekdays.each(function() { $(this).prop('checked', (mask & (1 << (parseInt(this.value,10) - 1))) !== 0); });
@@ -57,6 +62,7 @@
       updateScheduleMode();
     }
     $scheduleMode.on('change', updateScheduleMode);
+    $('.js-cron-preset').on('click', function() { $cronExpression.val($(this).attr('data-cron')).trigger('focus'); });
     $weekdays.on('change', function() { $calendar.toggleClass('ccp-scheduler-days-empty', !$weekdays.filter(':checked').length); });
 
     function setFrequency(seconds) {
@@ -88,7 +94,7 @@
       $('#ccp-scheduler-handler-group').show();
       $interval.attr('min', '300');
       setFrequency(3600);
-      setSchedule('interval', 127, '03:00');
+      setSchedule('interval', 127, '03:00', '');
       $form.find('textarea[name="args"]').val('{}');
       $form.find('select[name="status"]').val('1');
       $panel.find('.ccp-scheduler-form-error').hide();
@@ -114,7 +120,7 @@
       $interval.attr('min', '60');
       $form.find('input[name="route"]').val(task.route);
       setFrequency(task.interval_seconds);
-      setSchedule(task.schedule_mode, task.schedule_days, task.schedule_time);
+      setSchedule(task.schedule_mode, task.schedule_days, task.schedule_time, task.schedule_expression);
       $form.find('textarea[name="args"]').val(task.args || '{}');
       $form.find('select[name="status"]').val(String(task.status));
       $panel.find('.ccp-scheduler-form-error').hide();

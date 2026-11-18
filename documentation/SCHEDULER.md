@@ -39,3 +39,7 @@ calculates its next chosen time instead of running it immediately.
 Database fields: `schedule_mode`, `schedule_days` (Monday bit 0 through Sunday
 bit 6), `schedule_time`. Presentation schema migration 43 adds these with
 safe defaults and preserves existing intervals and next execution dates.
+
+## Five-field Cron expressions
+
+The third mode accepts a validated five-field expression (minute, hour, day of month, month, weekday), including comma lists, ranges, steps, English month/weekday names and Sunday 0/7. Both day-of-month and weekday restrictions use conventional crontab OR semantics. Timezone is the store's configured timezone. Impossible expressions are rejected, and spring DST skipped minutes do not run. Existing installed Cron handlers and protected HTTPS endpoints are reused; arbitrary shell commands and filesystem paths are never executed. The host's single five-minute scheduler remains mandatory and limits actual execution resolution. Store column: schedule_expression (varchar 100), presentation migration 44.

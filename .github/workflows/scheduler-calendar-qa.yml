@@ -7,6 +7,7 @@ on:
     paths:
       - 'upload/system/library/codecart/src/Scheduler.php'
       - 'upload/system/library/codecart/src/SchedulerSchedule.php'
+      - 'upload/system/library/codecart/src/CronExpression.php'
       - 'upload/system/library/codecart/migration.php'
       - 'upload/install/opencart.sql'
       - 'upload/admin/controller/tool/scheduler.php'
@@ -39,6 +40,7 @@ jobs:
         run: |
           php -l upload/system/library/codecart/src/Scheduler.php
           php -l upload/system/library/codecart/src/SchedulerSchedule.php
+          php -l upload/system/library/codecart/src/CronExpression.php
           php -l upload/system/library/codecart/migration.php
           php -l upload/admin/controller/tool/scheduler.php
           php -l tests/scheduler_schedule_smoke.php

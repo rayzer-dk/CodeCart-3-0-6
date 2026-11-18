@@ -225,3 +225,9 @@ $_['text_schedule_weekday_4'] = 'Thu';
 $_['text_schedule_weekday_5'] = 'Fri';
 $_['text_schedule_weekday_6'] = 'Sat';
 $_['text_schedule_weekday_7'] = 'Sun';
+
+// Native restricted Cron expression
+$_['text_schedule_cron'] = 'Cron expression (5 fields)';
+$_['entry_schedule_expression'] = 'Cron expression';
+$_['text_schedule_cron_help'] = 'Minutes Hours Day Month Weekday. Supports ranges, steps and lists; actual execution is limited to the 5-minute host tick.';
+$_['error_schedule_expression'] = 'Enter a valid five-field Cron expression.';

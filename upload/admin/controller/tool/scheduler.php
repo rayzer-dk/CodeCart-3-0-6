@@ -31,6 +31,7 @@ class ControllerToolScheduler extends Controller {
                             'interval_seconds' => (int)($this->request->post['interval_seconds'] ?? 3600),
                             'schedule_mode' => (string)($this->request->post['schedule_mode'] ?? 'interval'),
                             'schedule_time' => (string)($this->request->post['schedule_time'] ?? '03:00'),
+                            'schedule_expression' => substr((string)($this->request->post['schedule_expression'] ?? ''),0,100),
                             'schedule_days' => $this->selectedDayMask($this->request->post['schedule_days'] ?? array()),
                             'status' => !empty($this->request->post['status']) ? 1 : 0,
                             'available_handler' => substr((string)($this->request->post['available_handler'] ?? ''), 0, 128)
@@ -89,7 +90,7 @@ class ControllerToolScheduler extends Controller {
         for ($day = 1; $day <= 7; $day++) {
             $data['schedule_weekdays'][] = array('number' => $day, 'bit' => 1 << ($day - 1), 'label' => $this->language->get('text_schedule_weekday_' . $day));
         }
-        foreach (array('entry_schedule_mode','text_schedule_interval','text_schedule_weekly','entry_schedule_days','entry_schedule_time','text_schedule_daily','text_schedule_timezone','text_schedule_clock_help','error_schedule_days','error_schedule_time','error_schedule_mode') as $key) {
+        foreach (array('entry_schedule_mode','text_schedule_interval','text_schedule_weekly','entry_schedule_days','entry_schedule_time','text_schedule_daily','text_schedule_timezone','text_schedule_clock_help','error_schedule_days','error_schedule_time','error_schedule_mode','text_schedule_cron','entry_schedule_expression','text_schedule_cron_help','error_schedule_expression') as $key) {
             $data[$key] = $this->language->get($key);
         }
 
@@ -131,6 +132,9 @@ class ControllerToolScheduler extends Controller {
             foreach ($data['jobs'] as &$job) {
                 $job['is_core'] = strpos((string)$job['code'], 'core.') === 0;
                 $job['interval_text'] = $this->formatInterval((int)$job['interval_seconds']);
+                if (($job['schedule_mode'] ?? 'interval') === 'cron') {
+                    $job['interval_text'] = (string)($job['schedule_expression'] ?? '');
+                }
                 if (($job['schedule_mode'] ?? 'interval') === 'weekly') {
                     $days = (int)($job['schedule_days'] ?? 127);
                     $names = array();
@@ -140,7 +144,7 @@ class ControllerToolScheduler extends Controller {
                     $daysText = $days === 127 ? $this->language->get('text_schedule_daily') : implode(', ', $names);
                     $job['interval_text'] = $daysText . ' · ' . (string)($job['schedule_time'] ?? '03:00');
                 }
-                $job['schedule_title'] = ($job['schedule_mode'] ?? 'interval') === 'weekly' ? $job['interval_text'] . ' (' . $data['schedule_timezone'] . ')' : $job['interval_text'];
+                $job['schedule_title'] = in_array(($job['schedule_mode'] ?? 'interval'), array('weekly','cron'), true) ? $job['interval_text'] . ' (' . $data['schedule_timezone'] . ')' : $job['interval_text'];
                 $codeKey = 'text_task_' . str_replace('.', '_', (string)$job['code']);
                 $codeDesc = $codeKey . '_description';
                 $localizedName = $this->language->get($codeKey);
@@ -278,7 +282,7 @@ class ControllerToolScheduler extends Controller {
             $unit = $seconds < 3600 ? 'text_interval_unit_minute' : ($seconds < 86400 ? 'text_interval_unit_hour' : 'text_interval_unit_day');
             $data['frequency_presets'][] = array('seconds'=>$seconds,'label'=>sprintf($this->language->get($unit), $amount));
         }
-        $data['edit_task'] = array('scheduler_id'=>0,'code'=>'','route'=>'','args'=>'{}','interval_seconds'=>3600,'schedule_mode'=>'interval','schedule_days'=>127,'schedule_time'=>'03:00','status'=>1,'is_core'=>false);
+        $data['edit_task'] = array('scheduler_id'=>0,'code'=>'','route'=>'','args'=>'{}','interval_seconds'=>3600,'schedule_mode'=>'interval','schedule_days'=>127,'schedule_time'=>'03:00','schedule_expression'=>'','status'=>1,'is_core'=>false);
         if (!empty($this->request->get['edit_id'])) {
             $task = $scheduler->getTask((int)$this->request->get['edit_id']);
             if ($task) {
@@ -303,6 +307,7 @@ class ControllerToolScheduler extends Controller {
                 'schedule_mode' => (string)($old['schedule_mode'] ?? 'interval'),
                 'schedule_days' => (int)($old['schedule_days'] ?? 127),
                 'schedule_time' => (string)($old['schedule_time'] ?? '03:00'),
+                'schedule_expression' => (string)($old['schedule_expression'] ?? ''),
                 'status' => (int)($old['status'] ?? 0),
                 'available_handler' => (string)($old['available_handler'] ?? ''),
                 'is_core' => $original && strpos((string)$original['code'], 'core.') === 0
@@ -355,6 +360,7 @@ class ControllerToolScheduler extends Controller {
                         'schedule_mode' => (string)($task['schedule_mode'] ?? 'interval'),
                         'schedule_days' => (int)($task['schedule_days'] ?? 127),
                         'schedule_time' => (string)($task['schedule_time'] ?? '03:00'),
+                        'schedule_expression' => (string)($task['schedule_expression'] ?? ''),
                         'status' => (int)$task['status'],
                         'args' => (string)$task['route'] === 'cron/codecart_external_http' ? '{}' : (is_array($args) ? json_encode($args, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : '[]'),
                         'is_core' => strpos((string)$task['code'], 'core.') === 0
@@ -507,7 +513,7 @@ class ControllerToolScheduler extends Controller {
                 throw new \InvalidArgumentException($this->language->get('error_interval'));
             }
             $mode = (string)($this->request->post['schedule_mode'] ?? 'interval');
-            if (!in_array($mode, array('interval', 'weekly'), true)) {
+            if (!in_array($mode, array('interval', 'weekly','cron'), true)) {
                 throw new \InvalidArgumentException($this->language->get('error_schedule_mode'));
             }
             $days = $mode === 'weekly' ? $this->selectedDayMask($this->request->post['schedule_days'] ?? array()) : 127;
@@ -518,9 +524,22 @@ class ControllerToolScheduler extends Controller {
             if ($mode === 'weekly' && !preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D', $time)) {
                 throw new \InvalidArgumentException($this->language->get('error_schedule_time'));
             }
-            $schedule = \CodeCart\Core\SchedulerSchedule::normalize(array(
-                'schedule_mode' => $mode, 'schedule_days' => $days, 'schedule_time' => $time
-            ));
+            $expression = trim((string)($this->request->post['schedule_expression'] ?? ''));
+            if ($mode === 'cron' && (strlen($expression) > 100 || $expression === '')) {
+                throw new \InvalidArgumentException($this->language->get('error_schedule_expression'));
+            }
+            try {
+                $schedule = \CodeCart\Core\SchedulerSchedule::normalize(array(
+                    'schedule_mode' => $mode, 'schedule_days' => $days,
+                    'schedule_time' => $time, 'schedule_expression' => $expression
+                ));
+                if ($mode === 'cron') {
+                    \CodeCart\Core\CronExpression::nextDelay($expression, \CodeCart\Core\SchedulerSchedule::timezone($this->config->get('config_timezone')));
+                }
+            } catch (\InvalidArgumentException $e) {
+                if ($mode !== 'cron') { throw $e; }
+                throw new \InvalidArgumentException($this->language->get('error_schedule_expression'));
+            }
             if ($schedulerId > 0) {
                 $scheduler->save($schedulerId, $code, $route, $interval, $status, $args, $schedule);
             } else {

@@ -226,3 +226,9 @@ $_['text_schedule_weekday_4'] = 'Чт';
 $_['text_schedule_weekday_5'] = 'Пт';
 $_['text_schedule_weekday_6'] = 'Сб';
 $_['text_schedule_weekday_7'] = 'Вс';
+
+// Native restricted Cron expression
+$_['text_schedule_cron'] = 'Cron-выражение (5 полей)';
+$_['entry_schedule_expression'] = 'Cron-выражение';
+$_['text_schedule_cron_help'] = 'Минуты Часы День Месяц День недели. Диапазоны, шаги и списки; фактический запуск не чаще одного раза в 5 минут.';
+$_['error_schedule_expression'] = 'Укажите корректное Cron-выражение из пяти полей.';
