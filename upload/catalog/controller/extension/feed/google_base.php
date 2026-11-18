@@ -3,6 +3,7 @@ class ControllerExtensionFeedGoogleBase extends Controller {
     private $chunkSize = 500;
 
     public function index() {
+        require_once(DIR_SYSTEM . 'library/codecart/src/ProductCondition.php');
         if (!$this->config->get('feed_google_base_status')) {
             $this->response->setStatusCode(404);
             return;
@@ -140,7 +141,7 @@ class ControllerExtensionFeedGoogleBase extends Controller {
                     }
                 }
                 $write('<g:availability>' . $availability . '</g:availability>' . PHP_EOL);
-                $write('<g:condition>new</g:condition>' . PHP_EOL);
+                $write('<g:condition>' . \CodeCart\Core\ProductCondition::merchantValue(isset($product['condition']) ? $product['condition'] : 'new') . '</g:condition>' . PHP_EOL);
                 $write('<g:price>' . number_format($normal_price, $decimal_place, '.', '') . ' ' . $this->xml($currency_code) . '</g:price>' . PHP_EOL);
                 if ($sale_price > 0 && $sale_price < $normal_price) {
                     $write('<g:sale_price>' . number_format($sale_price, $decimal_place, '.', '') . ' ' . $this->xml($currency_code) . '</g:sale_price>' . PHP_EOL);
