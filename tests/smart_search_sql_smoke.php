@@ -1,6 +1,8 @@
 <?php
 /** SQL search regression without a database: php tests/smart_search_sql_smoke.php */
 define('DB_PREFIX', 'oc_');
+function utf8_strtolower($value) { return mb_strtolower((string)$value, 'UTF-8'); }
+function utf8_strlen($value) { return mb_strlen((string)$value, 'UTF-8'); }
 require_once dirname(__DIR__) . '/upload/system/library/codecart/src/SmartSearch.php';
 
 class Model {
