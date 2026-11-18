@@ -30,7 +30,9 @@ class SmokeDB {
             $code = preg_match("/code = '([^']*)'/", $where, $m) ? stripslashes($m[1]) : null;
             $route = preg_match("/route = '([^']*)'/", $where, $m) ? stripslashes($m[1]) : null;
             $rows = array();
+            $excludeId = preg_match("/scheduler_id != '(\\d+)'/", $where, $excluded) ? (int)$excluded[1] : 0;
             foreach ($this->tasks as $t) {
+                if ($excludeId > 0 && (int)$t['scheduler_id'] === $excludeId) { continue; }
                 if (($code !== null && $t['code'] === $code) || ($route !== null && $t['route'] === $route)) {
                     $rows[] = array('scheduler_id' => $t['scheduler_id']);
                 }
