@@ -120,7 +120,7 @@
     });
 
     var dragging = null;
-    var root = host.querySelector('.cc-tree-root');
+    var root = host.querySelector('.cc-tree-root[data-cc-tree-target="0"]');
     function validTarget(id) {
       if (!dragging) { return false; }
       if (id === '0') { return true; }
