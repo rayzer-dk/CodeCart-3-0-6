@@ -151,6 +151,9 @@ final class CatalogQuality {
                 if ($field === 'price') {
                     // Zero-priced products may be intentional; this is informational.
                     $add('price', isset($row[$field]) && (float)$row[$field] > 0);
+                } elseif ($field === 'image') {
+                    $image = trim((string)($row[$field] ?? ''));
+                    $add('image', $image !== '' && !preg_match('#(?:^|/)no_image\.(?:png|jpe?g|webp|gif|svg)$#i', $image));
                 } else {
                     $add($field, trim((string)($row[$field] ?? '')) !== '');
                 }
