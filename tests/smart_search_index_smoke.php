@@ -20,6 +20,7 @@ class SearchIndexFakeDb {
     }
 
     public function query($sql) {
+        $sql = str_replace('`', '', $sql);
         $this->queries[] = $sql;
         if (strpos($sql, 'SELECT generation, last_product_id AS cursor, indexed, ready FROM oc_codecart_search_index_state') === 0) {
             return $this->result(array($this->state));
