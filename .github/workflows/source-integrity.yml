@@ -25,6 +25,10 @@ jobs:
         run: php tools/quality/source_guard_test.php
       - name: Schema.org JSON-LD regression
         run: php tools/structured-data-check.php
+      - name: Search matching and SQL regression
+        run: |
+          php tests/smart_search_smoke.php
+          php tests/smart_search_sql_smoke.php
       - name: Audit all changed tracked source files
         shell: bash
         env:
