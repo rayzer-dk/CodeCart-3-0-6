@@ -352,6 +352,7 @@ class ControllerSaleOrder extends Controller {
 		$data['delete'] = str_replace('&amp;', '&', $this->url->link('sale/order/delete', 'user_token=' . $this->session->data['user_token'] . $url, true));
 
 		$data['orders'] = array();
+		$data['column_image'] = $this->language->get('column_image');
 
 		$filter_data = array(
 			'filter_order_id'        => $filter_order_id,
