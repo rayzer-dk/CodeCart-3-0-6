@@ -86,6 +86,17 @@ final class SmartSearch {
         return $groups;
     }
 
+    /** Only code-like single tokens qualify for an infix identifier lookup. */
+    public static function identifierFragment($value) {
+        $value = trim((string)$value);
+        if (strlen($value) < 3 || strlen($value) > 48
+            || !preg_match('/^[a-z0-9][a-z0-9._\\/+\\-]*$/i', $value)
+            || !preg_match('/[0-9]/', $value)) {
+            return '';
+        }
+        return strtolower($value);
+    }
+
     /** "FTH 062", "fth-062" and "FTH062" give the same value; empty if the text is not a code. */
     public static function compactCode($value) {
         $value = self::normalize($value);
