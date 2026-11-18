@@ -35,10 +35,10 @@ class ModelCustomerCustomField extends Model {
 	public function editCustomField($custom_field_id, $data) {
 		$this->db->query("UPDATE `" . DB_PREFIX . "custom_field` SET type = '" . $this->db->escape($data['type']) . "', value = '" . $this->db->escape($data['value']) . "', validation = '" . $this->db->escape($data['validation']) . "', location = '" . $this->db->escape($data['location']) . "', status = '" . (int)$data['status'] . "', sort_order = '" . (int)$data['sort_order'] . "' WHERE custom_field_id = '" . (int)$custom_field_id . "'");
 
-		$this->db->query("DELETE FROM " . DB_PREFIX . "custom_field_description WHERE custom_field_id = '" . (int)$custom_field_id . "'");
-
+        // Preserve descriptions for inactive language packs and existing defaults
+        // when a third-party editor submits only a subset of languages.
 		foreach ($data['custom_field_description'] as $language_id => $value) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "custom_field_description SET custom_field_id = '" . (int)$custom_field_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "', default_value = " . (isset($value['default_value']) && is_string($value['default_value']) ? "'" . $this->db->escape($value['default_value']) . "'" : "NULL"));
+			$this->db->query("INSERT INTO " . DB_PREFIX . "custom_field_description SET custom_field_id = '" . (int)$custom_field_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "', default_value = " . (isset($value['default_value']) && is_string($value['default_value']) ? "'" . $this->db->escape($value['default_value']) . "'" : "NULL") . " ON DUPLICATE KEY UPDATE name = VALUES(name), default_value = COALESCE(VALUES(default_value), default_value)");
 		}
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "custom_field_customer_group WHERE custom_field_id = '" . (int)$custom_field_id . "'");

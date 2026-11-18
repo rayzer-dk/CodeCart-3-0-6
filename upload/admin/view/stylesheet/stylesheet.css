@@ -2470,3 +2470,8 @@ html.ccp-admin-dark .ccp-order-preview-table{background:#17212b}
   html.ccp-admin-dark #header .ccp-header-overflow-items>li>a:hover{background:#293b50}
 }
 @media(max-width:400px){#header .ccp-header-more>button{min-width:40px;padding:0 8px}}
+
+/* Per-language custom-field defaults share the existing flag/input alignment. */
+.ccp-custom-field-translation{display:table;margin-bottom:7px;width:100%}
+.ccp-custom-field-translation .form-control{width:100%;min-height:56px;resize:vertical}
+.ccp-custom-field-translation .input-group-addon{width:50px;min-width:50px}

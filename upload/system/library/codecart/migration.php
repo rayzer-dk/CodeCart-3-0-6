@@ -1848,8 +1848,8 @@ class Migration {
             }
             if ($customFieldId > 0) {
                 $this->db->query("UPDATE `" . DB_PREFIX . "custom_field` SET type='textarea', location='account', status='1' WHERE custom_field_id='" . $customFieldId . "'");
-                $this->db->query("REPLACE INTO `" . DB_PREFIX . "custom_field_description` SET custom_field_id='" . $customFieldId . "', language_id='1', name='Реквізити'");
-                $this->db->query("REPLACE INTO `" . DB_PREFIX . "custom_field_description` SET custom_field_id='" . $customFieldId . "', language_id='2', name='Company requisites'");
+                $this->db->query("INSERT INTO `" . DB_PREFIX . "custom_field_description` SET custom_field_id='" . $customFieldId . "', language_id='1', name='Реквізити' ON DUPLICATE KEY UPDATE name=VALUES(name)");
+                $this->db->query("INSERT INTO `" . DB_PREFIX . "custom_field_description` SET custom_field_id='" . $customFieldId . "', language_id='2', name='Company requisites' ON DUPLICATE KEY UPDATE name=VALUES(name)");
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "custom_field_customer_group` (custom_field_id, customer_group_id, required) VALUES ('" . $customFieldId . "','" . $companyGroupId . "','0') ON DUPLICATE KEY UPDATE required=VALUES(required)");
             }
         }
