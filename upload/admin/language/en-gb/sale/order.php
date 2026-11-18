@@ -147,3 +147,17 @@ $_['text_ip_add'] = 'Add your IP (%s) to the API allow list';
 
 // CodeCart PRO: aligned locale keys
 $_['entry_fax'] = 'Fax';
+
+$_['column_image'] = 'Image';
+$_['text_copy'] = 'Copy';
+$_['text_copied'] = 'Copied';
+$_['entry_total_min'] = 'Total from';
+$_['entry_total_max'] = 'Total to';
+$_['entry_order_product_search'] = 'Product / model / SKU';
+$_['entry_filter_email'] = 'Email';
+$_['entry_filter_phone'] = 'Phone (digits only)';
+$_['text_order_preview'] = 'Show products';
+$_['text_order_preview_loading'] = 'Loading...';
+$_['text_order_preview_empty'] = 'No products in this order';
+$_['text_order_preview_error'] = 'Unable to load order products';
+$_['help_order_phone'] = 'At least 4 digits; exact matches rank before partial matches.';

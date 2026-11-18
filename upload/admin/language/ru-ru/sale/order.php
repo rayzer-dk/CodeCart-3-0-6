@@ -63,7 +63,7 @@ $_['column_customer'] = 'Покупатель';
 $_['column_status'] = 'Статус';
 $_['column_date_added'] = 'Дата добавления';
 $_['column_date_modified'] = 'Дата обновления';
-$_['column_total'] = 'Итого';
+$_['column_total'] = 'Сумма';
 $_['column_product'] = 'Товар';
 $_['column_model'] = 'Код товара';
 $_['column_quantity'] = 'Количество';
@@ -112,7 +112,7 @@ $_['entry_coupon'] = 'Купон';
 $_['entry_voucher'] = 'Подарочный сертификат';
 $_['entry_reward'] = 'Бонусные баллы';
 $_['entry_order_id'] = '№ Заказа';
-$_['entry_total'] = 'Всего';
+$_['entry_total'] = 'Сумма';
 $_['entry_date_added'] = 'Дата добавления';
 $_['entry_date_modified'] = 'Дата обновления';
 $_['help_override'] = 'Если заказы блокируется от изменения статуса заказа расширением по борьбе с мошенничеством включить переопределение.';
@@ -135,3 +135,17 @@ $_['text_ip_add'] = 'Добавить ваш IP (%s) в список разре�
 
 // CodeCart PRO: aligned locale keys
 $_['entry_fax'] = 'Факс';
+
+$_['column_image'] = 'Фото';
+$_['text_copy'] = 'Копировать';
+$_['text_copied'] = 'Скопировано';
+$_['entry_total_min'] = 'Сумма от';
+$_['entry_total_max'] = 'Сумма до';
+$_['entry_order_product_search'] = 'Товар / модель / SKU';
+$_['entry_filter_email'] = 'Email';
+$_['entry_filter_phone'] = 'Телефон (только цифры)';
+$_['text_order_preview'] = 'Показать товары';
+$_['text_order_preview_loading'] = 'Загрузка...';
+$_['text_order_preview_empty'] = 'В заказе нет товаров';
+$_['text_order_preview_error'] = 'Не удалось загрузить состав заказа';
+$_['help_order_phone'] = 'От 4 цифр; точные совпадения выше частичных.';
