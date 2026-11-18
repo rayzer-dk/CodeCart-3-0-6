@@ -854,6 +854,8 @@ class ControllerCatalogCategory extends Controller {
 				'sort_order'  => $result['sort_order'],
 				'noindex'  	  => $result['noindex'],
 				'edit'        => $this->url->link('catalog/category/edit', 'user_token=' . $this->session->data['user_token'] . '&category_id=' . $result['category_id'], true),
+				// Reuse the real product-list filter, scoped to this category only.
+				'products_href' => $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&filter_category=' . (int)$result['category_id'], true),
 				'selected'    => $selected,
 				'action'      => $action,
 				'href'        => $href,
