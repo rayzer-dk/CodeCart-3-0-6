@@ -157,7 +157,7 @@
         "catalog/controller/account/address.php": "8e63025d031af52f3f02a8882adafa079bd5d24c037cbc6aa2376ba9d44e5602",
         "catalog/controller/account/edit.php": "c71b0a03d0e6c54353b4d95c2bfd1f8502d2f9ade3cfc63db04ad7377f973334",
         "catalog/controller/account/register.php": "391e064d6dc36ea6eb7510b2ee43e0f5095c3ad8af60d1577415d0735e444b13",
-        "catalog/controller/account/return.php": "fae1f0a9c9bbf65b63445b3f0840bda794dcc726e3a575b7da046eba1c996146",
+        "catalog/controller/account/return.php": "c453d4cc54dcd40285898e8b1a1ba61514ed7df3f248711691c5e813b07d71c8",
         "catalog/controller/affiliate/register.php": "7d8db596405fffe44f6ee760b38e4c7528c82ccb6906765f0e061d2cfd8df014",
         "catalog/controller/api/order.php": "8f56cf97cc215346d8959b78c9387118b3a0959dad3f381ff2b575558545d611",
         "catalog/controller/api/v1/health.php": "ec81aaf58c94c89b16f1e307602a0098e3c25091bd0b79c5c2ff2fdcc9bdf0a0",
