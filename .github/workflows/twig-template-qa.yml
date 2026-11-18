@@ -2,20 +2,7 @@ name: CodeCart Twig template QA
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'upload/**/*.twig'
-      - 'upload/**/controller/**/*.php'
-      - 'tools/quality/twig_*.py'
-      - 'tools/quality/twig_*.php'
-      - '.github/workflows/twig-template-qa.yml'
   pull_request:
-    paths:
-      - 'upload/**/*.twig'
-      - 'upload/**/controller/**/*.php'
-      - 'tools/quality/twig_*.py'
-      - 'tools/quality/twig_*.php'
-      - '.github/workflows/twig-template-qa.yml'
   workflow_dispatch:
 
 permissions:

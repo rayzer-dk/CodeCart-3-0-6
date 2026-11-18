@@ -2,18 +2,7 @@ name: CodeCart dead-code audit
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'upload/**/*.php'
-      - 'tools/quality/**'
-      - 'phpstan.codecart.*.neon.dist'
-      - '.github/workflows/dead-code-audit.yml'
   pull_request:
-    paths:
-      - 'upload/**/*.php'
-      - 'tools/quality/**'
-      - 'phpstan.codecart.*.neon.dist'
-      - '.github/workflows/dead-code-audit.yml'
   workflow_dispatch:
 
 permissions:
