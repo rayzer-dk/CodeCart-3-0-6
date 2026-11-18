@@ -304,6 +304,7 @@ class ControllerBlogArticle extends Controller {
 
 			$data['articles'][] = array(
 				'article_id' => $result['article_id'],
+				'sort_order' => (int)$result['sort_order'],
 				'image'      => $image,
 				'name'       => $result['name'],
 				'status_value' => (int)$result['status'],
@@ -319,6 +320,11 @@ class ControllerBlogArticle extends Controller {
 		$data['text_blog_quick_save_failed'] = $this->language->get('text_blog_quick_save_failed');
 		$data['blog_toggle_allowed'] = $this->user->hasPermission('modify', 'blog/article');
 		$data['blog_toggle_url'] = $this->url->link('blog/article/quickToggle', 'user_token=' . $this->session->data['user_token'], true);
+		$data['category_tree_edit_url'] = str_replace('&amp;', '&', $this->url->link('blog/article/quickSortOrder', 'user_token=' . $this->session->data['user_token'], true));
+		$this->load->language('catalog/category_tree');
+		$data['tree_sort'] = $this->language->get('tree_sort');
+		$data['tree_error'] = $this->language->get('tree_error');
+
 		$data['user_token'] = $this->session->data['user_token'];
 
         $data['codecart_relation_enabled'] = (bool)$this->config->get('codecart_relation_status') && isset($this->request->get['article_id']) && (int)$this->request->get['article_id'] > 0 && $this->user->hasPermission('access', 'catalog/relation');
@@ -1017,6 +1023,43 @@ class ControllerBlogArticle extends Controller {
 	public function quality() {
 		require_once(DIR_SYSTEM . 'library/codecart/src/CatalogQuality.php');
 		\CodeCart\Core\CatalogQuality::respond($this->registry, 'article');
+	}
+
+
+	/** Inline article sort order. Description, content, SEO and publication remain unchanged. */
+	public function quickSortOrder() {
+		$this->load->language('catalog/category_tree');
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->addHeader('Cache-Control: no-store');
+		$this->response->addHeader('X-Content-Type-Options: nosniff');
+		$json = array('success' => false);
+		$token = isset($this->request->get['user_token']) && is_string($this->request->get['user_token']) ? $this->request->get['user_token'] : '';
+		$expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+		$post = $this->request->post;
+		$valid = function ($value, $positive = false) {
+			return is_string($value)
+				&& preg_match($positive ? '/^[1-9][0-9]{0,9}$/D' : '/^-?[0-9]{1,7}$/D', $value)
+				&& (int)$value >= ($positive ? 1 : -999999) && (int)$value <= ($positive ? 2147483647 : 999999);
+		};
+		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST' || ($post['action'] ?? '') !== 'sort'
+			|| !$valid($post['id'] ?? null, true) || !$valid($post['value'] ?? null) || !$valid($post['expected'] ?? null)) {
+			$this->response->setStatusCode(400);
+			$json['error'] = $this->language->get('tree_error');
+		} elseif ($token === '' || $expected === '' || !hash_equals($expected, $token)
+			|| !$this->user->hasPermission('access', 'blog/article') || !$this->user->hasPermission('modify', 'blog/article')) {
+			$this->response->setStatusCode(403);
+			$json['error'] = $this->language->get('tree_error');
+		} else {
+			try {
+				require_once(DIR_SYSTEM . 'library/codecart/src/AdminCategoryTreeEditor.php');
+				$json['value'] = \CodeCart\\Core\\AdminCategoryTreeEditor::quickSort($this->registry, 'article', (int)$post['id'], (int)$post['value'], (int)$post['expected']);
+				$json['success'] = true;
+			} catch (\Throwable $e) {
+				$this->response->setStatusCode(409);
+				$json['error'] = $e->getMessage();
+			}
+		}
+		$this->response->setOutput(json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 }
