@@ -2429,3 +2429,20 @@ html.ccp-admin-dark #footer .ccp-footer-sep{color:#8d99a8}
 @media (max-width: 479px) {
   #header .ccp-admin-profile > a { padding-left: 6px !important; padding-right: 6px !important; }
 }
+
+/* Orders: 40px catalog photos, copy actions, and one lazy expanded order at a time. */
+.ccp-order-photo{width:40px!important;height:40px!important;min-width:40px;max-width:40px;max-height:40px;object-fit:contain;vertical-align:middle}
+.ccp-order-photo-cell{width:58px;min-width:58px}
+.ccp-order-copy{margin-left:7px;vertical-align:middle;color:#5b6b79}
+.ccp-order-list-table>thead>tr>td,.ccp-order-list-table>tbody>tr>td{vertical-align:middle}
+.ccp-order-list-actions{display:inline-flex;vertical-align:middle}
+.ccp-order-list-actions>.btn{min-width:32px;padding:7px 9px}
+.ccp-order-preview-row>td{padding:10px 12px!important;background:#f7f9fc}
+.ccp-order-preview-content{max-width:100%}
+.ccp-order-preview-table{margin-bottom:0;background:#fff}
+.ccp-order-preview-table>thead>tr>td{font-weight:600}
+.ccp-order-preview-table>thead>tr>td:nth-child(n+4){text-align:right}
+.ccp-order-preview-table>tbody>tr>td{vertical-align:middle}
+.ccp-order-preview-table>tbody>tr>td:nth-child(n+4){text-align:right;white-space:nowrap}
+html.ccp-admin-dark .ccp-order-preview-row>td{background:#1b2530}
+html.ccp-admin-dark .ccp-order-preview-table{background:#17212b}

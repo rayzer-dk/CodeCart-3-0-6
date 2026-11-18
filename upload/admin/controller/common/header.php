@@ -26,7 +26,7 @@ class ControllerCommonHeader extends Controller {
         $data['description'] = $this->document->getDescription();
         $data['keywords'] = $this->document->getKeywords();
         $data['links'] = $this->document->getLinks();
-        $data['core_stylesheet'] = 'view/stylesheet/stylesheet.css?v=' . $data['package_build'] . '-admin-lang1';
+        $data['core_stylesheet'] = 'view/stylesheet/stylesheet.css?v=' . $data['package_build'] . '-order-ui1';
         $data['core_script'] = 'view/javascript/common.js?v=' . $data['package_build'];
 
         $data['styles'] = $this->document->getStyles();
