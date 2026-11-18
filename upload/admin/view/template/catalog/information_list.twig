@@ -1,4 +1,6 @@
 {{ header }}{{ column_left }}
+<link rel="stylesheet" href="view/stylesheet/codecart-catalog-quality.css?v=3.0.6.1" />
+<script src="view/javascript/codecart/catalog-quality.js?v=3.0.6.1" defer></script>
 <div id="content">
   <div class="page-header">
     <div class="container-fluid">
@@ -28,12 +30,13 @@
     {% endif %}
     <div class="panel panel-default">
       <div class="panel-heading">
+        <button type="button" class="btn btn-default btn-xs cc-quality-toggle pull-right" aria-pressed="true" title="{{ quality_toggle }}" aria-label="{{ quality_toggle }}"><i class="fa fa-tasks" aria-hidden="true"></i></button>
         <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
       </div>
       <div class="panel-body">
         <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-information">
           <div class="table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover cc-quality-table" data-quality-url="{{ quality_endpoint }}" data-quality-count="{{ quality_count_label }}">
               <thead>
                 <tr>
                   <td style="width: 1px;" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
@@ -64,7 +67,7 @@
                     {% else %}
                     <input type="checkbox" name="selected[]" value="{{ information.information_id }}" />
                     {% endif %}</td>
-                  <td class="text-left">{{ information.title }}</td>
+                  <td class="text-left">{{ information.title }} <span class="cc-quality" data-quality-id="{{ information.information_id }}"><span class="cc-quality-score">···</span><span class="cc-quality-count" hidden></span></span></td>
                   <td class="text-right">{{ information.sort_order }}</td>
 				  <td class="text-right">{{ information.noindex }}</td>
                   <td class="text-right">
