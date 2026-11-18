@@ -149,3 +149,7 @@ $_['text_order_preview_loading'] = 'Загрузка...';
 $_['text_order_preview_empty'] = 'В заказе нет товаров';
 $_['text_order_preview_error'] = 'Не удалось загрузить состав заказа';
 $_['help_order_phone'] = 'От 4 цифр; точные номера выше частичных. От 9 цифр учитывается одна ошибочная цифра или перестановка соседних цифр.';
+
+// The compact order-list badge counts units (SUM(quantity)); tooltip also shows product lines.
+$_['text_order_product_count'] = 'Товаров в заказе: %d шт., товарных позиций: %d';
+$_['text_order_units_label'] = 'шт.';
