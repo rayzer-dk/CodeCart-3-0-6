@@ -156,6 +156,18 @@ final class SearchIndex {
         return "SELECT st.product_id FROM " . DB_PREFIX . "codecart_search_term st WHERE st.store_id = '" . (int)$storeId . "' AND st.language_id = '" . (int)$languageId . "' AND st.generation = '" . (int)$state['generation'] . "' AND st.term IN (" . implode(',', array_values($all)) . ") GROUP BY st.product_id HAVING " . implode(' AND ', $conditions);
     }
 
+    /** Native installs without the optional table must keep product writes working. */
+    public static function invalidateIfInstalled($db) {
+        static $available = null;
+        if ($available === null) {
+            $query = $db->query("SELECT 1 AS found FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . $db->escape(DB_PREFIX . "codecart_search_index_state") . "' LIMIT 1");
+            $available = (bool)$query->num_rows;
+        }
+        if ($available) {
+            self::invalidate($db);
+        }
+    }
+
     /** Pause indexed matching after native product mutations; rebuild restores it. */
     public static function invalidate($db) {
         $db->query("UPDATE " . DB_PREFIX . "codecart_search_index_state SET ready = 0, modified_at = NOW() WHERE ready = 1");
