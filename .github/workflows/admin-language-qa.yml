@@ -1,0 +1,47 @@
+name: Admin Language Switcher QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/admin/controller/startup/startup.php'
+      - 'upload/admin/controller/common/header.php'
+      - 'upload/admin/controller/common/language.php'
+      - 'upload/admin/controller/startup/permission.php'
+      - 'upload/admin/view/template/common/header.twig'
+      - 'upload/admin/view/stylesheet/stylesheet.css'
+      - 'upload/admin/language/**'
+      - 'upload/system/library/codecart/src/AdminLanguagePreference.php'
+      - 'upload/system/library/codecart/migration.php'
+      - 'tests/admin_language_switch_smoke.php'
+      - '.github/workflows/admin-language-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Admin language / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Syntax and preference regression
+        run: |
+          php -l upload/admin/controller/startup/startup.php
+          php -l upload/admin/controller/common/header.php
+          php -l upload/admin/controller/common/language.php
+          php -l upload/admin/controller/startup/permission.php
+          php -l upload/system/library/codecart/src/AdminLanguagePreference.php
+          php -l upload/system/library/codecart/migration.php
+          php -l tests/admin_language_switch_smoke.php
+          php tests/admin_language_switch_smoke.php

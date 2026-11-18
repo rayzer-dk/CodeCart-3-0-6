@@ -157,6 +157,40 @@ jobs:
           curl -sS -c /tmp/admin.cookies -b /tmp/admin.cookies -D /tmp/login.headers -o /tmp/login.body             -X POST             --data-urlencode 'username=admin'             --data-urlencode 'password=CodeCart-QA-123!'             'http://127.0.0.1:8080/admin/index.php?route=common/login'
           grep -Eqi '^Location: .*user_token=' /tmp/login.headers
 
+      - name: Admin language switcher integration (authenticated, persistent, isolated)
+        shell: bash
+        run: |
+          set -euo pipefail
+          token="$(grep -Ei '^Location: .*user_token=' /tmp/login.headers | sed -E 's/.*user_token=([a-zA-Z0-9]+).*/\1/' | tr -d '\r')"
+          test -n "$token"
+          admin_url="http://127.0.0.1:8080/admin/index.php"
+          current="$admin_url?route=common/dashboard&user_token=$token"
+          curl -fsS -b /tmp/admin.cookies -c /tmp/admin.cookies "$current" -o /tmp/dashboard-en.html
+          grep -q 'ccp-admin-language-menu' /tmp/dashboard-en.html
+
+          # GET must never save preferences.
+          get_status="$(curl -s -o /dev/null -w '%{http_code}' -b /tmp/admin.cookies "$admin_url?route=common/language&user_token=$token")"
+          test "$get_status" = "403"
+
+          curl -sS -b /tmp/admin.cookies -c /tmp/admin.cookies -D /tmp/lang.headers -o /tmp/lang.response \
+            -X POST --data-urlencode 'language=ru-ru' --data-urlencode "redirect=$current" \
+            "$admin_url?route=common/language&user_token=$token"
+          grep -Eqi '^Location: .*common/dashboard' /tmp/lang.headers
+          curl -fsS -b /tmp/admin.cookies -c /tmp/admin.cookies "$current" -o /tmp/dashboard-ru.html
+          grep -q 'Язык админпанели' /tmp/dashboard-ru.html
+
+          # Changing admin UI language must not change the store's global settings.
+          php -r '
+            $d=new mysqli("127.0.0.1","root","root","codecart");
+            if($d->connect_errno){exit(2);}
+            $r=$d->query("SELECT language_code FROM oc_codecart_admin_language WHERE user_id=1");
+            if(!$r||$r->fetch_assoc()["language_code"]!=="ru-ru"){exit(3);}
+            $r=$d->query("SELECT value FROM oc_setting WHERE store_id=0 AND `key`=\"config_admin_language\"");
+            if(!$r||!$r->fetch_assoc()["value"]||!$r){exit(4);}
+            echo "PASS: admin language switch persisted without global language changes\n";
+          '
+
+
       - name: Cart and checkout smoke
         shell: bash
         run: |
