@@ -26,6 +26,12 @@ class ControllerStartupStartup extends Controller {
 		// Admin interface language: individual preference, never the storefront default.
 		// On an incomplete upgrade fall back to the configured language without breaking login.
 		$adminCode = (string)$this->config->get('config_admin_language');
+		// Keep product/category content language tied to the configured store admin
+		// language. Interface-only overrides must not select another content language.
+		$baseLanguage = $this->db->query("SELECT language_id FROM `" . DB_PREFIX . "language` WHERE code = '" . $this->db->escape($adminCode) . "' LIMIT 1");
+		if ($baseLanguage->num_rows) {
+			$this->config->set('config_language_id', (int)$baseLanguage->row['language_id']);
+		}
 		try {
 			$available = \CodeCart\Core\AdminLanguagePreference::available($this->db);
 			$this->registry->set('codecart_admin_languages', $available);
@@ -33,9 +39,6 @@ class ControllerStartupStartup extends Controller {
 			$preferred = \CodeCart\Core\AdminLanguagePreference::read($this->db, $userId);
 			if ($preferred !== '' && isset($available[$preferred])) {
 				$adminCode = $preferred;
-			}
-			if (isset($available[$adminCode])) {
-				$this->config->set('config_language_id', $available[$adminCode]['language_id']);
 			}
 		} catch (\Throwable $e) {
 			// Never lock an administrator out due to an unavailable optional preference.

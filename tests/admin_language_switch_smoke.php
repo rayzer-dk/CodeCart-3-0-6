@@ -38,7 +38,7 @@ function verify($condition, $message) {
 }
 $db = new AdminLanguageFakeDB();
 $available = \CodeCart\Core\AdminLanguagePreference::available($db);
-verify(count($available) === 3, 'Only three installed, enabled languages are available');
+verify(count($available) === 3, 'Bundled languages are available independently of the storefront');
 verify(isset($available['uk-ua'], $available['ru-ru'], $available['en-gb']), 'Missing bundled language');
 verify(!isset($available['../../x']) && !isset($available['de-de']), 'Invalid or disabled language was available');
 verify(\CodeCart\Core\AdminLanguagePreference::read($db, 7) === '', 'Missing preference must be empty');

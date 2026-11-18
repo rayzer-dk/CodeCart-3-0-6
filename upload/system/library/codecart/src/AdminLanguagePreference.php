@@ -8,23 +8,35 @@ final class AdminLanguagePreference {
     public static function available($db): array {
         $result = array();
         $labels = array('uk-ua' => 'Українська', 'ru-ru' => 'Русский', 'en-gb' => 'English');
-        $query = $db->query("SELECT language_id, name, code, status FROM `" . DB_PREFIX . "language` WHERE status = '1' ORDER BY sort_order ASC, name ASC");
-
+        // Interface languages are independent from enabled storefront languages.
+        // A clean store may have no ru-ru database row but still ships ru-ru admin PHP.
+        $query = $db->query("SELECT language_id, name, code, status FROM `" . DB_PREFIX . "language` ORDER BY sort_order ASC, name ASC");
+        $rows = array();
         foreach ($query->rows as $row) {
             $code = strtolower(trim((string)$row['code']));
-            // Never turn a database value into an arbitrary filesystem path.
-            if (!preg_match('/^[a-z]{2,3}-[a-z]{2,3}$/D', $code)) {
-                continue;
+            if (preg_match('/^[a-z]{2,3}-[a-z]{2,3}$/D', $code)) {
+                $rows[$code] = $row;
             }
+        }
+
+        // Bundled admin packs are always selectable when installed, regardless of store configuration.
+        $codes = array_keys($labels);
+        foreach ($rows as $code => $row) {
+            if (!isset($labels[$code]) && (int)$row['status'] === 1) {
+                $codes[] = $code;
+            }
+        }
+        foreach ($codes as $code) {
+            // Never turn a database value into an arbitrary filesystem path.
             if (!is_file(DIR_LANGUAGE . $code . '/' . $code . '.php')
                 || !is_file(DIR_LANGUAGE . $code . '/' . $code . '.png')) {
                 continue;
             }
             $result[$code] = array(
                 'code' => $code,
-                'name' => isset($labels[$code]) ? $labels[$code] : (string)$row['name'],
+                'name' => isset($labels[$code]) ? $labels[$code] : (string)$rows[$code]['name'],
                 'flag' => 'language/' . $code . '/' . $code . '.png',
-                'language_id' => (int)$row['language_id']
+                'language_id' => isset($rows[$code]) ? (int)$rows[$code]['language_id'] : 0
             );
         }
 
