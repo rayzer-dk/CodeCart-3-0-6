@@ -33,6 +33,7 @@
 <script>window.CodeCartI18n={{ codecart_ui_i18n|json_encode|raw }};</script>
 <script src="{{ core_script|e('html_attr') }}" type="text/javascript"></script>
 <script src="view/javascript/codecart-admin-ui.js?v={{ package_build }}" type="text/javascript"></script>
+<script src="view/javascript/codecart-header-overflow.js?v={{ package_build }}" type="text/javascript" defer></script>
 {% for asset_id, asset in modern_assets %}
 {% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}
 {% if asset.type == 'style' %}<link rel="stylesheet" href="{{ asset.url }}" media="{{ asset.media }}" />{% elseif asset.type == 'script' %}<script src="{{ asset.url }}"{% if asset.module %} type="module"{% else %} type="text/javascript"{% endif %}{% if asset.defer %} defer{% endif %}{% if asset.async %} async{% endif %}></script>{% endif %}
@@ -113,6 +114,10 @@
         </ul>
       </li>
       <li><a href="{{ logout }}"><i class="fa fa-sign-out"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_logout }}</span></a></li>
+      <li class="ccp-header-more" hidden><button type="button" id="ccp-header-more-toggle" aria-expanded="false" aria-controls="ccp-header-overflow-panel" title="{{ text_header_more }}" aria-label="{{ text_header_more }}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i><span class="sr-only">{{ text_header_more }}</span></button></li>
     </ul>
+    <div id="ccp-header-overflow-panel" class="ccp-header-overflow-panel" hidden role="group" aria-label="{{ text_header_more }}">
+      <ul class="nav ccp-header-overflow-items"></ul>
+    </div>
     {% endif %} </div>
 </header>

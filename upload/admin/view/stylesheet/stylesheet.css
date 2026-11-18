@@ -2446,3 +2446,27 @@ html.ccp-admin-dark #footer .ccp-footer-sep{color:#8d99a8}
 .ccp-order-preview-table>tbody>tr>td:nth-child(n+4){text-align:right;white-space:nowrap}
 html.ccp-admin-dark .ccp-order-preview-row>td{background:#1b2530}
 html.ccp-admin-dark .ccp-order-preview-table{background:#17212b}
+
+/* Extension-safe mobile header overflow. Original <li> elements are reparented, not cloned. */
+#header .ccp-header-more[hidden],#header .ccp-header-overflow-panel[hidden]{display:none!important}
+#header .ccp-header-more > button{border:0;background:transparent;color:inherit;cursor:pointer;min-width:44px;height:52px;padding:0 10px;font-size:20px}
+#header .ccp-header-more > button:hover,#header .ccp-header-more > button:focus{background:rgba(127,143,158,.12);outline-offset:-3px}
+#header .ccp-header-overflow-panel{display:none}
+@media(max-width:767px){
+  #header .ccp-header-more:not([hidden]){display:flex!important;flex:0 0 auto;align-items:center}
+  #header .navbar-right > li{flex:0 0 auto}
+  #header .ccp-header-overflow-panel:not([hidden]){display:block;position:absolute;top:100%;right:8px;left:auto;width:min(300px,calc(100vw - 16px));max-height:calc(100dvh - 72px);overflow-y:auto;overscroll-behavior:contain;z-index:1102;margin-top:4px;padding:5px 0;border:1px solid #d8e0e8;border-radius:7px;background:#fff;box-shadow:0 12px 32px rgba(16,24,40,.2)}
+  #header .ccp-header-overflow-panel .ccp-header-overflow-items{display:block;margin:0;padding:0;float:none}
+  #header .ccp-header-overflow-items > li{display:block!important;position:relative;float:none;width:100%;border:0}
+  #header .ccp-header-overflow-items > li > a,#header .ccp-header-overflow-items > li > button{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-height:42px;height:auto;width:100%;min-width:0;padding:10px 14px!important;line-height:1.45;text-align:left;font-size:14px;border:0;border-radius:0;background:transparent;color:#28394b}
+  #header .ccp-header-overflow-items > li > a > i{flex:0 0 24px;text-align:center;font-size:18px}
+  #header .ccp-header-overflow-label{flex:1;min-width:0;overflow-wrap:anywhere;font-size:13px}
+  #header .ccp-header-overflow-items > li > a:hover,#header .ccp-header-overflow-items > li > a:focus{background:#edf4fc}
+  #header .ccp-header-overflow-items > li.dropdown.open > ul.dropdown-menu{display:block;position:static!important;float:none!important;margin:0 8px 8px!important;padding:4px 0!important;width:calc(100% - 16px)!important;min-width:0!important;max-height:42vh!important;overflow:auto;box-shadow:none!important;border:1px solid #e2e8f0;border-radius:4px}
+  #header .ccp-header-overflow-items .ccp-admin-language-option{width:100%}
+  #header .ccp-header-overflow-items li.ccp-notification-menu .ccp-notification-dropdown{max-width:100%!important}
+  html.ccp-admin-dark #header .ccp-header-overflow-panel{background:#18212b;border-color:#344252}
+  html.ccp-admin-dark #header .ccp-header-overflow-items>li>a{color:#e0e7ef}
+  html.ccp-admin-dark #header .ccp-header-overflow-items>li>a:hover{background:#293b50}
+}
+@media(max-width:400px){#header .ccp-header-more>button{min-width:40px;padding:0 8px}}

@@ -91,3 +91,5 @@ $_['ui_session_expired'] = 'Session expired. Sign in again.';
 $_['ui_image_spacing'] = 'Image spacing';
 $_['ui_image_spacing_horizontal'] = 'Horizontal spacing (px)';
 $_['ui_image_spacing_vertical'] = 'Vertical spacing (px)';
+
+$_['text_header_more'] = 'More actions';

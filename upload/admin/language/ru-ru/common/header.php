@@ -82,3 +82,5 @@ $_['ui_session_expired'] = 'Сессия истекла. Войдите снов
 $_['ui_image_spacing'] = 'Отступы изображения';
 $_['ui_image_spacing_horizontal'] = 'Горизонтальный отступ (пкс)';
 $_['ui_image_spacing_vertical'] = 'Вертикальный отступ (пкс)';
+
+$_['text_header_more'] = 'Другие действия';

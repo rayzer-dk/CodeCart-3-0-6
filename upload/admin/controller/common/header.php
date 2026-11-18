@@ -66,6 +66,7 @@ class ControllerCommonHeader extends Controller {
         $data['text_admin_theme'] = $this->language->get('text_admin_theme');
         $data['text_admin_theme_toggle'] = $this->language->get('text_admin_theme_toggle');
         $data['text_admin_language'] = $this->language->get('text_admin_language');
+        $data['text_header_more'] = $this->language->get('text_header_more');
         $data['language_options'] = array();
         $data['language_current'] = (string)$this->config->get('config_admin_language');
         $data['language_current_flag'] = '';
