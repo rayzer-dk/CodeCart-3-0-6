@@ -87,6 +87,28 @@ foreach (CatalogQuality::types() as $type) {
     $totals[$type] = $rows[1]['percent'];
 }
 
+// The original table columns and sort links must stay untouched: quality is inline only.
+$routes = array(
+    'catalog/product' => 'product.product_id',
+    'catalog/category' => 'category.category_id',
+    'catalog/manufacturer' => 'manufacturer.manufacturer_id',
+    'catalog/information' => 'information.information_id',
+    'blog/article' => 'article.article_id',
+    'blog/category' => 'category.blog_category_id'
+);
+foreach ($routes as $route => $rowId) {
+    $templatePath = dirname(__DIR__) . '/upload/admin/view/template/' . $route . '_list.twig';
+    $controllerPath = dirname(__DIR__) . '/upload/admin/controller/' . $route . '.php';
+    $template = file_get_contents($templatePath);
+    $controller = file_get_contents($controllerPath);
+    $check(strpos($template, 'cc-quality-table') !== false, $route . ' has quality table endpoint');
+    $check(strpos($template, 'cc-quality-toggle') !== false, $route . ' has a compact preference control');
+    $check(strpos($template, 'catalog-quality.js') !== false, $route . ' loads shared browser logic');
+    $check(strpos($template, '{{ ' . $rowId . ' }}') !== false, $route . ' uses existing entity IDs');
+    $check(strpos($controller, 'public function quality()') !== false, $route . ' shares permission-scoped route');
+    $check(strpos($controller, 'quality_endpoint') !== false, $route . ' wires endpoint without an extra admin route');
+}
+
 if ($errors) {
     fwrite(STDERR, 'FAIL: ' . implode('; ', $errors) . "\n");
     exit(1);
