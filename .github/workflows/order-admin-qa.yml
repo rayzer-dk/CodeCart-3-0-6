@@ -1,0 +1,37 @@
+name: CodeCart Admin Orders QA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/admin/controller/sale/order.php'
+      - 'upload/admin/model/sale/order.php'
+      - 'upload/admin/view/template/sale/order_*.twig'
+      - 'upload/admin/language/*/sale/order.php'
+      - 'upload/system/library/codecart/src/OrderAdminSearch.php'
+      - 'tests/order_admin_smoke.php'
+      - '.github/workflows/order-admin-qa.yml'
+permissions:
+  contents: read
+jobs:
+  orders:
+    name: Orders compatibility
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1', '8.5']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring
+      - name: Check syntax, user-safe queries and UI contracts
+        run: |
+          php -l upload/admin/controller/sale/order.php
+          php -l upload/admin/model/sale/order.php
+          php -l upload/system/library/codecart/src/OrderAdminSearch.php
+          php -l tests/order_admin_smoke.php
+          php tests/order_admin_smoke.php
