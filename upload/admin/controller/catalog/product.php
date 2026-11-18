@@ -1122,6 +1122,11 @@ class ControllerCatalogProduct extends Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
+		$this->load->language('catalog/quality');
+		$data['quality_endpoint'] = str_replace('&amp;', '&', $this->url->link('catalog/product/quality', 'user_token=' . $this->session->data['user_token'], true));
+		$data['quality_toggle'] = $this->language->get('quality_toggle');
+		$data['quality_count_label'] = $this->language->get('quality_count');
+
 		$this->response->setOutput($this->load->view('catalog/product_list', $data));
 	}
 
@@ -2560,5 +2565,11 @@ class ControllerCatalogProduct extends Controller {
             $this->log->write('Auto Relation queue error for product #' . $product_id . ': ' . $e->getMessage());
         }
     }
+
+	/** Read-only, bounded completeness details for currently visible catalog rows. */
+	public function quality() {
+		require_once(DIR_SYSTEM . 'library/codecart/src/CatalogQuality.php');
+		\CodeCart\Core\CatalogQuality::respond($this->registry, 'product');
+	}
 
 }
