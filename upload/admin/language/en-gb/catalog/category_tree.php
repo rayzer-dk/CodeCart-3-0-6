@@ -1,0 +1,19 @@
+<?php
+$_['tree_toggle'] = 'View mode';
+$_['tree_list'] = 'Table';
+$_['tree_tree'] = 'Tree';
+$_['tree_root'] = 'Root categories — drop here to move a category to the root';
+$_['tree_move'] = 'Move';
+$_['tree_move_help'] = 'Drag a category onto another to make it a child. Drop onto the root area to remove nesting. On touch screens use the Move button.';
+$_['tree_search'] = 'New parent category (search by name)';
+$_['tree_sort'] = 'Sort order';
+$_['tree_save'] = 'Save';
+$_['tree_cancel'] = 'Cancel';
+$_['tree_drag_help'] = 'Drag';
+$_['tree_error'] = 'Could not save. Check permissions and try again.';
+$_['tree_loading'] = 'Saving…';
+$_['tree_limited'] = 'Only the first 10,000 categories are shown. Use the regular edit form for the rest.';
+$_['tree_root_option'] = 'No parent (root)';
+$_['tree_choose'] = 'Select a category from the suggestions';
+$_['tree_done'] = 'Saved';
+$_['tree_expand'] = 'Collapse or expand branch';
