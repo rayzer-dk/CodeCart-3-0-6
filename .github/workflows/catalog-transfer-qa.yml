@@ -13,6 +13,8 @@ on:
       - 'upload/admin/view/template/tool/backup.twig'
       - 'tests/catalog_transfer_backup_smoke.php'
       - 'tests/catalog_transfer_mariadb_integration.php'
+      - 'upload/system/library/codecart/src/SearchIndex.php'
+      - 'tests/smart_search_index_mariadb_integration.php'
       - '.github/workflows/catalog-transfer-qa.yml'
   pull_request:
     paths:
@@ -24,6 +26,8 @@ on:
       - 'upload/admin/view/template/tool/backup.twig'
       - 'tests/catalog_transfer_backup_smoke.php'
       - 'tests/catalog_transfer_mariadb_integration.php'
+      - 'upload/system/library/codecart/src/SearchIndex.php'
+      - 'tests/smart_search_index_mariadb_integration.php'
       - '.github/workflows/catalog-transfer-qa.yml'
 
 permissions:
@@ -91,3 +95,5 @@ jobs:
         run: php -l tests/catalog_transfer_mariadb_integration.php
       - name: Run isolated database round-trip
         run: php tests/catalog_transfer_mariadb_integration.php
+      - name: Verify native search index against MariaDB
+        run: php tests/smart_search_index_mariadb_integration.php
