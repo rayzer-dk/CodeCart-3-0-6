@@ -1,0 +1,38 @@
+name: CodeCart System-wide Language Parity Report
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/admin/language/**'
+      - 'upload/catalog/language/**'
+      - 'tools/qa_locale_parity.php'
+      - '.github/workflows/locale-parity-qa.yml'
+  pull_request:
+    paths:
+      - 'upload/admin/language/**'
+      - 'upload/catalog/language/**'
+      - 'tools/qa_locale_parity.php'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  locales:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - name: Audit English Russian and Ukrainian translation-key coverage
+        run: |
+          php -l tools/qa_locale_parity.php
+          php tools/qa_locale_parity.php | tee locale-parity.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: locale-parity-report
+          path: locale-parity.txt
+          retention-days: 30
