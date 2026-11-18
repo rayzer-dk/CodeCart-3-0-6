@@ -31,6 +31,9 @@ $_['text_notice_invalid_catalog_url'] = 'The full storefront URL could not be de
 
 $_['text_admin_theme'] = 'Admin theme';
 $_['text_admin_language'] = 'Admin language';
+$_['text_admin_lang_uk'] = 'Українська';
+$_['text_admin_lang_ru'] = 'Русский';
+$_['text_admin_lang_en'] = 'English';
 $_['text_admin_theme_toggle'] = 'Switch light/dark admin theme';
 
 $_['text_refresh_modifications'] = 'Refresh modifications';

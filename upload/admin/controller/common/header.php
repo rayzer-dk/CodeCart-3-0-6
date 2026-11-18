@@ -113,6 +113,16 @@ class ControllerCommonHeader extends Controller {
                 if (!is_array($languages)) {
                     $languages = \CodeCart\Core\AdminLanguagePreference::available($this->db);
                 }
+                // Native names come from the active language pack, never hardcoded PHP.
+                $names = array(
+                    'uk-ua' => $this->language->get('text_admin_lang_uk'),
+                    'ru-ru' => $this->language->get('text_admin_lang_ru'),
+                    'en-gb' => $this->language->get('text_admin_lang_en')
+                );
+                foreach ($languages as $code => &$option) {
+                    if (isset($names[$code])) { $option['name'] = $names[$code]; }
+                }
+                unset($option);
                 $data['language_options'] = array_values($languages);
                 if (isset($languages[$data['language_current']])) {
                     $data['language_current_flag'] = $languages[$data['language_current']]['flag'];

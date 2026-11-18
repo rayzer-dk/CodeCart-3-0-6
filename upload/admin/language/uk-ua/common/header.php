@@ -29,6 +29,9 @@ $_['text_notice_invalid_catalog_url'] = 'Не вдалося визначити 
 
 $_['text_admin_theme'] = 'Тема адмінпанелі';
 $_['text_admin_language'] = 'Мова адмінпанелі';
+$_['text_admin_lang_uk'] = 'Українська';
+$_['text_admin_lang_ru'] = 'Русский';
+$_['text_admin_lang_en'] = 'English';
 $_['text_admin_theme_toggle'] = 'Перемкнути світлу/темну тему адмінпанелі';
 
 $_['text_refresh_modifications'] = 'Оновити модифікатори';

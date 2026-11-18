@@ -7,7 +7,7 @@ namespace CodeCart\Core;
 final class AdminLanguagePreference {
     public static function available($db): array {
         $result = array();
-        $labels = array('uk-ua' => 'Українська', 'ru-ru' => 'Русский', 'en-gb' => 'English');
+        $labels = array('uk-ua' => 'Ukrainian', 'ru-ru' => 'Russian', 'en-gb' => 'English');
         // Interface languages are independent from enabled storefront languages.
         // A clean store may have no ru-ru database row but still ships ru-ru admin PHP.
         $query = $db->query("SELECT language_id, name, code, status FROM `" . DB_PREFIX . "language` ORDER BY sort_order ASC, name ASC");
