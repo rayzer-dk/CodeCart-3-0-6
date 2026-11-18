@@ -29,6 +29,7 @@ jobs:
         run: |
           php tests/smart_search_smoke.php
           php tests/smart_search_sql_smoke.php
+          php tests/smart_search_index_smoke.php
       - name: Audit all changed tracked source files
         shell: bash
         env:
