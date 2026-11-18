@@ -1362,6 +1362,17 @@ class ControllerCatalogProduct extends Controller {
 			$data['heading_title'] = $data['product_description'][$language_id]['name'];
 		}
 
+		require_once(DIR_SYSTEM . 'library/codecart/src/ProductCondition.php');
+		$condition = isset($this->request->post['condition'])
+			? $this->request->post['condition']
+			: (isset($product_info['condition']) ? $product_info['condition'] : 'new');
+		$data['condition'] = \CodeCart\Core\ProductCondition::normalize($condition);
+		$data['entry_condition'] = $this->language->get('entry_condition');
+		$data['help_condition'] = $this->language->get('help_condition');
+		$data['text_condition_new'] = $this->language->get('text_condition_new');
+		$data['text_condition_refurbished'] = $this->language->get('text_condition_refurbished');
+		$data['text_condition_used'] = $this->language->get('text_condition_used');
+
 		if (isset($this->request->post['model'])) {
 			$data['model'] = $this->request->post['model'];
 		} elseif (!empty($product_info)) {
