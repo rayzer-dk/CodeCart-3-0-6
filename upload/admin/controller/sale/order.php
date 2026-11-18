@@ -1195,7 +1195,7 @@ class ControllerSaleOrder extends Controller {
 
 			foreach ($totals as $total) {
 				$data['totals'][] = array(
-					'title' => $total['title'],
+					'title' => isset($total['code']) && $total['code'] === 'total' ? $this->language->get('column_total') : $total['title'],
 					'text'  => $this->currency->format($total['value'], $order_info['currency_code'], $order_info['currency_value'])
 				);
 			}
