@@ -10,6 +10,7 @@ on:
       - 'upload/admin/language/*/sale/order.php'
       - 'upload/system/library/codecart/src/OrderAdminSearch.php'
       - 'tests/order_admin_smoke.php'
+      - 'tests/order_product_count_smoke.php'
       - '.github/workflows/order-admin-qa.yml'
 permissions:
   contents: read
@@ -35,3 +36,5 @@ jobs:
           php -l upload/system/library/codecart/src/OrderAdminSearch.php
           php -l tests/order_admin_smoke.php
           php tests/order_admin_smoke.php
+          php -l tests/order_product_count_smoke.php
+          php tests/order_product_count_smoke.php
