@@ -56,6 +56,8 @@ if (isset($block[0])) {
         $expected[(int)$row[1]] = array((int)$row[3], $row[2]);
     }
 }
+ksort($toolMap);
+ksort($expected);
 $check(count($expected) === 38 && $toolMap === $expected, 'demo repair map agrees with current bundled clean-install data');
 
 if ($errors) {
