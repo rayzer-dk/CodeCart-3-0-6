@@ -50,19 +50,29 @@
       if (node.classList.contains('ccp-notification-menu')) { return 4; }
       return 10;
     }
-    function overflows() {
+    function availableWidth() {
       var parent = nav.parentElement;
-      if (!parent) { return false; }
-      var rightEdge = Math.min(window.innerWidth, parent.getBoundingClientRect().right) - 3;
-      var navRect = nav.getBoundingClientRect();
-      // With flex:nowrap the right navigation can grow *outside* the parent;
-      // in that case scrollWidth == clientWidth and is not an overflow signal.
-      var last = Array.prototype.slice.call(nav.children).filter(function (item) {
-        return !item.hidden && item.getBoundingClientRect().width > 0;
-      }).pop();
-      var lastRight = last ? last.getBoundingClientRect().right : navRect.right;
-      return nav.scrollWidth > nav.clientWidth + 1 ||
-        navRect.right > rightEdge + 1 || lastRight > rightEdge + 1;
+      var width = parent ? parent.getBoundingClientRect().width : window.innerWidth;
+      if (!parent) { return width; }
+      Array.prototype.slice.call(parent.children).forEach(function (item) {
+        if (item === nav || item === panel || item.hidden) { return; }
+        var style = window.getComputedStyle(item);
+        if (style.display === 'none' || style.position === 'absolute') { return; }
+        width -= item.getBoundingClientRect().width;
+      });
+      return Math.max(0, Math.min(window.innerWidth, width) - 8);
+    }
+    function overflows() {
+      var width = 0;
+      Array.prototype.slice.call(nav.children).forEach(function (item) {
+        if (item.hidden) { return; }
+        var style = window.getComputedStyle(item);
+        if (style.display === 'none') { return; }
+        width += Math.max(item.getBoundingClientRect().width, 40);
+      });
+      // A flex row that extends outside the viewport may report scrollWidth
+      // equal to clientWidth, even while multiple icons are invisible.
+      return width > availableWidth() + 1;
     }
     function refresh() {
       if (busy) { return; }
