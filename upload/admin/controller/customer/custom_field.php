@@ -287,6 +287,10 @@ class ControllerCustomerCustomField extends Controller {
 	}
 
 	protected function getForm() {
+        // Explicit keys for newly localized custom-field default text.
+        $data['entry_localized_value'] = $this->language->get('entry_localized_value');
+        $data['text_legacy_value_fallback'] = $this->language->get('text_legacy_value_fallback');
+        $data['help_localized_default_value'] = $this->language->get('help_localized_default_value');
 		$data['text_form'] = !isset($this->request->get['custom_field_id']) ? $this->language->get('text_add') : $this->language->get('text_edit');
 
 		if (isset($this->error['warning'])) {
