@@ -382,9 +382,20 @@ class ControllerSaleOrder extends Controller {
 
 		$results = $this->model_sale_order->getOrders($filter_data);
 
+		// Load preview images in one query for this page, never one query per row.
+		$firstImages = $this->model_sale_order->getFirstProductImagesByOrderIds(array_column($results, 'order_id'));
+		$this->load->model('tool/image');
+		$emptyThumb = $this->model_tool_image->resize('no_image.webp', 40, 40);
+
 		foreach ($results as $result) {
+			$imageData = $firstImages[(int)$result['order_id']] ?? array();
+			$path = isset($imageData['image']) ? (string)$imageData['image'] : '';
+			$thumb = $path !== '' && is_file(DIR_IMAGE . $path)
+				? $this->model_tool_image->resize($path, 40, 40) : $emptyThumb;
 			$data['orders'][] = array(
 				'order_id'      => $result['order_id'],
+				'product_thumb' => $thumb,
+				'product_thumb_name' => isset($imageData['name']) ? (string)$imageData['name'] : '',
 				'customer'      => $result['customer'],
 				'order_status'  => $result['order_status'] ? $result['order_status'] : $this->language->get('text_missing'),
 				'total'         => $this->currency->format($result['total'], $result['currency_code'], $result['currency_value']),
