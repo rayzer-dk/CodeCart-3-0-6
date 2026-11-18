@@ -6,6 +6,12 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/runtime-qa.yml'
+      - 'upload/install/opencart.sql'
+      - 'upload/admin/controller/common/language.php'
+      - 'upload/admin/controller/common/header.php'
+      - 'upload/admin/controller/startup/startup.php'
+      - 'upload/system/library/codecart/src/AdminLanguagePreference.php'
+      - 'upload/system/library/codecart/migration.php'
 
 permissions:
   contents: read
