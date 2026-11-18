@@ -170,6 +170,44 @@ class ControllerBlogCategory extends Controller {
  		}
 		
 		$data['categories'] = $this->getCategories(0);
+		// Alternate complete hierarchy view, rendered only when requested.
+		$data['category_tree_mode'] = isset($this->request->get['tree']) && (string)$this->request->get['tree'] === '1';
+		$data['category_tree_toggle'] = $this->url->link('blog/category', 'user_token=' . $this->session->data['user_token'] . ($data['category_tree_mode'] ? '' : '&tree=1'), true);
+		$data['category_tree_edit_url'] = str_replace('&amp;', '&', $this->url->link('blog/category/treeEdit', 'user_token=' . $this->session->data['user_token'], true));
+		$data['category_tree_autocomplete'] = str_replace('&amp;', '&', $this->url->link('blog/category/autocomplete', 'user_token=' . $this->session->data['user_token'], true));
+		$data['category_tree_kind'] = 'blog';
+		$data['category_tree_rows'] = array();
+		if ($data['category_tree_mode']) {
+			$byParent = $this->adminCategoryTree ?? $this->model_blog_category->getAdminCategoryTreeRows();
+			$stack = array();
+			foreach (array_reverse($byParent[0] ?? array()) as $rootNode) {
+				$stack[] = array($rootNode, 0, '');
+			}
+			$seen = array();
+			while ($stack && count($data['category_tree_rows']) < 10000) {
+				list($node, $depth, $ancestors) = array_pop($stack);
+				$nodeId = (int)$node['blog_category_id'];
+				if ($nodeId < 1 || isset($seen[$nodeId])) { continue; }
+				$seen[$nodeId] = true;
+				$node['id'] = $nodeId;
+				$node['depth'] = min(20, $depth);
+				$node['ancestor_path'] = $ancestors;
+				$node['has_children'] = !empty($byParent[$nodeId]);
+				$node['edit'] = $this->url->link('blog/category/edit', 'user_token=' . $this->session->data['user_token'] . '&blog_category_id=' . $nodeId, true);
+				$data['category_tree_rows'][] = $node;
+				if ($depth < 20) {
+					foreach (array_reverse($byParent[$nodeId] ?? array()) as $child) {
+						$stack[] = array($child, $depth + 1, $ancestors . '/' . $nodeId);
+					}
+				}
+			}
+			$data['category_tree_truncated'] = (bool)$stack;
+		}
+		$this->load->language('catalog/category_tree');
+		foreach (array('tree_toggle','tree_list','tree_tree','tree_root','tree_move','tree_move_help','tree_search','tree_sort','tree_save','tree_cancel','tree_drag_help','tree_error','tree_loading','tree_limited') as $key) {
+			$data[$key] = $this->language->get($key);
+		}
+
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
@@ -658,6 +696,57 @@ class ControllerBlogCategory extends Controller {
 	public function quality() {
 		require_once(DIR_SYSTEM . 'library/codecart/src/CatalogQuality.php');
 		\CodeCart\Core\CatalogQuality::respond($this->registry, 'blog_category');
+	}
+
+
+	/**
+	 * Guarded JSON mutation: only hierarchy and sort_order may change.
+	 * Never invokes the destructive full category form update.
+	 */
+	public function treeEdit() {
+		$this->load->language('catalog/category_tree');
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->addHeader('Cache-Control: no-store');
+		$this->response->addHeader('X-Content-Type-Options: nosniff');
+		$out = array('success' => false);
+		$token = isset($this->request->get['user_token']) && is_string($this->request->get['user_token']) ? $this->request->get['user_token'] : '';
+		$expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+		$raw = $this->request->post;
+		$action = isset($raw['action']) && is_string($raw['action']) ? $raw['action'] : '';
+		$idRaw = isset($raw['id']) && is_string($raw['id']) ? $raw['id'] : '';
+		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST' || !in_array($action, array('sort','move'), true) || !preg_match('/^[1-9][0-9]{0,9}$/D', $idRaw)) {
+			$this->response->setStatusCode(400);
+			$out['error'] = $this->language->get('tree_error');
+		} elseif ($token === '' || $expected === '' || !hash_equals($expected, $token) || !$this->user->hasPermission('access', 'blog/category') || !$this->user->hasPermission('modify', 'blog/category')) {
+			$this->response->setStatusCode(403);
+			$out['error'] = $this->language->get('tree_error');
+		} else {
+			$number = function ($value) {
+				return is_string($value) && preg_match('/^-?[0-9]{1,7}$/D', $value) && (int)$value >= -999999 && (int)$value <= 999999 ? (int)$value : null;
+			};
+			try {
+				require_once(DIR_SYSTEM . 'library/codecart/src/AdminCategoryTreeEditor.php');
+				$id = (int)$idRaw;
+				if ($action === 'sort') {
+					$sort = $number($raw['value'] ?? null);
+					$old = $number($raw['expected'] ?? null);
+					if ($sort === null || $old === null) { throw new \\InvalidArgumentException('Invalid sort value.'); }
+					$out['value'] = \\CodeCart\\Core\\AdminCategoryTreeEditor::quickSort($this->registry, 'blog', $id, $sort, $old);
+				} else {
+					$parentRaw = isset($raw['parent_id']) && is_string($raw['parent_id']) ? $raw['parent_id'] : '';
+					if (!preg_match('/^(0|[1-9][0-9]{0,9})$/D', $parentRaw)) { throw new \\InvalidArgumentException('Invalid destination.'); }
+					$out['moved'] = \\CodeCart\\Core\\AdminCategoryTreeEditor::move($this->registry, 'blog', $id, (int)$parentRaw);
+				}
+				$out['success'] = true;
+			} catch (\\InvalidArgumentException $e) {
+				$this->response->setStatusCode(422);
+				$out['error'] = $e->getMessage();
+			} catch (\\Throwable $e) {
+				$this->response->setStatusCode(409);
+				$out['error'] = $e->getMessage();
+			}
+		}
+		$this->response->setOutput(json_encode($out, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 	}
 
 }
