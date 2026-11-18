@@ -212,10 +212,18 @@ class ModelSaleOrder extends Model {
 		}
 		$sql = "SELECT DISTINCT `" . $column . "` AS name FROM `" . DB_PREFIX . "order` "
 			. "WHERE order_status_id > 0 AND `" . $column . "` <> '' ORDER BY `" . $column . "` ASC LIMIT 150";
+		// Five-minute cache prevents two full DISTINCT scans on each page view.
+		$cacheKey = 'codecart.admin.order.methods.' . $column;
+		$cached = $this->cache->get($cacheKey);
+		if (is_array($cached) && isset($cached['until'], $cached['values'])
+			&& (int)$cached['until'] > time() && is_array($cached['values'])) {
+			return $cached['values'];
+		}
 		$methods = array();
 		foreach ($this->db->query($sql)->rows as $row) {
 			$methods[] = (string)$row['name'];
 		}
+		$this->cache->set($cacheKey, array('until' => time() + 300, 'values' => $methods));
 		return $methods;
 	}
 
