@@ -217,7 +217,31 @@ class ModelCatalogProduct extends Model {
 			'p.date_added'
 		);
 
-		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
+		// Default search ordering favors exact identifiers, code fragments and name matches.
+		// Explicit user-selected sorting still takes precedence.
+		$relevance = !empty($data['filter_name'])
+			&& (!isset($data['sort']) || $data['sort'] === 'p.sort_order')
+			&& (!isset($data['order']) || $data['order'] === 'ASC');
+		if ($relevance) {
+			$term = trim(preg_replace('/\s+/u', ' ', (string)$data['filter_name']));
+			$exact = $this->db->escape($term);
+			$prefix = $this->escapeSearchLike($term);
+			$exact_codes = array();
+			foreach (array('model', 'sku', 'upc', 'ean', 'jan', 'isbn', 'mpn') as $field) {
+				$exact_codes[] = "p." . $field . " = '" . $exact . "'";
+			}
+			$sql .= " ORDER BY CASE WHEN " . implode(' OR ', $exact_codes) . " THEN 0 WHEN pd.name = '" . $exact . "' THEN 1";
+			$fragment = \CodeCart\Core\SmartSearch::identifierFragment($term);
+			if ($fragment !== '') {
+				$partial_codes = array();
+				$fragment_like = $this->escapeSearchLike($fragment);
+				foreach (array('model', 'sku', 'upc', 'ean', 'jan', 'isbn', 'mpn') as $field) {
+					$partial_codes[] = "p." . $field . " LIKE '%" . $fragment_like . "%' ESCAPE '='";
+				}
+				$sql .= " WHEN (" . implode(' OR ', $partial_codes) . ") THEN 2";
+			}
+			$sql .= " WHEN pd.name LIKE '" . $prefix . "%' ESCAPE '=' THEN 3 ELSE 4 END, p.sort_order";
+		} elseif (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			if ($data['sort'] == 'pd.name' || $data['sort'] == 'p.model') {
 				$sql .= " ORDER BY LCASE(" . $data['sort'] . ")";
 			} elseif ($data['sort'] == 'p.price') {
@@ -881,6 +905,11 @@ class ModelCatalogProduct extends Model {
 	}
 
 
+	/** Escape literal LIKE metacharacters with an explicit SQL escape character. */
+	private function escapeSearchLike($value) {
+		return $this->db->escape(strtr((string)$value, array('=' => '==', '%' => '=%', '_' => '=_')));
+	}
+
 	/**
 	 * Products matching a search are collected by one indexed lookup per kind of match
 	 * (names, codes, manufacturers, categories, tags). A single OR across all of them cannot
@@ -907,7 +936,7 @@ class ModelCatalogProduct extends Model {
 			foreach (\CodeCart\Core\SmartSearch::wordGroups($name) as $words) {
 				$name_parts = array();
 				foreach ($words as $word) {
-					$name_parts[] = "pd_n.name LIKE '%" . $this->db->escape($word) . "%'";
+					$name_parts[] = "pd_n.name LIKE '%" . $this->escapeSearchLike($word) . "%' ESCAPE '='";
 				}
 				$name_clauses[] = '(' . implode(' AND ', $name_parts) . ')';
 			}
@@ -917,7 +946,7 @@ class ModelCatalogProduct extends Model {
 
 			// Description search is opt-in and still requires a meaningful query.
 			if (!empty($data['filter_description']) && utf8_strlen($name) >= 2) {
-				$selects[] = "SELECT pd_d.product_id FROM " . DB_PREFIX . "product_description pd_d WHERE pd_d.language_id = '" . $language_id . "' AND pd_d.description LIKE '%" . $this->db->escape($name) . "%'";
+				$selects[] = "SELECT pd_d.product_id FROM " . DB_PREFIX . "product_description pd_d WHERE pd_d.language_id = '" . $language_id . "' AND pd_d.description LIKE '%" . $this->escapeSearchLike($name) . "%' ESCAPE '='";
 			}
 
 			// Exact identifiers stay useful even for very short stock/model codes.
@@ -927,6 +956,18 @@ class ModelCatalogProduct extends Model {
 				$code_clauses[] = "p_c." . $code_field . " = '" . $identifier . "'";
 			}
 			$selects[] = "SELECT p_c.product_id FROM " . DB_PREFIX . "product p_c WHERE " . implode(' OR ', $code_clauses);
+
+			// Allow bounded numeric/code fragments (786 inside HM-786).
+			// Infix LIKE is intentionally limited because it cannot use a B-tree index.
+			$fragment = \CodeCart\Core\SmartSearch::identifierFragment($name);
+			if ($fragment !== '') {
+				$fragment_like = $this->escapeSearchLike($fragment);
+				$fragment_clauses = array();
+				foreach (array('model', 'sku', 'upc', 'ean', 'jan', 'isbn', 'mpn') as $field) {
+					$fragment_clauses[] = "p_f." . $field . " LIKE '%" . $fragment_like . "%' ESCAPE '='";
+				}
+				$selects[] = "SELECT p_f.product_id FROM " . DB_PREFIX . "product p_f WHERE " . implode(' OR ', $fragment_clauses);
+			}
 
 			// "FTH 062" and "FTH-062" find the product whose model is FTH062 and the other way round.
 			$compact = \CodeCart\Core\SmartSearch::compactCode($name);
@@ -941,9 +982,9 @@ class ModelCatalogProduct extends Model {
 			// Category/manufacturer substring search is useful, but only for non-trivial phrases.
 			// This prevents one-letter queries from returning entire categories.
 			if (utf8_strlen($name) >= 3) {
-				$escaped_name = $this->db->escape($name);
-				$selects[] = "SELECT p_m.product_id FROM " . DB_PREFIX . "product p_m WHERE p_m.manufacturer_id IN (SELECT m_search.manufacturer_id FROM " . DB_PREFIX . "manufacturer m_search WHERE m_search.name LIKE '%" . $escaped_name . "%')";
-				$selects[] = "SELECT p2c_search.product_id FROM " . DB_PREFIX . "product_to_category p2c_search WHERE p2c_search.category_id IN (SELECT cd_search.category_id FROM " . DB_PREFIX . "category_description cd_search INNER JOIN " . DB_PREFIX . "category_to_store c2s_search ON (c2s_search.category_id = cd_search.category_id AND c2s_search.store_id = '" . $store_id . "') WHERE cd_search.language_id = '" . $language_id . "' AND cd_search.name LIKE '%" . $escaped_name . "%')";
+				$escaped_name = $this->escapeSearchLike($name);
+				$selects[] = "SELECT p_m.product_id FROM " . DB_PREFIX . "product p_m WHERE p_m.manufacturer_id IN (SELECT m_search.manufacturer_id FROM " . DB_PREFIX . "manufacturer m_search WHERE m_search.name LIKE '%" . $escaped_name . "%' ESCAPE '=')";
+				$selects[] = "SELECT p2c_search.product_id FROM " . DB_PREFIX . "product_to_category p2c_search WHERE p2c_search.category_id IN (SELECT cd_search.category_id FROM " . DB_PREFIX . "category_description cd_search INNER JOIN " . DB_PREFIX . "category_to_store c2s_search ON (c2s_search.category_id = cd_search.category_id AND c2s_search.store_id = '" . $store_id . "') WHERE cd_search.language_id = '" . $language_id . "' AND cd_search.name LIKE '%" . $escaped_name . "%' ESCAPE '=')";
 			}
 		}
 
@@ -951,7 +992,7 @@ class ModelCatalogProduct extends Model {
 			$tag_parts = array();
 			foreach (preg_split('/\s+/u', $tag, -1, PREG_SPLIT_NO_EMPTY) as $word) {
 				if (utf8_strlen($word) >= 2) {
-					$tag_parts[] = "pd_t.tag LIKE '%" . $this->db->escape($word) . "%'";
+					$tag_parts[] = "pd_t.tag LIKE '%" . $this->escapeSearchLike($word) . "%' ESCAPE '='";
 				}
 			}
 			if ($tag_parts) {
