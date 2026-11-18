@@ -51,25 +51,14 @@ class ControllerBlogLatest extends Controller {
 			$limit = max(1, (int)$this->config->get('configblog_article_limit'));
 		}
 		
-		$configblog_html_h1 = $this->config->get('configblog_html_h1');
-		
-		if (!empty($configblog_html_h1)) {
-			$data['heading_title'] = $this->config->get('configblog_html_h1');
-		} else {
-			$data['heading_title'] = $this->language->get('heading_title');
-		}
-		
-		$configblog_meta_title = $this->config->get('configblog_meta_title');
-		
-		if (!empty($configblog_meta_title)) {
-			$this->document->setTitle($this->config->get('configblog_meta_title'));
-		} else {
-			$this->document->setTitle($this->language->get('heading_title'));
-		}
-		
+		require_once(DIR_SYSTEM . 'library/codecart/src/BlogLocaleSeo.php');
+		$blog_language_id = (int)$this->config->get('config_language_id');
+		$blog_name = \CodeCart\Core\BlogLocaleSeo::resolve($this->config, $blog_language_id, 'name', $this->language->get('heading_title'));
+		$data['heading_title'] = \CodeCart\Core\BlogLocaleSeo::resolve($this->config, $blog_language_id, 'html_h1', $this->language->get('heading_title'));
+		$this->document->setTitle(\CodeCart\Core\BlogLocaleSeo::resolve($this->config, $blog_language_id, 'meta_title', $this->language->get('heading_title')));
 		$this->document->addLink($this->url->link('blog/latest', $page > 1 ? 'page=' . (int)$page : ''), 'canonical');
-
-		$this->document->setDescription($this->config->get('configblog_meta_description'));
+		$blog_meta_description = \CodeCart\Core\BlogLocaleSeo::resolve($this->config, $blog_language_id, 'meta_description');
+		$this->document->setDescription($blog_meta_description);
 		$this->document->setKeywords($this->config->get('configblog_meta_keyword'));
 
 		$data['breadcrumbs'] = array();
@@ -79,14 +68,8 @@ class ControllerBlogLatest extends Controller {
 			'href' => $this->url->link('common/home')
 		);
 		
-		$configblog_name = $this->config->get('configblog_name');
-		
-		if (!empty($configblog_name)) {
-			$name = $this->config->get('configblog_name');
-		} else {
-			$name = $this->language->get('heading_title');
-		}
-		
+		$name = $blog_name;
+
 		$data['breadcrumbs'][] = array(
 			'text' => $name,
 			'href' => $this->url->link('blog/latest')
@@ -100,7 +83,7 @@ class ControllerBlogLatest extends Controller {
 				'@id' => $schema_url . '#collectionpage',
 				'url' => $schema_url,
 				'name' => (string)$name,
-				'description' => (string)$this->config->get('configblog_meta_description'),
+				'description' => $blog_meta_description,
 				'isPartOf' => array('@id' => rtrim((string)$schema_base, '/') . '/#website')
 			), 'blog-latest');
 
