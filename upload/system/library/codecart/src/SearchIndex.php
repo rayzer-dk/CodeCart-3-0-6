@@ -14,7 +14,7 @@ final class SearchIndex {
             store_id INT NOT NULL,
             language_id INT NOT NULL,
             generation INT UNSIGNED NOT NULL DEFAULT 0,
-            cursor INT UNSIGNED NOT NULL DEFAULT 0,
+            last_product_id INT UNSIGNED NOT NULL DEFAULT 0,
             indexed INT UNSIGNED NOT NULL DEFAULT 0,
             ready TINYINT(1) NOT NULL DEFAULT 0,
             modified_at DATETIME NOT NULL,
@@ -33,7 +33,7 @@ final class SearchIndex {
     }
 
     public static function state($db, $storeId, $languageId) {
-        $query = $db->query("SELECT generation, cursor, indexed, ready FROM " . DB_PREFIX . "codecart_search_index_state WHERE store_id = '" . (int)$storeId . "' AND language_id = '" . (int)$languageId . "' LIMIT 1");
+        $query = $db->query("SELECT generation, last_product_id AS cursor, indexed, ready FROM " . DB_PREFIX . "codecart_search_index_state WHERE store_id = '" . (int)$storeId . "' AND language_id = '" . (int)$languageId . "' LIMIT 1");
         return $query->num_rows ? $query->row : array('generation' => 0, 'cursor' => 0, 'indexed' => 0, 'ready' => 0);
     }
 
@@ -41,7 +41,7 @@ final class SearchIndex {
         self::install($db);
         $old = self::state($db, $storeId, $languageId);
         $generation = (int)$old['generation'] + 1;
-        $db->query("INSERT INTO " . DB_PREFIX . "codecart_search_index_state SET store_id = '" . (int)$storeId . "', language_id = '" . (int)$languageId . "', generation = '" . $generation . "', cursor = 0, indexed = 0, ready = 0, modified_at = NOW() ON DUPLICATE KEY UPDATE generation = VALUES(generation), cursor = 0, indexed = 0, ready = 0, modified_at = NOW()");
+        $db->query("INSERT INTO " . DB_PREFIX . "codecart_search_index_state SET store_id = '" . (int)$storeId . "', language_id = '" . (int)$languageId . "', generation = '" . $generation . "', last_product_id = 0, indexed = 0, ready = 0, modified_at = NOW() ON DUPLICATE KEY UPDATE generation = VALUES(generation), last_product_id = 0, indexed = 0, ready = 0, modified_at = NOW()");
         return self::state($db, $storeId, $languageId);
     }
 
@@ -120,7 +120,7 @@ final class SearchIndex {
         }
 
         $ready = count($ids) < $limit ? 1 : 0;
-        $db->query("UPDATE " . DB_PREFIX . "codecart_search_index_state SET cursor = '" . (int)$state['cursor'] . "', indexed = '" . (int)$state['indexed'] . "', ready = '" . $ready . "', modified_at = NOW() WHERE store_id = '" . $storeId . "' AND language_id = '" . $languageId . "' AND generation = '" . $generation . "'");
+        $db->query("UPDATE " . DB_PREFIX . "codecart_search_index_state SET last_product_id = '" . (int)$state['cursor'] . "', indexed = '" . (int)$state['indexed'] . "', ready = '" . $ready . "', modified_at = NOW() WHERE store_id = '" . $storeId . "' AND language_id = '" . $languageId . "' AND generation = '" . $generation . "'");
         $state['ready'] = $ready;
         $state['done'] = false;
         return $state;
