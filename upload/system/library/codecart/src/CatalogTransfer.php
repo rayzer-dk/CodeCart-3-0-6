@@ -1,6 +1,8 @@
 <?php
 namespace CodeCart\Core;
 
+require_once __DIR__ . '/SearchIndex.php';
+
 /**
  * Safe catalog import/export for CodeCart/OpenCart 3.x.
  * Uses logical table names (without DB_PREFIX), schema intersection and language/store mapping.
