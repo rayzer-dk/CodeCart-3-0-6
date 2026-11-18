@@ -78,6 +78,74 @@ class ControllerSaleOrder extends Controller {
 		$this->response->setFile($tmp, true);
 	}
 
+	/** Authenticated AJAX order items. Only called on a single expanded row. */
+	public function preview() {
+		$this->load->language('sale/order');
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->addHeader('Cache-Control: no-store, private');
+		$token = isset($this->request->get['user_token']) ? (string)$this->request->get['user_token'] : '';
+		$expected = isset($this->session->data['user_token']) ? (string)$this->session->data['user_token'] : '';
+		if (!$this->user->isLogged() || !$this->user->hasPermission('access', 'sale/order')
+			|| $token === '' || $expected === '' || !hash_equals($expected, $token)) {
+			$this->response->setStatusCode(403);
+			$this->response->setOutput(json_encode(array('error' => $this->language->get('error_permission'))));
+			return;
+		}
+		$orderId = isset($this->request->get['order_id']) ? (int)$this->request->get['order_id'] : 0;
+		if ($orderId < 1) {
+			$this->response->setStatusCode(400);
+			$this->response->setOutput(json_encode(array('error' => $this->language->get('text_order_preview_error'))));
+			return;
+		}
+		$this->load->model('sale/order');
+		$preview = $this->model_sale_order->getOrderPreview($orderId);
+		if (!$preview) {
+			$this->response->setStatusCode(404);
+			$this->response->setOutput(json_encode(array('error' => $this->language->get('text_order_preview_error'))));
+			return;
+		}
+		$this->load->model('tool/image');
+		$items = array();
+		foreach ($preview['products'] as $product) {
+			$items[] = array(
+				'name' => $product['name'],
+				'model' => $product['model'],
+				'quantity' => (int)$product['quantity'],
+				'image' => $this->orderProductThumb($product),
+				'price' => $this->currency->format(
+					$product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0),
+					$preview['order']['currency_code'], $preview['order']['currency_value']
+				),
+				'total' => $this->currency->format(
+					$product['total'] + ($this->config->get('config_tax') ? $product['tax'] * $product['quantity'] : 0),
+					$preview['order']['currency_code'], $preview['order']['currency_value']
+				),
+				'href' => (int)$product['product_id'] > 0 ? html_entity_decode(
+					$this->url->link('catalog/product/edit', 'user_token=' . $expected . '&product_id=' . (int)$product['product_id'], true),
+					ENT_QUOTES, 'UTF-8') : ''
+			);
+		}
+		$this->response->setOutput(json_encode(array('products' => $items), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE));
+	}
+
+	private function orderProductThumb(array $product): string {
+		$image = isset($product['product_image']) ? (string)$product['product_image'] : '';
+		$source = $image !== '' && is_file(DIR_IMAGE . $image) ? $image : 'no_image.webp';
+		return $this->model_tool_image->resize($source, 40, 40);
+	}
+
+	private function extendedOrderFilterUrl(): string {
+		$url = '';
+		foreach (array('filter_email', 'filter_phone', 'filter_product', 'filter_shipping_method',
+			'filter_payment_method', 'filter_total_min', 'filter_total_max') as $key) {
+			if (isset($this->request->get[$key]) && is_scalar($this->request->get[$key])
+				&& (string)$this->request->get[$key] !== '') {
+				$url .= '&' . $key . '=' . rawurlencode((string)$this->request->get[$key]);
+			}
+		}
+		return $url;
+	}
+
 	public function add() {
 		$this->load->language('sale/order');
 
@@ -126,6 +194,8 @@ class ControllerSaleOrder extends Controller {
 		if (isset($this->request->get['filter_total'])) {
 			$url .= '&filter_total=' . $this->request->get['filter_total'];
 		}
+
+		$url .= $this->extendedOrderFilterUrl();
 
 		if (isset($this->request->get['filter_date_added'])) {
 			$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
@@ -239,6 +309,8 @@ class ControllerSaleOrder extends Controller {
 			$url .= '&filter_total=' . $this->request->get['filter_total'];
 		}
 
+		$url .= $this->extendedOrderFilterUrl();
+
 		if (isset($this->request->get['filter_date_added'])) {
 			$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
 		}
@@ -297,6 +369,15 @@ class ControllerSaleOrder extends Controller {
 			'limit'                  => $this->config->get('config_limit_admin')
 		);
 
+		foreach (array('filter_email', 'filter_phone', 'filter_product', 'filter_shipping_method',
+			'filter_payment_method', 'filter_total_min', 'filter_total_max') as $key) {
+			$filter_data[$key] = isset($this->request->get[$key]) && is_scalar($this->request->get[$key])
+				? trim((string)$this->request->get[$key]) : '';
+		}
+		if ($filter_data['filter_total_min'] === '' && $filter_data['filter_total_max'] === '' && $filter_total !== '') {
+			$filter_data['filter_total_min'] = (string)$filter_total;
+			$filter_data['filter_total_max'] = (string)$filter_total;
+		}
 		$order_total = $this->model_sale_order->getTotalOrders($filter_data);
 
 		$results = $this->model_sale_order->getOrders($filter_data);
@@ -359,6 +440,8 @@ class ControllerSaleOrder extends Controller {
 			$url .= '&filter_total=' . $this->request->get['filter_total'];
 		}
 
+		$url .= $this->extendedOrderFilterUrl();
+
 		if (isset($this->request->get['filter_date_added'])) {
 			$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
 		}
@@ -409,6 +492,8 @@ class ControllerSaleOrder extends Controller {
 			$url .= '&filter_total=' . $this->request->get['filter_total'];
 		}
 
+		$url .= $this->extendedOrderFilterUrl();
+
 		if (isset($this->request->get['filter_date_added'])) {
 			$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
 		}
@@ -443,6 +528,15 @@ class ControllerSaleOrder extends Controller {
 		$data['filter_order_status'] = $filter_order_status;
 		$data['filter_order_status_id'] = $filter_order_status_id;
 		$data['filter_total'] = $filter_total;
+		foreach (array('filter_email', 'filter_phone', 'filter_product', 'filter_shipping_method',
+			'filter_payment_method', 'filter_total_min', 'filter_total_max') as $key) {
+			$data[$key] = $filter_data[$key];
+		}
+		$data['shipping_methods'] = $this->model_sale_order->getOrderMethodChoices('shipping_method');
+		$data['payment_methods'] = $this->model_sale_order->getOrderMethodChoices('payment_method');
+		$data['order_preview_url'] = html_entity_decode($this->url->link(
+			'sale/order/preview', 'user_token=' . $this->session->data['user_token'], true
+		), ENT_QUOTES, 'UTF-8');
 		$data['filter_date_added'] = $filter_date_added;
 		$data['filter_date_start'] = $filter_date_start;
 		$data['filter_date_end'] = $filter_date_end;
@@ -511,6 +605,8 @@ class ControllerSaleOrder extends Controller {
 		if (isset($this->request->get['filter_total'])) {
 			$url .= '&filter_total=' . $this->request->get['filter_total'];
 		}
+
+		$url .= $this->extendedOrderFilterUrl();
 
 		if (isset($this->request->get['filter_date_added'])) {
 			$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
@@ -1018,6 +1114,21 @@ class ControllerSaleOrder extends Controller {
 
 			$data['shipping_address'] = str_replace(array("\r\n", "\r", "\n"), '<br />', preg_replace(array("/\s\s+/", "/\r\r+/", "/\n\n+/"), '<br />', trim(str_replace($find, $replace, $format))));
 
+			// The same 40x40 thumbnails as the admin product list.
+			$this->load->model('tool/image');
+			$data['shipping_address_copy'] = trim(implode("\n", array_filter(array(
+				$order_info['shipping_firstname'] . ' ' . $order_info['shipping_lastname'],
+				$order_info['shipping_company'], $order_info['shipping_address_1'],
+				$order_info['shipping_address_2'], $order_info['shipping_city'] . ' ' . $order_info['shipping_postcode'],
+				$order_info['shipping_zone'], $order_info['shipping_country']
+			), 'strlen')));
+			$data['payment_address_copy'] = trim(implode("\n", array_filter(array(
+				$order_info['payment_firstname'] . ' ' . $order_info['payment_lastname'],
+				$order_info['payment_company'], $order_info['payment_address_1'],
+				$order_info['payment_address_2'], $order_info['payment_city'] . ' ' . $order_info['payment_postcode'],
+				$order_info['payment_zone'], $order_info['payment_country']
+			), 'strlen')));
+
 			// Uploaded files
 			$this->load->model('tool/upload');
 
@@ -1054,6 +1165,7 @@ class ControllerSaleOrder extends Controller {
 
 				$data['products'][] = array(
 					'order_product_id' => $product['order_product_id'],
+					'image'            => $this->orderProductThumb($product),
 					'product_id'       => $product['product_id'],
 					'name'    	 	   => $product['name'],
 					'model'    		   => $product['model'],
