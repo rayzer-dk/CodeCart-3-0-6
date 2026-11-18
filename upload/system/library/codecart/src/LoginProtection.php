@@ -6,6 +6,7 @@ final class LoginProtection {
     private $db;
     private $config;
     private $request;
+    private $loginAttemptTableAvailable = null;
 
     public function __construct($registry) {
         $this->registry = $registry;
@@ -15,8 +16,32 @@ final class LoginProtection {
     }
 
     public function enabled(): bool {
+        // Existing ocStore shops have no CodeCart protection setting until the
+        // administrator completes Installer UPDATE. Never query missing tables
+        // during authentication: legacy password validation must still work.
         $value = $this->config->get('codecart_admin_login_protection_status');
-        return $value === null || $value === '' ? true : (bool)$value;
+        if ($value === null || $value === '' || !(bool)(int)$value) {
+            return false;
+        }
+
+        if ($this->loginAttemptTableAvailable === null) {
+            $this->loginAttemptTableAvailable = false;
+            try {
+                $table = $this->db->query("SHOW TABLES LIKE '" . $this->db->escape(DB_PREFIX . 'codecart_admin_login_attempt') . "'");
+                $this->loginAttemptTableAvailable = (bool)$table->num_rows;
+            } catch (\Throwable $e) {
+                // Permissions or an incomplete migration are diagnosed by the
+                // explicit updater; never run schema DDL inside a login POST.
+            }
+            if (!$this->loginAttemptTableAvailable) {
+                $log = $this->registry->get('log');
+                if ($log) {
+                    $log->write('CodeCart admin login protection requires Installer UPDATE: login-attempt table is unavailable.');
+                }
+            }
+        }
+
+        return $this->loginAttemptTableAvailable;
     }
 
     public function isBlocked(string $username): bool {
@@ -78,6 +103,9 @@ final class LoginProtection {
     }
 
     public function recordSuccess(string $username): void {
+        if (!$this->enabled()) {
+            return;
+        }
         $username = $this->normalizeUsername($username);
         $ip = $this->clientIp();
         if ($username === '' || $ip === '') {
@@ -87,6 +115,9 @@ final class LoginProtection {
     }
 
     public function attemptsForCurrentSource(string $username): int {
+        if (!$this->enabled()) {
+            return 0;
+        }
         $username = $this->normalizeUsername($username);
         $ip = $this->clientIp();
         if ($username === '' || $ip === '') {
