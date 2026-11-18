@@ -585,6 +585,16 @@ class ModelCatalogProduct extends Model {
 				'weight_prefix' => $product_option_value['weight_prefix']
 			);
 		}
+		$localizedDefaults = array();
+		if ((int)$this->config->get('codecart_presentation_schema_version') >= 46) {
+			$optionIds = array_values(array_unique(array_map('intval', array_column($product_option_query->rows, 'product_option_id'))));
+			if ($optionIds) {
+				$translations = $this->db->query("SELECT product_option_id, value FROM `" . DB_PREFIX . "codecart_product_option_translation` WHERE language_id = '" . (int)$this->config->get('config_language_id') . "' AND product_option_id IN (" . implode(',', $optionIds) . ")")->rows;
+				foreach ($translations as $row) {
+					$localizedDefaults[(int)$row['product_option_id']] = (string)$row['value'];
+				}
+			}
+		}
 		foreach ($product_option_query->rows as $product_option) {
 			$id = (int)$product_option['product_option_id'];
 			$product_option_data[] = array(
@@ -593,7 +603,7 @@ class ModelCatalogProduct extends Model {
 				'option_id' => $product_option['option_id'],
 				'name' => $product_option['name'],
 				'type' => $product_option['type'],
-				'value' => $product_option['value'],
+				'value' => array_key_exists($id, $localizedDefaults) ? $localizedDefaults[$id] : $product_option['value'],
 				'required' => $product_option['required']
 			);
 		}
