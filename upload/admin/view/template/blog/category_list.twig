@@ -1,5 +1,7 @@
 {{ header }}{{ column_left }}
-<div id="content">
+<div id="content" data-cc-tree-url="{{ category_tree_edit_url }}" data-cc-tree-autocomplete="{{ category_tree_autocomplete }}" data-cc-tree-kind="{{ category_tree_kind }}" data-cc-tree-error="{{ tree_error }}" data-cc-tree-choose="{{ tree_choose }}" data-cc-tree-done="{{ tree_done }}">
+<link rel="stylesheet" href="view/stylesheet/codecart-category-tree.css?v=1.0.0" />
+<script src="view/javascript/codecart/category-tree.js?v=1.0.0" defer></script>
 <link rel="stylesheet" href="view/stylesheet/codecart-catalog-quality.css?v=3.0.6.2" />
 <script src="view/javascript/codecart/catalog-quality.js?v=3.0.6.2" defer></script>
   <div class="page-header">
@@ -32,9 +34,28 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <button type="button" class="btn btn-default btn-xs cc-quality-toggle pull-right" aria-pressed="true" title="{{ quality_toggle }}" aria-label="{{ quality_toggle }}"><i class="fa fa-tasks" aria-hidden="true"></i></button>
+        <a class="btn btn-default btn-xs pull-right cc-tree-switch" href="{{ category_tree_toggle }}" title="{{ tree_toggle }}"><i class="fa fa-sitemap" aria-hidden="true"></i> {{ category_tree_mode ? tree_list : tree_tree }}</a>
         <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
       </div>
       <div class="panel-body">
+        {% if category_tree_mode %}
+        <div class="cc-tree-editor">
+          <p class="cc-tree-hint">{{ tree_move_help }}</p>
+          <div class="cc-tree-root" data-cc-tree-target="0" tabindex="0"><i class="fa fa-home" aria-hidden="true"></i> {{ tree_root }}</div>
+          <div class="cc-tree-rows" role="tree">
+          {% for node in category_tree_rows %}
+            <div class="cc-tree-row" role="treeitem" data-cc-tree-id="{{ node.id }}" data-cc-tree-parent="{{ node.parent_id }}" data-cc-tree-path="{{ node.ancestor_path }}" data-cc-tree-depth="{{ node.depth }}" aria-level="{{ node.depth + 1 }}" style="--cc-tree-depth:{{ node.depth }}" draggable="true">
+              <span class="cc-tree-handle" title="{{ tree_drag_help }}"><i class="fa fa-bars" aria-hidden="true"></i></span>
+              <button type="button" class="cc-tree-collapse{% if not node.has_children %} is-placeholder{% endif %}" {% if not node.has_children %}disabled="disabled"{% endif %} title="{{ tree_expand }}" aria-label="{{ tree_expand }}" aria-expanded="true"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
+              <a href="{{ node.edit }}" class="cc-tree-name">{{ node.name }}</a>
+              <input type="number" class="cc-category-sort" data-cc-sort-id="{{ node.id }}" data-cc-sort-expected="{{ node.sort_order }}" value="{{ node.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ node.name }}" title="{{ tree_sort }}" />
+              <button type="button" class="btn btn-default btn-xs cc-tree-move" data-cc-move-id="{{ node.id }}" data-cc-move-name="{{ node.name }}" title="{{ tree_move }}"><i class="fa fa-arrows" aria-hidden="true"></i><span class="hidden-xs"> {{ tree_move }}</span></button>
+            </div>
+          {% endfor %}
+          </div>
+          {% if category_tree_truncated %}<p class="alert alert-warning">{{ tree_limited }}</p>{% endif %}
+        </div>
+        {% else %}
         <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-category">
           <div class="table-responsive">
             <table class="table table-bordered table-hover cc-quality-table" data-quality-url="{{ quality_endpoint }}" data-quality-count="{{ quality_count_label }}">
@@ -65,7 +86,7 @@
 					{% else %}
                   <td class="left">{{ category.indent }}{{ category.name }} <span class="cc-quality" data-quality-id="{{ category.blog_category_id }}"><span class="cc-quality-score">···</span><span class="cc-quality-count" hidden></span></span></td>
                   {% endif %}
-                  <td class="text-right">{{ category.sort_order }}</td>
+                  <td class="text-right"><input type="number" class="cc-category-sort" data-cc-sort-id="{{ category.blog_category_id }}" data-cc-sort-expected="{{ category.sort_order }}" value="{{ category.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ category.name|striptags }}" title="{{ tree_sort }}" /></td>
 				  <td class="text-right">{{ category.noindex }}</td>
                   <td class="text-right">
 					<a target="_blank" href="{{ category.href_shop }}" data-toggle="tooltip" title="{{ button_shop }}" class="btn btn-success"><i class="fa fa-eye"></i></a>
@@ -85,10 +106,34 @@
         <div class="row">
           <div class="col-sm-12 text-right">{{ results }}</div>
         </div>
+        {% endif %}
       </div>
     </div>
   </div>
   
+  <div class="modal fade" id="cc-tree-move-modal" tabindex="-1" role="dialog" aria-labelledby="cc-tree-move-title">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="{{ tree_cancel }}">&times;</button>
+          <h4 class="modal-title" id="cc-tree-move-title">{{ tree_move }}</h4>
+        </div>
+        <div class="modal-body">
+          <p class="cc-tree-moving-name"></p>
+          <label for="cc-tree-parent-search">{{ tree_search }}</label>
+          <input id="cc-tree-parent-search" type="text" class="form-control" autocomplete="off" placeholder="{{ tree_search }}" />
+          <input id="cc-tree-parent-id" type="hidden" value="0" />
+          <p class="cc-tree-selected-parent text-muted">{{ tree_root_option }}</p>
+          <button type="button" class="btn btn-default btn-xs cc-tree-select-root">{{ tree_root_option }}</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">{{ tree_cancel }}</button>
+          <button type="button" class="btn btn-primary cc-tree-confirm-move">{{ tree_save }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
     <script type="text/javascript"><!--
 // IE and Edge fix!
 $('button[form=\'form-category\']').on('click', function(e) {
