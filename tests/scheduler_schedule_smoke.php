@@ -41,7 +41,8 @@ foreach (array('schedule_mode','schedule_days','schedule_time') as $column) {
     expectCalendar(strpos($sql, '`' . $column . '`') !== false, 'Missing clean install scheduler column ' . $column);
     expectCalendar(strpos($migrate, "'" . $column . "' =>") !== false, 'Missing scheduler migration: ' . $column);
 }
-expectCalendar(strpos($migrate, "const PRESENTATION_SCHEMA_VERSION = '44'") !== false, 'Scheduler calendar migration revision');
+preg_match("/const PRESENTATION_SCHEMA_VERSION = '([0-9]+)'/", $migrate, $schemaRevision);
+expectCalendar(isset($schemaRevision[1]) && (int)$schemaRevision[1] >= 44, 'Scheduler calendar migration revision');
 echo "PASS: weekly/daily, DST, validation, schema compatibility\n";
 
 $cronCases = array(
