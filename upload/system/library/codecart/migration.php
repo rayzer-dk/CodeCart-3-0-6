@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '43';
+    const PRESENTATION_SCHEMA_VERSION = '44';
 
     private $db;
     private $config;
@@ -2125,6 +2125,7 @@ class Migration {
             `schedule_mode` varchar(12) NOT NULL DEFAULT 'interval',
             `schedule_days` tinyint unsigned NOT NULL DEFAULT '127',
             `schedule_time` char(5) NOT NULL DEFAULT '03:00',
+            `schedule_expression` varchar(100) NOT NULL DEFAULT '',
             `status` tinyint(1) NOT NULL DEFAULT '1',
             `date_last` datetime DEFAULT NULL,
             `date_next` datetime NOT NULL,
@@ -2141,7 +2142,8 @@ class Migration {
         foreach (array(
             'schedule_mode' => "varchar(12) NOT NULL DEFAULT 'interval'",
             'schedule_days' => "tinyint unsigned NOT NULL DEFAULT '127'",
-            'schedule_time' => "char(5) NOT NULL DEFAULT '03:00'"
+            'schedule_time' => "char(5) NOT NULL DEFAULT '03:00'",
+            'schedule_expression' => "varchar(100) NOT NULL DEFAULT ''"
         ) as $column => $definition) {
             if (!$this->columnExists('codecart_scheduler', $column)) {
                 $this->db->query("ALTER TABLE `" . DB_PREFIX . "codecart_scheduler` ADD `" . $column . "` " . $definition);

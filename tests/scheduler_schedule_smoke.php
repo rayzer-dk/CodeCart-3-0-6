@@ -41,5 +41,25 @@ foreach (array('schedule_mode','schedule_days','schedule_time') as $column) {
     expectCalendar(strpos($sql, '`' . $column . '`') !== false, 'Missing clean install scheduler column ' . $column);
     expectCalendar(strpos($migrate, "'" . $column . "' =>") !== false, 'Missing scheduler migration: ' . $column);
 }
-expectCalendar(strpos($migrate, "const PRESENTATION_SCHEMA_VERSION = '43'") !== false, 'Scheduler calendar migration revision');
+expectCalendar(strpos($migrate, "const PRESENTATION_SCHEMA_VERSION = '44'") !== false, 'Scheduler calendar migration revision');
 echo "PASS: weekly/daily, DST, validation, schema compatibility\n";
+
+$cronCases = array(
+    array('0 3 * * MON', '2026-11-23 03:00'),
+    array('15 8 1 * *', '2026-12-01 08:15'),
+    array('0 12 1 JAN *', '2027-01-01 12:00'),
+    array('0 2 29 FEB *', '2028-02-29 02:00'),
+    array('5 10 * * MON-FRI', '2026-11-19 10:05')
+);
+foreach ($cronCases as $case) {
+    $origin = new DateTimeImmutable('2026-11-18 20:00:00', $utc);
+    $seconds = \CodeCart\Core\CronExpression::nextDelay($case[0], $zone, $origin);
+    $target = $origin->modify('+' . $seconds . ' seconds')->setTimezone(new DateTimeZone($zone));
+    expectCalendar($target->format('Y-m-d H:i') === $case[1], 'Cron next run: ' . $case[0]);
+}
+foreach (array('abc * * * *', '*/0 * * * *', '* * 0 * *', '61 * * * *', '* * * * 8', '*/-1 * * * *') as $invalidCron) {
+    try { \CodeCart\Core\CronExpression::parse($invalidCron); throw new RuntimeException('Invalid Cron accepted: ' . $invalidCron); }
+    catch (InvalidArgumentException $expected) { }
+}
+expectCalendar(\CodeCart\Core\SchedulerSchedule::normalize(array('schedule_mode'=>'cron','schedule_expression'=>'0 3 * * MON'))['schedule_mode'] === 'cron', 'Cron normalization');
+echo "PASS: Cron day, month, leap year and invalid syntax.\n";

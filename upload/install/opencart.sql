@@ -3779,6 +3779,7 @@ CREATE TABLE `oc_codecart_scheduler` (
   `schedule_mode` varchar(12) NOT NULL DEFAULT 'interval',
   `schedule_days` tinyint unsigned NOT NULL DEFAULT '127',
   `schedule_time` char(5) NOT NULL DEFAULT '03:00',
+  `schedule_expression` varchar(100) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '1',
   `date_last` datetime DEFAULT NULL,
   `date_next` datetime NOT NULL,

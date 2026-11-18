@@ -45,7 +45,7 @@ final class Scheduler {
         // The DB unique key on `code` also prevents simultaneous duplicate inserts.
         $schedule = SchedulerSchedule::normalize($schedule);
         $next = $this->nextExpression($schedule, $interval, true);
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', schedule_mode = '" . $schedule['schedule_mode'] . "', schedule_days = '" . $schedule['schedule_days'] . "', schedule_time = '" . $schedule['schedule_time'] . "', status = '" . (int)$status . "', date_next = " . $next . ", date_added = NOW(), date_modified = NOW()");
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', schedule_mode = '" . $schedule['schedule_mode'] . "', schedule_days = '" . $schedule['schedule_days'] . "', schedule_time = '" . $schedule['schedule_time'] . "', schedule_expression = '" . $this->db->escape($schedule['schedule_expression']) . "', status = '" . (int)$status . "', date_next = " . $next . ", date_added = NOW(), date_modified = NOW()");
     }
 
     public function save(int $schedulerId, string $code, string $route, int $interval, bool $status, array $args = array(), array $schedule = null): void {
@@ -71,7 +71,7 @@ final class Scheduler {
 
         $schedule = SchedulerSchedule::normalize($schedule === null ? $existing : $schedule);
         $next = $this->nextExpression($schedule, $interval, !$existing['status'] && $status);
-        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', schedule_mode = '" . $schedule['schedule_mode'] . "', schedule_days = '" . $schedule['schedule_days'] . "', schedule_time = '" . $schedule['schedule_time'] . "', status = '" . (int)$status . "', date_next = " . $next . ", date_modified = NOW() WHERE scheduler_id = '" . (int)$schedulerId . "'");
+        $this->db->query("UPDATE `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', schedule_mode = '" . $schedule['schedule_mode'] . "', schedule_days = '" . $schedule['schedule_days'] . "', schedule_time = '" . $schedule['schedule_time'] . "', schedule_expression = '" . $this->db->escape($schedule['schedule_expression']) . "', status = '" . (int)$status . "', date_next = " . $next . ", date_modified = NOW() WHERE scheduler_id = '" . (int)$schedulerId . "'");
     }
 
     public function unregister(string $code): void {
@@ -138,7 +138,7 @@ final class Scheduler {
     }
 
     public function listTasks(): array {
-        $query = $this->db->query("SELECT scheduler_id, code, route, args, interval_seconds, status, date_last, date_next, last_duration_ms, last_status, last_message, date_added, date_modified, schedule_mode, schedule_days, schedule_time FROM `" . DB_PREFIX . "codecart_scheduler` ORDER BY code ASC");
+        $query = $this->db->query("SELECT scheduler_id, code, route, args, interval_seconds, status, date_last, date_next, last_duration_ms, last_status, last_message, date_added, date_modified, schedule_mode, schedule_days, schedule_time, schedule_expression FROM `" . DB_PREFIX . "codecart_scheduler` ORDER BY code ASC");
         return $query->rows;
     }
 
@@ -345,7 +345,7 @@ final class Scheduler {
     }
 
     private function nextExpression(array $schedule, int $interval, bool $immediateInterval = false): string {
-        if ($schedule['schedule_mode'] === 'weekly') {
+        if ($schedule['schedule_mode'] === 'weekly' || $schedule['schedule_mode'] === 'cron') {
             $config = $this->registry->get('config');
             $timezone = $config ? SchedulerSchedule::timezone($config->get('config_timezone')) : 'UTC';
             $delay = SchedulerSchedule::nextDelay($schedule, $timezone);

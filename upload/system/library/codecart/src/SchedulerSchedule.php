@@ -6,14 +6,20 @@ namespace CodeCart\Core;
  * Monday is bit 0; Sunday is bit 6. DB date_next remains in database-local
  * time by adding a UTC-derived delay to SQL NOW(), not writing a PHP local date.
  */
+require_once __DIR__ . '/CronExpression.php';
 final class SchedulerSchedule {
     public static function normalize(array $input): array {
         $mode = isset($input['schedule_mode']) ? (string)$input['schedule_mode'] : 'interval';
-        if (!in_array($mode, array('interval', 'weekly'), true)) {
+        if (!in_array($mode, array('interval', 'weekly', 'cron'), true)) {
             throw new \InvalidArgumentException('Invalid scheduler mode.');
         }
         if ($mode === 'interval') {
-            return array('schedule_mode' => 'interval', 'schedule_days' => 127, 'schedule_time' => '03:00');
+            return array('schedule_mode' => 'interval', 'schedule_days' => 127, 'schedule_time' => '03:00', 'schedule_expression' => '');
+        }
+        if ($mode === 'cron') {
+            $expression = trim((string)($input['schedule_expression'] ?? ''));
+            CronExpression::parse($expression);
+            return array('schedule_mode' => 'cron', 'schedule_days' => 127, 'schedule_time' => '03:00', 'schedule_expression' => $expression);
         }
         $days = isset($input['schedule_days']) ? $input['schedule_days'] : 0;
         if (!is_int($days) && (!is_string($days) || !preg_match('/^[0-9]{1,3}$/D', $days))) {
@@ -27,7 +33,7 @@ final class SchedulerSchedule {
         if (!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D', $time)) {
             throw new \InvalidArgumentException('Invalid scheduler time.');
         }
-        return array('schedule_mode' => 'weekly', 'schedule_days' => $days, 'schedule_time' => $time);
+        return array('schedule_mode' => 'weekly', 'schedule_days' => $days, 'schedule_time' => $time, 'schedule_expression' => '');
     }
 
     public static function timezone($value): string {
@@ -42,6 +48,9 @@ final class SchedulerSchedule {
     /** Seconds until the next selected *local* clock time, strictly after now. */
     public static function nextDelay(array $schedule, string $timezone, \DateTimeImmutable $now = null): int {
         $schedule = self::normalize($schedule);
+        if ($schedule['schedule_mode'] === 'cron') {
+            return CronExpression::nextDelay($schedule['schedule_expression'], $timezone, $now);
+        }
         if ($schedule['schedule_mode'] !== 'weekly') {
             throw new \InvalidArgumentException('Calendar delay requested for interval task.');
         }
