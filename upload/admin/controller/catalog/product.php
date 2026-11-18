@@ -1768,6 +1768,9 @@ class ControllerCatalogProduct extends Controller {
 			$product_options = array();
 		}
 
+		$this->load->language('catalog/option_localization');
+		$data['entry_localized_option_value'] = $this->language->get('entry_localized_option_value');
+		$data['help_localized_option_value'] = $this->language->get('help_localized_option_value');
 		$data['product_options'] = array();
 
 		foreach ($product_options as $product_option) {
@@ -1797,6 +1800,7 @@ class ControllerCatalogProduct extends Controller {
 				'name'                 => $product_option['name'],
 				'type'                 => $product_option['type'],
 				'value'                => isset($product_option['value']) ? $product_option['value'] : '',
+				'localized_value'      => isset($product_option['localized_value']) && is_array($product_option['localized_value']) ? $product_option['localized_value'] : array(),
 				'required'             => $product_option['required']
 			);
 		}
