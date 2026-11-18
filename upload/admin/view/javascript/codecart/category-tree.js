@@ -136,8 +136,13 @@
         .catch(function (error) { notify(error.message || defaultError, false); });
     }
     rows.forEach(function (row) {
+      // Drag events are dispatched at the draggable row, not necessarily at
+      // the nested grab handle. Only start when pointerdown hit that handle.
+      row.addEventListener('pointerdown', function (event) {
+        row.dataset.ccDragAllowed = event.target.closest('.cc-tree-handle') ? '1' : '0';
+      });
       row.addEventListener('dragstart', function (event) {
-        if (!event.target.closest('.cc-tree-handle')) {
+        if (row.dataset.ccDragAllowed !== '1') {
           event.preventDefault();
           return;
         }
@@ -147,6 +152,7 @@
         row.classList.add('is-dragging');
       });
       row.addEventListener('dragend', function () {
+        row.dataset.ccDragAllowed = '0';
         dragging = null;
         rows.forEach(function (node) {
           node.classList.remove('is-over', 'is-dragging');
