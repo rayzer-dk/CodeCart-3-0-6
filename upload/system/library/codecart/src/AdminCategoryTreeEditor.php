@@ -18,6 +18,10 @@ final class AdminCategoryTreeEditor {
         if ($type === 'blog') {
             return array('blog_category', 'blog_category_path', 'blog_category_id');
         }
+        if ($type === 'article') {
+            // Sorting articles is supported; hierarchy moves are not.
+            return array('article', null, 'article_id');
+        }
         throw new \InvalidArgumentException('Unsupported category tree.');
     }
 
@@ -42,6 +46,9 @@ final class AdminCategoryTreeEditor {
 
     public static function move($registry, string $type, int $id, int $newParent): bool {
         [$entity, $closure, $key] = self::names($type);
+        if ($closure === null) {
+            throw new \InvalidArgumentException('Articles do not have a category hierarchy.');
+        }
         if ($id < 1 || $newParent < 0 || $id === $newParent) {
             throw new \InvalidArgumentException('Cannot place a category inside itself.');
         }
@@ -138,6 +145,7 @@ final class AdminCategoryTreeEditor {
         if (!$cache) { return; }
         $cache->delete('category');
         $cache->delete('blog_category');
+        if ($type === 'article') { $cache->delete('article'); }
         $cache->delete('seopro');
         if ($type === 'catalog' && method_exists($cache, 'deleteTag')) {
             $cache->deleteTag('catalog.category_counts', 'category_product_counts');
