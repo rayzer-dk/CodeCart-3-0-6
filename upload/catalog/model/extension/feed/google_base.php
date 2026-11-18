@@ -16,7 +16,7 @@ class ModelExtensionFeedGoogleBase extends Model {
         $store_id = (int)$this->config->get('config_store_id');
         $customer_group_id = (int)$this->config->get('config_customer_group_id');
 
-        $sql = "SELECT p.product_id, p.model, p.sku, p.upc, p.ean, p.jan, p.isbn, p.mpn, p.google_product_category_id, p.quantity, p.image, p.manufacturer_id, p.tax_class_id, p.price, p.weight, p.weight_class_id, p.date_modified, pd.name, pd.description, m.name AS manufacturer, " .
+        $sql = "SELECT p.product_id, p.model, p.sku, p.upc, p.ean, p.jan, p.isbn, p.mpn, p.google_product_category_id, p.quantity, p.image, p.`condition` AS `condition`, p.manufacturer_id, p.tax_class_id, p.price, p.weight, p.weight_class_id, p.date_modified, pd.name, pd.description, m.name AS manufacturer, " .
             "(SELECT price FROM " . DB_PREFIX . "product_discount pd2 WHERE pd2.product_id = p.product_id AND pd2.customer_group_id = '" . $customer_group_id . "' AND pd2.quantity = '1' AND ((pd2.date_start < NOW()) AND (pd2.date_end < '1000-01-01' OR pd2.date_end > NOW())) ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS discount, " .
             "(SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . $customer_group_id . "' AND ((ps.date_start < NOW()) AND (ps.date_end < '1000-01-01' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special " .
             "FROM " . DB_PREFIX . "product p " .
