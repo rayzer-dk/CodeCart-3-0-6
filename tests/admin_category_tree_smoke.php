@@ -71,7 +71,8 @@ foreach (array('catalog','blog') as $type) {
 
 $orderList = file_get_contents($root . 'admin/view/template/sale/order_list.twig');
 $orderModel = file_get_contents($root . 'admin/model/sale/order.php');
-treeCheck(strpos($orderList, '<td class="text-center ccp-order-photo-cell">{{ column_image }}</td>') !== false, 'Photo heading missing in orders list');
-treeCheck(strpos($orderList, 'order.product_thumb') !== false, 'Order list still does not show a photo');
-treeCheck(strpos($orderModel, 'getFirstProductImagesByOrderIds') !== false, 'Order thumbnails are not batched');
-echo "PASS: category hierarchy safeguards, inline sorting, sidebar-compatible tree view and orders photo column\n";
+treeCheck(strpos($orderList, 'order.product_units') !== false, 'Order list lacks the item-count indicator');
+treeCheck(strpos($orderList, 'order.product_thumb') === false, 'Order list must not render product photos');
+treeCheck(strpos($orderModel, 'getProductCountsForOrderIds') !== false, 'Order counts are not loaded in batches');
+treeCheck(strpos($orderList, 'ccp-order-preview-row') !== false, 'Expandable order preview was removed');
+echo "PASS: category hierarchy safeguards, inline sorting, sidebar-compatible tree view and order count badge\n";
