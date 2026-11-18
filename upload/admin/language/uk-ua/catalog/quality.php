@@ -12,3 +12,4 @@ $_['quality_model'] = 'Модель / артикул';
 $_['quality_price'] = 'Ціна понад 0';
 $_['quality_assignment'] = 'Прив’язка до категорії';
 $_['quality_store'] = 'Прив’язка до магазину';
+$_['quality_article_count'] = 'Статей безпосередньо в категорії';
