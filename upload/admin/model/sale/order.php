@@ -309,6 +309,20 @@ class ModelSaleOrder extends Model {
 		return $counts;
 	}
 
+	/** Get the first product image for each visible order in one query. */
+	public function getFirstProductImagesByOrderIds(array $order_ids): array {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $order_ids), static function ($id) { return $id > 0; })));
+		if (!$ids) { return array(); }
+		$images = array();
+		foreach (array_chunk($ids, 100) as $batch) {
+			$query = $this->db->query("SELECT op.order_id, op.name, p.image AS product_image FROM `" . DB_PREFIX . "order_product` op LEFT JOIN `" . DB_PREFIX . "product` p ON p.product_id = op.product_id WHERE op.order_id IN (" . implode(',', $batch) . ") AND op.order_product_id = (SELECT MIN(op2.order_product_id) FROM `" . DB_PREFIX . "order_product` op2 WHERE op2.order_id = op.order_id)");
+			foreach ($query->rows as $row) {
+				$images[(int)$row['order_id']] = array('name' => (string)$row['name'], 'image' => (string)$row['product_image']);
+			}
+		}
+		return $images;
+	}
+
 	public function getOrderProducts($order_id) {
 		$query = $this->db->query("SELECT op.*, p.image AS product_image FROM `" . DB_PREFIX . "order_product` op LEFT JOIN `" . DB_PREFIX . "product` p ON p.product_id = op.product_id WHERE op.order_id = '" . (int)$order_id . "' ORDER BY op.order_product_id");
 
