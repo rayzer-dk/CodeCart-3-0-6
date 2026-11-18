@@ -12,3 +12,4 @@ $_['quality_model'] = 'Model / SKU';
 $_['quality_price'] = 'Price greater than zero';
 $_['quality_assignment'] = 'Category assignment';
 $_['quality_store'] = 'Store assignment';
+$_['quality_article_count'] = 'Articles assigned directly to this category';
