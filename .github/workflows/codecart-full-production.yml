@@ -5,6 +5,16 @@ on:
     paths:
       - 'upload/index.php'
       - 'upload/admin/index.php'
+      - 'upload/system/library/codecart/src/CronExpression.php'
+      - 'upload/system/library/codecart/src/SchedulerSchedule.php'
+      - 'upload/system/library/codecart/src/Scheduler.php'
+      - 'upload/system/library/codecart/src/OrderAdminSearch.php'
+      - 'upload/system/library/codecart/migration.php'
+      - 'upload/admin/controller/tool/scheduler.php'
+      - 'upload/admin/view/template/tool/scheduler.twig'
+      - 'upload/admin/view/javascript/codecart-scheduler.js'
+      - 'upload/admin/language/**/tool/scheduler.php'
+      - 'upload/admin/language/**/sale/order.php'
       - '.github/workflows/codecart-full-production.yml'
   workflow_dispatch:
 
@@ -47,6 +57,16 @@ jobs:
             git commit -m "Build 2.3.25: refresh audited Core integrity manifest [skip ci]"
             git push origin HEAD:main
           fi
+
+      - name: Scheduler Cron and order filtering regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          php tests/scheduler_schedule_smoke.php
+          php tests/scheduler_crud_smoke.php
+          php tests/scheduler_runtime_smoke.php
+          php tests/order_admin_smoke.php
+          php tests/product_condition_smoke.php
 
       - name: Full release gate
         run: php tools/release_check.php
