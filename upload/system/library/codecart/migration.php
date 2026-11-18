@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '41';
+    const PRESENTATION_SCHEMA_VERSION = '42';
 
     private $db;
     private $config;
@@ -96,6 +96,8 @@ class Migration {
             $this->ensureCurrencyDisplayDefaults();
             $this->currentStep = 'language_and_seo';
             $this->ensureLanguageUrlPrefix();
+            $this->currentStep = 'admin_language_preferences';
+            $this->ensureAdminLanguagePreferenceTable();
             // Preserve existing aliases but fill genuinely missing entity SEO URLs from names.
             // This is additive only: non-empty merchant keywords are never overwritten.
             $this->backfillMissingSeoUrls();
@@ -1213,6 +1215,16 @@ class Migration {
         }
         $ipIndex = $this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "customer_online` WHERE Key_name='ip'");
         if (!$ipIndex->num_rows) { $this->db->query("ALTER TABLE `" . DB_PREFIX . "customer_online` ADD KEY `ip` (`ip`)"); }
+    }
+
+    private function ensureAdminLanguagePreferenceTable() {
+        // Separate from the global store language, with one preference per admin.
+        $this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_admin_language` (
+            `user_id` INT(11) NOT NULL,
+            `language_code` VARCHAR(16) NOT NULL,
+            `date_modified` DATETIME NOT NULL,
+            PRIMARY KEY (`user_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }
 
     private function ensureLanguageUrlPrefix() {

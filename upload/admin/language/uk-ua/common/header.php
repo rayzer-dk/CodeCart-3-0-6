@@ -28,6 +28,7 @@ $_['text_notice_system_check'] = 'Перевірка системи: %s';
 $_['text_notice_invalid_catalog_url'] = 'Не вдалося визначити повну URL-адресу магазину для ручного запуску Cron. Оновіть збірку та повторіть запуск.';
 
 $_['text_admin_theme'] = 'Тема адмінпанелі';
+$_['text_admin_language'] = 'Мова адмінпанелі';
 $_['text_admin_theme_toggle'] = 'Перемкнути світлу/темну тему адмінпанелі';
 
 $_['text_refresh_modifications'] = 'Оновити модифікатори';

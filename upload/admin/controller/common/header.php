@@ -65,6 +65,12 @@ class ControllerCommonHeader extends Controller {
         $data['text_logged'] = sprintf($this->language->get('text_logged'), $this->user->getUserName());
         $data['text_admin_theme'] = $this->language->get('text_admin_theme');
         $data['text_admin_theme_toggle'] = $this->language->get('text_admin_theme_toggle');
+        $data['text_admin_language'] = $this->language->get('text_admin_language');
+        $data['language_options'] = array();
+        $data['language_current'] = (string)$this->config->get('config_admin_language');
+        $data['language_current_flag'] = '';
+        $data['language_action'] = '';
+        $data['language_return'] = '';
         $data['codecart_ui_i18n'] = array();
         if (strpos(strtolower((string)$data['lang']), 'uk') === 0) {
             foreach (array('ui_select_date','ui_delete','ui_close','ui_add','ui_remove','ui_edit','ui_view','ui_refresh','ui_upload','ui_download','ui_search','ui_copy','ui_filter','ui_previous','ui_next','ui_collapse','ui_expand','ui_back','ui_continue','ui_select_image','ui_open','ui_action','ui_anchor_insert','ui_anchor_name','ui_toc_build','ui_toc_need_headings','ui_toc_title','ui_link_type','ui_link_help','ui_anchor_on_page','ui_anchor_choose','ui_anchor_help','ui_video_help') as $ui_key) {
@@ -100,6 +106,38 @@ class ControllerCommonHeader extends Controller {
             $data['home'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true);
             $data['logout'] = $this->url->link('common/logout', 'user_token=' . $this->session->data['user_token'], true);
             $data['profile'] = $this->url->link('common/profile', 'user_token=' . $this->session->data['user_token'], true);
+
+            // Only enabled, locally installed languages are selectable.
+            try {
+                $languages = $this->registry->get('codecart_admin_languages');
+                if (!is_array($languages)) {
+                    $languages = \CodeCart\Core\AdminLanguagePreference::available($this->db);
+                }
+                $data['language_options'] = array_values($languages);
+                if (isset($languages[$data['language_current']])) {
+                    $data['language_current_flag'] = $languages[$data['language_current']]['flag'];
+                }
+
+                $data['language_action'] = html_entity_decode($this->url->link('common/language', 'user_token=' . $this->session->data['user_token'], true), ENT_QUOTES, 'UTF-8');
+                $route = $data['current_route'];
+                if (!preg_match('/^[a-z0-9_\/]+$/iD', $route) || $route === 'common/logout' || $route === 'common/language') {
+                    $route = 'common/dashboard';
+                }
+                $params = array();
+                foreach ($this->request->get as $key => $value) {
+                    if ($key !== 'route' && $key !== 'user_token' && is_string($key)
+                        && preg_match('/^[a-z0-9_]+$/iD', $key) && is_scalar($value)) {
+                        $params[$key] = (string)$value;
+                    }
+                }
+                $query = 'user_token=' . rawurlencode((string)$this->session->data['user_token']);
+                if ($params) {
+                    $query .= '&' . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+                }
+                $data['language_return'] = html_entity_decode($this->url->link($route, $query, true), ENT_QUOTES, 'UTF-8');
+            } catch (\Throwable $e) {
+                $this->logHeaderFailure('admin language selector', $e);
+            }
             $data['two_factor'] = $this->url->link('common/two_factor', 'user_token=' . $this->session->data['user_token'], true);
             $data['modification_refresh'] = $this->url->link('marketplace/modification/refresh', 'user_token=' . $this->session->data['user_token'], true);
             try {

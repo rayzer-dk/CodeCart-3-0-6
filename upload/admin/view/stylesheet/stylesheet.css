@@ -2349,6 +2349,19 @@ html.ccp-admin-dark #footer .ccp-footer-runtime { color: #a8b8cb; }
 #header .navbar-right > li.ccp-admin-theme-menu > a,
 #header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle{min-width:54px;padding-left:16px!important;padding-right:16px!important;text-align:center;font-size:20px}
 #header .navbar-right > li.ccp-admin-theme-menu > a i{width:auto}
+/* Header language selector: flag is the only visible trigger, aligned with 20px icons. */
+#header .navbar-right > li.ccp-admin-language-menu > a{min-width:54px;padding-left:16px!important;padding-right:16px!important;text-align:center;display:flex;justify-content:center;align-items:center}
+#header img.ccp-admin-language-flag{display:inline-block;width:23px!important;height:17px!important;min-width:23px!important;max-width:23px!important;max-height:17px!important;object-fit:cover;border:1px solid rgba(0,0,0,.16);border-radius:2px;vertical-align:middle}
+#header .ccp-admin-language-menu .dropdown-menu{min-width:180px;padding:5px 0}
+#header .ccp-admin-language-menu .dropdown-menu form{margin:0}
+#header .ccp-admin-language-option{width:100%;min-height:38px;padding:8px 13px;display:flex;align-items:center;gap:11px;border:0;background:transparent;text-align:left;color:#263443;cursor:pointer;font-size:14px;line-height:20px}
+#header .ccp-admin-language-option span{flex:1}
+#header .ccp-admin-language-option .fa-check{font-size:12px;color:#2673bf}
+#header .ccp-admin-language-option:hover,#header .ccp-admin-language-option:focus{background:#eef4fb;outline-offset:-2px}
+#header .ccp-admin-language-option.is-active{font-weight:600}
+html.ccp-admin-dark #header .ccp-admin-language-option{color:#dce5ef}
+html.ccp-admin-dark #header .ccp-admin-language-option:hover,html.ccp-admin-dark #header .ccp-admin-language-option:focus{background:#293644}
+html.ccp-admin-dark #header img.ccp-admin-language-flag{border-color:#64748b}
 
 .tile-heading{background-color:rgba(0,0,0,.16)}
 .alert-danger{color:#8c1d18}
@@ -2382,6 +2395,7 @@ html.ccp-admin-dark #footer .ccp-footer-sep{color:#8d99a8}
   #header .navbar-right > li.ccp-modification-refresh-menu > a,
   #header .navbar-right > li.ccp-palette-menu > a,
   #header .navbar-right > li.ccp-admin-theme-menu > a,
+  #header .navbar-right > li.ccp-admin-language-menu > a,
   #header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle { min-width: 44px; padding-left: 10px !important; padding-right: 10px !important; }
   #header .nav > li.dropdown { position: static; }
   #header .navbar-nav .open .dropdown-menu,

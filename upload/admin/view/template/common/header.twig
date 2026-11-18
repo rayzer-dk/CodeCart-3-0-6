@@ -66,6 +66,28 @@
     <ul class="nav navbar-nav navbar-right">
       <li class="ccp-modification-refresh-menu ccp-ocmod-state-{{ ocmod_state }}"><a href="{{ modification_refresh }}" title="{{ ocmod_state_title }}" aria-label="{{ ocmod_state_title }}"><i class="fa fa-refresh" aria-hidden="true"></i><span class="ccp-ocmod-state-dot" aria-hidden="true"></span><span class="sr-only">{{ ocmod_state_title }}</span></a></li>
       <li class="ccp-admin-theme-menu"><a href="#" id="ccp-admin-theme-toggle" role="button" title="{{ text_admin_theme_toggle }}" aria-label="{{ text_admin_theme_toggle }}" aria-pressed="false"><i class="fa fa-moon" aria-hidden="true"></i><span class="sr-only">{{ text_admin_theme }}</span></a></li>
+      {% if language_current_flag and language_options|length > 1 and language_action %}
+      <li class="dropdown ccp-admin-language-menu">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="{{ text_admin_language }}" aria-label="{{ text_admin_language }}">
+          <img src="{{ language_current_flag }}" class="ccp-admin-language-flag" alt="" aria-hidden="true" /><span class="sr-only">{{ text_admin_language }}</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right" aria-label="{{ text_admin_language }}">
+          {% for option in language_options %}
+          <li>
+            <form action="{{ language_action }}" method="post">
+              <input type="hidden" name="language" value="{{ option.code }}" />
+              <input type="hidden" name="redirect" value="{{ language_return }}" />
+              <button type="submit" class="ccp-admin-language-option{% if option.code == language_current %} is-active{% endif %}"{% if option.code == language_current %} aria-current="true"{% endif %}>
+                <img src="{{ option.flag }}" class="ccp-admin-language-flag" alt="" aria-hidden="true" />
+                <span>{{ option.name }}</span>
+                {% if option.code == language_current %}<i class="fa fa-check" aria-hidden="true"></i>{% endif %}
+              </button>
+            </form>
+          </li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% endif %}
       <li class="dropdown ccp-notification-menu"><a href="#" class="dropdown-toggle ccp-notification-toggle" data-toggle="dropdown" title="{{ text_system_notifications }}" aria-label="{{ text_system_notifications }}"><i class="fa fa-bell"></i>{% if notification_count %}<span class="ccp-notification-count">{{ notification_count }}</span>{% endif %}</a>
         <ul class="dropdown-menu dropdown-menu-right ccp-notification-dropdown">
           <li class="dropdown-header"><i class="fa fa-bell-o"></i> {{ text_system_notifications }}</li>

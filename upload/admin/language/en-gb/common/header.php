@@ -30,6 +30,7 @@ $_['text_notice_system_check'] = 'System check: %s';
 $_['text_notice_invalid_catalog_url'] = 'The full storefront URL could not be determined for the manual Cron request. Update the build and run it again.';
 
 $_['text_admin_theme'] = 'Admin theme';
+$_['text_admin_language'] = 'Admin language';
 $_['text_admin_theme_toggle'] = 'Switch light/dark admin theme';
 
 $_['text_refresh_modifications'] = 'Refresh modifications';
