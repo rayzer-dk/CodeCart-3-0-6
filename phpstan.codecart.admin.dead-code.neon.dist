@@ -1,0 +1,7 @@
+# Separate advisory pass: keep the established admin quality gate unchanged.
+includes:
+    - phpstan.codecart.admin.neon.dist
+    - tools/quality/vendor/phpstan/phpstan/conf/bleedingEdge.neon
+
+parameters:
+    tmpDir: build/phpstan-cache/admin-dead-code
