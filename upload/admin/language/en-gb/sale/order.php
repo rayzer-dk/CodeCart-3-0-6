@@ -161,3 +161,7 @@ $_['text_order_preview_loading'] = 'Loading...';
 $_['text_order_preview_empty'] = 'No products in this order';
 $_['text_order_preview_error'] = 'Unable to load order products';
 $_['help_order_phone'] = 'At least 4 digits; exact numbers rank first. At least 9 digits also tolerates one wrong digit or adjacent digit swap.';
+
+// The compact order-list badge counts units (SUM(quantity)); tooltip also shows product lines.
+$_['text_order_product_count'] = 'Items in order: %d units, product lines: %d';
+$_['text_order_units_label'] = 'pcs';
