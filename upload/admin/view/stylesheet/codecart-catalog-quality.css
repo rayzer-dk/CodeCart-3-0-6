@@ -1,0 +1,42 @@
+/* Compact, non-blocking catalog completeness hints. */
+.cc-quality {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  gap: 4px;
+  margin-left: 7px;
+  font-size: 11px;
+  line-height: 1.4;
+  cursor: help;
+}
+.cc-quality-score {
+  display: inline-block;
+  min-width: 36px;
+  text-align: center;
+  padding: 1px 4px;
+  color: #667085;
+  background: #f2f4f7;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.cc-quality-score.is-complete { color: #16723e; background: #e7f4eb; }
+.cc-quality-score.is-partial { color: #895b05; background: #fff4d6; }
+.cc-quality-score.is-low { color: #b42318; background: #ffebea; }
+.cc-quality-count {
+  display: inline-block;
+  color: #586579;
+  background: #eef2f6;
+  border-radius: 4px;
+  min-width: 16px;
+  text-align: center;
+  padding: 1px 4px;
+}
+.cc-quality-count[hidden] { display: none; }
+.cc-quality-table.cc-quality-off .cc-quality { display: none; }
+.cc-quality-toggle { padding: 2px 7px; margin-left: 8px; }
+@media (max-width: 767px) {
+  .cc-quality { margin-left: 4px; font-size: 10px; gap: 2px; }
+  .cc-quality-score { min-width: 33px; padding: 1px 3px; }
+  .cc-quality-count { padding: 1px 3px; }
+}
