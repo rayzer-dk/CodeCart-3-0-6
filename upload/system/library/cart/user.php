@@ -46,9 +46,21 @@ class User {
 
 		if ($user_query->num_rows && codecart_password_verify($password, $user_query->row['password'], $user_query->row['salt'])) {
 			if (codecart_password_needs_rehash($user_query->row['password'])) {
-				codecart_ensure_password_column($this->db, 'user');
-				$password_hash = codecart_password_hash($password);
-				$this->db->query("UPDATE `" . DB_PREFIX . "user` SET salt = '', password = '" . $this->db->escape($password_hash) . "' WHERE user_id = '" . (int)$user_query->row['user_id'] . "'");
+				// A legacy ocStore user.password can be VARCHAR(40). Upgrading its
+				// schema inside a login POST can fail or lock the admin out.
+				// Authentication must not depend on an optional hash upgrade.
+				// Installer UPDATE widens the column explicitly; the next login
+				// then migrates the legacy hash to password_hash().
+				try {
+					$password_hash = codecart_password_hash(codecart_password_input($password));
+					$column = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "user` LIKE 'password'");
+					if ($column->num_rows && preg_match('/^varchar\\((\\d+)\\)/i', (string)$column->row['Type'], $matches)
+						&& (int)$matches[1] >= strlen($password_hash)) {
+						$this->db->query("UPDATE `" . DB_PREFIX . "user` SET salt = '', password = '" . $this->db->escape($password_hash) . "' WHERE user_id = '" . (int)$user_query->row['user_id'] . "'");
+					}
+				} catch (\Throwable $e) {
+					// Keep the verified password valid; hash migration is optional.
+				}
 			}
 
 			$this->session->data['user_id'] = $user_query->row['user_id'];
