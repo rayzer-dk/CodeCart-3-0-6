@@ -746,6 +746,7 @@ final class CatalogTransfer {
                 $stats['main_categories'] = $this->applyMainCategoryMap($mainCategoryMap);
             }
             $this->db->query('COMMIT');
+            \CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
         } catch (\Throwable $e) {
             try { $this->db->query('ROLLBACK'); } catch (\Throwable $ignored) {}
             throw $e;
@@ -1035,6 +1036,7 @@ final class CatalogTransfer {
                 $stats['main_categories']=$this->applyMainCategoryMap($mainCategoryMap);
             }
             $this->db->query('COMMIT');
+            \CodeCart\Core\SearchIndex::invalidateIfInstalled($this->db);
         }catch(\Throwable $e){try{$this->db->query('ROLLBACK');}catch(\Throwable $ignored){}throw $e;}
         if($package){$this->installPackageFiles($package,(bool)$overwriteImages,$stats);}
         $stats['processed_products'] = (int)$this->progressCounts['processed'];
