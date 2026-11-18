@@ -3186,6 +3186,20 @@ INSERT INTO `oc_product_option` (`product_option_id`, `product_id`, `option_id`,
 
 -- --------------------------------------------------------
 --
+-- Table structure for table `oc_codecart_product_option_translation`
+--
+
+DROP TABLE IF EXISTS `oc_codecart_product_option_translation`;
+CREATE TABLE `oc_codecart_product_option_translation` (
+  `product_option_id` int(11) NOT NULL,
+  `language_id` int(11) NOT NULL,
+  `value` text NOT NULL,
+  PRIMARY KEY (`product_option_id`,`language_id`),
+  KEY `language_id` (`language_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+--
 -- Table structure for table `oc_product_option_value`
 --
 
