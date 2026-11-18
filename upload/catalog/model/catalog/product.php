@@ -603,7 +603,7 @@ class ModelCatalogProduct extends Model {
 				'option_id' => $product_option['option_id'],
 				'name' => $product_option['name'],
 				'type' => $product_option['type'],
-				'value' => array_key_exists($id, $localizedDefaults) ? $localizedDefaults[$id] : $product_option['value'],
+				'value' => in_array((string)$product_option['type'], array('text', 'textarea'), true) && array_key_exists($id, $localizedDefaults) ? $localizedDefaults[$id] : $product_option['value'],
 				'required' => $product_option['required']
 			);
 		}
