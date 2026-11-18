@@ -341,6 +341,10 @@ class ControllerProductProduct extends Controller {
 			$data['manufacturer'] = $product_info['manufacturer'];
 			$data['manufacturers'] = $this->url->link('product/manufacturer/info', 'manufacturer_id=' . $product_info['manufacturer_id']);
 			$data['model'] = $product_info['model'];
+			require_once(DIR_SYSTEM . 'library/codecart/src/ProductCondition.php');
+			$data['condition'] = \CodeCart\Core\ProductCondition::normalize(isset($product_info['condition']) ? $product_info['condition'] : 'new');
+			$data['text_condition'] = $this->language->get('entry_condition');
+			$data['condition_label'] = $this->language->get('text_condition_' . $data['condition']);
 			$data['reward'] = $product_info['reward'];
 			$data['points'] = $product_info['points'];
 			$data['description'] = html_entity_decode($product_info['description'], ENT_QUOTES, 'UTF-8');
@@ -719,7 +723,7 @@ class ControllerProductProduct extends Controller {
 						'priceCurrency' => $schema_currency,
 						'price' => number_format((float)$schema_price, max(0, (int)$this->currency->getDecimalPlace($schema_currency)), '.', ''),
 						'availability' => ((int)$product_info['quantity'] > 0) ? 'https://schema.org/InStock' : ($this->config->get('config_stock_checkout') ? 'https://schema.org/BackOrder' : 'https://schema.org/OutOfStock'),
-						'itemCondition' => 'https://schema.org/NewCondition',
+						'itemCondition' => \CodeCart\Core\ProductCondition::schemaUrl($data['condition']),
 						'seller' => array('@id' => rtrim((string)(codecart_is_https((array)$this->request->server) ? $this->config->get('config_ssl') : $this->config->get('config_url')), '/') . '/#organization')
 					);
                 }
