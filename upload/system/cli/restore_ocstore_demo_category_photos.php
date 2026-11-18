@@ -122,6 +122,20 @@ try {
         }
     }
 
+    // The original Ukrainian demo labels must also be present. Numeric IDs
+    // and parent IDs alone are not proof that this is still a demo catalogue.
+    $labels = array(24 => 'Телефони та PDA', 25 => 'Компоненти');
+    $names = array();
+    $description = $db->query("SELECT category_id, name FROM `" . DB_PREFIX . "category_description` WHERE category_id IN (24,25)");
+    while ($row = $description->fetch_assoc()) {
+        $names[(int)$row['category_id']][] = trim((string)$row['name']);
+    }
+    foreach ($labels as $id => $expectedName) {
+        if (!in_array($expectedName, $names[$id] ?? array(), true)) {
+            codecartDemoPhotoFailure('Category names no longer match the original ocStore demo. No changes made.');
+        }
+    }
+
     $updates = array();
     $missingFiles = array();
     foreach ($map as $id => $spec) {
