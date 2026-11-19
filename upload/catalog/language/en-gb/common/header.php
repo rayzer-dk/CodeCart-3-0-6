@@ -37,3 +37,7 @@ $_['ui_request_busy'] = 'Too many requests. Please try again a little later.';
 $_['text_pwa_install'] = 'Install app';
 $_['text_pwa_ios_help'] = 'Safari: tap Share, then Add to Home Screen.';
 $_['text_pwa_mac_help'] = 'Safari on Mac: choose File → Add to Dock.';
+
+$_['text_pwa_banner_title'] = 'Install this store on your device';
+$_['text_pwa_banner_desc'] = 'Open the store quickly from your home screen.';
+$_['text_pwa_dismiss'] = 'Close';
