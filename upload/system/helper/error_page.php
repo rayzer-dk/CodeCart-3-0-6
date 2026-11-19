@@ -31,9 +31,6 @@ function codecart_error_requested_language($area = 'catalog', $registry = null) 
         if ($selected === '' && $session && isset($session->data['codecart_admin_error_language'])) {
             $selected = $session->data['codecart_admin_error_language'];
         }
-        if ($selected === '' && isset($_COOKIE['codecart_admin_error_language'])) {
-            $selected = $_COOKIE['codecart_admin_error_language'];
-        }
     } else {
         // An actual /ru/ or /en/ language route is an explicit selection.
         $config = $registry && method_exists($registry, 'get') ? $registry->get('config') : null;
