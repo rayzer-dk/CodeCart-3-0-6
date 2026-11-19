@@ -49,8 +49,10 @@ foreach (array('codecart', 'default') as $theme) {
         strpos($maintenance, 'catalog/view/theme/codecart/image/codecart-logo.webp') === false ||
         strpos($notFound, 'ccp-error--404') === false || strpos($notFound, 'ccp-error__button--secondary') === false ||
         strpos($notFound, 'aria-labelledby="ccp-error-title"') === false ||
+        strpos($notFound, '{{ text_visual_status }}') === false ||
         strpos($notFound, 'content_bottom') === false ||
         strpos($maintenance, 'ccp-error--503') === false ||
+        strpos($maintenance, '{{ text_visual_status }}') === false ||
         strpos($maintenance, 'aria-labelledby="ccp-error-title"') === false) {
         fwrite(STDERR, "FAIL: " . $theme . " storefront error page design or accessible navigation\n"); exit(1);
     }
@@ -68,6 +70,7 @@ foreach (array('not_found' => '404', 'permission' => '403') as $route => $code) 
         strpos($html, '../catalog/view/theme/codecart/image/codecart-logo.webp') === false ||
         strpos($html, '{{ header }}{{ column_left }}' . "\n" . '<div id="content">') === false ||
         strpos($html, 'ccp-error--' . $code) === false ||
+        strpos($html, '{{ text_visual_status }}') === false ||
         strpos($html, 'href="{{ dashboard }}"') === false ||
         strpos($controller, 'setStatusCode(' . $code . ')') === false ||
         strpos($controller, "codecart-error-page.css") === false) {
@@ -76,7 +79,7 @@ foreach (array('not_found' => '404', 'permission' => '403') as $route => $code) 
     $checks++;
     foreach (array('en-gb', 'ru-ru', 'uk-ua') as $locale) {
         $lang = file_get_contents($root . '/upload/admin/language/' . $locale . '/error/' . $route . '.php');
-        if (!$lang || strpos($lang, "'button_dashboard'") === false || strpos($lang, "'text_error_label'") === false) {
+        if (!$lang || strpos($lang, "'button_dashboard'") === false || strpos($lang, "'text_error_label'") === false || strpos($lang, "'text_visual_status'") === false) {
             fwrite(STDERR, "FAIL: admin " . $locale . " " . $route . " localization\n"); exit(1);
         }
         $checks++;
@@ -84,7 +87,8 @@ foreach (array('not_found' => '404', 'permission' => '403') as $route => $code) 
 }
 foreach (array('en-gb', 'ru-ru', 'uk-ua') as $locale) {
     $html = codecart_error_page($locale, '/');
-    if (strpos($html, 'ccp-error--500') === false || strpos($html, 'aria-labelledby="ccp-error-title"') === false ||
+    if (strpos($html, 'ccp-error--500') === false ||
+        strpos($html, 'STATUS / SERVER ERROR') !== false || strpos($html, 'aria-labelledby="ccp-error-title"') === false ||
         strpos($html, 'Content-Security-Policy') === false ||
         strpos($html, 'img-src data:') === false ||
         strpos($html, 'src="data:image/webp;base64,') === false ||
