@@ -2480,3 +2480,25 @@ html.ccp-admin-dark .ccp-order-preview-table{background:#17212b}
 #form-custom-field .ccp-custom-field-translation{margin-bottom:6px;align-items:stretch}
 #form-custom-field .ccp-custom-field-translation .input-group-addon{min-width:48px;text-align:center;vertical-align:middle}
 #form-custom-field .ccp-custom-field-translation textarea{min-height:52px;resize:vertical}
+
+/* Keyboard accessibility and mobile touch targets for the existing Bootstrap 3 admin menu. */
+#column-left #menu a.parent:focus-visible,
+#column-left #menu li > a:focus-visible {
+  outline: 2px solid var(--ccp-admin-accent, #1769aa);
+  outline-offset: -2px;
+}
+#column-left #menu a.parent[aria-expanded="true"] {
+  box-shadow: inset 3px 0 0 var(--ccp-admin-accent, #1769aa);
+}
+#header #ccp-header-more-toggle:focus-visible,
+#header .ccp-header-overflow-items :is(a, button):focus-visible {
+  outline: 2px solid var(--ccp-admin-accent, #1769aa);
+  outline-offset: -2px;
+}
+@media (max-width: 767px) {
+  #column-left #menu a.parent {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
