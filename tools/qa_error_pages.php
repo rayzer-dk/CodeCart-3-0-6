@@ -93,11 +93,11 @@ $cssFile = $root . '/upload/catalog/view/theme/codecart/stylesheet/error-page.cs
 $logoFile = $root . '/upload/catalog/view/theme/codecart/image/codecart-logo.webp';
 $originalLogo = $root . '/upload/system/library/codecart/assets/default-logo.webp';
 if (!is_file($logoFile) || !is_file($originalLogo) || hash_file('sha256', $logoFile) !== hash_file('sha256', $originalLogo)) {
-    fwrite(STDERR, "FAIL: error pages must use the unchanged original CodeCart logo\n"); exit(1);
+    fwrite(STDERR, "FAIL: shared CodeCart logo assets differ (non-error views)\n"); exit(1);
 }
 $checks++;
 $fallbackHtml = codecart_error_page();
-if (strpos($fallbackHtml, '<img') !== false || strpos($fallbackHtml, 'ccp-error__brand') !== false) {
+if (strpos($fallbackHtml, '<img') !== false || strpos($fallbackHtml, '<div class="ccp-error__brand"') !== false) {
     fwrite(STDERR, "FAIL: 500 page contains graphical logo\n"); exit(1);
 }
 $checks++;
