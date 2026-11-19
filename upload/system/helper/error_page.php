@@ -93,7 +93,7 @@ function codecart_error_page($language = 'uk-ua', $home = '/') {
     return '<!DOCTYPE html><html lang="' . $language . '"><head>' .
         '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' .
         '<meta name="robots" content="noindex,nofollow,noarchive">' .
-        '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src 'none'; base-uri \'none\'; form-action \'none\'">' .
+        '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src \'none\'; base-uri \'none\'; form-action \'none\'">' .
         '<title>' . $title . '</title><style>' . $css . '</style></head>' .
         '<body class="ccp-error-standalone">' .
         '<main class="ccp-error ccp-error--500" aria-labelledby="ccp-error-title">' .
