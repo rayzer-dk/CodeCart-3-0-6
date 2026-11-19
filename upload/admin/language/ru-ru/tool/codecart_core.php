@@ -108,7 +108,7 @@ $_['text_component'] = 'Компонент';
 $_['text_codecart_website'] = 'Сайт CodeCart PRO';
 $_['text_icons'] = 'Иконки';
 $_['text_icon_search'] = 'Поиск по названию иконки';
-$_['text_icon_help'] = 'Каталог Font Awesome 6.7.2 + FA4 compatibility и CodeCart PRO aliases. Нажмите на иконку, чтобы скопировать её CSS-класс.';
+$_['text_icon_help'] = 'Каталог Font Awesome 7.3.1 + FA4 compatibility и CodeCart PRO aliases. Нажмите на иконку, чтобы скопировать её CSS-класс.';
 $_['text_modern_social_icons'] = 'Современные социальные иконки';
 $_['diag_loaded'] = 'загружено';
 $_['diag_missing'] = 'отсутствует';
@@ -428,7 +428,7 @@ $_['about_added_items'] = array(
 $_['about_updated_items'] = array(
     'PHP 8.1–8.5; Twig 3.30, Guzzle 7.15, scssphp 2.1.',
     'jQuery 3.7.1 везде, jQuery Migrate 3.4.1 для старых модулей.',
-    'Font Awesome 6.7.2 Free; классы Font Awesome 4 и font-family FontAwesome работают через встроенный слой совместимости.',
+    'Font Awesome 7.3.1 Free; классы Font Awesome 4 и font-family FontAwesome работают через встроенный слой совместимости.',
     'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 как альтернативная галерея.',
     'Поля дат на витрине используют встроенный выбор даты; moment.js и bootstrap-datetimepicker оставлены только для сторонних модулей.',
     'Новые установки используют utf8mb4 и InnoDB; модернизатор БД переводит старые таблицы после резервной копии.',
@@ -493,7 +493,7 @@ $_['cmp_seo'] = 'SeoPro + языковые префиксы + политика c
 $_['cmp_images'] = 'JPEG/PNG/WebP/AVIF + безопасный fallback';
 $_['cmp_cache'] = 'File / APCu / Memcached / Redis + fallback';
 $_['cmp_file'] = 'Файлы';
-$_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + совместимость с FA4';
+$_['cmp_fa'] = '7.3.1 + AUTO/Core/Full + совместимость с FA4';
 $_['cmp_summernote'] = 'Summernote 0.9.1 локально';
 
 $_['text_ai_ready'] = 'AI Ready / WebMCP';
