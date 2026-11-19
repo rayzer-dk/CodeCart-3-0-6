@@ -22,9 +22,9 @@
   border-radius:clamp(18px,2.4vw,30px);box-shadow:var(--ccp-e-shadow);overflow:hidden;
 }
 .ccp-error--404{--ccp-e-accent:#246be8;--ccp-e-accent-rgb:36,107,232}
-.ccp-error--403{--ccp-e-accent:#c37325;--ccp-e-accent-rgb:195,115,37}
-.ccp-error--500{--ccp-e-accent:#d76c45;--ccp-e-accent-rgb:215,108,69}
-.ccp-error--503{--ccp-e-accent:#158a83;--ccp-e-accent-rgb:21,138,131}
+.ccp-error--403{--ccp-e-accent:#a85a13;--ccp-e-accent-rgb:168,90,19}
+.ccp-error--500{--ccp-e-accent:#b84f2b;--ccp-e-accent-rgb:184,79,43}
+.ccp-error--503{--ccp-e-accent:#0d766e;--ccp-e-accent-rgb:13,118,110}
 .ccp-error:before{content:"";position:absolute;z-index:0;inset:0 auto auto 0;width:190px;height:4px;background:linear-gradient(90deg,var(--ccp-e-accent),transparent)}
 .ccp-error:after{content:"";position:absolute;z-index:0;width:260px;height:260px;right:-150px;top:-180px;border-radius:50%;border:62px solid rgba(var(--ccp-e-accent-rgb),.035);pointer-events:none}
 .ccp-error__content{z-index:1;min-width:0;max-width:610px}
