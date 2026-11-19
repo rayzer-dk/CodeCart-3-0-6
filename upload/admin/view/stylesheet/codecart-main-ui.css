@@ -108,3 +108,16 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
     transition: none;
   }
 }
+
+/* Header controls stay aligned after switching admin language. */
+#header .navbar-right { display: flex; align-items: center; }
+#header .navbar-right > li { flex-shrink: 0; }
+#header .navbar-right > li > a { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; }
+#header .navbar-right > li.ccp-admin-language-menu > a { display: flex; align-items: center; justify-content: center; }
+#header .navbar-right > li.ccp-admin-language-menu img.ccp-admin-language-flag { display: block; width: 22px !important; height: 16px !important; min-width: 22px !important; object-fit: cover; margin: 0; }
+#header .navbar-right > li.ccp-modification-refresh-menu > a i,
+#header .navbar-right > li.ccp-admin-theme-menu > a i,
+#header .navbar-right > li.ccp-notification-menu > a i { font-size: 18px; width: 20px; text-align: center; line-height: 1; }
+#content .input-group.date .fa-calendar { font-weight: 400; font-size: 13px; -webkit-font-smoothing: antialiased; }
+/* Font Awesome 6 Free question-circle exists only in solid weight. */
+#content label.control-label span[data-toggle="tooltip"]::after { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", FontAwesome; font-weight: 900; content: "\\f059"; font-size: 12px; margin-left: 5px; color: #177ac3; }
