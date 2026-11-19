@@ -14,11 +14,10 @@
     if (!tables.length || !window.fetch) { return; }
 
     var enabled = true;
-    try { enabled = window.localStorage.getItem('ccp-quality-indicators') !== '0'; } catch (ignore) {}
 
     function setEnabled(value) {
       enabled = value;
-      try { window.localStorage.setItem('ccp-quality-indicators', enabled ? '1' : '0'); } catch (ignore) {}
+      
       Array.prototype.forEach.call(tables, function (table) {
         table.classList.toggle('cc-quality-off', !enabled);
         var button = table.closest('.panel').querySelector('.cc-quality-toggle');
@@ -79,7 +78,7 @@
             var percentage = Math.max(0, Math.min(100, Math.round(info.percent)));
             var badge = chip.querySelector('.cc-quality-score');
             if (badge) {
-              badge.textContent = percentage + '%';
+              badge.textContent = String(percentage);
               badge.style.setProperty('--cc-quality-percent', percentage + '%');
               badge.className = 'cc-quality-score ' + (
                 percentage >= 90 ? 'is-complete' :
@@ -144,9 +143,7 @@
         window.addEventListener('resize', queueVisible);
       }
       var toggle = table.closest('.panel').querySelector('.cc-quality-toggle');
-      if (toggle) {
-        toggle.addEventListener('click', function () { setEnabled(!enabled); });
-      }
+      if (toggle) { toggle.remove(); }
     });
 
     setEnabled(enabled);
