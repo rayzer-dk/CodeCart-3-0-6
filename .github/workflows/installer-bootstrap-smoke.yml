@@ -24,6 +24,9 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: mbstring, gd, mysqli, pdo_mysql, zip, curl
           coverage: none
+          tools: composer:v2
+      - name: Install production dependencies as the release package does
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
       - name: Check installer syntax
         run: |
           php -l upload/install/index.php
