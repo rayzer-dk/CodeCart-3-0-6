@@ -109,6 +109,7 @@ class ControllerCommonLanguage extends Controller {
         $secure = codecart_is_https();
         $languages = $this->model_localisation_language->getLanguages();
         $selected = isset($this->request->post['code']) ? trim((string)$this->request->post['code']) : '';
+        $explicitSelection = $selected !== '' && isset($languages[$selected]) && !empty($languages[$selected]['status']);
 
         if ($selected === '' || !isset($languages[$selected]) || empty($languages[$selected]['status'])) {
             $selected = isset($this->session->data['language']) && isset($languages[$this->session->data['language']]) ? (string)$this->session->data['language'] : (string)$this->config->get('config_language');
@@ -116,7 +117,7 @@ class ControllerCommonLanguage extends Controller {
 
         if (isset($languages[$selected])) {
             $this->session->data['language'] = $selected;
-            if (in_array($selected, array('uk-ua', 'ru-ru', 'en-gb'), true)) {
+            if ($explicitSelection && in_array($selected, array('uk-ua', 'ru-ru', 'en-gb'), true)) {
                 $this->session->data['codecart_error_language_explicit'] = $selected;
                 setcookie('codecart_error_language', $selected, time() + 2592000, '/', '', $secure, true);
             }
