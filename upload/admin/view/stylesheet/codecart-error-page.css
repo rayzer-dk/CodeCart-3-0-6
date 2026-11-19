@@ -1,0 +1,14 @@
+/* Shared error experience stylesheet. URL is resolved from admin/view/stylesheet/. */
+@import url("../../../catalog/view/theme/codecart/stylesheet/error-page.css");
+#content > .ccp-error-host{padding:clamp(16px,3vw,42px);width:100%;max-width:none;min-height:calc(100svh - 120px);background:transparent}
+#content .ccp-error-host__inner{max-width:1220px}
+#content .ccp-error--admin{min-height:clamp(440px,65svh,680px)}
+#content .ccp-error__title{margin-top:24px}
+#content .ccp-error-breadcrumbs{margin-bottom:18px}
+html.ccp-admin-dark #content .ccp-error{--ccp-e-canvas:#0c1521;--ccp-e-surface:#172231;--ccp-e-ink:#f2f6fc;--ccp-e-muted:#adbdcf;--ccp-e-stroke:#314155;--ccp-e-soft:#233449;--ccp-e-highlight:#a5c6ff;--ccp-e-shadow:0 28px 80px rgba(0,0,0,.18);background:var(--ccp-e-surface)!important;color:var(--ccp-e-ink)!important}
+html.ccp-admin-dark #content .ccp-error__title{color:#f2f6fc!important}
+html.ccp-admin-dark #content .ccp-error__description{color:#adbdcf!important}
+@media(max-width:540px){
+ #content > .ccp-error-host{padding:12px 10px 25px;min-height:calc(100svh - 90px)}
+ #content .ccp-error--admin{min-height:0}
+}
