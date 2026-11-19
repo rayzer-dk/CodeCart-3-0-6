@@ -4,3 +4,4 @@ $_['text_error'] = 'This page may have moved or no longer exists. Return to the 
 $_['button_home'] = 'Back to home';
 $_['button_search'] = 'Search the store';
 $_['text_error_label'] = 'Let’s find your way back';
+$_['text_visual_status'] = 'PAGE NOT FOUND';
