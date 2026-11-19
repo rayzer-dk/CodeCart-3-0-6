@@ -71,10 +71,9 @@ foreach (array('catalog','blog') as $type) {
 
 $orderList = file_get_contents($root . 'admin/view/template/sale/order_list.twig');
 $orderModel = file_get_contents($root . 'admin/model/sale/order.php');
-treeCheck(strpos($orderList, 'order.product_units') !== false, 'Order list lacks the item-count indicator');
-treeCheck(strpos($orderList, 'order.product_thumb') !== false, 'Order list must show a product photo');
-treeCheck(strpos($orderList, 'ccp-order-photo-cell') !== false, 'Order photo column is missing');
-treeCheck(strpos($orderModel, 'getFirstProductImagesByOrderIds') !== false, 'Order photo lookup must be batched');
+treeCheck(strpos($orderList, 'order.product_units') !== false && strpos($orderList, 'ccp-order-unit-count') !== false, 'Order list lacks the item-count indicator');
+treeCheck(strpos($orderList, 'order.product_thumb') === false && strpos($orderList, 'ccp-order-photo-cell') === false, 'Photos must not be in the compact order list');
+treeCheck(strpos($orderList, 'colspan="8"') !== false, 'Expanded row must match the eight list columns');
 treeCheck(strpos($orderModel, 'getProductCountsForOrderIds') !== false, 'Order counts are not loaded in batches');
-treeCheck(strpos($orderList, 'ccp-order-preview-row') !== false, 'Expandable order preview was removed');
+treeCheck(strpos($orderList, 'ccp-order-preview-row') !== false && strpos($orderList, 'item.image') !== false, 'Expandable order preview with photos was removed');
 echo "PASS: category hierarchy safeguards, inline sorting, sidebar-compatible tree view and order count badge\n";
