@@ -75,3 +75,14 @@
   .cc-tree-name { font-size: 12px; }
   .cc-tree-hint { font-size: 11px; }
 }
+
+/* Inline sort editing: compact value with pencil, matching product list. */
+.cc-category-sort-wrap { display: inline-flex; align-items: center; gap: 5px; justify-content: flex-end; }
+.cc-category-sort-wrap .cc-category-sort { width: 54px; flex: 0 0 54px; }
+.cc-category-sort-pencil { border: 0; background: transparent; padding: 4px; color: #0872ce; cursor: pointer; }
+.cc-category-sort-pencil:hover,.cc-category-sort-pencil:focus { color: #054b91; }
+.cc-category-sort[readonly] { background: transparent; border-color: transparent; cursor: default; box-shadow: none; }
+.cc-tree-row .cc-category-sort-wrap { flex: 0 0 88px; }
+.cc-tree-handle { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 24px; border-radius: 4px; }
+.cc-tree-handle:hover { background: #e4efff; color: #0869be; }
+@media(max-width:767px){ .cc-tree-handle { display: inline-flex; } .cc-tree-row .cc-category-sort-wrap { flex-basis: 76px; } .cc-category-sort-wrap .cc-category-sort { width: 43px; flex-basis: 43px; } }
