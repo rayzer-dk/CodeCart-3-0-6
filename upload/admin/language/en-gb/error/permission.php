@@ -6,3 +6,4 @@ $_['heading_title']   = 'Permission Denied!';
 $_['text_permission'] = 'You do not have permission to access this page, please refer to your system administrator.';
 $_['text_error_label'] = 'Restricted access';
 $_['button_dashboard'] = 'Go to dashboard';
+$_['text_visual_status'] = 'ACCESS DENIED';
