@@ -201,6 +201,49 @@
       });
     }
 
+    // Touch devices cannot use native HTML5 drag-and-drop reliably.
+    // A deliberate handle gesture (12px threshold) moves to a highlighted row.
+    var touchStart = null;
+    rows.forEach(function (row) {
+      var handle = row.querySelector('.cc-tree-handle');
+      if (!handle) { return; }
+      handle.addEventListener('pointerdown', function (event) {
+        if (event.pointerType === 'mouse' || busy) { return; }
+        touchStart = {id: row.dataset.ccTreeId, x: event.clientX, y: event.clientY, active: false};
+        handle.setPointerCapture(event.pointerId);
+      });
+      handle.addEventListener('pointermove', function (event) {
+        if (!touchStart || touchStart.id !== row.dataset.ccTreeId) { return; }
+        if (!touchStart.active && Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y) < 12) { return; }
+        touchStart.active = true;
+        dragging = touchStart.id;
+        rows.forEach(function (item) { item.classList.remove('is-over'); });
+        if (root) { root.classList.remove('is-over'); }
+        var hovered = document.elementFromPoint(event.clientX, event.clientY);
+        var target = hovered && hovered.closest('.cc-tree-row[data-cc-tree-id], .cc-tree-root[data-cc-tree-target]');
+        if (target) {
+          var targetId = target.dataset.ccTreeId || target.dataset.ccTreeTarget;
+          if (validTarget(targetId)) { target.classList.add('is-over'); }
+        }
+      });
+      function finishTouch(event, cancelled) {
+        if (!touchStart || touchStart.id !== row.dataset.ccTreeId) { return; }
+        var start = touchStart;
+        touchStart = null;
+        if (!cancelled && start.active) {
+          var hovered = document.elementFromPoint(event.clientX, event.clientY);
+          var target = hovered && hovered.closest('.cc-tree-row[data-cc-tree-id], .cc-tree-root[data-cc-tree-target]');
+          var targetId = target && (target.dataset.ccTreeId || target.dataset.ccTreeTarget);
+          if (targetId && validTarget(targetId)) { move(start.id, targetId); }
+        }
+        dragging = null;
+        rows.forEach(function (item) { item.classList.remove('is-over'); });
+        if (root) { root.classList.remove('is-over'); }
+      }
+      handle.addEventListener('pointerup', function (event) { finishTouch(event, false); });
+      handle.addEventListener('pointercancel', function (event) { finishTouch(event, true); });
+    });
+
     // Accessible keyboard/touch fallback: search for the target category using
     // the already existing admin autocomplete route, or choose the root.
     var modal = window.jQuery ? window.jQuery('#cc-tree-move-modal') : null;
