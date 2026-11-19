@@ -656,7 +656,7 @@ class ControllerToolCodeCartCore extends Controller {
             array('component'=>'jQuery Migrate','opencart'=>'—','ocstore'=>'—','codecart'=>'3.4.1','status'=>'added'),
             array('component'=>'jQuery','opencart'=>'3.7.1','ocstore'=>'3.7.1','codecart'=>'3.7.1 Legacy Core','status'=>'legacy'),
             array('component'=>'Bootstrap','opencart'=>'3.4.1','ocstore'=>'3.4.1','codecart'=>'3.4.1 Legacy Core','status'=>'legacy'),
-            array('component'=>'Font Awesome','opencart'=>'4.7.0','ocstore'=>'4.7.0','codecart'=>'6.7.2 + AUTO/Core/Full + FA4 compatibility','status'=>'updated'),
+            array('component'=>'Font Awesome','opencart'=>'4.7.0','ocstore'=>'4.7.0','codecart'=>'7.3.1 + AUTO/Core/Full + FA4 compatibility','status'=>'updated'),
             array('component'=>'Content editor','opencart'=>'Summernote 0.8.18','ocstore'=>'Summernote 0.8.18','codecart'=>'Summernote 0.9.1 local','status'=>'updated'),
             array('component'=>'CodeMirror','opencart'=>'5.15.3','ocstore'=>'5.15.3','codecart'=>'5.65.21','status'=>'updated'),
             array('component'=>'Magnific Popup','opencart'=>'1.1.0','ocstore'=>'1.1.0','codecart'=>'1.2.0','status'=>'updated'),
@@ -721,7 +721,7 @@ class ControllerToolCodeCartCore extends Controller {
             'contact / reviews / registration / forgotten / returns / GDPR'=>'cmp_spam_scope','form-specific'=>'cmp_form_specific','Core Dashboard'=>'cmp_core_dashboard',
             'not used by Core Dashboard; Legacy assets retained'=>'cmp_legacy_assets','CodeCart PRO Slider; Swiper 3 Legacy'=>'cmp_slider','3.7.1 Legacy Core'=>'cmp_jquery_legacy','3.4.1 Legacy Core'=>'cmp_bootstrap_legacy',
             '2.1.0 manual / CLI only'=>'cmp_scss_cli','2.1.0 runtime'=>'cmp_scss_runtime_oc','2.0.1 runtime'=>'cmp_scss_runtime_ocs','SeoPro + language prefixes + canonical/faceted policy'=>'cmp_seo',
-            'JPEG/PNG/WebP/AVIF + safe fallback'=>'cmp_images','File / APCu / Memcached / Redis + fallback'=>'cmp_cache','File'=>'cmp_file','6.7.2 + AUTO/Core/Full + FA4 compatibility'=>'cmp_fa','Summernote 0.9.1 local'=>'cmp_summernote'
+            'JPEG/PNG/WebP/AVIF + safe fallback'=>'cmp_images','File / APCu / Memcached / Redis + fallback'=>'cmp_cache','File'=>'cmp_file','7.3.1 + AUTO/Core/Full + FA4 compatibility'=>'cmp_fa','Summernote 0.9.1 local'=>'cmp_summernote'
         );
         foreach ($rows as &$row) {
             foreach (array('component','opencart','ocstore','codecart') as $field) {
