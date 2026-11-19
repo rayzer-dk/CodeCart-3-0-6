@@ -138,7 +138,9 @@
       if (id === dragging) { return false; }
       var target = host.querySelector('.cc-tree-row[data-cc-tree-id="' + id + '"]');
       if (!target) { return false; }
-      return target.dataset.ccTreePath.split('/').filter(Boolean).indexOf(dragging) < 0;
+      // List rows do not carry a complete ancestor path; the server performs the authoritative cycle check.
+      var ancestors = (target.dataset.ccTreePath || '').split('/').filter(Boolean);
+      return ancestors.indexOf(dragging) < 0;
     }
     function move(id, parent) {
       if (id === parent || !/^[0-9]+$/.test(id) || !/^[0-9]+$/.test(parent)) { return; }
