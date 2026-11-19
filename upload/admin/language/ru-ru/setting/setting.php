@@ -561,3 +561,6 @@ $_['text_codecart_workbox_library_missing'] = 'Локальные библиот
 // Installable storefront progressive web app (separate from Workbox caching).
 $_['entry_codecart_pwa'] = 'Установка магазина как приложения (PWA)';
 $_['help_codecart_pwa'] = 'Добавляет манифест приложения и иконки магазина для установки на Android, iPhone, Windows и macOS. Требуется HTTPS. Работает независимо от кеширования Workbox: цены, остатки и заказы всегда обновляются с сервера. По умолчанию выключено.';
+
+$_['entry_codecart_pwa_prompt_days'] = 'Повторный показ предложения установки (дней)';
+$_['help_codecart_pwa_prompt_days'] = 'Через сколько дней после закрытия снова показывать предложение установить приложение. По умолчанию — 7 дней. При отключённом PWA панель не показывается.';
