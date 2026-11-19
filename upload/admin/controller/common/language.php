@@ -27,7 +27,6 @@ class ControllerCommonLanguage extends Controller {
             \CodeCart\Core\AdminLanguagePreference::save($this->db, (int)$this->user->getId(), $code);
             if (in_array($code, array('uk-ua', 'ru-ru', 'en-gb'), true)) {
                 $this->session->data['codecart_admin_error_language'] = $code;
-                setcookie('codecart_admin_error_language', $code, time() + 2592000, '/', '', codecart_is_https(), true);
             }
         } catch (\Throwable $e) {
             $this->log->write('Admin language selection failed: ' . get_class($e));
