@@ -6,6 +6,8 @@
 
 CodeCart PRO shares one responsive, accessible error experience across the storefront and administration. The bundled CodeCart and default themes use the same full-width design for HTTP 404 and maintenance HTTP 503. The administrator uses the same visual language for HTTP 404 and HTTP 403 inside its normal header/sidebar shell. Unhandled application errors use a fully standalone HTTP 500 response.
 
+Ukrainian is the primary language for all error pages, independently of the legacy storefront default and the browser's Accept-Language. Russian and English are used only after an explicit storefront language selection, a language-prefixed URL, or a saved administrator preference. The same rule applies to the standalone 500 response; Ukrainian is not merely a fallback for missing translations.
+
 The shared stylesheet is `catalog/view/theme/codecart/stylesheet/error-page.css`. It contains status-specific design tokens for 404 (blue), 403 (amber), 500 (coral) and 503 (teal), responsive typography, visual status panel, primary and secondary actions, clear focus outlines, dark and light theme palettes and reduced-motion handling. Admin uses `admin/view/stylesheet/codecart-error-page.css` to import the same tokens with shell-specific rules. No remote fonts, stock photos or JavaScript are required.
 
 The 404 page offers the configured store homepage and catalog search; 503 provides a check-again link. Admin errors link to the authenticated dashboard with the normal session token. All visible messages and buttons are localized in English, Ukrainian and Russian. The decorative HTTP status illustration is excluded from assistive technologies, while the text has a labelled primary heading.
