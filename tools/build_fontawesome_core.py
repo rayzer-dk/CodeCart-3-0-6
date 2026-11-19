@@ -17,6 +17,7 @@ CSS = BASE / "css/font-awesome.min.css"
 CORE_CSS = BASE / "css/font-awesome-core.min.css"
 
 def icon_codes(css, names):
+    names = set(names)
     codes = set()
     class_re = re.compile(r"\.fa-([a-z0-9][a-z0-9-]*)")
     for selector, body in re.findall(r"([^{}]+)\{([^{}]*)\}", css):
