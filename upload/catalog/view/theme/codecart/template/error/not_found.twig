@@ -37,8 +37,8 @@
     <div class="ccp-error-host__modules">
       {{ content_top }}
       <div class="row">
-        {% if column_left %}<aside class="col-sm-3">{{ column_left }}</aside>{% endif %}
-        {% if column_right %}<aside class="col-sm-3">{{ column_right }}</aside>{% endif %}
+        {{ column_left }}
+        {{ column_right }}
       </div>
       {{ content_bottom }}
     </div>
