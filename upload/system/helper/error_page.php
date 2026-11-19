@@ -90,14 +90,6 @@ function codecart_error_page($language = 'uk-ua', $home = '/') {
     $status_caption = $escape($text['text_visual_status'] ?? 'SERVER ERROR');
     $safe_home = $escape($home);
 
-    // Use the identical bundled CodeCart PRO logo, not a recreated variant.
-    // Embed locally so the 500 page needs no asset requests when routing fails.
-    $logo_file = DIR_SYSTEM . 'library/codecart/assets/default-logo.webp';
-    $logo_bytes = is_file($logo_file) ? @file_get_contents($logo_file) : false;
-    $brand = is_string($logo_bytes) && $logo_bytes !== ''
-        ? '<div class="ccp-error__brand"><img src="data:image/webp;base64,' . base64_encode($logo_bytes) . '" alt="CodeCart PRO" /></div>'
-        : '<div class="ccp-error__brand">CodeCart PRO</div>';
-
     return '<!DOCTYPE html><html lang="' . $language . '"><head>' .
         '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' .
         '<meta name="robots" content="noindex,nofollow,noarchive">' .
