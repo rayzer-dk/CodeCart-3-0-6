@@ -96,6 +96,11 @@ if (!is_file($logoFile) || !is_file($originalLogo) || hash_file('sha256', $logoF
     fwrite(STDERR, "FAIL: error pages must use the unchanged original CodeCart logo\n"); exit(1);
 }
 $checks++;
+$fallbackHtml = codecart_error_page();
+if (strpos($fallbackHtml, '<img') !== false || strpos($fallbackHtml, 'ccp-error__brand') !== false) {
+    fwrite(STDERR, "FAIL: 500 page contains graphical logo\n"); exit(1);
+}
+$checks++;
 $css = file_get_contents($cssFile);
 if ($css === false) { fwrite(STDERR, "FAIL: shared error stylesheet missing\n"); exit(1); }
 foreach (array(
@@ -113,8 +118,8 @@ foreach (array('codecart', 'default') as $theme) {
     $notFound = file_get_contents($root . '/upload/catalog/view/theme/' . $theme . '/template/error/not_found.twig');
     $maintenance = file_get_contents($root . '/upload/catalog/view/theme/' . $theme . '/template/common/maintenance.twig');
     if (!$notFound || !$maintenance ||
-        strpos($notFound, 'catalog/view/theme/codecart/image/codecart-logo.webp') === false ||
-        strpos($maintenance, 'catalog/view/theme/codecart/image/codecart-logo.webp') === false ||
+        strpos($notFound, 'ccp-error__brand') !== false ||
+        strpos($maintenance, 'ccp-error__brand') !== false ||
         strpos($notFound, 'ccp-error--404') === false || strpos($notFound, 'ccp-error__button--secondary') === false ||
         strpos($notFound, 'aria-labelledby="ccp-error-title"') === false ||
         strpos($notFound, '{{ text_visual_status }}') === false ||
@@ -135,7 +140,7 @@ foreach (array('not_found' => '404', 'permission' => '403') as $route => $code) 
     $html = file_get_contents($root . '/upload/admin/view/template/error/' . $route . '.twig');
     $controller = file_get_contents($root . '/upload/admin/controller/error/' . $route . '.php');
     if (!$html || !$controller ||
-        strpos($html, '../catalog/view/theme/codecart/image/codecart-logo.webp') === false ||
+        strpos($html, 'ccp-error__brand') !== false ||
         strpos($html, '{{ header }}{{ column_left }}' . "\n" . '<div id="content">') === false ||
         strpos($html, 'ccp-error--' . $code) === false ||
         strpos($html, '{{ text_visual_status }}') === false ||
