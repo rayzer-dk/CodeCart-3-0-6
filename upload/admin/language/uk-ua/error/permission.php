@@ -8,3 +8,4 @@ $_['text_permission'] = 'У вас немає прав для перегляду
 $_['text_error_label'] = 'Обмежений доступ';
 $_['button_dashboard'] = 'До панелі стану';
 $_['text_visual_status'] = 'ДОСТУП ЗАБОРОНЕНО';
+$_['text_error_area'] = 'АДМІНПАНЕЛЬ';
