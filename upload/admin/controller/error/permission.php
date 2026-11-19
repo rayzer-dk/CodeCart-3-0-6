@@ -1,6 +1,14 @@
 <?php
 class ControllerErrorPermission extends Controller {
 	public function index() {
+		// Errors start in Ukrainian, independent of legacy OpenCart defaults.
+		// A real language selector, prefix, or saved admin preference still wins.
+		require_once(DIR_SYSTEM . 'helper/error_page.php');
+		$error_language_code = codecart_error_requested_language('admin', $this->registry);
+		$error_language = new Language($error_language_code);
+		$error_language->load($error_language_code);
+		$this->registry->set('language', $error_language);
+		$this->config->set('config_admin_language', $error_language_code);
 		$this->load->language('error/permission');
 
 		$this->document->setTitle($this->language->get('heading_title'));
