@@ -89,6 +89,13 @@ class ControllerCommonLanguage extends Controller {
 
         if (isset($this->request->post['code'])) {
             $this->session->data['language'] = (string)$this->request->post['code'];
+            // This cookie is set only after the visitor actively selects a
+            // language. Automatic OpenCart language initialization does not set it.
+            $selectedErrorLanguage = strtolower(trim((string)$this->request->post['code']));
+            if (in_array($selectedErrorLanguage, array('uk-ua', 'ru-ru', 'en-gb'), true)) {
+                $this->session->data['codecart_error_language_explicit'] = $selectedErrorLanguage;
+                setcookie('codecart_error_language', $selectedErrorLanguage, time() + 2592000, '/', '', $secure = codecart_is_https(), true);
+            }
         }
 
         if (isset($this->request->post['redirect']) && codecart_is_safe_redirect($this->request->post['redirect'], array($this->config->get('config_url'), $this->config->get('config_ssl')))) {
@@ -109,6 +116,10 @@ class ControllerCommonLanguage extends Controller {
 
         if (isset($languages[$selected])) {
             $this->session->data['language'] = $selected;
+            if (in_array($selected, array('uk-ua', 'ru-ru', 'en-gb'), true)) {
+                $this->session->data['codecart_error_language_explicit'] = $selected;
+                setcookie('codecart_error_language', $selected, time() + 2592000, '/', '', $secure, true);
+            }
             $this->config->set('config_language_id', (int)$languages[$selected]['language_id']);
             $prefix = isset($languages[$selected]['url_prefix']) ? strtolower(trim((string)$languages[$selected]['url_prefix'])) : '';
             $this->config->set('codecart_language_prefix_current', $prefix);
