@@ -596,3 +596,6 @@ $_['text_codecart_workbox_library_missing'] = 'Локальні бібліоте
 // Installable storefront progressive web app (separate from Workbox caching).
 $_['entry_codecart_pwa'] = 'Встановлення магазину як застосунку (PWA)';
 $_['help_codecart_pwa'] = 'Додає маніфест застосунку та іконки магазину для встановлення на Android, iPhone, Windows і macOS. Потрібен HTTPS. Працює незалежно від кешування Workbox: ціни, залишки та замовлення завжди оновлюються з сервера. За замовчуванням вимкнено.';
+
+$_['entry_codecart_pwa_prompt_days'] = 'Повторний показ пропозиції встановлення (днів)';
+$_['help_codecart_pwa_prompt_days'] = 'Через скільки днів після закриття панель встановлення застосунку знову з’явиться. Типове значення — 7 днів. Панель показується тільки за ввімкненого PWA.';
