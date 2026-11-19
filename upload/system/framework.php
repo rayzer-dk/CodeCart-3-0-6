@@ -91,14 +91,10 @@ set_exception_handler(function($exception) use($log, $config, $registry) {
 	}
 	// This renderer needs neither a working database nor the template engine.
 	require_once(DIR_SYSTEM . 'helper/error_page.php');
-	$language = (string)$config->get('config_language');
-	if ($registry->has('session') && isset($registry->get('session')->data['language'])) {
-		$language = (string)$registry->get('session')->data['language'];
-	}
-	if (!in_array($language, array('en-gb', 'ru-ru', 'uk-ua'), true)) {
-		$preferred = strtolower(substr((string)($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? ''), 0, 2));
-		$language = array('ru' => 'ru-ru', 'uk' => 'uk-ua')[$preferred] ?? 'en-gb';
-	}
+	// Never derive the error-page default from config_language, the browser,
+	// or a session initialized automatically from the old ocStore settings.
+	$area = defined('DIR_APPLICATION') && strtolower(basename(rtrim(DIR_APPLICATION, '/\\'))) === 'admin' ? 'admin' : 'catalog';
+	$language = codecart_error_requested_language($area, $registry);
 	$home = defined('HTTP_SERVER') ? HTTP_SERVER : '/';
 	if (defined('DIR_CATALOG') && defined('HTTP_CATALOG')) { $home = HTTP_CATALOG; }
 	echo codecart_error_page($language, $home);
