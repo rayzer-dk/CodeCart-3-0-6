@@ -7,6 +7,9 @@ on:
       - 'upload/admin/view/javascript/codecart-header-overflow.js'
       - 'upload/admin/view/stylesheet/stylesheet.css'
       - 'tests/ui/main-admin-navigation-smoke.cjs'
+      - 'tests/ui/main-admin-static-check.cjs'
+      - 'upload/admin/view/stylesheet/codecart-main-ui.css'
+      - 'upload/admin/view/template/**'
       - '.github/workflows/main-admin-navigation-qa.yml'
   workflow_dispatch:
 
@@ -27,9 +30,11 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Check JavaScript syntax
+      - name: Check JavaScript syntax and UI contract
         run: |
           node --check upload/admin/view/javascript/codecart-header-overflow.js
           node --check tests/ui/main-admin-navigation-smoke.cjs
+          node --check tests/ui/main-admin-static-check.cjs
+          node tests/ui/main-admin-static-check.cjs
       - name: Run real Bootstrap 3 browser fixture
         run: node tests/ui/main-admin-navigation-smoke.cjs
