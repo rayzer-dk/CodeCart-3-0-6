@@ -107,7 +107,7 @@
     var collapsed = Object.create(null);
     function refreshTree() {
       rows.forEach(function (row) {
-        var ancestors = row.getAttribute('data-cc-tree-path').split('/').filter(Boolean);
+        var ancestors = (row.getAttribute('data-cc-tree-path') || '').split('/').filter(Boolean);
         var hidden = ancestors.some(function (id) { return collapsed[id] === true; });
         row.hidden = hidden;
         var button = row.querySelector('.cc-tree-collapse');
