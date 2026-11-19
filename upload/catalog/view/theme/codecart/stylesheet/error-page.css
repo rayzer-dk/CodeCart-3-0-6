@@ -111,6 +111,3 @@ html.ccp-theme-dark .ccp-error__code,html.ccp-admin-dark .ccp-error__code,.ccp-e
   .ccp-error .ccp-error__button{transition:none}
   .ccp-error .ccp-error__button:hover{transform:none}
 }
-
-/* Error pages intentionally have no graphical branding, including in the shared header. */
-body:has(.ccp-error-host) header img, body:has(.ccp-error-host) header .navbar-brand img, body:has(.ccp-error-host) .ccp-error__brand{display:none!important}
