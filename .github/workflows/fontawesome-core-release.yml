@@ -1,0 +1,69 @@
+name: Font Awesome 7.3.1 Core build and full archive
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - tools/build_fontawesome_core.py
+      - .github/workflows/fontawesome-core-release.yml
+permissions:
+  contents: write
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install font subsetting dependencies
+        run: python -m pip install 'fonttools[woff]>=4.55,<5' brotli
+      - name: Build Font Awesome 7.3.1 Core
+        run: python tools/build_fontawesome_core.py
+      - name: Verify Core subsets and manifest
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          from fontTools.ttLib import TTFont
+          root=Path('upload/catalog/view/javascript/font-awesome')
+          m=json.loads(Path('upload/system/config/codecart_fontawesome_core_manifest.json').read_text())
+          assert m['fontawesome_version']=='7.3.1'
+          css=(root/'css/font-awesome-core.min.css').read_text()
+          assert 'Font Awesome Core 7.3.1' in css
+          for style in ('solid-900','regular-400','brands-400'):
+              path=root/'webfonts'/f'fa-{style}-core.woff2'
+              font=TTFont(path)
+              assert font.getBestCmap()
+              assert f'fa-{style}-core.woff2' in css
+          print('Core glyphs, version and CSS URLs OK')
+          PY
+      - name: Validate code and error pages
+        run: |
+          php -l upload/system/helper/error_page.php
+          php -l upload/system/library/codecart/src/FontAwesomeManager.php
+          php tools/qa_error_pages.php
+      - name: Commit generated Font Awesome Core files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add upload/catalog/view/javascript/font-awesome/css/font-awesome-core.min.css
+          git add upload/catalog/view/javascript/font-awesome/webfonts/fa-*-core.woff2
+          git add upload/system/config/codecart_fontawesome_core_manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Build Font Awesome 7.3.1 Core font subsets and refresh scanner manifest"
+            git push origin HEAD:main
+          fi
+      - name: Package full repository release
+        run: |
+          mkdir -p dist
+          git archive --format=zip --prefix=CodeCart_PRO_3.0.6.0/ -o dist/CodeCart_PRO_3.0.6.0_FA7.3.1_full.zip HEAD
+          unzip -tq dist/CodeCart_PRO_3.0.6.0_FA7.3.1_full.zip | tail -n 2
+      - name: Upload complete source archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: CodeCart_PRO_3.0.6.0_FA7.3.1_full
+          path: dist/CodeCart_PRO_3.0.6.0_FA7.3.1_full.zip
+          retention-days: 30
