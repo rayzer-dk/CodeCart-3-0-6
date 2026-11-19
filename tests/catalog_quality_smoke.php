@@ -107,7 +107,7 @@ foreach ($routes as $route => $rowId) {
     $check(strpos($template, '{{ ' . $rowId . ' }}') !== false, $route . ' uses existing entity IDs');
     $check(strpos($controller, 'public function quality()') !== false, $route . ' shares permission-scoped route');
     $check(strpos($controller, 'quality_endpoint') !== false, $route . ' wires endpoint without an extra admin route');
-    $check((bool)preg_match('/\\{\\{\\s*column_left\\s*\\}\\}\\s*<div id="content">/', $template), $route . ' keeps content adjacent to sidebar; external CSS/JS cannot split the layout');
+    $check((bool)preg_match('/\\{\\{\\s*column_left\\s*\\}\\}.*?<div id="content"\\s+class=/s', $template), $route . ' keeps the content inside the same layout row after the sidebar and responsive class selection');
 }
 
 $base = dirname(__DIR__) . '/upload/';
