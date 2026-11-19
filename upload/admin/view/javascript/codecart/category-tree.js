@@ -11,11 +11,12 @@
 
   ready(function () {
     var host = document.getElementById('content');
-    if (!host || !host.dataset.ccTreeUrl || !window.fetch) { return; }
-    var endpoint = host.dataset.ccTreeUrl;
-    var autocomplete = host.dataset.ccTreeAutocomplete || '';
-    var defaultError = host.dataset.ccTreeError || 'Could not save';
-    var chooseMessage = host.dataset.ccTreeChoose || 'Select a category';
+    var config = document.getElementById('cc-tree-config');
+    if (!host || !config || !config.dataset.ccTreeUrl || !window.fetch) { return; }
+    var endpoint = config.dataset.ccTreeUrl;
+    var autocomplete = config.dataset.ccTreeAutocomplete || '';
+    var defaultError = config.dataset.ccTreeError || 'Could not save';
+    var chooseMessage = config.dataset.ccTreeChoose || 'Select a category';
     var busy = false;
 
     function notify(message, ok) {
