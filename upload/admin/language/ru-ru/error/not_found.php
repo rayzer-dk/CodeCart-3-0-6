@@ -5,3 +5,4 @@ $_['text_not_found'] = 'Страница, которую Вы запрашива
 $_['text_error_label'] = 'Навигация в админке';
 $_['button_dashboard'] = 'На панель управления';
 $_['text_visual_status'] = 'СТРАНИЦА НЕ НАЙДЕНА';
+$_['text_error_area'] = 'АДМИНПАНЕЛЬ';
