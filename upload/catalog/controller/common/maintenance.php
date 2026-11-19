@@ -5,7 +5,11 @@ class ControllerCommonMaintenance extends Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 		$this->document->setRobots('noindex,nofollow');
-		$this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css');
+		$this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css?v=2.0.0');
+		$data['heading_title'] = $this->language->get('heading_title');
+		$data['text_error_label'] = $this->language->get('text_error_label');
+		$data['text_error_description'] = $this->language->get('text_error_description');
+		$data['button_retry'] = $this->language->get('button_retry');
 		$data['continue'] = $this->url->link('common/home');
 
 		$this->response->setStatusCode(503);
