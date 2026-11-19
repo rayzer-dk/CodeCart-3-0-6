@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - '.github/workflows/codecart-3061-production.yml'
+      - 'tools/qa_error_pages.php'
+      - 'upload/system/helper/error_page.php'
+      - 'tools/package_production.py'
 permissions:
   contents: write
 concurrency:
