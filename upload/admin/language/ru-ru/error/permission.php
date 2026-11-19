@@ -5,3 +5,4 @@ $_['text_permission'] = 'У Вас нет прав для доступа к эт
 $_['text_error_label'] = 'Ограничение доступа';
 $_['button_dashboard'] = 'На панель управления';
 $_['text_visual_status'] = 'ДОСТУП ЗАПРЕЩЁН';
+$_['text_error_area'] = 'АДМИНПАНЕЛЬ';
