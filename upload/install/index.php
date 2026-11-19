@@ -1,13 +1,13 @@
 <?php
 // Version
-define('VERSION', '3.0.6.0');
+define('VERSION', '3.0.6.1');
 define('VERSION_CORE', 'CodeCart PRO');
 define('VERSION_BUILD', '0013');
 define('VERSION_LANGPACK', 'UK-EN');
-define('CODECART_BUILD', '3.0.6.0');
-define('CODECART_PACKAGE_BUILD', '2.3.25');
+define('CODECART_BUILD', '3.0.6.1');
+define('CODECART_PACKAGE_BUILD', '2.3.26');
 define('CODECART_CHANNEL', '');
-define('CODECART_BASE', 'CodeCart PRO 3.0.6.0');
+define('CODECART_BASE', 'CodeCart PRO 3.0.6.1');
 define('CODECART_UPSTREAM', 'OpenCart 3.0.5.1');
 
 error_reporting(E_ALL);
