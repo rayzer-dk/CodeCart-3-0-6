@@ -62,7 +62,10 @@ def build(root, output):
     if not version:
         raise ValueError('Invalid package build')
     output.mkdir(parents=True, exist_ok=True)
-    archive = output / ('CodeCart-3.0.6-production-Build-' + version[1] + '.zip')
+    release = re.search(r"define\('VERSION'\s*,\s*'([0-9]+(?:\\.[0-9]+){3})'\)", source)
+    if not release:
+        raise ValueError('Invalid CodeCart four-part version')
+    archive = output / ('CodeCart_PRO_v' + release[1] + '_Build-' + version[1] + '_full.zip')
     if archive.exists():
         raise ValueError('Refusing to overwrite an existing release: ' + str(archive))
     manifest = json.loads((root / 'upload/system/config/codecart_integrity.json').read_text(encoding='utf-8'))
