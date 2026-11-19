@@ -114,3 +114,48 @@ html.ccp-theme-dark .ccp-error__code,html.ccp-admin-dark .ccp-error__code,.ccp-e
 
 /* No image branding on error or maintenance screens, including shared store header. */
 body:has(.ccp-error-host) header img,body:has(.ccp-error-host) .ccp-error__brand{display:none!important}
+
+/* 3.0.6.1: shared light/dark surface tokens for catalog, admin and standalone errors. */
+html[data-ccp-admin-theme="dark"] .ccp-error-host,
+html[data-theme="dark"] .ccp-error-host,
+html.ccp-admin-dark .ccp-error-host,
+html.ccp-theme-dark .ccp-error-host,
+body.ccp-theme-dark .ccp-error-host,
+html[data-ccp-admin-theme="dark"] .ccp-error,
+html[data-theme="dark"] .ccp-error,
+html.ccp-admin-dark .ccp-error,
+html.ccp-theme-dark .ccp-error,
+body.ccp-theme-dark .ccp-error {
+  --ccp-e-canvas:#0c1521;--ccp-e-surface:#172231;--ccp-e-ink:#f2f6fc;
+  --ccp-e-muted:#adbdcf;--ccp-e-stroke:#314155;--ccp-e-soft:#233449;
+  --ccp-e-highlight:#a5c6ff;--ccp-e-shadow:0 28px 80px rgba(0,0,0,.18);
+  color-scheme:dark;
+}
+@media(prefers-color-scheme:dark) {
+  html:not(.ccp-theme-light):not(.ccp-admin-light):not([data-theme="light"]):not([data-ccp-admin-theme="light"]) .ccp-error-host,
+  html:not(.ccp-theme-light):not(.ccp-admin-light):not([data-theme="light"]):not([data-ccp-admin-theme="light"]) .ccp-error,
+  .ccp-error-standalone {
+    --ccp-e-canvas:#0c1521;--ccp-e-surface:#172231;--ccp-e-ink:#f2f6fc;
+    --ccp-e-muted:#adbdcf;--ccp-e-stroke:#314155;--ccp-e-soft:#233449;
+    --ccp-e-highlight:#a5c6ff;--ccp-e-shadow:0 28px 80px rgba(0,0,0,.18);
+    color-scheme:dark;
+  }
+}
+/* Contrast-safe actions across legacy bootstrap, custom themes and user-agent rules. */
+.ccp-error .ccp-error__button:not(.ccp-error__button--secondary),
+.ccp-error .ccp-error__button:not(.ccp-error__button--secondary):visited {
+  background-color:var(--ccp-e-accent)!important;
+  border-color:var(--ccp-e-accent)!important;
+  color:#fff!important;
+  opacity:1;
+}
+.ccp-error .ccp-error__button:not(.ccp-error__button--secondary):hover {
+  background-color:var(--ccp-e-ink)!important;
+  border-color:var(--ccp-e-ink)!important;
+  color:var(--ccp-e-surface)!important;
+}
+.ccp-error .ccp-error__button--secondary,
+.ccp-error .ccp-error__button--secondary:visited {
+  background-color:transparent!important;
+  color:var(--ccp-e-ink)!important;
+}
