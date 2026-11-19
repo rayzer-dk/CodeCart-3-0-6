@@ -7,3 +7,4 @@ $_['text_not_found'] = 'The page you are looking for could not be found! Please 
 $_['text_error_label'] = 'Admin navigation';
 $_['button_dashboard'] = 'Go to dashboard';
 $_['text_visual_status'] = 'PAGE NOT FOUND';
+$_['text_error_area'] = 'ADMIN';
