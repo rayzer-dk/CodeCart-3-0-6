@@ -1,0 +1,57 @@
+name: Installer Bootstrap Smoke 3.0.6.1
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'upload/install/**'
+      - 'upload/system/startup.php'
+      - 'upload/system/framework.php'
+      - 'upload/system/config/install.php'
+      - '.github/workflows/installer-bootstrap-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  install-bootstrap:
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1','8.3','8.5']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, gd, mysqli, pdo_mysql, zip, curl
+          coverage: none
+      - name: Check installer syntax
+        run: |
+          php -l upload/install/index.php
+          php -l upload/system/startup.php
+          php -l upload/system/framework.php
+      - name: Serve installer over HTTP
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -S 127.0.0.1:8765 -t upload > /tmp/codecart-installer-server.log 2>&1 &
+          echo "$!" > /tmp/codecart-installer-pid
+          for i in {1..20}; do
+            if curl --silent --output /tmp/codecart-installer.html --dump-header /tmp/codecart-installer-headers http://127.0.0.1:8765/install/index.php; then break; fi
+            sleep 1
+          done
+          cat /tmp/codecart-installer-headers || true
+          if ! grep -qiE '^HTTP/[^ ]+ 200' /tmp/codecart-installer-headers; then
+            cat /tmp/codecart-installer-server.log
+            head -c 1800 /tmp/codecart-installer.html || true
+            exit 1
+          fi
+          if ! grep -qE '<html|<!DOCTYPE html' /tmp/codecart-installer.html; then
+            cat /tmp/codecart-installer-server.log
+            exit 1
+          fi
+          echo "Installer HTTP 200 OK"
+      - name: Inspect errors on failure
+        if: failure()
+        run: |
+          cat /tmp/codecart-installer-server.log || true
+          find upload/system/storage/logs -maxdepth 1 -type f -name '*.log' -exec sh -c 'echo "$1"; tail -n 60 "$1"' _ {} \; || true
