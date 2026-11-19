@@ -5,7 +5,12 @@ class ControllerErrorNotFound extends Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 		$this->document->setRobots('noindex,follow');
-		$this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css');
+		$this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css?v=2.0.0');
+		$data['heading_title'] = $this->language->get('heading_title');
+		$data['text_error'] = $this->language->get('text_error');
+		$data['text_error_label'] = $this->language->get('text_error_label');
+		$data['button_home'] = $this->language->get('button_home');
+		$data['button_search'] = $this->language->get('button_search');
 		$data['search'] = $this->url->link('product/search');
 		$data['error_code'] = '404';
 
