@@ -12,11 +12,20 @@
 #ccp-order-list .ccp-order-unit-count small { font-size: 10px; font-weight: 400; }
 #ccp-order-list .ccp-order-unit-count.is-empty { background: #f1f3f5; color: #7d8792; border-color: #e1e4e8; }
 @media (max-width: 767px) { #ccp-order-list .ccp-order-unit-count { margin-left: 4px; padding: 2px 5px; } }
+/* Compact full-width order filters, matching the catalog list. */
+#filter-order .panel-body { display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 12px; padding:10px 12px; }
+#filter-order .panel-body > .form-group { flex:1 1 155px; min-width:140px; max-width:240px; margin:0; }
+#filter-order .panel-body > .form-group.text-right { flex:0 0 auto; min-width:96px; }
+#filter-order .panel-body .control-label { display:block; margin-bottom:3px; font-size:12px; }
+#filter-order .panel-body .form-control { height:34px; padding:5px 9px; }
+#filter-order .panel-body .help-block { font-size:11px; margin:3px 0 0; }
+#filter-order .panel-body .input-group .btn { height:34px; }
+@media(max-width:767px){#filter-order .panel-body > .form-group{flex:1 1 100%;max-width:none}}
 </style>
 <div class="page-header">
   <div class="container-fluid">
     <div class="pull-right">
-      <button type="button" data-toggle="tooltip" title="{{ button_filter }}" onclick="$('#filter-order').toggleClass('hidden-sm hidden-xs');" class="btn btn-default hidden-md hidden-lg"><i class="fa fa-filter"></i></button>
+      <button type="button" data-toggle="tooltip" title="{{ button_filter }}" onclick="$('#filter-order .panel-body').slideToggle(150);" class="btn btn-default hidden-md hidden-lg"><i class="fa fa-filter"></i></button>
       <button type="submit" id="button-shipping" form="form-order" formaction="{{ shipping }}" formtarget="_blank" data-toggle="tooltip" title="{{ button_shipping_print }}" class="btn btn-info"><i class="fa fa-truck"></i></button>
       <button type="submit" id="button-invoice" form="form-order" formaction="{{ invoice }}" formtarget="_blank" data-toggle="tooltip" title="{{ button_invoice_print }}" class="btn btn-info"><i class="fa fa-print"></i></button>
       <button type="button" id="button-export-orders" data-toggle="tooltip" title="{{ button_export_orders }}" class="btn btn-success"><i class="fa fa-download"></i></button>
@@ -40,7 +49,7 @@
   </div>
   {% endif %}
   <div class="row">
-    <div id="filter-order" class="col-md-3 col-md-push-9 col-sm-12 hidden-sm hidden-xs">
+    <div id="filter-order" class="col-md-12 col-sm-12">
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
@@ -151,7 +160,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-9 col-md-pull-3 col-sm-12">
+    <div class="col-md-12 col-sm-12">
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
