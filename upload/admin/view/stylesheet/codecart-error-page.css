@@ -12,6 +12,3 @@ html.ccp-admin-dark #content .ccp-error__description{color:#adbdcf!important}
  #content > .ccp-error-host{padding:12px 10px 25px;min-height:calc(100svh - 90px)}
  #content .ccp-error--admin{min-height:0}
 }
-
-/* The administration header is shared with regular screens; omit its logo only on errors. */
-body:has(.ccp-error-host--admin) #header-logo{display:none!important}
