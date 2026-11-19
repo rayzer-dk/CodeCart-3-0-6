@@ -53,6 +53,15 @@
     }
 
     var inputs = host.querySelectorAll('.cc-category-sort[data-cc-sort-id]');
+    Array.prototype.forEach.call(host.querySelectorAll('.cc-category-sort-pencil'), function (button) {
+      button.addEventListener('click', function () {
+        var input = button.parentNode.querySelector('.cc-category-sort');
+        if (!input || input.disabled) { return; }
+        input.readOnly = false;
+        input.focus();
+        input.select();
+      });
+    });
     Array.prototype.forEach.call(inputs, function (input) {
       var save = function () {
         if (busy || input.disabled) { return; }
@@ -79,6 +88,7 @@
           .finally(function () { input.disabled = false; });
       };
       input.addEventListener('change', save);
+      input.addEventListener('blur', function () { save(); input.readOnly = true; });
       input.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
           event.preventDefault();
