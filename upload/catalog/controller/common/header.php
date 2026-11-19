@@ -58,6 +58,8 @@ class ControllerCommonHeader extends Controller {
 		// Browser-only static asset caching; absent libraries or HTTP keep the feature inert.
 		$data['codecart_pwa_enabled'] = $is_https && (int)$this->config->get('config_codecart_pwa_status') === 1;
 		$data['codecart_pwa_used'] = (int)$this->config->get('config_codecart_pwa_used') === 1;
+		$promptDays = (int)$this->config->get('config_codecart_pwa_prompt_days');
+		$data['codecart_pwa_prompt_days'] = in_array($promptDays, array(1, 3, 7, 14, 30), true) ? $promptDays : 7;
 		$data['codecart_pwa_manifest_url'] = $server . 'index.php?route=common/pwa/manifest';
 		$data['codecart_pwa_icon_url'] = $server . 'index.php?route=common/pwa/icon&size=180';
 		$data['codecart_workbox_used'] = (int)$this->config->get('config_codecart_workbox_used') === 1;
@@ -233,6 +235,9 @@ class ControllerCommonHeader extends Controller {
 		$this->load->language('common/header');
 		$data['text_theme_toggle'] = $this->language->get('text_theme_toggle');
 		$data['text_pwa_install'] = $this->language->get('text_pwa_install');
+		$data['text_pwa_banner_title'] = $this->language->get('text_pwa_banner_title');
+		$data['text_pwa_banner_desc'] = $this->language->get('text_pwa_banner_desc');
+		$data['text_pwa_dismiss'] = $this->language->get('text_pwa_dismiss');
 		$data['text_pwa_ios_help'] = $this->language->get('text_pwa_ios_help');
 		$data['text_pwa_mac_help'] = $this->language->get('text_pwa_mac_help');
 		if ($data['text_theme_toggle'] === 'text_theme_toggle' || $data['text_theme_toggle'] === '') { $data['text_theme_toggle'] = 'Switch theme'; }
