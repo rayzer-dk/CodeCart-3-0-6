@@ -5,6 +5,7 @@ parameters:
         - tools/quality/phpstan_runtime.php
         - upload/system/startup.php
         - upload/system/helper/general.php
+        - upload/system/helper/error_page.php
         - upload/system/helper/utf8.php
         - upload/system/helper/HTMLPurifier.php
         - upload/system/helper/HTMLPurifier/Config.php
