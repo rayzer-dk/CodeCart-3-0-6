@@ -7,3 +7,4 @@ $_['text_permission'] = 'You do not have permission to access this page, please 
 $_['text_error_label'] = 'Restricted access';
 $_['button_dashboard'] = 'Go to dashboard';
 $_['text_visual_status'] = 'ACCESS DENIED';
+$_['text_error_area'] = 'ADMIN';
