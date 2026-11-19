@@ -86,3 +86,15 @@
 .cc-tree-handle { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 24px; border-radius: 4px; }
 .cc-tree-handle:hover { background: #e4efff; color: #0869be; }
 @media(max-width:767px){ .cc-tree-handle { display: inline-flex; } .cc-tree-row .cc-category-sort-wrap { flex-basis: 76px; } .cc-category-sort-wrap .cc-category-sort { width: 43px; flex-basis: 43px; } }
+
+/* Consistent compact input without browser spinner, matching product-list inline edit. */
+.cc-category-sort-wrap { display:inline-flex; align-items:center; justify-content:flex-end; gap:5px; white-space:nowrap; }
+.cc-category-sort-wrap .cc-category-sort { width:50px!important; flex:0 0 50px; padding:4px 6px; border-radius:5px; text-align:center; font-variant-numeric:tabular-nums; }
+.cc-category-sort-wrap .cc-category-sort[readonly] { outline:none; box-shadow:none; }
+.cc-category-sort-wrap .cc-category-sort-pencil { flex:0 0 24px; width:24px; min-height:30px; padding:3px; font-size:14px; }
+.cc-tree-list-row { display:table-row!important; }
+.cc-category-list-drag .cc-tree-list-row .cc-tree-handle { display:inline-flex!important; margin-right:7px; width:22px; min-height:28px; vertical-align:middle; color:#667b93; cursor:grab; touch-action:none; }
+.cc-category-list-drag .cc-tree-list-row .cc-tree-handle:active { cursor:grabbing; }
+.cc-category-list-drag .cc-tree-list-row.is-over > td { background:#e6f3ff!important; box-shadow:inset 0 2px 0 #0872ce; }
+.cc-category-list-drag .cc-tree-list-row.is-dragging { opacity:.55; }
+@media(max-width:767px){.cc-category-list-drag .cc-tree-list-row .cc-tree-handle {display:inline-flex!important}}
