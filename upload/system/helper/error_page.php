@@ -42,14 +42,22 @@ function codecart_error_page($language, $home) {
     $button = $escape($text['button_home'] ?? 'Home');
     $safe_home = $escape($home);
 
+    // Use the identical bundled CodeCart PRO logo, not a recreated variant.
+    // Embed locally so the 500 page needs no asset requests when routing fails.
+    $logo_file = DIR_SYSTEM . 'library/codecart/assets/default-logo.webp';
+    $logo_bytes = is_file($logo_file) ? @file_get_contents($logo_file) : false;
+    $brand = is_string($logo_bytes) && $logo_bytes !== ''
+        ? '<div class="ccp-error__brand"><img src="data:image/webp;base64,' . base64_encode($logo_bytes) . '" alt="CodeCart PRO" /></div>'
+        : '<div class="ccp-error__brand">CodeCart PRO</div>';
+
     return '<!DOCTYPE html><html lang="' . $language . '"><head>' .
         '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' .
         '<meta name="robots" content="noindex,nofollow,noarchive">' .
-        '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; base-uri \'none\'; form-action \'none\'">' .
+        '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:; base-uri \'none\'; form-action \'none\'">' .
         '<title>' . $title . '</title><style>' . $css . '</style></head>' .
         '<body class="ccp-error-standalone">' .
         '<main class="ccp-error ccp-error--500" aria-labelledby="ccp-error-title">' .
-        '<div class="ccp-error__content">' .
+        '<div class="ccp-error__content">' . $brand .
         '<div class="ccp-error__eyebrow"><span class="ccp-error__dot" aria-hidden="true"></span>' .
         '<span>CodeCart PRO</span><span class="ccp-error__http">HTTP 500</span></div>' .
         '<h1 id="ccp-error-title" class="ccp-error__title">' . $title . '</h1>' .
