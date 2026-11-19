@@ -34,6 +34,7 @@ function codecart_error_page($language, $home) {
         $css = 'body{margin:0;background:#f3f6fb;font:16px/1.6 system-ui,sans-serif}' .
             '.ccp-error{max-width:950px;margin:6vh auto;padding:50px;background:#fff;border-radius:24px}' .
             '.ccp-error__visual{font-size:100px;color:#d76c45}' .
+            '.ccp-error__brand img{display:block;max-width:100%;height:auto;max-height:52px}' .
             '.ccp-error__button{display:inline-block;padding:12px 18px;color:#fff;background:#246be8}';
     }
 
