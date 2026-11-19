@@ -5,6 +5,9 @@ on:
     paths:
       - tools/build_fontawesome_core.py
       - .github/workflows/fontawesome-core-release.yml
+concurrency:
+  group: codecart-fontawesome-core-release
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
@@ -54,6 +57,8 @@ jobs:
           git add upload/system/config/codecart_fontawesome_core_manifest.json
           if ! git diff --cached --quiet; then
             git commit -m "Build Font Awesome 7.3.1 Core font subsets and refresh scanner manifest"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           fi
       - name: Package full repository release
