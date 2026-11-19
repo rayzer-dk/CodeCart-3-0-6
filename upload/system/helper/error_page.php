@@ -3,7 +3,57 @@
  * Dependency-free 500 response. No Registry, Twig, DB, JavaScript or CDN.
  * Keep public output generic; details belong only in the server error log.
  */
-function codecart_error_page($language, $home) {
+
+/**
+ * The error experience starts in Ukrainian, independently of the shop's
+ * config_language, admin locale, or the browser's Accept-Language.
+ * Honor only an explicit choice by the visitor/administrator.
+ * This code must remain safe before the database or session is available.
+ */
+function codecart_error_language_code($selected = '') {
+    return is_string($selected) && in_array(strtolower($selected), array('uk-ua', 'ru-ru', 'en-gb'), true)
+        ? strtolower($selected) : 'uk-ua';
+}
+
+function codecart_error_requested_language($area = 'catalog', $registry = null) {
+    $selected = '';
+    $session = null;
+    if ($registry && method_exists($registry, 'has') && $registry->has('session')) {
+        $session = $registry->get('session');
+    }
+
+    if ($area === 'admin') {
+        // Only a saved per-administrator preference is explicit.
+        if ($registry && method_exists($registry, 'get')) {
+            $preference = $registry->get('codecart_admin_explicit_language');
+            if (is_string($preference)) { $selected = $preference; }
+        }
+        if ($selected === '' && $session && isset($session->data['codecart_admin_error_language'])) {
+            $selected = $session->data['codecart_admin_error_language'];
+        }
+        if ($selected === '' && isset($_COOKIE['codecart_admin_error_language'])) {
+            $selected = $_COOKIE['codecart_admin_error_language'];
+        }
+    } else {
+        // An actual /ru/ or /en/ language route is an explicit selection.
+        $config = $registry && method_exists($registry, 'get') ? $registry->get('config') : null;
+        if ($config && $config->get('codecart_language_prefix_route_matched') && $session && isset($session->data['language'])) {
+            $selected = $session->data['language'];
+        }
+        if ($selected === '' && $session && isset($session->data['codecart_error_language_explicit'])) {
+            $selected = $session->data['codecart_error_language_explicit'];
+        }
+        if ($selected === '' && isset($_COOKIE['codecart_error_language'])) {
+            $selected = $_COOKIE['codecart_error_language'];
+        }
+        if ($selected === '' && isset($_GET['language'])) {
+            $selected = $_GET['language'];
+        }
+    }
+    return codecart_error_language_code($selected);
+}
+
+function codecart_error_page($language = 'uk-ua', $home = '/') {
     $language = in_array($language, array('en-gb', 'ru-ru', 'uk-ua'), true) ? $language : 'uk-ua';
     $strings = static function ($code) {
         $_ = array();
