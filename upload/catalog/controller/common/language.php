@@ -94,7 +94,7 @@ class ControllerCommonLanguage extends Controller {
             $selectedErrorLanguage = strtolower(trim((string)$this->request->post['code']));
             if (in_array($selectedErrorLanguage, array('uk-ua', 'ru-ru', 'en-gb'), true)) {
                 $this->session->data['codecart_error_language_explicit'] = $selectedErrorLanguage;
-                setcookie('codecart_error_language', $selectedErrorLanguage, time() + 2592000, '/', '', $secure = codecart_is_https(), true);
+                setcookie('codecart_error_language', $selectedErrorLanguage, time() + 2592000, '/', '', codecart_is_https(), true);
             }
         }
 
