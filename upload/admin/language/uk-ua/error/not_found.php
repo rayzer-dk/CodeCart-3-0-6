@@ -8,3 +8,4 @@ $_['text_not_found'] = 'На жаль, такої сторінки не існу
 $_['text_error_label'] = 'Навігація адмінпанеллю';
 $_['button_dashboard'] = 'До панелі стану';
 $_['text_visual_status'] = 'СТОРІНКУ НЕ ЗНАЙДЕНО';
+$_['text_error_area'] = 'АДМІНПАНЕЛЬ';
