@@ -9,3 +9,4 @@ $_['text_message']      = '<h1 style="text-align:center;">Магазин тим�
 $_['text_error_label'] = 'Технічні роботи';
 $_['text_error_description'] = 'Ми покращуємо магазин. Будь ласка, завітайте трохи пізніше. Дякуємо за ваше терпіння.';
 $_['button_retry'] = 'Перевірити знову';
+$_['text_visual_status'] = 'ТЕХНІЧНІ РОБОТИ';
