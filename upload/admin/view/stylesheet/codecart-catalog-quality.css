@@ -19,10 +19,10 @@
   place-items: center;
   vertical-align: middle;
   box-sizing: border-box;
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   padding: 0;
-  flex: 0 0 38px;
+  flex: 0 0 30px;
   border-radius: 50%;
   color: #344054;
   background: radial-gradient(circle closest-side, var(--cc-quality-center) 76%, transparent 77%),
@@ -33,8 +33,8 @@
   font-variant-numeric: tabular-nums;
 }
 .cc-quality-score.is-low { --cc-quality-tone: #d92d20; }
-.cc-quality-score.is-medium { --cc-quality-tone: #ea7419; }
-.cc-quality-score.is-good { --cc-quality-tone: #c9950c; }
+.cc-quality-score.is-medium { --cc-quality-tone: #e5a02d; }
+.cc-quality-score.is-good { --cc-quality-tone: #2b80ba; }
 .cc-quality-score.is-complete { --cc-quality-tone: #169955; }
 .cc-quality-count {
   display: inline-block;
@@ -71,7 +71,7 @@
 .cc-quality-count-link:focus-visible { outline: 2px solid #0672ce; outline-offset: 2px; }
 .cc-quality-count-link .fa { font-size: 10px; }
 .cc-quality-count[hidden] { display: none !important; }
-.cc-quality-table.cc-quality-off .cc-quality { display: none; }
+.cc-quality-table.cc-quality-off .cc-quality { display: inline-flex; }
 .cc-quality-toggle { padding: 2px 7px; margin-left: 8px; }
 html.ccp-admin-dark .cc-quality-score {
   --cc-quality-track: #435366;
@@ -90,6 +90,12 @@ html.ccp-admin-dark .cc-quality-count-link:focus {
 }
 @media (max-width: 767px) {
   .cc-quality { gap: 4px; margin-left: 4px; }
-  .cc-quality-score { width: 34px; height: 34px; flex-basis: 34px; font-size: 9px; }
+  .cc-quality-score { width: 28px; height: 28px; flex-basis: 28px; font-size: 9px; }
   .cc-quality-count-link { min-width: 32px; }
 }
+
+/* Keep completion indicators consistently at the right edge of every name cell. */
+.cc-quality-table tbody td:has(> .cc-quality) { position: relative; }
+.cc-quality-table tbody td > .cc-quality { float: right; margin: 0 2px 0 10px; cursor: help; }
+.cc-quality-table tbody td > .cc-quality::after { content: ''; display: block; clear: both; }
+.cc-quality-table .cc-quality-score { letter-spacing: -.2px; }
