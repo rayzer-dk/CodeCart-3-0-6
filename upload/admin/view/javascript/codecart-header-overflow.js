@@ -108,6 +108,11 @@
       var open = panel.hidden;
       panel.hidden = !open;
       trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        // Keep original extension controls and listeners; move focus into the open panel.
+        var first = box.querySelector('a[href], button:not([disabled]), [tabindex="0"]');
+        if (first) first.focus({preventScroll:true});
+      }
     });
     document.addEventListener('click', function (event) {
       if (!panel.hidden && !panel.contains(event.target) && !more.contains(event.target)) { closePanel(); }
