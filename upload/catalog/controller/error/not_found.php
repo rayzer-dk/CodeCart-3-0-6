@@ -8,6 +8,13 @@ class ControllerErrorNotFound extends Controller {
 		$error_language = new Language($error_language_code);
 		$error_language->load($error_language_code);
 		$this->registry->set('language', $error_language);
+		// Keep the storefront language selector and navigation in the same
+		// language as the error body; this affects only the current request.
+		$this->load->model('localisation/language');
+		$error_languages = $this->model_localisation_language->getLanguages();
+		if (isset($error_languages[$error_language_code]) && !empty($error_languages[$error_language_code]['status'])) {
+			$this->config->set('config_language_id', (int)$error_languages[$error_language_code]['language_id']);
+		}
 		$this->load->language('error/not_found');
 
 		$this->document->setTitle($this->language->get('heading_title'));
