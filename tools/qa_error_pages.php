@@ -164,8 +164,8 @@ foreach (array('en-gb', 'ru-ru', 'uk-ua') as $locale) {
     if (strpos($html, 'ccp-error--500') === false ||
         strpos($html, 'STATUS / SERVER ERROR') !== false || strpos($html, 'aria-labelledby="ccp-error-title"') === false ||
         strpos($html, 'Content-Security-Policy') === false ||
-        strpos($html, 'img-src data:') === false ||
-        strpos($html, 'src="data:image/webp;base64,') === false ||
+        strpos($html, "img-src 'none'") === false ||
+        strpos($html, '<img') !== false ||
         strpos($html, '<script') !== false || strpos($html, '<link') !== false ||
         strpos($html, 'font.googleapis') !== false) {
         fwrite(STDERR, "FAIL: standalone 500 must be secure and dependency-free\n"); exit(1);
