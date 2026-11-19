@@ -40,6 +40,7 @@ function codecart_error_page($language, $home) {
     $title = $escape($text['heading_title'] ?? 'Service temporarily unavailable');
     $message = $escape($text['text_error'] ?? 'Please try again later.');
     $button = $escape($text['button_home'] ?? 'Home');
+    $status_caption = $escape($text['text_visual_status'] ?? 'SERVER ERROR');
     $safe_home = $escape($home);
 
     // Use the identical bundled CodeCart PRO logo, not a recreated variant.
@@ -66,7 +67,7 @@ function codecart_error_page($language, $home) {
         '<div class="ccp-error__divider" aria-hidden="true"></div>' .
         '<div class="ccp-error__footnote">HTTP 500 · CodeCart PRO</div></div>' .
         '<div class="ccp-error__visual" aria-hidden="true">' .
-        '<span class="ccp-error__visual-top">STATUS / SERVER ERROR</span>' .
+        '<span class="ccp-error__visual-top">' . $status_caption . '</span>' .
         '<span class="ccp-error__code">500</span>' .
         '<span class="ccp-error__visual-bottom">HTTP · 05</span>' .
         '<span class="ccp-error__visual-marker"></span></div></main>' .
