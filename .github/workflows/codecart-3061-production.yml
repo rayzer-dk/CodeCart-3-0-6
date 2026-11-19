@@ -11,6 +11,7 @@ on:
       - 'upload/install/model/upgrade/3052.php'
       - 'phpstan.codecart.admin.neon.dist'
       - 'phpstan.codecart.catalog.neon.dist'
+      - 'tests/catalog_quality_smoke.php'
 permissions:
   contents: write
 concurrency:
