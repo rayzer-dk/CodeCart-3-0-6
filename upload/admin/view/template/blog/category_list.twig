@@ -48,7 +48,7 @@
               <span class="cc-tree-handle" title="{{ tree_drag_help }}"><i class="fa fa-bars" aria-hidden="true"></i></span>
               <button type="button" class="cc-tree-collapse{% if not node.has_children %} is-placeholder{% endif %}" {% if not node.has_children %}disabled="disabled"{% endif %} title="{{ tree_expand }}" aria-label="{{ tree_expand }}" aria-expanded="true"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
               <a href="{{ node.edit }}" class="cc-tree-name">{{ node.name }}</a>
-              <input type="number" class="cc-category-sort" data-cc-sort-id="{{ node.id }}" data-cc-sort-expected="{{ node.sort_order }}" value="{{ node.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ node.name }}" title="{{ tree_sort }}" />
+              <span class="cc-category-sort-wrap"><input type="text" inputmode="numeric" pattern="-?[0-9]*" class="cc-category-sort" data-cc-sort-id="{{ node.id }}" data-cc-sort-expected="{{ node.sort_order }}" value="{{ node.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ node.name }}" title="{{ tree_sort }}"  readonly="readonly" /><button type="button" class="cc-category-sort-pencil" aria-label="{{ tree_sort }}" title="{{ tree_sort }}"><i class="fa fa-pencil" aria-hidden="true"></i></button></span>
               <button type="button" class="btn btn-default btn-xs cc-tree-move" data-cc-move-id="{{ node.id }}" data-cc-move-name="{{ node.name }}" title="{{ tree_move }}"><i class="fa fa-arrows" aria-hidden="true"></i><span class="hidden-xs"> {{ tree_move }}</span></button>
             </div>
           {% endfor %}
@@ -86,7 +86,7 @@
 					{% else %}
                   <td class="left">{{ category.indent }}{{ category.name }} <span class="cc-quality" data-quality-id="{{ category.blog_category_id }}"><span class="cc-quality-score">···</span><span class="cc-quality-count" hidden></span></span></td>
                   {% endif %}
-                  <td class="text-right"><input type="number" class="cc-category-sort" data-cc-sort-id="{{ category.blog_category_id }}" data-cc-sort-expected="{{ category.sort_order }}" value="{{ category.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ category.name|striptags }}" title="{{ tree_sort }}" /></td>
+                  <td class="text-right"><span class="cc-category-sort-wrap"><input type="text" inputmode="numeric" pattern="-?[0-9]*" class="cc-category-sort" data-cc-sort-id="{{ category.blog_category_id }}" data-cc-sort-expected="{{ category.sort_order }}" value="{{ category.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ category.name|striptags }}" title="{{ tree_sort }}"  readonly="readonly" /><button type="button" class="cc-category-sort-pencil" aria-label="{{ tree_sort }}" title="{{ tree_sort }}"><i class="fa fa-pencil" aria-hidden="true"></i></button></span></td>
 				  <td class="text-right">{{ category.noindex }}</td>
                   <td class="text-right">
 					<a target="_blank" href="{{ category.href_shop }}" data-toggle="tooltip" title="{{ button_shop }}" class="btn btn-success"><i class="fa fa-eye"></i></a>
