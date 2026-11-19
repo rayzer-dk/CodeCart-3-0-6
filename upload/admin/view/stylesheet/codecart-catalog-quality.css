@@ -99,3 +99,8 @@ html.ccp-admin-dark .cc-quality-count-link:focus {
 .cc-quality-table tbody td > .cc-quality { float: right; margin: 0 2px 0 10px; cursor: help; }
 .cc-quality-table tbody td > .cc-quality::after { content: ''; display: block; clear: both; }
 .cc-quality-table .cc-quality-score { letter-spacing: -.2px; }
+
+/* Category metric order: product count first, completion second. */
+.cc-category-list-drag .cc-quality { display:inline-flex; align-items:center; gap:6px; float:right; flex-direction:row; margin:0 2px 0 8px; }
+.cc-category-list-drag .cc-quality-count-link {order:0;}
+.cc-category-list-drag .cc-quality-score {order:1;}
