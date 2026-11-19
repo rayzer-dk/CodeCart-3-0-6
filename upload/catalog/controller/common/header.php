@@ -161,7 +161,7 @@ class ControllerCommonHeader extends Controller {
 		if ($effective_icon_mode === 'core') {
 			$data['font_awesome_css'] = 'catalog/view/javascript/font-awesome/css/font-awesome-core.min.css?v=6.7.2-cc178';
 		} else {
-			$data['font_awesome_css'] = 'catalog/view/javascript/font-awesome/css/font-awesome.min.css?v=6.7.2-cc178';
+			$data['font_awesome_css'] = 'catalog/view/javascript/font-awesome/css/font-awesome.min.css?v=7.3.1-cc179';
 		}
 		$data['catalog_ajax_status'] = ($is_default_theme && (bool)$this->config->get('theme_default_catalog_ajax_status'));
 		$dark_status = $this->config->get('theme_default_dark_mode_status');
