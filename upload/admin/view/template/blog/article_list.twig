@@ -16,8 +16,8 @@
 #ccp-blog-list .ccp-blog-switch:focus-visible {outline:2px solid #0057d9;outline-offset:2px;}
 #ccp-blog-list .ccp-blog-switch:disabled {opacity:.55;cursor:wait;}
 #ccp-blog-list td.ccp-blog-name-cell { min-width: 0; }
-#ccp-blog-list .ccp-blog-name-layout { display:flex; align-items:center; gap:8px; width:100%; min-width:0; }
-#ccp-blog-list .ccp-blog-name-text { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
+#ccp-blog-list .ccp-blog-name-layout { display:flex!important; flex-wrap:nowrap!important; align-items:center; gap:8px; width:100%; max-width:100%; min-width:0; overflow:hidden; }
+#ccp-blog-list .ccp-blog-name-text { flex:1 1 0; width:0; max-width:100%; min-width:0; overflow:hidden!important; text-overflow:ellipsis!important; white-space:nowrap!important; display:block!important; }
 #ccp-blog-list .ccp-blog-name-layout > .cc-quality { flex:0 0 auto; margin:0 0 0 auto; }
 #ccp-blog-list .table { table-layout:fixed; width:100%; }
 #ccp-blog-list .table thead td:nth-child(1) {width:32px;}
@@ -144,7 +144,7 @@
                       {% endif %}</td>
                     <td class="text-center">{% if article.image %} <img src="{{ article.image }}" alt="{{ article.name }}" class="img-thumbnail codecart-blog-list-thumb" width="48" height="48" loading="lazy" /> {% else %} <span class="img-thumbnail list"><i class="fa fa-camera fa-2x"></i></span> {% endif %}</td>
                     <td class="text-left ccp-blog-name-cell"><div class="ccp-blog-name-layout"><span class="ccp-blog-name-text" title="{{ article.name|striptags|e('html_attr') }}">{{ article.name }}</span><span class="cc-quality" data-quality-id="{{ article.article_id }}"><span class="cc-quality-score">···</span><span class="cc-quality-count" hidden></span></span></div></td>
-                    <td class="text-right"><input type="number" class="cc-category-sort" data-cc-sort-id="{{ article.article_id }}" data-cc-sort-expected="{{ article.sort_order }}" value="{{ article.sort_order }}" min="-999999" max="999999" step="1" title="{{ tree_sort }}" aria-label="{{ tree_sort }}: {{ article.name|striptags }}" /></td>
+                    <td class="text-right"><span class="cc-category-sort-wrap"><input type="text" inputmode="numeric" pattern="-?[0-9]*" class="cc-category-sort" readonly="readonly" data-cc-sort-id="{{ article.article_id }}" data-cc-sort-expected="{{ article.sort_order }}" value="{{ article.sort_order }}" min="-999999" max="999999" step="1" title="{{ tree_sort }}" aria-label="{{ tree_sort }}: {{ article.name|striptags }}" /><button type="button" class="cc-category-sort-pencil" title="{{ tree_sort }}" aria-label="{{ tree_sort }}"><i class="fa fa-pencil" aria-hidden="true"></i></button></span></td>
                     <td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.status_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="status" aria-checked="{{ article.status_value ? 'true' : 'false' }}" aria-label="{{ column_status }}: {{ article.status }}" title="{{ article.status }}" data-caption="{{ column_status }}" data-on="{{ text_enabled }}" data-off="{{ text_disabled }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.status }}{% endif %}</td>
 					<td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.noindex_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="noindex" aria-checked="{{ article.noindex_value ? 'true' : 'false' }}" aria-label="{{ column_noindex }}: {{ article.noindex }}" title="{{ article.noindex }}" data-caption="{{ column_noindex }}" data-on="{{ text_enabled }}" data-off="{{ text_disabled }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.noindex }}{% endif %}</td>
                     <td class="text-left">{{ article.date_added }}</td>
