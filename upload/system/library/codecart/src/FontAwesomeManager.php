@@ -52,6 +52,14 @@ final class FontAwesomeManager {
         $requested = strtolower(trim((string)$requested));
         if ($requested === 'standard') { $requested = 'full'; }
         if ($requested === 'full' || $requested === 'core') { return $requested; }
+        // Font Awesome 7.3.1 is bundled for Full Compatibility. The smaller
+        // prebuilt Core/AUTO font shards still target 6.7.2 until rebuilt.
+        // Keep AUTO on one coherent v7 font family rather than mixing versions.
+        $manifest = DIR_SYSTEM . 'config/codecart_fontawesome_core_manifest.json';
+        $manifestData = is_file($manifest) ? json_decode((string)file_get_contents($manifest), true) : null;
+        if (!is_array($manifestData) || ($manifestData['fontawesome_version'] ?? '') !== '7.3.1') {
+            return 'full';
+        }
         $scan = $this->scanCatalog();
         return !empty($scan['unknown']) || !empty($scan['scanner_error']) ? 'full' : 'core';
     }
