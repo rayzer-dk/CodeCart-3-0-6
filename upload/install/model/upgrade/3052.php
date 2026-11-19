@@ -46,7 +46,8 @@ class ModelUpgrade3052 extends Model {
         $migration = new \CodeCart\Migration($migrationRegistry);
         $migration->run();
 
-        $expected = defined('CODECART_BUILD') ? (string)CODECART_BUILD : \CodeCart\Migration::VERSION;
+        // Package releases and database schema revisions advance independently.
+        $expected = \CodeCart\Migration::VERSION;
         $result = $this->db->query("SELECT `key`, `value` FROM `" . DB_PREFIX . "setting` WHERE `store_id` = '0'
             AND `key` IN ('codecart_core_schema_version', 'codecart_presentation_schema_version')");
         $versions = array_column($result->rows, 'value', 'key');
