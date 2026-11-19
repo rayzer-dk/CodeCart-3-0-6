@@ -8,6 +8,7 @@ class ControllerCommonMaintenance extends Controller {
 		$this->document->addStyle('catalog/view/theme/codecart/stylesheet/error-page.css?v=2.0.0');
 		$data['heading_title'] = $this->language->get('heading_title');
 		$data['text_error_label'] = $this->language->get('text_error_label');
+		$data['text_visual_status'] = $this->language->get('text_visual_status');
 		$data['text_error_description'] = $this->language->get('text_error_description');
 		$data['button_retry'] = $this->language->get('button_retry');
 		$data['continue'] = $this->url->link('common/home');
