@@ -81,6 +81,7 @@ function codecart_error_page($language = 'uk-ua', $home = '/') {
         $css = 'body{margin:0;background:#f3f6fb;font:16px/1.6 system-ui,sans-serif}' .
             '.ccp-error{max-width:950px;margin:6vh auto;padding:50px;background:#fff;border-radius:24px}' .
             '.ccp-error__visual{font-size:100px;color:#d76c45}' .
+            '.ccp-error__brand img{display:block;max-width:100%;height:auto;max-height:52px}' .
             '.ccp-error__button{display:inline-block;padding:12px 18px;color:#fff;background:#246be8}';
     }
 
@@ -105,7 +106,7 @@ function codecart_error_page($language = 'uk-ua', $home = '/') {
         '<title>' . $title . '</title><style>' . $css . '</style></head>' .
         '<body class="ccp-error-standalone">' .
         '<main class="ccp-error ccp-error--500" aria-labelledby="ccp-error-title">' .
-        '<div class="ccp-error__content">' .
+        '<div class="ccp-error__content">' . $brand .
         '<div class="ccp-error__eyebrow"><span class="ccp-error__dot" aria-hidden="true"></span>' .
         '<span>CodeCart PRO</span><span class="ccp-error__http">HTTP 500</span></div>' .
         '<h1 id="ccp-error-title" class="ccp-error__title">' . $title . '</h1>' .
