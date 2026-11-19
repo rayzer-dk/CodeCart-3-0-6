@@ -139,6 +139,7 @@ foreach (array('not_found' => '404', 'permission' => '403') as $route => $code) 
         strpos($html, '{{ header }}{{ column_left }}' . "\n" . '<div id="content">') === false ||
         strpos($html, 'ccp-error--' . $code) === false ||
         strpos($html, '{{ text_visual_status }}') === false ||
+        strpos($html, '{{ text_error_area }}') === false ||
         strpos($html, 'href="{{ dashboard }}"') === false ||
         strpos($controller, 'setStatusCode(' . $code . ')') === false ||
         strpos($controller, "codecart-error-page.css") === false) {
@@ -147,7 +148,7 @@ foreach (array('not_found' => '404', 'permission' => '403') as $route => $code) 
     $checks++;
     foreach (array('en-gb', 'ru-ru', 'uk-ua') as $locale) {
         $lang = file_get_contents($root . '/upload/admin/language/' . $locale . '/error/' . $route . '.php');
-        if (!$lang || strpos($lang, "'button_dashboard'") === false || strpos($lang, "'text_error_label'") === false || strpos($lang, "'text_visual_status'") === false) {
+        if (!$lang || strpos($lang, "'button_dashboard'") === false || strpos($lang, "'text_error_label'") === false || strpos($lang, "'text_visual_status'") === false || strpos($lang, "'text_error_area'") === false) {
             fwrite(STDERR, "FAIL: admin " . $locale . " " . $route . " localization\n"); exit(1);
         }
         $checks++;
