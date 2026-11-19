@@ -9,6 +9,7 @@ class ControllerErrorNotFound extends Controller {
 		$data['dashboard'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true);
 		$data['button_dashboard'] = $this->language->get('button_dashboard');
 		$data['text_error_label'] = $this->language->get('text_error_label');
+		$data['text_visual_status'] = $this->language->get('text_visual_status');
 
 		$data['heading_title'] = $this->language->get('heading_title');
 		$data['text_not_found'] = $this->language->get('text_not_found');
