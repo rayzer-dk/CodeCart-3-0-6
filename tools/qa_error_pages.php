@@ -15,7 +15,7 @@ foreach (array('en-gb' => 'temporarily unavailable', 'ru-ru' => 'временн�
 }
 foreach (array('javascript:alert(1)', '//attacker.example/', 'https://shop.test/" onmouseover="alert(1)', '/?token=secret') as $url) {
     $html = codecart_error_page('../../private', $url);
-    if (strpos($html, 'lang="en-gb"') === false || strpos($html, 'href="/"') === false || strpos($html, 'secret') !== false || strpos($html, 'onmouseover') !== false || strpos($html, 'javascript:') !== false) {
+    if (strpos($html, 'lang="uk-ua"') === false || strpos($html, 'href="/"') === false || strpos($html, 'secret') !== false || strpos($html, 'onmouseover') !== false || strpos($html, 'javascript:') !== false) {
         fwrite(STDERR, "FAIL: unsafe fallback navigation or language\n"); exit(1);
     }
     $checks++;
