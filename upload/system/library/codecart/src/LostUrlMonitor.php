@@ -106,6 +106,11 @@ final class LostUrlMonitor {
     public function install(): void {
         $db = $this->registry->get('db');
         $db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_lost_url` (lost_url_id bigint unsigned NOT NULL AUTO_INCREMENT, store_id int unsigned NOT NULL DEFAULT 0, language_id int unsigned NOT NULL DEFAULT 0, url_key char(64) NOT NULL, url varchar(1024) NOT NULL, slug varchar(191) NOT NULL DEFAULT '', kind varchar(16) NOT NULL DEFAULT 'unknown', browser_hits int unsigned NOT NULL DEFAULT 0, bot_hits int unsigned NOT NULL DEFAULT 0, referred_hits int unsigned NOT NULL DEFAULT 0, referer varchar(1024) NOT NULL DEFAULT '', status varchar(16) NOT NULL DEFAULT 'new', first_seen datetime NOT NULL, last_seen datetime NOT NULL, PRIMARY KEY(lost_url_id), UNIQUE KEY store_url(store_id,url_key), KEY status_seen(store_id,status,last_seen), KEY status_browser(store_id,status,browser_hits,referred_hits), KEY slug_store(slug,store_id), KEY cleanup_seen(last_seen)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        // Existing installations retain their data; add the reporting index only if missing.
+        $index = $db->query("SHOW INDEX FROM `" . DB_PREFIX . "codecart_lost_url` WHERE Key_name='status_browser'");
+        if (!$index->num_rows) {
+            $db->query("ALTER TABLE `" . DB_PREFIX . "codecart_lost_url` ADD KEY status_browser(store_id,status,browser_hits,referred_hits)");
+        }
         $db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "codecart_lost_url_redirect` (redirect_id int unsigned NOT NULL AUTO_INCREMENT, store_id int unsigned NOT NULL DEFAULT 0, language_id int unsigned NOT NULL DEFAULT 0, old_slug varchar(191) NOT NULL, new_slug varchar(191) NOT NULL, date_modified datetime NOT NULL, PRIMARY KEY(redirect_id), UNIQUE KEY store_slug(store_id,language_id,old_slug)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     }
 
