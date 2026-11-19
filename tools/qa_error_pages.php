@@ -22,6 +22,12 @@ foreach (array('javascript:alert(1)', '//attacker.example/', 'https://shop.test/
 }
 // Design-system contract: 404 / 403 / 500 / 503 share responsive layout.
 $cssFile = $root . '/upload/catalog/view/theme/codecart/stylesheet/error-page.css';
+$logoFile = $root . '/upload/catalog/view/theme/codecart/image/codecart-logo.webp';
+$originalLogo = $root . '/upload/system/library/codecart/assets/default-logo.webp';
+if (!is_file($logoFile) || !is_file($originalLogo) || hash_file('sha256', $logoFile) !== hash_file('sha256', $originalLogo)) {
+    fwrite(STDERR, "FAIL: error pages must use the unchanged original CodeCart logo\n"); exit(1);
+}
+$checks++;
 $css = file_get_contents($cssFile);
 if ($css === false) { fwrite(STDERR, "FAIL: shared error stylesheet missing\n"); exit(1); }
 foreach (array(
@@ -39,6 +45,8 @@ foreach (array('codecart', 'default') as $theme) {
     $notFound = file_get_contents($root . '/upload/catalog/view/theme/' . $theme . '/template/error/not_found.twig');
     $maintenance = file_get_contents($root . '/upload/catalog/view/theme/' . $theme . '/template/common/maintenance.twig');
     if (!$notFound || !$maintenance ||
+        strpos($notFound, 'catalog/view/theme/codecart/image/codecart-logo.webp') === false ||
+        strpos($maintenance, 'catalog/view/theme/codecart/image/codecart-logo.webp') === false ||
         strpos($notFound, 'ccp-error--404') === false || strpos($notFound, 'ccp-error__button--secondary') === false ||
         strpos($notFound, 'aria-labelledby="ccp-error-title"') === false ||
         strpos($notFound, 'content_bottom') === false ||
@@ -57,6 +65,7 @@ foreach (array('not_found' => '404', 'permission' => '403') as $route => $code) 
     $html = file_get_contents($root . '/upload/admin/view/template/error/' . $route . '.twig');
     $controller = file_get_contents($root . '/upload/admin/controller/error/' . $route . '.php');
     if (!$html || !$controller ||
+        strpos($html, '../catalog/view/theme/codecart/image/codecart-logo.webp') === false ||
         strpos($html, '{{ header }}{{ column_left }}' . "\n" . '<div id="content">') === false ||
         strpos($html, 'ccp-error--' . $code) === false ||
         strpos($html, 'href="{{ dashboard }}"') === false ||
@@ -77,6 +86,8 @@ foreach (array('en-gb', 'ru-ru', 'uk-ua') as $locale) {
     $html = codecart_error_page($locale, '/');
     if (strpos($html, 'ccp-error--500') === false || strpos($html, 'aria-labelledby="ccp-error-title"') === false ||
         strpos($html, 'Content-Security-Policy') === false ||
+        strpos($html, 'img-src data:') === false ||
+        strpos($html, 'src="data:image/webp;base64,') === false ||
         strpos($html, '<script') !== false || strpos($html, '<link') !== false ||
         strpos($html, 'font.googleapis') !== false) {
         fwrite(STDERR, "FAIL: standalone 500 must be secure and dependency-free\n"); exit(1);
