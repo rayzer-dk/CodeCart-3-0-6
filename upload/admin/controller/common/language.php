@@ -25,6 +25,10 @@ class ControllerCommonLanguage extends Controller {
                 throw new \InvalidArgumentException('Language is not available.');
             }
             \CodeCart\Core\AdminLanguagePreference::save($this->db, (int)$this->user->getId(), $code);
+            if (in_array($code, array('uk-ua', 'ru-ru', 'en-gb'), true)) {
+                $this->session->data['codecart_admin_error_language'] = $code;
+                setcookie('codecart_admin_error_language', $code, time() + 2592000, '/', '', codecart_is_https(), true);
+            }
         } catch (\Throwable $e) {
             $this->log->write('Admin language selection failed: ' . get_class($e));
             // A missing database migration must not masquerade as a successful save.
