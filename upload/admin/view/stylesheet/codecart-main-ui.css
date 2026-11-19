@@ -169,3 +169,44 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
     width:44px;min-width:44px!important;padding:0 9px!important;
   }
 }
+
+/* Fit the transparent logo artwork against the available header rectangle.
+   The source WebP has transparent vertical margins; cover removes only those margins. */
+#header #header-logo { box-sizing:border-box; }
+#header #header-logo .navbar-brand {
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  box-sizing:border-box; width:100%!important; height:60px!important;
+  min-height:60px!important; padding:0!important; overflow:hidden!important;
+}
+#header #header-logo .navbar-brand > img {
+  display:block!important; box-sizing:border-box;
+  width:100%!important; height:100%!important; max-width:none!important;
+  max-height:none!important; object-fit:cover!important; object-position:center!important;
+  margin:0!important;
+}
+/* Keep navigation icons equivalent and the quick-navigation compass beside the flag. */
+#header .navbar-right > li.ccp-palette-menu > a {
+  display:inline-flex!important; align-items:center!important; justify-content:center!important;
+  box-sizing:border-box; width:48px; min-width:48px!important; height:60px;
+  padding:0 12px!important; line-height:1;
+}
+#header .navbar-right > li.ccp-palette-menu > a > i.fa {
+  display:block!important; width:22px!important; height:22px;
+  font-size:19px!important; line-height:22px!important; text-align:center;
+}
+/* Only name/title columns are ellipsized, never prices, controls or whole rows. */
+#content table.table td.ccp-table-ellipsis-cell { max-width:0; }
+#content table.table td.ccp-table-ellipsis-cell .ccp-table-ellipsis {
+  display:inline-block!important; box-sizing:border-box; max-width:100%;
+  overflow:hidden!important; text-overflow:ellipsis!important; white-space:nowrap!important;
+  vertical-align:middle; overflow-wrap:normal!important;
+}
+#content table.table td.ccp-table-ellipsis-cell:has(.cc-quality) > .ccp-table-ellipsis,
+#content table.table td.ccp-table-ellipsis-cell:has(.cc-quality) > a.ccp-table-ellipsis {
+  max-width:calc(100% - 85px);
+}
+@media(max-width:1199px) {
+  #header .navbar-right > li.ccp-palette-menu > a {
+    min-width:44px!important;width:44px;padding:0 9px!important;
+  }
+}
