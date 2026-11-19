@@ -21,6 +21,8 @@ class ControllerSettingSetting extends Controller {
 			$this->request->post['config_codecart_quick_price_edit'] = !empty($this->request->post['config_codecart_quick_price_edit']) ? 1 : 0;
 			$this->request->post['config_codecart_workbox_status'] = !empty($this->request->post['config_codecart_workbox_status']) ? 1 : 0;
 			$this->request->post['config_codecart_pwa_status'] = !empty($this->request->post['config_codecart_pwa_status']) ? 1 : 0;
+			$promptDays = (int)($this->request->post['config_codecart_pwa_prompt_days'] ?? 7);
+			$this->request->post['config_codecart_pwa_prompt_days'] = in_array($promptDays, array(1, 3, 7, 14, 30), true) ? $promptDays : 7;
 			$this->request->post['config_codecart_pwa_used'] = ((int)$this->config->get('config_codecart_pwa_used') === 1 || $this->request->post['config_codecart_pwa_status'] === 1) ? 1 : 0;
 			$this->request->post['config_codecart_workbox_used'] = ((int)$this->config->get('config_codecart_workbox_used') === 1 || $this->request->post['config_codecart_workbox_status'] === 1) ? 1 : 0;
 			foreach (array(
@@ -1378,6 +1380,10 @@ class ControllerSettingSetting extends Controller {
         $data['config_codecart_pwa_status'] = isset($this->request->post['config_codecart_pwa_status'])
             ? (int)$this->request->post['config_codecart_pwa_status']
             : (int)$this->config->get('config_codecart_pwa_status');
+        $promptDays = isset($this->request->post['config_codecart_pwa_prompt_days']) ? (int)$this->request->post['config_codecart_pwa_prompt_days'] : (int)$this->config->get('config_codecart_pwa_prompt_days');
+        $data['config_codecart_pwa_prompt_days'] = in_array($promptDays, array(1, 3, 7, 14, 30), true) ? $promptDays : 7;
+        $data['entry_codecart_pwa_prompt_days'] = $this->language->get('entry_codecart_pwa_prompt_days');
+        $data['help_codecart_pwa_prompt_days'] = $this->language->get('help_codecart_pwa_prompt_days');
         $data['entry_codecart_pwa'] = $this->language->get('entry_codecart_pwa');
         $data['help_codecart_pwa'] = $this->language->get('help_codecart_pwa');
         $data['config_codecart_workbox_status'] = isset($this->request->post['config_codecart_workbox_status'])
