@@ -39,6 +39,7 @@ class ControllerStartupStartup extends Controller {
 			$preferred = \CodeCart\Core\AdminLanguagePreference::read($this->db, $userId);
 			if ($preferred !== '' && isset($available[$preferred])) {
 				$adminCode = $preferred;
+				$this->registry->set('codecart_admin_explicit_language', $preferred);
 			}
 		} catch (\Throwable $e) {
 			// Never lock an administrator out due to an unavailable optional preference.
