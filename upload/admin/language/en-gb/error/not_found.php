@@ -6,3 +6,4 @@ $_['heading_title']  = 'Page Not Found!';
 $_['text_not_found'] = 'The page you are looking for could not be found! Please contact your administrator if the problem persists.';
 $_['text_error_label'] = 'Admin navigation';
 $_['button_dashboard'] = 'Go to dashboard';
+$_['text_visual_status'] = 'PAGE NOT FOUND';
