@@ -112,7 +112,7 @@ $_['text_codecart_website'] = 'CodeCart PRO website';
 
 $_['text_icons'] = 'Icons';
 $_['text_icon_search'] = 'Search icon name';
-$_['text_icon_help'] = 'Font Awesome 6.7.2 + FA4 compatibility catalog and CodeCart PRO aliases. Click an icon to copy its CSS class.';
+$_['text_icon_help'] = 'Font Awesome 7.3.1 + FA4 compatibility catalog and CodeCart PRO aliases. Click an icon to copy its CSS class.';
 
 $_['text_modern_social_icons'] = 'Modern social icons';
 
@@ -455,7 +455,7 @@ $_['about_added_items'] = array(
 $_['about_updated_items'] = array(
     'PHP 8.1–8.5; Twig 3.30, Guzzle 7.15, scssphp 2.1.',
     'jQuery 3.7.1 everywhere, jQuery Migrate 3.4.1 for legacy modules.',
-    'Font Awesome 6.7.2 Free; Font Awesome 4 class names and font-family FontAwesome keep working through the bundled compatibility layer.',
+    'Font Awesome 7.3.1 Free; Font Awesome 4 class names and font-family FontAwesome keep working through the bundled compatibility layer.',
     'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 as an alternative gallery.',
     'Storefront date fields use the built-in date picker; moment.js and bootstrap-datetimepicker stay only for third-party modules.',
     'New installs use utf8mb4 and InnoDB; the database modernizer converts old tables after a backup.',
@@ -520,7 +520,7 @@ $_['cmp_seo'] = 'SeoPro + language prefixes + canonical/faceted policy';
 $_['cmp_images'] = 'JPEG/PNG/WebP/AVIF + safe fallback';
 $_['cmp_cache'] = 'File / APCu / Memcached / Redis + fallback';
 $_['cmp_file'] = 'File';
-$_['cmp_fa'] = '6.7.2 + AUTO/Core/Full + FA4 compatibility';
+$_['cmp_fa'] = '7.3.1 + AUTO/Core/Full + FA4 compatibility';
 $_['cmp_summernote'] = 'Summernote 0.9.1 local';
 
 $_['text_ai_ready'] = 'AI Ready / WebMCP';
