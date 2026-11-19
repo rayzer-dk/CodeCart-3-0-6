@@ -4,7 +4,7 @@
  * Keep public output generic; details belong only in the server error log.
  */
 function codecart_error_page($language, $home) {
-    $language = in_array($language, array('en-gb', 'ru-ru', 'uk-ua'), true) ? $language : 'en-gb';
+    $language = in_array($language, array('en-gb', 'ru-ru', 'uk-ua'), true) ? $language : 'uk-ua';
     $strings = static function ($code) {
         $_ = array();
         $file = DIR_SYSTEM . '../catalog/language/' . $code . '/error/server_error.php';
