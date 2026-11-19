@@ -3,7 +3,7 @@
 <!--[if IE 8 ]><html dir="{{ direction }}" lang="{{ lang }}" class="ie8"><![endif]-->
 <!--[if IE 9 ]><html dir="{{ direction }}" lang="{{ lang }}" class="ie9"><![endif]-->
 <!--[if (gt IE 9)|!(IE)]><!-->
-<html dir="{{ direction }}" lang="{{ lang }}" data-ccp-picker-theme="{{ theme_datetimepicker_theme }}" data-ccp-workbox="{{ codecart_workbox_enabled ? '1' : '0' }}" data-ccp-pwa="{{ codecart_pwa_enabled ? '1' : '0' }}"{% if codecart_pwa_enabled %} data-ccp-pwa-install="{{ text_pwa_install|e('html_attr') }}" data-ccp-pwa-ios-help="{{ text_pwa_ios_help|e('html_attr') }}" data-ccp-pwa-mac-help="{{ text_pwa_mac_help|e('html_attr') }}"{% endif %}>
+<html dir="{{ direction }}" lang="{{ lang }}" data-ccp-picker-theme="{{ theme_datetimepicker_theme }}" data-ccp-workbox="{{ codecart_workbox_enabled ? '1' : '0' }}" data-ccp-pwa="{{ codecart_pwa_enabled ? '1' : '0' }}"{% if codecart_pwa_enabled %} data-ccp-pwa-install="{{ text_pwa_install|e('html_attr') }}" data-ccp-pwa-banner-title="{{ text_pwa_banner_title|e('html_attr') }}" data-ccp-pwa-banner-desc="{{ text_pwa_banner_desc|e('html_attr') }}" data-ccp-pwa-dismiss="{{ text_pwa_dismiss|e('html_attr') }}" data-ccp-pwa-prompt-days="{{ codecart_pwa_prompt_days }}" data-ccp-pwa-ios-help="{{ text_pwa_ios_help|e('html_attr') }}" data-ccp-pwa-mac-help="{{ text_pwa_mac_help|e('html_attr') }}"{% endif %}>
 <!--<![endif]-->
 <head>
 <meta charset="UTF-8" />
@@ -16,9 +16,19 @@
 <base href="{{ base|e }}" />
 {% if codecart_pwa_enabled %}
 <style>
-.ccp-footer-bottom .ccp-pwa-install-button{margin-left:12px;border-radius:6px;font-size:13px;line-height:1.3;padding:5px 10px;vertical-align:middle}
-.ccp-footer-bottom .ccp-pwa-install-help{display:inline-block;margin-left:12px;font-size:12px;max-width:360px;vertical-align:middle}
-.ccp-footer-bottom .ccp-pwa-install-help[hidden],.ccp-footer-bottom .ccp-pwa-install-button[hidden]{display:none}
+.ccp-pwa-install-banner{box-sizing:border-box;position:relative;z-index:1035;width:100%;padding:9px 15px;background:#edf5ff;color:#153354;border-bottom:1px solid #c8def8;font-family:inherit}
+.ccp-pwa-install-banner-content{max-width:1180px;min-height:42px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.ccp-pwa-install-copy{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;flex:1 1 auto;min-width:0;font-size:13px;line-height:1.4}
+.ccp-pwa-install-copy strong{font-size:14px;font-weight:700}
+.ccp-pwa-install-copy span{opacity:.89}
+.ccp-pwa-install-action{flex:0 0 auto;padding:8px 15px;border:0;border-radius:7px;background:#096cce;color:#fff;font-weight:600;cursor:pointer;min-height:38px}
+.ccp-pwa-install-action:hover,.ccp-pwa-install-action:focus{background:#0757a9;color:#fff}
+.ccp-pwa-install-dismiss{display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border:0;border-radius:7px;background:transparent;color:#42617f;font-size:25px;line-height:1;cursor:pointer}
+.ccp-pwa-install-dismiss:hover,.ccp-pwa-install-dismiss:focus{background:#d9eaff;color:#153354}
+.ccp-pwa-install-banner [hidden]{display:none!important}
+html.ccp-theme-dark .ccp-pwa-install-banner{background:#182c43;border-bottom-color:#34506c;color:#e9f3ff}
+html.ccp-theme-dark .ccp-pwa-install-dismiss{color:#c9dbee}
+@media(max-width:767px){.ccp-pwa-install-banner{padding:8px 12px}.ccp-pwa-install-banner-content{gap:8px;flex-wrap:wrap}.ccp-pwa-install-copy{flex-basis:calc(100% - 45px);font-size:12px}.ccp-pwa-install-copy strong{font-size:13px}.ccp-pwa-install-action{order:3;min-height:36px;padding:7px 13px}.ccp-pwa-install-dismiss{order:2;margin-left:auto}}
 </style>
 {% endif %}
 {% if codecart_pwa_enabled %}
@@ -80,7 +90,7 @@
 <script src="{{ core_script|e('html_attr') }}" type="text/javascript"></script>
 
 {% if codecart_workbox_enabled or codecart_pwa_enabled %}
-<script src="catalog/view/javascript/codecart/workbox/register.js?v=3.0.6.0-pwa1" defer></script>
+<script src="catalog/view/javascript/codecart/workbox/register.js?v=3.0.6.1-pwa2" defer></script>
 {% elseif codecart_workbox_used or codecart_pwa_used %}
 {# Clear only workers and cache entries previously installed by CodeCart. #}
 <script>
