@@ -9,6 +9,7 @@ class ControllerErrorNotFound extends Controller {
 		$data['heading_title'] = $this->language->get('heading_title');
 		$data['text_error'] = $this->language->get('text_error');
 		$data['text_error_label'] = $this->language->get('text_error_label');
+		$data['text_visual_status'] = $this->language->get('text_visual_status');
 		$data['button_home'] = $this->language->get('button_home');
 		$data['button_search'] = $this->language->get('button_search');
 		$data['search'] = $this->url->link('product/search');
