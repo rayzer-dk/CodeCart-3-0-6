@@ -64,11 +64,11 @@ jobs:
       - name: Package full repository release
         run: |
           mkdir -p dist
-          git archive --format=zip --prefix=CodeCart_PRO_3.0.6.0/ -o dist/CodeCart_PRO_3.0.6.0_FA7.3.1_full.zip HEAD
-          unzip -tq dist/CodeCart_PRO_3.0.6.0_FA7.3.1_full.zip | tail -n 2
+          git archive --format=zip --prefix=CodeCart_PRO_3.0.6.1/ -o dist/CodeCart_PRO_3.0.6.1_FA7.3.1_full.zip HEAD
+          unzip -tq dist/CodeCart_PRO_3.0.6.1_FA7.3.1_full.zip | tail -n 2
       - name: Upload complete source archive
         uses: actions/upload-artifact@v4
         with:
-          name: CodeCart_PRO_3.0.6.0_FA7.3.1_full
-          path: dist/CodeCart_PRO_3.0.6.0_FA7.3.1_full.zip
+          name: CodeCart_PRO_3.0.6.1_FA7.3.1_full
+          path: dist/CodeCart_PRO_3.0.6.1_FA7.3.1_full.zip
           retention-days: 30
