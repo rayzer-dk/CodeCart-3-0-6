@@ -1,0 +1,110 @@
+/* CodeCart PRO main | Bootstrap 3-compatible admin UI refinement.
+   Scoped to reviewed pages, without changing OpenCart forms or vendor plugins. */
+#content[class*="ccp-main-ui-"] {
+  --ccp-main-radius: 8px;
+  --ccp-main-border: #dce3e9;
+  --ccp-main-focus: var(--ccp-admin-accent, #1769aa);
+}
+#content[class*="ccp-main-ui-"] .page-header > .container-fluid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+#content[class*="ccp-main-ui-"] .page-header h1 {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+#content[class*="ccp-main-ui-"] .page-header .pull-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  order: 1;
+  float: none;
+  gap: 6px;
+  margin-left: auto;
+}
+#content[class*="ccp-main-ui-"] .page-header .breadcrumb {
+  flex: 0 0 100%;
+  order: 2;
+  min-width: 0;
+  margin: 0;
+}
+#content[class*="ccp-main-ui-"] .panel {
+  min-width: 0;
+  border-radius: var(--ccp-main-radius);
+  border-color: var(--ccp-main-border);
+}
+#content[class*="ccp-main-ui-"] .panel-heading {
+  border-radius: var(--ccp-main-radius) var(--ccp-main-radius) 0 0;
+}
+#content[class*="ccp-main-ui-"] .panel-body,
+#content[class*="ccp-main-ui-"] .tab-content {
+  min-width: 0;
+}
+#content[class*="ccp-main-ui-"] :is(.form-control,select.form-control,textarea.form-control) {
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 6px;
+}
+#content[class*="ccp-main-ui-"] .form-control:focus {
+  border-color: var(--ccp-main-focus);
+}
+#content[class*="ccp-main-ui-"] :is(.btn,.modal-content) {
+  border-radius: 6px;
+}
+#content[class*="ccp-main-ui-"] :is(.btn,.form-control,.nav-tabs a):focus-visible {
+  outline: 2px solid var(--ccp-main-focus);
+  outline-offset: 2px;
+}
+#content:is(.ccp-main-ui-product-form,.ccp-main-ui-settings,.ccp-main-ui-category-form) .nav-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 3px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+#content:is(.ccp-main-ui-product-form,.ccp-main-ui-settings,.ccp-main-ui-category-form) .nav-tabs > li {
+  flex: 0 0 auto;
+  float: none;
+}
+#content:is(.ccp-main-ui-product-form,.ccp-main-ui-settings,.ccp-main-ui-category-form) .nav-tabs > li > a {
+  white-space: nowrap;
+  min-height: 38px;
+}
+#content:is(.ccp-main-ui-product-list,.ccp-main-ui-order-list,.ccp-main-ui-customer-list) .table-responsive {
+  max-width: 100%;
+  overflow-x: auto;
+  border-color: var(--ccp-main-border);
+  border-radius: var(--ccp-main-radius);
+}
+#content.ccp-main-ui-order-info .panel td {
+  overflow-wrap: anywhere;
+}
+html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
+  --ccp-main-border: #344253;
+}
+@media (max-width: 767px) {
+  #content[class*="ccp-main-ui-"] .page-header h1 {
+    flex-basis: 100%;
+  }
+  #content[class*="ccp-main-ui-"] .page-header .pull-right {
+    margin-left: 0;
+  }
+  #content:is(.ccp-main-ui-product-form,.ccp-main-ui-settings,.ccp-main-ui-category-form) .nav-tabs > li > a {
+    min-height: 44px;
+  }
+  #content[class*="ccp-main-ui-"] .panel-body {
+    padding: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #content[class*="ccp-main-ui-"] .btn {
+    transition: none;
+  }
+}
