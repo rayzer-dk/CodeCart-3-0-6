@@ -600,3 +600,6 @@ $_['text_codecart_workbox_library_missing'] = 'Local Workbox libraries are missi
 // Installable storefront progressive web app (separate from Workbox caching).
 $_['entry_codecart_pwa'] = 'Install store as app (PWA)';
 $_['help_codecart_pwa'] = 'Enables a web app manifest and store icons for installing on Android, iPhone, Windows and macOS. HTTPS is required. Independent of Workbox caching: prices, stock and checkout remain server-controlled and online. OFF by default.';
+
+$_['entry_codecart_pwa_prompt_days'] = 'Show install suggestion again after (days)';
+$_['help_codecart_pwa_prompt_days'] = 'How many days to wait after a dismissal before showing the install banner again. Default: 7 days. Disabled when PWA is off.';
