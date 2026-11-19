@@ -6,6 +6,74 @@ $renderer = DIR_SYSTEM . 'helper/error_page.php';
 if (!is_file($renderer)) { fwrite(STDERR, "FAIL: standalone error renderer is missing\n"); exit(1); }
 require $renderer;
 $checks = 0;
+
+// An error page MUST start in Ukrainian, even when OpenCart, the browser,
+// or an automatically initialized session still use the old Russian language.
+$originalCookies = $_COOKIE;
+$originalGet = $_GET;
+$_COOKIE = array();
+$_GET = array();
+$fakeRegistry = new class {
+    public $session;
+    public $explicitAdmin = null;
+    public function __construct() {
+        $this->session = (object)array('data' => array('language' => 'ru-ru'));
+    }
+    public function has($key) { return $key === 'session'; }
+    public function get($key) {
+        if ($key === 'session') { return $this->session; }
+        if ($key === 'codecart_admin_explicit_language') { return $this->explicitAdmin; }
+        if ($key === 'config') {
+            return new class { public function get($name) { return $name === 'config_language' ? 'ru-ru' : 0; } };
+        }
+        return null;
+    }
+};
+$_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'ru-RU,ru;q=0.9,en;q=0.7';
+if (codecart_error_language_code() !== 'uk-ua'
+    || codecart_error_requested_language('catalog', $fakeRegistry) !== 'uk-ua'
+    || codecart_error_requested_language('admin', $fakeRegistry) !== 'uk-ua'
+    || strpos(codecart_error_page(), 'lang="uk-ua"') === false
+    || strpos(codecart_error_page(), 'Сервіс тимчасово недоступний') === false) {
+    fwrite(STDERR, "FAIL: Ukrainian must be the primary language, not a last fallback\n"); exit(1);
+}
+$checks += 5;
+$fakeRegistry->session->data['codecart_error_language_explicit'] = 'ru-ru';
+if (codecart_error_requested_language('catalog', $fakeRegistry) !== 'ru-ru') {
+    fwrite(STDERR, "FAIL: explicit storefront choice was ignored\n"); exit(1);
+}
+unset($fakeRegistry->session->data['codecart_error_language_explicit']);
+$_COOKIE['codecart_error_language'] = 'en-gb';
+if (codecart_error_requested_language('catalog', $fakeRegistry) !== 'en-gb') {
+    fwrite(STDERR, "FAIL: remembered storefront language was ignored\n"); exit(1);
+}
+$fakeRegistry->explicitAdmin = 'ru-ru';
+if (codecart_error_requested_language('admin', $fakeRegistry) !== 'ru-ru') {
+    fwrite(STDERR, "FAIL: explicit administrator language was ignored\n"); exit(1);
+}
+$checks += 3;
+$_COOKIE = $originalCookies;
+$_GET = $originalGet;
+
+$frameworkSource = file_get_contents($root . '/upload/system/framework.php');
+if (!$frameworkSource
+    || strpos($frameworkSource, 'codecart_error_requested_language($area, $registry)') === false
+    || strpos($frameworkSource, "HTTP_ACCEPT_LANGUAGE") !== false) {
+    fwrite(STDERR, "FAIL: standalone 500 still inherits old store/browser language\n"); exit(1);
+}
+$checks++;
+foreach (array('upload/catalog/controller/error/not_found.php',
+               'upload/catalog/controller/common/maintenance.php',
+               'upload/admin/controller/error/not_found.php',
+               'upload/admin/controller/error/permission.php') as $route) {
+    $controllerSource = file_get_contents($root . '/' . $route);
+    if (!$controllerSource ||
+        strpos($controllerSource, 'codecart_error_requested_language(') === false ||
+        strpos($controllerSource, "new Language(\$error_language_code)") === false) {
+        fwrite(STDERR, "FAIL: " . $route . " bypasses Ukrainian-first error language\n"); exit(1);
+    }
+    $checks++;
+}
 foreach (array('en-gb' => 'temporarily unavailable', 'ru-ru' => 'временно недоступен', 'uk-ua' => 'тимчасово недоступний') as $language => $expected) {
     $html = codecart_error_page($language, 'https://shop.example.test/store/');
     if (strpos($html, $expected) === false || strpos($html, 'lang="' . $language . '"') === false || strpos($html, 'https://shop.example.test/store/') === false || strpos($html, 'noindex') === false) {
