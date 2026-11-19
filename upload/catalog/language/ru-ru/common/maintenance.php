@@ -7,3 +7,4 @@ $_['text_message'] = '<h1 style="text-align:center;">Магазин времен
 $_['text_error_label'] = 'Технические работы';
 $_['text_error_description'] = 'Мы улучшаем магазин. Пожалуйста, зайдите немного позже. Спасибо за ваше терпение.';
 $_['button_retry'] = 'Проверить снова';
+$_['text_visual_status'] = 'ТЕХНИЧЕСКИЕ РАБОТЫ';
