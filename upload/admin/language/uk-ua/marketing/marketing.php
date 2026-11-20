@@ -16,7 +16,7 @@ $_['column_code']       = 'Код';
 $_['column_clicks']     = 'Кліки';
 $_['column_orders']     = 'Замовлення';
 $_['column_date_added'] = 'Дата додавання';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_name']        = 'Назва кампанії';
