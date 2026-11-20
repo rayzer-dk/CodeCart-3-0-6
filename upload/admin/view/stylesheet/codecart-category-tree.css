@@ -98,3 +98,26 @@
 .cc-category-list-drag .cc-tree-list-row.is-over > td { background:#e6f3ff!important; box-shadow:inset 0 2px 0 #0872ce; }
 .cc-category-list-drag .cc-tree-list-row.is-dragging { opacity:.55; }
 @media(max-width:767px){.cc-category-list-drag .cc-tree-list-row .cc-tree-handle {display:inline-flex!important}}
+
+
+/* One hierarchy table for both catalog and blog; all levels keep their drag handles. */
+.cc-category-list-drag .cc-tree-list-row[hidden] { display: none !important; }
+.cc-category-list-drag .cc-tree-list-row .cc-tree-indent {
+  display:inline-block; vertical-align:middle;
+  width:calc(min(var(--cc-tree-depth,0),20) * 17px);
+}
+.cc-category-list-drag .cc-tree-collapse {
+  display:inline-flex;align-items:center;justify-content:center;
+  vertical-align:middle;width:24px;height:26px;min-width:24px;margin-right:3px;
+  padding:0;border:0;background:transparent;color:#47627f;cursor:pointer;
+}
+.cc-category-list-drag .cc-tree-collapse .fa { transition:transform .16s ease; }
+.cc-category-list-drag .cc-tree-collapse[aria-expanded="true"] .fa { transform:rotate(90deg); }
+.cc-category-list-drag .cc-tree-collapse.is-placeholder { visibility:hidden; }
+.cc-category-list-drag .cc-tree-list-row .cc-tree-handle {display:inline-flex!important;}
+.cc-tree-expand-all {margin-left:6px;min-height:28px;}
+.cc-tree-root {cursor:default;}
+@media(max-width:767px) {
+  .cc-category-list-drag .cc-tree-list-row .cc-tree-indent {width:calc(min(var(--cc-tree-depth,0),20) * 11px);}
+  .cc-category-list-drag .cc-tree-collapse {width:20px;min-width:20px;}
+}
