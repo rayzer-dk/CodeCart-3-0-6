@@ -2,7 +2,7 @@
     "algorithm": "sha256",
     "files": {
         ".htaccess": "daf0885edbfcf95f9a91d6fd1bc6cdec43cb9944bf2f90dfbc12f301925313d7",
-        "admin/controller/catalog/category.php": "99f34bc6bb3ac6e803df0764630740a5526f45fa9120685a4f399bc7f5c5e7c3",
+        "admin/controller/catalog/category.php": "f31be4be5f519ede3a317f3dd89ac5d9d9cfbbf85762ea53d0a1c200f50a4b02",
         "admin/controller/catalog/product.php": "ed43e6a5e3f8d261cab4261f3978067e003368048883172d24b1c34fb89d3fe1",
         "admin/controller/common/dashboard.php": "6f5a50e511b4d3aad511a08a91dae5e6a6ca074eae4b4dcb3f4883c7a3ed0088",
         "admin/controller/common/developer.php": "d90f2b706a491fa6ba4b7c9575a90abeffd2f0ece894b5603673ea1d65594003",
@@ -538,7 +538,7 @@
         "codecart-sw.js": "bb93a2470e3ae31af38b9543a77c493d0803df5ef623b7fd386402e7b59d1364",
         "catalog/view/javascript/codecart/workbox/register.js": "14cf74a51b68d0b4d4ecc566ef576c0dbef2452a0321a10d66a3dc3567f450c6",
         "admin/language/uk-ua/setting/setting.php": "bd16d14bffbe16e78d29f0962fa9c1190159c26a1be4d138730a7e9f5f5773f1",
-        "admin/language/uk-ua/setting/store.php": "5737ea2d61a1317e57e4bfc20ce1f088b09fa3857b6662860bef018e8d2dd80e",
+        "admin/language/uk-ua/setting/store.php": "96e80b6e0583a316d133ab5da0be69eac87025e9169f0ff7a13ffe607637c3fb",
         "admin/language/ru-ru/setting/setting.php": "44c8c7d807bb931523170f7542e257b16c75891827f16e54ac750978b002083f",
         "admin/language/ru-ru/setting/store.php": "3b4430c5c9bccfe968a4eafe267f4b1c37697ce3c1794e366e358b519c884db7",
         "admin/language/en-gb/setting/setting.php": "3270b378d13d96dd8ecb4f2ab17fd1871943f37dc5cf8c3589f821b34200ff1d",
