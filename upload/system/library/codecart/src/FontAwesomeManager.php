@@ -24,7 +24,7 @@ final class FontAwesomeManager {
         $extraIcons = array_values(array_unique(array_merge(array('file-pdf-o'), $extraIcons)));
         $themeDirectory = strtolower(trim((string)$themeDirectory));
         $this->themeDirectory = preg_match('/^[a-z0-9_-]+$/', $themeDirectory) ? $themeDirectory : '';
-        if ($extraIcons) {
+        {
             $file = DIR_SYSTEM . 'config/codecart_fontawesome_extras.json';
             $manifest = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
             if (is_array($manifest) && isset($manifest['icons'], $manifest['shards'])) {
