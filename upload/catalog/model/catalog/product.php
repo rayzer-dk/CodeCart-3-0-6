@@ -690,7 +690,6 @@ class ModelCatalogProduct extends Model {
                     // Category "disabled" suppresses only inherited category content.
                     // An explicit product-level custom selection has higher priority and
                     // is still rendered. This keeps inheritance additive and predictable.
-                    $category_blocks = array();
                     break;
                 }
                 $category_blocks = isset($category_row['data']) ? \CodeCart\Core\PurchaseBlocks::decode($category_row['data']) : array();
