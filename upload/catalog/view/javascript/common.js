@@ -827,7 +827,7 @@ var cart = {
 
 				if (json['success']) {
 					if (window.CodeCartCartUI) { window.CodeCartCartUI.markProduct(product_id); }
-					window.CodeCartUI.toast('success', json['success']);
+					window.CodeCartUI.toast('success', json['success'], {cart:true, duration:2000});
 				if (window.CodeCartCartUI) { window.CodeCartCartUI.updateTotal(json['total']); window.CodeCartCartUI.refreshHeaderCart(); }
 
 
