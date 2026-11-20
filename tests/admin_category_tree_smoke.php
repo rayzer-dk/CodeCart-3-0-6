@@ -65,6 +65,9 @@ foreach (array('catalog','blog') as $type) {
     $template = file_get_contents($root . 'admin/view/template/' . $type . '/category_list.twig');
     treeCheck(strpos($controller, 'function treeEdit()') !== false, $type . ' lacks secure mutation endpoint');
     treeCheck(strpos($controller, "hasPermission('modify', '" . $type . "/category')") !== false, $type . ' route does not verify write permission');
+    treeCheck(strpos($controller, "\$data['category_tree_edit_url']") !== false, $type . ' controller does not provide drag-and-drop POST endpoint');
+    treeCheck(strpos($controller, "\$data['category_tree_autocomplete']") !== false, $type . ' controller does not provide move-target autocomplete');
+    treeCheck(strpos($template, 'data-cc-tree-url="{{ category_tree_edit_url }}"') !== false, $type . ' template is not connected to tree editor');
     treeCheck(strpos($template, 'cc-tree-root') !== false && strpos($template, 'cc-tree-row') !== false, $type . ' lacks tree UI');
     treeCheck(strpos($template, 'cc-category-sort') !== false, $type . ' lacks inline sorting');
 }
