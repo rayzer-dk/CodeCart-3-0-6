@@ -129,6 +129,7 @@ final class DashboardHealth {
 
         $disk = $this->diskState();
         $opcache = extension_loaded('Zend OPcache') && filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOLEAN);
+        $expectedSchema = (new SchemaRegistry($this->registry))->expectedVersion();
 
         return array(
             'php' => array('value'=>PHP_VERSION, 'state'=>version_compare(PHP_VERSION,'8.1.0','>=') && version_compare(PHP_VERSION,'8.6.0','<') ? 'ok':'error'),
@@ -136,7 +137,7 @@ final class DashboardHealth {
             'innodb' => array('value'=>$db['innodb_tables'] . '/' . $db['total_tables'], 'state'=>$db['innodb_tables']===$db['total_tables']?'ok':'warning'),
             'utf8mb4' => array('value'=>$db['utf8mb4_tables'] . '/' . $db['total_tables'], 'state'=>$db['utf8mb4_tables']===$db['total_tables']?'ok':'warning'),
             'utf8mb4_columns' => array('value'=>$db['utf8mb4_columns'] . '/' . $db['text_columns'], 'state'=>$db['utf8mb4_columns']===$db['text_columns']?'ok':'warning'),
-            'schema' => array('value'=>trim((string)$this->config->get('codecart_core_schema_version')) ?: '-', 'state'=>($expectedSchema = (new SchemaRegistry($this->registry))->expectedVersion()) !== '' && trim((string)$this->config->get('codecart_core_schema_version')) === $expectedSchema ? 'ok' : 'warning'),
+            'schema' => array('value'=>trim((string)$this->config->get('codecart_core_schema_version')) ?: '-', 'state'=>$expectedSchema !== '' && trim((string)$this->config->get('codecart_core_schema_version')) === $expectedSchema ? 'ok' : 'warning'),
             'cache' => array('value'=>($cacheRequested && $cacheRequested!==$cacheActive ? $cacheRequested . ' → ' : '') . $cacheActive, 'state'=>$cacheFallback!==''?'warning':'ok', 'detail'=>$cacheFallback),
             'opcache' => array('value'=>$opcache?'enabled':'disabled', 'state'=>$opcache?'ok':'warning'),
             'cron' => array('value'=>$cron['last'] ?: 'never', 'state'=>$cron['state']),
