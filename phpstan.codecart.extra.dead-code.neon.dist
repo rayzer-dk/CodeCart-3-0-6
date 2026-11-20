@@ -31,10 +31,10 @@ parameters:
     # Keep these two exact path/message exceptions; never suppress all unused parameters.
     ignoreErrors:
         -
-            message: '#^Constructor of class CodeCart\\Core\\FileIntegrity has an unused parameter \\$registry\\.$#'
+            message: '#^Constructor of class CodeCart\\Core\\FileIntegrity has an unused parameter \\$registry\.$#'
             path: upload/system/library/codecart/src/FileIntegrity.php
             count: 1
         -
-            message: '#^Constructor of class CodeCart\\Core\\ModernExtensionRegistry has an unused parameter \\$registry\\.$#'
+            message: '#^Constructor of class CodeCart\\Core\\ModernExtensionRegistry has an unused parameter \\$registry\.$#'
             path: upload/system/library/codecart/src/ModernExtensionRegistry.php
             count: 1
