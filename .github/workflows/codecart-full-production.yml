@@ -54,12 +54,24 @@ jobs:
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Regenerate minified CSS and JavaScript before release checks
+        run: bash tools/build_theme_css.sh
+
       - name: Refresh and commit integrity hashes for the actual source
         shell: bash
         run: |
           set -euo pipefail
           php tools/refresh_integrity.php
           git add upload/system/config/codecart_integrity.json
+          git add upload/admin/view/stylesheet/stylesheet.min.css
+          git add upload/catalog/view/theme/codecart/stylesheet/stylesheet.min.css
+          git add upload/catalog/view/theme/default/stylesheet/stylesheet.min.css
+          git add upload/admin/view/javascript/common.min.js
+          git add upload/catalog/view/javascript/common.min.js
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
