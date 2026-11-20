@@ -34,28 +34,10 @@
     {% endif %}
     <div class="panel panel-default">
       <div class="panel-heading">
-        <a class="btn btn-default btn-xs pull-right cc-tree-switch" href="{{ category_tree_toggle }}" title="{{ tree_toggle }}"><i class="fa fa-sitemap" aria-hidden="true"></i> {{ category_tree_mode ? tree_list : tree_tree }}</a>
+        <button type="button" class="btn btn-default btn-xs pull-right cc-tree-expand-all" aria-expanded="false" title="{{ tree_expand }}"><i class="fa fa-angles-down" aria-hidden="true"></i> {{ tree_expand }}</button>
         <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
       </div>
       <div class="panel-body">
-        {% if category_tree_mode %}
-        <div class="cc-tree-editor">
-          <p class="cc-tree-hint">{{ tree_move_help }}</p>
-          <div class="cc-tree-root" data-cc-tree-target="0" tabindex="0"><i class="fa fa-home" aria-hidden="true"></i> {{ tree_root }}</div>
-          <div class="cc-tree-rows" role="tree">
-          {% for node in category_tree_rows %}
-            <div class="cc-tree-row" role="treeitem" data-cc-tree-id="{{ node.id }}" data-cc-tree-parent="{{ node.parent_id }}" data-cc-tree-path="{{ node.ancestor_path }}" data-cc-tree-depth="{{ node.depth }}" aria-level="{{ node.depth + 1 }}" style="--cc-tree-depth:{{ node.depth }}" draggable="true">
-              <span class="cc-tree-handle" title="{{ tree_drag_help }}"><i class="fa fa-bars" aria-hidden="true"></i></span>
-              <button type="button" class="cc-tree-collapse{% if not node.has_children %} is-placeholder{% endif %}" {% if not node.has_children %}disabled="disabled"{% endif %} title="{{ tree_expand }}" aria-label="{{ tree_expand }}" aria-expanded="true"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
-              <a href="{{ node.edit }}" class="cc-tree-name">{{ node.name }}</a>
-              <span class="cc-category-sort-wrap"><input type="text" inputmode="numeric" pattern="-?[0-9]*" class="cc-category-sort" data-cc-sort-id="{{ node.id }}" data-cc-sort-expected="{{ node.sort_order }}" value="{{ node.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ node.name }}" title="{{ tree_sort }}"  readonly="readonly" /><button type="button" class="cc-category-sort-pencil" aria-label="{{ tree_sort }}" title="{{ tree_sort }}"><i class="fa fa-pencil" aria-hidden="true"></i></button></span>
-              
-            </div>
-          {% endfor %}
-          </div>
-          {% if category_tree_truncated %}<p class="alert alert-warning">{{ tree_limited }}</p>{% endif %}
-        </div>
-        {% else %}
         <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-category">
           <div class="table-responsive">
             <table class="table table-bordered table-hover cc-quality-table cc-category-list-drag" data-quality-url="{{ quality_endpoint }}" data-quality-count="{{ quality_count_label }}">
@@ -75,16 +57,16 @@
               <tbody>
                 {% if categories %}
                 {% for category in categories %}
-                <tr class="cc-tree-row cc-tree-list-row" role="row" data-cc-tree-id="{{ category.category_id }}" draggable="true">
+                <tr class="cc-tree-row cc-tree-list-row" data-cc-tree-id="{{ category.category_id }}" data-cc-tree-parent="{{ category.parent_id }}" data-cc-tree-path="{{ category.ancestor_path }}" data-cc-tree-depth="{{ category.depth }}" draggable="true">
                   <td class="text-center">{% if category.category_id in selected %}
                     <input type="checkbox" name="selected[]" value="{{ category.category_id }}" checked="checked" />
                     {% else %}
                     <input type="checkbox" name="selected[]" value="{{ category.category_id }}" />
                     {% endif %}</td>
 				  {% if category.href %}
-                  <td class="left"><span class="cc-tree-handle" role="button" tabindex="0" title="{{ tree_drag_help }}" aria-label="{{ tree_drag_help }}"><i class="fa fa-grip-vertical fa-bars" aria-hidden="true"></i></span>{{ category.indent }}<a href="{{ category.href }}">{{ category.name }}</a> <span class="cc-quality" data-quality-id="{{ category.category_id }}"><a href="{{ category.products_href }}" class="cc-quality-count cc-quality-count-link" title="{{ quality_count_label }}" aria-label="{{ quality_count_label }}: {{ category.name|striptags }}" hidden><span class="cc-quality-count-number"></span><i class="fa fa-arrow-right" aria-hidden="true"></i></a><span class="cc-quality-score">···</span></span>&nbsp;<i class="fa fa-sort-desc"></i></td>
+                  <td class="left"><span class="cc-tree-handle" role="button" tabindex="0" title="{{ tree_drag_help }}" aria-label="{{ tree_drag_help }}"><i class="fa fa-grip-vertical fa-bars" aria-hidden="true"></i></span><span class="cc-tree-indent" style="--cc-tree-depth:{{ category.depth }}"></span>{% if category.has_children %}<button type="button" class="cc-tree-collapse" aria-expanded="false" title="{{ tree_expand }}" aria-label="{{ tree_expand }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button>{% else %}<span class="cc-tree-collapse is-placeholder"></span>{% endif %}<a href="{{ category.edit }}">{{ category.name }}</a> <span class="cc-quality" data-quality-id="{{ category.category_id }}"><a href="{{ category.products_href }}" class="cc-quality-count cc-quality-count-link" title="{{ quality_count_label }}" aria-label="{{ quality_count_label }}: {{ category.name|striptags }}" hidden><span class="cc-quality-count-number"></span><i class="fa fa-arrow-right" aria-hidden="true"></i></a><span class="cc-quality-score">···</span></span> </td>
 					{% else %}
-                  <td class="left">{{ category.indent }}{{ category.name }} <span class="cc-quality" data-quality-id="{{ category.category_id }}"><a href="{{ category.products_href }}" class="cc-quality-count cc-quality-count-link" title="{{ quality_count_label }}" aria-label="{{ quality_count_label }}: {{ category.name|striptags }}" hidden><span class="cc-quality-count-number"></span><i class="fa fa-arrow-right" aria-hidden="true"></i></a><span class="cc-quality-score">···</span></span></td>
+                  <td class="left"><span class="cc-tree-handle" role="button" tabindex="0" title="{{ tree_drag_help }}" aria-label="{{ tree_drag_help }}"><i class="fa fa-grip-vertical fa-bars" aria-hidden="true"></i></span><span class="cc-tree-indent" style="--cc-tree-depth:{{ category.depth }}"></span>{% if category.has_children %}<button type="button" class="cc-tree-collapse" aria-expanded="false" title="{{ tree_expand }}" aria-label="{{ tree_expand }}"><i class="fa fa-angle-right" aria-hidden="true"></i></button>{% else %}<span class="cc-tree-collapse is-placeholder"></span>{% endif %}<a href="{{ category.edit }}">{{ category.name }}</a> <span class="cc-quality" data-quality-id="{{ category.category_id }}"><a href="{{ category.products_href }}" class="cc-quality-count cc-quality-count-link" title="{{ quality_count_label }}" aria-label="{{ quality_count_label }}: {{ category.name|striptags }}" hidden><span class="cc-quality-count-number"></span><i class="fa fa-arrow-right" aria-hidden="true"></i></a><span class="cc-quality-score">···</span></span></td>
                   {% endif %}
                   <td class="text-right"><span class="cc-category-sort-wrap"><input type="text" inputmode="numeric" pattern="-?[0-9]*" class="cc-category-sort" data-cc-sort-id="{{ category.category_id }}" data-cc-sort-expected="{{ category.sort_order }}" value="{{ category.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ category.name|striptags }}" title="{{ tree_sort }}"  readonly="readonly" /><button type="button" class="cc-category-sort-pencil" aria-label="{{ tree_sort }}" title="{{ tree_sort }}"><i class="fa fa-pencil" aria-hidden="true"></i></button></span></td>
 				  <td class="text-right">{{ category.noindex }}</td>
@@ -107,7 +89,6 @@
           <div class="col-sm-6 text-left">{{ pagination }}</div>
           <div class="col-sm-6 text-right">{{ results }}</div>
         </div>
-        {% endif %}
       </div>
     </div>
   </div>
