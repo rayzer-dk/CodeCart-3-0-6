@@ -64,3 +64,5 @@ $_['text_schema_blogposting'] = 'Публикация блога (BlogPosting)';
 $_['text_schema_article'] = 'Статья (Article)';
 $_['text_schema_newsarticle'] = 'Новость (NewsArticle)';
 $_['text_schema_none'] = 'Без разметки этой страницы';
+
+$_['entry_filter_category'] = 'Категория';
