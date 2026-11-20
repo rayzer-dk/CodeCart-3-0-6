@@ -64,6 +64,7 @@ final class CompatibilityFramework {
             if (!method_exists($adapter, 'satisfiesOcmod')) {
                 continue;
             }
+            /** @var CompatibilityAdapterInterface $adapter */
             try {
                 if ($adapter->satisfiesOcmod($code, $file, $search)) {
                     return true;
