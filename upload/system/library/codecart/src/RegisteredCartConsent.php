@@ -3,12 +3,10 @@ namespace CodeCart\Core;
 
 /** Explicit consent for one registered customer's current cart in a specific store. */
 final class RegisteredCartConsent {
-    private $registry;
     private $db;
     private $config;
 
     public function __construct($registry) {
-        $this->registry = $registry;
         $this->db = $registry->get('db');
         $this->config = $registry->get('config');
     }

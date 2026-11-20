@@ -17,7 +17,6 @@ final class CatalogTransfer {
     const MAX_PACKAGE_DOWNLOAD_BYTES = 268435456; // 256 MB for digital files
     const MAX_SINGLE_DOWNLOAD_BYTES = 67108864; // 64 MB per digital file
 
-    private $registry;
     private $db;
     private $config;
     private $log;
@@ -274,7 +273,6 @@ final class CatalogTransfer {
     }
 
     public function __construct($registry) {
-        $this->registry = $registry;
         $this->db = $registry->get('db');
         $this->config = $registry->get('config');
         $this->log = $registry->get('log');

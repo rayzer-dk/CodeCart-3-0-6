@@ -3,11 +3,9 @@ namespace CodeCart\Core;
 
 /** Optional, consent-only guest contact and one-time cart recovery. */
 final class GuestCartContact {
-    private $registry;
     private $db;
     private $config;
     public function __construct($registry) {
-        $this->registry = $registry;
         $this->db = $registry->get('db');
         $this->config = $registry->get('config');
     }

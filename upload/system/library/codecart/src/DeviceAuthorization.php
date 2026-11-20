@@ -2,7 +2,6 @@
 namespace CodeCart\Core;
 
 final class DeviceAuthorization {
-    private $registry;
     private $db;
     private $config;
     private $session;
@@ -10,7 +9,6 @@ final class DeviceAuthorization {
     private $storageReady = array();
 
     public function __construct($registry) {
-        $this->registry=$registry;
         $this->db=$registry->get('db');
         $this->config=$registry->get('config');
         $this->session=$registry->get('session');

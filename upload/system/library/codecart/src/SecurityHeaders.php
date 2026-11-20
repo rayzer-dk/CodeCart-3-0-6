@@ -2,12 +2,10 @@
 namespace CodeCart\Core;
 
 final class SecurityHeaders {
-    private $registry;
     private $config;
     private $response;
 
     public function __construct($registry) {
-        $this->registry = $registry;
         $this->config = $registry->get('config');
         $this->response = $registry->get('response');
     }

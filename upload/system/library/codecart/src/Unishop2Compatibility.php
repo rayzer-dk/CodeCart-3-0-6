@@ -10,7 +10,6 @@ namespace CodeCart\Core;
  * longer exist in CodeCart.
  */
 final class Unishop2Compatibility implements CompatibilityAdapterInterface {
-    private $registry;
     private $config;
 
 
@@ -70,7 +69,6 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
     }
 
     public function __construct($registry) {
-        $this->registry = $registry;
         $this->config = $registry->get('config');
     }
 

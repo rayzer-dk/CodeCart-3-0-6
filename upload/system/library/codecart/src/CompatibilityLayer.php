@@ -2,7 +2,6 @@
 namespace CodeCart\Core;
 
 final class CompatibilityLayer {
-    private $registry;
     private $db;
     private $config;
     private $tablesLoaded = false;
@@ -10,7 +9,6 @@ final class CompatibilityLayer {
     private $columnCache = array();
 
     public function __construct($registry) {
-        $this->registry = $registry;
         $this->db = $registry->get('db');
         $this->config = $registry->get('config');
     }

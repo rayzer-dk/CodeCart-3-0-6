@@ -2,13 +2,11 @@
 namespace CodeCart\Core;
 
 final class RelationLayer {
-    private $registry;
     private $db;
     private $config;
     private $tableExistsCache = array();
 
     public function __construct($registry) {
-        $this->registry = $registry;
         $this->db = $registry->get('db');
         $this->config = $registry->get('config');
     }

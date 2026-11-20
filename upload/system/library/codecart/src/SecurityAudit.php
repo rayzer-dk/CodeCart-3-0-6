@@ -2,13 +2,11 @@
 namespace CodeCart\Core;
 
 final class SecurityAudit {
-    private $registry;
     private $db;
     private $request;
     private $log;
 
     public function __construct($registry) {
-        $this->registry = $registry;
         $this->db = $registry->get('db');
         $this->request = $registry->get('request');
         $this->log = $registry->get('log');
