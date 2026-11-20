@@ -8,12 +8,6 @@ class ModelBlogArticle extends Model {
 	}
 	
 	public function getArticle($article_id) {
-		if ($this->customer->isLogged()) {
-			$customer_group_id = $this->customer->getGroupId();
-		} else {
-			$customer_group_id = $this->config->get('config_customer_group_id');
-		}	
-				
 		$articles = $this->getArticlesByIds(array((int)$article_id));
 
 		return isset($articles[(int)$article_id]) ? $articles[(int)$article_id] : false;

@@ -47,11 +47,6 @@ class ControllerBlogMenu extends Controller {
 				$children = $this->model_blog_category->getCategories($category['blog_category_id']);
 
 				foreach ($children as $child) {
-					$filter_data = array(
-						'filter_blog_category_id'  => $child['blog_category_id'],
-						'filter_sub_category' => true
-					);
-
 					$children_data[] = array(
 						'name'  => $child['name'] . ($this->config->get('configblog_article_count') ? ' (' . (isset($child_counts[(int)$child['blog_category_id']]) ? (int)$child_counts[(int)$child['blog_category_id']] : 0) . ')' : ''),
 						'href'  => $this->url->link('blog/category', 'blog_category_id=' . $category['blog_category_id'] . '_' . $child['blog_category_id'])
@@ -59,10 +54,6 @@ class ControllerBlogMenu extends Controller {
 				}
 
 				// Level 1
-				$filter_data = array(
-						'filter_blog_category_id'  => $category['blog_category_id']
-					);
-				
 				$data['categories'][] = array(
 					'name'     => $category['name'] . ($this->config->get('configblog_article_count') ? ' (' . (isset($top_counts[(int)$category['blog_category_id']]) ? (int)$top_counts[(int)$category['blog_category_id']] : 0) . ')' : ''),
 					'children' => $children_data,

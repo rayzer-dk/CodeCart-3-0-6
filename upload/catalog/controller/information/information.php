@@ -111,10 +111,6 @@ class ControllerInformationInformation extends Controller {
 
 			$this->document->setTitle($this->language->get('text_error'));
 
-			$data['heading_title'] = $this->language->get('text_error');
-
-			$data['text_error'] = $this->language->get('text_error');
-
 			$data['continue'] = $this->url->link('common/home');
 
 			$this->load->language('error/not_found');
