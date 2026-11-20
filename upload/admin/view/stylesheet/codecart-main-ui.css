@@ -210,3 +210,30 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
     min-width:44px!important;width:44px;padding:0 9px!important;
   }
 }
+
+
+/* Consistent compact actions in the header, including third-party quick navigation. */
+#header .navbar-right > li.ccp-modification-refresh-menu > a,
+#header .navbar-right > li.ccp-admin-theme-menu > a,
+#header .navbar-right > li.ccp-admin-language-menu > a,
+#header .navbar-right > li.ccp-palette-menu > a,
+#header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle {
+    box-sizing:border-box!important;width:42px!important;min-width:42px!important;
+    height:56px!important;min-height:56px!important;
+    padding:0 9px!important;display:inline-flex!important;
+    align-items:center!important;justify-content:center!important;
+}
+#header .navbar-right > li.ccp-modification-refresh-menu > a > i,
+#header .navbar-right > li.ccp-admin-theme-menu > a > i,
+#header .navbar-right > li.ccp-palette-menu > a > i,
+#header .navbar-right > li.ccp-notification-menu > a.ccp-notification-toggle > i {
+    font-size:17px!important;width:19px!important;height:19px!important;
+    line-height:19px!important;text-align:center;
+}
+#header .navbar-right > li.ccp-admin-language-menu img.ccp-admin-language-flag {
+    width:21px!important;min-width:21px!important;height:15px!important;object-fit:cover;
+}
+#header .navbar-right > li.ccp-admin-profile #user-profile {
+    width:34px!important;height:34px!important;object-fit:cover;
+}
+#header .navbar-right > li.ccp-palette-menu {flex-shrink:0;}
