@@ -134,6 +134,38 @@ class ControllerSaleOrder extends Controller {
 		return $this->model_tool_image->resize($source, 40, 40);
 	}
 
+	/**
+	 * Include enabled storefront methods in addition to method names saved in orders.
+	 * Historical labels are retained even when an extension is no longer installed.
+	 */
+	private function getOrderMethodFilterChoices(string $type): array {
+		if (!in_array($type, array('shipping', 'payment'), true)) {
+			return array();
+		}
+		$choices = $this->model_sale_order->getOrderMethodChoices($type . '_method');
+		$this->load->model('setting/extension');
+		foreach ($this->model_setting_extension->getInstalled($type) as $code) {
+			if (!is_string($code) || !preg_match('/^[a-z0-9_]+$/D', $code)) {
+				continue;
+			}
+			$enabled = $this->config->get($type . '_' . $code . '_status');
+			if (!$enabled && !$this->config->get($code . '_status')) {
+				continue;
+			}
+			$translation = $this->load->language('extension/' . $type . '/' . $code);
+			$title = isset($translation['text_title']) ? (string)$translation['text_title'] : '';
+			if ($title === '' || $title === 'text_title') {
+				$title = isset($translation['heading_title']) ? (string)$translation['heading_title'] : '';
+			}
+			if ($title !== '' && $title !== 'heading_title') {
+				$choices[] = strip_tags(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
+			}
+		}
+		$choices = array_values(array_unique(array_filter(array_map('trim', $choices), 'strlen')));
+		natcasesort($choices);
+		return array_values($choices);
+	}
+
 	private function extendedOrderFilterUrl(): string {
 		$url = '';
 		foreach (array('filter_email', 'filter_phone', 'filter_product', 'filter_shipping_method',
@@ -546,8 +578,10 @@ class ControllerSaleOrder extends Controller {
 			'filter_payment_method', 'filter_total_min', 'filter_total_max') as $key) {
 			$data[$key] = $filter_data[$key];
 		}
-		$data['shipping_methods'] = $this->model_sale_order->getOrderMethodChoices('shipping_method');
-		$data['payment_methods'] = $this->model_sale_order->getOrderMethodChoices('payment_method');
+		// Combine historical order labels with currently enabled checkout extensions.
+		// An extension with no prior orders must still be selectable in the filter.
+		$data['shipping_methods'] = $this->getOrderMethodFilterChoices('shipping');
+		$data['payment_methods'] = $this->getOrderMethodFilterChoices('payment');
 		$data['order_preview_url'] = html_entity_decode($this->url->link(
 			'sale/order/preview', 'user_token=' . $this->session->data['user_token'], true
 		), ENT_QUOTES, 'UTF-8');
