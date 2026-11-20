@@ -286,8 +286,7 @@ class ModelBlogArticle extends Model {
 		$cache = 'article.latest.' . (int)$this->config->get('config_language_id') . '.' . (int)$this->config->get('config_store_id') . '.' . $customer_group_id . '.' . (int)$limit;
 		$article_data = $this->cache->get($cache);
 
-		if ($article_data === false || $article_data === null) { 
-			$article_data = array();
+		if ($article_data === false || $article_data === null) {
 			$query = $this->db->query("SELECT p.article_id FROM " . DB_PREFIX . "article p LEFT JOIN " . DB_PREFIX . "article_to_store p2s ON (p.article_id = p2s.article_id) WHERE p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "' ORDER BY p.date_added DESC LIMIT " . (int)$limit);
 
 			$article_ids = array();
@@ -303,7 +302,6 @@ class ModelBlogArticle extends Model {
 	}
 	
 	public function getPopularArticles($limit) {
-		$article_data = array();
 		
 		$query = $this->db->query("SELECT p.article_id FROM " . DB_PREFIX . "article p LEFT JOIN " . DB_PREFIX . "article_to_store p2s ON (p.article_id = p2s.article_id) WHERE p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "' ORDER BY p.viewed DESC, p.date_added DESC LIMIT " . (int)$limit);
 		
@@ -322,7 +320,6 @@ class ModelBlogArticle extends Model {
 	}
 	
 	public function getArticleRelated($article_id) {
-		$article_data = array();
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "article_related pr LEFT JOIN " . DB_PREFIX . "article p ON (pr.related_id = p.article_id) LEFT JOIN " . DB_PREFIX . "article_to_store p2s ON (p.article_id = p2s.article_id) WHERE pr.article_id = '" . (int)$article_id . "' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "'");
 		
@@ -335,7 +332,6 @@ class ModelBlogArticle extends Model {
 	
 	public function getArticleRelatedByProduct($data) {
 		
-		$article_data = array();
 		
 		$this->load->model('blog/article');
 		
@@ -355,7 +351,6 @@ class ModelBlogArticle extends Model {
 	//category manuf
 	public function getArticleRelatedByCategory($data) {
 
-		$article_data = array();
 				
 		$category_id = max(0, (int)($data['category_id'] ?? 0));
 		$limit = max(1, min(100, (int)($data['limit'] ?? 20)));
@@ -372,7 +367,6 @@ class ModelBlogArticle extends Model {
 	
 	public function getArticleRelatedByManufacturer($data) {
 
-		$article_data = array();
 
 		$manufacturer_id = max(0, (int)($data['manufacturer_id'] ?? 0));
 		$limit = max(1, min(100, (int)($data['limit'] ?? 20)));
@@ -389,7 +383,6 @@ class ModelBlogArticle extends Model {
 	//category manuf
 	
 	public function getArticleRelatedProduct($article_id) {
-		$product_data = array();
 		$this->load->model('catalog/product');
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "article_related_product np LEFT JOIN " . DB_PREFIX . "product p ON (np.product_id = p.product_id) LEFT JOIN " . DB_PREFIX . "product_to_store p2s ON (p.product_id = p2s.product_id) WHERE np.article_id = '" . (int)$article_id . "' AND p.status = '1' AND p.date_available <= NOW() AND p2s.store_id = '" . (int)$this->config->get('config_store_id') . "'");
 		
