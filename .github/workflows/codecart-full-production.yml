@@ -5,6 +5,16 @@ on:
     paths:
       - 'upload/index.php'
       - 'upload/admin/index.php'
+      - 'upload/admin/controller/catalog/category.php'
+      - 'upload/admin/controller/blog/category.php'
+      - 'upload/admin/view/javascript/codecart/category-tree.js'
+      - 'upload/admin/view/template/catalog/category_list.twig'
+      - 'upload/admin/view/template/blog/category_list.twig'
+      - 'upload/admin/view/template/blog/article_list.twig'
+      - 'upload/admin/view/template/common/header.twig'
+      - 'upload/admin/view/stylesheet/codecart-main-ui.css'
+      - 'upload/admin/view/stylesheet/stylesheet.css'
+      - 'tests/admin_category_tree_smoke.php'
       - 'upload/system/library/codecart/src/CronExpression.php'
       - 'upload/system/library/codecart/src/SchedulerSchedule.php'
       - 'upload/system/library/codecart/src/Scheduler.php'
@@ -88,6 +98,9 @@ jobs:
           php tests/scheduler_runtime_smoke.php
           php tests/order_admin_smoke.php
           php tests/product_condition_smoke.php
+          php tests/admin_category_tree_smoke.php
+          node --check upload/admin/view/javascript/codecart/category-tree.js
+          node --check upload/admin/view/javascript/codecart-admin-ui.js
 
       - name: Full release gate
         run: php tools/release_check.php
