@@ -6,7 +6,7 @@ class ControllerInstallStep4 extends Controller {
         foreach (array('heading_title','text_step_4','text_ready','text_ready_description','text_catalog','text_admin','text_version','text_database','text_storage','text_admin_login','text_admin_login_help','error_warning') as $key) {
             $data[$key] = $this->language->get($key);
         }
-        $data['version'] = defined('VERSION') ? VERSION : '3.0.6.0';
+        $data['version'] = defined('VERSION') ? VERSION : '3.0.6.1';
         $data['php_version'] = PHP_VERSION;
         $data['database_summary'] = $this->databaseSummary();
         $data['storage_summary'] = $this->storageSummary();
