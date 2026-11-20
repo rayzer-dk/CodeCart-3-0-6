@@ -88,6 +88,7 @@ final class FreeCheckoutGuard {
 
         // Reuse OpenCart's enabled Total extensions and sort order. This preserves
         // discount, reward, voucher, tax and shipping calculations from extensions.
+        /** @var array<int, array<string, mixed>> $totals Populated by total extensions through $totalData references. */
         $totals = array();
         $taxes = $cart->getTaxes();
         $total = 0;
