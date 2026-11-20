@@ -191,6 +191,10 @@ class ControllerCatalogCategory extends Controller {
 		}
 
 		$data['categories'] = $this->getCategories(0);
+		$data['category_tree_edit_url'] = str_replace('&amp;', '&', $this->url->link('catalog/category/treeEdit', 'user_token=' . $this->session->data['user_token'], true));
+		$data['category_tree_autocomplete'] = str_replace('&amp;', '&', $this->url->link('catalog/category/autocomplete', 'user_token=' . $this->session->data['user_token'], true));
+		$data['category_tree_kind'] = 'catalog';
+
 		// The standard category table now renders the entire bounded hierarchy.
 		// There is no separate tree mode: drag targets remain available at every depth.
 		$this->load->language('catalog/category_tree');
