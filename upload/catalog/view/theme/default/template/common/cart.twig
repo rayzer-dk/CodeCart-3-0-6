@@ -72,7 +72,7 @@
           </tr>
           {% endfor %}
         </table>
-        <div class="ccp-cart-links{% if quick_checkout_enabled %} ccp-cart-links-single{% endif %}">{% if not quick_checkout_enabled %}<a href="{{ cart }}"><i class="fa fa-shopping-cart"></i> <strong>{{ text_cart }}</strong></a>{% endif %}<a href="{{ checkout }}"><i class="fa fa-check"></i> <strong>{{ text_checkout }}</strong></a></div>
+        <div class="ccp-cart-links{% if quick_checkout_enabled %} ccp-cart-links-single{% endif %}">{% if not quick_checkout_enabled %}<a href="{{ cart }}" class="btn btn-default ccp-mini-cart-view"><i class="fa fa-shopping-cart" aria-hidden="true"></i> <strong>{{ text_cart }}</strong></a>{% endif %}<a href="{{ checkout }}" class="btn btn-primary ccp-mini-cart-checkout"><i class="fa fa-check" aria-hidden="true"></i> <strong>{{ text_checkout }}</strong></a></div>
       </div>
     </li>
     {% else %}
