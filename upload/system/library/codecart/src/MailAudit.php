@@ -135,7 +135,7 @@ final class MailAudit {
         $ip = (string)codecart_client_ip((array)$_SERVER);
         $ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
         $sql[] = "remote_ip = '" . $db->escape($ip) . "'";
-        $storeId = isset($values['store_id']) && $values['store_id'] !== null ? (int)$values['store_id'] : (int)$config->get('config_store_id');
+        $storeId = isset($values['store_id']) ? (int)$values['store_id'] : (int)$config->get('config_store_id');
         $sql[] = "store_id = '" . max(0, $storeId) . "'";
         // Blocked attempts are aggregated per source/IP/reason every five minutes.
         $blocked = isset($values['status']) && $values['status'] === 'blocked';
