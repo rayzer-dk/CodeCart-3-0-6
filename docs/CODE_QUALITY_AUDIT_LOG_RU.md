@@ -40,3 +40,15 @@
 - EmailLogo.php: после успешного getimagesize() и проверки размеров MIME используется напрямую в обеих точках. Ветви неверного файла и fallback сохранены.
 
 Это упрощения проверенного поведения, а не подавление анализаторов. Динамические связи OCMOD, Events и checkout не изменялись.
+
+## 2026-11-20 — PWA app icon and release manifest regression
+
+Scope: only CodeCart-3-0-6/main. Dedicated `config_codecart_pwa_icon` setting added to admin with native image picker and uk-ua/ru-ru/en-gb labels. On POST the image is checked against local DIR_IMAGE, a maximum of 8 MiB and 2048 px, and PNG/WebP format. The storefront PWA icon endpoint prefers the dedicated image, then config_icon, then its existing neutral shopping-bag rendering. Existing HTTPS and PWA OFF gates remain intact. No changes to Workbox caches, checkout or user data.
+
+Regression coverage extended in tests/pwa_install_smoke.php: dedicated icon wins, missing icon falls back to favicon, traversal outside DIR_IMAGE cannot be used. Previous tests verify PWA OFF/HTTPS and 180/192/512 dimensions. New image-source cases execute only when PHP GD is available.
+
+Audit result: First-party code quality deep audit https://github.com/rayzer-dk/CodeCart-3-0-6/actions/runs/44714945771 — success; PHPStan blocking admin/catalog passes. Duplicate-code inventory and CSS/JS reference candidates remain advisory, not automatically removed.
+
+The earlier Production Release Check on SHA 4760d540 failed exclusively because five changed Core files had stale integrity hashes. The automatic Refresh Integrity Manifest workflow subsequently committed updated SHA-256 values, most recently commit a76ba32fed15 after the PWA changes. This journal commit triggers a fresh release check against the updated manifest. Do not regard still-queued runs as passed.
+
+Open audit items: manual classification of substantial duplicated legacy MVC blocks, dynamic OCMOD/Events references and UI selectors; PHPStan advisory Core/bonus findings; complete storefront testing of PWA settings, image scaling and installation on representative devices. No unconditional production-readiness claim is made.
