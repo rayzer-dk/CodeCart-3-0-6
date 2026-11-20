@@ -78,7 +78,7 @@ final class DashboardHealth {
         $cron = $this->cronState();
         if ($cron['state'] !== 'ok') { $items[] = $this->notice('cron_stale', $cron['state'] === 'error' ? 'error' : 'warning', $cron['age_minutes']); }
 
-        $expected = defined('CODECART_BUILD') ? (string)CODECART_BUILD : '';
+        $expected = (new SchemaRegistry($this->registry))->expectedVersion();
         $actual = trim((string)$this->config->get('codecart_core_schema_version'));
         if ($expected !== '' && $actual !== $expected) { $items[] = $this->notice('schema_version', 'warning', $actual !== '' ? $actual : '-'); }
 
@@ -136,7 +136,7 @@ final class DashboardHealth {
             'innodb' => array('value'=>$db['innodb_tables'] . '/' . $db['total_tables'], 'state'=>$db['innodb_tables']===$db['total_tables']?'ok':'warning'),
             'utf8mb4' => array('value'=>$db['utf8mb4_tables'] . '/' . $db['total_tables'], 'state'=>$db['utf8mb4_tables']===$db['total_tables']?'ok':'warning'),
             'utf8mb4_columns' => array('value'=>$db['utf8mb4_columns'] . '/' . $db['text_columns'], 'state'=>$db['utf8mb4_columns']===$db['text_columns']?'ok':'warning'),
-            'schema' => array('value'=>trim((string)$this->config->get('codecart_core_schema_version')) ?: '-', 'state'=>trim((string)$this->config->get('codecart_core_schema_version'))===(defined('CODECART_BUILD')?(string)CODECART_BUILD:'')?'ok':'warning'),
+            'schema' => array('value'=>trim((string)$this->config->get('codecart_core_schema_version')) ?: '-', 'state'=>($expectedSchema = (new SchemaRegistry($this->registry))->expectedVersion()) !== '' && trim((string)$this->config->get('codecart_core_schema_version')) === $expectedSchema ? 'ok' : 'warning'),
             'cache' => array('value'=>($cacheRequested && $cacheRequested!==$cacheActive ? $cacheRequested . ' → ' : '') . $cacheActive, 'state'=>$cacheFallback!==''?'warning':'ok', 'detail'=>$cacheFallback),
             'opcache' => array('value'=>$opcache?'enabled':'disabled', 'state'=>$opcache?'ok':'warning'),
             'cron' => array('value'=>$cron['last'] ?: 'never', 'state'=>$cron['state']),
