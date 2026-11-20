@@ -229,7 +229,10 @@ class ControllerCommonHeader extends Controller {
 				$data['logo'] = $server . 'image/' . $logo_name;
 			}
 		} else {
-			$data['logo'] = '';
+			// Bundled CodeCart branding is a fallback only: store-specific logos win.
+			$data['logo'] = $server . 'catalog/view/theme/codecart/image/codecart-logo.webp';
+			$data['logo_width'] = 320;
+			$data['logo_height'] = 107;
 		}
 
 		$this->load->language('common/header');
