@@ -16,8 +16,7 @@
         return typeof values[key] === 'string' && values[key] ? values[key] : fallback;
     }
     function closeLabel() {
-        var lang = (document.documentElement.lang || '').toLowerCase();
-        return label('ui_close', lang.indexOf('uk') === 0 ? 'Закрити' : lang.indexOf('ru') === 0 ? 'Закрыть' : 'Close');
+        return label('ui_close', 'Close');
     }
     function messageText(input) {
         // Parse server-provided OpenCart markup in an inert document; never inject it.
@@ -127,11 +126,8 @@
         if (value && typeof value === 'object') {
             value = typeof value.warning === 'string' ? value.warning : Object.keys(value).map(function (key) { return value[key]; }).filter(function (item) { return typeof item === 'string'; })[0];
         }
-        var lang = (document.documentElement.lang || '').toLowerCase();
-        var fallback = lang.indexOf('uk') === 0 ? 'Не вдалося виконати запит. Спробуйте ще раз.' :
-            lang.indexOf('ru') === 0 ? 'Не удалось выполнить запрос. Попробуйте ещё раз.' :
-            'The request could not be completed. Please try again.';
-        show('danger', typeof value === 'string' && value ? value : label('ui_request_failed', fallback));
+        show('danger', typeof value === 'string' && value ? value :
+            label('ui_request_failed', 'The request could not be completed. Please try again.'));
     }
     function convertAlerts(scope) {
         var $scope = scope ? $(scope) : $(document);
