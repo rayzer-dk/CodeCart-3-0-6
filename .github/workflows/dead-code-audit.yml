@@ -62,12 +62,12 @@ jobs:
             fi
           done
           echo 'Verified: unused local variable, private property, private method'
-      - name: Inspect first-party controllers and models (advisory)
+      - name: Enforce catalog and admin dead-code checks
         shell: bash
         run: |
           set -euo pipefail
-          printf '### PHPStan dead-code inventory (advisory)\n\n' >> "$GITHUB_STEP_SUMMARY"
-          for app in catalog admin extra; do
+          printf '### PHPStan dead-code inventory\n\n' >> "$GITHUB_STEP_SUMMARY"
+          for app in catalog admin; do
             set +e
             tools/quality/vendor/bin/phpstan analyse \
               -c "phpstan.codecart.${app}.dead-code.neon.dist" \
@@ -75,10 +75,26 @@ jobs:
               > "build/phpstan-reports/${app}.txt" 2>&1
             status=$?
             set -e
-            printf -- '- %s: exit code %s; full diagnostic in artifact.\n' "$app" "$status" >> "$GITHUB_STEP_SUMMARY"
-            sed -n '1,60p' "build/phpstan-reports/${app}.txt"
+            printf -- '- %s: exit code %s (blocking).\n' "$app" "$status" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$status" -ne 0 ]; then
+              sed -n '1,100p' "build/phpstan-reports/${app}.txt"
+              echo "::error::${app} dead-code check failed"
+              exit 1
+            fi
           done
-          echo 'The inventory is advisory until legacy findings are triaged. Existing PHPStan CI remains blocking.'
+      - name: Inspect Core and bundled extensions (advisory)
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          tools/quality/vendor/bin/phpstan analyse \
+            -c phpstan.codecart.extra.dead-code.neon.dist \
+            --no-progress --memory-limit=2G --error-format=raw \
+            > build/phpstan-reports/extra.txt 2>&1
+          status=$?
+          set -e
+          printf -- '- extra: exit code %s (advisory; review dynamic framework findings).\n' "$status" >> "$GITHUB_STEP_SUMMARY"
+          sed -n '1,70p' build/phpstan-reports/extra.txt
       - name: Upload dead-code findings
         if: always()
         uses: actions/upload-artifact@v4
