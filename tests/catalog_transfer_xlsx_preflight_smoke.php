@@ -10,7 +10,7 @@ if (!SimpleXlsx::writeAvailable() || !SimpleXlsx::readAvailable()) {
 }
 
 $source = file_get_contents(dirname(__DIR__) . '/upload/system/library/codecart/src/CatalogTransfer.php');
-if ($source === false || !preg_match('/\\$info\\s*=\\s*SimpleXlsx::streamSheet\\(\\$xlsx\\s*,\\s*\\$sourceLogical\\s*,/', $source)) {
+if ($source === false || strpos($source, '$info = SimpleXlsx::streamSheet($xlsx,$sourceLogical,') === false) {
     fwrite(STDERR, "FAIL: CatalogTransfer no longer captures XLSX source column metadata.\n");
     exit(1);
 }
