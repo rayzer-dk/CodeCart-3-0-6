@@ -13,7 +13,7 @@ $_['text_default']       = 'За замовчуванням';
 // Column
 $_['column_name']        = 'Назва банера';
 $_['column_status']      = 'Статус';
-$_['column_action']      = 'Дія';
+$_['column_action']      = 'Дії';
 
 // Entry
 $_['entry_name']         = 'Назва банера';
