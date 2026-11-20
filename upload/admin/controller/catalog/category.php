@@ -195,39 +195,8 @@ class ControllerCatalogCategory extends Controller {
  		}
 
 		$data['categories'] = $this->getCategories(0);
-		// Alternate complete hierarchy view, rendered only when requested.
-		$data['category_tree_mode'] = isset($this->request->get['tree']) && (string)$this->request->get['tree'] === '1';
-		$data['category_tree_toggle'] = $this->url->link('catalog/category', 'user_token=' . $this->session->data['user_token'] . ($data['category_tree_mode'] ? '' : '&tree=1'), true);
-		$data['category_tree_edit_url'] = str_replace('&amp;', '&', $this->url->link('catalog/category/treeEdit', 'user_token=' . $this->session->data['user_token'], true));
-		$data['category_tree_autocomplete'] = str_replace('&amp;', '&', $this->url->link('catalog/category/autocomplete', 'user_token=' . $this->session->data['user_token'], true));
-		$data['category_tree_kind'] = 'catalog';
-		$data['category_tree_rows'] = array();
-		if ($data['category_tree_mode']) {
-			$byParent = $this->adminCategoryTree ?? $this->model_catalog_category->getAdminCategoryTreeRows();
-			$stack = array();
-			foreach (array_reverse($byParent[0] ?? array()) as $rootNode) {
-				$stack[] = array($rootNode, 0, '');
-			}
-			$seen = array();
-			while ($stack && count($data['category_tree_rows']) < 10000) {
-				list($node, $depth, $ancestors) = array_pop($stack);
-				$nodeId = (int)$node['category_id'];
-				if ($nodeId < 1 || isset($seen[$nodeId])) { continue; }
-				$seen[$nodeId] = true;
-				$node['id'] = $nodeId;
-				$node['depth'] = min(20, $depth);
-				$node['ancestor_path'] = $ancestors;
-				$node['has_children'] = !empty($byParent[$nodeId]);
-				$node['edit'] = $this->url->link('catalog/category/edit', 'user_token=' . $this->session->data['user_token'] . '&category_id=' . $nodeId, true);
-				$data['category_tree_rows'][] = $node;
-				if ($depth < 20) {
-					foreach (array_reverse($byParent[$nodeId] ?? array()) as $child) {
-						$stack[] = array($child, $depth + 1, $ancestors . '/' . $nodeId);
-					}
-				}
-			}
-			$data['category_tree_truncated'] = (bool)$stack;
-		}
+		// The standard category table now renders the entire bounded hierarchy.
+		// There is no separate tree mode: drag targets remain available at every depth.
 		$this->load->language('catalog/category_tree');
 		foreach (array('tree_toggle','tree_list','tree_tree','tree_root','tree_move','tree_move_help','tree_search','tree_sort','tree_save','tree_cancel','tree_drag_help','tree_error','tree_loading','tree_limited','tree_root_option','tree_choose','tree_done','tree_expand') as $key) {
 			$data[$key] = $this->language->get($key);
