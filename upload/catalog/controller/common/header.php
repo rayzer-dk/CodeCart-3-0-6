@@ -66,7 +66,7 @@ class ControllerCommonHeader extends Controller {
 		$data['codecart_workbox_enabled'] = $is_https
 			&& (int)$this->config->get('config_codecart_workbox_status') === 1
 			&& is_file(DIR_APPLICATION . 'view/javascript/codecart/workbox/v7.4.1/workbox-sw.js');
-		$data['core_script'] = 'catalog/view/javascript/common.js?v=' . (defined('CODECART_PACKAGE_BUILD') ? CODECART_PACKAGE_BUILD : '3.0.6.0');
+		$data['core_script'] = 'catalog/view/javascript/common.js?v=' . (defined('CODECART_PACKAGE_BUILD') ? CODECART_PACKAGE_BUILD : '3.0.6.1');
 		$data['styles'] = $this->document->getStyles();
 		$data['scripts'] = $this->document->getScripts('header');
 		$data['modern_assets'] = $this->document->getAssets('header');
