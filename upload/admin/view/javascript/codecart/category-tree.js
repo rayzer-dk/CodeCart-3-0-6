@@ -160,6 +160,10 @@
           icon.classList.remove('fa-angles-up', 'fa-angles-down');
           icon.classList.add(anyCollapsed ? 'fa-angles-down' : 'fa-angles-up');
         }
+        var caption = expandAll.querySelector('.cc-tree-expand-label');
+        var nextLabel = expandAll.getAttribute(anyCollapsed ? 'data-expand-label' : 'data-collapse-label');
+        if (caption && nextLabel) { caption.textContent = nextLabel; }
+        if (nextLabel) { expandAll.setAttribute('title', nextLabel); expandAll.setAttribute('aria-label', nextLabel); }
       }
       expandAll.addEventListener('click', function () {
         rows.forEach(function (row) {
