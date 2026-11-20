@@ -2,7 +2,7 @@
 
 GitHub Actions workflow: `.github/workflows/dead-code-audit.yml`.
 
-The existing mandatory PHPStan checks remain unchanged. This separate audit runs on pushes to main, pull requests that change relevant PHP or audit files, and manual dispatch. Its fixture step is **blocking**: it must detect a known unused local variable, unused private property, and unused private method. The catalog/admin inventories are **advisory** until existing findings are reviewed. Full logs are saved as a GitHub Actions artifact.
+The established PHPStan checks remain unchanged. This separate audit runs on pushes, pull requests, and manual dispatch. Its fixture step is **blocking**: it must detect a known unused local variable, unused private property, and unused private method. Catalog and admin dead-code inventories are now **blocking** after reaching zero diagnostics. Core and bundled bonus modules remain **advisory** pending review of dynamic framework and third-party API findings. Full logs are saved as a GitHub Actions artifact.
 
 Analysis uses PHPStan 2.3+ bleeding-edge rules and the existing OpenCart model stub generator. It covers first-party catalog/admin controllers and models, not third-party vendor files. It also inherits PHPStan's existing unreachable-code and type checks.
 
