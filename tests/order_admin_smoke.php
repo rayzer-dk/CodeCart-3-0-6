@@ -42,6 +42,13 @@ checkOrder(strpos($ctrl, "getInstalled(\$type)") !== false, 'enabled installed e
 checkOrder(strpos($list, 'id="input-date-added"') === false && strpos($list, 'id="input-date-modified"') === false, 'obsolete date filters are removed');
 checkOrder(strpos($list, 'filter_date_start') !== false && strpos($list, 'filter_date_end') !== false, 'date range remains available for CSV export');
 checkOrder(strpos($list, 'ccp-order-preview-item') !== false && strpos($list, "var head = \$('<tr>');") === false, 'preview renders without a header row');
+checkOrder(strpos($list, 'fa-solid fa-angle-down') !== false, 'order preview should show down arrow when collapsed');
+checkOrder(strpos($list, "removeClass('fa-angle-down').addClass('fa-angle-up')") !== false, 'order preview should show up arrow when expanded');
+checkOrder(strpos($list, "removeClass('fa-angle-up').addClass('fa-angle-down')") !== false, 'order preview should restore down arrow when closed');
+checkOrder(strpos($list, 'name="filter_date_start"') !== false && strpos($list, 'name="filter_date_end"') !== false, 'order created date range must be retained');
+$dateSql = \CodeCart\Core\OrderAdminSearch::where($db, array('filter_date_start'=>'2026-11-01','filter_date_end'=>'2026-11-20'));
+checkOrder(strpos($dateSql, "o.date_added >= '2026-11-01 00:00:00'") !== false && strpos($dateSql, "o.date_added < DATE_ADD('2026-11-20 00:00:00', INTERVAL 1 DAY)") !== false, 'date range filters order creation date inclusively');
+
 checkOrder(strpos($list, 'gap:6px') !== false && strpos($list, 'width:35px!important') !== false, 'order action buttons have 35px dimensions and spacing');
 checkOrder(strpos($list, 'ccp-filter-help') !== false && strpos($help, 'fa-question-circle') !== false, 'help is presented as accessible question icons');
 echo "PASS: order filters, phone normalization, inclusive sums and ranking.\n";
