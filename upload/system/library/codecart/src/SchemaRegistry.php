@@ -114,10 +114,10 @@ final class SchemaRegistry {
             }
             foreach (($indexes[$table] ?? array()) as $indexName => $indexData) {
                 if ($indexName === 'PRIMARY') { continue; }
-                $signature = (!empty($indexData['unique']) ? 'U:' : 'N:') . implode(',', array_values($indexData['columns'] ?? array()));
+                $signature = (!empty($indexData['unique']) ? 'U:' : 'N:') . implode(',', $indexData['columns']);
                 if (!in_array($signature, $expectedIndexSignatures, true)) {
                     $summary['external_indexes']++;
-                    $this->issue($issues,$limit,'external_index',$base,implode(',', $indexData['columns'] ?? array()),'Additional index ' . $indexName . ' (third-party/custom); informational only','info','external');
+                    $this->issue($issues,$limit,'external_index',$base,implode(',', $indexData['columns']),'Additional index ' . $indexName . ' (third-party/custom); informational only','info','external');
                 }
             }
         }
