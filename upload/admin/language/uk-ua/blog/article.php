@@ -77,3 +77,5 @@ $_['text_schema_blogposting'] = 'Публікація блогу (BlogPosting)';
 $_['text_schema_article'] = 'Стаття (Article)';
 $_['text_schema_newsarticle'] = 'Новина (NewsArticle)';
 $_['text_schema_none'] = 'Без розмітки цієї сторінки';
+
+$_['entry_filter_category'] = 'Категорія';
