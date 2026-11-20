@@ -11,7 +11,7 @@ $_['text_event']        = 'Події використовуються для п
 // Column
 $_['column_code']       = 'Код події';
 $_['column_trigger']    = 'Тригер';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 $_['column_status']     = 'Статус';
 $_['column_date_added'] = 'Дата додавання';
 
