@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "9a88992c5369b493d5881649a452f57b062f7c05fece780b5b718e7d2dc15b6c",
         "admin/controller/tool/catalog_transfer.php": "f3e922bf639c2945b9084017495268512007ac4e5f16b8450e75d6fcb3f619f2",
         "admin/controller/tool/codecart_core.php": "919b41dcd91cc2af26808b617822dc1d3b342888445b0a6a02b63fb12a7a297f",
-        "admin/index.php": "8af07c96a05411510eff353a5bb62b9d0190573f1a65570e7fb9e9716487b697",
+        "admin/index.php": "ce3745667f7758ac493efe2c9e2983c8084dadce33f951578ccf30f222b7712d",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "050ac59b1c4f1d651983bcfce1f89397ca88afb91e52e63f45285dbe69a34ad5",
@@ -329,7 +329,7 @@
         "catalog/view/theme/default/template/common/codecart_form.twig": "e3f3175f0ee58c2946ec315a835639c51bcec2131b1e6d713172a89a544ce4c2",
         "catalog/view/theme/default/template/common/cookie_consent.twig": "580c3f49de7ad654584097e0c132ef2664cfb8379df60722aac67e08f9434080",
         "catalog/view/theme/default/template/common/footer.twig": "01e44fc26b38c4d3ef3ff0c5f392ab12d2bdf7f2e3ac9d114d93abade7592895",
-        "catalog/view/theme/default/template/common/header.twig": "ce252152d183ac37eefa1f0aa5bcdb0348cc31184c1657a6fae4d9e2816fc4f4",
+        "catalog/view/theme/default/template/common/header.twig": "19822f3b5431c61d2d4947caa4d4c60d8f1eb8d67563ebd3b0f7d2ef7f6babd6",
         "catalog/view/theme/default/template/common/menu.twig": "0e76b2a60f0feee75acd36ea6be5162cd1ccf8a47801dde52511bebd7a380efe",
         "catalog/view/theme/default/template/extension/captcha/basic.twig": "1ddfca7ef5e66ef228bf0761a6af8f864ae8346baa58110ef474f9ed272bbeda",
         "catalog/view/theme/default/template/extension/module/bestseller.twig": "e35a72a800052682af0b93e23948320375ba65fed7546d915754a94391fcb267",
@@ -348,7 +348,7 @@
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
         "cli.php": "b34e137dde1af5cbed4b42b6c529c2f9b99f043d5a6f5ff64261fce56e2b2868",
         "cron.php": "7eb9a4e95eec8702fa5acd56e70bf01baf047c7f9e905f0e92454e8755ba726f",
-        "index.php": "749eeda46fb7e1b4f8fd9d51577ae93326dafdf1df9276ab0c8f09987360598d",
+        "index.php": "d8204e085e88829e78da3f5e775a0f28f37c0fd0cdc5ec6e896fbb810f4c746c",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "5f57f91bdca4c203200743823e07c30277bdd07237d126feb8a856ba9049f576",
         "system/config/codecart_fontawesome_core_manifest.json": "9fb9656be93bd2ce459e0a01f809b6f923a694866dd5da2b041380841f17ded5",
@@ -462,7 +462,7 @@
         "admin/view/template/user/user_group_form.twig": "8025841300c9bd8aee4a7b530175188455e7337f1bd65f901c3889c2365571b3",
         "catalog/controller/common/language.php": "9f67c1781aa0b8b4a815456e47c113ea944ed8556286005a64165f4346936a54",
         "catalog/view/theme/codecart/image/preview.webp": "5ec651328985caa873f1445c4eac60452ce59a9c04e23252139a59ff1484aefc",
-        "catalog/view/theme/codecart/template/common/header.twig": "f9d6e9842be3bc9dcea69806753016930a39d768d9c6e6bbde19caf5a4dc1064",
+        "catalog/view/theme/codecart/template/common/header.twig": "ca0ecc3b51388479153255667ba057cf0bb1b0b57ae0fb329297f97c4333af3c",
         "catalog/view/theme/codecart/template/product/product.twig": "5af24cfbd570d8053fd231d377036160b133a9aac014a887b70a9acfa2ce2431",
         "system/library/cache.php": "5caf03e2d5f1e941b2c354ea89bdc2f1effdcf03db15b66220fa4b24ec5e2db7",
         "system/library/cart/user.php": "328e2747dbcf9285069c863bd5b62ed77f9c35f2462f4c935b6ab4ef85def8dd",
@@ -559,5 +559,5 @@
         "system/library/codecart/src/AdminCategoryTreeEditor.php": "a341bf78116e1ad79d192e06d34a22dbc589d21f0f083e5a5d36a2caf6fbcb72"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.29"
+    "package_build": "2.3.30"
 }
