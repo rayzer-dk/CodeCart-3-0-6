@@ -166,6 +166,10 @@ class ControllerBlogCategory extends Controller {
 		}
 		
 		$data['categories'] = $this->getCategories(0);
+		$data['category_tree_edit_url'] = str_replace('&amp;', '&', $this->url->link('blog/category/treeEdit', 'user_token=' . $this->session->data['user_token'], true));
+		$data['category_tree_autocomplete'] = str_replace('&amp;', '&', $this->url->link('blog/category/autocomplete', 'user_token=' . $this->session->data['user_token'], true));
+		$data['category_tree_kind'] = 'blog';
+
         foreach ($data['categories'] as &$blogCategory) {
             $blogCategory['articles_href'] = $this->url->link('blog/article', 'user_token=' . $this->session->data['user_token'] . '&filter_category_id=' . (int)$blogCategory['blog_category_id'], true);
         }
