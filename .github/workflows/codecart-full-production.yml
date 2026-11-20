@@ -1,4 +1,4 @@
-name: CodeCart Full Production 2.3.25
+name: CodeCart Full Production (main)
 on:
   push:
     branches: [main]
@@ -24,7 +24,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: codecart-full-production-2-2-6
+  group: codecart-full-production-main
   cancel-in-progress: false
 
 jobs:
@@ -63,7 +63,7 @@ jobs:
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Build 2.3.25: refresh audited Core integrity manifest [skip ci]"
+            git commit -m "Refresh audited Core integrity manifest [skip ci]"
             git push origin HEAD:main
           fi
 
@@ -107,18 +107,53 @@ jobs:
           python3 tools/check_documentation_archive.py
 
       - name: Create full production ZIP and checksum
+        id: package
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
           python3 tools/package_production.py --output artifacts
-          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.25.zip
-          test -f artifacts/CodeCart-3.0.6-production-Build-2.3.25.zip.sha256
-          unzip -tq artifacts/CodeCart-3.0.6-production-Build-2.3.25.zip
+          mapfile -t archives < <(find artifacts -maxdepth 1 -type f -name '*.zip' | sort)
+          test "${#archives[@]}" -eq 1
+          archive="${archives[0]}"
+          unzip -tq "$archive"
+          test -s "$archive.sha256"
+          build="$(sed -n "s/.*CODECART_PACKAGE_BUILD', '\\([0-9.]*\\)'.*/\\1/p" upload/index.php | head -1)"
+          test -n "$build"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+          echo "tag=v$build" >> "$GITHUB_OUTPUT"
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+          sha256sum -c "$archive.sha256"
 
-      - uses: actions/upload-artifact@v7
+      - name: Publish immutable release tag and GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.package.outputs.tag }}
+          RELEASE_BUILD: ${{ steps.package.outputs.build }}
+          RELEASE_ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          current="$(git rev-parse HEAD)"
+          remote="$(git rev-parse origin/main)"
+          if [ "$current" != "$remote" ]; then
+            echo "Main moved during packaging; refusing stale release." >&2
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$RELEASE_TAG" >/dev/null; then
+            echo "Tag already exists; refusing to overwrite a published version." >&2
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" "$RELEASE_ARCHIVE" "$RELEASE_ARCHIVE.sha256" "$RELEASE_ARCHIVE.manifest.json" \
+            --target "$current" \
+            --title "CodeCart PRO 3.0.6.1 — Build $RELEASE_BUILD" \
+            --notes "Validated full production archive from main at commit $current. Includes SHA-256 checksum and per-file manifest." \
+            --latest
+
+      - uses: actions/upload-artifact@v4
         with:
-          name: CodeCart-3.0.6-full-2.3.25
+          name: CodeCart-PRO-full-${{ steps.package.outputs.build }}
           path: artifacts/
           retention-days: 90
           if-no-files-found: error
