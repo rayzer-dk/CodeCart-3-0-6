@@ -1,5 +1,7 @@
 # Additional first-party CodeCart Core and bundled bonus module inventory.
-# This deliberately stays advisory: legacy dynamic OpenCart dependencies need runtime verification.
+# Advisory only: OpenCart routes/events and dynamic extension dispatch require runtime checks.
+# Scan the bundled HTMLPurifier types so missing class reflections are not
+# incorrectly reported as application dead code.
 includes:
     - phpstan.codecart.catalog.dead-code.neon.dist
 
@@ -7,4 +9,20 @@ parameters:
     paths:
         - upload/system/library/codecart/src
         - bonus-source/monobank_payment/upload
+    scanFiles:
+        - tools/quality/phpstan_runtime.php
+        - upload/system/startup.php
+        - upload/system/helper/general.php
+        - upload/system/helper/error_page.php
+        - upload/system/helper/utf8.php
+        - upload/system/helper/codecart_checkout.php
+        - upload/system/helper/HTMLPurifier.php
+        - upload/system/helper/HTMLPurifier/Config.php
+        - upload/system/helper/HTMLPurifier/AttrDef/URI.php
+        - upload/system/helper/HTMLPurifier/URIScheme/data.php
+    scanDirectories:
+        - upload/system/engine
+        - upload/system/library
+        - upload/catalog/model
+        - upload/system/helper/HTMLPurifier
     tmpDir: build/phpstan-cache/extra-dead-code
