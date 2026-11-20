@@ -14,7 +14,7 @@ $_['text_store']        = 'Адрес магазина';
 
 // Column
 $_['column_title']      = 'Назва податкового класу';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_title']       = 'Назва податкового класу';
