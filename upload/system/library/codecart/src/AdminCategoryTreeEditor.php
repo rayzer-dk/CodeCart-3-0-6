@@ -140,6 +140,43 @@ final class AdminCategoryTreeEditor {
         return $changed;
     }
 
+    /** Reorder within one parent, placing a dragged category immediately before its sibling. */
+    public static function reorder($registry, string $type, int $id, int $before): bool {
+        [$entity, $closure, $key] = self::names($type);
+        if (!$closure || $id < 1 || $before < 1 || $id === $before) {
+            throw new \InvalidArgumentException('Invalid sibling reorder.');
+        }
+        $db = $registry->get('db');
+        $table = '`' . DB_PREFIX . $entity . '`';
+        $lockName = 'cc_sort_' . substr(hash('sha256', DB_DATABASE . '|' . DB_PREFIX . '|' . $entity), 0, 32);
+        $locked = $db->query("SELECT GET_LOCK('" . $db->escape($lockName) . "', 5) AS acquired");
+        if (empty($locked->row['acquired'])) { throw new \RuntimeException('Category order is busy.'); }
+        try {
+            $changed = Transaction::run($db, function () use ($db, $table, $key, $id, $before) {
+                $items = $db->query("SELECT `" . $key . "` AS id, parent_id FROM " . $table . " WHERE `" . $key . "` IN (" . $id . "," . $before . ") ORDER BY `" . $key . "` FOR UPDATE");
+                if (count($items->rows) !== 2 || (int)$items->rows[0]['parent_id'] !== (int)$items->rows[1]['parent_id']) {
+                    throw new \InvalidArgumentException('Target must be a sibling category.');
+                }
+                $parent = (int)$items->rows[0]['parent_id'];
+                $siblings = $db->query("SELECT `" . $key . "` AS id FROM " . $table . " WHERE parent_id = '" . $parent . "' ORDER BY sort_order ASC, `" . $key . "` ASC FOR UPDATE")->rows;
+                if (count($siblings) > 5000) { throw new \RuntimeException('Too many sibling categories.'); }
+                $ids = array_map('intval', array_column($siblings, 'id'));
+                $ids = array_values(array_filter($ids, static function ($value) use ($id) { return $value !== $id; }));
+                $position = array_search($before, $ids, true);
+                if ($position === false) { throw new \RuntimeException('Missing sibling.'); }
+                array_splice($ids, $position, 0, array($id));
+                foreach ($ids as $index => $categoryId) {
+                    $db->query("UPDATE " . $table . " SET sort_order = '" . ($index + 1) . "', date_modified = NOW() WHERE `" . $key . "` = '" . $categoryId . "'");
+                }
+                return true;
+            });
+        } finally {
+            $db->query("SELECT RELEASE_LOCK('" . $db->escape($lockName) . "')");
+        }
+        if ($changed) { self::clearCaches($registry, $type); }
+        return $changed;
+    }
+
     private static function clearCaches($registry, string $type): void {
         $cache = $registry->get('cache');
         if (!$cache) { return; }
