@@ -18,7 +18,7 @@ $_['column_store']      = 'Магазин';
 $_['column_type']       = 'Тип';
 $_['column_sort_order'] = 'Порядок сортування';
 $_['column_status']     = 'Статус';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_name']        = 'Назва меню';
