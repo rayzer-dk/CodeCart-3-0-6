@@ -16,6 +16,7 @@ class ControllerCommonFooter extends Controller {
 
 		$data['environment_visible'] = $logged;
 		$data['text_codecart_release'] = $logged ? 'CodeCart PRO ' . VERSION : '';
+		$data['version'] = defined('VERSION') ? VERSION : '3.0.6.1';
 
 		// Lightweight diagnostic snapshot. No SQL, remote calls or extra assets
 		// are needed to render the footer on every administration page.
