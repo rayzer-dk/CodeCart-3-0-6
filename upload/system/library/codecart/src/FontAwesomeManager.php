@@ -24,24 +24,22 @@ final class FontAwesomeManager {
         $extraIcons = array_values(array_unique(array_merge(array('file-pdf-o'), $extraIcons)));
         $themeDirectory = strtolower(trim((string)$themeDirectory));
         $this->themeDirectory = preg_match('/^[a-z0-9_-]+$/', $themeDirectory) ? $themeDirectory : '';
-        {
-            $file = DIR_SYSTEM . 'config/codecart_fontawesome_extras.json';
-            $manifest = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
-            if (is_array($manifest) && isset($manifest['icons'], $manifest['shards'])) {
-                $this->extraManifest = $manifest;
-                foreach (array_slice($extraIcons, 0, 500) as $name) {
-                    $name = $this->normalizeName($name);
-                    if (!isset($manifest['icons'][$name]) || in_array($name, self::SUPPORTED, true)) { continue; }
-                    $row = $manifest['icons'][$name];
-                    $ready = true;
-                    foreach ($row['styles'] as $shard) {
-                        $path = $manifest['shards'][$shard]['file'] ?? '';
-                        if (!preg_match('#^catalog/view/javascript/font-awesome/webfonts/extras/[a-z]+-[0-9]+\.woff2$#', $path) || !is_file(dirname(rtrim(DIR_SYSTEM, '/\\')) . '/' . $path)) { $ready = false; break; }
-                    }
-                    if ($ready) { $this->extraIcons[$name] = $row; }
+        $file = DIR_SYSTEM . 'config/codecart_fontawesome_extras.json';
+        $manifest = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
+        if (is_array($manifest) && isset($manifest['icons'], $manifest['shards'])) {
+            $this->extraManifest = $manifest;
+            foreach (array_slice($extraIcons, 0, 500) as $name) {
+                $name = $this->normalizeName($name);
+                if (!isset($manifest['icons'][$name]) || in_array($name, self::SUPPORTED, true)) { continue; }
+                $row = $manifest['icons'][$name];
+                $ready = true;
+                foreach ($row['styles'] as $shard) {
+                    $path = $manifest['shards'][$shard]['file'] ?? '';
+                    if (!preg_match('#^catalog/view/javascript/font-awesome/webfonts/extras/[a-z]+-[0-9]+\.woff2$#', $path) || !is_file(dirname(rtrim(DIR_SYSTEM, '/\\')) . '/' . $path)) { $ready = false; break; }
                 }
-                ksort($this->extraIcons);
+                if ($ready) { $this->extraIcons[$name] = $row; }
             }
+            ksort($this->extraIcons);
         }
     }
     private const SUPPORTED = array('address-book','align-justify','align-right','angle-down','angle-left','angle-right','angles-right','arrow-down','arrow-left','arrow-right','arrow-right-arrow-left','arrow-rotate-left','arrow-up','arrows-rotate','bag-shopping','ban','bar-chart','bars','basket-shopping','bell','book','book-open','box','boxes-stacked','calendar','calendar-o','camera','camera-retro','caret-down','cart-shopping','chart-bar','check','check-circle','check-circle-o','chevron-down','chevron-left','chevron-right','chevron-up','circle-check','circle-exclamation','circle-info','circle-question','circle-xmark','clock','clock-o','clock-rotate-left','close','cloud-arrow-down','cloud-download','cloud-download-alt','cog','comment','copy','credit-card','discord','download','edit','ellipsis','ellipsis-h','envelope','envelope-o','exchange','exchange-alt','exclamation-circle','exclamation-triangle','eye','eye-slash','facebook','fax','file','file-lines','file-text-o','files-o','filter','fire-flame-curved','floppy-disk','floppy-o','gear','gift','globe','heart','heart-o','history','home','house','image','info-circle','instagram','link','linkedin','lightbulb','lightbulb-o','location-dot','location-pin','lock','magnifying-glass','map-marker','minus','money','money-bill','moon','newspaper','odnoklassniki','paper-plane','pause','pen','pen-to-square','pencil','pencil-square-o','percent','phone','phone-alt','phone-flip','phone-volume','picture-o','pinterest','play','plus','print','refresh','remove','reply','right-from-bracket','right-left','right-to-bracket','rotate','search','share','share-alt','share-nodes','shield-halved','shop','shopping-bag','shopping-cart','sign-in-alt','sign-out-alt','sliders','sort','spinner','star','star-o','store','sun','table-cells','table-cells-large','table-list','tag','tags','telegram','telegram-plane','th','th-large','th-list','threads','thumbs-down','thumbs-up','tiktok','times','times-circle','trash-alt','trash-can','trash-o','triangle-exclamation','truck','twitter','undo','unlock','upload','user','user-plus','users','viber','vk','whatsapp','x-twitter','xmark','youtube');
