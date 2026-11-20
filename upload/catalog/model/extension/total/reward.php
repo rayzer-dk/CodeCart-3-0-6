@@ -19,7 +19,6 @@ class ModelExtensionTotalReward extends Model {
 					}
 				}
 
-				$points = min($points, $points_total);
 
 				foreach ($this->cart->getProducts() as $product) {
 					$discount = 0;
