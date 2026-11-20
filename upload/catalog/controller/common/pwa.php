@@ -72,24 +72,32 @@ class ControllerCommonPwa extends Controller {
 
         // Restrict source to existing, small, local store icons (no URL fetches).
         $image = null;
-        $file = str_replace('\\', '/', (string)$this->config->get('config_icon'));
         $root = realpath(DIR_IMAGE);
-        $source = $file !== '' ? realpath(DIR_IMAGE . $file) : false;
-        if ($root && $source && strpos($source, $root . DIRECTORY_SEPARATOR) === 0
-            && is_file($source) && filesize($source) <= 8 * 1024 * 1024) {
+        // Prefer the dedicated app icon; fall back to the existing store favicon.
+        foreach (array('config_codecart_pwa_icon', 'config_icon') as $setting) {
+            $file = str_replace('\\\\', '/', (string)$this->config->get($setting));
+            $source = $file !== '' ? realpath(DIR_IMAGE . $file) : false;
+            if (!$root || !$source || strpos($source, $root . DIRECTORY_SEPARATOR) !== 0
+                || !is_file($source) || filesize($source) > 8 * 1024 * 1024) {
+                continue;
+            }
             $info = @getimagesize($source);
-            if (is_array($info) && $info[0] > 0 && $info[1] > 0
-                && $info[0] <= 2048 && $info[1] <= 2048) {
-                switch ($info[2]) {
-                    case IMAGETYPE_PNG:  $image = @imagecreatefrompng($source); break;
-                    case IMAGETYPE_JPEG: $image = @imagecreatefromjpeg($source); break;
-                    case IMAGETYPE_GIF:  $image = @imagecreatefromgif($source); break;
-                    case IMAGETYPE_WEBP:
-                        if (function_exists('imagecreatefromwebp')) {
-                            $image = @imagecreatefromwebp($source);
-                        }
-                        break;
-                }
+            if (!is_array($info) || $info[0] <= 0 || $info[1] <= 0
+                || $info[0] > 2048 || $info[1] > 2048) {
+                continue;
+            }
+            switch ($info[2]) {
+                case IMAGETYPE_PNG:  $image = @imagecreatefrompng($source); break;
+                case IMAGETYPE_JPEG: $image = @imagecreatefromjpeg($source); break;
+                case IMAGETYPE_GIF:  $image = @imagecreatefromgif($source); break;
+                case IMAGETYPE_WEBP:
+                    if (function_exists('imagecreatefromwebp')) {
+                        $image = @imagecreatefromwebp($source);
+                    }
+                    break;
+            }
+            if ($image) {
+                break;
             }
         }
 
