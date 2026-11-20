@@ -112,7 +112,7 @@ final class AdminCategoryTreeEditor {
                 foreach ($ids as $nodeId) {
                     $old = $oldPaths[$nodeId] ?? array();
                     $pivot = array_search($id, $old, true);
-                    if ($pivot === false || !$old || end($old) !== $nodeId) {
+                    if ($pivot === false || end($old) !== $nodeId) {
                         throw new \RuntimeException('Invalid closure path. Repair categories before moving.');
                     }
                     $newPath = array_merge($ancestors, array_slice($old, (int)$pivot));
