@@ -2,7 +2,7 @@
     "algorithm": "sha256",
     "files": {
         ".htaccess": "daf0885edbfcf95f9a91d6fd1bc6cdec43cb9944bf2f90dfbc12f301925313d7",
-        "admin/controller/catalog/category.php": "a3fa6f72ad6b4e112ff8f043578defb2534a3fcbd6adbae875901ad5b8c9a02e",
+        "admin/controller/catalog/category.php": "2a42b4e3b0ab06f5608a4d5ffed918d2261bc9d4fde3cc0dc9eb88937adf3dad",
         "admin/controller/catalog/product.php": "ed43e6a5e3f8d261cab4261f3978067e003368048883172d24b1c34fb89d3fe1",
         "admin/controller/common/dashboard.php": "6f5a50e511b4d3aad511a08a91dae5e6a6ca074eae4b4dcb3f4883c7a3ed0088",
         "admin/controller/common/developer.php": "d90f2b706a491fa6ba4b7c9575a90abeffd2f0ece894b5603673ea1d65594003",
