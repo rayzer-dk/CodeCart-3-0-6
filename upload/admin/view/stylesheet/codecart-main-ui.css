@@ -56,8 +56,7 @@
   border-radius: 6px;
 }
 #content[class*="ccp-main-ui-"] :is(.btn,.form-control,.nav-tabs a):focus-visible {
-  outline: 2px solid var(--ccp-main-focus);
-  outline-offset: 2px;
+  outline: none;
 }
 #content:is(.ccp-main-ui-product-form,.ccp-main-ui-settings,.ccp-main-ui-category-form) .nav-tabs {
   display: flex;
@@ -120,7 +119,7 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 #header .navbar-right > li.ccp-notification-menu > a i { font-size: 18px; width: 20px; text-align: center; line-height: 1; }
 #content .input-group.date .fa-calendar { font-weight: 400; font-size: 13px; -webkit-font-smoothing: antialiased; }
 /* Font Awesome 6 Free question-circle exists only in solid weight. */
-#content label.control-label span[data-toggle="tooltip"]::after { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", FontAwesome; font-weight: 900; content: "\\f059"; font-size: 12px; margin-left: 5px; color: #177ac3; }
+#content label.control-label span[data-toggle="tooltip"]::after { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", FontAwesome; font-weight: 900; content: "\f059"; font-size: 12px; margin-left: 5px; color: #177ac3; }
 
 /* Admin masthead: consistent icon size and optical centering in every language. */
 #header .navbar-right > li.ccp-modification-refresh-menu > a,
