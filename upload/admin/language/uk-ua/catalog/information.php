@@ -15,7 +15,7 @@ $_['text_keyword']      	 = 'Має бути унікальним на всю с
 $_['column_title']           = 'Назва сторінки';
 $_['column_sort_order']	     = 'Порядок сортування';
 $_['column_noindex']         = 'Індексація';
-$_['column_action']          = 'Дія';
+$_['column_action']          = 'Дії';
 
 // Entry
 $_['entry_title']            = 'Назва статті';
