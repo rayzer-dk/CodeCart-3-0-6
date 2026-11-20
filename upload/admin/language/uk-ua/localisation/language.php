@@ -13,7 +13,7 @@ $_['text_edit']         = 'Редагування';
 $_['column_name']       = 'Назва мови';
 $_['column_code']       = 'Код';
 $_['column_sort_order'] = 'Порядок сортування';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_name']        = 'Назва мови';
