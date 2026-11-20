@@ -383,7 +383,7 @@
         "system/library/codecart/src/CompatibilityLayer.php": "dde54f0a0217747106d786043d0d404d9874a3f0c30d68709b877388e24246f7",
         "system/library/codecart/src/CookieConsent.php": "81db1e1118ac48ae31af3f15d46c90a3da8dbc3bc66c5d1996a922bcea7b524e",
         "system/library/codecart/src/CoreContracts.php": "c3ff271ec05080bb273570b12c9e598ee267099d0102f97112d052bfe4154f20",
-        "system/library/codecart/src/DashboardHealth.php": "958b47ba15cf3453c2be80f66b7336fad6e07927fd1619f5c77681bd7ad61ef1",
+        "system/library/codecart/src/DashboardHealth.php": "8a439017d5ac8cc5a52cf20c9b94f7ac7b68d6fb00d34c9b31c2fe2ad3d051c4",
         "system/library/codecart/src/DatabaseModernizer.php": "055c2309a59a5705380fe4d94650beaedc268e706d4b868670fdb3b6fa0d3147",
         "system/library/codecart/src/DeviceAuthorization.php": "1ec5257ad3d360380cf146b042ce5b0d4b22cff8c84160b6e28b52cf8a62145b",
         "system/library/codecart/src/ExtensionPoints.php": "8b1f4cb336ed95150de21f32d3cd164a9f8a05cd2d5823b81fc7364af19293ee",
