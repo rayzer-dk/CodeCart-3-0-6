@@ -1,0 +1,120 @@
+name: First-party code quality deep audit
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-deep-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cross-reference-audit:
+    name: JS CSS Twig and workaround candidates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check audit program syntax
+        run: python -m py_compile tools/quality/audit_cross_references.py
+      - name: Inspect all first-party sources
+        run: python tools/quality/audit_cross_references.py --out build/quality/cross-references.json
+      - name: Publish inspectable inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codecart-first-party-reference-inventory
+          path: build/quality/cross-references.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  duplicated-source:
+    name: Full first-party duplicate blocks (advisory)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Scan first-party controllers models and Core
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p build/quality
+          set +e
+          npx --yes jscpd@5.4.1 --config .jscpd.json --threshold 15 \
+            upload/admin/controller upload/admin/model \
+            upload/catalog/controller upload/catalog/model \
+            upload/system/library/codecart/src \
+            > build/quality/duplication.txt 2>&1
+          status=$?
+          set -e
+          tail -n 45 build/quality/duplication.txt
+          echo "jscpd exit status: $status (advisory until legacy duplicates are triaged)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload duplicate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codecart-first-party-duplication
+          path: build/quality/duplication.txt
+          if-no-files-found: warn
+          retention-days: 14
+
+  phpstan-dead-code:
+    name: PHPStan dead-code Core admin catalog
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring,dom,xml,tokenizer,zip
+          tools: composer:v2
+      - name: Install quality tools and locked runtime
+        run: |
+          composer install --working-dir=tools/quality --no-interaction --prefer-dist --no-progress
+          composer install --no-dev --no-interaction --prefer-dist --no-progress --optimize-autoloader
+      - name: Resolve dynamically loaded OpenCart models
+        run: |
+          php tools/quality/generate_phpstan_models.php catalog
+          php tools/quality/generate_phpstan_models.php admin
+      - name: Check catalog and admin (blocking)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/quality
+          for section in catalog admin; do
+            tools/quality/vendor/bin/phpstan analyse -c "phpstan.codecart.${section}.dead-code.neon.dist" \
+              --no-progress --memory-limit=2G --error-format=raw > "build/quality/${section}.txt" 2>&1 || {
+                cat "build/quality/${section}.txt"
+                exit 1
+              }
+          done
+      - name: Inspect Core and bundled extensions (advisory)
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          tools/quality/vendor/bin/phpstan analyse -c phpstan.codecart.extra.dead-code.neon.dist \
+            --no-progress --memory-limit=2G --error-format=raw > build/quality/extra.txt 2>&1
+          status=$?
+          set -e
+          echo "Core and extensions PHPStan exit status: $status (advisory; dynamic loading requires review)" >> "$GITHUB_STEP_SUMMARY"
+          sed -n '1,90p' build/quality/extra.txt
+      - name: Upload PHPStan diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codecart-first-party-phpstan
+          path: build/quality/
+          if-no-files-found: warn
+          retention-days: 14
