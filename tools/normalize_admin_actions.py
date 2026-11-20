@@ -12,7 +12,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1] / "upload/admin/language/uk-ua"
 ACTION = re.compile(
-    r"(^\s*\$_\['column_action'\]\s*=\s*)'([^']*)'(\s*;)",
+    r"(^\s*\$_\['(?:column_action|column_actions)'\]\s*=\s*)'([^']*)'(\s*;)",
     re.MULTILINE,
 )
 FORMER = {"Дія", "Дії", "Операція", "Операції", "Action", "Actions"}
