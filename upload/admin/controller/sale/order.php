@@ -142,28 +142,44 @@ class ControllerSaleOrder extends Controller {
 		if (!in_array($type, array('shipping', 'payment'), true)) {
 			return array();
 		}
-		$choices = $this->model_sale_order->getOrderMethodChoices($type . '_method');
+		$choices = array();
+		// Historical order snapshots remain available even when modules are uninstalled.
+		foreach ($this->model_sale_order->getOrderMethodChoices($type . '_method') as $name) {
+			$name = trim((string)$name);
+			if ($name !== '') {
+				$choices[mb_strtolower($name, 'UTF-8')] = array('value' => 'name:' . $name, 'name' => $name);
+			}
+		}
 		$this->load->model('setting/extension');
 		foreach ($this->model_setting_extension->getInstalled($type) as $code) {
-			if (!is_string($code) || !preg_match('/^[a-z0-9_]+$/D', $code)) {
+			if (!is_string($code) || !preg_match('/^[a-z0-9_]{1,64}$/D', $code)) {
 				continue;
 			}
 			$enabled = $this->config->get($type . '_' . $code . '_status');
 			if (!$enabled && !$this->config->get($code . '_status')) {
 				continue;
 			}
-			$translation = $this->load->language('extension/' . $type . '/' . $code);
-			$title = isset($translation['text_title']) ? (string)$translation['text_title'] : '';
-			if ($title === '' || $title === 'text_title') {
-				$title = isset($translation['heading_title']) ? (string)$translation['heading_title'] : '';
+			$locale = (string)$this->config->get('config_admin_language');
+			$relative = '/extension/' . $type . '/' . $code . '.php';
+			$name = ucwords(str_replace('_', ' ', $code));
+			if (is_file(DIR_LANGUAGE . $locale . $relative) || is_file(DIR_LANGUAGE . 'en-gb' . $relative)) {
+				$translation = $this->load->language('extension/' . $type . '/' . $code);
+				$title = isset($translation['text_title']) ? (string)$translation['text_title'] : '';
+				if ($title === '' || $title === 'text_title') {
+					$title = isset($translation['heading_title']) ? (string)$translation['heading_title'] : '';
+				}
+				if ($title !== '' && $title !== 'heading_title') {
+					$name = trim(strip_tags(html_entity_decode($title, ENT_QUOTES, 'UTF-8')));
+				}
 			}
-			if ($title !== '' && $title !== 'heading_title') {
-				$choices[] = strip_tags(html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
-			}
+			// Prefer the enabled module's stable code for filtering existing order records.
+			$choices[mb_strtolower($name, 'UTF-8')] = array('value' => 'code:' . $code, 'name' => $name);
 		}
-		$choices = array_values(array_unique(array_filter(array_map('trim', $choices), 'strlen')));
-		natcasesort($choices);
-		return array_values($choices);
+		$choices = array_values($choices);
+		usort($choices, static function (array $a, array $b): int {
+			return strcasecmp($a['name'], $b['name']);
+		});
+		return $choices;
 	}
 
 	private function extendedOrderFilterUrl(): string {
