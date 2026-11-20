@@ -146,7 +146,7 @@ class ModelExtensionPaymentPayPal extends Model {
 	}
 	
 	public function deletePayPalCustomerTokens($customer_id) {
-		$query = $this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_customer_token` WHERE `customer_id` = '" . (int)$customer_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_customer_token` WHERE `customer_id` = '" . (int)$customer_id . "'");
 	}
 		
 	public function editPayPalOrder($data) {
@@ -224,7 +224,7 @@ class ModelExtensionPaymentPayPal extends Model {
 	}
 		
 	public function deletePayPalOrder($order_id) {
-		$query = $this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_order` WHERE `order_id` = '" . (int)$order_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_order` WHERE `order_id` = '" . (int)$order_id . "'");
 	}
 	
 	public function getPayPalOrder($order_id) {
