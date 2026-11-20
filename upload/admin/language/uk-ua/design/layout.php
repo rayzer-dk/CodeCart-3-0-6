@@ -20,7 +20,7 @@ $_['text_column_right']   = 'Права колонка';
 
 // Column
 $_['column_name']         = 'Назва макету';
-$_['column_action']       = 'Дія';
+$_['column_action']       = 'Дії';
 
 // Entry
 $_['entry_name']          = 'Назва макету';
