@@ -20,7 +20,7 @@ $_['text_payment']                     = 'Платіжна адреса';
 // Column
 $_['column_name']                      = 'Назва магазину';
 $_['column_url']	                   = 'URL магазину';
-$_['column_action']                    = 'Дія';
+$_['column_action']                    = 'Дії';
 
 // Entry
 $_['entry_url']                        = 'URL магазину';
