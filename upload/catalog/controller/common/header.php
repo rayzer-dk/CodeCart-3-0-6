@@ -249,9 +249,13 @@ class ControllerCommonHeader extends Controller {
 		$data['compare_add_url'] = $this->url->link('product/compare/add', '', true);
 
 		$data['button_in_cart'] = $this->language->get('button_in_cart');
+		$data['codecart_ui_routes'] = array(
+			'checkout' => $this->url->link('checkout/checkout', '', true),
+			'cart' => $this->url->link('checkout/cart', '', true)
+		);
 		$data['codecart_ui_i18n'] = array();
 		if (strpos(strtolower((string)$data['lang']), 'uk') === 0) {
-			foreach (array('ui_select_date','ui_wishlist','ui_compare','ui_share','ui_search','ui_previous','ui_next','ui_close','ui_increase','ui_decrease','ui_upload','ui_action','ui_request_failed','ui_request_busy') as $ui_key) {
+			foreach (array('ui_select_date','ui_wishlist','ui_compare','ui_share','ui_search','ui_previous','ui_next','ui_close','ui_increase','ui_decrease','ui_upload','ui_action','ui_request_failed','ui_request_busy','ui_continue_shopping','text_checkout') as $ui_key) {
 				$data['codecart_ui_i18n'][$ui_key] = $this->language->get($ui_key);
 			}
 		}
