@@ -151,7 +151,7 @@
         "admin/view/template/report/lost_url.twig": "c62ef90de2e53f4e9a9607440a07cb751ce72f4bc99c09c254c8f5958df1485c",
         "admin/view/template/sale/abandoned_cart_list.twig": "07055a74f53a28649573d199e9103f8cb2d9b0fc9bfbda477323b904e7cda5b9",
         "admin/view/template/sale/order_info.twig": "92bc3da0347409c935119178598c8bdc7e2a163f17fe9501a60e9a87b125d0ec",
-        "admin/view/template/setting/setting.twig": "d13435aa4a89dcc8c9b7b6719a5251456e4611385012a4add3e36befe957d7ac",
+        "admin/view/template/setting/setting.twig": "0684d96dd00a60911db1de080403ec3456f8292c821b22cf6381e3523c6b9339",
         "admin/view/template/tool/backup.twig": "baf365a35a2c10cfb4c690c9703d813153d268f6095f839baefd1fba3560315f",
         "admin/view/template/tool/codecart_core.twig": "2cf37c7ed75fa8c23ee25b5deaab778b6d33d6d8665ffcbfadca5799aa5f7d1a",
         "catalog/controller/account/address.php": "8e63025d031af52f3f02a8882adafa079bd5d24c037cbc6aa2376ba9d44e5602",
