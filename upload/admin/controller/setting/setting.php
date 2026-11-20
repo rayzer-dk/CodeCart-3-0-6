@@ -21,6 +21,7 @@ class ControllerSettingSetting extends Controller {
 			$this->request->post['config_codecart_quick_price_edit'] = !empty($this->request->post['config_codecart_quick_price_edit']) ? 1 : 0;
 			$this->request->post['config_codecart_workbox_status'] = !empty($this->request->post['config_codecart_workbox_status']) ? 1 : 0;
 			$this->request->post['config_codecart_pwa_status'] = !empty($this->request->post['config_codecart_pwa_status']) ? 1 : 0;
+			$this->request->post['config_codecart_pwa_icon'] = $this->normalizeCodecartPwaIcon($this->request->post['config_codecart_pwa_icon'] ?? '');
 			$promptDays = (int)($this->request->post['config_codecart_pwa_prompt_days'] ?? 7);
 			$this->request->post['config_codecart_pwa_prompt_days'] = in_array($promptDays, array(1, 3, 7, 14, 30), true) ? $promptDays : 7;
 			$this->request->post['config_codecart_pwa_used'] = ((int)$this->config->get('config_codecart_pwa_used') === 1 || $this->request->post['config_codecart_pwa_status'] === 1) ? 1 : 0;
@@ -1109,26 +1110,9 @@ class ControllerSettingSetting extends Controller {
 		}
 
 		// PWA icon is independent of the browser favicon. Empty means use config_icon.
-		$pwaIcon = isset($this->request->post['config_codecart_pwa_icon'])
-			? (string)$this->request->post['config_codecart_pwa_icon']
-			: (string)$this->config->get('config_codecart_pwa_icon');
-		$pwaIcon = str_replace('\\\\', '/', trim($pwaIcon));
-		if ($pwaIcon !== '') {
-			$imageRoot = realpath(DIR_IMAGE);
-			$imagePath = realpath(DIR_IMAGE . $pwaIcon);
-			if (!$imageRoot || !$imagePath || strpos($imagePath, $imageRoot . DIRECTORY_SEPARATOR) !== 0
-				|| !is_file($imagePath) || !preg_match('/\\.(?:png|webp)$/i', $imagePath)
-				|| filesize($imagePath) > 8 * 1024 * 1024) {
-				$pwaIcon = '';
-			} else {
-				$size = @getimagesize($imagePath);
-				if (!is_array($size) || $size[0] < 1 || $size[1] < 1
-					|| $size[0] > 2048 || $size[1] > 2048
-					|| !in_array($size[2], array(IMAGETYPE_PNG, IMAGETYPE_WEBP), true)) {
-					$pwaIcon = '';
-				}
-			}
-		}
+		$pwaIcon = $this->normalizeCodecartPwaIcon(isset($this->request->post['config_codecart_pwa_icon'])
+			? $this->request->post['config_codecart_pwa_icon']
+			: $this->config->get('config_codecart_pwa_icon'));
 		$data['config_codecart_pwa_icon'] = $pwaIcon;
 		$data['codecart_pwa_icon_thumb'] = $pwaIcon !== ''
 			? $this->model_tool_image->resize($pwaIcon, 100, 100)
@@ -1886,4 +1870,23 @@ class ControllerSettingSetting extends Controller {
 			$this->response->setOutput($server . 'image/no_image.webp');
 		}
 	}	
+
+	private function normalizeCodecartPwaIcon($value) {
+		$path = str_replace('\\\\', '/', trim((string)$value));
+		if ($path === '' || !preg_match('/\\.(?:png|webp)$/i', $path)) {
+			return '';
+		}
+		$root = realpath(DIR_IMAGE);
+		$file = realpath(DIR_IMAGE . $path);
+		if (!$root || !$file || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0
+			|| !is_file($file) || filesize($file) > 8 * 1024 * 1024) {
+			return '';
+		}
+		$info = @getimagesize($file);
+		return is_array($info) && $info[0] > 0 && $info[1] > 0
+			&& $info[0] <= 2048 && $info[1] <= 2048
+			&& in_array($info[2], array(IMAGETYPE_PNG, IMAGETYPE_WEBP), true)
+			? $path : '';
+	}
+
 }
