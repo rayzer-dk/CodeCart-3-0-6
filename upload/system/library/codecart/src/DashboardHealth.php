@@ -269,7 +269,7 @@ final class DashboardHealth {
         $data=array(
             'checked_at'=>date('Y-m-d H:i:s'),
             'url'=>(string)$info['url'],
-            'http_code'=>(int)$info['http_code',
+            'http_code'=>(int)$info['http_code'],
             'ttfb_ms'=>(int)round(((float)$info['starttransfer_time'])*1000),
             'total_ms'=>(int)round(((float)$info['total_time'])*1000),
             'html_kb'=>round(strlen((string)$html)/1024,1),
