@@ -43,3 +43,4 @@ $_['text_pwa_mac_help'] = 'Safari на Mac: меню «Файл» → «Дода
 $_['text_pwa_banner_title'] = 'Встановіть магазин на пристрій';
 $_['text_pwa_banner_desc'] = 'Швидкий доступ до товарів прямо з головного екрана.';
 $_['text_pwa_dismiss'] = 'Закрити';
+$_['ui_continue_shopping'] = 'Продовжити покупки';
