@@ -80,6 +80,7 @@ function $(arg) {
         each: () => {}, closest: () => $(null)
     };
 }
+window.jQuery = $;
 vm.runInNewContext(script, {window, document, Date, isFinite, Number, String, Object}, {filename:'feedback.js'});
 const ui = window.CodeCartUI;
 assert.equal(typeof ui.toast, 'function');
