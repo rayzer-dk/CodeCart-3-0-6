@@ -1,0 +1,97 @@
+/* CodeCart storefront feedback, overrides the legacy top-right toast. */
+#ccp-toast-host {
+    position: fixed;
+    z-index: 2147482500;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: min(460px, calc(100vw - 32px));
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+#ccp-toast-host .ccp-toast {
+    display: grid;
+    grid-template-columns: 48px minmax(0,1fr) 28px;
+    align-items: center;
+    gap: 13px;
+    width: 100%;
+    min-height: 88px;
+    padding: 16px 18px;
+    border: 1px solid rgba(148,163,184,.28);
+    border-radius: 18px;
+    background: #fff;
+    color: #172b3b;
+    font-size: 16px;
+    line-height: 1.45;
+    box-shadow: 0 26px 80px rgba(15,23,42,.23),0 5px 16px rgba(15,23,42,.1);
+    opacity: 0;
+    transform: translateY(14px) scale(.94);
+    transition: opacity .2s ease,transform .2s cubic-bezier(.2,.8,.2,1);
+    pointer-events: auto;
+    overflow-wrap: anywhere;
+}
+#ccp-toast-host .ccp-toast.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+#ccp-toast-host .ccp-feedback-symbol {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: #e7f7ec;
+    color: #178044;
+    font-size: 21px;
+}
+#ccp-toast-host .ccp-toast-info .ccp-feedback-symbol {background:#e9f2ff;color:#2366bd}
+#ccp-toast-host .ccp-toast-warning .ccp-feedback-symbol {background:#fff2d6;color:#955c08}
+#ccp-toast-host .ccp-toast-danger .ccp-feedback-symbol {background:#ffebeb;color:#b42318}
+#ccp-toast-host .ccp-toast-text {
+    min-width: 0;
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 550;
+    color: inherit;
+}
+#ccp-toast-host .ccp-toast-close {
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #6b7280;
+    font-size: 27px;
+    line-height: 1;
+    padding: 2px;
+    cursor: pointer;
+}
+#ccp-toast-host .ccp-toast-close:hover {background:#eef2f7;color:#1e293b}
+#ccp-toast-host .ccp-toast-close:focus-visible {outline:2px solid var(--ccp-store-accent,#0b6fd3);outline-offset:2px}
+html.ccp-theme-dark #ccp-toast-host .ccp-toast {
+    background: #222b38;
+    color: #f2f6fb;
+    border-color: #445366;
+    box-shadow: 0 26px 80px rgba(0,0,0,.55);
+}
+html.ccp-theme-dark #ccp-toast-host .ccp-toast-close {color:#cbd5e1}
+html.ccp-theme-dark #ccp-toast-host .ccp-toast-close:hover {background:#364252}
+@media (max-width: 767px) {
+    #ccp-toast-host {left:50%;right:auto;top:50%;width:calc(100vw - 28px)}
+    #ccp-toast-host .ccp-toast {
+        grid-template-columns:44px minmax(0,1fr) 26px;
+        min-height:80px;
+        gap:12px;
+        padding:14px;
+        border-radius:16px;
+        font-size:15px;
+    }
+    #ccp-toast-host .ccp-feedback-symbol {width:42px;height:42px;border-radius:13px}
+    #ccp-toast-host .ccp-toast-text {font-size:15px}
+}
+@media (prefers-reduced-motion: reduce) {
+    #ccp-toast-host .ccp-toast {transition:none;transform:none}
+}
