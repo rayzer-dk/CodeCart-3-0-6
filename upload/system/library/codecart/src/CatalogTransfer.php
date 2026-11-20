@@ -147,9 +147,32 @@ final class CatalogTransfer {
         }
     }
 
+    /** Keep OpenCart dynamic side effects visible without duplicating the error-enrichment logic. */
+    private function completeProductProblems(): void {
+        foreach ($this->productProblems as $id => $issue) {
+            if ($issue['name'] === '' && isset($this->productNames[$id])) {
+                $this->productProblems[$id]['name'] = $this->productNames[$id];
+            }
+        }
+    }
+
+    private function productProblemsList(): array {
+        $this->completeProductProblems();
+        return array_values($this->productProblems);
+    }
+
+    private function isRejectedProduct($id): bool {
+        return isset($this->badProductIds[(int)$id]);
+    }
+
+    /** Tables without a PRIMARY KEY must never be imported using unsafe upserts. */
+    private function hasPrimaryKey(array $schema): bool {
+        return !empty($schema['primary']);
+    }
+
     private function rejectProduct($id, $reason, $row = array()) {
         $id = (int)$id;
-        if ($id < 1 || isset($this->badProductIds[$id])) { return; }
+        if ($id < 1 || $this->isRejectedProduct($id)) { return; }
         $this->badProductIds[$id] = true;
         $this->productProblems[$id] = array(
             'product_id' => $id,
@@ -236,7 +259,7 @@ final class CatalogTransfer {
                     ORDER BY pd.product_id,pd.download_id LIMIT ".$offset.",".$limit)->rows;
                 foreach ($records as $record) {
                     $id = (int)$record['product_id'];
-                    if ($id <= 0 || isset($this->badProductIds[$id])) { continue; }
+                    if ($id <= 0 || $this->isRejectedProduct($id)) { continue; }
                     $name = isset($record['filename']) ? (string)$record['filename'] : '';
                     if (!$this->safeDownloadFilename($name)) {
                         $this->rejectProduct($id,'Invalid digital download filename');
@@ -258,7 +281,7 @@ final class CatalogTransfer {
                 $rows = $this->db->query("SELECT product_id,download_id FROM `".$this->table('product_to_download')."`
                     ORDER BY product_id,download_id LIMIT ".$offset.",".$limit)->rows;
                 foreach ($rows as $row) {
-                    if (!isset($this->badProductIds[(int)$row['product_id']])) {
+                    if (!$this->isRejectedProduct($row['product_id'])) {
                         $this->validDownloadIds[(int)$row['download_id']] = true;
                     }
                 }
@@ -266,10 +289,7 @@ final class CatalogTransfer {
                 $offset += $limit;
             } while ($n === $limit);
         }
-        foreach ($this->productProblems as $id => &$issue) {
-            if ($issue['name'] === '' && isset($this->productNames[$id])) { $issue['name'] = $this->productNames[$id]; }
-        }
-        unset($issue);
+        $this->completeProductProblems();
         $this->progressCounts['processed'] = 0;
         $this->progressCounts['skipped'] = count($this->badProductIds);
         $this->publishProgress('exporting', true);
@@ -586,7 +606,7 @@ final class CatalogTransfer {
                 if ($missingRequired) {
                     $result['errors'][] = DB_PREFIX . $targetLogical . ': required target columns are absent: ' . implode(', ', $missingRequired);
                 }
-                if (!$schema['primary']) {
+                if (!$this->hasPrimaryKey($schema)) {
                     $result['warnings'][] = DB_PREFIX . $targetLogical . ': table has no PRIMARY KEY and will be skipped to avoid duplicates.';
                 } else {
                     foreach ($schema['primary'] as $pk) {
@@ -646,14 +666,11 @@ final class CatalogTransfer {
             }
             if ($missing) { $result['errors'][] = 'Missing required image files: ' . implode(', ', $missing) . (count($missing) >= 20 ? ' ...' : '') . '. Use the portable ZIP or transfer the images first.'; }
         }
-        foreach ($this->productProblems as $id => &$item) {
-            if ($item['name']==='' && isset($this->productNames[$id])) { $item['name']=$this->productNames[$id]; }
-        }
-        unset($item);
+        $this->completeProductProblems();
         $total = isset($workbook['product']['rows']) ? count($workbook['product']['rows']) : 0;
         $result['total_products']=$total;
         $result['skipped_products']=count($this->badProductIds);
-        $result['product_errors']=array_values($this->productProblems);
+        $result['product_errors']=$this->productProblemsList();
         $this->progressCounts=array('total'=>$total,'processed'=>0,'success'=>0,
             'skipped'=>count($this->badProductIds),'fixed'=>0);
         $result['ok'] = !$result['errors'];
@@ -687,7 +704,7 @@ final class CatalogTransfer {
             $targetLogical = $this->targetLogicalForSource($sourceLogical);
             if ($targetLogical === null) { continue; }
             $schema = $this->schema($targetLogical);
-            if (!$schema['primary'] && !$this->isSeoLogical($targetLogical)) { continue; }
+            if (!$this->hasPrimaryKey($schema) && !$this->isSeoLogical($targetLogical)) { continue; }
             $plans[$sourceLogical] = $targetLogical;
             $backupTables[$targetLogical] = true;
         }
@@ -929,7 +946,7 @@ final class CatalogTransfer {
                 $intersection=array_values(array_intersect($sourceColumns,array_keys($schema['columns'])));$missingRequired=array();
                 foreach($schema['columns'] as $name=>$column){if(!in_array($name,$intersection,true)&&$column['required']&&!$this->requiredColumnHasFallback($sourceLogical,$name)){$missingRequired[]=$name;}}
                 if($missingRequired){$result['errors'][]=DB_PREFIX.$targetLogical.': required target columns are absent: '.implode(', ',$missingRequired);}
-                if(!$schema['primary']){$result['warnings'][]=DB_PREFIX.$targetLogical.': table has no PRIMARY KEY and will be skipped to avoid duplicates.';}else{foreach($schema['primary'] as $pk){if(!in_array($pk,$intersection,true)){$result['errors'][]=DB_PREFIX.$targetLogical.': primary key column is absent: '.$pk.'. CodeCart PRO does not guess or remap catalog IDs during a safe import.';}}}
+                if(!$this->hasPrimaryKey($schema)){$result['warnings'][]=DB_PREFIX.$targetLogical.': table has no PRIMARY KEY and will be skipped to avoid duplicates.';}else{foreach($schema['primary'] as $pk){if(!in_array($pk,$intersection,true)){$result['errors'][]=DB_PREFIX.$targetLogical.': primary key column is absent: '.$pk.'. CodeCart PRO does not guess or remap catalog IDs during a safe import.';}}}
             }
             $ignored=array_values(array_diff($sourceColumns,array_keys($schema['columns'])));if($seoSheet){$ignored=array_values(array_diff($ignored,array('seo_url_id','url_alias_id','store_id','language_id')));}if($ignored){$result['warnings'][]=DB_PREFIX.$targetLogical.': unsupported source columns will be ignored: '.implode(', ',$ignored);}
             $result['sheets'][]=array('table'=>$sourceLogical,'target_table'=>$targetLogical,'rows'=>$rowCount,'columns'=>count($intersection),'ignored'=>$ignored,'primary'=>$schema['primary']);
@@ -977,13 +994,10 @@ final class CatalogTransfer {
             }
             if($missing){$result['errors'][]='Missing required images outside product cards: '.implode(', ',$missing).'.';}
         }
-        foreach ($this->productProblems as $id => &$item) {
-            if ($item['name']==='' && isset($this->productNames[$id])) { $item['name']=$this->productNames[$id]; }
-        }
-        unset($item);
+        $this->completeProductProblems();
         $result['total_products'] = $totalProducts;
         $result['skipped_products'] = count($this->badProductIds);
-        $result['product_errors'] = array_values($this->productProblems);
+        $result['product_errors'] = $this->productProblemsList();
         $this->progressCounts = array('total'=>$totalProducts,'processed'=>0,
             'success'=>0,'skipped'=>count($this->badProductIds),'fixed'=>0);
         $result['ok']=!$result['errors']; return $result;
@@ -998,7 +1012,7 @@ final class CatalogTransfer {
         }
         $xlsx=$state['xlsx'];$package=!empty($state['package'])&&is_file($state['package'])?$state['package']:'';$preview=$this->preflightStreaming($xlsx,$package);if(!$preview['ok']){throw new \RuntimeException(implode('; ',$preview['errors']));}
         $meta=$this->readStreamingMetadata($xlsx);$languageMap=$this->targetLanguageMap(isset($meta['languages'])?$meta['languages']:array());$storeMap=$this->targetStoreMap(isset($meta['stores'])?$meta['stores']:array());
-        $plans=array();$backupTables=array();foreach($preview['sheets'] as $sheet){$source=$sheet['table'];$target=$sheet['target_table'];if(!$this->isTransferTable($source)||$target===null)continue;$schema=$this->schema($target);if(!$schema['primary']&&!$this->isSeoLogical($target))continue;$plans[$source]=$target;$backupTables[$target]=true;}
+        $plans=array();$backupTables=array();foreach($preview['sheets'] as $sheet){$source=$sheet['table'];$target=$sheet['target_table'];if(!$this->isTransferTable($source)||$target===null)continue;$schema=$this->schema($target);if(!$this->hasPrimaryKey($schema)&&!$this->isSeoLogical($target))continue;$plans[$source]=$target;$backupTables[$target]=true;}
         $plans=$this->orderedPlans($plans);
         $mainCategoryMap=array();if(isset($plans['product_to_category'])||isset($plans['product'])){if($this->tableExists('product'))$backupTables['product']=true;if($this->tableExists('product_to_category'))$backupTables['product_to_category']=true;}
         $backup=$this->createSqlSnapshot(array_keys($backupTables));
@@ -1060,7 +1074,7 @@ final class CatalogTransfer {
                 if ($allRejected) { return true; }
             }
         }
-        if (isset($row['product_id']) && isset($this->badProductIds[(int)$row['product_id']])) {
+        if (isset($row['product_id']) && $this->isRejectedProduct($row['product_id'])) {
             return true;
         }
         if ($source === 'product_related' && isset($row['related_id']) && isset($this->badProductIds[(int)$row['related_id']])) {
