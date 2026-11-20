@@ -42,11 +42,12 @@
         !!node.querySelector(':scope > a[href*="common/logout"]');
     }
     function rank(node) {
-      var builtIn = 'ccp-modification-refresh-menu ccp-admin-theme-menu ccp-admin-language-menu ccp-notification-menu ccp-admin-profile'.split(' ');
+      var builtIn = 'ccp-modification-refresh-menu ccp-admin-theme-menu ccp-admin-language-menu ccp-palette-menu ccp-notification-menu ccp-admin-profile'.split(' ');
       if (!builtIn.some(function (cls) { return node.classList.contains(cls); }) && !isPinned(node)) { return 0; }
       if (node.classList.contains('ccp-modification-refresh-menu')) { return 1; }
       if (node.classList.contains('ccp-admin-theme-menu')) { return 2; }
       if (node.classList.contains('ccp-admin-language-menu')) { return 3; }
+      if (node.classList.contains('ccp-palette-menu')) { return 3.5; }
       if (node.classList.contains('ccp-notification-menu')) { return 4; }
       return 10;
     }
