@@ -955,7 +955,7 @@ final class CatalogTransfer {
             if(isset($check['when_table'])&&!$this->tableExists($check['when_table']))continue;
             $ids=isset($requiredRefs[$idx])?array_keys($requiredRefs[$idx]):array(); if(!$ids)continue;
             $available=isset($availableRefs[$idx])?$availableRefs[$idx]:array();
-            if($this->tableExists($check['target'])){foreach(array_chunk(array_values(array_diff($ids,array_keys($available))),500) as $chunk){if(!$chunk)continue;$q=$this->db->query("SELECT `".$check['target_key']."` FROM `".$this->table($check['target'])."` WHERE `".$check['target_key']."` IN (".implode(',',array_map('intval',$chunk)).")");foreach($q->rows as $row){$available[(int)$row[$check['target_key']]]=true;}}}
+            if($this->tableExists($check['target'])){foreach(array_chunk(array_values(array_diff($ids,array_keys($available))),500) as $chunk){$q=$this->db->query("SELECT `".$check['target_key']."` FROM `".$this->table($check['target'])."` WHERE `".$check['target_key']."` IN (".implode(',',array_map('intval',$chunk)).")");foreach($q->rows as $row){$available[(int)$row[$check['target_key']]]=true;}}}
             $missing=array_values(array_diff($ids,array_keys($available)));
             if ($missing) {
                 $systemMissing = array();
