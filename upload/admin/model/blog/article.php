@@ -302,6 +302,10 @@ class ModelBlogArticle extends Model {
 	public function getArticles($data = array()) {
 		$sql = "SELECT * FROM " . DB_PREFIX . "article p LEFT JOIN " . DB_PREFIX . "article_description pd ON (p.article_id = pd.article_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
+        if (!empty($data['filter_category_id'])) {
+            $sql .= " AND EXISTS (SELECT 1 FROM " . DB_PREFIX . "article_to_blog_category ac WHERE ac.article_id = p.article_id AND ac.blog_category_id = '" . (int)$data['filter_category_id'] . "')";
+        }
+
 		if (!empty($data['filter_name'])) {
 			$sql .= " AND pd.name LIKE '" . $this->db->escape($data['filter_name']) . "%'";
 		}
@@ -478,6 +482,10 @@ class ModelBlogArticle extends Model {
 		$sql = "SELECT COUNT(DISTINCT p.article_id) AS total FROM " . DB_PREFIX . "article p LEFT JOIN " . DB_PREFIX . "article_description pd ON (p.article_id = pd.article_id)";
 
 		$sql .= " WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+
+        if (!empty($data['filter_category_id'])) {
+            $sql .= " AND EXISTS (SELECT 1 FROM " . DB_PREFIX . "article_to_blog_category ac WHERE ac.article_id = p.article_id AND ac.blog_category_id = '" . (int)$data['filter_category_id'] . "')";
+        }
 
 		if (!empty($data['filter_name'])) {
 			$sql .= " AND pd.name LIKE '" . $this->db->escape($data['filter_name']) . "%'";
