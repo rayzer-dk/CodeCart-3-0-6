@@ -92,7 +92,7 @@
         </ul>
       </li>
       {% endif %}
-      <li class="ccp-palette-menu"><a href="#" role="button" title="Швидка навігація (Ctrl+K)" aria-label="Швидка навігація (Ctrl+K)"><i class="fa-solid fa-compass" aria-hidden="true"></i></a></li>
+      <li class="ccp-palette-menu"><a href="#" role="button" title="{{ text_quick_nav }} (Ctrl+K)" aria-label="{{ text_quick_nav }} (Ctrl+K)"><i class="fa-solid fa-compass" aria-hidden="true"></i></a></li>
       <li class="dropdown ccp-notification-menu"><a href="#" class="dropdown-toggle ccp-notification-toggle" data-toggle="dropdown" title="{{ text_system_notifications }}" aria-label="{{ text_system_notifications }}"><i class="fa fa-bell"></i>{% if notification_count %}<span class="ccp-notification-count">{{ notification_count }}</span>{% endif %}</a>
         <ul class="dropdown-menu dropdown-menu-right ccp-notification-dropdown">
           <li class="dropdown-header"><i class="fa fa-bell-o"></i> {{ text_system_notifications }}</li>
