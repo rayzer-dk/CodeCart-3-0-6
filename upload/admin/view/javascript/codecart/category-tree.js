@@ -135,7 +135,7 @@
       expandAll.addEventListener('click', function () {
         rows.forEach(function (row) {
           if (row.querySelector('.cc-tree-collapse:not(.is-placeholder)')) {
-            collapsed[row.dataset.ccTreeId] = false;
+            collapsed[row.dataset.ccTreeId] = expandAll.getAttribute('aria-expanded') === 'true';
           }
         });
         refreshTree();
@@ -145,13 +145,16 @@
     refreshTree();
     rows.forEach(function (row) {
       var toggle = row.querySelector('.cc-tree-collapse');
-      if (toggle && !toggle.disabled) {
-        toggle.addEventListener('click', function () {
+      if (toggle && !toggle.disabled && !toggle.classList.contains('is-placeholder')) {
+        var nameToggle = row.querySelector('.cc-tree-name-toggle');
+        var onToggle = function () {
           var id = row.dataset.ccTreeId;
           collapsed[id] = !collapsed[id];
           refreshTree();
           if (expandAll) { syncExpandAll(); }
-        });
+        };
+        toggle.addEventListener('click', onToggle);
+        if (nameToggle) { nameToggle.addEventListener('click', onToggle); }
       }
     });
 
@@ -170,8 +173,18 @@
     function move(id, parent) {
       if (id === parent || !/^[0-9]+$/.test(id) || !/^[0-9]+$/.test(parent)) { return; }
       request({action: 'move', id: id, parent_id: parent})
-        .then(function () { window.location.reload(); })
+        .then(function (result) { if (result && result.moved === false) { notify(defaultError, false); return; } window.location.reload(); })
         .catch(function (error) { notify(error.message || defaultError, false); });
+    }
+    function dropOn(target) {
+      var source = host.querySelector('.cc-tree-row[data-cc-tree-id="' + dragging + '"]');
+      if (source && source.dataset.ccTreeParent === target.dataset.ccTreeParent) {
+        request({action:'reorder', id:dragging, before_id:target.dataset.ccTreeId})
+          .then(function (result) { if (result.moved === false) { notify(defaultError, false); return; } window.location.reload(); })
+          .catch(function (error) { notify(error.message || defaultError, false); });
+      } else {
+        move(dragging, target.dataset.ccTreeId);
+      }
     }
     rows.forEach(function (row) {
       // Drag events are dispatched at the draggable row, not necessarily at
@@ -209,7 +222,7 @@
         event.preventDefault();
         event.stopPropagation();
         row.classList.remove('is-over');
-        move(dragging, row.dataset.ccTreeId);
+        dropOn(row);
       });
     });
     if (root) {
