@@ -233,7 +233,7 @@ $(function(){
 	document.addEventListener('keydown',function(e){
 		if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&String(e.key).toLowerCase()==='k'){e.preventDefault();toggle();}
 	});
-	var anchor=document.querySelector('#header .ccp-admin-language-menu') || document.querySelector('#header .ccp-notification-menu');
+	var anchor=document.querySelector('#header .ccp-admin-language-menu') || document.querySelector('#header .ccp-admin-theme-menu');
 	if(anchor&&anchor.parentNode){
 		var li=document.createElement('li');li.className='ccp-palette-menu';
 		var a=document.createElement('a');a.href='#';a.setAttribute('role','button');
