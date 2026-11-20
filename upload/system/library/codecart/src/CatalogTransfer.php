@@ -21,11 +21,14 @@ final class CatalogTransfer {
     private $config;
     private $log;
     private $progressCallback;
+    /** @var array<int, true> */
     private $badProductIds = array();
+    /** @var array<int, array{product_id:int, sku:string, name:string, reason:string}> */
     private $productProblems = array();
     private $progressCounts = array();
     private $productNames = array();
     private $productSkus = array();
+    /** @var array<int, true> */
     private $validDownloadIds = array();
     private $incomingDownloadNames = array();
     private $incomingDownloadLinks = array();
@@ -422,7 +425,7 @@ final class CatalogTransfer {
                     throw new \RuntimeException('Missing digital product file: ' . $name);
                 }
                 $size = (int)filesize($source);
-                if ($size > self::MAX_SINGLE_DOWNLOAD_BYTES || $size < 0) {
+                if ($size > self::MAX_SINGLE_DOWNLOAD_BYTES) {
                     @unlink($tmpXlsx);
                     throw new \RuntimeException('Digital product file exceeds the portable limit: ' . $name);
                 }
