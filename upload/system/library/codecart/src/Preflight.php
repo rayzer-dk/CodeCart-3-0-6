@@ -98,10 +98,11 @@ final class Preflight {
             $count = (int)($bad->row['total'] ?? 0);
             $this->row($rows, 'db.modern', 'DB engine/charset', $count ? 'legacy tables: ' . $count : 'InnoDB / utf8mb4', $count ? 'warning' : 'ok', $count ? 'Use Database Modernizer only after a full backup.' : '');
 
-            $expected = defined('CODECART_BUILD') ? (string)CODECART_BUILD : '3.0.6.0';
+            // Package build and DB schema revision are independent.
+            $expected = (new SchemaRegistry($this->registry))->expectedVersion();
             $actual = trim((string)$this->config->get('codecart_core_schema_version'));
-            $schemaOk = $actual !== '' && $actual === $expected;
-            $this->row($rows, 'db.schema_version', 'Core schema version', $actual !== '' ? $actual : 'not recorded', $schemaOk ? 'ok' : 'warning', $schemaOk ? 'Schema version matches this build.' : 'Core schema version differs from this build. Run the migration check.');
+            $schemaOk = $expected !== '' && $actual !== '' && $actual === $expected;
+            $this->row($rows, 'db.schema_version', 'Core schema version', $actual !== '' ? $actual : 'not recorded', $schemaOk ? 'ok' : 'warning', $schemaOk ? 'Schema version matches the database schema manifest.' : 'Core schema version differs from the schema manifest. Run the migration check.');
 
             if ($this->tableExists('codecart_migration')) {
                 $migration = $this->db->query("SELECT migration,version,date_applied FROM `" . DB_PREFIX . "codecart_migration` WHERE scope='core' ORDER BY migration_id DESC LIMIT 1");
