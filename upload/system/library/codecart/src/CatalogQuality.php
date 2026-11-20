@@ -80,7 +80,12 @@ final class CatalogQuality {
             $fields = array_merge($fields, array('description', 'meta_title', 'meta_description'));
             $checks = array();
             foreach ($fields as $field) {
-                $checks[] = "IF(CHAR_LENGTH(TRIM(d." . $field . ")) > " . ($field === 'description' ? '15' : '0') . ",1,0) AS " . $field;
+                if ($field === 'description') {
+                    // Bounded sample; evaluate meaningful visible text in PHP, not markup length.
+                    $checks[] = "LEFT(d.description, 8192) AS description_sample";
+                } else {
+                    $checks[] = "IF(CHAR_LENGTH(TRIM(d." . $field . ")) > 0,1,0) AS " . $field;
+                }
             }
             $sql = "SELECT d." . $descId . ", d.language_id, " . implode(', ', $checks)
                 . " FROM " . DB_PREFIX . $spec['description'] . " d WHERE d." . $descId . " IN (" . $idList
@@ -135,10 +140,14 @@ final class CatalogQuality {
             $missing = array();
             $checks = 0;
             $passed = 0;
+            $hasUsefulDescription = false;
+            $hasMeaningfulTitle = false;
             $add = function ($key, $present, $locale = '') use (&$missing, &$checks, &$passed, $translate) {
-                $checks++;
+                // Product/category information matters more than metadata or technical defaults.
+                $weight = $key === 'description' ? 5 : ($key === 'name' || $key === 'title' ? 2 : 1);
+                $checks += $weight;
                 if ($present) {
-                    $passed++;
+                    $passed += $weight;
                     return;
                 }
                 $name = (string)$translate($key);
@@ -168,15 +177,37 @@ final class CatalogQuality {
                 $fields = $spec['title'] !== '' ? array($spec['title']) : array();
                 $fields = array_merge($fields, array('description', 'meta_title', 'meta_description'));
                 foreach ($fields as $field) {
-                    $add($field, !empty($descriptions[$id][$languageId][$field]), $lang);
+                    if ($field === 'description') {
+                        $html = (string)($descriptions[$id][$languageId]['description_sample'] ?? '');
+                        $plain = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $plain = preg_replace('/[\\s\\x{00A0}]+/u', ' ', $plain);
+                        $plain = trim((string)$plain);
+                        $length = function_exists('mb_strlen') ? mb_strlen($plain, 'UTF-8') : strlen($plain);
+                        $present = $length >= 80;
+                        $hasUsefulDescription = $hasUsefulDescription || $present;
+                    } else {
+                        $present = !empty($descriptions[$id][$languageId][$field]);
+                        if (($field === 'name' || $field === 'title') && $present) {
+                            $hasMeaningfulTitle = true;
+                        }
+                    }
+                    $add($field, $present, $lang);
                 }
                 foreach ($assigned as $storeId) {
                     $hasUrl = !empty($seo[$id][$storeId][$languageId]) || !empty($seo[$id][$storeId][0]);
                     $add('seo_url', $hasUrl, $lang . ' / #' . $storeId);
                 }
             }
+            $percent = $checks > 0 ? (int)round($passed * 100 / $checks) : 0;
+            // SEO fields alone must never make an empty content page look complete.
+            if (!$hasUsefulDescription) {
+                $percent = min($percent, 39);
+            }
+            if (!$hasMeaningfulTitle && $spec['title'] !== '') {
+                $percent = min($percent, 15);
+            }
             $items[$id] = array(
-                'percent' => (int)round($passed * 100 / $checks),
+                'percent' => $percent,
                 'complete' => $passed,
                 'total' => $checks,
                 'missing' => array_slice($missing, 0, 28)
