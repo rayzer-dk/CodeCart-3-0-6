@@ -7,6 +7,7 @@ use CodeCart\Core\CatalogQuality;
 
 class QualityMockDb {
     public $queries = array();
+    public $descriptionSample = '';
     public function escape($text) { return addslashes((string)$text); }
     public function query($sql) {
         $this->queries[] = $sql;
@@ -28,7 +29,7 @@ class QualityMockDb {
         } elseif (preg_match('/FROM oc_(product|category|manufacturer|information|article|blog_category)_description d /', $sql)) {
             $type = preg_replace('/.*FROM oc_(product|category|manufacturer|information|article|blog_category)_description d .*/s', '$1', $sql);
             $id = $type === 'blog_category' ? 'blog_category_id' : ($type === 'information' ? 'information_id' : ($type === 'manufacturer' ? 'manufacturer_id' : ($type === 'category' ? 'category_id' : ($type === 'article' ? 'article_id' : 'product_id'))));
-            $rows = array(array($id => 1, 'language_id' => 1, 'name' => 1, 'title' => 1, 'description' => 1, 'meta_title' => 1, 'meta_description' => 0));
+            $rows = array(array($id => 1, 'language_id' => 1, 'name' => 1, 'title' => 1, 'description_sample' => $this->descriptionSample, 'meta_title' => 1, 'meta_description' => 0));
         } elseif (preg_match('/FROM oc_(product|category|manufacturer|information|article|blog_category)_to_store /', $sql)) {
             $type = preg_replace('/.*FROM oc_(product|category|manufacturer|information|article|blog_category)_to_store .*/s', '$1', $sql);
             $id = $type === 'blog_category' ? 'blog_category_id' : ($type === 'information' ? 'information_id' : ($type === 'manufacturer' ? 'manufacturer_id' : ($type === 'category' ? 'category_id' : ($type === 'article' ? 'article_id' : 'product_id'))));
@@ -86,6 +87,20 @@ foreach (CatalogQuality::types() as $type) {
     }
     $totals[$type] = $rows[1]['percent'];
 }
+
+// Empty HTML or metadata-only entries must never report high completeness.
+$emptyDb = new QualityMockDb();
+$emptyQuality = CatalogQuality::inspect($emptyDb, 'product', array(1), array(array('language_id'=>1,'name'=>'Українська')));
+$check($emptyQuality[1]['percent'] <= 39, 'metadata-only product should score below 40 percent');
+$check(in_array('Українська: description', $emptyQuality[1]['missing'], true), 'empty description must be reported');
+$filledDb = new QualityMockDb();
+$filledDb->descriptionSample = '<p>' . str_repeat('Детальний опис обладнання з реальними характеристиками. ', 4) . '</p>';
+$filledQuality = CatalogQuality::inspect($filledDb, 'product', array(1), array(array('language_id'=>1,'name'=>'Українська')));
+$check($filledQuality[1]['percent'] > $emptyQuality[1]['percent'], 'substantive description must improve completeness');
+$markupDb = new QualityMockDb();
+$markupDb->descriptionSample = str_repeat('<p><br></p>', 30);
+$markupQuality = CatalogQuality::inspect($markupDb, 'product', array(1), array(array('language_id'=>1,'name'=>'Українська')));
+$check(in_array('Українська: description', $markupQuality[1]['missing'], true), 'HTML tags alone do not constitute product description');
 
 // The original table columns and sort links must stay untouched: quality is inline only.
 $routes = array(
