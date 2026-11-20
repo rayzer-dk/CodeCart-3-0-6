@@ -16,7 +16,7 @@ $_['text_keyword']           = 'SEO URL має бути унікальним у 
 $_['column_name']            = 'Категорії';
 $_['column_sort_order']      = 'Порядок сортування';
 $_['column_noindex']         = 'Індексація';
-$_['column_action']          = 'Операції';
+$_['column_action']          = 'Дії';
 
 // Entry
 $_['entry_name']             = 'Категорія';
