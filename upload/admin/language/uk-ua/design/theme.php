@@ -17,7 +17,7 @@ $_['column_store']      = 'Магазин';
 $_['column_route']      = 'Шлях';
 $_['column_theme']      = 'Шаблон';
 $_['column_date_added'] = 'Дата додавання';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Error
 $_['error_permission']  = 'У вас недостатньо прав для внесення змін';
