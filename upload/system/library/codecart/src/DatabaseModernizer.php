@@ -120,16 +120,12 @@ class DatabaseModernizer {
                     if ($needsEngine) {
                         $clauses[] = 'ENGINE=InnoDB';
                     }
-                    if ($needsEngine || $needsCharset) {
-                        $clauses[] = 'ROW_FORMAT=DYNAMIC';
-                    }
+                    $clauses[] = 'ROW_FORMAT=DYNAMIC';
                     if ($needsCharset) {
                         $clauses[] = 'CONVERT TO CHARACTER SET utf8mb4 COLLATE ' . $this->collation;
                     }
-                    if ($clauses) {
-                        // Use one ALTER per table so engine/row-format/charset modernization is one DDL operation.
-                        $this->db->query("ALTER TABLE `" . $this->identifier($table) . "` " . implode(', ', $clauses));
-                    }
+                    // Keep engine, row format and charset changes in one DDL statement.
+                    $this->db->query("ALTER TABLE `" . $this->identifier($table) . "` " . implode(', ', $clauses));
                     $result['changed'][] = $table;
                     if ($limit > 0 && count($result['changed']) >= $limit) {
                         break;
