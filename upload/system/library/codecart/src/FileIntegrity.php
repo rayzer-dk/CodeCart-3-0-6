@@ -2,10 +2,8 @@
 namespace CodeCart\Core;
 
 final class FileIntegrity {
-    private $registry;
-
+    // Keep the constructor signature for existing callers; no registry state is needed.
     public function __construct($registry) {
-        $this->registry = $registry;
     }
 
     public function check(): array {
