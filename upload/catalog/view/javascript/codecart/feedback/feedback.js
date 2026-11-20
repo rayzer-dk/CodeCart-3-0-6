@@ -59,11 +59,12 @@
         lastKey = key;
         lastAt = now;
         sequence += 1;
-        var previous = current;
         window.clearTimeout(closeTimer);
         window.clearTimeout(removeTimer);
-        if (previous && previous.parentNode) {
-            previous.parentNode.removeChild(previous);
+        // Also discard a toast that is still in its exit animation after Escape.
+        var surface = host();
+        while (surface.children.length) {
+            surface.removeChild(surface.children[0]);
         }
 
         var node = document.createElement('div');
