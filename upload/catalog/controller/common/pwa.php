@@ -75,7 +75,7 @@ class ControllerCommonPwa extends Controller {
         $root = realpath(DIR_IMAGE);
         // Prefer the dedicated app icon; fall back to the existing store favicon.
         foreach (array('config_codecart_pwa_icon', 'config_icon') as $setting) {
-            $file = str_replace('\\\\', '/', (string)$this->config->get($setting));
+            $file = str_replace('\\', '/', (string)$this->config->get($setting));
             $source = $file !== '' ? realpath(DIR_IMAGE . $file) : false;
             if (!$root || !$source || strpos($source, $root . DIRECTORY_SEPARATOR) !== 0
                 || !is_file($source) || filesize($source) > 8 * 1024 * 1024) {
