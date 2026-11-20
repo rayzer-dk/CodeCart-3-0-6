@@ -238,7 +238,7 @@ final class RelationLayer {
         );
         $sort = isset($filter['sort']) && isset($sortMap[$filter['sort']]) ? $sortMap[$filter['sort']] : 'cr.score';
         $order = isset($filter['order']) && strtoupper((string)$filter['order']) === 'ASC' ? 'ASC' : 'DESC';
-        $where = $this->relationWhere($filter, $languageId);
+        $where = $this->relationWhere($filter);
         $nameSource = "COALESCE(spd.name,sad.name,scd.name,sm.name,CONCAT(cr.source_type,' #',cr.source_id))";
         $nameTarget = "COALESCE(tpd.name,tad.name,tcd.name,tm.name,CONCAT(cr.target_type,' #',cr.target_id))";
         $joins = $this->relationNameJoins($languageId);
@@ -251,7 +251,7 @@ final class RelationLayer {
         if (!$this->tableExists('codecart_relation')) { return 0; }
         $languageId = (int)$this->config->get('config_language_id');
         $joins = $this->relationNameJoins($languageId);
-        $where = $this->relationWhere($filter, $languageId);
+        $where = $this->relationWhere($filter);
         $query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "codecart_relation` cr " . $joins . " WHERE " . $where);
         return $query->num_rows ? (int)$query->row['total'] : 0;
     }
@@ -285,7 +285,7 @@ final class RelationLayer {
             . " LEFT JOIN `" . DB_PREFIX . "manufacturer` tm ON (cr.target_type='manufacturer' AND tm.manufacturer_id=cr.target_id)";
     }
 
-    private function relationWhere(array $filter, int $languageId): string {
+    private function relationWhere(array $filter): string {
         $where = array("cr.origin='rule'");
         if (!empty($filter['target_type']) && in_array($filter['target_type'], array('product','article','category','manufacturer'), true)) {
             $where[] = "cr.target_type='" . $this->db->escape($filter['target_type']) . "'";
