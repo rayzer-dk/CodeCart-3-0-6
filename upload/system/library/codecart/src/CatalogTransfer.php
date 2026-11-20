@@ -1008,7 +1008,7 @@ final class CatalogTransfer {
         $this->db->query('START TRANSACTION');
         try{
             foreach($plans as $source=>$target){$schema=$this->schema($target);$count=0;$skipped=0;$columns=null;
-                $info=SimpleXlsx::streamSheet($xlsx,$source,function($row) use ($source,$target,$schema,$languageMap,$storeMap,&$count,&$skipped,&$columns,&$mainCategoryMap){
+                SimpleXlsx::streamSheet($xlsx,$source,function($row) use ($source,$target,$schema,$languageMap,$storeMap,&$count,&$skipped,&$columns,&$mainCategoryMap){
                     if($columns===null){$columns=array_keys($row);} // actual header is supplied below after stream; row keys are equivalent for mapped data
                     if ($this->ignoreRejectedProductRow($source, $row)) {
                         if ($source === 'product') {
