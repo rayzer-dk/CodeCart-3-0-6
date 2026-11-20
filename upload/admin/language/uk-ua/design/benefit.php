@@ -19,7 +19,7 @@ $_['text_type_gift']     = 'Подарунок';
 $_['column_image']       = 'Зображення';
 $_['column_name']        = 'Назва переваги';
 $_['column_status']      = 'Статус';
-$_['column_action']      = 'Дія';
+$_['column_action']      = 'Дії';
 
 // Entry
 $_['entry_name']         = 'Назва переваги:';
