@@ -1,6 +1,6 @@
 <?php
 $_['heading_title']='Перевірка перед встановленням';
-$_['text_step_2']='CodeCart PRO 3.0.6.0 перевіряє сервер перед встановленням.';
+$_['text_step_2']='CodeCart PRO 3.0.6.1 перевіряє сервер перед встановленням.';
 $_['text_install_php']='Середовище PHP'; $_['text_install_extension']='Необхідні розширення PHP'; $_['text_install_file']='Файли конфігурації'; $_['text_install_directory']='Каталоги для запису та захищене сховище';
 $_['text_setting']='Параметр'; $_['text_current']='Поточне'; $_['text_required']='Необхідне'; $_['text_extension']='Розширення'; $_['text_file']='Файл'; $_['text_directory']='Каталог'; $_['text_status']='Статус'; $_['text_on']='Увімкнено'; $_['text_off']='Вимкнено'; $_['text_missing']='Відсутнє'; $_['text_writable']='Доступний для запису'; $_['text_unwritable']='Недоступний для запису'; $_['text_version']='Версія PHP'; $_['text_file_upload']='Завантаження файлів'; $_['text_session']='Автозапуск сесії';
 $_['error_missing']='Відсутній'; $_['error_unwritable']='Недоступний для запису';
