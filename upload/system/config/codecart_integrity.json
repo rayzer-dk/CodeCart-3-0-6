@@ -388,7 +388,7 @@
         "system/library/codecart/src/DeviceAuthorization.php": "14a98993028d33328925bf191fe463b99f192e459cd4b8387adf00a150eaf841",
         "system/library/codecart/src/ExtensionPoints.php": "8b1f4cb336ed95150de21f32d3cd164a9f8a05cd2d5823b81fc7364af19293ee",
         "system/library/codecart/src/FileIntegrity.php": "537ed70d55e4d61f57cf01acba843a31acd683fac18c06797365de37126dba71",
-        "system/library/codecart/src/FontAwesomeManager.php": "064c0bccaf866f38486980e485ef31f9fac67ba6ec7e300898441087c4cdfc49",
+        "system/library/codecart/src/FontAwesomeManager.php": "7ee5736e28a29020ea67ed27aebaf37aab2dcc6780927f5e8f1281a27bb3b536",
         "system/library/codecart/src/FormBuilder.php": "1fb0dd2f6c361fd1e899ee64b773ae5c0fc3938653ea3548ee344c4ae35fdc17",
         "system/library/codecart/src/FormGuard.php": "9aee558818450789926026d5b2a7bcf8e8a38d0ca870d2b38cfc2659a956c561",
         "system/library/codecart/src/GdprManager.php": "f154b9f8591b4c549ca7b8c7e6d1d95b6a12f5c1dd4bae1be278e634002f861a",
@@ -556,7 +556,7 @@
         "system/library/codecart/src/OrderAdminSearch.php": "e6ad9d5e539b2e5f955b2b66de00b7c00f40fdbd6589315e6dea7d36bf3f0966",
         "system/library/codecart/src/SchedulerSchedule.php": "e5eecbb56e8913163702374ad3bf11ba886dbd7b37e6749709b214e623a5112a",
         "system/library/codecart/src/CronExpression.php": "b4d4cf26d20e09ad5ac426ffe2989c40a8569245570d75606609f7f7e33eaeee",
-        "system/library/codecart/src/AdminCategoryTreeEditor.php": "cb0da42e22e674e09c2cae0a03e8ddc02027d7c6f18209c058f96a7701de68fb"
+        "system/library/codecart/src/AdminCategoryTreeEditor.php": "ebbe6302995f709500ef5788cf6a5692aa2a8acdd92846b1a97ce747ef371a72"
     },
     "version": "3.0.6.0",
     "package_build": "2.3.26"
