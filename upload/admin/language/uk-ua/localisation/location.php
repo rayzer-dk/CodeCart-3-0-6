@@ -15,7 +15,7 @@ $_['text_geocode']     = 'Геокод не застосований з наст
 // Column
 $_['column_name']      = 'Назва магазина';
 $_['column_address']   = 'Адреса';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Entry
 $_['entry_name']       = 'Назва магазина';
