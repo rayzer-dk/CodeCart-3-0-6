@@ -224,7 +224,7 @@ final class Queue {
     private function isJobLockActive(string $lock): bool {
         try {
             $query = $this->db->query("SELECT IS_USED_LOCK('" . $this->db->escape($lock) . "') AS owner");
-            return isset($query->row['owner']) && $query->row['owner'] !== null;
+            return isset($query->row['owner']);
         } catch (\Throwable $e) {
             // Recovery must be conservative if the lock state cannot be established.
             if ($this->log) { $this->log->write('CodeCart PRO queue stale-check lock error: ' . $e->getMessage()); }
