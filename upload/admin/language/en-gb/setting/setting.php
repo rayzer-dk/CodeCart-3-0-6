@@ -603,3 +603,6 @@ $_['help_codecart_pwa'] = 'Enables a web app manifest and store icons for instal
 
 $_['entry_codecart_pwa_prompt_days'] = 'Show install suggestion again after (days)';
 $_['help_codecart_pwa_prompt_days'] = 'How many days to wait after a dismissal before showing the install banner again. Default: 7 days. Disabled when PWA is off.';
+
+$_['entry_codecart_pwa_icon'] = 'PWA app icon';
+$_['help_codecart_pwa_icon'] = 'Separate installed-app icon: square PNG or WebP, ideally 512×512 px. If absent or invalid, the store favicon is used. The 192×192 and 512×512 icons are generated automatically.';
