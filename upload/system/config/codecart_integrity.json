@@ -329,7 +329,7 @@
         "catalog/view/theme/default/template/common/codecart_form.twig": "e3f3175f0ee58c2946ec315a835639c51bcec2131b1e6d713172a89a544ce4c2",
         "catalog/view/theme/default/template/common/cookie_consent.twig": "580c3f49de7ad654584097e0c132ef2664cfb8379df60722aac67e08f9434080",
         "catalog/view/theme/default/template/common/footer.twig": "01e44fc26b38c4d3ef3ff0c5f392ab12d2bdf7f2e3ac9d114d93abade7592895",
-        "catalog/view/theme/default/template/common/header.twig": "19822f3b5431c61d2d4947caa4d4c60d8f1eb8d67563ebd3b0f7d2ef7f6babd6",
+        "catalog/view/theme/default/template/common/header.twig": "0e2bdf9e1fdb46b3e82c4f4e32b2aabdb5a0ea83d65a14e94e7cebaa04808153",
         "catalog/view/theme/default/template/common/menu.twig": "0e76b2a60f0feee75acd36ea6be5162cd1ccf8a47801dde52511bebd7a380efe",
         "catalog/view/theme/default/template/extension/captcha/basic.twig": "1ddfca7ef5e66ef228bf0761a6af8f864ae8346baa58110ef474f9ed272bbeda",
         "catalog/view/theme/default/template/extension/module/bestseller.twig": "e35a72a800052682af0b93e23948320375ba65fed7546d915754a94391fcb267",
