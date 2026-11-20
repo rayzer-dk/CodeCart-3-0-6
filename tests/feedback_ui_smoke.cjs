@@ -104,4 +104,20 @@ assert.equal(error.classes.has('is-visible'), false);
 ui.toast('warning', 'Увага');
 assert.equal(host.children.length, 1, 'previous dismissed notification is replaced');
 assert.ok(lastDuration >= 6000, 'warnings stay visible for reading');
-console.log('Feedback UI contracts: PASS (storefront both themes, timing, dedup, replacement, escape, admin styling)');
+window.CodeCartI18n.ui_continue_shopping = 'Continue shopping';
+window.CodeCartI18n.text_checkout = 'Checkout';
+window.CodeCartRoutes = {checkout:'https://example.test/index.php?route=checkout/checkout'};
+const cartNotice = ui.toast('success', 'Added to cart', {cart:true, duration:2000});
+assert.ok(cartNotice.classes.has('ccp-toast-cart'), 'Cart confirmation has contextual actions');
+assert.equal(cartNotice.children.length, 4, 'Cart confirmation has button row');
+assert.equal(cartNotice.children[3].children[0].tagName, 'button');
+assert.equal(cartNotice.children[3].children[0].textContent, 'Continue shopping');
+assert.equal(cartNotice.children[3].children[1].textContent, 'Checkout');
+assert.equal(cartNotice.children[3].children[1].href, window.CodeCartRoutes.checkout);
+assert.equal(lastDuration, 2000, 'Cart success message stays for two seconds');
+assert.match(file('upload/catalog/view/javascript/common.js'), /cart:true, duration:2000/);
+for (const theme of themePaths) {
+    const product = file('upload/catalog/view/theme/' + theme + '/template/product/product.twig');
+    assert.match(product, /CodeCartUI.toast\('success', json\['success'\], \{cart:true, duration:2000\}\)/);
+}
+console.log('Feedback UI contracts: PASS (both themes, cart actions, 2s duration, generic notifications, Escape, admin styling)');
