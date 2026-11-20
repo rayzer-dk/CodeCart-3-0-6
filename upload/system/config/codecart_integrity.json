@@ -384,7 +384,7 @@
         "system/library/codecart/src/CookieConsent.php": "81db1e1118ac48ae31af3f15d46c90a3da8dbc3bc66c5d1996a922bcea7b524e",
         "system/library/codecart/src/CoreContracts.php": "c3ff271ec05080bb273570b12c9e598ee267099d0102f97112d052bfe4154f20",
         "system/library/codecart/src/DashboardHealth.php": "d72ebb9696b8f2030c5cfeece26b03ebe96aef4d40ffed1946a9cf63f1cca6bb",
-        "system/library/codecart/src/DatabaseModernizer.php": "7555a132a26501c266e798e1b1a750b45d2f99dad14c5b571455b9036fcbf091",
+        "system/library/codecart/src/DatabaseModernizer.php": "6227b5f32204768b1c25b5e91640f6c73a8cb2c6d6406bf10c7e4d63a3948a52",
         "system/library/codecart/src/DeviceAuthorization.php": "14a98993028d33328925bf191fe463b99f192e459cd4b8387adf00a150eaf841",
         "system/library/codecart/src/ExtensionPoints.php": "8b1f4cb336ed95150de21f32d3cd164a9f8a05cd2d5823b81fc7364af19293ee",
         "system/library/codecart/src/FileIntegrity.php": "537ed70d55e4d61f57cf01acba843a31acd683fac18c06797365de37126dba71",
