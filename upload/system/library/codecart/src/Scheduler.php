@@ -145,7 +145,6 @@ final class Scheduler {
     private function execute(array $job, string $source = 'manual'): array {
         $started = microtime(true);
         $ok = true;
-        $message = 'OK';
         try {
             $route = $this->normalizeRoute((string)$job['route']);
             // Repair a legacy built-in route stored as just "cron": Action would
