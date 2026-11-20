@@ -17,7 +17,7 @@ $_['text_edit']          = 'Редагування';
 $_['column_image']       = 'Зображення';
 $_['column_name']        = 'Назва стікеру';
 $_['column_status']      = 'Статус';
-$_['column_action']      = 'Дія';
+$_['column_action']      = 'Дії';
 
 // Entry
 $_['entry_name']         = 'Назва стікеру:';
