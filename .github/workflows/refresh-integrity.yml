@@ -25,15 +25,33 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Rebuild stale generated common.js variants
+        shell: bash
+        run: |
+          set -euo pipefail
+          for side in admin catalog; do
+            src="upload/$side/view/javascript/common.js"
+            out="upload/$side/view/javascript/common.min.js"
+            hash="$(sha256sum "$src" | awk '{print $1}')"
+            if [ -f "$out" ] && head -n 1 "$out" | grep -Fq "source common.js sha256:$hash"; then
+              echo "Already in sync: $out"
+              continue
+            fi
+            tmp="$(mktemp)"
+            npx --yes terser@5.44.1 "$src" --compress --mangle --comments some --output "$tmp"
+            { printf '/*! CodeCart minified build; source common.js sha256:%s */\n' "$hash"; cat "$tmp"; } > "$out"
+            rm -f "$tmp"
+            echo "Regenerated: $out"
+          done
       - name: Refresh manifest
         run: php tools/refresh_integrity.php
-      - name: Commit manifest
+      - name: Commit generated assets and manifest
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "CodeCart Integrity Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add upload/system/config/codecart_integrity.json
+          git add upload/system/config/codecart_integrity.json upload/admin/view/javascript/common.min.js upload/catalog/view/javascript/common.min.js
           if git diff --cached --quiet; then
             echo "Manifest already current."
             exit 0
