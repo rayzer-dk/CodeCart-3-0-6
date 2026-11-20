@@ -26,3 +26,15 @@ parameters:
         - upload/catalog/model
         - upload/system/helper/HTMLPurifier
     tmpDir: build/phpstan-cache/extra-dead-code
+    # Intentional backwards-compatible constructor signatures. OpenCart/OCMOD
+    # callers can pass $registry, but neither class needs to retain that state.
+    # Keep these two exact path/message exceptions; never suppress all unused parameters.
+    ignoreErrors:
+        -
+            message: '#^Constructor of class CodeCart\\Core\\FileIntegrity has an unused parameter \\$registry\\.$#'
+            path: upload/system/library/codecart/src/FileIntegrity.php
+            count: 1
+        -
+            message: '#^Constructor of class CodeCart\\Core\\ModernExtensionRegistry has an unused parameter \\$registry\\.$#'
+            path: upload/system/library/codecart/src/ModernExtensionRegistry.php
+            count: 1
