@@ -243,6 +243,7 @@ $gates = [
     ['tests/admin_audit_smoke.php'],
     ['tests/newsletter_brand_smoke.php'],
     ['tests/smart_search_smoke.php'],
+    ['tests/catalog_quality_smoke.php'],
     ['tests/catalog_transfer_xlsx_preflight_smoke.php'],
     ['tests/filemanager_usage_smoke.php'],
     ['tests/admin_permission_smoke.php'],
