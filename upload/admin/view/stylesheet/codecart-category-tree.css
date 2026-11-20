@@ -121,3 +121,12 @@
   .cc-category-list-drag .cc-tree-list-row .cc-tree-indent {width:calc(min(var(--cc-tree-depth,0),20) * 11px);}
   .cc-category-list-drag .cc-tree-collapse {width:20px;min-width:20px;}
 }
+
+/* Compact drop destination for moving any nested category to the root. */
+.cc-tree-root-inline {
+  display:flex;align-items:center;gap:7px;
+  min-height:34px;padding:6px 12px;margin:0 0 10px;
+  border:1px dashed #c1d0e1;border-radius:8px;
+  background:#f7fafc;color:#50647c;font-size:12px;
+}
+.cc-tree-root-inline.is-over {border-color:#0b6fd3;outline:2px solid #0b6fd3;background:#e5f2ff}
