@@ -20,7 +20,7 @@ final class SchemaRegistry {
     public function diff(int $limit = 300): array {
         $limit = max(1, min(1000, $limit));
         $issues = array();
-        $summary = array('tables_expected'=>0,'tables_present'=>0,'missing_tables'=>0,'missing_columns'=>0,'type_mismatches'=>0,'engine_mismatches'=>0,'charset_mismatches'=>0,'missing_indexes'=>0,'external_tables'=>0,'external_columns'=>0,'external_indexes'=>0,'blocking_issues'=>0,'warnings'=>0,'informational'=>0);
+        $summary = array('tables_present'=>0,'missing_tables'=>0,'missing_columns'=>0,'type_mismatches'=>0,'engine_mismatches'=>0,'charset_mismatches'=>0,'missing_indexes'=>0,'external_tables'=>0,'external_columns'=>0,'external_indexes'=>0,'blocking_issues'=>0,'warnings'=>0,'informational'=>0);
         $tables = isset($this->expected['tables']) && is_array($this->expected['tables']) ? $this->expected['tables'] : array();
         $summary['tables_expected'] = count($tables);
         $dbName = defined('DB_DATABASE') ? DB_DATABASE : '';
