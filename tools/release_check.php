@@ -250,6 +250,7 @@ $gates = [
     ['tests/transaction_smoke.php'],
     ['tests/confirmation_pages_smoke.php'],
     ['tests/scheduler_runtime_smoke.php'],
+    ['tests/pwa_install_smoke.php'],
 ];
 foreach ($gates as $arguments) {
     $gate = implode(' ', $arguments);
