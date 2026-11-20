@@ -295,7 +295,7 @@ final class UploadGuard {
 
     private static function normalizeList($value) {
         $value = preg_replace('~\r?\n~', "\n", (string)$value);
-        $rows = array_filter(array_map('trim', explode("\n", $value)), 'strlen');
+        $rows = array_filter(array_map('trim', explode("\n", $value)), static function ($value) { return $value !== ''; });
         $rows = array_map('strtolower', $rows);
         return array_values(array_unique($rows));
     }
