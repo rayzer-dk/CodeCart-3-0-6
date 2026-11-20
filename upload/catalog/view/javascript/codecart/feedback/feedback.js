@@ -20,9 +20,10 @@
         return label('ui_close', lang.indexOf('uk') === 0 ? 'Закрити' : lang.indexOf('ru') === 0 ? 'Закрыть' : 'Close');
     }
     function messageText(input) {
-        var box = document.createElement('div');
-        box.innerHTML = String(input == null ? '' : input);
-        var text = box.textContent || box.innerText || '';
+        // Parse server-provided OpenCart markup in an inert document; never inject it.
+        var markup = String(input == null ? '' : input);
+        var parsed = new window.DOMParser().parseFromString(markup, 'text/html');
+        var text = parsed.body ? parsed.body.textContent || '' : '';
         return text.replace(/\s+/g, ' ').trim();
     }
     function host() {
@@ -112,6 +113,11 @@
         return node;
     }
     function error(xhr) {
+        // Preserve OpenCart's button recovery after an AJAX failure.
+        $('.btn:disabled').each(function () {
+            var button = $(this);
+            if (button.data('resetText') !== undefined) { button.button('reset'); }
+        });
         var json = xhr && xhr.responseJSON;
         if (!json && xhr && xhr.responseText) {
             try { json = JSON.parse(xhr.responseText); } catch (ignored) { json = null; }
