@@ -85,9 +85,26 @@ final class OrderAdminSearch {
                 . "OR LOCATE('" . $term . "', LOWER(p.sku)) > 0))";
         }
         foreach (array('filter_shipping_method' => 'shipping_method', 'filter_payment_method' => 'payment_method') as $filter => $col) {
-            if (isset($data[$filter]) && is_string($data[$filter]) && $data[$filter] !== '') {
-                $sql .= " AND o." . $col . " = '" . $db->escape($data[$filter]) . "'";
+            if (!isset($data[$filter]) || !is_string($data[$filter]) || $data[$filter] === '') {
+                continue;
             }
+            $value = $data[$filter];
+            if (strpos($value, 'code:') === 0) {
+                $code = substr($value, 5);
+                if (!preg_match('/^[a-z0-9_]{1,64}$/D', $code)) {
+                    $sql .= ' AND 1 = 0';
+                    continue;
+                }
+                $prefix = $db->escape($code);
+                $sql .= " AND (o." . ($col === 'shipping_method' ? 'shipping_code' : 'payment_code')
+                    . " = '" . $prefix . "' OR o." . ($col === 'shipping_method' ? 'shipping_code' : 'payment_code')
+                    . " LIKE '" . $prefix . ".%')";
+                continue;
+            }
+            if (strpos($value, 'name:') === 0) {
+                $value = substr($value, 5);
+            }
+            $sql .= " AND o." . $col . " = '" . $db->escape($value) . "'";
         }
         return $sql;
     }
