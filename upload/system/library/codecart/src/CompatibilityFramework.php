@@ -80,7 +80,7 @@ final class CompatibilityFramework {
         $items = array();
         foreach ($this->adapters as $adapter) {
             $active = false;
-            try { $active = $adapter->active(); } catch (\Throwable $e) { $active = false; }
+            try { $active = $adapter->active(); } catch (\Throwable $e) { /* Keep inactive fallback. */ }
             $items[] = array(
                 'id' => $adapter->id(),
                 'priority' => $adapter->priority(),
