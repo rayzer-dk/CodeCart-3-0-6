@@ -1872,7 +1872,7 @@ class ControllerSettingSetting extends Controller {
 	}	
 
 	private function normalizeCodecartPwaIcon($value) {
-		$path = str_replace('\\\\', '/', trim((string)$value));
+		$path = str_replace('\\', '/', trim((string)$value));
 		if ($path === '' || !preg_match('/\\.(?:png|webp)$/i', $path)) {
 			return '';
 		}
