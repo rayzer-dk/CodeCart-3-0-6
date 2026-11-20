@@ -13,7 +13,7 @@ $_['text_edit']        = 'Редагування';
 $_['column_title']     = 'Назва одиниці ваги';
 $_['column_unit']      = 'Одиниця ваги';
 $_['column_value']     = 'Значення';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Entry
 $_['entry_title']      = 'Назва одиниці ваги';
