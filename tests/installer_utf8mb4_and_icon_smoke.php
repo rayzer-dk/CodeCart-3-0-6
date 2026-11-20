@@ -62,4 +62,23 @@ $font = new \CodeCart\Core\FontAwesomeManager('codecart');
 if (!$font->isSupported('fa-file-pdf-o') || strpos($font->extraCss(), '.fa.fa-file-pdf-o') === false) {
     throw new RuntimeException('Built-in PDF icon is not available in lightweight Core mode.');
 }
+$logos = array(
+    'admin/view/image/logo.webp',
+    'install/view/image/logo.webp',
+    'catalog/view/theme/codecart/image/codecart-logo.webp',
+    'system/library/codecart/assets/default-logo.webp',
+    'image/catalog/logo.webp',
+);
+$expectedLogoHash = null;
+foreach ($logos as $relativeLogoPath) {
+    $logoPath = dirname(__DIR__) . '/upload/' . $relativeLogoPath;
+    if (!is_file($logoPath) || filesize($logoPath) < 500) {
+        throw new RuntimeException('Required CodeCart brand logo missing: ' . $relativeLogoPath);
+    }
+    $hash = hash_file('sha256', $logoPath);
+    if ($expectedLogoHash !== null && $hash !== $expectedLogoHash) {
+        throw new RuntimeException('Brand logo differs across installer/admin/storefront: ' . $relativeLogoPath);
+    }
+    $expectedLogoHash = $hash;
+}
 echo "Installer charset and PDF icon: PASS\n";
