@@ -76,7 +76,7 @@
         symbol.className = 'ccp-feedback-symbol';
         symbol.setAttribute('aria-hidden', 'true');
         var icon = document.createElement('i');
-        icon.className = 'fa ' + ({success:'fa-check',info:'fa-info',warning:'fa-exclamation',danger:'fa-exclamation'}[kind]);
+        icon.className = 'fa ' + ({success:'fa-check',info:'fa-info-circle',warning:'fa-exclamation-circle',danger:'fa-exclamation-circle'}[kind]);
         symbol.appendChild(icon);
         node.appendChild(symbol);
 
