@@ -15,7 +15,7 @@ $_['column_title']         = 'Назва валюти';
 $_['column_code']          = 'ISO Код';
 $_['column_value']         = 'Курс валюти';
 $_['column_date_modified'] = 'Дата оновлення';
-$_['column_action']        = 'Дія';
+$_['column_action']        = 'Дії';
 
 // Entry
 $_['entry_title']          = 'Назва валюти';
