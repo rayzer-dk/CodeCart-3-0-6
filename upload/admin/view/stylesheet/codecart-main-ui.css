@@ -269,3 +269,22 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 #content .table td > a.btn.btn-primary, #content .table td > a.btn.btn-success, #content .table td > button.btn.btn-primary, #content .table td > button.btn.btn-success {box-sizing:border-box; width:35px!important;min-width:35px!important;height:35px!important;min-height:35px!important;padding:0!important;display:inline-flex!important;align-items:center;justify-content:center;vertical-align:middle;line-height:1!important}
 #content .table td > .btn i {font-size:14px!important;line-height:1!important}
 #menu li a.parent:after,#menu li li a:before{font-family:'Font Awesome 7 Free'!important;font-weight:900!important}
+
+/* Icon-only actions are exactly 35x35 in every admin data table, including grouped buttons. */
+#content .table tbody td :is(a,button).btn:has(> i.fa),
+#content .table tbody td :is(a,button).btn:has(> i.fas),
+#content .table tbody td :is(a,button).btn:has(> i.fa-solid),
+#content .table tbody td .btn-group > :is(a,button).btn {
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  flex:0 0 35px!important;
+  justify-content:center!important;
+  align-items:center!important;
+  width:35px!important;min-width:35px!important;max-width:35px!important;
+  height:35px!important;min-height:35px!important;max-height:35px!important;
+  padding:0!important;
+  line-height:1!important;
+}
+#content .table tbody td .btn-group{display:inline-flex!important;gap:4px!important;flex-wrap:nowrap!important;align-items:center!important;white-space:nowrap!important;}
+#content .table tbody td .btn-group>.btn{margin:0!important;}
+#content .table tbody td .btn-group>.btn i{font-size:14px!important;}
