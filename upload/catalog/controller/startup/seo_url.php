@@ -346,7 +346,7 @@ class ControllerStartupSeoUrl extends Controller {
 			&& isset($data['language']) && is_string($data['language'])
 			&& $this->isActiveLanguageCode($data['language'])) {
 			unset($data['language']);
-			$link = $this->replaceLinkQuery($link, $url_info, $data);
+			$link = $this->replaceLinkQuery($url_info, $data);
 		}
 
 		// The storefront home page is a real root URL, not index.php?route=common/home.
@@ -511,7 +511,7 @@ class ControllerStartupSeoUrl extends Controller {
 		return isset($this->language_codes[$code]);
 	}
 
-	private function replaceLinkQuery($link, $parts, $data) {
+	private function replaceLinkQuery($parts, $data) {
 		$base = '';
 		if (isset($parts['scheme']) && isset($parts['host'])) {
 			$base = $parts['scheme'] . '://' . $parts['host'];
