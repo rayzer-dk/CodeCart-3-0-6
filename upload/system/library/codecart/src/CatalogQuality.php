@@ -102,14 +102,12 @@ final class CatalogQuality {
             $queries[] = "'" . $db->escape($descId . '=' . $id) . "'";
         }
         $seo = array();
-        if ($queries) {
-            $sql = "SELECT query, store_id, language_id FROM " . DB_PREFIX . "seo_url WHERE query IN ("
-                . implode(',', $queries) . ") AND keyword <> ''";
-            foreach ($db->query($sql)->rows as $row) {
-                $parts = explode('=', (string)$row['query'], 2);
-                if (count($parts) === 2 && $parts[0] === $descId) {
-                    $seo[(int)$parts[1]][(int)$row['store_id']][(int)$row['language_id']] = true;
-                }
+        $sql = "SELECT query, store_id, language_id FROM " . DB_PREFIX . "seo_url WHERE query IN ("
+            . implode(',', $queries) . ") AND keyword <> ''";
+        foreach ($db->query($sql)->rows as $row) {
+            $parts = explode('=', (string)$row['query'], 2);
+            if (count($parts) === 2 && $parts[0] === $descId) {
+                $seo[(int)$parts[1]][(int)$row['store_id']][(int)$row['language_id']] = true;
             }
         }
 
@@ -178,7 +176,7 @@ final class CatalogQuality {
                 }
             }
             $items[$id] = array(
-                'percent' => $checks ? (int)round($passed * 100 / $checks) : 100,
+                'percent' => (int)round($passed * 100 / $checks),
                 'complete' => $passed,
                 'total' => $checks,
                 'missing' => array_slice($missing, 0, 28)
