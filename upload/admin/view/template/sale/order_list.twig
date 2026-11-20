@@ -200,7 +200,7 @@
                   <td class="text-center">{{ order.date_added }}</td>
                   <td class="text-center">{{ order.date_modified }}</td>
                   <td class="text-center"><div class="btn-group ccp-order-list-actions" style="white-space:nowrap;">
-                      <button type="button" class="btn btn-info js-order-preview" data-order-id="{{ order.order_id }}" aria-expanded="false" data-toggle="tooltip" title="{{ text_order_preview }}" aria-label="{{ text_order_preview }}"><i class="fa fa-list"></i></button>
+                      <button type="button" class="btn btn-info js-order-preview" data-order-id="{{ order.order_id }}" aria-expanded="false" data-toggle="tooltip" title="{{ text_order_preview }}" aria-label="{{ text_order_preview }}"><i class="fa-solid fa-angle-down"></i></button>
                       <a href="{{ order.view }}" data-toggle="tooltip" title="{{ button_view }}" class="btn btn-success"><i class="fa fa-eye"></i></a>
                       <a href="{{ order.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
                       <button type="button" data-order-id="{{ order.order_id }}" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger js-order-delete"><i class="fa fa-trash-o"></i></button>
@@ -386,12 +386,12 @@ $('#button-export-orders').on('click', function() {
     var current = tr.next('.ccp-order-preview-row');
     if (current.length) {
       current.remove();
-      button.attr('aria-expanded','false').find('i').removeClass('fa-chevron-up').addClass('fa-list');
+      button.attr('aria-expanded','false').find('i').removeClass('fa-angle-up').addClass('fa-angle-down');
       return;
     }
     $('.ccp-order-preview-row').remove();
-    $('.js-order-preview').attr('aria-expanded','false').find('i.fa-chevron-up').removeClass('fa-chevron-up').addClass('fa-list');
-    button.attr('aria-expanded','true').find('i').removeClass('fa-list').addClass('fa-chevron-up');
+    $('.js-order-preview').attr('aria-expanded','false').find('i.fa-angle-up').removeClass('fa-angle-up').addClass('fa-angle-down');
+    button.attr('aria-expanded','true').find('i').removeClass('fa-angle-down').addClass('fa-angle-up');
     var holder = $('<div class="ccp-order-preview-content">').text(captions.loading);
     var details = $('<tr class="ccp-order-preview-row">').append($('<td colspan="8">').append(holder));
     tr.after(details);
