@@ -58,7 +58,6 @@ class ControllerExtensionModuleFeatured extends Controller {
 		} elseif ($source === 'special') {
 			$results = $this->model_catalog_product->getSpecialProductCards($limit);
 		} else {
-			$product_ids = array();
 			if ($source === 'category' && !empty($setting['category_id'])) {
 				$product_ids = $this->model_catalog_product->getProductIdsByCategory((int)$setting['category_id'], !empty($setting['include_subcategories']), $limit);
 			} elseif ($source === 'manufacturer' && !empty($setting['manufacturer_id'])) {

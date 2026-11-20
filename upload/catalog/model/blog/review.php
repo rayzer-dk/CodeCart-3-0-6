@@ -6,8 +6,6 @@ class ModelBlogReview extends Model {
 	public function addReview($article_id, $data) {
 		$this->db->query("INSERT INTO " . DB_PREFIX . "review_article SET author = '" . $this->db->escape($data['name']) . "', customer_id = '" . (int)$this->customer->getId() . "', article_id = '" . (int)$article_id . "', text = '" . $this->db->escape($data['text']) . "', rating = '" . (int)$data['rating'] . "', date_added = NOW()");
 
-		$review_id = $this->db->getLastId();
-
 		if ($this->config->get('configblog_review_mail')) {
 			$this->load->language('blog/mail/review');
 			$this->load->model('blog/article');

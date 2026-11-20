@@ -107,7 +107,6 @@ class ControllerExtensionTotalVoucher extends Controller {
 						$data['image'] = '';
 					}
 
-					$data['store_name'] = html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8');
 					$data['store_url'] = $this->url->link('common/home', '', true);
 					$email_logo = trim((string)$this->config->get('config_email_logo'));
 					if ($email_logo === '' || !is_file(DIR_IMAGE . $email_logo)) { $email_logo = trim((string)$this->config->get('config_logo')); }

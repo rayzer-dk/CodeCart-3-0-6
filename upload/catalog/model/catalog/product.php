@@ -676,7 +676,6 @@ class ModelCatalogProduct extends Model {
         // to the parent, "custom" supplies the category template, and
         // "disabled" stops category inheritance completely.
         $category_blocks = array();
-        $category_id = 0;
         $compat = $this->registry->get('codecart_compat');
         if (!$compat instanceof \CodeCart\Core\CompatibilityLayer) {
             $compat = new \CodeCart\Core\CompatibilityLayer($this->registry);

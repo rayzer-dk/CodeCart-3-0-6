@@ -4,7 +4,6 @@
 
 class ControllerExtensionModuleBlogLatest extends Controller {
 	public function index($setting) {
-		$limit = max(1, min(30, (int)($setting['limit'] ?? 4)));
 		$width = max(40, min(2000, (int)($setting['width'] ?? 200)));
 		$height = max(40, min(2000, (int)($setting['height'] ?? 200)));
 		$data['image_width'] = $width;

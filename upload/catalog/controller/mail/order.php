@@ -379,8 +379,6 @@ class ControllerMailOrder extends Controller {
 
 		$order_id = $transition['order_id'];
 		$order_status_id = $transition['new_order_status_id'];
-		$comment = $transition['comment'];
-		$notify = $transition['notify'];
 		$order_info = $this->model_checkout_order->getOrder($order_id);
 
 		if ($order_info && !$transition['old_order_status_id'] && $order_status_id && in_array('order', (array)$this->config->get('config_mail_alert'), true)) {	

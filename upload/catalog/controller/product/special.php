@@ -134,12 +134,6 @@ class ControllerProductSpecial extends Controller {
 
 			$tax = \CodeCart\Core\TaxDisplay::secondary($this->registry, $tax_price, (int)$result['tax_class_id'], isset($result['tax_display_mode']) ? $result['tax_display_mode'] : 'inherit');
 
-			if ($this->config->get('config_review_status')) {
-				$rating = (int)$result['rating'];
-			} else {
-				$rating = false;
-			}
-
 			$data['products'][] = array(
                     'image_size' => $this->config->get('config_theme') === 'codecart' ? $this->model_tool_image->getProductImageSize(!empty($result['image']) ? $result['image'] : 'no_image.webp', $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_height')) : array(),
 				'product_id'  => $result['product_id'],
