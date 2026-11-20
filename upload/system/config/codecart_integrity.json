@@ -7,7 +7,7 @@
         "admin/controller/common/dashboard.php": "6f5a50e511b4d3aad511a08a91dae5e6a6ca074eae4b4dcb3f4883c7a3ed0088",
         "admin/controller/common/developer.php": "d90f2b706a491fa6ba4b7c9575a90abeffd2f0ece894b5603673ea1d65594003",
         "admin/controller/common/footer.php": "a515b04c54f06dcbe67f446d5e82b59cc2a6d6fd729328f713fa92c668f62130",
-        "admin/controller/common/header.php": "30fc86e208b703a2da1864c87dd9e0303d383d72e5e64ace3c4c52d2290ca219",
+        "admin/controller/common/header.php": "f09d0bee31c259c8cbbbc40cdcab4a395bc729845917020eeb2b1d03adb5cd76",
         "admin/controller/common/security.php": "0f4a13bbe6a991889b8187819cc1b12b4f09e9d304c4470e6c1ce40edaa83728",
         "admin/controller/design/form.php": "38969f7883d2bc0bde8946aab5392b048cbd32c0d9b36348db66af32d829e825",
         "admin/controller/extension/currency/nbu.php": "2885fdbbf128bf3e7622132be68b7d4e267dd8fb2b7c7563952500764f1d2a90",
