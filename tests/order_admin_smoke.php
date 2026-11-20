@@ -22,6 +22,16 @@ checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array('filter_phone
 checkOrder(\CodeCart\Core\OrderAdminSearch::amount('abc')==='','invalid numeric');
 checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array('filter_total'=>'315')),"o.total >= '315'")!==false,'old exact amount');
 checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array()),'telephone')===false,'no normal-list phone work');
+$codeSql = \CodeCart\Core\OrderAdminSearch::where($db, array(
+    'filter_shipping_method' => 'code:flat',
+    'filter_payment_method' => 'code:cod'
+));
+checkOrder(strpos($codeSql, "o.shipping_code = 'flat'") !== false, 'shipping filter uses stored code');
+checkOrder(strpos($codeSql, "o.payment_code = 'cod'") !== false, 'payment filter uses stored code');
+$labelSql = \CodeCart\Core\OrderAdminSearch::where($db, array('filter_shipping_method' => 'name:Delivery'));
+checkOrder(strpos($labelSql, "o.shipping_method = 'Delivery'") !== false, 'historical delivery title remains filterable');
+$invalidSql = \CodeCart\Core\OrderAdminSearch::where($db, array('filter_payment_method' => 'code:x\' OR 1=1'));
+checkOrder(strpos($invalidSql, 'AND 1 = 0') !== false, 'invalid method code is rejected');
 $root = dirname(__DIR__) . '/upload/';
 $list = file_get_contents($root . 'admin/view/template/sale/order_list.twig');
 $ctrl = file_get_contents($root . 'admin/controller/sale/order.php');
