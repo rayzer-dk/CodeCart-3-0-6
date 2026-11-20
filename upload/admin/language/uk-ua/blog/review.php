@@ -16,7 +16,7 @@ $_['column_author']     = 'Автор відгуку';
 $_['column_rating']     = 'Рейтинг';
 $_['column_status']     = 'Статус';
 $_['column_date_added'] = 'Дата додавання';
-$_['column_action']     = 'Операції';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_article']     = 'До статті';
