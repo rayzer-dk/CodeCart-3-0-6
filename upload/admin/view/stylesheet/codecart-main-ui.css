@@ -181,7 +181,7 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 #header #header-logo .navbar-brand > img {
   display:block!important; box-sizing:border-box;
   width:100%!important; height:100%!important; max-width:none!important;
-  max-height:none!important; object-fit:cover!important; object-position:center!important;
+  max-height:none!important; object-fit:contain!important; object-position:center!important;
   margin:0!important;
 }
 /* Keep navigation icons equivalent and the quick-navigation compass beside the flag. */
