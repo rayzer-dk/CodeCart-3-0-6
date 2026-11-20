@@ -141,6 +141,11 @@
           var isCollapsed = collapsed[row.dataset.ccTreeId] === true;
           button.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
           button.classList.toggle('is-collapsed', isCollapsed);
+          var icon = button.querySelector('i');
+          if (icon) {
+            icon.classList.remove('fa-angle-up', 'fa-angle-down', 'fa-angle-right');
+            icon.classList.add(isCollapsed ? 'fa-angle-up' : 'fa-angle-down');
+          }
         }
       });
     }
@@ -150,6 +155,11 @@
         var anyCollapsed = Object.keys(collapsed).some(function (id) { return collapsed[id] === true; });
         expandAll.setAttribute('aria-expanded', anyCollapsed ? 'false' : 'true');
         expandAll.classList.toggle('is-expanded', !anyCollapsed);
+        var icon = expandAll.querySelector('i');
+        if (icon) {
+          icon.classList.remove('fa-angles-up', 'fa-angles-down');
+          icon.classList.add(anyCollapsed ? 'fa-angles-down' : 'fa-angles-up');
+        }
       }
       expandAll.addEventListener('click', function () {
         rows.forEach(function (row) {
@@ -162,6 +172,7 @@
       });
     }
     refreshTree();
+    if (expandAll) { syncExpandAll(); }
     rows.forEach(function (row) {
       var toggle = row.querySelector('.cc-tree-collapse');
       if (toggle && !toggle.disabled && !toggle.classList.contains('is-placeholder')) {
