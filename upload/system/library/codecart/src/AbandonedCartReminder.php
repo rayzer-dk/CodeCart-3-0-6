@@ -141,6 +141,8 @@ final class AbandonedCartReminder {
                 . ($guest ? 'Åbn linket for at hente dem tilbage i kurven og fuldføre bestillingen: ' : 'Log ind her for at fuldføre bestillingen: ')
                 . $link . ($guest ? "\nLinket kan kun bruges én gang." : '') . "\n\nHvis du allerede har bestilt, kan du se bort fra denne mail.\n\n" . $store);
         }
+        // Translation files populate this array at runtime via require.
+        /** @var array<string, string> $_ */
         $_ = array();
         require $directory . 'en-gb/mail/abandoned_cart.php';
         if (is_file($file)) {
