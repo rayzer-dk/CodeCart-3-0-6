@@ -11,7 +11,7 @@ $_['text_edit']        = 'Редагування';
 
 // Column
 $_['column_name']      = 'Назва статусу замовлення';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Entry
 $_['entry_name']       = 'Назва статусу замовлення';
