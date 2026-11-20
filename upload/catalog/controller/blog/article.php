@@ -56,27 +56,7 @@ class ControllerBlogArticle extends Controller {
 
 	
 
-	if (isset($this->request->get['filter_name']) || isset($this->request->get['filter_tag'])) {
-			$url = '';
-			
-			if (isset($this->request->get['filter_name'])) {
-				$url .= '&filter_name=' . $this->request->get['filter_name'];
-			}
-						
-			if (isset($this->request->get['filter_tag'])) {
-				$url .= '&filter_tag=' . $this->request->get['filter_tag'];
-			}
-						
-			if (isset($this->request->get['filter_description'])) {
-				$url .= '&filter_description=' . $this->request->get['filter_description'];
-			}
-			
-			if (isset($this->request->get['filter_news_id'])) {
-				$url .= '&filter_news_id=' . $this->request->get['filter_news_id'];
-			}	
-						
-		}
-		
+
 		$article_id = isset($this->request->get['article_id']) ? (int)$this->request->get['article_id'] : 0;
 		if ($article_id < 1) {
 			$article_id = 0;
