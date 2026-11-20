@@ -455,12 +455,6 @@ class ControllerDesignTranslation extends Controller {
 
 		$json = array();
 
-		if (isset($this->request->get['store_id'])) {
-			$store_id = $this->request->get['store_id'];
-		} else {
-			$store_id = 0;
-		}
-
 		if (isset($this->request->get['language_id'])) {
 			$language_id = $this->request->get['language_id'];
 		} else {

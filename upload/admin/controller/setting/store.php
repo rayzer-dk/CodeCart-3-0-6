@@ -416,8 +416,6 @@ class ControllerSettingStore extends Controller {
 			$data['thumb'] = $this->model_tool_image->resize('no_image.webp', 100, 100);
 		}
 
-		$data['placeholder'] = $this->model_tool_image->resize('codecart_add_image.webp', 100, 100);
-
 		if (isset($this->request->post['config_open'])) {
 			$data['config_open'] = $this->request->post['config_open'];
 		} elseif (isset($store_info['config_open'])) {

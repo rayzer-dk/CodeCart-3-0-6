@@ -175,7 +175,7 @@ class ControllerToolCodeCartCore extends Controller {
             if (!$this->registry->has('codecart_compat')) { $this->registry->set('codecart_compat', $compat); }
             $compatDiagnostics = $compat->diagnostics();
         } catch (\Throwable $e) {
-            $compatDiagnostics['error'] = $e->getMessage();
+            // The default diagnostics already mark compatibility as unavailable.
         }
         $compatDetails = $this->language->get('text_compat_detected') . ': ' . $compatDiagnostics['main_category_source'] . '; ' . $this->language->get('text_active_languages') . ': ' . (int)$compatDiagnostics['active_languages'];
         $data['architecture'] = array(

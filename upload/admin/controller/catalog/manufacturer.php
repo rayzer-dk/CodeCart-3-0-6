@@ -339,8 +339,6 @@ class ControllerCatalogManufacturer extends Controller {
 
 		$data['user_token'] = $this->session->data['user_token'];
 		
-		$this->load->model('localisation/language');
-		$data['languages'] = $this->model_localisation_language->getLanguages();
 		if (isset($this->request->post['manufacturer_description'])) {
 			$data['manufacturer_description'] = $this->request->post['manufacturer_description'];
 		} elseif (isset($this->request->get['manufacturer_id'])) {

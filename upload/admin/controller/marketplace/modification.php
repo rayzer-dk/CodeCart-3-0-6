@@ -725,7 +725,6 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
             // working tree remains active while compatibility is analysed. Immediately before
             // publishing, remove the build marker first; if filesystem writing then fails,
             // startup falls back to original Core files instead of loading a half-built tree.
-            $build_marker_ok = false;
             $publish_error = '';
 
             try {
@@ -1388,7 +1387,6 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 				$id = (string)$candidate['modification_id'];
 				$item = isset($compatibility_map[$id]) && is_array($compatibility_map[$id]) ? $compatibility_map[$id] : array();
 				$state = !empty($candidate['status']) && isset($item['state']) ? (string)$item['state'] : (!empty($candidate['status']) ? 'unchecked' : 'disabled');
-				$match = false;
 				if ($compatibility_filter === 'active') { $match = !empty($candidate['status']); }
 				elseif ($compatibility_filter === 'issues') { $match = !empty($candidate['status']) && ($state === 'warning' || $state === 'error'); }
 				else { $match = !empty($candidate['status']) && $state === $compatibility_filter; }
@@ -1474,9 +1472,6 @@ $file = DIR_UPLOAD . $this->request->post['path'] . '/install.xml';
 
 		foreach ($results as $result) {
 			$compatibility_item = isset($compatibility_map[(string)$result['modification_id']]) && is_array($compatibility_map[(string)$result['modification_id']]) ? $compatibility_map[(string)$result['modification_id']] : array();
-			$compatibility_label = '';
-			$compatibility_class = '';
-			$compatibility_title = '';
 			$compatibility_state_name = 'unchecked';
 			if (!$result['status']) {
 				$compatibility_label = $this->language->get('text_not_active');

@@ -500,7 +500,7 @@ class ControllerSaleAbandonedCart extends Controller {
                 $thumb = '';
                 if ($image !== '' && strpos($image, '..') === false && is_file(DIR_IMAGE . $image)) {
                     try { $thumb = $this->model_tool_image->resize($image, 48, 48); }
-                    catch (\Throwable $e) { $thumb = ''; }
+                    catch (\Throwable $e) { /* Keep the empty thumbnail fallback. */ }
                 }
                 $product_rows[] = array(
                     'name' => $name,

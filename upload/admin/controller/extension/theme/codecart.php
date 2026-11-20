@@ -726,7 +726,6 @@ class ControllerExtensionThemeCodecart extends Controller {
 		$this->load->language('extension/theme/codecart');
 		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
 		$json = array('status'=>'pass','message'=>$this->language->get('text_catalog_ajax_check_pass'),'items'=>array());
-		$noise = '';
 		ob_start();
 		try {
 			if (!$this->user->hasPermission('access', 'extension/theme/codecart')) {
