@@ -257,3 +257,10 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 .cc-tree-name-toggle {border:0;background:transparent;color:#096bc2;padding:0;cursor:pointer;font:inherit;text-align:left;}
 .cc-tree-name-toggle:hover {text-decoration:underline;}
 .cc-tree-handle .fa-arrows-up-down {font-size:15px;}
+
+/* Header alignment: logo never extends into navigation area. */
+#header #header-logo {height:60px!important;max-height:60px!important;min-width:0!important;overflow:hidden!important}
+#header #header-logo .navbar-brand {height:60px!important;min-height:60px!important;max-height:60px!important;padding:3px 6px!important;overflow:hidden!important}
+#header #header-logo .navbar-brand>img {max-width:100%!important;max-height:54px!important;width:100%!important;height:54px!important;object-fit:contain!important}
+#header .navbar-right>li:is(.ccp-modification-refresh-menu,.ccp-admin-theme-menu,.ccp-admin-language-menu,.ccp-palette-menu,.ccp-notification-menu)>a {width:42px!important;min-width:42px!important;height:56px!important;padding:0 9px!important}
+#header .navbar-right>li:is(.ccp-modification-refresh-menu,.ccp-admin-theme-menu,.ccp-palette-menu,.ccp-notification-menu)>a>i.fa {font-size:17px!important;width:19px!important;height:19px!important;line-height:19px!important;flex:0 0 19px!important}
