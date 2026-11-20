@@ -102,7 +102,7 @@ foreach ($routes as $route => $rowId) {
     $template = file_get_contents($templatePath);
     $controller = file_get_contents($controllerPath);
     $check(strpos($template, 'cc-quality-table') !== false, $route . ' has quality table endpoint');
-    $check(strpos($template, 'cc-quality-toggle') !== false, $route . ' has a compact preference control');
+    $check(strpos($template, 'cc-quality-toggle') === false, $route . ' always shows quality without a toggle');
     $check(strpos($template, 'catalog-quality.js') !== false, $route . ' loads shared browser logic');
     $check(strpos($template, '{{ ' . $rowId . ' }}') !== false, $route . ' uses existing entity IDs');
     $check(strpos($controller, 'public function quality()') !== false, $route . ' shares permission-scoped route');
