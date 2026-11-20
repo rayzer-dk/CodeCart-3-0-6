@@ -207,7 +207,7 @@ final class SchemaRegistry {
                 }
 
                 if ($issue['type'] === 'missing_index') {
-                    $columns = array_filter(array_map('trim', explode(',', (string)($issue['column'] ?? ''))), 'strlen');
+                    $columns = array_filter(array_map('trim', explode(',', (string)($issue['column'] ?? ''))), static function ($value) { return $value !== ''; });
                     if (!$columns) { throw new \RuntimeException('Index columns are missing.'); }
                     $matched = null;
                     foreach (($spec['indexes'] ?? array()) as $indexSpec) {
