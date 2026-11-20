@@ -83,7 +83,7 @@ final class GdprManager {
     }
 
     public function exportCustomer(int $customerId): array {
-        $out=array('generated_at'=>date(DATE_ATOM),'customer'=>array(),'addresses'=>array(),'orders'=>array(),'order_products'=>array(),'order_options'=>array(),'returns'=>array(),'rewards'=>array(),'transactions'=>array(),'wishlist'=>array(),'ips'=>array(),'activities'=>array(),'history'=>array());
+        $out=array('generated_at'=>date(DATE_ATOM),'customer'=>array(),'order_products'=>array(),'order_options'=>array());
         $customer=$this->fetchRows('customer','customer_id',$customerId);
         if ($customer) {
             unset($customer[0]['password'],$customer[0]['salt'],$customer[0]['token'],$customer[0]['code']);
