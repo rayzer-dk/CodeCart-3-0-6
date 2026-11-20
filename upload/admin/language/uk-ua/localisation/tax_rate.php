@@ -18,7 +18,7 @@ $_['column_type']          = 'Тип';
 $_['column_geo_zone']      = 'Географічна зона';
 $_['column_date_added']    = 'Дата додавання';
 $_['column_date_modified'] = 'Дата оновлення';
-$_['column_action']        = 'Дія';
+$_['column_action']        = 'Дії';
 
 // Entry
 $_['entry_name']           = 'Назва податку';
