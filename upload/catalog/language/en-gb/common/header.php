@@ -41,3 +41,4 @@ $_['text_pwa_mac_help'] = 'Safari on Mac: choose File → Add to Dock.';
 $_['text_pwa_banner_title'] = 'Install this store on your device';
 $_['text_pwa_banner_desc'] = 'Open the store quickly from your home screen.';
 $_['text_pwa_dismiss'] = 'Close';
+$_['ui_continue_shopping'] = 'Continue shopping';
