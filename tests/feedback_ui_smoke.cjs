@@ -24,6 +24,35 @@ assert.match(style, /html\.ccp-theme-dark/);
 assert.ok(file('upload/admin/view/template/common/header.twig').includes('codecart-feedback.css'));
 assert.match(adminStyle, /\.ccp-toast-stack/);
 
+// Branding, version and hierarchical UI invariants shared across installer and admin.
+const crypto = require('node:crypto');
+const brandFiles = [
+    'upload/install/view/image/logo.webp',
+    'upload/admin/view/image/logo.webp',
+    'upload/catalog/view/theme/codecart/image/codecart-logo.webp',
+    'upload/system/library/codecart/assets/default-logo.webp'
+];
+const brandHashes = brandFiles.map(p => crypto.createHash('sha256').update(fs.readFileSync(path.join(root, p))).digest('hex'));
+assert.equal(new Set(brandHashes).size, 1, 'All CodeCart default branding must use identical artwork');
+const installCss = file('upload/install/view/stylesheet/stylesheet.css');
+const mainCss = file('upload/admin/view/stylesheet/codecart-main-ui.css');
+assert.match(installCss, /\.cc-brand img\s*\{[^}]*object-fit:contain/i, 'Installer must show the entire logo');
+assert.match(mainCss, /#header #header-logo \.navbar-brand > img\s*\{[^}]*object-fit:contain!important/i, 'Admin must show the entire logo');
+assert.match(file('upload/install/index.php'), /define\('VERSION', '3\.0\.6\.1'\)/, 'Installer must display current runtime version');
+const navigation = file('upload/admin/view/javascript/codecart-admin-ui.js');
+assert.ok(navigation.includes("anchor.parentNode.insertBefore(li,anchor.nextSibling)"), 'Compass must follow the language flag');
+for (const name of ['catalog', 'blog']) {
+    const twig = file('upload/admin/view/template/' + name + '/category_list.twig');
+    assert.ok(twig.includes('cc-tree-expand-all'), name + ': expand-all control missing');
+    assert.ok(twig.includes('draggable="true"'), name + ': row drag missing');
+    assert.ok(!twig.includes('cc-tree-switch'), name + ': obsolete tree toggle must stay removed');
+}
+const hierarchy = file('upload/admin/view/javascript/codecart/category-tree.js');
+assert.ok(hierarchy.includes("rows.forEach(function (row) {"), 'Hierarchy must initialize every row');
+assert.ok(hierarchy.includes("row.addEventListener('dragstart'"), 'Drag handler missing for nested rows');
+assert.ok(hierarchy.includes("row.addEventListener('drop'"), 'Drop handler missing for nested rows');
+assert.ok(hierarchy.includes("root.addEventListener('drop'"), 'Moving to the root must remain possible');
+
 class Element {
     constructor(tag) {
         this.tagName = tag;
