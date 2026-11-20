@@ -26,7 +26,7 @@ $_['column_approved']           = 'Схвалити';
 $_['column_date_added']         = 'Дата додавання';
 $_['column_description']        = 'Опис';
 $_['column_amount']             = 'Разом';
-$_['column_action']             = 'Дія';
+$_['column_action']             = 'Дії';
 
 // Entry
 $_['entry_firstname']           = 'Ім’я';
