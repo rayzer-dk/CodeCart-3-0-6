@@ -871,7 +871,7 @@ final class CatalogTransfer {
             if ($targetLogical===null) { $result['warnings'][]='Target table is missing and will be skipped: '.DB_PREFIX.$sourceLogical; continue; }
             $schema=$this->schema($targetLogical);
             $rowCount=0;
-            SimpleXlsx::streamSheet($xlsx,$sourceLogical,function($row) use ($sourceLogical,&$imagePaths,&$productImagePaths,&$downloadFiles,&$identityBatch,&$result,&$requiredRefs,&$availableRefs,$checks,&$rowCount,&$totalProducts){
+            $info = SimpleXlsx::streamSheet($xlsx,$sourceLogical,function($row) use ($sourceLogical,&$imagePaths,&$productImagePaths,&$downloadFiles,&$identityBatch,&$result,&$requiredRefs,&$availableRefs,$checks,&$rowCount,&$totalProducts){
                 $rowCount++;
                 $this->collectImages($sourceLogical,$row,$imagePaths);
                 if (isset($row['product_id']) && (int)$row['product_id']>0) {
