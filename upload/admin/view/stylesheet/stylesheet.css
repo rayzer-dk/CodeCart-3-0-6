@@ -40,7 +40,7 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .breadcrumb li + li:before {
-    content: "";
+    content: "\f105";
     font-family: FontAwesome;
     color: #BBBBBB;
     padding: 0 5px;
@@ -252,17 +252,17 @@ a:hover, a:focus {
 }
 
 #menu li a.parent:after {
-    font-family: FontAwesome;
+    font-family: "Font Awesome 7 Free";
     float: right;
     margin-right: 8px;
 }
 
 #menu li a.parent:after {
-    content: "";
+    content: "\f107";
 }
 
 #menu li a.collapsed:after {
-    content: "";
+    content: "\f105";
 }
 
 /* 1st lvl */
@@ -303,9 +303,9 @@ a:hover, a:focus {
 }
 
 #menu li li a:before {
-    content: "";
+    content: "\f101";
     font-size: 13px;
-    font-family: FontAwesome;
+    font-family: "Font Awesome 7 Free";
     margin-left: 10px;
     margin-right: 10px;
     transition: color ease 0.2s;
@@ -379,10 +379,10 @@ div.required .control-label:not(span):before, td.required:before {
 }
 
 .table thead td span[data-toggle="tooltip"]:after, label.control-label span[data-toggle="tooltip"]:after {
-    font-family: "Font Awesome 6 Free";
-    font-weight: 400;
+    font-family: "Font Awesome 7 Free";
+    font-weight: 900;
     color: #0b6fd3;
-    content: "";
+    content: "\f059";
     font-size: 13px;
     margin-left: 5px;
     vertical-align: 1px;
@@ -477,12 +477,12 @@ input[type="checkbox"]:checked::after, .checkbox input[type="checkbox"]:checked:
 }
 
 .table a.asc:after {
-    content: " ";
+    content: " \f106";
     font-family: FontAwesome;
 }
 
 .table a.desc:after {
-    content: " ";
+    content: " \f107";
     font-family: FontAwesome;
 }
 
@@ -875,7 +875,7 @@ input[type="checkbox"]:checked::after, .checkbox input[type="checkbox"]:checked:
 
 .list-check li::before {
     font-family: "FontAwesome";
-    content: "";
+    content: "\f00c";
     margin-left: -30px;
     width: 29px;
     display: inline-block;
@@ -913,11 +913,11 @@ input[type="checkbox"]:checked::after, .checkbox input[type="checkbox"]:checked:
 }
 
 .opencart-icon-comment:before {
-    content: "";
+    content: "\e91b";
 }
 
 .opencart-icon-cart-mini:before {
-	content: "";
+	content: "\e91c";
 }
 /* Search */
 @media (max-width: 768px) {
@@ -1605,7 +1605,7 @@ select, input[type="text"], input[type="password"], input[type="datetime"], inpu
 
 .list-check li::before {
     font-family: "FontAwesome";
-    content: "";
+    content: "\f00c";
     margin-left: -30px;
     width: 29px;
     display: inline-block;
@@ -1643,11 +1643,11 @@ select, input[type="text"], input[type="password"], input[type="datetime"], inpu
 }
 
 .opencart-icon-comment:before {
-    content: "";
+    content: "\e91b";
 }
 
 .opencart-icon-cart-mini:before {
-	content: "";
+	content: "\e91c";
 }
 .form-group {
     padding-top: 15px;
@@ -1657,7 +1657,7 @@ select, input[type="text"], input[type="password"], input[type="datetime"], inpu
 
 .form-group + .form-group {
     border-top: 1px solid #ededed;
-    content: "";
+    content: "\e91c";
 }
 
 html[dir="rtl"] .form-group ul.dropdown-menu { 
