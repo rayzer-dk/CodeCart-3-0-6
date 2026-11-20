@@ -1108,6 +1108,34 @@ class ControllerSettingSetting extends Controller {
 			$data['logo'] = $this->model_tool_image->resize('no_image.webp', 100, 100);
 		}
 
+		// PWA icon is independent of the browser favicon. Empty means use config_icon.
+		$pwaIcon = isset($this->request->post['config_codecart_pwa_icon'])
+			? (string)$this->request->post['config_codecart_pwa_icon']
+			: (string)$this->config->get('config_codecart_pwa_icon');
+		$pwaIcon = str_replace('\\\\', '/', trim($pwaIcon));
+		if ($pwaIcon !== '') {
+			$imageRoot = realpath(DIR_IMAGE);
+			$imagePath = realpath(DIR_IMAGE . $pwaIcon);
+			if (!$imageRoot || !$imagePath || strpos($imagePath, $imageRoot . DIRECTORY_SEPARATOR) !== 0
+				|| !is_file($imagePath) || !preg_match('/\\.(?:png|webp)$/i', $imagePath)
+				|| filesize($imagePath) > 8 * 1024 * 1024) {
+				$pwaIcon = '';
+			} else {
+				$size = @getimagesize($imagePath);
+				if (!is_array($size) || $size[0] < 1 || $size[1] < 1
+					|| $size[0] > 2048 || $size[1] > 2048
+					|| !in_array($size[2], array(IMAGETYPE_PNG, IMAGETYPE_WEBP), true)) {
+					$pwaIcon = '';
+				}
+			}
+		}
+		$data['config_codecart_pwa_icon'] = $pwaIcon;
+		$data['codecart_pwa_icon_thumb'] = $pwaIcon !== ''
+			? $this->model_tool_image->resize($pwaIcon, 100, 100)
+			: $this->model_tool_image->resize('no_image.webp', 100, 100);
+		$data['entry_codecart_pwa_icon'] = $this->language->get('entry_codecart_pwa_icon');
+		$data['help_codecart_pwa_icon'] = $this->language->get('help_codecart_pwa_icon');
+
 		if (isset($this->request->post['config_icon'])) {
 			$data['config_icon'] = $this->request->post['config_icon'];
 		} else {
