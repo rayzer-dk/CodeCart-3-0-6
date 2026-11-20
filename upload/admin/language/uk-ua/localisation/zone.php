@@ -13,7 +13,7 @@ $_['text_edit']              = 'Редагування';
 $_['column_name']            = 'Назва регіону';
 $_['column_code']            = 'Код регіону';
 $_['column_country']         = 'Країна';
-$_['column_action']          = 'Дія';
+$_['column_action']          = 'Дії';
 
 // Entry
 $_['entry_name']             = 'Назва регіону';
