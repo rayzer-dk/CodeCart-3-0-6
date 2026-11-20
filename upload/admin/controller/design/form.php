@@ -191,7 +191,7 @@ class ControllerDesignForm extends Controller {
         $recipient = trim((string)(isset($this->request->post['recipient']) ? $this->request->post['recipient'] : ''));
         if ($recipient !== '' && !filter_var($recipient, FILTER_VALIDATE_EMAIL)) { $this->error['warning'] = $this->language->get('error_recipient'); }
         if (isset($this->request->post['form_description']) && is_array($this->request->post['form_description'])) {
-            foreach ($this->request->post['form_description'] as $language_id => &$row) {
+            foreach ($this->request->post['form_description'] as &$row) {
                 if (!is_array($row)) { $row = array(); }
                 $row['fields_json'] = \CodeCart\Core\FormBuilder::encode(isset($row['fields_json']) ? $row['fields_json'] : array());
             }

@@ -186,7 +186,7 @@ class ControllerApiCart extends Controller {
 			$json['vouchers'] = array();
 
 			if (!empty($this->session->data['vouchers'])) {
-				foreach ($this->session->data['vouchers'] as $key => $voucher) {
+				foreach ($this->session->data['vouchers'] as $voucher) {
 					$json['vouchers'][] = array(
 						'code'             => $voucher['code'],
 						'description'      => $voucher['description'],

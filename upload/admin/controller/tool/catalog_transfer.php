@@ -290,7 +290,6 @@ class ControllerToolCatalogTransfer extends Controller {
             $message = 'Catalog export failed.';
         }
         $status = (int)$status;
-        $status_text = $status === 403 ? 'Forbidden' : ($status === 405 ? 'Method Not Allowed' : ($status >= 500 ? 'Internal Server Error' : 'Bad Request'));
         $this->response->setStatusCode($status);
         $this->response->addHeader('Content-Type: application/json; charset=UTF-8');
         $this->response->addHeader('Cache-Control: no-store');

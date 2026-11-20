@@ -131,9 +131,6 @@ class ControllerExtensionExtensionModule extends Controller {
 
 		$data['extensions'] = array();
 
-		// Create a new language container so we don't pollute the current one
-		$language = new Language($this->config->get('config_language'));
-		
 		// Compatibility code for old extension folders
 		$files = glob(DIR_APPLICATION . 'controller/extension/module/*.php');
 

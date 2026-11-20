@@ -49,7 +49,7 @@ class ControllerCommonSecurity extends Controller {
 			$json['error'] = $this->language->get('error_permission');
 		} else {
 			if (DIR_STORAGE != DIR_SYSTEM . 'storage/') {
-				$data['error'] = $this->language->get('error_path');
+				$json['error'] = $this->language->get('error_path');
 			}
 
 			if (!$path || str_replace('\\', '/', realpath($path)) . '/' != str_replace('\\', '/', substr(DIR_SYSTEM, 0, strlen($path)))) {
@@ -118,7 +118,7 @@ class ControllerCommonSecurity extends Controller {
 
 					$lines = file($file);
 
-					foreach ($lines as $line_id => $line) {
+					foreach ($lines as $line) {
 						if (strpos($line, 'define(\'DIR_STORAGE') !== false) {
 							$output .= 'define(\'DIR_STORAGE\', \'' . $path . $directory . '/\');' . "\n";
 						} else {

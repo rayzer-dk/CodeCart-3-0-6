@@ -26,7 +26,7 @@ final class FormBuilder {
         $used = array();
         $types = array('text','email','tel','textarea','select','checkbox');
 
-        foreach ($fields as $index => $field) {
+        foreach ($fields as $field) {
             if (count($out) >= self::MAX_FIELDS || !is_array($field)) { break; }
             $type = isset($field['type']) ? strtolower(trim((string)$field['type'])) : 'text';
             if (!in_array($type, $types, true)) { $type = 'text'; }
