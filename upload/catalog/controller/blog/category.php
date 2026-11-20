@@ -86,8 +86,6 @@ class ControllerBlogCategory extends Controller {
 				$url .= '&limit=' . $this->request->get['limit'];
 			}
 
-			$blog_category_id = '';
-
 			$parts = explode('_', (string)$this->request->get['blog_category_id']);
 
 			$blog_category_id = (int)array_pop($parts);
@@ -253,12 +251,6 @@ class ControllerBlogCategory extends Controller {
 					$image = $this->model_tool_image->resize($result['image'], $this->config->get('configblog_image_article_width'), $this->config->get('configblog_image_article_height'));
 				} else {
 					$image = $this->model_tool_image->resize('no_image.webp', $this->config->get('configblog_image_article_width'), $this->config->get('configblog_image_article_height'));
-				}
-
-				if ($this->config->get('configblog_review_status')) {
-					$rating = (int)$result['rating'];
-				} else {
-					$rating = false;
 				}
 
 				$data['articles'][] = array(

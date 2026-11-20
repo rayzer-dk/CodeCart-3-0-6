@@ -251,7 +251,6 @@ class DatabaseModernizer {
             $dataType = strtolower((string)$row['DATA_TYPE']);
             $subPart = $row['SUB_PART'] !== null ? (int)$row['SUB_PART'] : 0;
             $chars = $subPart > 0 ? $subPart : (int)$row['CHARACTER_MAXIMUM_LENGTH'];
-            $bytes = 0;
 
             if (in_array($dataType, array('char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext', 'enum', 'set'), true)) {
                 $bytes = $chars > 0 ? $chars * 4 : 0; // Target is utf8mb4: up to four bytes per character.

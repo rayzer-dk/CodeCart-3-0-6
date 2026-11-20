@@ -98,12 +98,6 @@ class ControllerSettingStore extends Controller {
 	}
 
 	protected function getList() {
-		$url = '';
-
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
-
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
@@ -127,8 +121,6 @@ class ControllerSettingStore extends Controller {
 			'url'      => $this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG,
 			'edit'     => $this->url->link('setting/setting', 'user_token=' . $this->session->data['user_token'], true)
 		);
-
-		$store_total = $this->model_setting_store->getTotalStores();
 
 		$results = $this->model_setting_store->getStores();
 

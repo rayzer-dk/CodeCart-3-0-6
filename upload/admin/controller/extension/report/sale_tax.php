@@ -106,8 +106,6 @@ class ControllerExtensionReportSaleTax extends Controller {
 
 		$this->load->model('extension/report/sale');
 
-		$data['orders'] = array();
-
 		$filter_data = array(
 			'filter_date_start'	     => $filter_date_start,
 			'filter_date_end'	     => $filter_date_end,

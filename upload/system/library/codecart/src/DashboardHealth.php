@@ -311,7 +311,6 @@ final class DashboardHealth {
                     if($ts){$result['age_minutes']=max(0,(int)floor((time()-$ts)/60));}
                     if((string)$q->row['last_status']==='error'){$result['state']='error';}
                     elseif($result['age_minutes']<=90){$result['state']='ok';}
-                    else{$result['state']='warning';}
                 }
             }
         } catch (\Throwable $e) { $this->logFailure('cron state', $e); }

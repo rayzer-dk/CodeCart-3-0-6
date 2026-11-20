@@ -22,7 +22,6 @@ class ControllerCommonCookieConsent extends Controller {
             'shield_lock' => 'catalog/view/javascript/codecart/consent/icons/shield-lock.webp'
         );
         if ($icon !== 'custom' && !isset($presetIcons[$icon])) { $icon = 'shield_cookie_check'; }
-        $data['icon_url']='';
         if ($icon === 'custom' && $customIcon !== '' && is_file(DIR_IMAGE . $customIcon)) {
             $data['icon_url'] = 'image/' . ltrim(str_replace('\\', '/', $customIcon), '/');
         } elseif (isset($presetIcons[$icon])) {
