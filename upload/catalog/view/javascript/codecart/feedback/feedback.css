@@ -95,3 +95,32 @@ html.ccp-theme-dark #ccp-toast-host .ccp-toast-close:hover {background:#364252}
 @media (prefers-reduced-motion: reduce) {
     #ccp-toast-host .ccp-toast {transition:none;transform:none}
 }
+
+
+/* Cart acknowledgement: actions are real buttons, not text links. */
+#ccp-toast-host .ccp-toast-cart {grid-template-rows:auto auto;min-height:118px;}
+#ccp-toast-host .ccp-toast-cart .ccp-feedback-actions {
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:4px;
+}
+#ccp-toast-host .ccp-toast-cart .ccp-feedback-actions > * {
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:38px;padding:8px 12px;border-radius:10px;
+  font-size:13px;font-weight:650;line-height:1.35;
+  text-align:center;text-decoration:none;cursor:pointer;
+}
+#ccp-toast-host .ccp-feedback-continue {
+  color:var(--ccp-store-accent,#086fd1);border:1px solid #a5bcd8;background:transparent;
+}
+#ccp-toast-host .ccp-feedback-checkout {
+  color:#fff;border:1px solid var(--ccp-store-accent,#086fd1);
+  background:var(--ccp-store-accent,#086fd1);
+}
+#ccp-toast-host .ccp-feedback-continue:hover{background:rgba(8,111,209,.1)}
+#ccp-toast-host .ccp-feedback-checkout:hover{filter:brightness(.92);color:#fff}
+#ccp-toast-host .ccp-feedback-actions > :focus-visible {outline:2px solid #2a80dc;outline-offset:2px}
+html.ccp-theme-dark #ccp-toast-host .ccp-feedback-continue {color:#a4caff;border-color:#6585ac}
+@media(max-width:390px){#ccp-toast-host .ccp-toast-cart .ccp-feedback-actions{grid-template-columns:1fr}}
