@@ -201,6 +201,7 @@ class ControllerCommonHeader extends Controller {
 		$data['logo_height'] = 0;
 		$data['logo_srcset'] = '';
 		$logo_name = (string)$this->config->get('config_logo');
+		$data['codecart_default_brand_logo'] = $logo_name === 'catalog/logo.webp' || $logo_name === '';
 		$logo_file = DIR_IMAGE . $logo_name;
 		if ($logo_name !== '' && is_file($logo_file)) {
 			$logo_size = @getimagesize($logo_file);
