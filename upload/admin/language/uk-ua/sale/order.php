@@ -76,7 +76,7 @@ $_['column_comment']             = 'Коментар';
 $_['column_notify']              = 'Покупець повідомлений';
 $_['column_location']            = 'Розташування';
 $_['column_reference']           = 'Посилання';
-$_['column_action']              = 'Дія';
+$_['column_action']              = 'Дії';
 $_['column_weight']              = 'Вага товару';
 
 // Entry
