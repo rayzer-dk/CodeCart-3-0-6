@@ -52,3 +52,21 @@ Audit result: First-party code quality deep audit https://github.com/rayzer-dk/C
 The earlier Production Release Check on SHA 4760d540 failed exclusively because five changed Core files had stale integrity hashes. The automatic Refresh Integrity Manifest workflow subsequently committed updated SHA-256 values, most recently commit a76ba32fed15 after the PWA changes. This journal commit triggers a fresh release check against the updated manifest. Do not regard still-queued runs as passed.
 
 Open audit items: manual classification of substantial duplicated legacy MVC blocks, dynamic OCMOD/Events references and UI selectors; PHPStan advisory Core/bonus findings; complete storefront testing of PWA settings, image scaling and installation on representative devices. No unconditional production-readiness claim is made.
+
+## 2026-11-20 — разбор 27 PHPStan замечаний по Core (ветка main)
+
+Исходная выборка: 27 предупреждений Core в рекомендательном проходе PHPStan. Диагностика изучалась вместе с исходниками, обязательные проверки admin/catalog не отключались.
+
+Изменения:
+- CatalogTransfer.php: типизированы накопители ошибок и ID; повторяющиеся заполнение имён ошибок и формирование списка ошибок сведены к общим методам; централизована проверка отклонённых товаров и таблиц без PRIMARY KEY; удалены только логически недостижимые проверки null, размера, MIME и пустого array_chunk. Проверка PRIMARY KEY, запрет опасного импорта, безопасность ZIP и фильтрация файлов сохранены.
+- CompatibilityFramework.php: необязательная возможность satisfiesOcmod вызывается только через проверенный callable, базовый интерфейс сторонних адаптеров не изменён.
+- DashboardHealth.php: после curl_getinfo проверяется результат, гарантированные поля читаются без лишних значений по умолчанию. Промежуточная синтаксическая ошибка обнаружена blocking admin PHPStan и немедленно исправлена; этот ошибочный запуск не считался успешным.
+- FreeCheckoutGuard.php: тип массива расчёта заказа уточнён с учётом динамической записи внешними total-моделями; сравнение всех корректировок и защита бесплатного заказа сохранены.
+- DatabaseModernizer.php: исключена избыточная третья ветка при учёте неподдерживаемых DB engines: unsupported всегда подразумевает needsEngine. Отчёт о неподдерживаемых движках и запреты миграции сохранены.
+- FileIntegrity.php и ModernExtensionRegistry.php: параметр registry в конструкторе сознательно сохранён для ABI/OpenCart/OCMOD совместимости. Два точно ограниченных по файлам и сообщению исключения описаны в phpstan.codecart.extra.dead-code.neon.dist; общий поиск неиспользуемых аргументов не отключался.
+
+Хронология числа замечаний PHPStan Core: 27 → 15 → 4 → 0 (включая две явно задокументированные совместимые сигнатуры). Подтверждённый результат: https://github.com/rayzer-dk/CodeCart-3-0-6/actions/runs/44721846253 — SUCCESS, в журнале extra нет сообщений по upload/system/library/codecart/src. В bundled monobank_payment остаются четыре рекомендательных предупреждения о динамических OpenCart models/properties. Они не входят в 27 замечаний Core и не объявляются устранёнными.
+
+Архив CodeCart-production предыдущей проверенной версии: https://github.com/rayzer-dk/CodeCart-3-0-6/actions/runs/44716013035 . Для сборки после новых изменений следует использовать соответствующий новый успешный Production Release Check; до завершения его нельзя считать готовым.
+
+Дублирующиеся MVC-блоки и неподтверждённые CSS/JS-кандидаты остаются отдельной очередью ручного аудита; статическая проверка не заменяет интеграционное тестирование с OCMOD/Events и сторонними темами.
