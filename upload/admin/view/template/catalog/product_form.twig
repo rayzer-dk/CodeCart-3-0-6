@@ -1129,7 +1129,7 @@
                     {% for product_image in product_images %}
                       <tr id="image-row{{ image_row }}">
                         <td class="text-center" style="vertical-align: middle; white-space: nowrap;">
-                          <button type="button" class="btn btn-default codecart-image-drag" data-toggle="tooltip" title="{{ button_image_drag }}"><i class="fa fa-bars"></i></button>
+                          <button type="button" class="btn btn-default codecart-image-drag" data-toggle="tooltip" title="{{ button_image_drag }}"><i class="fa-solid fa-arrows-up-down"></i></button>
                           <button type="button" class="btn btn-warning codecart-image-main" data-image-row="{{ image_row }}" data-toggle="tooltip" title="{{ button_image_main }}"><i class="fa fa-exchange"></i></button>
                         </td>
                         <td class="text-left"><a href="" id="thumb-image{{ image_row }}" data-toggle="image" class="img-thumbnail"><img src="{{ product_image.thumb }}" alt="" title="" data-placeholder="{{ placeholder }}"/></a> <input type="hidden" name="product_image[{{ image_row }}][image]" value="{{ product_image.image }}" id="input-image{{ image_row }}"/></td>
@@ -1756,7 +1756,7 @@ $('#article-related').delegate('.fa-minus-circle', 'click', function() {
 
   function addImage() {
 	  html = '<tr id="image-row' + image_row + '">';
-	  html += '  <td class="text-center" style="vertical-align:middle;white-space:nowrap;"><button type="button" class="btn btn-default codecart-image-drag" data-toggle="tooltip" title="{{ button_image_drag }}"><i class="fa fa-bars"></i></button> <button type="button" class="btn btn-warning codecart-image-main" data-image-row="' + image_row + '" data-toggle="tooltip" title="{{ button_image_main }}"><i class="fa fa-exchange"></i></button></td>';
+	  html += '  <td class="text-center" style="vertical-align:middle;white-space:nowrap;"><button type="button" class="btn btn-default codecart-image-drag" data-toggle="tooltip" title="{{ button_image_drag }}"><i class="fa-solid fa-arrows-up-down"></i></button> <button type="button" class="btn btn-warning codecart-image-main" data-image-row="' + image_row + '" data-toggle="tooltip" title="{{ button_image_main }}"><i class="fa fa-exchange"></i></button></td>';
 	  html += '  <td class="text-left"><a href="" id="thumb-image' + image_row + '" data-toggle="image" class="img-thumbnail"><img src="{{ placeholder }}" alt="" title="" data-placeholder="{{ placeholder }}" /></a><input type="hidden" name="product_image[' + image_row + '][image]" value="" id="input-image' + image_row + '" /></td>';
 	  html += '  <td class="text-right"><input type="text" name="product_image[' + image_row + '][sort_order]" value="" placeholder="{{ entry_sort_order }}" class="form-control" /></td>';
 	  html += '  <td class="text-left"><button type="button" onclick="$(\'#image-row' + image_row + '\').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
