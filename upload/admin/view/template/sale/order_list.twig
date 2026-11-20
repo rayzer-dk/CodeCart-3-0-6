@@ -97,7 +97,7 @@
             <select name="filter_shipping_method" id="input-filter-shipping" class="form-control">
               <option value=""></option>
               {% for method in shipping_methods %}
-              <option value="{{ method }}"{% if method == filter_shipping_method %} selected="selected"{% endif %}>{{ method }}</option>
+              <option value="{{ method.value }}"{% if method.value == filter_shipping_method %} selected="selected"{% endif %}>{{ method.name }}</option>
               {% endfor %}
             </select>
           </div>
@@ -106,7 +106,7 @@
             <select name="filter_payment_method" id="input-filter-payment" class="form-control">
               <option value=""></option>
               {% for method in payment_methods %}
-              <option value="{{ method }}"{% if method == filter_payment_method %} selected="selected"{% endif %}>{{ method }}</option>
+              <option value="{{ method.value }}"{% if method.value == filter_payment_method %} selected="selected"{% endif %}>{{ method.name }}</option>
               {% endfor %}
             </select>
           </div>
