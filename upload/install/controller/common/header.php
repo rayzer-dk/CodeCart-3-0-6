@@ -9,7 +9,7 @@ class ControllerCommonHeader extends Controller {
 		$data['styles'] = $this->document->getStyles();
 		$data['scripts'] = $this->document->getScripts();
 		$data['base'] = HTTP_SERVER;
-		$data['version'] = defined('VERSION') ? VERSION : '3.0.6.0';
+		$data['version'] = defined('VERSION') ? VERSION : '3.0.6.1';
 		$data['package_build'] = defined('CODECART_PACKAGE_BUILD') ? (string)CODECART_PACKAGE_BUILD : '2.0.8';
 
 		$code = isset($this->session->data['language']) ? strtolower((string)$this->session->data['language']) : 'uk-ua';
