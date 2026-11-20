@@ -4,7 +4,6 @@
 
 class ControllerBlogCategory extends Controller {
 	private $error = array();
-	private $path = array();
 	private $adminCategoryTree = null;
 
 	public function index() {
@@ -160,14 +159,11 @@ class ControllerBlogCategory extends Controller {
 
 		if (isset($this->request->get['path'])) {
 			if ($this->request->get['path'] != '') {
-					$this->path = explode('_', $this->request->get['path']);
 					$this->session->data['path'] = $this->request->get['path'];
 			} else {
 				unset($this->session->data['path']);
 			}
-		} elseif (isset($this->session->data['path'])) {
-				$this->path = explode('_', $this->session->data['path']);
- 		}
+		}
 		
 		$data['categories'] = $this->getCategories(0);
 		// The standard category table now renders the entire bounded hierarchy.
