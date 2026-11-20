@@ -123,7 +123,7 @@ jobs:
           echo "build=$build" >> "$GITHUB_OUTPUT"
           echo "tag=v$build" >> "$GITHUB_OUTPUT"
           echo "archive=$archive" >> "$GITHUB_OUTPUT"
-          sha256sum -c "$archive.sha256"
+          (cd artifacts && sha256sum -c "$(basename "$archive.sha256")")
 
       - name: Publish immutable release tag and GitHub Release
         shell: bash
