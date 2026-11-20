@@ -32,7 +32,7 @@ $_['column_name']           = 'Назва додаткового поля';
 $_['column_location']       = 'Розташування';
 $_['column_type']           = 'Тип';
 $_['column_sort_order']     = 'Порядок сортування';
-$_['column_action']         = 'Дія';
+$_['column_action']         = 'Дії';
 
 // Entry
 $_['entry_name']            = 'Назва додаткового поля';
