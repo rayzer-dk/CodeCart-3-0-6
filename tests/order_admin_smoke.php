@@ -22,4 +22,16 @@ checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array('filter_phone
 checkOrder(\CodeCart\Core\OrderAdminSearch::amount('abc')==='','invalid numeric');
 checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array('filter_total'=>'315')),"o.total >= '315'")!==false,'old exact amount');
 checkOrder(strpos(\CodeCart\Core\OrderAdminSearch::where($db,array()),'telephone')===false,'no normal-list phone work');
+$root = dirname(__DIR__) . '/upload/';
+$list = file_get_contents($root . 'admin/view/template/sale/order_list.twig');
+$ctrl = file_get_contents($root . 'admin/controller/sale/order.php');
+$help = file_get_contents($root . 'admin/view/javascript/codecart-help-tooltips.js');
+checkOrder(strpos($list, 'id="input-filter-shipping"') !== false && strpos($list, 'id="input-filter-payment"') !== false, 'shipping/payment filter selects exist');
+checkOrder(strpos($ctrl, "getOrderMethodFilterChoices('shipping')") !== false && strpos($ctrl, "getOrderMethodFilterChoices('payment')") !== false, 'installed payment and shipping choices are populated');
+checkOrder(strpos($ctrl, "getInstalled(\$type)") !== false, 'enabled installed extensions are consulted');
+checkOrder(strpos($list, 'id="input-date-added"') === false && strpos($list, 'id="input-date-modified"') === false, 'obsolete date filters are removed');
+checkOrder(strpos($list, 'filter_date_start') !== false && strpos($list, 'filter_date_end') !== false, 'date range remains available for CSV export');
+checkOrder(strpos($list, 'ccp-order-preview-item') !== false && strpos($list, "var head = \$('<tr>');") === false, 'preview renders without a header row');
+checkOrder(strpos($list, 'gap:6px') !== false && strpos($list, 'width:35px!important') !== false, 'order action buttons have 35px dimensions and spacing');
+checkOrder(strpos($list, 'ccp-filter-help') !== false && strpos($help, 'fa-question-circle') !== false, 'help is presented as accessible question icons');
 echo "PASS: order filters, phone normalization, inclusive sums and ranking.\n";
