@@ -1,0 +1,48 @@
+/* Modern non-blocking admin feedback. Form validation remains inline. */
+.ccp-toast-stack {
+    top: 78px;
+    right: 20px;
+    gap: 10px;
+    width: min(410px, calc(100vw - 32px));
+    z-index: 2147482500;
+}
+.ccp-toast-stack .ccp-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 16px 17px;
+    border: 1px solid #dce5ef;
+    border-left: 4px solid #377bd0;
+    border-radius: 14px;
+    background: #fff;
+    color: #243142;
+    box-shadow: 0 14px 40px rgba(15,23,42,.16),0 3px 8px rgba(15,23,42,.06);
+    transform: translateX(14px) scale(.98);
+    transition: transform .2s ease,opacity .2s ease;
+}
+.ccp-toast-stack .ccp-toast.is-visible {transform:translateX(0) scale(1)}
+.ccp-toast-stack .ccp-toast-body {font-size:14px;line-height:1.55;gap:4px}
+.ccp-toast-stack .ccp-toast-body strong {font-size:15px;font-weight:650}
+.ccp-toast-stack .ccp-toast-close {
+    color:#667085;
+    border-radius:8px;
+    min-width:27px;
+    min-height:27px;
+}
+.ccp-toast-stack .ccp-toast-close:hover {background:#f0f3f7;color:#172b4d}
+.ccp-toast-stack .ccp-toast-close:focus-visible {outline:2px solid #357bca;outline-offset:2px}
+.ccp-toast-stack .ccp-toast-success {border-left-color:#23965e}
+.ccp-toast-stack .ccp-toast-info {border-left-color:#377bd0}
+.ccp-toast-stack .ccp-toast-warning {border-left-color:#cc920f}
+.ccp-toast-stack .ccp-toast-danger {border-left-color:#cf4545}
+html.ccp-theme-dark .ccp-toast-stack .ccp-toast,
+body.ccp-theme-dark .ccp-toast-stack .ccp-toast {
+    background:#263141;color:#eff5fa;border-color:#405066;
+}
+@media(max-width:767px) {
+    .ccp-toast-stack {top:60px;right:10px;left:10px;width:auto;max-width:none}
+    .ccp-toast-stack .ccp-toast {padding:14px;border-radius:13px}
+}
+@media(prefers-reduced-motion:reduce) {
+    .ccp-toast-stack .ccp-toast {transition:none;transform:none}
+}
