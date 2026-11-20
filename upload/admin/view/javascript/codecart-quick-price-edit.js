@@ -108,6 +108,7 @@
     function showInput(current, result) {
       if (active !== current) { return; }
       current.expected = String(result.value);
+      current.initialValue = String(current.field === 'price' ? result.price_value : result.value);
       current.$cell.removeClass('ccp-qpe-loading').addClass('ccp-qpe-editing');
       var $editor = $('<span class="ccp-qpe-inline-editor" role="group"></span>')
         .attr('aria-label', labels[current.field]);
@@ -115,12 +116,8 @@
         .attr({inputmode: current.field === 'price' ? 'decimal' : 'numeric',
           'aria-label': labels[current.field]})
         .val(current.field === 'price' ? result.price_value : result.value);
-      var $save = $('<button type="button" class="ccp-qpe-inline-save"><i class="fa fa-check" aria-hidden="true"></i></button>')
-        .attr({title: labels.save, 'aria-label': labels.save});
-      var $cancel = $('<button type="button" class="ccp-qpe-inline-cancel"><i class="fa fa-times" aria-hidden="true"></i></button>')
-        .attr({title: labels.cancel, 'aria-label': labels.cancel});
       current.$input = $input;
-      $editor.append($input, $save, $cancel).appendTo(current.$cell);
+      $editor.append($input).appendTo(current.$cell);
       $input.trigger('focus').select();
     }
     function openEditor($cell, field, productId) {
@@ -149,6 +146,8 @@
     function saveEditor() {
       var current = active;
       if (!current || current.busy || !current.$input) { return; }
+      var unchanged = $.trim(String(current.$input.val() || '')).replace(/[\s\u00a0]/g, '').replace(',', '.') === String(current.field === 'price' ? current.initialValue : current.expected).replace(',', '.');
+      if (unchanged) { closeEditor(); return; }
       var value = $.trim(String(current.$input.val() || '')).replace(/[\s\u00a0]/g, '').replace(',', '.');
       var valid = current.field === 'price'
         ? /^(?:0|[1-9][0-9]{0,10})(?:\.[0-9]{1,4})?$/.test(value)
@@ -198,8 +197,7 @@
       if ((field !== 'price' && field !== 'quantity') || !productId) { return; }
       openEditor($cell, field, productId);
     });
-    $table.on('click', '.ccp-qpe-inline-save', function () { saveEditor(); });
-    $table.on('click', '.ccp-qpe-inline-cancel', function () { if (active && !active.busy) { closeEditor(); } });
+    $table.on('change', '.ccp-qpe-inline-input', function () { saveEditor(); });
     $table.on('keydown', '.ccp-qpe-inline-input', function (event) {
       if (event.which === 13) { event.preventDefault(); saveEditor(); }
       if (event.which === 27) { event.preventDefault(); if (active && !active.busy) { closeEditor(); } }
@@ -209,7 +207,7 @@
     });
     $(document).on('mousedown.ccpQuickCell', function (event) {
       if (!active || active.busy) { return; }
-      if (!$(event.target).closest('.ccp-qpe-inline-editor,.ccp-qpe-edit-btn').length) { closeEditor(); }
+      if (!$(event.target).closest('.ccp-qpe-inline-editor,.ccp-qpe-edit-btn').length) { saveEditor(); }
     });
 
     // Product status and indexability switches retain the previously validated
