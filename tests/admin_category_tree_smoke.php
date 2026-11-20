@@ -74,9 +74,13 @@ foreach (array('catalog','blog') as $type) {
 
 treeCheck(strpos($script, "icon.classList.add(isCollapsed ? 'fa-angle-up' : 'fa-angle-down')") !== false, 'Category disclosure arrow does not follow collapse state');
 treeCheck(strpos($script, "icon.classList.add(anyCollapsed ? 'fa-angles-down' : 'fa-angles-up')") !== false, 'Expand-all arrow does not change with tree state');
+treeCheck(strpos($script, "data-collapse-label") !== false && strpos($script, ".cc-tree-expand-label") !== false, 'Expand-all caption does not follow tree state');
+
 foreach (array('catalog', 'blog') as $type) {
     $template = file_get_contents($root . 'admin/view/template/' . $type . '/category_list.twig');
     treeCheck(strpos($template, 'fa-solid fa-angles-down') !== false, $type . ' expand-all button missing arrows');
+    treeCheck(strpos($template, 'btn btn-primary pull-right cc-tree-expand-all') !== false, $type . ' expand-all button must be prominent');
+    treeCheck(strpos($template, 'tree_collapse_all') !== false, $type . ' collapse button label must be translated');
     treeCheck(strpos($template, 'fa-solid fa-angle-up') !== false, $type . ' category disclosure missing up arrow');
 }
 $orderList = file_get_contents($root . 'admin/view/template/sale/order_list.twig');
