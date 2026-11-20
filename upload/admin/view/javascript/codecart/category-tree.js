@@ -105,6 +105,13 @@
     if (!rows.length) { return; }
 
     var collapsed = Object.create(null);
+    var expandAll = host.querySelector('.cc-tree-expand-all');
+    // Start with the main categories visible; descendants expand in place.
+    rows.forEach(function (row) {
+      if (row.querySelector('.cc-tree-collapse:not(.is-placeholder)')) {
+        collapsed[row.dataset.ccTreeId] = true;
+      }
+    });
     function refreshTree() {
       rows.forEach(function (row) {
         var ancestors = (row.getAttribute('data-cc-tree-path') || '').split('/').filter(Boolean);
@@ -119,6 +126,24 @@
       });
     }
 
+    if (expandAll) {
+      function syncExpandAll() {
+        var anyCollapsed = Object.keys(collapsed).some(function (id) { return collapsed[id] === true; });
+        expandAll.setAttribute('aria-expanded', anyCollapsed ? 'false' : 'true');
+        expandAll.classList.toggle('is-expanded', !anyCollapsed);
+      }
+      expandAll.addEventListener('click', function () {
+        var expand = Object.keys(collapsed).some(function (id) { return collapsed[id] === true; });
+        rows.forEach(function (row) {
+          if (row.querySelector('.cc-tree-collapse:not(.is-placeholder)')) {
+            collapsed[row.dataset.ccTreeId] = !expand;
+          }
+        });
+        refreshTree();
+        syncExpandAll();
+      });
+    }
+    refreshTree();
     rows.forEach(function (row) {
       var toggle = row.querySelector('.cc-tree-collapse');
       if (toggle && !toggle.disabled) {
@@ -126,6 +151,7 @@
           var id = row.dataset.ccTreeId;
           collapsed[id] = !collapsed[id];
           refreshTree();
+          if (expandAll) { syncExpandAll(); }
         });
       }
     });
