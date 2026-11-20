@@ -173,7 +173,7 @@ class ControllerBlogCategory extends Controller {
 		// The standard category table now renders the entire bounded hierarchy.
 		// There is no separate tree mode: drag targets remain available at every depth.
 		$this->load->language('catalog/category_tree');
-		foreach (array('tree_toggle','tree_list','tree_tree','tree_root','tree_move','tree_move_help','tree_search','tree_sort','tree_save','tree_cancel','tree_drag_help','tree_error','tree_loading','tree_limited','tree_root_option','tree_choose','tree_done','tree_expand') as $key) {
+		foreach (array('tree_toggle','tree_list','tree_tree','tree_root','tree_move','tree_move_help','tree_search','tree_sort','tree_save','tree_cancel','tree_drag_help','tree_error','tree_loading','tree_limited','tree_root_option','tree_choose','tree_done','tree_expand','tree_expand_all') as $key) {
 			$data[$key] = $this->language->get($key);
 		}
 
