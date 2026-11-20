@@ -112,6 +112,25 @@
         collapsed[row.dataset.ccTreeId] = true;
       }
     });
+    // Reopen the destination branch after a successful server-side move.
+    // Otherwise the item is saved but hidden inside the default-collapsed tree.
+    var restoreKey = 'ccp-tree-reveal-' + window.location.pathname + '-' + (config.dataset.ccTreeUrl || '').split('route=')[1].split('&')[0];
+    var revealId = '';
+    try {
+      revealId = window.sessionStorage.getItem(restoreKey) || '';
+      window.sessionStorage.removeItem(restoreKey);
+    } catch (ignore) {}
+    if (/^[1-9][0-9]*$/.test(revealId)) {
+      var revealRow = host.querySelector('.cc-tree-row[data-cc-tree-id="' + revealId + '"]');
+      if (revealRow) {
+        (revealRow.dataset.ccTreePath || '').split('/').filter(Boolean).concat([revealId]).forEach(function (id) {
+          collapsed[id] = false;
+        });
+      }
+    }
+    function rememberDestination(id) {
+      try { window.sessionStorage.setItem(restoreKey, String(id)); } catch (ignore) {}
+    }
     function refreshTree() {
       rows.forEach(function (row) {
         var ancestors = (row.getAttribute('data-cc-tree-path') || '').split('/').filter(Boolean);
@@ -173,7 +192,7 @@
     function move(id, parent) {
       if (id === parent || !/^[0-9]+$/.test(id) || !/^[0-9]+$/.test(parent)) { return; }
       request({action: 'move', id: id, parent_id: parent})
-        .then(function (result) { if (result && result.moved === false) { notify(defaultError, false); return; } window.location.reload(); })
+        .then(function (result) { if (result && result.moved === false) { notify(defaultError, false); return; } if (parent !== '0') { rememberDestination(parent); } window.location.reload(); })
         .catch(function (error) { notify(error.message || defaultError, false); });
     }
     function dropOn(target, event) {
@@ -187,6 +206,7 @@
         request({action:'reorder', id:dragging, before_id:target.dataset.ccTreeId})
           .then(function (result) {
             if (result.moved === false) { notify(defaultError, false); return; }
+            rememberDestination(target.dataset.ccTreeId);
             window.location.reload();
           }).catch(function (error) { notify(error.message || defaultError, false); });
       } else {
