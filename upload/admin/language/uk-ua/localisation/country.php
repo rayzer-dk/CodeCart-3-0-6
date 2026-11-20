@@ -13,7 +13,7 @@ $_['text_edit']               = 'Редагування';
 $_['column_name']             = 'Назва країни';
 $_['column_iso_code_2']       = 'Код ISO (2)';
 $_['column_iso_code_3']       = 'Код ISO (3)';
-$_['column_action']           = 'Дія';
+$_['column_action']           = 'Дії';
 
 // Entry
 $_['entry_name']              = 'Назва країни';
