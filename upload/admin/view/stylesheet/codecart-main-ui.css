@@ -242,7 +242,7 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 #content table.table tbody td > a.btn.btn-primary:has(.fa-pencil) {
   box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;
   justify-content:center!important;vertical-align:middle!important;
-  width:46px!important;height:36px!important;min-width:46px!important;min-height:36px!important;
+  width:35px!important;height:35px!important;min-width:35px!important;min-height:35px!important;
   margin:0 2px!important;padding:0!important;line-height:1!important;
 }
 #content table.table tbody td > a.btn.btn-success:has(.fa-eye) i,
@@ -264,3 +264,8 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 #header #header-logo .navbar-brand>img {max-width:100%!important;max-height:54px!important;width:100%!important;height:54px!important;object-fit:contain!important}
 #header .navbar-right>li:is(.ccp-modification-refresh-menu,.ccp-admin-theme-menu,.ccp-admin-language-menu,.ccp-palette-menu,.ccp-notification-menu)>a {width:42px!important;min-width:42px!important;height:56px!important;padding:0 9px!important}
 #header .navbar-right>li:is(.ccp-modification-refresh-menu,.ccp-admin-theme-menu,.ccp-palette-menu,.ccp-notification-menu)>a>i.fa {font-size:17px!important;width:19px!important;height:19px!important;line-height:19px!important;flex:0 0 19px!important}
+
+/* Normalize action buttons on catalog, blog and extension tables. */
+#content .table td > a.btn.btn-primary, #content .table td > a.btn.btn-success, #content .table td > button.btn.btn-primary, #content .table td > button.btn.btn-success {box-sizing:border-box; width:35px!important;min-width:35px!important;height:35px!important;min-height:35px!important;padding:0!important;display:inline-flex!important;align-items:center;justify-content:center;vertical-align:middle;line-height:1!important}
+#content .table td > .btn i {font-size:14px!important;line-height:1!important}
+#menu li a.parent:after,#menu li li a:before{font-family:'Font Awesome 7 Free'!important;font-weight:900!important}
