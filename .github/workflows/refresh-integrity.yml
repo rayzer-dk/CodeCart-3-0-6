@@ -6,9 +6,16 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/refresh-integrity.yml'
+      - 'upload/**'
+      - '!upload/system/config/codecart_integrity.json'
 
 permissions:
   contents: write
+
+# Serialize manifest writes; do not cancel an in-flight integrity commit.
+concurrency:
+  group: codecart-integrity-main
+  cancel-in-progress: false
 
 jobs:
   refresh:
