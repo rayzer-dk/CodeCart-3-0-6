@@ -176,12 +176,19 @@
         .then(function (result) { if (result && result.moved === false) { notify(defaultError, false); return; } window.location.reload(); })
         .catch(function (error) { notify(error.message || defaultError, false); });
     }
-    function dropOn(target) {
+    function dropOn(target, event) {
       var source = host.querySelector('.cc-tree-row[data-cc-tree-id="' + dragging + '"]');
-      if (source && source.dataset.ccTreeParent === target.dataset.ccTreeParent) {
+      if (!source || source === target || !validTarget(target.dataset.ccTreeId)) { return; }
+      // Only the top quarter means "reorder before". The rest means
+      // "move inside this category", even when both rows are siblings.
+      var rect = target.getBoundingClientRect();
+      var sortBefore = !!event && event.clientY <= rect.top + rect.height * 0.25;
+      if (sortBefore && source.dataset.ccTreeParent === target.dataset.ccTreeParent) {
         request({action:'reorder', id:dragging, before_id:target.dataset.ccTreeId})
-          .then(function (result) { if (result.moved === false) { notify(defaultError, false); return; } window.location.reload(); })
-          .catch(function (error) { notify(error.message || defaultError, false); });
+          .then(function (result) {
+            if (result.moved === false) { notify(defaultError, false); return; }
+            window.location.reload();
+          }).catch(function (error) { notify(error.message || defaultError, false); });
       } else {
         move(dragging, target.dataset.ccTreeId);
       }
@@ -222,7 +229,7 @@
         event.preventDefault();
         event.stopPropagation();
         row.classList.remove('is-over');
-        dropOn(row);
+        dropOn(row, event);
       });
     });
     if (root) {
@@ -274,7 +281,10 @@
           var hovered = document.elementFromPoint(event.clientX, event.clientY);
           var target = hovered && hovered.closest('.cc-tree-row[data-cc-tree-id], .cc-tree-root[data-cc-tree-target]');
           var targetId = target && (target.dataset.ccTreeId || target.dataset.ccTreeTarget);
-          if (targetId && validTarget(targetId)) { move(start.id, targetId); }
+          if (targetId && validTarget(targetId)) {
+            if (target.dataset.ccTreeTarget === '0') { move(start.id, '0'); }
+            else { dropOn(target, event); }
+          }
         }
         dragging = null;
         rows.forEach(function (item) { item.classList.remove('is-over'); });
