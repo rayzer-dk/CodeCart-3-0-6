@@ -13,7 +13,7 @@ $_['text_edit']              = 'Редагування';
 $_['column_name']            = 'Назва характеристики';
 $_['column_attribute_group'] = 'Група характеристик';
 $_['column_sort_order']      = 'Порядок сортування';
-$_['column_action']          = 'Дія';
+$_['column_action']          = 'Дії';
 
 // Entry
 $_['entry_name']            = 'Назва характеристики';
