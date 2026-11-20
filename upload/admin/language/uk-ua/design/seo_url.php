@@ -16,7 +16,7 @@ $_['column_query']     = 'Посилання';
 $_['column_keyword']   = 'SEO URL';
 $_['column_store']     = 'Магазин';
 $_['column_language']  = 'Мова';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Entry
 $_['entry_query']      = 'Посилання';
