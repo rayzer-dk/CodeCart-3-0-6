@@ -217,7 +217,7 @@ class ControllerBlogArticle extends Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
-			$sort = 'pd.name';
+			$sort = 'p.sort_order';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -232,7 +232,9 @@ class ControllerBlogArticle extends Controller {
 			$page = 1;
 		}
 
+		$filter_category_id = !empty($this->request->get['filter_category_id']) ? max(0, (int)$this->request->get['filter_category_id']) : 0;
 		$url = '';
+        if ($filter_category_id) { $url .= '&filter_category_id=' . $filter_category_id; }
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -277,10 +279,15 @@ class ControllerBlogArticle extends Controller {
 		$data['enabled'] = $this->url->link('blog/article/enable', 'user_token=' . $this->session->data['user_token'] . $url, true);
         $data['disabled'] = $this->url->link('blog/article/disable', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
-		$data['articles'] = array();
+        $data['filter_category_id'] = $filter_category_id;
+        $this->load->model('blog/category');
+        $data['filter_blog_categories'] = $this->model_blog_category->getCategories(array('sort' => 'name', 'order' => 'ASC', 'start' => 0, 'limit' => 10000));
+        $data['entry_filter_category'] = $this->language->get('entry_filter_category');
+        $data['articles'] = array();
 
 		$filter_data = array(
 			'filter_name'	  => $filter_name,
+            'filter_category_id' => $filter_category_id,
 			'filter_status'   => $filter_status,
 			'filter_noindex'  => $filter_noindex,
 			'sort'            => $sort,
@@ -358,6 +365,7 @@ class ControllerBlogArticle extends Controller {
 		}
 
 		$url = '';
+        if ($filter_category_id) { $url .= '&filter_category_id=' . $filter_category_id; }
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -388,6 +396,7 @@ class ControllerBlogArticle extends Controller {
 		$data['sort_order'] = $this->url->link('blog/article', 'user_token=' . $this->session->data['user_token'] . '&sort=p.sort_order' . $url, true);
 
 		$url = '';
+        if ($filter_category_id) { $url .= '&filter_category_id=' . $filter_category_id; }
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
