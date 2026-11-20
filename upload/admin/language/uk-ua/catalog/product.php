@@ -32,7 +32,7 @@ $_['column_price']           = 'Ціна';
 $_['column_quantity']        = 'Кількість';
 $_['column_status']          = 'Статус';
 $_['column_noindex']         = 'Індексація';
-$_['column_action']          = 'Дія';
+$_['column_action'] = 'Дії';
 
 // Entry
 $_['entry_name']             = 'Назва товару';
