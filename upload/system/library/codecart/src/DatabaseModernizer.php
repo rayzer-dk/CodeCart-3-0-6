@@ -40,7 +40,7 @@ class DatabaseModernizer {
             if (!empty($risks)) $summary['blocked']++;
             $summary['bytes'] += $bytes;
 
-            if ($needsEngine || $needsCharset || !$supported) {
+            if ($needsEngine || $needsCharset) {
                 $items[] = array(
                     'table' => (string)$row['TABLE_NAME'],
                     'engine' => $engine,
