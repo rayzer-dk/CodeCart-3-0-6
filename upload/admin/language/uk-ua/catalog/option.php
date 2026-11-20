@@ -24,7 +24,7 @@ $_['text_time']           = 'Час';
 // Column
 $_['column_name']         = 'Назва опції';
 $_['column_sort_order']   = 'Порядок сортування';
-$_['column_action']       = 'Дія';
+$_['column_action']       = 'Дії';
 
 // Entry
 $_['entry_name']          = 'Назва опції';
