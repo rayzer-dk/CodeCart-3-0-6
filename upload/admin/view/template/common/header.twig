@@ -33,7 +33,7 @@
 <script>window.CodeCartI18n={{ codecart_ui_i18n|json_encode|raw }};</script>
 <script src="{{ core_script|e('html_attr') }}" type="text/javascript"></script>
 <script src="view/javascript/codecart-admin-ui.js?v={{ package_build }}-ui3" type="text/javascript"></script>
-<script src="view/javascript/codecart-header-overflow.js?v={{ package_build }}" type="text/javascript" defer></script>
+<script src="view/javascript/codecart-header-overflow.js?v={{ package_build }}-hdr2" type="text/javascript" defer></script>
 {% for asset_id, asset in modern_assets %}
 {% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}
 {% if asset.type == 'style' %}<link rel="stylesheet" href="{{ asset.url }}" media="{{ asset.media }}" />{% elseif asset.type == 'script' %}<script src="{{ asset.url }}"{% if asset.module %} type="module"{% else %} type="text/javascript"{% endif %}{% if asset.defer %} defer{% endif %}{% if asset.async %} async{% endif %}></script>{% endif %}
@@ -42,7 +42,7 @@
 {% for script in scripts %}
 <script type="text/javascript" src="{{ script }}"></script>
 {% endfor %}
-<link href="view/stylesheet/codecart-main-ui.css?v={{ package_build }}-ui3" rel="stylesheet" type="text/css" />
+<link href="view/stylesheet/codecart-main-ui.css?v={{ package_build }}-ui4" rel="stylesheet" type="text/css" />
 <link href="view/stylesheet/codecart-feedback.css?v=3.0.6.1-fb1" rel="stylesheet" type="text/css" />
 <script src="view/javascript/codecart-table-ellipsis.js?v={{ package_build }}-3" defer></script>
 </head>
