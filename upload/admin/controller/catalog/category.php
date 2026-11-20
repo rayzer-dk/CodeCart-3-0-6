@@ -835,8 +835,8 @@ class ControllerCatalogCategory extends Controller {
 		$this->response->setOutput(json_encode($json));
 	}
 
-	private function getCategories($parent_id, $parent_path = '', $indent = '') {
-		$category_id = array_shift($this->path);
+	private function getCategories($parent_id, $parent_path = '', $indent = '', $depth = 0, $ancestorPath = '') {
+		// Flatten the complete hierarchy for one table: every descendant remains draggable.
 		$output = array();
 		static $href_category = null;
 		static $href_action = null;
@@ -851,7 +851,7 @@ class ControllerCatalogCategory extends Controller {
 			$has_children = !empty($this->adminCategoryTree[(int)$result['category_id']]);
 			$href = $has_children ? $href_category . $path : '';
 			$name = $result['name'];
-			if ($category_id == $result['category_id']) {
+			if (false) {
 				$name = '<b>' . $name . '</b>';
 				$data['breadcrumbs'][] = array(
 					'text'      => $result['name'],
@@ -878,10 +878,14 @@ class ControllerCatalogCategory extends Controller {
 				'action'      => $action,
 				'href'        => $href,
 				'href_shop'   => HTTP_CATALOG . 'index.php?route=product/category&path=' . ($result['category_id']),
+				'has_children' => $has_children,
+				'depth'       => $depth,
+				'ancestor_path' => $ancestorPath,
+				'parent_id'   => (int)$parent_id,
 				'indent'      => $indent
 			);
-			if ($category_id == $result['category_id']) {
-				$output += $this->getCategories($result['category_id'], $path . '_', $indent . str_repeat('&nbsp;', 8));
+			if ($has_children && $depth < 20 && count($output) < 10000) {
+				$output += $this->getCategories($result['category_id'], $path . '_', $indent . str_repeat('&nbsp;', 4), $depth + 1, $ancestorPath . '/' . $result['category_id']);
 			}
 		}
 		return $output;
