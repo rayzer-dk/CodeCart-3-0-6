@@ -20,7 +20,7 @@ $_['text_review']           = 'Відгуки, що очікують схвал�
 // Column
 $_['column_name']           = 'Назва звіту';
 $_['column_value']	        = 'Значення';
-$_['column_action']         = 'Дія';
+$_['column_action']         = 'Дії';
 
 // Error
 $_['error_permission']      = 'У вас недостатньо прав для внесення змін';

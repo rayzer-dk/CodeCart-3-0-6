@@ -14,7 +14,7 @@ $_['column_customer']   = 'Покупець';
 $_['column_status']     = 'Статус';
 $_['column_total']      = 'Сума';
 $_['column_date_added'] = 'Дата додавання';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_status']                 = 'Статус';

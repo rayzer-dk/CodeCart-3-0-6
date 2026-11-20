@@ -10,7 +10,7 @@ $_['text_list']        = 'Список шахраїв';
 // Column
 $_['column_name']      = 'Назва модуля';
 $_['column_status']    = 'Статус';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Error
 $_['error_permission'] = 'У вас недостатньо прав для внесення змін';

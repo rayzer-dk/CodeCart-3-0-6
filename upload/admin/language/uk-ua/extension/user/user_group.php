@@ -11,7 +11,7 @@ $_['text_edit']        = 'Редагувати групу';
 
 // Column
 $_['column_name']      = 'Назва групи';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Entry
 $_['entry_name']       = 'Назва групи';

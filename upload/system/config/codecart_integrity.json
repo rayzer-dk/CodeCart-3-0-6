@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "9a88992c5369b493d5881649a452f57b062f7c05fece780b5b718e7d2dc15b6c",
         "admin/controller/tool/catalog_transfer.php": "f3e922bf639c2945b9084017495268512007ac4e5f16b8450e75d6fcb3f619f2",
         "admin/controller/tool/codecart_core.php": "919b41dcd91cc2af26808b617822dc1d3b342888445b0a6a02b63fb12a7a297f",
-        "admin/index.php": "a4cd433c8b6bc57a4d38df45c82b53d1c818db0c29bb5d96c6f0c505fc2765d9",
+        "admin/index.php": "ff19070294bc580b0115058d32dba8d5693f042c6bd7d12af4a78bc5a0466633",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "050ac59b1c4f1d651983bcfce1f89397ca88afb91e52e63f45285dbe69a34ad5",
@@ -78,9 +78,9 @@
         "admin/language/ru-ru/tool/backup.php": "8226008f915dc12fcf78af70914da51150dc4b6e1ecce66d5fb55ea4c0e06089",
         "admin/language/ru-ru/tool/codecart_core.php": "f0aaa67c77a110e074f28a11bbb7679326f496e194ed158e669e8c81a03f1a87",
         "admin/language/uk-ua/common/dashboard.php": "28aaf1f89c1e1ca040c9f641c8abc355c158633d9bab5200bc851660fdc38cb7",
-        "admin/language/uk-ua/common/developer.php": "4969169e8b909dc48aa327e82aa798ad56822417bc995d3fc5865f7a32884ce9",
+        "admin/language/uk-ua/common/developer.php": "c5fe9971834808cd73b86108744ea39866ec465b7f7dd5d91d7d37484cb55d71",
         "admin/language/uk-ua/common/header.php": "aed31610054943a2b36d41f83814ad37ed4c3969f1ed1f9a1beeb039c9eeb5de",
-        "admin/language/uk-ua/extension/feed/google_base.php": "f47b1306e14eb7a64616927c4bb02e37dc9e87c2aa318a47be5468b874673b0c",
+        "admin/language/uk-ua/extension/feed/google_base.php": "a09cdd86667ecc3bc944e3c217c16880e0eac3eb87fbd6eb9873900901ec1624",
         "admin/language/uk-ua/extension/feed/google_sitemap.php": "e5566857844f85b221ae8cae94338c263997f72d52dbd2a21196fd8156f4a7b9",
         "admin/language/uk-ua/extension/module/category_wall.php": "e624717908319984727b97c96baaa34d91635ca10f3625cf21e0e7f140407fa9",
         "admin/language/uk-ua/extension/module/subcategories.php": "b25bb919771abd97aa6e326d16bc026634fdf96db52cce80dcb3276e00022127",
@@ -88,9 +88,9 @@
         "admin/language/uk-ua/extension/theme/default.php": "46c666cae2e516f88ec92e850e6e8f395f3148cffb6550f5666b9cece1afd413",
         "admin/language/uk-ua/marketing/contact.php": "92806ec80726fe5753518f73013b6f0ba99aacc95ef14ab80e2b9e5bfa508912",
         "admin/language/uk-ua/marketing/stock_notify.php": "31c62bac2a8b2513428db885e809f7ebb84212b1d3a327bdebac2c6e0ce5eb0f",
-        "admin/language/uk-ua/sale/abandoned_cart.php": "4bb1ab6580dccaefe4e7be8db88bffdb8b707e92bac204c96e78151acfc66d91",
+        "admin/language/uk-ua/sale/abandoned_cart.php": "91ed727e75df74a591405d74dfb1d6f98e4c2a7c951511ca8fed47e9ac8feeb9",
         "admin/language/uk-ua/tool/backup.php": "1462a0a0401b75296bce629c4dbcfd437008dd134d6814b056cd685fc2670f93",
-        "admin/language/uk-ua/tool/codecart_core.php": "98a035cbb8855503cffa38297fe3e549aa5c917514e20e39fd3b8ce9ca1a22af",
+        "admin/language/uk-ua/tool/codecart_core.php": "3e4aa8fa0c1e3ecd3d5f3d282439702fc357eaa2099e297012988e27e656c960",
         "admin/language/uk-ua/uk-ua.png": "570bf6b85a842c81538db60f3ef12ebc26447481576a7f1e095d7ea4269a3c55",
         "admin/model/catalog/product.php": "8a6ce29f5a8d972f810823ddf61039ac28552eb78725e4023293823e029ae465",
         "admin/model/design/form.php": "97a378e99229f857f88584f50a042b1595bd3b68b6de25b88280a264feb42c0c",
@@ -348,7 +348,7 @@
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
         "cli.php": "b34e137dde1af5cbed4b42b6c529c2f9b99f043d5a6f5ff64261fce56e2b2868",
         "cron.php": "7eb9a4e95eec8702fa5acd56e70bf01baf047c7f9e905f0e92454e8755ba726f",
-        "index.php": "5d93cf22bc985e3f527a1b3f580eb8bb573104baac1e2c4bae426fe9ac684f8f",
+        "index.php": "d8cd29de6830ce787aa0f8dd3527be05f9cfd0d75efcb46b24f11804c44c51f5",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "5f57f91bdca4c203200743823e07c30277bdd07237d126feb8a856ba9049f576",
         "system/config/codecart_fontawesome_core_manifest.json": "9fb9656be93bd2ce459e0a01f809b6f923a694866dd5da2b041380841f17ded5",
@@ -559,5 +559,5 @@
         "system/library/codecart/src/AdminCategoryTreeEditor.php": "a341bf78116e1ad79d192e06d34a22dbc589d21f0f083e5a5d36a2caf6fbcb72"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.36"
+    "package_build": "2.3.37"
 }

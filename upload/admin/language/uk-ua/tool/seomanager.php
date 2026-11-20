@@ -14,7 +14,7 @@ $_['button_insert'] 		= 'Додати';
 // Column
 $_['column_query']       	= 'Посилання';
 $_['column_keyword']       	= 'SEO URL';
-$_['column_action']     	= 'Дія';
+$_['column_action']     	= 'Дії';
 
 // Entry
 $_['entry_meta_title']       = 'Мета-тег Title';

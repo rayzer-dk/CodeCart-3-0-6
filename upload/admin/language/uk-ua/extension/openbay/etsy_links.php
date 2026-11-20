@@ -18,7 +18,7 @@ $_['column_item_id']			= 'Etsy ID';
 $_['column_store_stock']		= 'Наличие';
 $_['column_etsy_stock']			= 'Etsy Stock';
 $_['column_status']				= 'Link Status';
-$_['column_action']				= 'Дія';
+$_['column_action']				= 'Дії';
 
 // Entry
 $_['entry_name']				= 'Назва товара';

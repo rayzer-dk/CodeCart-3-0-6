@@ -12,7 +12,7 @@ $_['text_import']            = 'Щоб завантажити останній �
 // Column
 $_['column_google_category'] = 'Категорія Google';
 $_['column_category']        = 'Категорія';
-$_['column_action']          = 'Дія';
+$_['column_action']          = 'Дії';
 
 // Entry
 $_['entry_google_category']  = 'Категорія Google';

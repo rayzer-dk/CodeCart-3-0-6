@@ -15,7 +15,7 @@ $_['text_img_cache']   = 'Ви очистили кеш %s';
 
 // Column
 $_['column_component'] = 'Компонент';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Entry
 $_['entry_theme']      = 'Шаблон';

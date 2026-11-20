@@ -34,7 +34,7 @@ $_['entry_sort_order']		= 'Порядок сортування';
 // Column
 $_['column_name']			= 'Назва';
 $_['column_sort_order']	    = 'Порядок сортування';
-$_['column_action']         = 'Дія';
+$_['column_action']         = 'Дії';
 
 // Error
 $_['error_warning']         = 'Уважно перевірте форму на помилки';

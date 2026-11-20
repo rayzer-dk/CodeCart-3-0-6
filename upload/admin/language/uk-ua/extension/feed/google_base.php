@@ -2,7 +2,7 @@
 $_['text_extension'] = 'Доповнення';
 $_['column_google_category'] = 'Категорія Google';
 $_['column_category'] = 'Категорія';
-$_['column_action'] = 'Дія';
+$_['column_action'] = 'Дії';
 $_['button_category_add'] = 'Додати відповідність';
 $_['heading_title'] = 'Фід товарів Google';
 $_['text_success'] = 'Налаштування фіда товарів Google збережено.';

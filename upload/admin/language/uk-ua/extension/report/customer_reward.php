@@ -15,7 +15,7 @@ $_['column_status']         = 'Статус';
 $_['column_points']         = 'Бонусні бали';
 $_['column_orders']         = 'Кількість замовлень';
 $_['column_total']          = 'Разом';
-$_['column_action']         = 'Дія';
+$_['column_action']         = 'Дії';
 
 // Entry
 $_['entry_date_start']      = 'Дата початку';

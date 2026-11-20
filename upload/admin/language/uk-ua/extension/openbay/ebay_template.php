@@ -7,7 +7,7 @@ $_['text_openbay']                  = 'OpenBay Pro';
 
 // Columns
 $_['column_name']            		= 'Template name';
-$_['column_action']            		= 'Дія';
+$_['column_action']            		= 'Дії';
 
 // Entry
 $_['entry_template_name']           = 'Name';

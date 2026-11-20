@@ -15,7 +15,7 @@ $_['column_email']          = 'E-Mail';
 $_['column_customer_group'] = 'Група покупців';
 $_['column_status']         = 'Статус';
 $_['column_total']          = 'Разом';
-$_['column_action']         = 'Дія';
+$_['column_action']         = 'Дії';
 
 // Entry
 $_['entry_date_start']      = 'Дата початку';

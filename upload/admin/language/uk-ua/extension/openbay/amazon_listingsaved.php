@@ -16,4 +16,4 @@ $_['column_name']              		= 'Name';
 $_['column_model']             		= 'Код товара';
 $_['column_sku']               		= 'SKU';
 $_['column_amazon_sku']        		= 'Amazon item SKU';
-$_['column_action']           		= 'Дія';
+$_['column_action']           		= 'Дії';

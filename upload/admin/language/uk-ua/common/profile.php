@@ -11,7 +11,7 @@ $_['text_edit']             = 'Редагування';
 $_['column_username']       = 'Логін';
 $_['column_status']         = 'Статус';
 $_['column_date_added']     = 'Дата додавання';
-$_['column_action']         = 'Дія';
+$_['column_action']         = 'Дії';
 
 // Entry
 $_['entry_username']        = 'Логін';

@@ -32,7 +32,7 @@ $_['column_listing_qty']		= 'Listing quantity';
 $_['column_store_qty']			= 'Store quantity';
 $_['column_status']				= 'Status message';
 $_['column_link_status']		= 'Link status';
-$_['column_action']				= 'Дія';
+$_['column_action']				= 'Дії';
 
 // Entry
 $_['entry_limit']				= 'Page limit';

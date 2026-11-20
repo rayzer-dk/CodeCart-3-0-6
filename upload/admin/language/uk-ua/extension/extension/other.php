@@ -10,7 +10,7 @@ $_['text_list']         = 'Перелік доповнень';
 // Column
 $_['column_name']       = 'Доповнення';
 $_['column_status']     = 'Статус';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Error
 $_['error_permission']  = 'У вас недостатньо прав для редагування цього типу доповнень';

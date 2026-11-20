@@ -12,7 +12,7 @@ $_['text_hide_modules'] = 'У списку не показані модулі, �
 
 // Column
 $_['column_name']      = 'Назва модуля';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Entry
 $_['entry_code']       = 'Модуль';

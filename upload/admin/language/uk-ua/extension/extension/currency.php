@@ -10,7 +10,7 @@ $_['text_list']        = 'Список постачальників курсів
 // Column
 $_['column_name']      = 'Назва постачальника';
 $_['column_status']    = 'Статус';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Error
 $_['error_permission'] = 'У вас немає прав для налаштування курсів валют';

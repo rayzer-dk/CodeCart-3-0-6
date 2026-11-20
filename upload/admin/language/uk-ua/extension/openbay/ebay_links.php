@@ -42,7 +42,7 @@ $_['text_filter_range_to']          = 'Max';
 $_['text_filter_var']             	= 'Include variants';
 
 // Tables
-$_['column_action']            		= 'Дія';
+$_['column_action']            		= 'Дії';
 $_['column_status']            		= 'Статус';
 $_['column_variants']          		= 'Variants';
 $_['column_item_id']            	= 'eBay item ID';

@@ -16,7 +16,7 @@ $_['column_customer']   = 'Покупець';
 $_['column_url']        = 'Остання переглянута сторінка';
 $_['column_referer']    = 'Джерело';
 $_['column_date_added'] = 'Останній клік';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_ip']          = 'IP';

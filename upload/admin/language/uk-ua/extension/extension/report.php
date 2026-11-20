@@ -11,7 +11,7 @@ $_['text_list']         = 'Список звітів';
 $_['column_name']       = 'Назва';
 $_['column_status']     = 'Статус';
 $_['column_sort_order'] = 'Порядок сортування';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Error
 $_['error_permission']  = 'У вас недостатньо прав для внесення змін';
