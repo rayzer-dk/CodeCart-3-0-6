@@ -72,6 +72,13 @@ foreach (array('catalog','blog') as $type) {
     treeCheck(strpos($template, 'cc-category-sort') !== false, $type . ' lacks inline sorting');
 }
 
+treeCheck(strpos($script, "icon.classList.add(isCollapsed ? 'fa-angle-up' : 'fa-angle-down')") !== false, 'Category disclosure arrow does not follow collapse state');
+treeCheck(strpos($script, "icon.classList.add(anyCollapsed ? 'fa-angles-down' : 'fa-angles-up')") !== false, 'Expand-all arrow does not change with tree state');
+foreach (array('catalog', 'blog') as $type) {
+    $template = file_get_contents($root . 'admin/view/template/' . $type . '/category_list.twig');
+    treeCheck(strpos($template, 'fa-solid fa-angles-down') !== false, $type . ' expand-all button missing arrows');
+    treeCheck(strpos($template, 'fa-solid fa-angle-up') !== false, $type . ' category disclosure missing up arrow');
+}
 $orderList = file_get_contents($root . 'admin/view/template/sale/order_list.twig');
 $orderModel = file_get_contents($root . 'admin/model/sale/order.php');
 treeCheck(strpos($orderList, 'order.product_units') !== false && strpos($orderList, 'ccp-order-unit-count') !== false, 'Order list lacks the item-count indicator');
