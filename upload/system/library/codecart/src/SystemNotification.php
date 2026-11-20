@@ -206,35 +206,35 @@ final class SystemNotification {
         // New health notices store the diagnostic value on its own first line.
         if (strpos($message,"\n")!==false) {
             $parts=explode("\n",$message,2);
-            return $this->translateHealthValue($healthKey,trim($parts[0]),$language);
+            return $this->translateHealthValue(trim($parts[0]),$language);
         }
 
         // Backward-compatible extraction for notices written by older builds.
         if ($healthKey==='db.schema_version' && preg_match('/^((?:\d+\.){2,3}\d+|not recorded)\b/i',$message,$match)) {
-            return $this->translateHealthValue($healthKey,$match[1],$language);
+            return $this->translateHealthValue($match[1],$language);
         }
         if ($healthKey==='db.strict_sql') {
-            if (stripos($message,'not active ')===0) { return $this->translateHealthValue($healthKey,'not active',$language); }
-            if (stripos($message,'active ')===0) { return $this->translateHealthValue($healthKey,'active',$language); }
+            if (stripos($message,'not active ')===0) { return $this->translateHealthValue('not active',$language); }
+            if (stripos($message,'active ')===0) { return $this->translateHealthValue('active',$language); }
         }
         if ($healthKey==='path.storage_public') {
-            if (stripos($message,'inside document root ')===0) { return $this->translateHealthValue($healthKey,'inside document root',$language); }
-            if (stripos($message,'outside document root ')===0) { return $this->translateHealthValue($healthKey,'outside document root',$language); }
+            if (stripos($message,'inside document root ')===0) { return $this->translateHealthValue('inside document root',$language); }
+            if (stripos($message,'outside document root ')===0) { return $this->translateHealthValue('outside document root',$language); }
         }
         if ($healthKey==='security.display_errors') {
-            if (preg_match('/^(On|Off)\b/i',$message,$match)) { return $this->translateHealthValue($healthKey,$match[1],$language); }
+            if (preg_match('/^(On|Off)\b/i',$message,$match)) { return $this->translateHealthValue($match[1],$language); }
         }
         if ($healthKey==='http.https') {
-            if (stripos($message,'not detected')===0) { return $this->translateHealthValue($healthKey,'not detected',$language); }
-            if (stripos($message,'active')===0) { return $this->translateHealthValue($healthKey,'active',$language); }
+            if (stripos($message,'not detected')===0) { return $this->translateHealthValue('not detected',$language); }
+            if (stripos($message,'active')===0) { return $this->translateHealthValue('active',$language); }
         }
         if ($healthKey==='db.migration_history' && stripos($message,'no history ')===0) {
-            return $this->translateHealthValue($healthKey,'no history',$language);
+            return $this->translateHealthValue('no history',$language);
         }
         return '';
     }
 
-    private function translateHealthValue(string $healthKey,string $value,$language): string {
+    private function translateHealthValue(string $value,$language): string {
         $map=array(
             'active'=>'text_health_value_active',
             'not active'=>'text_health_value_not_active',
