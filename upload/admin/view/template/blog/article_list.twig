@@ -26,7 +26,12 @@
 #ccp-blog-list .table thead td:nth-child(4) {width:135px;}
 #ccp-blog-list .table thead td:nth-child(5),#ccp-blog-list .table thead td:nth-child(6) {width:78px;}
 #ccp-blog-list .table thead td:nth-child(7) {width:120px;}
-#ccp-blog-list .table thead td:nth-child(8) {width:112px;}\n#ccp-blog-list .table tbody td:nth-child(8) {white-space:nowrap;}\n#ccp-blog-list .table tbody td:nth-child(8) > a {display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;margin:0 2px 0 0;}\n#ccp-blog-list .table tbody td:nth-child(8) > a:last-child {margin-right:0;}\n#ccp-blog-list .table thead td {overflow-wrap:normal;word-break:normal;}\n#ccp-blog-list .ccp-blog-name-layout {overflow:visible;}
+#ccp-blog-list .table thead td:nth-child(8) {width:112px;}
+#ccp-blog-list .table tbody td:nth-child(8) {white-space:nowrap;}
+#ccp-blog-list .table tbody td:nth-child(8) > a {display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;margin:0 2px 0 0;}
+#ccp-blog-list .table tbody td:nth-child(8) > a:last-child {margin-right:0;}
+#ccp-blog-list .table thead td {overflow-wrap:normal;word-break:normal;}
+#ccp-blog-list .ccp-blog-name-layout {overflow:visible;}
 </style>
   <div class="page-header">
     <div class="container-fluid">
@@ -148,7 +153,7 @@
                     <td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.status_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="status" aria-checked="{{ article.status_value ? 'true' : 'false' }}" aria-label="{{ column_status }}: {{ article.status }}" title="{{ article.status }}" data-caption="{{ column_status }}" data-on="{{ text_enabled }}" data-off="{{ text_disabled }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.status }}{% endif %}</td>
 					<td class="text-center">{% if blog_toggle_allowed %}<button type="button" class="ccp-blog-switch{{ article.noindex_value ? ' is-on' : '' }}" role="switch" data-id="{{ article.article_id }}" data-field="noindex" aria-checked="{{ article.noindex_value ? 'true' : 'false' }}" aria-label="{{ column_noindex }}: {{ article.noindex }}" title="{{ article.noindex }}" data-caption="{{ column_noindex }}" data-on="{{ text_enabled }}" data-off="{{ text_disabled }}"><span class="knob" aria-hidden="true"></span></button>{% else %}{{ article.noindex }}{% endif %}</td>
                     <td class="text-left">{{ article.date_added }}</td>
-                    <td class="text-right">
+                    <td class="text-right ccp-blog-actions">
 						<a target="_blank" href="{{ article.href_shop }}" data-toggle="tooltip" title="{{ button_shop }}" class="btn btn-success"><i class="fa fa-eye"></i></a>
 						<a href="{{ article.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
 					</td>
