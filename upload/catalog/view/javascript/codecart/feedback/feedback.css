@@ -146,3 +146,16 @@ html.ccp-theme-dark #ccp-toast-host .ccp-feedback-continue {color:#a4caff;border
 }
 html.ccp-theme-dark #cart .ccp-cart-links > a.btn-default {border-color:#7793b0!important;color:#b1d3ff!important}
 @media(max-width:480px){#cart .ccp-cart-links > a.btn{flex-basis:100%}}
+
+/* Trim transparent artwork margins only for the built-in logo, never merchant branding. */
+#logo.ccp-default-brand-logo img {
+  display:block!important;width:min(100%,320px)!important;
+  height:75px!important;max-width:320px!important;max-height:75px!important;
+  object-fit:cover!important;object-position:center!important;margin:0!important;
+}
+@media(max-width:991px) {
+  #logo.ccp-default-brand-logo img {width:min(100%,240px)!important;height:57px!important;max-width:240px!important;max-height:57px!important}
+}
+@media(max-width:767px) {
+  #logo.ccp-default-brand-logo img {width:min(100%,190px)!important;height:45px!important;max-width:190px!important;max-height:45px!important}
+}
