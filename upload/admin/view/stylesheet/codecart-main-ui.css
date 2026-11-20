@@ -288,3 +288,13 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 #content .table tbody td .btn-group{display:inline-flex!important;gap:4px!important;flex-wrap:nowrap!important;align-items:center!important;white-space:nowrap!important;}
 #content .table tbody td .btn-group>.btn{margin:0!important;}
 #content .table tbody td .btn-group>.btn i{font-size:14px!important;}
+
+/* Inline accessible question-mark help, instead of tall explanatory blocks. */
+.form-group > .ccp-admin-help-icon {
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;min-width:20px;
+  vertical-align:middle;margin:0 0 5px 5px;padding:0;border:0;
+  color:#718096;background:transparent;cursor:help;line-height:1;
+}
+.form-group > .ccp-admin-help-icon:hover,.form-group > .ccp-admin-help-icon:focus-visible {color:#096bd3}
+.form-group > .ccp-admin-help-icon i {font-size:14px}
