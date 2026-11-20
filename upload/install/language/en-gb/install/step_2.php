@@ -1,6 +1,6 @@
 <?php
 $_['heading_title']='Pre-installation check';
-$_['text_step_2']='CodeCart PRO 3.0.6.0 checks the server before installation.';
+$_['text_step_2']='CodeCart PRO 3.0.6.1 checks the server before installation.';
 $_['text_install_php']='PHP runtime';
 $_['text_install_extension']='Required PHP extensions';
 $_['text_install_file']='Configuration files';
