@@ -3,7 +3,7 @@
 $_['heading_title'] = 'Лицензионное соглашение';
 
 // Text
-$_['text_step_1'] = 'Ознакомьтесь с лицензией перед установкой CodeCart PRO 3.0.6.0';
+$_['text_step_1'] = 'Ознакомьтесь с лицензией перед установкой CodeCart PRO 3.0.6.1';
 $_['text_terms']    = '<h3>GNU GENERAL PUBLIC LICENSE</h3>
 <p>Version 3, 29 June 2007</p>
 <p>Copyright &copy; 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;</p>
