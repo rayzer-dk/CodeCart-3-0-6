@@ -175,13 +175,13 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 #header #header-logo { box-sizing:border-box; }
 #header #header-logo .navbar-brand {
   display:flex!important; align-items:center!important; justify-content:center!important;
-  box-sizing:border-box; width:100%!important; height:60px!important;
-  min-height:60px!important; padding:0!important; overflow:hidden!important;
+  box-sizing:border-box; width:100%!important; height:74px!important;
+  min-height:74px!important; padding:0!important; overflow:hidden!important;
 }
 #header #header-logo .navbar-brand > img {
   display:block!important; box-sizing:border-box;
   width:100%!important; height:100%!important; max-width:none!important;
-  max-height:none!important; object-fit:cover!important; object-position:center!important;
+  max-height:none!important; object-fit:contain!important; object-position:center!important;
   margin:0!important;
 }
 /* Keep navigation icons equivalent and the quick-navigation compass beside the flag. */
