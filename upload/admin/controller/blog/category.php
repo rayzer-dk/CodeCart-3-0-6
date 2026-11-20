@@ -658,16 +658,7 @@ class ControllerBlogCategory extends Controller {
 			$has_children = !empty($this->adminCategoryTree[(int)$result['blog_category_id']]);
 			$href = $has_children ? $href_category . $path : '';
 			$name = $result['name'];
-			if (false) {
-				$name = '<b>' . $name . '</b>';
-				$data['breadcrumbs'][] = array(
-					'text'      => $result['name'],
-					'href'      => $href,
-					'separator' => ' :: '
-			);
-				$href = '';
-			}
-			$selected = isset($this->request->post['selected']) && in_array($result['blog_category_id'], $this->request->post['selected']);
+						$selected = isset($this->request->post['selected']) && in_array($result['blog_category_id'], $this->request->post['selected']);
 			$action = array();
 			$action[] = array(
 				'text' => $this->language->get('text_edit'),
