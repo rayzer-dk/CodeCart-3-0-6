@@ -12,7 +12,7 @@ $_['text_edit']         = 'Редагувати';
 // Column
 $_['column_name']       = 'Назва групи характеристик';
 $_['column_sort_order'] = 'Порядок сортування';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_name']        = 'Назва групи характеристик';
