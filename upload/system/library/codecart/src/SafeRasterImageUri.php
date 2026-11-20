@@ -15,15 +15,13 @@ final class SafeRasterImageUri extends \HTMLPurifier_AttrDef_URI {
         try {
             if (!$uri->validate($config, $context)) { return false; }
             $definition = $config->getDefinition('URI');
+            if (!($definition instanceof \HTMLPurifier_URIDefinition)) { return false; }
             if (!$definition->filter($uri, $config, $context)) { return false; }
-            if ($uri->scheme === 'data') {
-                $scheme = new \HTMLPurifier_URIScheme_data();
-                $scheme->allowed_types['image/webp'] = true;
-                $scheme->allowed_types['image/avif'] = true;
-            } else {
-                $scheme = $uri->getSchemeObj($config, $context);
-            }
-            if (!$scheme || !$scheme->browsable) { return false; }
+            // The non-data schemes were delegated to parent::validate() above.
+            $scheme = new \HTMLPurifier_URIScheme_data();
+            $scheme->allowed_types['image/webp'] = true;
+            $scheme->allowed_types['image/avif'] = true;
+            if (!$scheme->browsable) { return false; }
             // The vendor image sniffer emits warnings for malformed user input.
             if (!@$scheme->validate($uri, $config, $context) || !$definition->postFilter($uri, $config, $context)) { return false; }
             return $uri->toString();
