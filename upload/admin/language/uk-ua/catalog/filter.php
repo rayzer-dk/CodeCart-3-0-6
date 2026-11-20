@@ -14,7 +14,7 @@ $_['text_value']        = 'Значення фільтра';
 // Column
 $_['column_group']      = 'Група фільтрів';
 $_['column_sort_order'] = 'Порядок сортування';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Entry
 $_['entry_group']       = 'Назва групи фільтрів';
