@@ -102,7 +102,7 @@ class ModelExtensionPaymentPayPal extends Model {
 	}
 	
 	public function deletePayPalCustomerToken($customer_id, $payment_method, $vault_id) {
-		$query = $this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_customer_token` WHERE `customer_id` = '" . (int)$customer_id . "' AND `payment_method` = '" . $this->db->escape($payment_method) . "' AND `vault_id` = '" . $this->db->escape($vault_id) . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_customer_token` WHERE `customer_id` = '" . (int)$customer_id . "' AND `payment_method` = '" . $this->db->escape($payment_method) . "' AND `vault_id` = '" . $this->db->escape($vault_id) . "'");
 	}
 	
 	public function setPayPalCustomerMainToken($customer_id, $payment_method, $vault_id) {
@@ -300,7 +300,7 @@ class ModelExtensionPaymentPayPal extends Model {
 	}
 		
 	public function deletePayPalOrder($order_id) {
-		$query = $this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_order` WHERE `order_id` = '" . (int)$order_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_order` WHERE `order_id` = '" . (int)$order_id . "'");
 	}
 	
 	public function getPayPalOrder($order_id) {
@@ -332,7 +332,7 @@ class ModelExtensionPaymentPayPal extends Model {
 	}
 	
 	public function deletePayPalOrderRecurring($order_id) {
-		$query = $this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_order_recurring` WHERE `order_id` = '" . (int)$order_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "paypal_checkout_integration_order_recurring` WHERE `order_id` = '" . (int)$order_id . "'");
 	}
 
 	public function getPayPalOrderRecurring($order_recurring_id) {
@@ -358,7 +358,7 @@ class ModelExtensionPaymentPayPal extends Model {
 			$this->deleteOrderRecurringTransaction($order_recurring['order_recurring_id']);
 		}
 		
-		$query = $this->db->query("DELETE FROM `" . DB_PREFIX . "order_recurring` WHERE `order_id` = '" . (int)$order_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_recurring` WHERE `order_id` = '" . (int)$order_id . "'");
 	}
 	
 	public function getOrderRecurrings() {
@@ -384,7 +384,7 @@ class ModelExtensionPaymentPayPal extends Model {
 	}
 	
 	public function deleteOrderRecurringTransaction($order_recurring_id) {
-		$query = $this->db->query("DELETE FROM `" . DB_PREFIX . "order_recurring_transaction` WHERE `order_recurring_id` = '" . (int)$order_recurring_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "order_recurring_transaction` WHERE `order_recurring_id` = '" . (int)$order_recurring_id . "'");
 	}
 		
 	public function recurringPayment($product_data, $order_data, $paypal_order_data) {
