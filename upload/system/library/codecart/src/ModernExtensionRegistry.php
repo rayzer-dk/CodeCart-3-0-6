@@ -4,12 +4,10 @@ namespace CodeCart\Core;
 final class ModernExtensionRegistry {
     private $systemRoot;
     private $storageRoot;
-    private $log;
 
     public function __construct($registry = null) {
         $this->systemRoot = rtrim(DIR_SYSTEM, '/\\') . '/extension/';
         $this->storageRoot = rtrim(DIR_STORAGE, '/\\') . '/codecart/';
-        $this->log = $registry ? $registry->get('log') : null;
     }
 
     public function refresh(): array {

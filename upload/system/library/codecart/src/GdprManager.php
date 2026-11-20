@@ -5,13 +5,11 @@ final class GdprManager {
     private $registry;
     private $db;
     private $request;
-    private $log;
 
     public function __construct($registry) {
         $this->registry=$registry;
         $this->db=$registry->get('db');
         $this->request=$registry->get('request');
-        $this->log=$registry->get('log');
     }
 
     public function createRequest(int $customerId,string $email,string $type): array {
