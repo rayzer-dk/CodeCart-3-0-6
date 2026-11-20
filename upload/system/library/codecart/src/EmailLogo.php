@@ -25,7 +25,7 @@ final class EmailLogo {
 
         $source_width = (int)$info[0];
         $source_height = (int)$info[1];
-        $mime = isset($info['mime']) ? strtolower((string)$info['mime']) : '';
+        $mime = strtolower((string)$info['mime']);
 
         $source_version = dechex((int)@filemtime($source)) . '-' . dechex((int)@filesize($source));
         $name_hash = substr(sha1($filename . '|' . $source_version . '|email'), 0, 18);
