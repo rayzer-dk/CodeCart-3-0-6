@@ -728,7 +728,7 @@ final class CatalogTransfer {
                         $this->upsertSeo($targetLogical, $mapped);
                     } else {
                         $columns = array_values(array_intersect($sheet['columns'], array_keys($schema['columns'])));
-                        $mapped = $this->mapRow($sourceLogical, $row, $columns, $languageMap, $storeMap);
+                        $mapped = $this->mapRow($row, $columns, $languageMap, $storeMap);
                         if ($mapped === null) { $skipped++; continue; }
                         if ($sourceLogical === 'product') {
                             $mapped = $this->applyProductImportOptions($mapped, $schema);
@@ -1025,7 +1025,7 @@ final class CatalogTransfer {
                     }
                     if($source==='product_to_category'&&!empty($row['main_category'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=isset($row['category_id'])?(int)$row['category_id']:0;if($pid>0&&$cid>0)$mainCategoryMap[$pid]=$cid;}
                     if($source==='product'&&isset($row['main_category_id'])){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$cid=(int)$row['main_category_id'];if($pid>0&&$cid>0&&!isset($mainCategoryMap[$pid]))$mainCategoryMap[$pid]=$cid;}
-                    if($this->isSeoLogical($source)&&$this->isSeoLogical($target)){$mapped=$this->mapSeoRow($source,$target,$row,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsertSeo($target,$mapped);}else{$allowed=array_values(array_intersect(array_keys($row),array_keys($schema['columns'])));$mapped=$this->mapRow($source,$row,$allowed,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}
+                    if($this->isSeoLogical($source)&&$this->isSeoLogical($target)){$mapped=$this->mapSeoRow($source,$target,$row,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}$this->upsertSeo($target,$mapped);}else{$allowed=array_values(array_intersect(array_keys($row),array_keys($schema['columns'])));$mapped=$this->mapRow($row,$allowed,$languageMap,$storeMap);if($mapped===null){$skipped++;return;}
                     if($source==='product'){$mapped=$this->applyProductImportOptions($mapped,$schema);}
                     $this->upsert($target,$mapped,$schema);} $count++;
                 });
@@ -1143,29 +1143,6 @@ final class CatalogTransfer {
             if ($count < $limit) { break; }
             $offset += $limit;
         }
-    }
-
-    private function exportRows($logical, array $entities) {
-        $table = $this->table($logical);
-        if ($logical === 'seo_url') {
-            $parts = array();
-            if (in_array('products',$entities,true)) $parts[] = "`query` LIKE 'product_id=%'";
-            if (in_array('categories',$entities,true)) $parts[] = "`query` LIKE 'category_id=%'";
-            if (in_array('manufacturers',$entities,true)) $parts[] = "`query` LIKE 'manufacturer_id=%'";
-            if (!$parts) return null;
-            return $this->db->query("SELECT * FROM `".$table."` WHERE " . implode(' OR ', $parts))->rows;
-        }
-        if ($logical === 'url_alias') {
-            $parts = array();
-            if (in_array('products',$entities,true)) $parts[] = "`query` LIKE 'product_id=%'";
-            if (in_array('categories',$entities,true)) $parts[] = "`query` LIKE 'category_id=%'";
-            if (in_array('manufacturers',$entities,true)) $parts[] = "`query` LIKE 'manufacturer_id=%'";
-            if (!$parts) return null;
-            return $this->db->query("SELECT * FROM `".$table."` WHERE " . implode(' OR ', $parts))->rows;
-        }
-        $schema = $this->schema($logical);
-        $order = $schema['primary'] ? ' ORDER BY ' . implode(',', array_map(function($c){return '`'.$c.'`';}, $schema['primary'])) : '';
-        return $this->db->query("SELECT * FROM `".$table."`".$order)->rows;
     }
 
     private function tablesForEntities(array $entities) {
@@ -1431,7 +1408,7 @@ final class CatalogTransfer {
         }
     }
 
-    private function mapRow($logical, array $row, array $columns, array $languageMap, array $storeMap) {
+    private function mapRow(array $row, array $columns, array $languageMap, array $storeMap) {
         $out=array();foreach($columns as $column){$out[$column]=array_key_exists($column,$row)?$row[$column]:null;}
         if (array_key_exists('language_id',$out)) {$source=(int)$out['language_id'];if(!array_key_exists($source,$languageMap)||$languageMap[$source]===null)return null;$out['language_id']=$languageMap[$source];}
         if (array_key_exists('store_id',$out)) {$source=(int)$out['store_id'];if(!array_key_exists($source,$storeMap)||$storeMap[$source]===null)return null;$out['store_id']=$storeMap[$source];}
