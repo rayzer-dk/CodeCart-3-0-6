@@ -114,7 +114,7 @@ final class EmailLogo {
             return null;
         }
 
-        $format = self::formatFromMime(isset($info['mime']) ? $info['mime'] : '');
+        $format = self::formatFromMime($info['mime']);
         $size = is_file($source) ? (int)@filesize($source) : 0;
 
         return array(
