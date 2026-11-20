@@ -61,12 +61,13 @@ final class CompatibilityFramework {
         $this->load();
         $file = str_replace('\\', '/', $file);
         foreach ($this->adapters as $adapter) {
-            if (!method_exists($adapter, 'satisfiesOcmod')) {
+            // satisfiesOcmod is an optional adapter capability, not part of the base interface.
+            $check = array($adapter, 'satisfiesOcmod');
+            if (!is_callable($check)) {
                 continue;
             }
-            /** @var CompatibilityAdapterInterface $adapter */
             try {
-                if ($adapter->satisfiesOcmod($code, $file, $search)) {
+                if (call_user_func($check, $code, $file, $search)) {
                     return true;
                 }
             } catch (\Throwable $e) {
