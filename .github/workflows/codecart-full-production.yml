@@ -14,6 +14,11 @@ on:
       - 'upload/admin/view/template/common/header.twig'
       - 'upload/admin/view/stylesheet/codecart-main-ui.css'
       - 'upload/admin/view/stylesheet/stylesheet.css'
+      - 'upload/admin/view/template/sale/order_list.twig'
+      - 'upload/admin/controller/sale/order.php'
+      - 'upload/admin/view/javascript/codecart-help-tooltips.js'
+      - 'tools/package_delta.py'
+      - 'tests/order_admin_smoke.php'
       - 'tests/admin_category_tree_smoke.php'
       - 'tests/catalog_quality_smoke.php'
       - 'upload/system/library/codecart/src/CatalogQuality.php'
@@ -156,6 +161,22 @@ jobs:
           echo "archive=$archive" >> "$GITHUB_OUTPUT"
           (cd artifacts && sha256sum -c "$(basename "$archive.sha256")")
 
+      - name: Package changed files since Build 2.3.32
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_BUILD: ${{ steps.package.outputs.build }}
+          RELEASE_ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: |
+          set -euo pipefail
+          mkdir -p baseline
+          gh release download v2.3.32 --pattern "CodeCart_PRO_v3.0.6.1_Build-2.3.32_full.zip" --dir baseline
+          test -s baseline/CodeCart_PRO_v3.0.6.1_Build-2.3.32_full.zip
+          python3 tools/package_delta.py \
+            --base baseline/CodeCart_PRO_v3.0.6.1_Build-2.3.32_full.zip \
+            --target "$RELEASE_ARCHIVE" \
+            --output "artifacts/CodeCart_PRO_2.3.32_to_${RELEASE_BUILD}_changed_files.zip"
+
       - name: Publish immutable release tag and GitHub Release
         shell: bash
         env:
@@ -176,7 +197,7 @@ jobs:
             echo "Tag already exists; refusing to overwrite a published version." >&2
             exit 1
           fi
-          gh release create "$RELEASE_TAG" "$RELEASE_ARCHIVE" "$RELEASE_ARCHIVE.sha256" "$RELEASE_ARCHIVE.manifest.json" \
+          gh release create "$RELEASE_TAG" "$RELEASE_ARCHIVE" "$RELEASE_ARCHIVE.sha256" "$RELEASE_ARCHIVE.manifest.json" "artifacts/CodeCart_PRO_2.3.32_to_${RELEASE_BUILD}_changed_files.zip" \
             --target "$current" \
             --title "CodeCart PRO 3.0.6.1 — Build $RELEASE_BUILD" \
             --notes "Validated full production archive from main at commit $current. Includes SHA-256 checksum and per-file manifest." \
