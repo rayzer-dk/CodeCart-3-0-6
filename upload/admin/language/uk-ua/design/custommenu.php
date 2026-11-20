@@ -24,7 +24,7 @@ $_['text_custommenu_link'] 	    = 'Посилання';
 
 // Column
 $_['column_sort_order']         = 'Порядок сортування';
-$_['column_action']             = 'Дія';
+$_['column_action']             = 'Дії';
 
 $_['column_custom_name']        = 'Назва';
 $_['column_custom_link']        = 'Посилання';
