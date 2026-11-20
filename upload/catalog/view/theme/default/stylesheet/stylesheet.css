@@ -2590,3 +2590,10 @@ html.ccp-theme-dark .ccp-product-summary-card > h1,
 html.ccp-theme-dark .ccp-blog-article-content > h1 {
 	color: var(--ccp-store-page-title-dark, #8fc3ff) !important;
 }
+
+/* Bootstrap .row clearfix creates an unintended empty first CSS-grid item. */
+.row.ccp-subcategory-grid::before,.row.ccp-subcategory-grid::after{content:none!important;display:none!important}
+.row.ccp-subcategory-grid{margin-left:0;margin-right:0;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.row.ccp-subcategory-grid>[class*="col-"]{float:none!important;width:auto!important;min-width:0;padding:0!important}
+@media(max-width:1199px){.row.ccp-subcategory-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:767px){.row.ccp-subcategory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
