@@ -78,3 +78,5 @@ $_['text_schema_blogposting'] = 'Blog post (BlogPosting)';
 $_['text_schema_article'] = 'Article (Article)';
 $_['text_schema_newsarticle'] = 'News (NewsArticle)';
 $_['text_schema_none'] = 'No page-specific markup';
+
+$_['entry_filter_category'] = 'Category';
