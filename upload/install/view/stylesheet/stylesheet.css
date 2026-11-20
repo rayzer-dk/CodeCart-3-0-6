@@ -24,9 +24,9 @@ body {
 a { color: var(--cc-blue); }
 a:hover, a:focus { color: var(--cc-blue-dark); text-decoration: none; }
 .cc-topbar { background: #fff; border-bottom: 1px solid var(--cc-border); }
-.cc-topbar-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.cc-topbar-inner { min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .cc-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.cc-brand img { display:block; width:220px; height:52px; max-width:220px; max-height:52px; flex-shrink:0; object-fit:cover; object-position:center; }
+.cc-brand img { display:block; width:220px; height:74px; max-width:220px; max-height:74px; flex-shrink:0; object-fit:contain; object-position:center; }
 .cc-brand strong { display: block; font-size: 17px; line-height: 1.15; color: #152238; }
 .cc-brand span { display: block; margin-top: 3px; color: var(--cc-muted); font-size: 12px; }
 .cc-version { color: var(--cc-muted); font-weight: 600; white-space: nowrap; }
@@ -108,7 +108,7 @@ textarea.form-control { height: auto; }
 }
 @media (max-width: 767px) {
   .cc-topbar-inner { min-height: 62px; }
-  .cc-brand img { max-width: 150px; max-height: 36px; }
+  .cc-brand img { width:150px; height:50px; max-width:150px; max-height:50px; }
   .cc-brand div { display: none; }
   .cc-page { padding-top: 18px; }
   .cc-layout { gap: 14px; }
