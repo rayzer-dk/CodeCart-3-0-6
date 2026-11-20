@@ -598,13 +598,6 @@ class ControllerExtensionModulePayPalSmartButton extends Controller {
 			'href' => $this->url->link('extension/module/paypal_smart_button/confirmOrder', '', true)
 		);
 
-		$points_total = 0;
-
-		foreach ($this->cart->getProducts() as $product) {
-			if ($product['points']) {
-				$points_total += $product['points'];
-			}
-		}
 
 		if (isset($this->request->post['next'])) {
 			$data['next'] = $this->request->post['next'];
@@ -896,7 +889,7 @@ class ControllerExtensionModulePayPalSmartButton extends Controller {
 			$data['error_warning'] = $this->session->data['error_warning'];
 			unset($this->session->data['error_warning']);
 		} else {
-			$data['error_warning'] = '';
+			$data['error_warning'] = isset($data['error_warning']) ? $data['error_warning'] : '';
 		}
 
 		if (isset($this->session->data['success'])) {
@@ -1378,7 +1371,7 @@ class ControllerExtensionModulePayPalSmartButton extends Controller {
 				'value' => $amount_info
 			);
 
-			$result = $paypal->updateOrder($order_id, $order_info);
+			$paypal->updateOrder($order_id, $order_info);
 			
 			$seller_protection_status = 'NOT_ELIGIBLE';
 			if ($transaction_method == 'authorize') {
