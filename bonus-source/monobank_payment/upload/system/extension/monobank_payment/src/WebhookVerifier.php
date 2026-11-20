@@ -9,7 +9,6 @@ final class WebhookVerifier {
         $key = openssl_pkey_get_public($publicKeyPem);
         if ($key === false) { return false; }
         $result = openssl_verify((string)$body, $signature, $key, OPENSSL_ALGO_SHA256);
-        if (is_resource($key)) { openssl_free_key($key); }
         return $result === 1;
     }
 }
