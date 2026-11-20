@@ -13,7 +13,7 @@ $_['text_geo_zone']      = 'Географічні зони';
 // Column
 $_['column_name']        = 'Назва географічної зони';
 $_['column_description'] = 'Опис';
-$_['column_action']      = 'Дія';
+$_['column_action']      = 'Дії';
 
 // Entry
 $_['entry_name']         = 'Назва географічної зони';
