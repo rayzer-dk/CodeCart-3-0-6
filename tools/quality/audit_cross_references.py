@@ -48,7 +48,8 @@ def inspect(root):
         except (UnicodeError, OSError):
             continue
     consumer = "\n".join(text for path, text in texts.items() if path.suffix.lower() != ".css")
-    consumer_symbols = set(re.findall(r"[a-zA-Z_$][\w$-]*", consumer))
+    symbol_counts = collections.Counter(re.findall(r"[a-zA-Z_$][\w$-]*", consumer))
+    consumer_symbols = set(symbol_counts)
     candidates = []
     for path, content in texts.items():
         relative = path.relative_to(root).as_posix()
@@ -66,7 +67,7 @@ def inspect(root):
                 if name not in consumer_symbols:
                     continue
                 # One occurrence in the entire corpus is usually just the declaration.
-                hits = len(re.findall(r"(?<![\w$])" + re.escape(name) + r"(?![\w$])", consumer))
+                hits = symbol_counts[name]
                 if hits == 1:
                     candidates.append({"kind": "js-function-single-reference", "path": relative,
                                        "symbol": name, "confidence": "low",
