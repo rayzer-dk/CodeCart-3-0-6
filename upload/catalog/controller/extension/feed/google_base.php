@@ -38,10 +38,6 @@ class ControllerExtensionFeedGoogleBase extends Controller {
         $this->load->model('catalog/product');
         $this->load->model('tool/image');
 
-        $base_url = trim((string)$this->config->get('config_ssl'));
-        if ($base_url === '') $base_url = trim((string)$this->config->get('config_url'));
-        $base_url = rtrim($base_url, '/');
-
         $feedDir = rtrim(DIR_STORAGE, '/\\') . '/cache/codecart/feeds/';
         if (!is_dir($feedDir) && !@mkdir($feedDir, 0775, true) && !is_dir($feedDir)) {
             $this->response->setStatusCode(500);

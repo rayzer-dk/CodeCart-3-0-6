@@ -58,8 +58,6 @@ class ControllerCommonFooter extends Controller {
 			$data['runtime_db_name'] = '';
 			$data['runtime_db_version'] = '';
 			$data['runtime_db_version_full'] = '';
-			$data['runtime_db_charset'] = '';
-			$data['runtime_db_collation'] = '';
 			$cache_key = 'codecart_footer_db_details';
 			$cached = isset($this->session->data[$cache_key]) && is_array($this->session->data[$cache_key])
 				? $this->session->data[$cache_key] : array();

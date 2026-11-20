@@ -96,7 +96,6 @@ class ControllerCommonHeader extends Controller {
         $data['user_group'] = '';
         $data['image'] = '';
         $data['stores'] = array();
-        $data['search'] = '';
 
         // A session waiting for its second factor gets the signed-out header.
         if ($this->registry->get('codecart_mfa_pending') || !isset($this->request->get['user_token']) || !isset($this->session->data['user_token']) || ($this->request->get['user_token'] != $this->session->data['user_token'])) {

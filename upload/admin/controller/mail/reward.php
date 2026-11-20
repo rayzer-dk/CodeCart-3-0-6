@@ -7,12 +7,6 @@ class ControllerMailReward extends Controller {
 			$customer_id = '';
 		}
 
-		if (isset($args[1])) {
-			$description = $args[1];
-		} else {
-			$description = '';
-		}
-
 		if (isset($args[2])) {
 			$points = $args[2];
 		} else {

@@ -7,11 +7,6 @@ class ControllerMailTransaction extends Controller {
 			$customer_id = '';
 		}
 		
-		if (isset($args[1])) {
-			$description = $args[1];
-		} else {
-			$description = '';
-		}		
 		
 		if (isset($args[2])) {
 			$amount = $args[2];
@@ -19,11 +14,6 @@ class ControllerMailTransaction extends Controller {
 			$amount = '';
 		}
 		
-		if (isset($args[3])) {
-			$order_id = $args[3];
-		} else {
-			$order_id = '';
-		}
 			
 		$this->load->model('customer/customer');
 						

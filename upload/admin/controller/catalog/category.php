@@ -152,24 +152,6 @@ class ControllerCatalogCategory extends Controller {
 	}
 
 	protected function getList() {
-		if (isset($this->request->get['sort'])) {
-			$sort = $this->request->get['sort'];
-		} else {
-			$sort = 'name';
-		}
-
-		if (isset($this->request->get['order'])) {
-			$order = $this->request->get['order'];
-		} else {
-			$order = 'ASC';
-		}
-
-		if (isset($this->request->get['page'])) {
-			$page = (int)$this->request->get['page'];
-		} else {
-			$page = 1;
-		}
-
 		$url = '';
 
 		if (isset($this->request->get['sort'])) {
@@ -271,8 +253,6 @@ class ControllerCatalogCategory extends Controller {
 		} else {
 			$data['selected'] = array();
 		}
-
-		$url = '';
 
 		$category_total = $this->model_catalog_category->getTotalCategories();
 

@@ -298,7 +298,6 @@ final class SimpleXlsx {
 
     private static function parseSheet($raw, array $shared) {
         $xml = self::xml($raw);
-        $rows = array();
         $maxCol = -1;
         $matrix = array();
         if (isset($xml->sheetData->row)) {

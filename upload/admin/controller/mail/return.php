@@ -7,11 +7,6 @@ class ControllerMailReturn extends Controller {
 			$return_id = '';
 		}
 		
-		if (isset($args[1])) {
-			$return_status_id = $args[1];
-		} else {
-			$return_status_id = '';
-		}		
 		
 		if (isset($args[2])) {
 			$comment = $args[2];

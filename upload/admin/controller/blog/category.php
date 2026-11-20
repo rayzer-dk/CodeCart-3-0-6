@@ -229,7 +229,6 @@ class ControllerBlogCategory extends Controller {
 			$data['selected'] = array();
 		}
 
-		$url = '';
 		$category_total = $this->model_blog_category->getTotalCategories();
 
 		$data['results'] = $this->language->get('text_category_total') . ($category_total);
