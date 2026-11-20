@@ -19,7 +19,7 @@ $_['column_name']            = 'Назва статті';
 $_['column_image']           = 'Зображення';
 $_['column_status']          = 'Статус';
 $_['column_noindex']         = 'Індексація';
-$_['column_action']          = 'Операції';
+$_['column_action'] = 'Дії';
 $_['column_date_added']      = 'Дата додавання';
 
 // Entry
