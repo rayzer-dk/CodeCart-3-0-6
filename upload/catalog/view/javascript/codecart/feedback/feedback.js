@@ -93,6 +93,24 @@
         close.addEventListener('click', function () { dismiss(node); });
         node.appendChild(close);
 
+        if (options.cart === true && kind === 'success') {
+            var actions = document.createElement('div');
+            actions.className = 'ccp-feedback-actions';
+            var continueButton = document.createElement('button');
+            continueButton.type = 'button';
+            continueButton.className = 'ccp-feedback-continue';
+            continueButton.textContent = label('ui_continue_shopping', 'Continue shopping');
+            continueButton.addEventListener('click', function () { dismiss(node); });
+            var checkout = document.createElement('a');
+            checkout.className = 'ccp-feedback-checkout';
+            checkout.href = (window.CodeCartRoutes && window.CodeCartRoutes.checkout) ||
+                'index.php?route=checkout/checkout';
+            checkout.textContent = label('text_checkout', 'Checkout');
+            actions.appendChild(continueButton);
+            actions.appendChild(checkout);
+            node.appendChild(actions);
+            node.classList.add('ccp-toast-cart');
+        }
         current = node;
         host().appendChild(node);
         window.requestAnimationFrame(function () {
@@ -100,7 +118,7 @@
         });
         var duration = Number(options.duration);
         if (!isFinite(duration) || duration < 0) {
-            duration = kind === 'success' ? 1700 : kind === 'info' ? 3000 : 7000;
+            duration = kind === 'success' ? (options.cart ? 2000 : 1700) : kind === 'info' ? 3000 : 7000;
         }
         // Keep warnings and errors readable. Successes stay deliberately brief.
         if (kind === 'warning' || kind === 'danger') { duration = Math.max(6000, duration); }
@@ -109,6 +127,23 @@
             closeTimer = window.setTimeout(function () {
                 if (ticket === sequence) { dismiss(node); }
             }, duration);
+        }
+        if (options.cart === true) {
+            // A two-second notice should not disappear while a customer is using its actions.
+            node.addEventListener('mouseenter', function () { window.clearTimeout(closeTimer); });
+            node.addEventListener('mouseleave', function () {
+                if (node === current) {
+                    window.clearTimeout(closeTimer);
+                    closeTimer = window.setTimeout(function () { dismiss(node); }, 2000);
+                }
+            });
+            node.addEventListener('focusin', function () { window.clearTimeout(closeTimer); });
+            node.addEventListener('focusout', function (event) {
+                if (node === current && (!event.relatedTarget || !node.contains(event.relatedTarget))) {
+                    window.clearTimeout(closeTimer);
+                    closeTimer = window.setTimeout(function () { dismiss(node); }, 2000);
+                }
+            });
         }
         return node;
     }
