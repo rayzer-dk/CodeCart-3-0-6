@@ -35,7 +35,7 @@
     <div class="modal-content">
       <div class="ccp-project-hero">
         <button type="button" class="close" data-dismiss="modal" aria-label="{{ project_close }}"><span aria-hidden="true">&times;</span></button>
-        <div class="ccp-project-brandline"><span class="ccp-project-logo"><i class="fa fa-shopping-cart"></i></span><span>CodeCart PRO</span><span class="ccp-project-badge">3.0.6.0</span></div>
+        <div class="ccp-project-brandline"><span class="ccp-project-logo"><i class="fa fa-shopping-cart"></i></span><span>CodeCart PRO</span><span class="ccp-project-badge">{{ version|default("3.0.6.1") }}</span></div>
         <h3 id="ccp-project-support-title">{{ project_title }}</h3>
         <p>{{ project_subtitle }}</p>
       </div>
