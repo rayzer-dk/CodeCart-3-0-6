@@ -233,14 +233,7 @@ $(function(){
 	document.addEventListener('keydown',function(e){
 		if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&String(e.key).toLowerCase()==='k'){e.preventDefault();toggle();}
 	});
-	var anchor=document.querySelector('#header .ccp-admin-language-menu') || document.querySelector('#header .ccp-admin-theme-menu');
-	if(anchor&&anchor.parentNode){
-		var li=document.createElement('li');li.className='ccp-palette-menu';
-		var a=document.createElement('a');a.href='#';a.setAttribute('role','button');
-		var label=i18n('ui_quick_nav','Quick navigation')+' (Ctrl+K)';
-		a.title=label;a.setAttribute('aria-label',label);a.innerHTML='<i class="fa fa-compass" aria-hidden="true"></i>';
-		a.addEventListener('click',function(e){e.preventDefault();toggle();});
-		li.appendChild(a);anchor.parentNode.insertBefore(li,anchor.nextSibling);
-	}
+	var anchor=document.querySelector('#header .ccp-palette-menu > a');
+	if(anchor){anchor.addEventListener('click',function(e){e.preventDefault();toggle();});}
 });
 })(window.jQuery,window,document);
