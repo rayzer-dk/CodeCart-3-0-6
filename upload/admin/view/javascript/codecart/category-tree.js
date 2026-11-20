@@ -133,10 +133,9 @@
         expandAll.classList.toggle('is-expanded', !anyCollapsed);
       }
       expandAll.addEventListener('click', function () {
-        var expand = Object.keys(collapsed).some(function (id) { return collapsed[id] === true; });
         rows.forEach(function (row) {
           if (row.querySelector('.cc-tree-collapse:not(.is-placeholder)')) {
-            collapsed[row.dataset.ccTreeId] = !expand;
+            collapsed[row.dataset.ccTreeId] = false;
           }
         });
         refreshTree();
