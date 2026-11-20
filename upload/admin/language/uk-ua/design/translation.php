@@ -18,7 +18,7 @@ $_['column_language']  = 'Мова';
 $_['column_route']     = 'Путь';
 $_['column_key']       = 'Ключ';
 $_['column_value']     = 'Значення';
-$_['column_action']    = 'Дія';
+$_['column_action']    = 'Дії';
 
 // Entry
 $_['entry_store']      = 'Магазин';
