@@ -1275,7 +1275,7 @@ class ControllerExtensionPaymentPayPal extends Controller {
 			$token_info['intent'] = 'sdk_init';
 			$token_info['domains'][] = $this->request->server['HTTP_HOST'];
 										
-			$result = $paypal->setAccessToken($token_info);
+			$paypal->setAccessToken($token_info);
 			
 			$data['sdk_client_token'] = $paypal->getAccessToken();
 			$data['client_metadata_id'] = $paypal->getToken();
@@ -2877,7 +2877,7 @@ class ControllerExtensionPaymentPayPal extends Controller {
 						
 				$paypal->setAccessToken($token_info);
 		
-				$result = $paypal->setPaymentVoid($transaction_id);
+				$paypal->setPaymentVoid($transaction_id);
 				
 				if ($paypal->hasErrors()) {
 					$error_messages = array();
@@ -3049,9 +3049,7 @@ class ControllerExtensionPaymentPayPal extends Controller {
 						$result = $paypal->setPaymentRefund($transaction_id, $transaction_info);
 					} else {
 						if (($transaction_status == 'completed') && ($refund_amount < $available_refund_amount) && (count($payments['captures']) > 1)) {
-							$final_capture_first_amount = 0;
-							
-							if ($refund_amount < $final_capture_amount) {
+														if ($refund_amount < $final_capture_amount) {
 								$final_capture_first_amount = $refund_amount * 0.5;
 							} else {
 								$final_capture_first_amount = $final_capture_amount * 0.5;
@@ -3418,7 +3416,7 @@ class ControllerExtensionPaymentPayPal extends Controller {
 					'value' => 'CANCELLED'
 				);
 								
-				$result = $paypal->updateOrderTracker($paypal_order_id, $transaction_id . '-' . $tracking_number, $tracker_info);
+				$paypal->updateOrderTracker($paypal_order_id, $transaction_id . '-' . $tracking_number, $tracker_info);
 						
 				if ($paypal->hasErrors()) {
 					$error_messages = array();
