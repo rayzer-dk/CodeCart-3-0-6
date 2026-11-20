@@ -81,7 +81,7 @@ class ControllerMailOrder extends Controller {
 
 		$email_logo_asset = class_exists('CodeCart\\Core\\EmailLogo')
 			? \CodeCart\Core\EmailLogo::prepare($email_logo, $order_info['store_url'])
-			: array('url' => $order_info['store_url'] . 'image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80, 'format' => '');
+			: array('url' => $order_info['store_url'] . 'image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80);
 		$data['logo'] = $email_logo_asset['url'];
 		$data['logo_width'] = (int)$email_logo_asset['width'];
 		$data['logo_height'] = (int)$email_logo_asset['height'];
@@ -325,7 +325,7 @@ class ControllerMailOrder extends Controller {
 		}
 		$email_logo_asset = class_exists('CodeCart\Core\EmailLogo')
 			? \CodeCart\Core\EmailLogo::prepare($email_logo, $data['store_url'])
-			: array('url' => rtrim($data['store_url'], '/') . '/image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80, 'format' => '');
+			: array('url' => rtrim($data['store_url'], '/') . '/image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80);
 		$data['logo'] = $email_logo_asset['url'];
 		$data['logo_width'] = (int)$email_logo_asset['width'];
 		$data['logo_height'] = (int)$email_logo_asset['height'];
@@ -465,7 +465,7 @@ class ControllerMailOrder extends Controller {
 			}
 			$email_logo_asset = class_exists('CodeCart\Core\EmailLogo')
 				? \CodeCart\Core\EmailLogo::prepare($email_logo, $data['store_url'])
-				: array('url' => rtrim($data['store_url'], '/') . '/image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80, 'format' => '');
+				: array('url' => rtrim($data['store_url'], '/') . '/image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80);
 			$data['logo'] = $email_logo_asset['url'];
 			$data['logo_width'] = (int)$email_logo_asset['width'];
 			$data['logo_height'] = (int)$email_logo_asset['height'];
