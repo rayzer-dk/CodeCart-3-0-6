@@ -43,7 +43,7 @@ $_['column_amount']         = 'Разом';
 $_['column_points']         = 'Бонусні бали';
 $_['column_ip']             = 'IP';
 $_['column_total']          = 'Загальна сума';
-$_['column_action']         = 'Дія';
+$_['column_action']         = 'Дії';
 
 // Entry
 $_['entry_customer_group']  = 'Група покупців';
