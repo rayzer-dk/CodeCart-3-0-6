@@ -909,7 +909,7 @@ final class CatalogTransfer {
                     }
                 }
                 foreach($checks as $idx=>$check){
-                    if($check['sheet']===$sourceLogical && isset($row[$check['column']]) && $row[$check['column']]!=='' && $row[$check['column']]!==null){$id=(int)$row[$check['column']];if(!($id===0 && $check['allow_zero']) && $id>0){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$requiredRefs[$idx][$id][$pid]=true;}}
+                    if($check['sheet']===$sourceLogical && isset($row[$check['column']]) && $row[$check['column']]!=='' ){$id=(int)$row[$check['column']];if(!($id===0 && $check['allow_zero']) && $id>0){$pid=isset($row['product_id'])?(int)$row['product_id']:0;$requiredRefs[$idx][$id][$pid]=true;}}
                     if($check['target']===$sourceLogical && isset($row[$check['target_key']]) && (int)$row[$check['target_key']]>0){$availableRefs[$idx][(int)$row[$check['target_key']]]=true;}
                 }
             });
@@ -1364,7 +1364,7 @@ final class CatalogTransfer {
             $ids = array();
             $owners = array();
             foreach ($workbook[$check['sheet']]['rows'] as $row) {
-                if (!isset($row[$check['column']]) || $row[$check['column']] === '' || $row[$check['column']] === null) { continue; }
+                if (!isset($row[$check['column']]) || $row[$check['column']] === '') { continue; }
                 $id = (int)$row[$check['column']];
                 if ($id === 0 && $check['allow_zero']) { continue; }
                 if ($id > 0) {
@@ -1653,10 +1653,10 @@ final class CatalogTransfer {
                 $in=$zip->getStream($s['name']); $out=$in?fopen($tmp,'wb'):false;
                 if(!$in||!$out){if(is_resource($in))fclose($in);if(is_resource($out))fclose($out);@unlink($tmp);continue;}
                 $copied=stream_copy_to_stream($in,$out,$size+1); fclose($in); fclose($out);
-                if($copied!==$size||$copied>self::MAX_SINGLE_IMAGE_BYTES){@unlink($tmp);continue;}
+                if($copied!==$size){@unlink($tmp);continue;}
                 $mime='';
                 $fi=finfo_open(FILEINFO_MIME_TYPE);if($fi){$mime=(string)finfo_file($fi,$tmp);}
-                if($mime===''){$info=@getimagesize($tmp);if(is_array($info)&&isset($info['mime']))$mime=(string)$info['mime'];}
+                if($mime===''){$info=@getimagesize($tmp);if(is_array($info))$mime=(string)$info['mime'];}
                 $imageType = strtolower(pathinfo($rel, PATHINFO_EXTENSION));
                 $mimeOk = isset($allowedMimes[strtolower($mime)])
                     || ($imageType === 'svg' && in_array(strtolower($mime), array('application/xml','text/xml','text/plain'), true));
