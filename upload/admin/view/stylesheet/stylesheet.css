@@ -253,6 +253,7 @@ a:hover, a:focus {
 
 #menu li a.parent:after {
     font-family: "Font Awesome 7 Free";
+    font-weight: 900;
     float: right;
     margin-right: 8px;
 }
@@ -306,6 +307,7 @@ a:hover, a:focus {
     content: "\f101";
     font-size: 13px;
     font-family: "Font Awesome 7 Free";
+    font-weight: 900;
     margin-left: 10px;
     margin-right: 10px;
     transition: color ease 0.2s;
