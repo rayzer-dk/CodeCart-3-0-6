@@ -546,7 +546,7 @@
         "catalog/controller/common/pwa.php": "e91f7be51abc75549f04318b746025aa403b05b6fe4e865eaf35c7ba5d34b50a",
         "codecart-app-sw.js": "4aed176ffc45a2f2b742cef593586ea1ae84b40bb71cd4624ec2c63a79800f41",
         "system/library/codecart/src/SearchIndex.php": "7540090c1ac0fb72aa2305fe018de03f42b43ccb29ef67a13963acb15439e995",
-        "system/library/codecart/src/CatalogQuality.php": "c487c4e1cc830d73da5e8706d695050616bc55a16fd088994c922c2485603180",
+        "system/library/codecart/src/CatalogQuality.php": "98cf1b737a28eea8a4eb265b6b5b85ae395549ff878e00795e2b9676eaa86373",
         "catalog/controller/blog/menu.php": "1c2b8f87396b729c502dede1364d5bb3af039dfc5df1da237db446d0728ceb6d",
         "admin/controller/blog/setting.php": "cf09877f4b55c2a01961aa09b6cec408b04dc6ce2a692197812467bac9b7edb9",
         "system/library/codecart/src/BlogLocaleSeo.php": "a0605dc05edb925849ca06a80c4eaf78362aa13153dfd1449e088215c18912bb",
