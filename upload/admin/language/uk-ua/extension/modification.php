@@ -14,7 +14,7 @@ $_['column_author']     = 'Автор';
 $_['column_version']    = 'Версія';
 $_['column_status']     = 'Статус';
 $_['column_date_added'] = 'Дата додавання';
-$_['column_action']     = 'Дія';
+$_['column_action']     = 'Дії';
 
 // Error
 $_['error_permission']  = 'У вас недостатньо прав для внесення змін';
