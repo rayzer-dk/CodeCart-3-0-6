@@ -264,13 +264,14 @@ final class DashboardHealth {
         if ($ok===false) { $message=curl_error($ch); throw new \RuntimeException($message?:'Storefront check failed or response exceeded 4 MB.'); }
         $html=$body;
         $info=curl_getinfo($ch);
-        $httpVersion=$this->httpVersionName((int)($info['http_version']??0));
+        if (!is_array($info)) { throw new \RuntimeException('Unable to read storefront response information.'); }
+        $httpVersion=$this->httpVersionName((int)$info['http_version']);
         $data=array(
             'checked_at'=>date('Y-m-d H:i:s'),
-            'url'=>(string)($info['url']??$url),
-            'http_code'=>(int)($info['http_code']??0),
-            'ttfb_ms'=>(int)round(((float)($info['starttransfer_time']??0))*1000),
-            'total_ms'=>(int)round(((float)($info['total_time']??0))*1000),
+            'url'=>(string)$info['url'],
+            'http_code'=>(int)$info['http_code',
+            'ttfb_ms'=>(int)round(((float)$info['starttransfer_time'])*1000),
+            'total_ms'=>(int)round(((float)$info['total_time'])*1000),
             'html_kb'=>round(strlen((string)$html)/1024,1),
             'css_count'=>preg_match_all('#<link[^>]+rel=["\']?stylesheet["\']?[^>]*>#i',(string)$html,$m),
             'js_count'=>preg_match_all('#<script[^>]+src=["\'][^"\']+["\'][^>]*>#i',(string)$html,$m2),
