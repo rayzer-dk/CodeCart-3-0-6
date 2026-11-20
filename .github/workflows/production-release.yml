@@ -85,6 +85,14 @@ jobs:
             upload/install/view/javascript/bootstrap/js/bootstrap.js \
             upload/install/view/javascript/bootstrap/js/bootstrap.min.js
 
+      - name: Verify modern feedback and notification contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check upload/catalog/view/javascript/codecart/feedback/feedback.js
+          node --check tests/feedback_ui_smoke.cjs
+          node tests/feedback_ui_smoke.cjs
+
   package:
     name: Build one-upload package
     needs: [source-ready, php-matrix, bootstrap-security]
