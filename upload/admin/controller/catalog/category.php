@@ -868,7 +868,7 @@ class ControllerCatalogCategory extends Controller {
 		$raw = $this->request->post;
 		$action = isset($raw['action']) && is_string($raw['action']) ? $raw['action'] : '';
 		$idRaw = isset($raw['id']) && is_string($raw['id']) ? $raw['id'] : '';
-		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST' || !in_array($action, array('sort','move'), true) || !preg_match('/^[1-9][0-9]{0,9}$/D', $idRaw)) {
+		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST' || !in_array($action, array('sort','move','reorder'), true) || !preg_match('/^[1-9][0-9]{0,9}$/D', $idRaw)) {
 			$this->response->setStatusCode(400);
 			$out['error'] = $this->language->get('tree_error');
 		} elseif ($token === '' || $expected === '' || !hash_equals($expected, $token) || !$this->user->hasPermission('access', 'catalog/category') || !$this->user->hasPermission('modify', 'catalog/category')) {
@@ -886,7 +886,11 @@ class ControllerCatalogCategory extends Controller {
 					$old = $number($raw['expected'] ?? null);
 					if ($sort === null || $old === null) { throw new \InvalidArgumentException('Invalid sort value.'); }
 					$out['value'] = \CodeCart\Core\AdminCategoryTreeEditor::quickSort($this->registry, 'catalog', $id, $sort, $old);
-				} else {
+				} elseif ($action === 'reorder') {
+                    $beforeRaw = isset($raw['before_id']) && is_string($raw['before_id']) ? $raw['before_id'] : '';
+                    if (!preg_match('/^[1-9][0-9]{0,9}$/D', $beforeRaw)) { throw new \InvalidArgumentException('Invalid sibling.'); }
+                    $out['moved'] = \CodeCart\Core\AdminCategoryTreeEditor::reorder($this->registry, 'catalog', $id, (int)$beforeRaw);
+                } else {
 					$parentRaw = isset($raw['parent_id']) && is_string($raw['parent_id']) ? $raw['parent_id'] : '';
 					if (!preg_match('/^(0|[1-9][0-9]{0,9})$/D', $parentRaw)) { throw new \InvalidArgumentException('Invalid destination.'); }
 					$out['moved'] = \CodeCart\Core\AdminCategoryTreeEditor::move($this->registry, 'catalog', $id, (int)$parentRaw);
