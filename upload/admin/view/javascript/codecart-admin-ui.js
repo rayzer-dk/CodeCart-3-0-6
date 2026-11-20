@@ -240,7 +240,7 @@ $(function(){
 		var label=i18n('ui_quick_nav','Quick navigation')+' (Ctrl+K)';
 		a.title=label;a.setAttribute('aria-label',label);a.innerHTML='<i class="fa fa-compass" aria-hidden="true"></i>';
 		a.addEventListener('click',function(e){e.preventDefault();toggle();});
-		li.appendChild(a);anchor.parentNode.insertBefore(li,anchor);
+		li.appendChild(a);anchor.parentNode.insertBefore(li,anchor.nextSibling);
 	}
 });
 })(window.jQuery,window,document);
