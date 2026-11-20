@@ -17,3 +17,4 @@ $_['tree_root_option'] = 'No parent (root)';
 $_['tree_choose'] = 'Select a category from the suggestions';
 $_['tree_done'] = 'Saved';
 $_['tree_expand'] = 'Collapse or expand branch';
+$_['tree_expand_all'] = 'Expand all subcategories';
