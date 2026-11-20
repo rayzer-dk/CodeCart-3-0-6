@@ -23,13 +23,14 @@ require dirname(__DIR__) . '/upload/catalog/controller/common/pwa.php';
 function pwaAssert($result, $message) {
     if (!$result) { fwrite(STDERR, 'FAILED: ' . $message . PHP_EOL); exit(1); }
 }
-function pwaController($enabled, $store, $https = true) {
+function pwaController($enabled, $store, $https = true, $pwaIcon = '', $favicon = '') {
     $app = new ControllerCommonPwa();
     $app->config = new PwaConfigStub(array(
         'config_codecart_pwa_status' => $enabled,
         'config_name' => $store,
         'config_ssl' => 'https://example.test/shop/',
-        'config_icon' => '',
+        'config_icon' => $favicon,
+        'config_codecart_pwa_icon' => $pwaIcon,
     ));
     $app->request = (object)array('get' => array(), 'server' => array('REQUEST_METHOD' => 'GET', 'HTTPS' => $https));
     $app->response = new PwaResponseStub();
@@ -59,6 +60,36 @@ if (extension_loaded('gd') && function_exists('imagecreatetruecolor')) {
         pwaAssert(is_array($info) && $info[0] === $size && $info[1] === $size, 'PNG icon dimensions ' . $size);
         pwaAssert(in_array('Content-Type: image/png', $app->response->headers, true), 'PNG response type');
     }
+}
+
+
+if (extension_loaded('gd') && function_exists('imagecreatetruecolor')) {
+    if (!is_dir(DIR_IMAGE)) {
+        pwaAssert(mkdir(DIR_IMAGE, 0700, true), 'Create fixture image directory');
+    }
+    foreach (array('pwa.png' => array(220, 15, 15), 'favicon.png' => array(10, 180, 20)) as $filename => $rgb) {
+        $fixture = imagecreatetruecolor(32, 32);
+        imagefill($fixture, 0, 0, imagecolorallocate($fixture, $rgb[0], $rgb[1], $rgb[2]));
+        imagepng($fixture, DIR_IMAGE . $filename);
+        imagedestroy($fixture);
+    }
+    foreach (array(
+        array('pwa.png', 'favicon.png', 0xdc0f0f, 'Dedicated PWA image has priority'),
+        array('missing.png', 'favicon.png', 0x0ab414, 'Missing app image falls back to favicon'),
+        array('../outside.png', 'favicon.png', 0x0ab414, 'Out-of-root app image falls back safely')
+    ) as $test) {
+        $app = pwaController(1, 'Fixture Store', true, $test[0], $test[1]);
+        $app->request->get['size'] = '512';
+        $app->icon();
+        $generated = imagecreatefromstring($app->response->output);
+        pwaAssert($generated !== false, 'Generated PNG decodes');
+        $pixel = imagecolorat($generated, 256, 256) & 0xffffff;
+        pwaAssert($pixel === $test[2], $test[3]);
+        imagedestroy($generated);
+    }
+    unlink(DIR_IMAGE . 'pwa.png');
+    unlink(DIR_IMAGE . 'favicon.png');
+    rmdir(DIR_IMAGE);
 }
 
 $app = pwaController(1, 'Fixture Store', false);
