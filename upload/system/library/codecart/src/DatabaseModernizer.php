@@ -148,7 +148,10 @@ class DatabaseModernizer {
         }
 
         $result['preflight_after'] = $this->preflight((bool)$includeThirdParty)['summary'];
-        $required = ((int)$result['preflight_after']['engine'] > 0 || (int)$result['preflight_after']['charset'] > 0) ? 1 : 0;
+        // The global warning must remain until *all* prefixed tables are modernized,
+        // even if this request intentionally excluded third-party extensions.
+        $allTables = $includeThirdParty ? $result['preflight_after'] : $this->preflight(true)['summary'];
+        $required = ((int)$allTables['engine'] > 0 || (int)$allTables['charset'] > 0) ? 1 : 0;
         $this->saveRequiredFlag($required);
         return $result;
     }
