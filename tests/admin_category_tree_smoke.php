@@ -64,6 +64,8 @@ treeCheck(strpos($script, "config.dataset.ccTreeKind || 'catalog'") !== false,
     'Tree setup must not depend on an exact route query string');
 treeCheck(strpos($script, 'data-cc-tree-target') !== false, 'Drop-to-root zone missing');
 treeCheck(strpos($script, 'cc-tree-move') !== false, 'Touch fallback is missing');
+treeCheck(strpos($script, 'function syncExpandAll()') !== false && strpos($script, 'if (expandAll) {\n      function syncExpandAll()') === false, 'Expand-all helper must be callable when initialization begins');
+treeCheck(strpos($script, "action:'index'") !== false, 'Index toggle does not persist asynchronously');
 foreach (array('catalog','blog') as $type) {
     $controller = file_get_contents($root . 'admin/controller/' . $type . '/category.php');
     $template = file_get_contents($root . 'admin/view/template/' . $type . '/category_list.twig');
@@ -74,6 +76,7 @@ foreach (array('catalog','blog') as $type) {
     treeCheck(strpos($template, 'data-cc-tree-url="{{ category_tree_edit_url }}"') !== false, $type . ' template is not connected to tree editor');
     treeCheck(strpos($template, 'cc-tree-root') !== false && strpos($template, 'cc-tree-row') !== false, $type . ' lacks tree UI');
     treeCheck(strpos($template, 'cc-category-sort') !== false, $type . ' lacks inline sorting');
+    treeCheck(strpos($template, 'cc-category-index-toggle') !== false && strpos($controller, "quickIndex") !== false, $type . ' lacks inline indexing');
 }
 
 treeCheck(strpos($script, "icon.classList.add(isCollapsed ? 'fa-angle-right' : 'fa-angle-down')") !== false, 'Category disclosure arrow does not follow collapse state');
