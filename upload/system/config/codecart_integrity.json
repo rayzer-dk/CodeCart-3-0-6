@@ -469,7 +469,7 @@
         "system/library/codecart/src/AdminAssetOptimizer.php": "543fd1459ccc592107a5df299e2c3f7f9e89d855dcd6a6cc3067ba6faf5ac7e6",
         "system/library/codecart/src/CompatibilityAdapterInterface.php": "a226f1eb30a68788829a117eaa041e019cd89d5a792a6e602b37eee542371cbd",
         "system/library/codecart/src/CompatibilityFramework.php": "81e991998bfcc67c61f8db6e9a957ba9ae77c8bc77c037b2861b4d67f3526845",
-        "system/library/codecart/src/EmailLogo.php": "0ef843cd6c144d3d820a3280b0ccae0ea893362723ad9281ab7c5f5fccafe7df",
+        "system/library/codecart/src/EmailLogo.php": "59af49f2bc49840f26fd48ac5fa55bd8404510c9051c7524fbbe29edda267d67",
         "system/library/codecart/src/ExtensionInstallJournal.php": "5b0303fb41465e33900f98c2222e7ff5a45c821289e91ee51a34fd96528566fc",
         "system/library/codecart/src/RelationLayer.php": "92ba75370d5fa1491d7bf7363ee0bc4490234ce1a118fc58c069487ecca301a1",
         "system/library/codecart/src/SqlScript.php": "fe9f37eb3954a4507e762a29d0cb4fde2fae4f4815622e0cdcc32a452dc967d1",
