@@ -262,6 +262,15 @@ class ModelCatalogProduct extends Model {
 			$sql .= " ASC, LCASE(pd.name) ASC";
 		}
 
+		// If UniShop2's optional stock-first sorting was injected, apply its prefix once.
+		// This also keeps the variable initialized for partially matching legacy OCMOD XML.
+		if ($sort_qty !== '') {
+			$order_pos = strrpos($sql, ' ORDER BY ');
+			if ($order_pos !== false && strpos(substr($sql, $order_pos), $sort_qty) === false) {
+				$sql = substr_replace($sql, ' ORDER BY ' . $sort_qty . ' ', $order_pos, strlen(' ORDER BY '));
+			}
+		}
+
 		if (isset($data['start']) || isset($data['limit'])) {
 			if ($data['start'] < 0) {
 				$data['start'] = 0;
