@@ -29,7 +29,7 @@ final class EmailLogo {
 
         // Bump the cache key when the image preparation algorithm changes.
         $source_version = dechex((int)@filemtime($source)) . '-' . dechex((int)@filesize($source));
-        $name_hash = substr(sha1($filename . '|' . $source_version . '|email-adaptive-v3'), 0, 18);
+        $name_hash = substr(sha1($filename . '|' . $source_version . '|email-adaptive-v4'), 0, 18);
         $relative = 'cache/email/logo-' . $name_hash . '.png';
         $target = DIR_IMAGE . $relative;
         $dark_relative = 'cache/email/logo-' . $name_hash . '-dark.png';
@@ -88,6 +88,15 @@ final class EmailLogo {
                 $bounds['left'], $bounds['top'], $crop_width, $crop_height);
             imagedestroy($preview);
 
+            // Gmail Android may ignore dark-mode CSS. Outline dark lettering
+            // in white (without a white rectangle) so the regular transparent
+            // logo is legible on both light and near-black backgrounds.
+            $outlined = self::contrastOutline($canvas, $canvas_width, $canvas_height);
+            if ($outlined) {
+                imagedestroy($canvas);
+                $canvas = $outlined;
+            }
+
             // A separate image for dark-mode-aware mail clients retains
             // saturated brand colours and brightens nearly black lettering.
             $dark = self::darkVariant($canvas, $canvas_width, $canvas_height);
@@ -122,6 +131,35 @@ final class EmailLogo {
             'height' => max(1, (int)round($dimensions[1] * $display_scale)),
             'format' => 'PNG'
         );
+    }
+
+    /** Draw only a 2px transparent-background white keyline around dark type. */
+    private static function contrastOutline($source, $width, $height) {
+        $outlined = imagecreatetruecolor($width, $height);
+        if (!$outlined) { return false; }
+        imagealphablending($outlined, false);
+        imagesavealpha($outlined, true);
+        imagefill($outlined, 0, 0, imagecolorallocatealpha($outlined, 255, 255, 255, 127));
+
+        imagealphablending($outlined, true);
+        $keyline = imagecolorallocate($outlined, 255, 255, 255);
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $pixel = imagecolorat($source, $x, $y);
+                $alpha = ($pixel >> 24) & 0x7f;
+                if ($alpha > 24) { continue; }
+                $red = ($pixel >> 16) & 255;
+                $green = ($pixel >> 8) & 255;
+                $blue = $pixel & 255;
+                if (max($red, $green, $blue) - min($red, $green, $blue) < 75
+                    && ($red + $green + $blue) < 400) {
+                    imagefilledellipse($outlined, $x, $y, 5, 5, $keyline);
+                }
+            }
+        }
+        imagecopy($outlined, $source, 0, 0, 0, 0, $width, $height);
+        imagealphablending($outlined, false);
+        return $outlined;
     }
 
     /** Preserve transparency and promote only grayscale dark strokes for dark-mode email. */
