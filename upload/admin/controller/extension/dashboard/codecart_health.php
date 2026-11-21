@@ -120,7 +120,7 @@ class ControllerExtensionDashboardCodeCartHealth extends Controller {
                 $item['href'] = $this->systemLink($item['code'], $data['links']);
                 $helpKey = 'system_' . $item['code'] . '_help';
                 $help = $this->language->get($helpKey);
-                if ($help !== $helpKey) { $item['detail'] = $help; }
+                if ($help !== $helpKey) { $item['detail'] = trim($help . (!empty($item['detail']) ? " | " . $item['detail'] : '')); }
             }
             unset($item);
         } elseif($section==='performance'){
