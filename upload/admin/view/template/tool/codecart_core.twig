@@ -110,8 +110,8 @@
               <p class="help-block">{{ text_db_modernize_help }}</p>
               {% if db_legacy_tables %}
               <div class="table-responsive"><table class="table table-bordered table-condensed">
-                <thead><tr><td>{{ column_table }}</td><td>{{ column_engine }}</td><td>{{ column_collation }}</td><td class="text-right">{{ column_size }}</td></tr></thead>
-                <tbody>{% for row in db_legacy_tables %}<tr data-table="{{ row.table|e }}"><td><code>{{ row.table }}</code>{% if row.large %} <span class="label label-warning">{{ text_db_modernize_large }}</span>{% endif %}</td><td>{{ row.engine }}</td><td>{{ row.collation }}</td><td class="text-right">{{ row.size }}</td></tr>{% endfor %}</tbody>
+                <thead><tr><td>{{ column_table }}</td><td>{{ column_engine }}</td><td>{{ column_collation }}</td><td class="text-center">{{ text_db_legacy_columns }}</td><td class="text-right">{{ column_size }}</td></tr></thead>
+                <tbody>{% for row in db_legacy_tables %}<tr data-table="{{ row.table|e }}"><td><code>{{ row.table }}</code>{% if row.external %} <span class="label label-info">{{ text_external }}</span>{% endif %}{% if row.large %} <span class="label label-warning">{{ text_db_modernize_large }}</span>{% endif %}</td><td>{{ row.engine }}</td><td>{{ row.collation }}</td><td class="text-center">{{ row.legacy_columns }}</td><td class="text-right">{{ row.size }}</td></tr>{% endfor %}</tbody>
               </table></div>
               <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ text_schema_backup_warning }}</div>
               <label class="checkbox-inline"><input type="checkbox" id="ccp-db-backup-confirm" value="1" /> {{ text_schema_backup_confirm }}</label>
