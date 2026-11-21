@@ -13,11 +13,11 @@ class DatabaseModernizer {
         $this->config = $registry->get('config');
     }
 
-    public function preflight() {
+    public function preflight($includeThirdParty = true) {
         $server = $this->serverInfo();
         $capabilities = $this->capabilities($server);
-        $tables = $this->tables();
-        $summary = array('total' => count($tables), 'engine' => 0, 'charset' => 0, 'skipped' => 0, 'large' => 0, 'fulltext' => 0, 'foreign_keys' => 0, 'blocked' => 0, 'bytes' => 0);
+        $tables = $this->tables((bool)$includeThirdParty);
+        $summary = array('total' => count($tables), 'engine' => 0, 'charset' => 0, 'legacy_columns' => 0, 'skipped' => 0, 'large' => 0, 'fulltext' => 0, 'foreign_keys' => 0, 'blocked' => 0, 'bytes' => 0);
         $items = array();
 
         foreach ($tables as $row) {
@@ -25,7 +25,8 @@ class DatabaseModernizer {
             $collation = strtolower((string)$row['TABLE_COLLATION']);
             $bytes = (int)$row['DATA_LENGTH'] + (int)$row['INDEX_LENGTH'];
             $needsEngine = $engine !== 'INNODB';
-            $needsCharset = $collation !== '' && strpos($collation, 'utf8mb4_') !== 0;
+            $legacyColumns = $this->legacyTextColumns((string)$row['TABLE_NAME']);
+            $needsCharset = ($collation !== '' && strpos($collation, 'utf8mb4_') !== 0) || count($legacyColumns) > 0;
             $supported = in_array($engine, array('INNODB', 'MYISAM', 'ARIA'), true);
             $fulltext = $this->hasFulltext((string)$row['TABLE_NAME']);
             $foreignKeys = $this->foreignKeyCount((string)$row['TABLE_NAME']);
@@ -33,6 +34,7 @@ class DatabaseModernizer {
 
             if ($needsEngine) $summary['engine']++;
             if ($needsCharset) $summary['charset']++;
+            $summary['legacy_columns'] += count($legacyColumns);
             if (!$supported) $summary['skipped']++;
             if ($bytes >= 268435456) $summary['large']++;
             if ($fulltext) $summary['fulltext']++;
@@ -51,6 +53,7 @@ class DatabaseModernizer {
                     'foreign_keys' => $foreignKeys,
                     'needs_engine' => $needsEngine,
                     'needs_charset' => $needsCharset,
+                    'legacy_columns' => $legacyColumns,
                     'supported' => $supported,
                     'risks' => $risks
                 );
@@ -63,7 +66,8 @@ class DatabaseModernizer {
             'target' => array('engine' => 'InnoDB', 'row_format' => 'DYNAMIC', 'charset' => 'utf8mb4', 'collation' => $this->collation),
             'summary' => $summary,
             'tables' => $items,
-            'backup_required' => true
+            'backup_required' => true,
+            'include_third_party' => (bool)$includeThirdParty
         );
     }
 
@@ -71,7 +75,7 @@ class DatabaseModernizer {
      * @param bool $includeLarge convert tables >= 256 MB (CLI only by policy)
      * @param int  $limit        0 = all tables; N = stop after N converted tables (web batches)
      */
-    public function migrate($includeLarge = false, $limit = 0) {
+    public function migrate($includeLarge = false, $limit = 0, $includeThirdParty = true) {
         $limit = max(0, (int)$limit);
         $lock = 'codecart_db_modernizer_' . substr(hash('sha256', DB_DATABASE . '|' . DB_PREFIX), 0, 32);
         $acquired = false;
@@ -86,14 +90,14 @@ class DatabaseModernizer {
                 return array('changed' => array(), 'skipped' => array(), 'errors' => array(array('table' => '', 'error' => 'Database modernization is already running.')));
             }
 
-            foreach ($this->tables() as $row) {
+            foreach ($this->tables((bool)$includeThirdParty) as $row) {
                 $table = (string)$row['TABLE_NAME'];
                 $engine = strtoupper((string)$row['ENGINE']);
                 $collation = strtolower((string)$row['TABLE_COLLATION']);
                 $bytes = (int)$row['DATA_LENGTH'] + (int)$row['INDEX_LENGTH'];
                 $supported = in_array($engine, array('INNODB', 'MYISAM', 'ARIA'), true);
                 $needsEngine = $engine !== 'INNODB';
-                $needsCharset = $collation !== '' && strpos($collation, 'utf8mb4_') !== 0;
+                $needsCharset = ($collation !== '' && strpos($collation, 'utf8mb4_') !== 0) || count($this->legacyTextColumns($table)) > 0;
 
                 if (!$needsEngine && !$needsCharset) {
                     continue;
@@ -143,15 +147,31 @@ class DatabaseModernizer {
             }
         }
 
-        $result['preflight_after'] = $this->preflight()['summary'];
+        $result['preflight_after'] = $this->preflight((bool)$includeThirdParty)['summary'];
         $required = ((int)$result['preflight_after']['engine'] > 0 || (int)$result['preflight_after']['charset'] > 0) ? 1 : 0;
         $this->saveRequiredFlag($required);
         return $result;
     }
 
-    private function tables() {
+    private function tables($includeThirdParty = true) {
         $q = $this->db->query("SELECT TABLE_NAME, ENGINE, TABLE_COLLATION, ROW_FORMAT, TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' AND LEFT(TABLE_NAME, " . (int)strlen(DB_PREFIX) . ") = '" . $this->db->escape(DB_PREFIX) . "' ORDER BY TABLE_NAME ASC");
-        return $q->rows;
+        if ($includeThirdParty) {
+            return $q->rows;
+        }
+        $file = DIR_SYSTEM . 'config/codecart_schema.json';
+        $schema = is_file($file) ? json_decode((string)file_get_contents($file), true) : array();
+        $expected = isset($schema['tables']) && is_array($schema['tables']) ? array_fill_keys(array_map(static function ($name) { return DB_PREFIX . $name; }, array_keys($schema['tables'])), true) : array();
+        return array_values(array_filter($q->rows, static function ($row) use ($expected) {
+            return isset($expected[(string)$row['TABLE_NAME']]);
+        }));
+    }
+
+    private function legacyTextColumns($table) {
+        $name = $this->identifier($table);
+        $q = $this->db->query("SELECT COLUMN_NAME, CHARACTER_SET_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . $this->db->escape($name) . "' AND CHARACTER_SET_NAME IS NOT NULL AND CHARACTER_SET_NAME <> 'utf8mb4' ORDER BY ORDINAL_POSITION");
+        return array_map(static function ($row) {
+            return array('column' => (string)$row['COLUMN_NAME'], 'charset' => (string)$row['CHARACTER_SET_NAME']);
+        }, $q->rows);
     }
 
     private function hasFulltext($table) {
