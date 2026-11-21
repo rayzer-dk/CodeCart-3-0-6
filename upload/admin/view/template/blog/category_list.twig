@@ -1,8 +1,8 @@
 {{ header }}{{ column_left }}
 <div id="content">
 <div id="cc-tree-config" data-cc-tree-url="{{ category_tree_edit_url }}" data-cc-tree-autocomplete="{{ category_tree_autocomplete }}" data-cc-tree-kind="{{ category_tree_kind }}" data-cc-tree-error="{{ tree_error }}" data-cc-tree-choose="{{ tree_choose }}" data-cc-tree-done="{{ tree_done }}"></div>
-<link rel="stylesheet" href="view/stylesheet/codecart-category-tree.css?v=3.0.6.1.8" />
-<script src="view/javascript/codecart/category-tree.js?v=3.0.6.1.11" defer></script>
+<link rel="stylesheet" href="view/stylesheet/codecart-category-tree.css?v=3.0.6.1.9" />
+<script src="view/javascript/codecart/category-tree.js?v=3.0.6.1.12" defer></script>
 <link rel="stylesheet" href="view/stylesheet/codecart-catalog-quality.css?v=3.0.6.1.7" />
 <script src="view/javascript/codecart/catalog-quality.js?v=3.0.6.1.6" defer></script>
   <div class="page-header">
@@ -70,7 +70,7 @@
                   <td class="left"><span class="cc-tree-handle" role="button" tabindex="0" title="{{ tree_drag_help }}" aria-label="{{ tree_drag_help }}"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i></span><span class="cc-tree-indent" style="--cc-tree-depth:{{ category.depth }}"></span>{% if category.has_children %}<button type="button" class="cc-tree-collapse" aria-expanded="false" title="{{ tree_expand }}" aria-label="{{ tree_expand }}"><i class="fa-solid fa-angle-right" aria-hidden="true"></i></button>{% else %}<span class="cc-tree-collapse is-placeholder"></span>{% endif %}{% if category.has_children %}<button type="button" class="cc-tree-name-toggle" title="{{ tree_expand }}">{{ category.name }}</button>{% else %}<a href="{{ category.edit }}">{{ category.name }}</a>{% endif %} <span class="cc-quality" data-quality-id="{{ category.blog_category_id }}"><a href="{{ category.articles_href }}" class="cc-quality-count cc-quality-count-link" title="{{ quality_count_label }}" hidden><span class="cc-quality-count-number"></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a><span class="cc-quality-score">···</span></span></td>
                   {% endif %}
                   <td class="text-right"><span class="cc-category-sort-wrap"><input type="text" inputmode="numeric" pattern="-?[0-9]*" class="cc-category-sort" data-cc-sort-id="{{ category.blog_category_id }}" data-cc-sort-expected="{{ category.sort_order }}" value="{{ category.sort_order }}" min="-999999" max="999999" step="1" aria-label="{{ tree_sort }} — {{ category.name|striptags }}" title="{{ tree_sort }}"  readonly="readonly" /><button type="button" class="cc-category-sort-pencil" aria-label="{{ tree_sort }}" title="{{ tree_sort }}"><i class="fa fa-pencil" aria-hidden="true"></i></button></span></td>
-				  <td class="text-right">{{ category.noindex }}</td>
+				  <td class="text-right"><label class="cc-category-index-switch" title="{{ column_noindex|e('html_attr') }}"><input type="checkbox" class="cc-category-index-toggle" data-cc-index-id="{{ category.blog_category_id }}" data-cc-index-expected="{{ category.noindex }}" aria-label="{{ column_noindex|e('html_attr') }}: {{ category.name|striptags|e('html_attr') }}" {% if category.noindex == 1 %}checked="checked"{% endif %}/><span class="cc-category-index-track" aria-hidden="true"></span></label></td>
                   <td class="text-right">
 					<a target="_blank" href="{{ category.href_shop }}" data-toggle="tooltip" title="{{ button_shop }}" class="btn btn-success"><i class="fa fa-eye"></i></a>
 					<a href="{{ category.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
