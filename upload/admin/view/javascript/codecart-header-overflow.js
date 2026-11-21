@@ -84,6 +84,17 @@
           label(item, true);
           nav.insertBefore(item, more);
         });
+        // Extensions often append their <li> after the built-in controls.
+        // Place their original DOM nodes before the OCMOD refresh button,
+        // without cloning them or disturbing attached event listeners.
+        var firstCore = nav.querySelector(':scope > .ccp-modification-refresh-menu');
+        if (firstCore) {
+          tracked.forEach(function (item) {
+            if (rank(item) === 0 && item.parentNode === nav) {
+              nav.insertBefore(item, firstCore);
+            }
+          });
+        }
         more.hidden = true;
         if (!window.matchMedia('(max-width: 767px)').matches) { return; }
         if (!overflows()) { return; }
