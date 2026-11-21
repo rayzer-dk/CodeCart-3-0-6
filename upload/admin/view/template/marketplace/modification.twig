@@ -16,6 +16,13 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
 .cc-modification-page .cc-mod-search-controls .form-control{flex:1 1 224px;min-width:0;width:auto;max-width:100%}
 
  .cc-modification-page .cc-modification-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px}.cc-modification-page .cc-modification-modal-head .modal-title{margin:0;flex:1 1 auto;min-width:0}.cc-modification-page .cc-modification-modal-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}.cc-modification-page .cc-modification-modal-actions .close{float:none;position:static;margin:0;padding:0;line-height:1;opacity:.6}.cc-modification-page .cc-modification-modal-actions .close:hover{opacity:1}
+
+/* OCMOD diagnostics must override generic fixed 35x35 table action styles.
+   Keep the warning label and its readable action separate and aligned. */
+#content.cc-modification-page .cc-mod-table>tbody>tr>td.cc-result-cell .cc-result-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}
+#content.cc-modification-page .cc-mod-table>tbody>tr>td.cc-result-cell .cc-result-status>.label{margin:0;flex:0 0 auto}
+#content.cc-modification-page .cc-mod-table>tbody>tr>td.cc-result-cell button.cc-problem-button.btn{box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:auto!important;min-width:max-content!important;max-width:none!important;height:27px!important;min-height:27px!important;max-height:none!important;padding:3px 8px!important;margin:0!important;font-size:11px!important;line-height:18px!important;white-space:nowrap!important;gap:4px}
+#content.cc-modification-page .cc-mod-table>tbody>tr>td.cc-result-cell button.cc-problem-button.btn>i{display:inline-block;flex:0 0 auto;margin:0;font-size:12px}
 </style>
 
   <div class="page-header">
@@ -137,7 +144,7 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
                       <td class="text-left">{{ modification.author }}</td>
                       <td class="text-left">{{ modification.version }}</td>
                       <td class="text-left">{{ modification.status }}</td>
-                      <td class="text-left cc-result-cell"><span class="label {{ modification.compatibility_class }}" data-toggle="tooltip" title="{{ modification.compatibility_title }}">{{ modification.compatibility_label }}</span>{% if modification.compatibility_state == 'warning' or modification.compatibility_state == 'error' %}<button type="button" class="btn btn-default btn-xs cc-problem-button" data-modification-id="{{ modification.modification_id }}" data-toggle="tooltip" title="{{ button_problems }}"><i class="fa fa-search"></i> {{ button_problems }}</button>{% endif %}{% if modification.compatibility_metrics %}<small>{{ modification.compatibility_metrics }}</small>{% endif %}</td>
+                      <td class="text-left cc-result-cell"><div class="cc-result-status"><span class="label {{ modification.compatibility_class }}" data-toggle="tooltip" title="{{ modification.compatibility_title }}">{{ modification.compatibility_label }}</span>{% if modification.compatibility_state == 'warning' or modification.compatibility_state == 'error' %}<button type="button" class="btn btn-default btn-xs cc-problem-button" data-modification-id="{{ modification.modification_id }}" data-toggle="tooltip" title="{{ button_problems }}"><i class="fa fa-search"></i> {{ button_problems }}</button>{% endif %}</div>{% if modification.compatibility_metrics %}<small>{{ modification.compatibility_metrics }}</small>{% endif %}</td>
                       <td class="text-left">{{ modification.date_added }}</td>
                       <td class="cc-actions-column">
                         <div class="cc-mod-actions">
