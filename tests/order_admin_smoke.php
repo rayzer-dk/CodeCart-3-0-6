@@ -42,6 +42,7 @@ checkOrder(strpos($ctrl, "getInstalled(\$type)") !== false, 'enabled installed e
 checkOrder(strpos($list, 'id="input-date-added"') === false && strpos($list, 'id="input-date-modified"') === false, 'obsolete date filters are removed');
 checkOrder(strpos($list, 'filter_date_start') !== false && strpos($list, 'filter_date_end') !== false, 'date range remains available for CSV export');
 checkOrder(strpos($list, 'ccp-order-preview-item') !== false && strpos($list, "var head = \$('<tr>');") === false, 'preview renders without a header row');
+checkOrder(strpos($list, 'ccp-order-telephone') !== false && strpos($list, 'column_telephone') !== false, 'Orders must display customer telephone');
 checkOrder(strpos($list, 'fa-solid fa-angle-down') !== false, 'order preview should show down arrow when collapsed');
 checkOrder(strpos($list, "removeClass('fa-angle-down').addClass('fa-angle-up')") !== false, 'order preview should show up arrow when expanded');
 checkOrder(strpos($list, "removeClass('fa-angle-up').addClass('fa-angle-down')") !== false, 'order preview should restore down arrow when closed');

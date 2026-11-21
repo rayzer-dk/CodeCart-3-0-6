@@ -448,6 +448,7 @@ class ControllerSaleOrder extends Controller {
 					$counts['positions']
 				),
 				'customer'      => $result['customer'],
+				'telephone'     => $result['telephone'],
 				'order_status'  => $result['order_status'] ? $result['order_status'] : $this->language->get('text_missing'),
 				'total'         => $this->currency->format($result['total'], $result['currency_code'], $result['currency_value']),
 				'date_added'    => date($this->language->get('date_format_short'), strtotime($result['date_added'])),
@@ -598,6 +599,12 @@ class ControllerSaleOrder extends Controller {
 		// An extension with no prior orders must still be selectable in the filter.
 		$data['shipping_methods'] = $this->getOrderMethodFilterChoices('shipping');
 		$data['payment_methods'] = $this->getOrderMethodFilterChoices('payment');
+		// Extension translations must not override the order page labels or title.
+		$this->load->language('sale/order');
+		$data['heading_title'] = $this->language->get('heading_title');
+		$data['entry_order_id'] = $this->language->get('entry_order_id');
+		$data['column_telephone'] = $this->language->get('column_telephone');
+		$this->document->setTitle($data['heading_title']);
 		$data['order_preview_url'] = html_entity_decode($this->url->link(
 			'sale/order/preview', 'user_token=' . $this->session->data['user_token'], true
 		), ENT_QUOTES, 'UTF-8');

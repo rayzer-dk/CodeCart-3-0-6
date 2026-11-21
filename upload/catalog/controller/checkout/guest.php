@@ -123,7 +123,7 @@ class ControllerCheckoutGuest extends Controller {
 		} elseif (isset($this->session->data['shipping_address']['zone_id'])) {
 			$data['zone_id'] = $this->session->data['shipping_address']['zone_id'];
 		} else {
-			$data['zone_id'] = (int)$this->config->get('config_zone_id');
+			$data['zone_id'] = codecart_checkout_field_visible($this->config, 'zone') ? 0 : (int)$this->config->get('config_zone_id');
 		}
 
 		$this->load->model('localisation/country');
@@ -205,7 +205,7 @@ class ControllerCheckoutGuest extends Controller {
 		if (!codecart_checkout_field_visible($this->config, 'country') || $this->request->post['country_id'] === '') {
 			$this->request->post['country_id'] = (int)$this->config->get('config_country_id');
 		}
-		if (!codecart_checkout_field_visible($this->config, 'zone') || $this->request->post['zone_id'] === '') {
+		if (!codecart_checkout_field_visible($this->config, 'zone')) {
 			$this->request->post['zone_id'] = (int)$this->config->get('config_zone_id');
 		}
 
@@ -290,8 +290,14 @@ class ControllerCheckoutGuest extends Controller {
 				$json['error']['country'] = $this->language->get('error_country');
 			}
 
-			if (!$compact_delivery_checkout && codecart_checkout_field_required($this->config, 'zone') && (!is_numeric($this->request->post['zone_id']) || (int)$this->request->post['zone_id'] <= 0)) {
-				$json['error']['zone'] = $this->language->get('error_zone');
+			if (codecart_checkout_field_visible($this->config, 'zone') && codecart_checkout_field_required($this->config, 'zone')) {
+				$postedZone = $this->request->post['zone_id'];
+				$zoneId = is_scalar($postedZone) && preg_match('/^[1-9][0-9]*$/D', (string)$postedZone) ? (int)$postedZone : 0;
+				$this->load->model('localisation/zone');
+				$zoneInfo = $zoneId > 0 ? $this->model_localisation_zone->getZone($zoneId) : false;
+				if (!$zoneInfo || (int)$zoneInfo['country_id'] !== (int)$this->request->post['country_id']) {
+					$json['error']['zone'] = $this->language->get('error_zone');
+				}
 			}
 
 			// Customer Group

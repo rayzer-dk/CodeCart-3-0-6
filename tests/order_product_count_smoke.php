@@ -35,7 +35,7 @@ $controller = file_get_contents($base . 'admin/controller/sale/order.php');
 $info = file_get_contents($base . 'admin/view/template/sale/order_info.twig');
 countCheck(strpos($list, 'ccp-order-unit-count') !== false && strpos($list, 'order.product_units') !== false, 'Order count badge missing');
 countCheck(strpos($list, 'order.product_thumb') === false && strpos($list, 'ccp-order-photo-cell') === false, 'Order list must not include thumbnail column');
-countCheck(strpos($list, 'colspan="8"') !== false && strpos($list, 'colspan="9"') === false, 'Order table and expanded preview column counts differ');
+countCheck(strpos($list, 'colspan="9"') !== false && strpos($list, 'colspan="8"') === false, 'Order table and expanded preview column counts differ');
 countCheck(strpos($list, 'ccp-order-preview-row') !== false && strpos($list, 'item.image') !== false, 'Expanded preview photo is missing');
 countCheck(strpos($info, 'product.image') !== false, 'Order details no longer render product images');
 countCheck(strpos($controller, 'getProductCountsForOrderIds') !== false && strpos($controller, 'product_count_tooltip') !== false, 'Order controller does not bind batch count');
