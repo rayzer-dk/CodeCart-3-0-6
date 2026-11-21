@@ -22,7 +22,7 @@ class SmokeDB {
     public function escape($value) { return addslashes((string)$value); }
     public function query($sql) {
         $this->queries[] = $sql;
-        if (strpos($sql, 'SELECT scheduler_id, code, route, args, interval_seconds, status, date_last') === 0) { return new SmokeResult(array_values($this->tasks)); }
+        if (strpos($sql, 'SELECT * FROM `oc_codecart_scheduler` ORDER BY code ASC') === 0 || strpos($sql, 'SELECT scheduler_id, code, route, args, interval_seconds, status, date_last') === 0) { return new SmokeResult(array_values($this->tasks)); }
         if (strpos($sql, 'GET_LOCK(') !== false) { return new SmokeResult(array(array('acquired' => 1))); }
         if (strpos($sql, 'RELEASE_LOCK(') !== false) { return new SmokeResult(array()); }
         if (preg_match('/^SELECT scheduler_id FROM .*codecart_scheduler.* WHERE (.+) LIMIT 1$/', $sql, $match)) {
