@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "9a88992c5369b493d5881649a452f57b062f7c05fece780b5b718e7d2dc15b6c",
         "admin/controller/tool/catalog_transfer.php": "f3e922bf639c2945b9084017495268512007ac4e5f16b8450e75d6fcb3f619f2",
         "admin/controller/tool/codecart_core.php": "919b41dcd91cc2af26808b617822dc1d3b342888445b0a6a02b63fb12a7a297f",
-        "admin/index.php": "61b07a8e3b568092bc824723d97567547cd411c12654b75570a7a8c3f8c95b4b",
+        "admin/index.php": "faabbe45ef06cdf7c1a143c8966001e01ab269f7b70e0348f7ff18b3746ca24d",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "050ac59b1c4f1d651983bcfce1f89397ca88afb91e52e63f45285dbe69a34ad5",
@@ -348,7 +348,7 @@
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
         "cli.php": "b34e137dde1af5cbed4b42b6c529c2f9b99f043d5a6f5ff64261fce56e2b2868",
         "cron.php": "7eb9a4e95eec8702fa5acd56e70bf01baf047c7f9e905f0e92454e8755ba726f",
-        "index.php": "fe839bbedb86b076cb5725b0a8d13de5817f19b85031ce462dcbb2168255a997",
+        "index.php": "bf193769837863e06b03c032098e3f6595e42b79799692d645cb19ca9ce9f3ff",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "5f57f91bdca4c203200743823e07c30277bdd07237d126feb8a856ba9049f576",
         "system/config/codecart_fontawesome_core_manifest.json": "9fb9656be93bd2ce459e0a01f809b6f923a694866dd5da2b041380841f17ded5",
@@ -490,7 +490,7 @@
         "system/library/url.php": "7ac07e1f50b49a4bb7745f8361eaaffe119a7e89ee9a50eeb01678f83191ba94",
         "admin/model/setting/extension.php": "e769e3e9372f2a30a3069e95e116062841998b8f33d555a72dbd5a905efc1bbd",
         "admin/view/template/marketplace/extension.twig": "7b5c101c8f634eda11df5333122cc304d1d1bf45b09f7b32594a117be77250d3",
-        "admin/view/javascript/codecart-extension-sort.js": "a39eb8a4b4af4715139672a1d60bb3bbb2a6656e5e0ce302b3b15259ec4e1dbc",
+        "admin/view/javascript/codecart-extension-sort.js": "9b84dfc2268bf75eb87fd14c560847fd4124636681734ec75df4b0e2dfe886ba",
         "admin/controller/extension/extension/dashboard.php": "cf9b942d65c68ac02c6aec199f7b5da0240e6edc70293afec45038b684812b1e",
         "admin/controller/extension/extension/module.php": "ab2635d1148d9bb888e0a3b1fcd84f1911e3022e021f9caed3e6f814aee2002d",
         "admin/controller/extension/extension/report.php": "b8df4fa1a1200f85a9243b25c566aa1b406701356a4e30133bcf6841f8f5f736",
@@ -508,7 +508,7 @@
         "admin/view/template/extension/extension/shipping.twig": "771474d6113b338d0d7a8cedb213897817b264ffa6c4bf5820ae4eebd4da9e26",
         "admin/view/template/extension/extension/menu.twig": "add6e72d10205af2a497f7b523318fd2758dfc3569a09fef884a00a31357129e",
         "admin/view/template/extension/extension/report.twig": "ae530e7d07e2e74cf8fd8efa2a9413340965833036eb227f08469911ac02505f",
-        "admin/view/template/extension/extension/module.twig": "35b4761f623ef25d376402e94b4f55257e0059dc6e3d376f4581860c0c8a2041",
+        "admin/view/template/extension/extension/module.twig": "ba38dcd592d6af1ecf9b47efdd98eadc15e600690b6340a8f745864cadc7064d",
         "admin/view/template/extension/extension/captcha.twig": "9d1f8a9b93c4621cea1f7a286151377a793f34afa1f980be293ecba2152b0e13",
         "admin/view/template/extension/extension/feed.twig": "b9aa7a2b98bf47e40ac9c8010e9df12cfc112237b00222845ff07f67d881a97c",
         "admin/view/template/extension/extension/fraud.twig": "b9aa7a2b98bf47e40ac9c8010e9df12cfc112237b00222845ff07f67d881a97c",
@@ -561,5 +561,5 @@
         "catalog/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.50"
+    "package_build": "2.3.51"
 }
