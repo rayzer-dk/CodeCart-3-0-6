@@ -153,7 +153,7 @@
         "admin/view/template/sale/order_info.twig": "92bc3da0347409c935119178598c8bdc7e2a163f17fe9501a60e9a87b125d0ec",
         "admin/view/template/setting/setting.twig": "0684d96dd00a60911db1de080403ec3456f8292c821b22cf6381e3523c6b9339",
         "admin/view/template/tool/backup.twig": "baf365a35a2c10cfb4c690c9703d813153d268f6095f839baefd1fba3560315f",
-        "admin/view/template/tool/codecart_core.twig": "e0a30a5746d6e66c6f6ab08eceaefd5ed218fc5830af246fa16294cdc56c0321",
+        "admin/view/template/tool/codecart_core.twig": "8f54328833616370f5c83a95cc7716079344e20aaa544f49b5976f8c819969c1",
         "catalog/controller/account/address.php": "8e63025d031af52f3f02a8882adafa079bd5d24c037cbc6aa2376ba9d44e5602",
         "catalog/controller/account/edit.php": "c71b0a03d0e6c54353b4d95c2bfd1f8502d2f9ade3cfc63db04ad7377f973334",
         "catalog/controller/account/register.php": "cb50cb8cb7149a4093688ea5328b18f388ea97d5919feb24214aa70bf0b7588c",
