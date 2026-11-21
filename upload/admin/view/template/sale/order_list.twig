@@ -162,6 +162,7 @@
 
           <div class="form-group text-right">
             <button type="button" id="button-filter" class="btn btn-default"><i class="fa fa-filter"></i> {{ button_filter }}</button>
+            <a href="index.php?route=sale/order&user_token={{ user_token|url_encode }}" id="button-reset-filter" class="btn btn-default" title="{{ button_reset|default('Скинути фільтр') }}"><i class="fa fa-rotate-left" aria-hidden="true"></i> {{ button_reset|default('Скинути фільтр') }}</a>
           </div>
         </div>
       </div>
