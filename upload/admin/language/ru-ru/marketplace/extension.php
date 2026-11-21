@@ -17,3 +17,6 @@ $_['text_sort_descending'] = 'Сортировать по убыванию';
 
 $_['column_upload_date'] = 'Дата загрузки';
 $_['text_upload_date_unknown'] = 'Дата загрузки неизвестна';
+
+$_['column_update_date'] = 'Дата обновления ZIP';
+$_['text_update_date_help'] = 'Дата последней загрузки ZIP-пакета с файлом модуля. Не подтверждает обновление модулей через FTP.';
