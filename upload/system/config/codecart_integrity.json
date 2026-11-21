@@ -340,7 +340,7 @@
         "catalog/view/theme/default/template/extension/module/slideshow.twig": "3df4244c6bf52536eeb9ac22755cea35c62c91013c2ddaa89703a1d8594595e6",
         "catalog/view/theme/default/template/extension/module/special.twig": "5b24779ef8f94ef0a65a80d0a3b9fe87eb62b34bdd4d3c000d99131f8f96cdff",
         "catalog/view/theme/default/template/extension/module/subcategories.twig": "dc75df834ce8c083d10257bcc93b19dc79dc29d1cb94619e95c358297fcfd338",
-        "catalog/view/theme/default/template/mail/order_add.twig": "d238f7dc8193feca4c92b6e3bfb1027ebf480d86ef8e66a34f9488ccc7fbe4d2",
+        "catalog/view/theme/default/template/mail/order_add.twig": "9728a5bc4c582eca7e0dfb87d550198d5f14e241e35f1a42dc08fe0e66ba21e2",
         "catalog/view/theme/default/template/product/category.twig": "393460e90507b1ea67846972cda80ae78093b970a0c65e99ef452b4475a8c620",
         "catalog/view/theme/default/template/product/manufacturer_info.twig": "b2328f290f62958970c8178b13f6f5e620a45db0d1ce92da07e43b83e790db3c",
         "catalog/view/theme/default/template/product/product.twig": "925d3b4c588810be159396a30609eb46a78b30967ba424a3d4c43ebbcc05006a",
