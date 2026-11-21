@@ -67,3 +67,5 @@ $_['text_runtime_db_charset'] = 'Кодировка БД';
 $_['text_runtime_db_collation'] = 'Сравнение БД';
 $_['text_runtime_web_server'] = 'Веб-сервер';
 $_['text_runtime_db_unknown'] = 'Недоступно';
+
+$_['text_reset_filter'] = 'Сбросить фильтр';
