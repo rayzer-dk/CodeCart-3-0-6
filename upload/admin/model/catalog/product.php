@@ -1244,14 +1244,22 @@ class ModelCatalogProduct extends Model {
 			return $cached;
 		}
 
+		// Older stores may not have run the optional photo-audit schema migration.
+		// Keep the sidebar usable without querying missing audit tables.
+		$photo_tables_ready = true;
+		foreach (array('codecart_product_photo_scan', 'codecart_product_photo_match') as $table) {
+			$exists = $this->db->query("SHOW TABLES LIKE '" . $this->db->escape(DB_PREFIX . $table) . "'");
+			if (!$exists->num_rows) { $photo_tables_ready = false; break; }
+		}
 		$counts = array('COUNT(*) AS total');
 		foreach (array('enabled', 'out_of_stock', 'disabled', 'no_image', 'no_category', 'no_price', 'zero_quantity', 'small_image') as $key) {
-			$counts[] = "COUNT(CASE WHEN " . $this->productStatsCondition($key) . " THEN 1 END) AS " . $key;
+			$condition = ($key === 'small_image' && !$photo_tables_ready) ? '0=1' : $this->productStatsCondition($key);
+			$counts[] = "COUNT(CASE WHEN " . $condition . " THEN 1 END) AS " . $key;
 		}
 		$query = $this->db->query("SELECT " . implode(', ', $counts) . " FROM " . DB_PREFIX . "product p
 			INNER JOIN " . DB_PREFIX . "product_description pd ON (pd.product_id = p.product_id AND pd.language_id = " . $language_id . ")");
 		$stats = array_map('intval', $query->row);
-		$scan = $this->db->query("SELECT result_generation FROM " . DB_PREFIX . "codecart_product_photo_scan WHERE scan_id = 1")->row;
+		$scan = $photo_tables_ready ? $this->db->query("SELECT result_generation FROM " . DB_PREFIX . "codecart_product_photo_scan WHERE scan_id = 1")->row : array();
 		$stats['photo_scan_ready'] = !empty($scan['result_generation']);
 		$stats['language_id'] = $language_id;
 		$stats['expires'] = time() + 60;
