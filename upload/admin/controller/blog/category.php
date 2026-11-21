@@ -681,7 +681,7 @@ class ControllerBlogCategory extends Controller {
 		$raw = $this->request->post;
 		$action = isset($raw['action']) && is_string($raw['action']) ? $raw['action'] : '';
 		$idRaw = isset($raw['id']) && is_string($raw['id']) ? $raw['id'] : '';
-		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST' || !in_array($action, array('sort','move','reorder'), true) || !preg_match('/^[1-9][0-9]{0,9}$/D', $idRaw)) {
+		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST' || !in_array($action, array('sort','move','reorder','index'), true) || !preg_match('/^[1-9][0-9]{0,9}$/D', $idRaw)) {
 			$this->response->setStatusCode(400);
 			$out['error'] = $this->language->get('tree_error');
 		} elseif ($token === '' || $expected === '' || !hash_equals($expected, $token) || !$this->user->hasPermission('access', 'blog/category') || !$this->user->hasPermission('modify', 'blog/category')) {
@@ -694,7 +694,15 @@ class ControllerBlogCategory extends Controller {
 			try {
 				require_once(DIR_SYSTEM . 'library/codecart/src/AdminCategoryTreeEditor.php');
 				$id = (int)$idRaw;
-				if ($action === 'sort') {
+				if ($action === 'index') {
+                    $valueRaw = $raw['value'] ?? null;
+                    $expectedRaw = $raw['expected'] ?? null;
+                    if (!is_string($valueRaw) || !in_array($valueRaw, array('0', '1'), true) ||
+                        !is_string($expectedRaw) || !in_array($expectedRaw, array('0', '1'), true)) {
+                        throw new \InvalidArgumentException('Invalid indexing value.');
+                    }
+                    $out['value'] = \CodeCart\Core\AdminCategoryTreeEditor::quickIndex($this->registry, 'blog', $id, (int)$valueRaw, (int)$expectedRaw);
+                } elseif ($action === 'sort') {
 					$sort = $number($raw['value'] ?? null);
 					$old = $number($raw['expected'] ?? null);
 					if ($sort === null || $old === null) { throw new \InvalidArgumentException('Invalid sort value.'); }
