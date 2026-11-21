@@ -298,3 +298,6 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 }
 .form-group > .ccp-admin-help-icon:hover,.form-group > .ccp-admin-help-icon:focus-visible {color:#096bd3}
 .form-group > .ccp-admin-help-icon i {font-size:14px}
+
+/* Keep the navigation glyph visible with the 64px collapsed sidebar. */
+@media(min-width:768px){#column-left.codecart-compact #navigation .fa-regular,#column-left.codecart-compact #navigation .fa-solid{display:inline-block!important;font-size:17px!important;line-height:20px!important;margin:0!important;vertical-align:middle}}
