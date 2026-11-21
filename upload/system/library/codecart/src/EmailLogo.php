@@ -107,10 +107,11 @@ final class EmailLogo {
         if (!$dimensions || !$dimensions[0] || !$dimensions[1]) {
             return self::fallback($filename, $base_url);
         }
+        // Fit the actual logo artwork into the existing 300x80 email slot.
+        // Large images shrink; smaller source artwork is displayed at slot scale.
         $display_scale = min(
             self::DISPLAY_MAX_WIDTH / (int)$dimensions[0],
-            self::DISPLAY_MAX_HEIGHT / (int)$dimensions[1],
-            1
+            self::DISPLAY_MAX_HEIGHT / (int)$dimensions[1]
         );
         return array(
             'url' => rtrim((string)$base_url, '/') . '/image/' . str_replace(' ', '%20', $relative),
