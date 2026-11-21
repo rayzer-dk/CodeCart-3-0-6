@@ -38,7 +38,7 @@ class ControllerMailRegister extends Controller {
 			: array('url' => rtrim($data['store_url'], '/') . '/image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80);
 		$data['logo'] = $email_logo_asset['url'];
 		$data['logo_width'] = (int)$email_logo_asset['width'];
-		$data['logo_height'] = (int)$email_logo_asset['height'];
+		$data['logo_height'] = (int)$email_logo_asset['height']; $data['logo_dark'] = !empty($email_logo_asset['dark_url']) ? $email_logo_asset['dark_url'] : $data['logo'];
 
 		$subject = sprintf($this->language->get('text_subject'), html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8'));
 		$data['title'] = html_entity_decode($subject, ENT_QUOTES, 'UTF-8');
@@ -98,7 +98,7 @@ class ControllerMailRegister extends Controller {
 			$email_logo = trim((string)$this->config->get('config_email_logo'));
 			if ($email_logo === '' || !is_file(DIR_IMAGE . $email_logo)) { $email_logo = trim((string)$this->config->get('config_logo')); }
 			$email_logo_asset = class_exists('CodeCart\Core\EmailLogo') ? \CodeCart\Core\EmailLogo::prepare($email_logo, $data['store_url']) : array('url' => rtrim($data['store_url'], '/') . '/image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80);
-			$data['logo'] = $email_logo_asset['url']; $data['logo_width'] = (int)$email_logo_asset['width']; $data['logo_height'] = (int)$email_logo_asset['height'];
+			$data['logo'] = $email_logo_asset['url']; $data['logo_width'] = (int)$email_logo_asset['width']; $data['logo_height'] = (int)$email_logo_asset['height']; $data['logo_dark'] = !empty($email_logo_asset['dark_url']) ? $email_logo_asset['dark_url'] : $data['logo'];
 
 			$mail = new Mail($this->config->get('config_mail_engine'));
 			$mail->parameter = $this->config->get('config_mail_parameter');
