@@ -154,7 +154,7 @@ class ControllerCommonHeader extends Controller {
 			$fontAwesome = new \CodeCart\Core\FontAwesomeManager($theme_directory, explode(',', (string)$this->config->get('codecart_fontawesome_extra_icons')));
 			$effective_icon_mode = $fontAwesome->resolveCatalogMode($is_default_theme ? 'full' : $icon_mode);
 			if ($is_default_theme) {
-				$data['font_awesome_unresolved_css'] = $fontAwesome->unresolvedPlaceholderCss() . ($effective_icon_mode === 'core' ? $fontAwesome->extraCss() : '');
+				$data['font_awesome_unresolved_css'] = $fontAwesome->unresolvedPlaceholderCss();
 			}
 		} catch (\Throwable $e) {
 			// Compatibility-first fallback: a scanner failure must never hide extension icons.
