@@ -148,8 +148,12 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProducts($data = array()) {
-		// UniShop2 sorting OCMOD may use this value even when its optional initializer did not match.
-		$sort_qty = '';
+		// Honor UniShop2's opt-in stock-first sorting even if its legacy OCMOD
+		// initializer no longer matches the modern product query.
+		$uni_settings = (array)$this->config->get('config_unishop2');
+		$uni_sort_mode = (int)($uni_settings['sort_qty'] ?? 0);
+		$sort_qty = ($uni_sort_mode === 2 || ($uni_sort_mode === 1 && ($data['sort'] ?? '') === 'p.sort_order'))
+			? '(p.quantity > 0) DESC,' : '';
 		$search = $this->buildSearchSource($data);
 		$sql = "SELECT p.product_id, (SELECT AVG(rating) AS total FROM " . DB_PREFIX . "review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.product_id) AS rating, (SELECT price FROM " . DB_PREFIX . "product_discount pd2 WHERE pd2.product_id = p.product_id AND pd2.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' AND pd2.quantity = '1' AND ((pd2.date_start < NOW()) AND (pd2.date_end < '1000-01-01' OR pd2.date_end > NOW())) ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS discount, (SELECT price FROM " . DB_PREFIX . "product_special ps WHERE ps.product_id = p.product_id AND ps.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' AND ((ps.date_start < NOW()) AND (ps.date_end < '1000-01-01' OR ps.date_end > NOW())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS special";
 
