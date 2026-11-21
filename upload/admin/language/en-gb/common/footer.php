@@ -68,3 +68,5 @@ $_['text_runtime_db_charset'] = 'Encoding';
 $_['text_runtime_db_collation'] = 'DB collation';
 $_['text_runtime_web_server'] = 'Web server';
 $_['text_runtime_db_unknown'] = 'Unavailable';
+
+$_['text_reset_filter'] = 'Reset filters';
