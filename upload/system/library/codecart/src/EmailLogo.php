@@ -154,7 +154,7 @@ final class EmailLogo {
     private static function savePng($image, $target) {
         try {
             $tmp = $target . '.' . bin2hex(random_bytes(5)) . '.tmp';
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             return false;
         }
         if (!@imagepng($image, $tmp, 6)) {
