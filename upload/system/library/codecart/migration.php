@@ -3,7 +3,7 @@ namespace CodeCart;
 
 class Migration {
     const VERSION = '3.0.6.0';
-    const PRESENTATION_SCHEMA_VERSION = '46';
+    const PRESENTATION_SCHEMA_VERSION = '47';
 
     private $db;
     private $config;
@@ -142,6 +142,9 @@ class Migration {
             // Upload tokens are resolved by code throughout cart/order/account/admin flows.
             // Index the lookup key so performance does not degrade with accumulated upload history.
             $this->ensureIndex('upload', 'code', array('code'), array('code' => 191));
+            // Restore the category identity key on legacy ocStore databases where it was lost.
+            // Never force an index when duplicate category IDs exist.
+            $this->ensureUniqueIndexIfNoDuplicates('category', 'category_id', array('category_id'));
             $this->ensureUniqueIndexIfNoDuplicates('voucher', 'code', array('code'));
             $this->ensureIndex('product_option', 'product_id', array('product_id'));
             $this->ensureIndex('product_option_value', 'product_id', array('product_id'));
