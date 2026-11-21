@@ -146,3 +146,8 @@
   background:#f7fafc;color:#50647c;font-size:12px;
 }
 .cc-tree-root-inline.is-over {border-color:#0b6fd3;outline:2px solid #0b6fd3;background:#e5f2ff}
+
+/* Category titles are full-size, keyboard-accessible expand controls. */
+.cc-category-list-drag .cc-tree-name-toggle{display:inline;max-width:calc(100% - 110px);padding:3px 5px;border:0;border-radius:4px;background:transparent;color:inherit;font:inherit;font-weight:600;text-align:left;vertical-align:middle;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-category-list-drag .cc-tree-name-toggle:hover{color:#086bd3;background:rgba(8,107,211,.08)}
+.cc-category-list-drag .cc-tree-name-toggle:focus-visible{outline:2px solid #086bd3;outline-offset:2px}
