@@ -398,6 +398,20 @@ class ControllerMailOrder extends Controller {
 			$data['products'] = array();
 
 			$order_products = $this->model_checkout_order->getOrderProducts($order_id);
+            // One image lookup for all ordered items, never N database queries.
+            $alert_product_ids = array();
+            foreach ($order_products as $ordered_item) {
+                $product_id = (int)($ordered_item['product_id'] ?? 0);
+                if ($product_id > 0) { $alert_product_ids[$product_id] = $product_id; }
+            }
+            $alert_images = array();
+            if ($alert_product_ids) {
+                $image_rows = $this->db->query("SELECT product_id, image FROM `" . DB_PREFIX . "product` WHERE product_id IN (" . implode(',', $alert_product_ids) . ")");
+                foreach ($image_rows->rows as $image_row) {
+                    $alert_images[(int)$image_row['product_id']] = (string)$image_row['image'];
+                }
+                $this->load->model('tool/image');
+            }
 			$options_by_product = $this->model_checkout_order->getOrderOptionsByOrderId($order_info['order_id']);
 
 			foreach ($order_products as $order_product) {
@@ -424,7 +438,18 @@ class ControllerMailOrder extends Controller {
 					);					
 				}
 					
+                $alert_product_id = (int)($order_product['product_id'] ?? 0);
+                $alert_thumb = '';
+                if ($alert_product_id > 0 && !empty($alert_images[$alert_product_id])) {
+                    $alert_thumb = (string)$this->model_tool_image->display($alert_images[$alert_product_id], 80, 80);
+                }
+                $alert_href = $alert_product_id > 0
+                    ? rtrim((string)$order_info['store_url'], '/') . '/index.php?route=product/product&product_id=' . $alert_product_id
+                    : '';
+
 				$data['products'][] = array(
+                    'image'    => $alert_thumb,
+                    'href'     => $alert_href,
 					'name'     => $order_product['name'],
 					'model'    => $order_product['model'],
 					'quantity' => $order_product['quantity'],
