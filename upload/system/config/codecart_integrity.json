@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "9a88992c5369b493d5881649a452f57b062f7c05fece780b5b718e7d2dc15b6c",
         "admin/controller/tool/catalog_transfer.php": "f3e922bf639c2945b9084017495268512007ac4e5f16b8450e75d6fcb3f619f2",
         "admin/controller/tool/codecart_core.php": "919b41dcd91cc2af26808b617822dc1d3b342888445b0a6a02b63fb12a7a297f",
-        "admin/index.php": "35d3e29c517de2b693a49f125be37bdc8f6d42238275802712d8a3786ea003f2",
+        "admin/index.php": "071966933ab8425b658af919bf798b6da0cc5bfa694403ad5a58d3149998ca0b",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "050ac59b1c4f1d651983bcfce1f89397ca88afb91e52e63f45285dbe69a34ad5",
@@ -102,7 +102,7 @@
         "admin/model/sale/abandoned_cart.php": "ab3d8ac9a1dfa334e3a03c0543f6f752c00ce4edef66ca4c91c59814e8a26643",
         "admin/model/setting/setting.php": "79552c0d9b9d78582e17a4671cc68845050949af5c0dbe9b8dc47976ae559972",
         "admin/view/documentation/CodeCart_PRO_Documentation.zip": "fc344f856ebd53bdcc862fff6d03a27c24e383ddc8adca2a8faf74ec301c7632",
-        "admin/view/image/logo.webp": "1ac6bbe56d782772ca68f5b403335c1394a37a06fd75388727d7d1987592162b",
+        "admin/view/image/logo.webp": "1cfeac430c8ed4dfdfe8748d8bf2f0d9dfb324c0d6b447d0bcfc11e116f79b97",
         "admin/view/image/support/bitcoin.png": "c0a3254ce414038fdbcc57e3f14f3f62b70f5262e03dc8e287a913a57ba4438f",
         "admin/view/image/support/card.png": "5458b94bbae63af6f8d746303faadfb4ca6da58f9f14848df73133e210606535",
         "admin/view/image/support/ethereum.png": "8f8b2ae94f1f9738a1486538045617a5f75d55409143be8a4939f2e1383faf38",
@@ -348,7 +348,7 @@
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
         "cli.php": "b34e137dde1af5cbed4b42b6c529c2f9b99f043d5a6f5ff64261fce56e2b2868",
         "cron.php": "7eb9a4e95eec8702fa5acd56e70bf01baf047c7f9e905f0e92454e8755ba726f",
-        "index.php": "f75c6f6b0a6e508031b516bf144a19f437687ba86742ca8caf84a0ca60686e85",
+        "index.php": "e8d122edee49a7e3ea16a45c9d2243d122650d4cb9e20a88eafe9878dd90c59f",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "5f57f91bdca4c203200743823e07c30277bdd07237d126feb8a856ba9049f576",
         "system/config/codecart_fontawesome_core_manifest.json": "9fb9656be93bd2ce459e0a01f809b6f923a694866dd5da2b041380841f17ded5",
@@ -372,7 +372,7 @@
         "system/library/cart/cart.php": "890460dc9c6deb5d22cc493b71d698f03956839f3bc99efaf0f2d56e5cbf2176",
         "system/library/cart/currency.php": "c7e4776619dd1098c1ffd4551cca8b217e41fcb6eaecc99080352ee0a3433df7",
         "system/library/cart/tax.php": "64bf2bf6ce7387480583fc8df3554bee1d5c84fc7a7ae39cb6481652af61eb9b",
-        "system/library/codecart/assets/default-logo.webp": "1ac6bbe56d782772ca68f5b403335c1394a37a06fd75388727d7d1987592162b",
+        "system/library/codecart/assets/default-logo.webp": "1cfeac430c8ed4dfdfe8748d8bf2f0d9dfb324c0d6b447d0bcfc11e116f79b97",
         "system/library/codecart/migration.php": "401da381d3452ced2e8fff142281fab350720d499172fe92f1de64ed18f67f14",
         "system/library/codecart/psr4.php": "076111a8df68d9dfae36ff57d50fa711c3b761d4d8b71d7eb3f2a91317a12bb7",
         "system/library/codecart/src/ApiV1.php": "5f02da531653e07833da723d7c5f75d7723d77ae168eb295381d80030832560f",
@@ -561,5 +561,5 @@
         "catalog/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.38"
+    "package_build": "2.3.39"
 }

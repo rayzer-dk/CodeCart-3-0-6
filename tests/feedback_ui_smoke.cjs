@@ -30,10 +30,12 @@ const brandFiles = [
     'upload/install/view/image/logo.webp',
     'upload/admin/view/image/logo.webp',
     'upload/catalog/view/theme/codecart/image/codecart-logo.webp',
-    'upload/system/library/codecart/assets/default-logo.webp'
+    'upload/system/library/codecart/assets/default-logo.webp',
+    'upload/image/catalog/logo.webp'
 ];
 const brandHashes = brandFiles.map(p => crypto.createHash('sha256').update(fs.readFileSync(path.join(root, p))).digest('hex'));
 assert.equal(new Set(brandHashes).size, 1, 'All CodeCart default branding must use identical artwork');
+assert.equal(brandHashes[0], '1cfeac430c8ed4dfdfe8748d8bf2f0d9dfb324c0d6b447d0bcfc11e116f79b97', 'All bundled CodeCart logos must match the approved user-supplied WebP');
 const installCss = file('upload/install/view/stylesheet/stylesheet.css');
 const mainCss = file('upload/admin/view/stylesheet/codecart-main-ui.css');
 assert.match(installCss, /\.cc-brand img\s*\{[^}]*object-fit:contain/i, 'Installer must show the entire logo');
