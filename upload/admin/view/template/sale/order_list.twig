@@ -17,6 +17,8 @@
 @media (max-width: 767px) { #ccp-order-list .ccp-order-unit-count { margin-left: 4px; padding: 2px 5px; } }
 /* Compact, responsive order filters. All explanations live in standard help tooltips. */
 #filter-order .panel-body{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 14px;padding:14px 16px;align-items:end}
+/* Bootstrap .panel-body clearfix pseudo-elements otherwise take up grid cells. */
+#filter-order .panel-body::before,#filter-order .panel-body::after{content:none!important;display:none!important}
 #filter-order .panel-body>.form-group{min-width:0!important;max-width:none!important;margin:0!important;padding:0!important}
 #filter-order .panel-body>.form-group.text-right{grid-column:1/-1;justify-self:end}
 #filter-order .control-label{display:flex!important;align-items:center;gap:5px;margin:0 0 5px!important;min-height:18px;font-size:12px;font-weight:600;white-space:nowrap}
