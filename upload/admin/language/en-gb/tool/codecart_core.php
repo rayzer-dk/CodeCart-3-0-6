@@ -530,3 +530,6 @@ $_['entry_webmcp_origin_trial'] = 'Chrome Origin Trial token';
 $_['help_webmcp_origin_trial'] = 'Optional for local testing. On HTTPS, paste the token issued by Chrome for this storefront domain.';
 $_['text_webmcp_docs'] = 'Chrome setup instructions';
 $_['error_webmcp_origin_trial'] = 'Enter a valid Chrome Origin Trial token format.';
+
+$_['text_db_include_external'] = 'Check and repair third-party module tables';
+$_['text_db_include_external_help'] = 'Also processes extension tables with the store prefix. Text columns using another charset are converted to utf8mb4. A complete backup is required; risky tables are skipped.';
