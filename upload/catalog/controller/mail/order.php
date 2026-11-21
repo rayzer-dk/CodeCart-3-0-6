@@ -173,6 +173,22 @@ class ControllerMailOrder extends Controller {
 
 		$data['shipping_address'] = str_replace(array("\r\n", "\r", "\n"), '<br />', preg_replace(array("/\s\s+/", "/\r\r+/", "/\n\n+/"), '<br />', trim(str_replace($find, $replace, $format))));
 
+        // Billing and shipping remain separate in storage for OpenCart compatibility.
+        // Suppress the duplicate in customer emails only when all address fields match.
+        $address_fields = array('firstname', 'lastname', 'company', 'address_1', 'address_2', 'city', 'postcode', 'country', 'zone');
+        $same_address = true;
+        foreach ($address_fields as $field) {
+            $billing = preg_replace('/\\s+/u', ' ', trim((string)($order_info['payment_' . $field] ?? '')));
+            $shipping = preg_replace('/\\s+/u', ' ', trim((string)($order_info['shipping_' . $field] ?? '')));
+            if ($billing !== $shipping) { $same_address = false; break; }
+        }
+        if ((int)($order_info['payment_country_id'] ?? 0) !== (int)($order_info['shipping_country_id'] ?? 0)
+            || (int)($order_info['payment_zone_id'] ?? 0) !== (int)($order_info['shipping_zone_id'] ?? 0)) {
+            $same_address = false;
+        }
+        $data['same_address'] = $same_address;
+
+
 		$this->load->model('tool/upload');
 
 		// Products. Resolve product images in one query so the email remains fast for large orders.
