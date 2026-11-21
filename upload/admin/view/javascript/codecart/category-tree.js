@@ -114,7 +114,7 @@
     });
     // Reopen the destination branch after a successful server-side move.
     // Otherwise the item is saved but hidden inside the default-collapsed tree.
-    var restoreKey = 'ccp-tree-reveal-' + window.location.pathname + '-' + (config.dataset.ccTreeUrl || '').split('route=')[1].split('&')[0];
+    var restoreKey = 'ccp-tree-reveal-' + window.location.pathname + '-' + (config.dataset.ccTreeKind || 'catalog');
     var revealId = '';
     try {
       revealId = window.sessionStorage.getItem(restoreKey) || '';
@@ -144,7 +144,7 @@
           var icon = button.querySelector('i');
           if (icon) {
             icon.classList.remove('fa-angle-up', 'fa-angle-down', 'fa-angle-right');
-            icon.classList.add(isCollapsed ? 'fa-angle-up' : 'fa-angle-down');
+            icon.classList.add(isCollapsed ? 'fa-angle-right' : 'fa-angle-down');
           }
         }
       });
@@ -232,7 +232,7 @@
       // Drag events are dispatched at the draggable row, not necessarily at
       // the nested grab handle. Only start when pointerdown hit that handle.
       row.addEventListener('pointerdown', function (event) {
-        row.dataset.ccDragAllowed = event.target.closest('.cc-tree-handle') ? '1' : '0';
+        row.dataset.ccDragAllowed = event.target && event.target.closest('.cc-tree-handle') ? '1' : '0';
       });
       row.addEventListener('dragstart', function (event) {
         if (row.dataset.ccDragAllowed !== '1') {
@@ -283,35 +283,43 @@
       });
     }
 
-    // Touch devices cannot use native HTML5 drag-and-drop reliably.
-    // A deliberate handle gesture (12px threshold) moves to a highlighted row.
-    var touchStart = null;
+    // Pointer capture avoids native HTML5 table-row dragging inconsistencies.
+    if (window.PointerEvent) {
+      rows.forEach(function (row) { row.draggable = false; });
+    }
+    var pointerDrag = null;
     rows.forEach(function (row) {
       var handle = row.querySelector('.cc-tree-handle');
-      if (!handle) { return; }
+      if (!handle || !window.PointerEvent) { return; }
       handle.addEventListener('pointerdown', function (event) {
-        if (event.pointerType === 'mouse' || busy) { return; }
-        touchStart = {id: row.dataset.ccTreeId, x: event.clientX, y: event.clientY, active: false};
-        handle.setPointerCapture(event.pointerId);
+        if (busy || (event.pointerType === 'mouse' && event.button !== 0)) { return; }
+        pointerDrag = {id: row.dataset.ccTreeId, pointerId: event.pointerId,
+          x: event.clientX, y: event.clientY, active: false};
+        if (handle.setPointerCapture) { handle.setPointerCapture(event.pointerId); }
       });
       handle.addEventListener('pointermove', function (event) {
-        if (!touchStart || touchStart.id !== row.dataset.ccTreeId) { return; }
-        if (!touchStart.active && Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y) < 12) { return; }
-        touchStart.active = true;
-        dragging = touchStart.id;
+        if (!pointerDrag || pointerDrag.id !== row.dataset.ccTreeId ||
+            pointerDrag.pointerId !== event.pointerId) { return; }
+        if (!pointerDrag.active &&
+            Math.hypot(event.clientX - pointerDrag.x, event.clientY - pointerDrag.y) < 9) { return; }
+        pointerDrag.active = true;
+        dragging = pointerDrag.id;
+        row.classList.add('is-dragging');
+        event.preventDefault();
         rows.forEach(function (item) { item.classList.remove('is-over'); });
         if (root) { root.classList.remove('is-over'); }
         var hovered = document.elementFromPoint(event.clientX, event.clientY);
         var target = hovered && hovered.closest('.cc-tree-row[data-cc-tree-id], .cc-tree-root[data-cc-tree-target]');
-        if (target) {
+        if (target && !target.hidden) {
           var targetId = target.dataset.ccTreeId || target.dataset.ccTreeTarget;
           if (validTarget(targetId)) { target.classList.add('is-over'); }
         }
       });
-      function finishTouch(event, cancelled) {
-        if (!touchStart || touchStart.id !== row.dataset.ccTreeId) { return; }
-        var start = touchStart;
-        touchStart = null;
+      function finishPointer(event, cancelled) {
+        if (!pointerDrag || pointerDrag.id !== row.dataset.ccTreeId ||
+            pointerDrag.pointerId !== event.pointerId) { return; }
+        var start = pointerDrag;
+        pointerDrag = null;
         if (!cancelled && start.active) {
           var hovered = document.elementFromPoint(event.clientX, event.clientY);
           var target = hovered && hovered.closest('.cc-tree-row[data-cc-tree-id], .cc-tree-root[data-cc-tree-target]');
@@ -322,11 +330,14 @@
           }
         }
         dragging = null;
-        rows.forEach(function (item) { item.classList.remove('is-over'); });
+        rows.forEach(function (item) { item.classList.remove('is-over', 'is-dragging'); });
         if (root) { root.classList.remove('is-over'); }
+        if (handle.hasPointerCapture && handle.hasPointerCapture(event.pointerId)) {
+          handle.releasePointerCapture(event.pointerId);
+        }
       }
-      handle.addEventListener('pointerup', function (event) { finishTouch(event, false); });
-      handle.addEventListener('pointercancel', function (event) { finishTouch(event, true); });
+      handle.addEventListener('pointerup', function (event) { finishPointer(event, false); });
+      handle.addEventListener('pointercancel', function (event) { finishPointer(event, true); });
     });
 
     // Accessible keyboard/touch fallback: search for the target category using

@@ -58,6 +58,10 @@ $script = file_get_contents($root . 'admin/view/javascript/codecart/category-tre
 treeCheck(strpos($service, 'Transaction::run') !== false, 'Moving branches is not atomic');
 treeCheck(strpos($service, 'GET_LOCK') !== false && strpos($service, 'RELEASE_LOCK') !== false, 'Concurrent moves are not serialized');
 treeCheck(strpos($service, 'array_search($id, $old, true)') !== false, 'Subtree descendant paths were not preserved');
+treeCheck(strpos($script, "row.draggable = false") !== false && strpos($script, "handle.setPointerCapture") !== false,
+    'Pointer drag must work for mouse, pen and touch');
+treeCheck(strpos($script, "config.dataset.ccTreeKind || 'catalog'") !== false,
+    'Tree setup must not depend on an exact route query string');
 treeCheck(strpos($script, 'data-cc-tree-target') !== false, 'Drop-to-root zone missing');
 treeCheck(strpos($script, 'cc-tree-move') !== false, 'Touch fallback is missing');
 foreach (array('catalog','blog') as $type) {
@@ -72,7 +76,7 @@ foreach (array('catalog','blog') as $type) {
     treeCheck(strpos($template, 'cc-category-sort') !== false, $type . ' lacks inline sorting');
 }
 
-treeCheck(strpos($script, "icon.classList.add(isCollapsed ? 'fa-angle-up' : 'fa-angle-down')") !== false, 'Category disclosure arrow does not follow collapse state');
+treeCheck(strpos($script, "icon.classList.add(isCollapsed ? 'fa-angle-right' : 'fa-angle-down')") !== false, 'Category disclosure arrow does not follow collapse state');
 treeCheck(strpos($script, "icon.classList.add(anyCollapsed ? 'fa-angles-down' : 'fa-angles-up')") !== false, 'Expand-all arrow does not change with tree state');
 treeCheck(strpos($script, "data-collapse-label") !== false && strpos($script, ".cc-tree-expand-label") !== false, 'Expand-all caption does not follow tree state');
 
@@ -81,13 +85,13 @@ foreach (array('catalog', 'blog') as $type) {
     treeCheck(strpos($template, 'fa-solid fa-angles-down') !== false, $type . ' expand-all button missing arrows');
     treeCheck(strpos($template, 'btn btn-primary pull-right cc-tree-expand-all') !== false, $type . ' expand-all button must be prominent');
     treeCheck(strpos($template, 'tree_collapse_all') !== false, $type . ' collapse button label must be translated');
-    treeCheck(strpos($template, 'fa-solid fa-angle-up') !== false, $type . ' category disclosure missing up arrow');
+    treeCheck(strpos($template, 'fa-solid fa-angle-right') !== false, $type . ' category disclosure missing up arrow');
 }
 $orderList = file_get_contents($root . 'admin/view/template/sale/order_list.twig');
 $orderModel = file_get_contents($root . 'admin/model/sale/order.php');
 treeCheck(strpos($orderList, 'order.product_units') !== false && strpos($orderList, 'ccp-order-unit-count') !== false, 'Order list lacks the item-count indicator');
 treeCheck(strpos($orderList, 'order.product_thumb') === false && strpos($orderList, 'ccp-order-photo-cell') === false, 'Photos must not be in the compact order list');
-treeCheck(strpos($orderList, 'colspan="8"') !== false, 'Expanded row must match the eight list columns');
+treeCheck(strpos($orderList, 'colspan="9"') !== false, 'Expanded row must match the nine list columns');
 treeCheck(strpos($orderModel, 'getProductCountsForOrderIds') !== false, 'Order counts are not loaded in batches');
 treeCheck(strpos($orderList, 'ccp-order-preview-row') !== false && strpos($orderList, 'item.image') !== false, 'Expandable order preview with photos was removed');
 echo "PASS: category hierarchy safeguards, inline sorting, sidebar-compatible tree view and order count badge\n";

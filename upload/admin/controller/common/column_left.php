@@ -138,7 +138,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($catalog) {
 				$data['menus'][] = array(
 					'id'       => 'menu-catalog',
-					'icon'	   => 'fa-regular fa-bookmark',
+					'icon'	   => 'fa-solid fa-tags',
 					'name'	   => $this->language->get('text_catalog'),
 					'href'     => '',
 					'children' => $catalog
@@ -229,7 +229,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($marketplace) {
 				$data['menus'][] = array(
 					'id'       => 'menu-extension',
-					'icon'	   => 'fa-regular fa-object-group',
+					'icon'	   => 'fa-solid fa-puzzle-piece',
 					'name'	   => $this->language->get('text_extension'),
 					'href'     => '',
 					'children' => $marketplace
@@ -290,7 +290,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($design) {
 				$data['menus'][] = array(
 					'id'       => 'menu-design',
-					'icon'	   => 'fa-regular fa-window-maximize',
+					'icon'	   => 'fa-solid fa-palette',
 					'name'	   => $this->language->get('text_design'),
 					'href'     => '',
 					'children' => $design
@@ -362,7 +362,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($sale) {
 				$data['menus'][] = array(
 					'id'       => 'menu-sale',
-					'icon'	   => 'fa-regular fa-clipboard',
+					'icon'	   => 'fa-solid fa-cart-shopping',
 					'name'	   => $this->language->get('text_sale'),
 					'href'     => '',
 					'children' => $sale
@@ -448,7 +448,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($marketing) {
 				$data['menus'][] = array(
 					'id'       => 'menu-marketing',
-					'icon'	   => 'fa-regular fa-share-from-square',
+					'icon'	   => 'fa-solid fa-share-nodes',
 					'name'	   => $this->language->get('text_marketing'),
 					'href'     => '',
 					'children' => $marketing
@@ -708,7 +708,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($maintenance) {
 				$system[] = array(
 					'id'       => 'menu-maintenance',
-					'icon'	   => 'fa-regular fa-circle-dot',
+					'icon'	   => 'fa-solid fa-gear',
 					'name'	   => $this->language->get('text_maintenance'),
 					'href'     => '',
 					'children' => $maintenance
@@ -718,7 +718,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($system) {
 				$data['menus'][] = array(
 					'id'       => 'menu-system',
-					'icon'	   => 'fa-regular fa-circle-dot',
+					'icon'	   => 'fa-solid fa-gear',
 					'name'	   => $this->language->get('text_system'),
 					'href'     => '',
 					'children' => $system

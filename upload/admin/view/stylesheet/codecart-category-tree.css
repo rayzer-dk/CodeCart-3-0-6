@@ -111,8 +111,8 @@
   vertical-align:middle;width:24px;height:26px;min-width:24px;margin-right:3px;
   padding:0;border:0;background:transparent;color:#47627f;cursor:pointer;
 }
-.cc-category-list-drag .cc-tree-collapse .fa { transition:transform .16s ease; }
-.cc-category-list-drag .cc-tree-collapse[aria-expanded="true"] .fa { transform:rotate(90deg); }
+.cc-category-list-drag .cc-tree-collapse .fa-solid { font-size: 17px; line-height: 22px; }
+.cc-category-list-drag .cc-tree-collapse:focus-visible { outline:2px solid #086bd3;outline-offset:1px;border-radius:4px; }
 .cc-category-list-drag .cc-tree-collapse.is-placeholder { visibility:hidden; }
 .cc-category-list-drag .cc-tree-list-row .cc-tree-handle {display:inline-flex!important;}
 .cc-tree-expand-all {
