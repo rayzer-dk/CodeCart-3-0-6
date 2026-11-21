@@ -272,7 +272,7 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
 
     /** Normalize only the known UniShop2 stock-sort injection before OCMOD applies it. */
     public static function normalizeOcmodAdd(string $code, string $version, string $file, string $search, string $add): string {
-        if ($code !== 'UniShop2 template' || $version !== '3.6.6.0'
+        if ($code !== 'UniShop2 template' || !preg_match('/^3\\.6\\.(?:[6-9])\\.0$/D', $version)
             || str_replace('\\', '/', $file) !== 'catalog/model/catalog/product.php') {
             return $add;
         }
