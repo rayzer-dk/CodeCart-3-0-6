@@ -129,6 +129,13 @@ $path = 'catalog/model/catalog/product.php';
 $fixed = $normalize('UniShop2 template', '3.6.6.0', $path, $sortAnchor, $stockInjection);
 check($fixed !== $stockInjection && substr_count($fixed, "(int)(\$uniset['sort_qty'] ?? 0)") === 2, 'Stock-sort payload was not normalized');
 check($normalize('UniShop2 template', '3.6.6.0', $path, $sortAnchor, $fixed) === $fixed, 'Normalization must be idempotent');
+foreach (array('3.6.7.0', '3.6.8.0', '3.6.9.0') as $vendorVersion) {
+    $variant = $normalize('UniShop2 template', $vendorVersion, $path, $sortAnchor, $stockInjection);
+    check($variant === $fixed, 'Stock-sort normalization missing for UniShop2 ' . $vendorVersion);
+    $guardedOrder = $normalize('UniShop2 template', $vendorVersion, $path, '$sql .= " ORDER BY', '$sql .= " ORDER BY ".$sort_qty."');
+    check(strpos($guardedOrder, "(\$sort_qty ?? '')") !== false, 'Missing optional stock-sort guard for ' . $vendorVersion);
+}
+
 foreach (array(
     array('Other extension', '3.6.6.0', $path, $sortAnchor, $stockInjection),
     array('UniShop2 template', '3.6.5.0', $path, $sortAnchor, $stockInjection),
