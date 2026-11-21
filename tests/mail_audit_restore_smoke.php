@@ -34,4 +34,18 @@ if (strpos($lastQueries[0], 'FROM `oc_codecart_mail_audit` a WHERE (a.sender_ema
     || strpos($lastQueries[1], 'a.status =') === false) {
     throw new RuntimeException('Mail Audit list query aliases are incorrect');
 }
+// Transactional order alerts must include thumbnails in both themes, without per-item image SQL.
+$mailController = file_get_contents(dirname(__DIR__) . '/upload/catalog/controller/mail/order.php');
+if (strpos($mailController, 'SELECT product_id, image FROM') === false ||
+    strpos($mailController, "'image'    => \$alert_thumb") === false ||
+    strpos($mailController, "'href'     => \$alert_href") === false) {
+    throw new RuntimeException('Order alert thumbnails must be resolved in one batch');
+}
+foreach (array('default', 'codecart') as $theme) {
+    $template = file_get_contents(dirname(__DIR__) . '/upload/catalog/view/theme/' . $theme . '/template/mail/order_alert_html.twig');
+    if (strpos($template, 'product.image') === false ||
+        strpos($template, 'width="56" height="56"') === false) {
+        throw new RuntimeException($theme . ' order alert lacks compact product images');
+    }
+}
 echo "Mail Audit restore: PASS\n";
