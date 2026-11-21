@@ -97,7 +97,7 @@ class ControllerToolCodeCartCore extends Controller {
         try { $data['runtime'] = $this->localizeDiagnosticRows((new \CodeCart\Core\Preflight($this->registry))->rows()); } catch (\Throwable $e) { $data['runtime'] = array(array('component'=>'CodeCart Core','value'=>'partial','state'=>'warning','message'=>$e->getMessage())); }
         $data['db_legacy_tables'] = $this->legacyDatabaseTables(true);
         $data['db_modernize_url'] = str_replace('&amp;', '&', $this->url->link('tool/codecart_core/dbModernize', 'user_token=' . $this->session->data['user_token'], true));
-        foreach (array('text_db_modernize','text_db_modernize_help','text_db_modernize_ok','text_db_modernize_running','text_db_modernize_done','text_db_modernize_large','text_db_include_external','text_db_include_external_help','button_db_modernize','column_engine','column_collation','column_size') as $dbKey) { $data[$dbKey] = $this->language->get($dbKey); }
+        foreach (array('text_db_modernize','text_db_modernize_help','text_db_modernize_ok','text_db_modernize_running','text_db_modernize_done','text_db_modernize_large','text_db_include_external','text_db_include_external_help','text_db_legacy_columns','button_db_modernize','column_engine','column_collation','column_size') as $dbKey) { $data[$dbKey] = $this->language->get($dbKey); }
         $data['schema_result'] = array();
         if (!empty($this->request->get['schema'])) {
             $data['schema_result'] = $this->localizeSchemaResult((new \CodeCart\Core\SchemaRegistry($this->registry))->diff(300));
@@ -459,13 +459,11 @@ class ControllerToolCodeCartCore extends Controller {
             return array();
         }
         $expected = array();
-        if (!$includeThirdParty) {
-            $file = DIR_SYSTEM . 'config/codecart_schema.json';
-            $schema = is_file($file) ? json_decode((string)file_get_contents($file), true) : array();
-            if (!empty($schema['tables']) && is_array($schema['tables'])) {
-                foreach (array_keys($schema['tables']) as $table) {
-                    $expected[DB_PREFIX . $table] = true;
-                }
+        $file = DIR_SYSTEM . 'config/codecart_schema.json';
+        $schema = is_file($file) ? json_decode((string)file_get_contents($file), true) : array();
+        if (!empty($schema['tables']) && is_array($schema['tables'])) {
+            foreach (array_keys($schema['tables']) as $table) {
+                $expected[DB_PREFIX . $table] = true;
             }
         }
         $rows = array();
