@@ -235,6 +235,22 @@ jobs:
             --target "$RELEASE_ARCHIVE" \
             --output "artifacts/CodeCart_PRO_2.3.47_to_${RELEASE_BUILD}_changed_files.zip"
 
+      - name: Package changed files since Build 2.3.50
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_BUILD: ${{ steps.package.outputs.build }}
+          RELEASE_ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: |
+          set -euo pipefail
+          mkdir -p baseline50
+          gh release download v2.3.50 --pattern "CodeCart_PRO_v3.0.6.1_Build-2.3.50_full.zip" --dir baseline50
+          test -s baseline50/CodeCart_PRO_v3.0.6.1_Build-2.3.50_full.zip
+          python3 tools/package_delta.py \
+            --base baseline50/CodeCart_PRO_v3.0.6.1_Build-2.3.50_full.zip \
+            --target "$RELEASE_ARCHIVE" \
+            --output "artifacts/CodeCart_PRO_2.3.50_to_${RELEASE_BUILD}_changed_files.zip"
+
       - name: Publish immutable release tag and GitHub Release
         shell: bash
         env:
@@ -255,7 +271,7 @@ jobs:
             echo "Tag already exists; refusing to overwrite a published version." >&2
             exit 1
           fi
-          gh release create "$RELEASE_TAG" "$RELEASE_ARCHIVE" "$RELEASE_ARCHIVE.sha256" "$RELEASE_ARCHIVE.manifest.json" "artifacts/CodeCart_PRO_2.3.32_to_${RELEASE_BUILD}_changed_files.zip" "artifacts/CodeCart_PRO_2.3.39_to_${RELEASE_BUILD}_changed_files.zip" "artifacts/CodeCart_PRO_2.3.42_to_${RELEASE_BUILD}_changed_files.zip" "artifacts/CodeCart_PRO_2.3.47_to_${RELEASE_BUILD}_changed_files.zip" \
+          gh release create "$RELEASE_TAG" "$RELEASE_ARCHIVE" "$RELEASE_ARCHIVE.sha256" "$RELEASE_ARCHIVE.manifest.json" "artifacts/CodeCart_PRO_2.3.32_to_${RELEASE_BUILD}_changed_files.zip" "artifacts/CodeCart_PRO_2.3.39_to_${RELEASE_BUILD}_changed_files.zip" "artifacts/CodeCart_PRO_2.3.42_to_${RELEASE_BUILD}_changed_files.zip" "artifacts/CodeCart_PRO_2.3.47_to_${RELEASE_BUILD}_changed_files.zip" "artifacts/CodeCart_PRO_2.3.50_to_${RELEASE_BUILD}_changed_files.zip" \
             --target "$current" \
             --title "CodeCart PRO 3.0.6.1 — Build $RELEASE_BUILD" \
             --notes "Validated full production archive from main at commit $current. Includes SHA-256 checksum and per-file manifest." \
