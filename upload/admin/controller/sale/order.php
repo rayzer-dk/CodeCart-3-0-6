@@ -602,6 +602,7 @@ class ControllerSaleOrder extends Controller {
 		// Extension translations must not override the order page labels or title.
 		$this->load->language('sale/order');
 		$data['heading_title'] = $this->language->get('heading_title');
+		$data['text_reset_filter'] = $this->language->get('text_reset_filter');
 		$data['entry_order_id'] = $this->language->get('entry_order_id');
 		$data['column_telephone'] = $this->language->get('column_telephone');
 		$this->document->setTitle($data['heading_title']);
