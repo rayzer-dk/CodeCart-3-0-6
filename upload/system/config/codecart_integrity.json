@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "9a88992c5369b493d5881649a452f57b062f7c05fece780b5b718e7d2dc15b6c",
         "admin/controller/tool/catalog_transfer.php": "f3e922bf639c2945b9084017495268512007ac4e5f16b8450e75d6fcb3f619f2",
         "admin/controller/tool/codecart_core.php": "919b41dcd91cc2af26808b617822dc1d3b342888445b0a6a02b63fb12a7a297f",
-        "admin/index.php": "ff19070294bc580b0115058d32dba8d5693f042c6bd7d12af4a78bc5a0466633",
+        "admin/index.php": "35d3e29c517de2b693a49f125be37bdc8f6d42238275802712d8a3786ea003f2",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "050ac59b1c4f1d651983bcfce1f89397ca88afb91e52e63f45285dbe69a34ad5",
@@ -348,7 +348,7 @@
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
         "cli.php": "b34e137dde1af5cbed4b42b6c529c2f9b99f043d5a6f5ff64261fce56e2b2868",
         "cron.php": "7eb9a4e95eec8702fa5acd56e70bf01baf047c7f9e905f0e92454e8755ba726f",
-        "index.php": "d8cd29de6830ce787aa0f8dd3527be05f9cfd0d75efcb46b24f11804c44c51f5",
+        "index.php": "f75c6f6b0a6e508031b516bf144a19f437687ba86742ca8caf84a0ca60686e85",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "5f57f91bdca4c203200743823e07c30277bdd07237d126feb8a856ba9049f576",
         "system/config/codecart_fontawesome_core_manifest.json": "9fb9656be93bd2ce459e0a01f809b6f923a694866dd5da2b041380841f17ded5",
@@ -556,8 +556,10 @@
         "system/library/codecart/src/OrderAdminSearch.php": "d24cc3424944b701ed88d58dadc2670350305aa272f67c22973b8c48c8e80606",
         "system/library/codecart/src/SchedulerSchedule.php": "e5eecbb56e8913163702374ad3bf11ba886dbd7b37e6749709b214e623a5112a",
         "system/library/codecart/src/CronExpression.php": "b4d4cf26d20e09ad5ac426ffe2989c40a8569245570d75606609f7f7e33eaeee",
-        "system/library/codecart/src/AdminCategoryTreeEditor.php": "a341bf78116e1ad79d192e06d34a22dbc589d21f0f083e5a5d36a2caf6fbcb72"
+        "system/library/codecart/src/AdminCategoryTreeEditor.php": "a341bf78116e1ad79d192e06d34a22dbc589d21f0f083e5a5d36a2caf6fbcb72",
+        "admin/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56",
+        "catalog/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.37"
+    "package_build": "2.3.38"
 }
