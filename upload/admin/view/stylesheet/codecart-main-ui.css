@@ -301,3 +301,12 @@ html.ccp-admin-dark #content[class*="ccp-main-ui-"] {
 
 /* Keep the navigation glyph visible with the 64px collapsed sidebar. */
 @media(min-width:768px){#column-left.codecart-compact #navigation .fa-regular,#column-left.codecart-compact #navigation .fa-solid{display:inline-block!important;font-size:17px!important;line-height:20px!important;margin:0!important;vertical-align:middle}}
+
+/* Keep exactly one merchant-logo variant visible when a legacy header OCMOD
+   inserts both full and compact images; preserve responsive swapping. */
+#header .navbar-brand img.ccimp-admin-header-logo-full {display:block!important;max-width:100%!important;max-height:54px!important;width:auto!important;height:auto!important;object-fit:contain!important}
+#header .navbar-brand img.ccimp-admin-header-logo-compact {display:none!important}
+@media(max-width:767px){
+  #header .navbar-brand img.ccimp-admin-header-logo-full {display:none!important}
+  #header .navbar-brand img.ccimp-admin-header-logo-compact {display:block!important;max-width:42px!important;max-height:42px!important;width:auto!important;height:auto!important;object-fit:contain!important}
+}
