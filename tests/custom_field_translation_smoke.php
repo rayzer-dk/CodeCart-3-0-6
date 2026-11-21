@@ -13,6 +13,9 @@ class CodeCartFieldTestDB {
     public $type = 'textarea';
     public $translations = array(1 => 'Ваші реквізити…', 2 => 'Your details…', 3 => 'Ваши реквизиты…');
     public function query($sql) {
+        if (strpos($sql, "SHOW COLUMNS FROM `oc_custom_field_description` LIKE 'default_value'") === 0) {
+            return (object)array('num_rows' => 1, 'row' => array('Field' => 'default_value'), 'rows' => array(array('Field' => 'default_value')));
+        }
         if (strpos($sql, 'FROM `oc_custom_field` cf') === false && strpos($sql, 'FROM `oc_custom_field_customer_group` cfcg') === false) {
             throw new RuntimeException('Unexpected query: ' . $sql);
         }
