@@ -238,7 +238,7 @@
         "catalog/model/blog/review.php": "60bdffac0f3571aaceb518ccc9578c8fd0b67e4f506cb68415ed30de82ce4746",
         "catalog/model/catalog/category.php": "e522118c9f3997944e451642c0c5db4c419f9feda0ef5832c3aa003aa83d21be",
         "catalog/model/catalog/manufacturer.php": "0fc6e9328a01b95881939391651c26abe28a3d364ea69290c9ca34425f4564e8",
-        "catalog/model/catalog/product.php": "9462f221c9f794666f9980487415263b2eff3d460c733d126666e47a1deb0d80",
+        "catalog/model/catalog/product.php": "d5ea466df25f4c2f3197b0771926cc0307781793551976afa649ff8400e2348c",
         "catalog/model/checkout/order.php": "f924578e93559aa6319eefceedf9361a8d3162e59e460e7a33cfc9a24a84370f",
         "catalog/model/design/form.php": "e21eab93c55b719372e400d427da9e2cad611b0467fa6c44a15ec64448505230",
         "catalog/model/extension/currency/nbu.php": "90721448da6122bd9cc90951c44ab329500f918375a43413eb8e62d11c73c434",
