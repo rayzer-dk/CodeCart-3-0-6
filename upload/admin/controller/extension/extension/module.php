@@ -205,10 +205,14 @@ class ControllerExtensionExtensionModule extends Controller {
 
 		// Track installation dates without fabricating dates for older extensions.
 		$install_dates = $this->model_setting_extension->getInstallDates('module');
+		$upload_dates = $this->model_setting_extension->getUploadDates('module');
 		foreach ($data['extensions'] as &$extension_row) {
 			$installed_at = $extension_row['installed'] && isset($install_dates[$extension_row['code']]) ? $install_dates[$extension_row['code']] : '';
 			$extension_row['date_installed'] = $installed_at;
 			$extension_row['date_installed_label'] = $installed_at !== '' ? date('Y-m-d H:i', strtotime($installed_at)) : '';
+			$uploaded_at = $extension_row['installed'] && isset($upload_dates[$extension_row['code']]) ? $upload_dates[$extension_row['code']] : '';
+			$extension_row['date_updated'] = $uploaded_at;
+			$extension_row['date_updated_label'] = $uploaded_at !== '' && strtotime($uploaded_at) !== false ? date('Y-m-d H:i', strtotime($uploaded_at)) : '';
 		}
 		unset($extension_row);
 
@@ -217,6 +221,8 @@ class ControllerExtensionExtensionModule extends Controller {
 		$data['column_installed'] = $sort_language->get('column_installed');
 		$data['column_install_date'] = $sort_language->get('column_install_date');
 		$data['column_upload_date'] = $sort_language->get('column_upload_date');
+		$data['column_update_date'] = $sort_language->get('column_update_date');
+		$data['text_update_date_help'] = $sort_language->get('text_update_date_help');
 		$data['text_installed'] = $sort_language->get('text_installed');
 		$data['text_not_installed'] = $sort_language->get('text_not_installed');
 		$data['text_date_unknown'] = $sort_language->get('text_date_unknown');
