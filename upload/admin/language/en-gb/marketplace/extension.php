@@ -18,3 +18,6 @@ $_['text_sort_descending'] = 'Sort descending';
 
 $_['column_upload_date'] = 'Upload date';
 $_['text_upload_date_unknown'] = 'No recorded upload date';
+
+$_['column_update_date'] = 'ZIP update date';
+$_['text_update_date_help'] = 'Last ZIP package upload containing the module controller. FTP updates are not recorded.';
