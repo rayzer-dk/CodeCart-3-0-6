@@ -46,7 +46,7 @@
         "admin/controller/tool/backup.php": "9a88992c5369b493d5881649a452f57b062f7c05fece780b5b718e7d2dc15b6c",
         "admin/controller/tool/catalog_transfer.php": "f3e922bf639c2945b9084017495268512007ac4e5f16b8450e75d6fcb3f619f2",
         "admin/controller/tool/codecart_core.php": "919b41dcd91cc2af26808b617822dc1d3b342888445b0a6a02b63fb12a7a297f",
-        "admin/index.php": "e0110911cf2a8d0937af665dd11c8286183d6ed621ea5adc4815772d9f148ee4",
+        "admin/index.php": "bf1831c683f7b3545255893592d81aefddd07a4400c781098914eba41e8be607",
         "admin/language/en-gb/common/dashboard.php": "e043e6588bf17d6a088fb5c742fc797f66313c7af2c12dbb646a9a5a668b45a5",
         "admin/language/en-gb/common/developer.php": "4b3974ef7c1700cbee169c54488f10b45b6f87a0c2f2895ef2a230e28025d49c",
         "admin/language/en-gb/common/header.php": "050ac59b1c4f1d651983bcfce1f89397ca88afb91e52e63f45285dbe69a34ad5",
@@ -196,10 +196,10 @@
         "catalog/controller/extension/payment/paypal.php": "3c368478f71dc0f6edc4ea92bbe7a0a54f9bc05348fe929c5668afaa3a29a7fc",
         "catalog/controller/information/contact.php": "c90dca9bd4a7f08daccfb20b075069d2c5ce7391c356d676456cf16b71df56d2",
         "catalog/controller/information/information.php": "8add21a6aded8c1578a118906c06806f330d8884413f0b45329a2960e8eb2b81",
-        "catalog/controller/mail/affiliate.php": "69d3a5fae1b9f81f795adac3f955585ccc1155dd062569d4f82f449227fa26fa",
-        "catalog/controller/mail/forgotten.php": "10befcba023969df692365655c500fed278c02843de1019c75eccacd11b42e5e",
-        "catalog/controller/mail/order.php": "2e0eac905dc3d9573ae67a59090e42207a6094920011a087f53577e107bff7a4",
-        "catalog/controller/mail/register.php": "42d210a0498674059d7ebe16b4f80b67f5f45ebe1949fad4ae14cba662da44d2",
+        "catalog/controller/mail/affiliate.php": "ffb1d5e8cb4db02134f7afeed9111cf7fe6a5d31f128cec5394002bdcdf1c501",
+        "catalog/controller/mail/forgotten.php": "002dd677bf06b112fc998fe27b4e1f8db8fc518b9394651b2efafa3ba7e25e75",
+        "catalog/controller/mail/order.php": "6d3ca43906157de35b46a0b0ab1e74b003045798b50a07f3a1d5d5bf80cb9d87",
+        "catalog/controller/mail/register.php": "534d4443fb0c4f1d9f246425ab02cf972b87842f7ce0ec9204bb63f2ddc4ba15",
         "catalog/controller/product/category.php": "a06b5d7eaed7fcb69959d744172d495849f4da040f3a5690842920676871ff4e",
         "catalog/controller/product/manufacturer.php": "d0c875ced2cdc2433d3c19739426bc703f7f4c19ab95f9ef8a07410ca8f39f06",
         "catalog/controller/product/product.php": "cd5636424445cedbfe377a8dd3f34ad813ff1177e76360ef88f87164a467e9f6",
@@ -348,7 +348,7 @@
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
         "cli.php": "b34e137dde1af5cbed4b42b6c529c2f9b99f043d5a6f5ff64261fce56e2b2868",
         "cron.php": "7eb9a4e95eec8702fa5acd56e70bf01baf047c7f9e905f0e92454e8755ba726f",
-        "index.php": "41393c660f0c0b3c0c3be88147bf846439ee91e043d83f75c789f553f749abbe",
+        "index.php": "7617b756f428262a0a1b59a29e546c43f883bd878ad470e9278898513f81553f",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "5f57f91bdca4c203200743823e07c30277bdd07237d126feb8a856ba9049f576",
         "system/config/codecart_fontawesome_core_manifest.json": "9fb9656be93bd2ce459e0a01f809b6f923a694866dd5da2b041380841f17ded5",
@@ -561,5 +561,5 @@
         "catalog/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.48"
+    "package_build": "2.3.49"
 }
