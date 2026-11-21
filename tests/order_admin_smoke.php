@@ -52,4 +52,6 @@ checkOrder(strpos($dateSql, "o.date_added >= '2026-11-01 00:00:00'") !== false &
 
 checkOrder(strpos($list, 'gap:6px') !== false && strpos($list, 'width:35px!important') !== false, 'order action buttons have 35px dimensions and spacing');
 checkOrder(strpos($list, 'ccp-filter-help') !== false && strpos($help, 'fa-circle-question') !== false, 'help is presented as accessible question icons');
+checkOrder(strpos($list, '#filter-order .panel-body::before,#filter-order .panel-body::after{content:none!important;display:none!important}') !== false, 'Bootstrap panel clearfix must not consume the first order filter grid column');
+checkOrder(strpos($list, 'id="input-order-id"') !== false && strpos($list, 'name="filter_order_id"') !== false, 'Order ID input must appear first in filter grid');
 echo "PASS: order filters, phone normalization, inclusive sums and ranking.\n";
