@@ -52,6 +52,35 @@ foreach (array(array('catalog', 0, 4), array('catalog', 4, 4), array('blog', 0, 
     } catch (InvalidArgumentException $expected) { }
 }
 
+// Index flag is inverted in CodeCart: 1 means the category is indexable.
+class TreeIndexFakeDb {
+    public $value = 0;
+    public function query($sql) {
+        if (strpos($sql, "UPDATE `oc_category` SET noindex = '1'") !== false &&
+            strpos($sql, "AND noindex = '0'") !== false && $this->value === 0) {
+            $this->value = 1;
+            return (object)array('num_rows' => 0, 'row' => array());
+        }
+        if (strpos($sql, "SELECT noindex FROM `oc_category`") !== false) {
+            return (object)array('num_rows' => 1, 'row' => array('noindex' => $this->value));
+        }
+        throw new RuntimeException('Unexpected indexing query.');
+    }
+}
+$indexDb = new TreeIndexFakeDb();
+$indexRegistry = new Registry();
+$indexRegistry->set('db', $indexDb);
+$indexRegistry->set('cache', new TreeFakeCache());
+treeCheck(AdminCategoryTreeEditor::quickIndex($indexRegistry, 'catalog', 7, 1, 0) === 1,
+    'Indexable toggle did not persist');
+try {
+    AdminCategoryTreeEditor::quickIndex($indexRegistry, 'catalog', 7, 0, 0);
+    throw new RuntimeException('Stale index toggle accepted');
+} catch (RuntimeException $expected) {
+    treeCheck(strpos($expected->getMessage(), 'changed in another session') !== false,
+        'Index toggle must reject concurrent updates');
+}
+
 $root = dirname(__DIR__) . '/upload/';
 $service = file_get_contents($root . 'system/library/codecart/src/AdminCategoryTreeEditor.php');
 $script = file_get_contents($root . 'admin/view/javascript/codecart/category-tree.js');
