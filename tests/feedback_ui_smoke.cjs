@@ -40,7 +40,11 @@ assert.match(installCss, /\.cc-brand img\s*\{[^}]*object-fit:contain/i, 'Install
 assert.match(mainCss, /#header #header-logo \.navbar-brand > img\s*\{[^}]*object-fit:contain!important/i, 'Admin must show the entire logo');
 assert.match(file('upload/install/index.php'), /define\('VERSION', '3\.0\.6\.1'\)/, 'Installer must display current runtime version');
 const navigation = file('upload/admin/view/javascript/codecart-admin-ui.js');
-assert.ok(navigation.includes("anchor.parentNode.insertBefore(li,anchor.nextSibling)"), 'Compass must follow the language flag');
+const adminHeader = file('upload/admin/view/template/common/header.twig');
+const flagPosition = adminHeader.indexOf('ccp-admin-language-flag');
+const compassPosition = adminHeader.indexOf('ccp-palette-menu');
+assert.ok(flagPosition >= 0 && compassPosition > flagPosition, 'Compass must follow the language flag');
+assert.ok(navigation.includes("'#header .ccp-palette-menu > a'"), 'Compass navigation click binding must remain available');
 for (const name of ['catalog', 'blog']) {
     const twig = file('upload/admin/view/template/' + name + '/category_list.twig');
     assert.ok(twig.includes('cc-tree-expand-all'), name + ': expand-all control missing');

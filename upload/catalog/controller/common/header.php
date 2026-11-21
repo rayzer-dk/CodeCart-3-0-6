@@ -149,11 +149,10 @@ class ControllerCommonHeader extends Controller {
 		if ($icon_mode === '' || $icon_mode === 'standard') { $icon_mode = $icon_mode === 'standard' ? 'full' : 'auto'; }
 		$data['font_awesome_unresolved_css'] = '';
 		try {
+			// Free Regular glyphs require the complete font for first-party themes.
+			// Keep the configured mode for third-party storefronts.
 			$fontAwesome = new \CodeCart\Core\FontAwesomeManager($theme_directory, explode(',', (string)$this->config->get('codecart_fontawesome_extra_icons')));
-			$effective_icon_mode = $fontAwesome->resolveCatalogMode($icon_mode);
-			// The UI Regular 400 compatibility stylesheet needs the full Free Regular font.
-			// Core WOFF2 subsets contain only selected Regular glyphs; never emit empty icons.
-			if ($is_default_theme) { $effective_icon_mode = 'full'; }
+			$effective_icon_mode = $fontAwesome->resolveCatalogMode($is_default_theme ? 'full' : $icon_mode);
 			if ($is_default_theme) {
 				$data['font_awesome_unresolved_css'] = $fontAwesome->unresolvedPlaceholderCss() . ($effective_icon_mode === 'core' ? $fontAwesome->extraCss() : '');
 			}

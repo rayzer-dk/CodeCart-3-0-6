@@ -17,7 +17,7 @@ $templates = array(
 foreach ($templates as $relative) {
     $source = file_get_contents($root . 'upload/' . $relative);
     $check($source !== false, $relative . ': readable');
-    $check((bool)preg_match('/\\{\\{\\s*column_left\\s*\\}\\}\\s*<div id="content">/', $source), $relative . ': sidebar/content adjacency');
+    $check((bool)preg_match('/\\{\\{\\s*column_left\\s*\\}\\}\\s*<div id="content"(?:\\s[^>]*)?>/', $source), $relative . ': sidebar/content adjacency');
     $check(strpos($source, 'catalog-quality.js') !== false, $relative . ': quality indicators stay enabled');
 }
 
