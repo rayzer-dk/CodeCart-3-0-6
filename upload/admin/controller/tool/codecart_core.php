@@ -95,9 +95,9 @@ class ControllerToolCodeCartCore extends Controller {
         try { $data['security_audit'] = (new \CodeCart\Core\SecurityAudit($this->registry))->recent(50); } catch (\Throwable $e) { $data['security_audit'] = array(); $data['security_audit_error'] = $e->getMessage(); }
 
         try { $data['runtime'] = $this->localizeDiagnosticRows((new \CodeCart\Core\Preflight($this->registry))->rows()); } catch (\Throwable $e) { $data['runtime'] = array(array('component'=>'CodeCart Core','value'=>'partial','state'=>'warning','message'=>$e->getMessage())); }
-        $data['db_legacy_tables'] = $this->legacyDatabaseTables();
+        $data['db_legacy_tables'] = $this->legacyDatabaseTables(true);
         $data['db_modernize_url'] = str_replace('&amp;', '&', $this->url->link('tool/codecart_core/dbModernize', 'user_token=' . $this->session->data['user_token'], true));
-        foreach (array('text_db_modernize','text_db_modernize_help','text_db_modernize_ok','text_db_modernize_running','text_db_modernize_done','text_db_modernize_large','button_db_modernize','column_engine','column_collation','column_size') as $dbKey) { $data[$dbKey] = $this->language->get($dbKey); }
+        foreach (array('text_db_modernize','text_db_modernize_help','text_db_modernize_ok','text_db_modernize_running','text_db_modernize_done','text_db_modernize_large','text_db_include_external','text_db_include_external_help','button_db_modernize','column_engine','column_collation','column_size') as $dbKey) { $data[$dbKey] = $this->language->get($dbKey); }
         $data['schema_result'] = array();
         if (!empty($this->request->get['schema'])) {
             $data['schema_result'] = $this->localizeSchemaResult((new \CodeCart\Core\SchemaRegistry($this->registry))->diff(300));
@@ -431,11 +431,12 @@ class ControllerToolCodeCartCore extends Controller {
                 @set_time_limit(300);
                 // One table per request keeps every web request short on shared hosting.
                 // Tables >= 256 MB are skipped here and left for php cli.php db:migrate --large.
-                $result = (new \CodeCart\Core\DatabaseModernizer($this->registry))->migrate(false, 1);
+                $includeThirdParty = !empty($this->request->post['include_third_party']);
+                $result = (new \CodeCart\Core\DatabaseModernizer($this->registry))->migrate(false, 1, $includeThirdParty);
                 $json['changed'] = $result['changed'];
                 $json['errors'] = $result['errors'];
                 $json['skipped'] = count($result['skipped']);
-                $json['remaining'] = count($this->legacyDatabaseTables());
+                $json['remaining'] = count($this->legacyDatabaseTables($includeThirdParty));
                 $json['done'] = empty($result['changed']);
             } catch (\Throwable $e) {
                 $json['error'] = $e->getMessage();
@@ -446,20 +447,47 @@ class ControllerToolCodeCartCore extends Controller {
         $this->response->setOutput(json_encode($json));
     }
 
-    private function legacyDatabaseTables() {
+    private function legacyDatabaseTables($includeThirdParty = true) {
         try {
-            $query = $this->db->query("SELECT TABLE_NAME, ENGINE, TABLE_COLLATION, (DATA_LENGTH + INDEX_LENGTH) AS bytes FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' AND LEFT(TABLE_NAME, " . (int)strlen(DB_PREFIX) . ") = '" . $this->db->escape(DB_PREFIX) . "' AND (UPPER(ENGINE) <> 'INNODB' OR (TABLE_COLLATION IS NOT NULL AND TABLE_COLLATION NOT LIKE 'utf8mb4\\_%')) ORDER BY TABLE_NAME ASC");
+            $query = $this->db->query("SELECT TABLE_NAME, ENGINE, TABLE_COLLATION, (DATA_LENGTH + INDEX_LENGTH) AS bytes FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' AND LEFT(TABLE_NAME, " . (int)strlen(DB_PREFIX) . ") = '" . $this->db->escape(DB_PREFIX) . "' ORDER BY TABLE_NAME ASC");
+            $columnQuery = $this->db->query("SELECT TABLE_NAME, COUNT(*) AS total FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND LEFT(TABLE_NAME, " . (int)strlen(DB_PREFIX) . ") = '" . $this->db->escape(DB_PREFIX) . "' AND CHARACTER_SET_NAME IS NOT NULL AND CHARACTER_SET_NAME <> 'utf8mb4' GROUP BY TABLE_NAME");
+            $legacyColumns = array();
+            foreach ($columnQuery->rows as $item) {
+                $legacyColumns[(string)$item['TABLE_NAME']] = (int)$item['total'];
+            }
         } catch (\Throwable $e) {
             return array();
         }
+        $expected = array();
+        if (!$includeThirdParty) {
+            $file = DIR_SYSTEM . 'config/codecart_schema.json';
+            $schema = is_file($file) ? json_decode((string)file_get_contents($file), true) : array();
+            if (!empty($schema['tables']) && is_array($schema['tables'])) {
+                foreach (array_keys($schema['tables']) as $table) {
+                    $expected[DB_PREFIX . $table] = true;
+                }
+            }
+        }
         $rows = array();
         foreach ($query->rows as $row) {
+            $table = (string)$row['TABLE_NAME'];
+            if (!$includeThirdParty && !isset($expected[$table])) {
+                continue;
+            }
+            $columnCount = isset($legacyColumns[$table]) ? $legacyColumns[$table] : 0;
+            $needsEngine = strtoupper((string)$row['ENGINE']) !== 'INNODB';
+            $needsCharset = stripos((string)$row['TABLE_COLLATION'], 'utf8mb4_') !== 0;
+            if (!$needsEngine && !$needsCharset && $columnCount === 0) {
+                continue;
+            }
             $rows[] = array(
-                'table' => (string)$row['TABLE_NAME'],
+                'table' => $table,
                 'engine' => (string)$row['ENGINE'],
                 'collation' => (string)$row['TABLE_COLLATION'],
+                'legacy_columns' => $columnCount,
                 'size' => round(((int)$row['bytes']) / 1048576, 2) . ' MB',
-                'large' => (int)$row['bytes'] >= 268435456
+                'large' => (int)$row['bytes'] >= 268435456,
+                'external' => !isset($expected[$table]) && $includeThirdParty
             );
         }
         return $rows;
