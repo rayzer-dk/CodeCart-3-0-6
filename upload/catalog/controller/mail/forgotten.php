@@ -21,7 +21,7 @@ class ControllerMailForgotten extends Controller {
 			: array('url' => rtrim($data['store_url'], '/') . '/image/' . str_replace(' ', '%20', str_replace('\\', '/', $email_logo)), 'width' => 300, 'height' => 80);
 		$data['logo'] = $email_logo_asset['url'];
 		$data['logo_width'] = (int)$email_logo_asset['width'];
-		$data['logo_height'] = (int)$email_logo_asset['height'];
+		$data['logo_height'] = (int)$email_logo_asset['height']; $data['logo_dark'] = !empty($email_logo_asset['dark_url']) ? $email_logo_asset['dark_url'] : $data['logo'];
 		$data['title'] = html_entity_decode(sprintf($this->language->get('text_subject'), $data['store']), ENT_QUOTES, 'UTF-8');
 		
 		$mail = new Mail($this->config->get('config_mail_engine'));
