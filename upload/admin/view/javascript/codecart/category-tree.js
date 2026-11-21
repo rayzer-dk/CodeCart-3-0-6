@@ -52,6 +52,26 @@
       }).finally(function () { busy = false; });
     }
 
+    Array.prototype.forEach.call(host.querySelectorAll('.cc-category-index-toggle[data-cc-index-id]'), function (input) {
+      input.addEventListener('change', function () {
+        if (busy) { input.checked = !input.checked; return; }
+        var previous = input.getAttribute('data-cc-index-expected');
+        var next = input.checked ? '1' : '0';
+        if (next === previous) { return; }
+        input.disabled = true;
+        request({action:'index', id:input.getAttribute('data-cc-index-id'), expected:previous, value:next})
+          .then(function (result) {
+            input.setAttribute('data-cc-index-expected', String(result.value));
+            input.checked = String(result.value) === '1';
+          })
+          .catch(function (error) {
+            input.checked = previous === '1';
+            notify(error.message || defaultError, false);
+          })
+          .finally(function () { input.disabled = false; });
+      });
+    });
+
     var inputs = host.querySelectorAll('.cc-category-sort[data-cc-sort-id]');
     Array.prototype.forEach.call(host.querySelectorAll('.cc-category-sort-pencil'), function (button) {
       button.addEventListener('click', function () {
@@ -155,8 +175,7 @@
       });
     }
 
-    if (expandAll) {
-      function syncExpandAll() {
+    function syncExpandAll() {
         var anyCollapsed = Object.keys(collapsed).some(function (id) { return collapsed[id] === true; });
         expandAll.setAttribute('aria-expanded', anyCollapsed ? 'false' : 'true');
         expandAll.classList.toggle('is-expanded', !anyCollapsed);
@@ -169,7 +188,8 @@
         var nextLabel = expandAll.getAttribute(anyCollapsed ? 'data-expand-label' : 'data-collapse-label');
         if (caption && nextLabel) { caption.textContent = nextLabel; }
         if (nextLabel) { expandAll.setAttribute('title', nextLabel); expandAll.setAttribute('aria-label', nextLabel); }
-      }
+    }
+    if (expandAll) {
       expandAll.addEventListener('click', function () {
         rows.forEach(function (row) {
           if (row.querySelector('.cc-tree-collapse:not(.is-placeholder)')) {
