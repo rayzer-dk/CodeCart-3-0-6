@@ -492,7 +492,7 @@
         "admin/view/template/marketplace/extension.twig": "7b5c101c8f634eda11df5333122cc304d1d1bf45b09f7b32594a117be77250d3",
         "admin/view/javascript/codecart-extension-sort.js": "a39eb8a4b4af4715139672a1d60bb3bbb2a6656e5e0ce302b3b15259ec4e1dbc",
         "admin/controller/extension/extension/dashboard.php": "cf9b942d65c68ac02c6aec199f7b5da0240e6edc70293afec45038b684812b1e",
-        "admin/controller/extension/extension/module.php": "7060d8c77d9fc75750c7d5c6a5e116f8e361dfbc8531df6409a3974e4aef6f44",
+        "admin/controller/extension/extension/module.php": "ab2635d1148d9bb888e0a3b1fcd84f1911e3022e021f9caed3e6f814aee2002d",
         "admin/controller/extension/extension/report.php": "b8df4fa1a1200f85a9243b25c566aa1b406701356a4e30133bcf6841f8f5f736",
         "admin/controller/extension/extension/total.php": "b2914a1c9fa7cdb9ad838664e0a51bcbf8b0e6f417b6503868dcffd274540cd0",
         "admin/controller/extension/extension/feed.php": "79974b11d1bfba60995f394165e1072ffcae6d959c6399529fa56ef4e6cc0279",
