@@ -129,6 +129,14 @@ $path = 'catalog/model/catalog/product.php';
 $fixed = $normalize('UniShop2 template', '3.6.6.0', $path, $sortAnchor, $stockInjection);
 check($fixed !== $stockInjection && substr_count($fixed, "(int)(\$uniset['sort_qty'] ?? 0)") === 2, 'Stock-sort payload was not normalized');
 check($normalize('UniShop2 template', '3.6.6.0', $path, $sortAnchor, $fixed) === $fixed, 'Normalization must be idempotent');
+// The exact ORDER BY injection is unsafe in unrelated helpers, even when a
+// vendor archive has changed its XML code or version identifier.
+$sortAppend = '$sql .= " ORDER BY ".$sort_qty."';
+foreach (array(array('UniShop2 template', '3.6.9.0'), array('UniShop2', '3.6.9'), array('Custom', '1.0')) as $identity) {
+    $guarded = $normalize($identity[0], $identity[1], $path, '$sql .= " ORDER BY', $sortAppend);
+    check(strpos($guarded, "(\$sort_qty ?? '')") !== false, 'Exact unsafe SQL operation was not guarded');
+}
+
 foreach (array('3.6.7.0', '3.6.8.0', '3.6.9.0') as $vendorVersion) {
     $variant = $normalize('UniShop2 template', $vendorVersion, $path, $sortAnchor, $stockInjection);
     check($variant === $fixed, 'Stock-sort normalization missing for UniShop2 ' . $vendorVersion);
