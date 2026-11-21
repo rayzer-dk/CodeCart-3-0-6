@@ -436,6 +436,7 @@ class ControllerToolCodeCartCore extends Controller {
                 $json['changed'] = $result['changed'];
                 $json['errors'] = $result['errors'];
                 $json['skipped'] = count($result['skipped']);
+                $json['skipped_details'] = $result['skipped'];
                 $json['remaining'] = count($this->legacyDatabaseTables($includeThirdParty));
                 $json['done'] = empty($result['changed']);
             } catch (\Throwable $e) {
