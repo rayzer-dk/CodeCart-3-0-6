@@ -29,13 +29,10 @@ final class EmailLogo {
 
         // Bump the cache key when the image preparation algorithm changes.
         $source_version = dechex((int)@filemtime($source)) . '-' . dechex((int)@filesize($source));
-        $name_hash = substr(sha1($filename . '|' . $source_version . '|email-adaptive-v4'), 0, 18);
+        $name_hash = substr(sha1($filename . '|' . $source_version . '|email-transparent-v5'), 0, 18);
         $relative = 'cache/email/logo-' . $name_hash . '.png';
         $target = DIR_IMAGE . $relative;
-        $dark_relative = 'cache/email/logo-' . $name_hash . '-dark.png';
-        $dark_target = DIR_IMAGE . $dark_relative;
-
-        if (!is_file($target) || !is_file($dark_target)) {
+        if (!is_file($target)) {
             if (!self::ensureDirectory(dirname($target))) {
                 return self::fallback($filename, $base_url);
             }
@@ -67,8 +64,10 @@ final class EmailLogo {
             imagecopyresampled($preview, $image, 0, 0, 0, 0, $scaled_width, $scaled_height, $source_width, $source_height);
             imagedestroy($image);
 
-            // Transparent margins and white image backgrounds are both common.
-            // Trim only those margins, never opaque white parts of a transparent logo.
+            // When the supplied artwork has an opaque white border, remove
+            // only the connected background. Already-transparent PNG/WebP
+            // artwork keeps all its original colours and alpha unchanged.
+            self::clearBorderWhite($preview, $scaled_width, $scaled_height);
             $bounds = self::contentBounds($preview, $scaled_width, $scaled_height);
             $crop_width = $bounds['right'] - $bounds['left'] + 1;
             $crop_height = $bounds['bottom'] - $bounds['top'] + 1;
@@ -88,28 +87,13 @@ final class EmailLogo {
                 $bounds['left'], $bounds['top'], $crop_width, $crop_height);
             imagedestroy($preview);
 
-            // Gmail Android may ignore dark-mode CSS. Outline dark lettering
-            // in white (without a white rectangle) so the regular transparent
-            // logo is legible on both light and near-black backgrounds.
-            $outlined = self::contrastOutline($canvas, $canvas_width, $canvas_height);
-            if ($outlined) {
-                imagedestroy($canvas);
-                $canvas = $outlined;
-            }
-
-            // A separate image for dark-mode-aware mail clients retains
-            // saturated brand colours and brightens nearly black lettering.
-            $dark = self::darkVariant($canvas, $canvas_width, $canvas_height);
-            if (!is_file($target) && !self::savePng($canvas, $target)) {
-                imagedestroy($canvas);
-                if ($dark) { imagedestroy($dark); }
+            // Produce exactly one transparent image without an opaque
+            // backing, outlines, colour substitutions or dark variants.
+            $saved = self::savePng($canvas, $target);
+            imagedestroy($canvas);
+            if (!$saved) {
                 return self::fallback($filename, $base_url);
             }
-            imagedestroy($canvas);
-            if ($dark && !is_file($dark_target)) {
-                self::savePng($dark, $dark_target);
-            }
-            if ($dark) { imagedestroy($dark); }
         }
 
         $dimensions = @getimagesize($target);
@@ -124,70 +108,10 @@ final class EmailLogo {
         );
         return array(
             'url' => rtrim((string)$base_url, '/') . '/image/' . str_replace(' ', '%20', $relative),
-            'dark_url' => is_file($dark_target)
-                ? rtrim((string)$base_url, '/') . '/image/' . str_replace(' ', '%20', $dark_relative)
-                : '',
             'width' => max(1, (int)round($dimensions[0] * $display_scale)),
             'height' => max(1, (int)round($dimensions[1] * $display_scale)),
             'format' => 'PNG'
         );
-    }
-
-    /** Draw only a 2px transparent-background white keyline around dark type. */
-    private static function contrastOutline($source, $width, $height) {
-        $outlined = imagecreatetruecolor($width, $height);
-        if (!$outlined) { return false; }
-        imagealphablending($outlined, false);
-        imagesavealpha($outlined, true);
-        imagefill($outlined, 0, 0, imagecolorallocatealpha($outlined, 255, 255, 255, 127));
-
-        imagealphablending($outlined, true);
-        $keyline = imagecolorallocate($outlined, 255, 255, 255);
-        for ($y = 0; $y < $height; $y++) {
-            for ($x = 0; $x < $width; $x++) {
-                $pixel = imagecolorat($source, $x, $y);
-                $alpha = ($pixel >> 24) & 0x7f;
-                if ($alpha > 24) { continue; }
-                $red = ($pixel >> 16) & 255;
-                $green = ($pixel >> 8) & 255;
-                $blue = $pixel & 255;
-                if (max($red, $green, $blue) - min($red, $green, $blue) < 75
-                    && ($red + $green + $blue) < 400) {
-                    imagefilledellipse($outlined, $x, $y, 5, 5, $keyline);
-                }
-            }
-        }
-        imagecopy($outlined, $source, 0, 0, 0, 0, $width, $height);
-        imagealphablending($outlined, false);
-        return $outlined;
-    }
-
-    /** Preserve transparency and promote only grayscale dark strokes for dark-mode email. */
-    private static function darkVariant($source, $width, $height) {
-        $dark = imagecreatetruecolor($width, $height);
-        if (!$dark) { return false; }
-        imagealphablending($dark, false);
-        imagesavealpha($dark, true);
-        imagefill($dark, 0, 0, imagecolorallocatealpha($dark, 255, 255, 255, 127));
-
-        for ($y = 0; $y < $height; $y++) {
-            for ($x = 0; $x < $width; $x++) {
-                $pixel = imagecolorat($source, $x, $y);
-                $alpha = ($pixel >> 24) & 0x7f;
-                if ($alpha === 127) { continue; }
-                $red = ($pixel >> 16) & 0xff;
-                $green = ($pixel >> 8) & 0xff;
-                $blue = $pixel & 0xff;
-                $low = min($red, $green, $blue);
-                $high = max($red, $green, $blue);
-                if (($high - $low) < 75 && ($red + $green + $blue) < 480) {
-                    // Black/gray type becomes light; blue logo details are unchanged.
-                    $red = 238; $green = 243; $blue = 250;
-                }
-                imagesetpixel($dark, $x, $y, imagecolorallocatealpha($dark, $red, $green, $blue, $alpha));
-            }
-        }
-        return $dark;
     }
 
     private static function savePng($image, $target) {
@@ -205,6 +129,54 @@ final class EmailLogo {
             return is_file($target);
         }
         return true;
+    }
+
+    /**
+     * Turn an opaque white border into alpha without changing foreground
+     * pixels. Only white connected to the outside is treated as background.
+     */
+    private static function clearBorderWhite($image, $width, $height) {
+        $corners = array(
+            array(0, 0), array($width - 1, 0),
+            array(0, $height - 1), array($width - 1, $height - 1)
+        );
+        foreach ($corners as $corner) {
+            $p = imagecolorat($image, $corner[0], $corner[1]);
+            if ((($p >> 24) & 127) >= 110) { return; }
+            if (!self::nearWhite($p)) { return; }
+        }
+
+        $visited = array();
+        $queue = array();
+        for ($x = 0; $x < $width; $x++) {
+            $queue[] = $x;
+            $queue[] = ($height - 1) * $width + $x;
+        }
+        for ($y = 1; $y < $height - 1; $y++) {
+            $queue[] = $y * $width;
+            $queue[] = $y * $width + $width - 1;
+        }
+        $transparent = imagecolorallocatealpha($image, 255, 255, 255, 127);
+        for ($head = 0; $head < count($queue); $head++) {
+            $i = $queue[$head];
+            if (isset($visited[$i])) { continue; }
+            $visited[$i] = true;
+            $x = $i % $width;
+            $y = (int)floor($i / $width);
+            $p = imagecolorat($image, $x, $y);
+            if ((($p >> 24) & 127) >= 110 || !self::nearWhite($p)) { continue; }
+            imagesetpixel($image, $x, $y, $transparent);
+            if ($x > 0) { $queue[] = $i - 1; }
+            if ($x < $width - 1) { $queue[] = $i + 1; }
+            if ($y > 0) { $queue[] = $i - $width; }
+            if ($y < $height - 1) { $queue[] = $i + $width; }
+        }
+    }
+
+    private static function nearWhite($pixel) {
+        return (($pixel >> 16) & 255) >= 247
+            && (($pixel >> 8) & 255) >= 247
+            && ($pixel & 255) >= 247;
     }
 
     /**
