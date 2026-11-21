@@ -15,7 +15,12 @@
             </div>
             <div class="form-group">
               <label for="input-password">{{ entry_password }}</label>
-              <input type="password" name="password" id="input-password" class="form-control" required autocomplete="current-password">
+              <div class="cc-password">
+                <input type="password" name="password" id="input-password" class="form-control" required autocomplete="current-password">
+                <button type="button" class="cc-password-toggle" id="upgrade-password-toggle" aria-label="{{ button_show_password }}" aria-pressed="false" title="{{ button_show_password }}">
+                  <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                </button>
+              </div>
             </div>
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket"></i> {{ button_login }}</button>
           </form>
@@ -25,4 +30,21 @@
     </div>
   </div>
 </div>
+<script>
+(function () {
+  'use strict';
+  var field = document.getElementById('input-password');
+  var button = document.getElementById('upgrade-password-toggle');
+  if (!field || !button) { return; }
+  button.addEventListener('click', function () {
+    var visible = field.type === 'password';
+    field.type = visible ? 'text' : 'password';
+    button.setAttribute('aria-pressed', visible ? 'true' : 'false');
+    button.setAttribute('aria-label', visible ? {{ button_hide_password|json_encode|raw }} : {{ button_show_password|json_encode|raw }});
+    button.setAttribute('title', visible ? {{ button_hide_password|json_encode|raw }} : {{ button_show_password|json_encode|raw }});
+    var icon = button.querySelector('i');
+    if (icon) { icon.className = visible ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'; }
+  });
+}());
+</script>
 {{ footer }}
