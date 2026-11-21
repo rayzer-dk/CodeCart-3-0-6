@@ -158,8 +158,7 @@
         if (/^filter_/.test(key)) { url.searchParams.delete(key); changed = true; }
       });
       if (url.searchParams.has('page')) { url.searchParams.delete('page'); changed = true; }
-      var locale = (document.documentElement.lang || '').toLowerCase();
-      var label = locale.indexOf('uk') === 0 ? 'Скинути фільтр' : (locale.indexOf('ru') === 0 ? 'Сбросить фильтр' : 'Reset filters');
+      var label = {{ text_reset_filter|json_encode|raw }};
       var reset = document.createElement('a');
       reset.className = 'btn btn-default ccp-reset-list-filter';
       reset.href = url.pathname + '?' + url.searchParams.toString();
