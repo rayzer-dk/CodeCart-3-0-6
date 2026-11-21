@@ -205,7 +205,7 @@ class ControllerCheckoutGuest extends Controller {
 		if (!codecart_checkout_field_visible($this->config, 'country') || $this->request->post['country_id'] === '') {
 			$this->request->post['country_id'] = (int)$this->config->get('config_country_id');
 		}
-		if (!codecart_checkout_field_visible($this->config, 'zone')) {
+		if ($compact_delivery_checkout || !codecart_checkout_field_visible($this->config, 'zone')) {
 			$this->request->post['zone_id'] = (int)$this->config->get('config_zone_id');
 		}
 
@@ -290,7 +290,7 @@ class ControllerCheckoutGuest extends Controller {
 				$json['error']['country'] = $this->language->get('error_country');
 			}
 
-			if (codecart_checkout_field_visible($this->config, 'zone') && codecart_checkout_field_required($this->config, 'zone')) {
+			if (!$compact_delivery_checkout && codecart_checkout_field_visible($this->config, 'zone') && codecart_checkout_field_required($this->config, 'zone')) {
 				$postedZone = $this->request->post['zone_id'];
 				$zoneId = is_scalar($postedZone) && preg_match('/^[1-9][0-9]*$/D', (string)$postedZone) ? (int)$postedZone : 0;
 				$this->load->model('localisation/zone');
