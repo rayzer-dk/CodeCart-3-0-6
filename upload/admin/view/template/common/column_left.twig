@@ -1,5 +1,5 @@
 <nav id="column-left">
-  <div id="navigation"><span class="fa fa-bars"></span> {{ text_navigation }}</div>
+  <div id="navigation"><span class="fa-regular fa-rectangle-list"></span> {{ text_navigation }}</div>
   <ul id="menu">
     {% set i = 0 %}
     {% for menu in menus %}
@@ -44,7 +44,7 @@
     {% endfor %}
     {% if product_stats %}
     <li id="menu-product-stats">
-      <a href="#stats" class="parent collapsed" data-toggle="collapse" aria-expanded="false" aria-controls="stats" aria-label="{{ text_product_stats }}" title="{{ text_product_stats }}"><i class="fa fa-bar-chart fw" aria-hidden="true"></i><span class="menu-label">{{ text_product_stats }}</span></a>
+      <a href="#stats" class="parent collapsed" data-toggle="collapse" aria-expanded="false" aria-controls="stats" aria-label="{{ text_product_stats }}" title="{{ text_product_stats }}"><i class="fa-regular fa-chart-bar fw" aria-hidden="true"></i><span class="menu-label">{{ text_product_stats }}</span></a>
       <section id="stats" class="collapse" aria-label="{{ text_product_stats }}">
         <div class="stats-heading">
           <h2 class="stats-title">{{ text_product_stats }}</h2>

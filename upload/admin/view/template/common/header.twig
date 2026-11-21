@@ -43,6 +43,7 @@
 <script type="text/javascript" src="{{ script }}"></script>
 {% endfor %}
 <link href="view/stylesheet/codecart-main-ui.css?v={{ package_build }}-ui4" rel="stylesheet" type="text/css" />
+<link href="view/javascript/font-awesome/css/codecart-regular-ui.css?v=7.3.1-reg1" rel="stylesheet" type="text/css" />
 <link href="view/stylesheet/codecart-feedback.css?v=3.0.6.1-fb1" rel="stylesheet" type="text/css" />
 <script src="view/javascript/codecart-table-ellipsis.js?v={{ package_build }}-3" defer></script>
 <script src="view/javascript/codecart-help-tooltips.js?v={{ package_build }}" defer></script>
@@ -93,7 +94,7 @@
         </ul>
       </li>
       {% endif %}
-      <li class="ccp-palette-menu"><a href="#" role="button" title="{{ text_quick_nav }} (Ctrl+K)" aria-label="{{ text_quick_nav }} (Ctrl+K)"><i class="fa-solid fa-compass" aria-hidden="true"></i></a></li>
+      <li class="ccp-palette-menu"><a href="#" role="button" title="{{ text_quick_nav }} (Ctrl+K)" aria-label="{{ text_quick_nav }} (Ctrl+K)"><i class="fa-regular fa-compass" aria-hidden="true"></i></a></li>
       <li class="dropdown ccp-notification-menu"><a href="#" class="dropdown-toggle ccp-notification-toggle" data-toggle="dropdown" title="{{ text_system_notifications }}" aria-label="{{ text_system_notifications }}"><i class="fa fa-bell"></i>{% if notification_count %}<span class="ccp-notification-count">{{ notification_count }}</span>{% endif %}</a>
         <ul class="dropdown-menu dropdown-menu-right ccp-notification-dropdown">
           <li class="dropdown-header"><i class="fa fa-bell-o"></i> {{ text_system_notifications }}</li>

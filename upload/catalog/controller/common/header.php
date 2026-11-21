@@ -151,6 +151,9 @@ class ControllerCommonHeader extends Controller {
 		try {
 			$fontAwesome = new \CodeCart\Core\FontAwesomeManager($theme_directory, explode(',', (string)$this->config->get('codecart_fontawesome_extra_icons')));
 			$effective_icon_mode = $fontAwesome->resolveCatalogMode($icon_mode);
+			// The UI Regular 400 compatibility stylesheet needs the full Free Regular font.
+			// Core WOFF2 subsets contain only selected Regular glyphs; never emit empty icons.
+			if ($is_default_theme) { $effective_icon_mode = 'full'; }
 			if ($is_default_theme) {
 				$data['font_awesome_unresolved_css'] = $fontAwesome->unresolvedPlaceholderCss() . ($effective_icon_mode === 'core' ? $fontAwesome->extraCss() : '');
 			}

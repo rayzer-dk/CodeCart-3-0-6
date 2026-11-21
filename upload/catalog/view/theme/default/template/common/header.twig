@@ -68,6 +68,7 @@
 {% for style in styles %}
 <link href="{{ style.href }}" type="text/css" rel="{{ style.rel }}" media="{{ style.media }}" />
 {% endfor %}
+<link href="catalog/view/javascript/font-awesome/css/codecart-regular-ui.css?v=7.3.1-reg1" rel="stylesheet" type="text/css" />
 {% if font_awesome_unresolved_css %}<style id="ccp-fa-unresolved-placeholder">{{ font_awesome_unresolved_css|raw }}</style>{% endif %}
 {% for asset_id, asset in modern_assets %}
 {% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}
@@ -136,9 +137,9 @@
     <div id="top-links" class="nav pull-right">
       <ul class="list-inline">
         {% if theme_header_phone_status and telephone %}<li class="hidden-xs ccp-top-contact"><a href="tel:{{ telephone|replace({' ': '', '(': '', ')': '', '-': ''}) }}" title="{{ telephone }}"><i class="fa-solid fa-phone-volume" aria-hidden="true"></i> <span>{{ telephone }}</span></a></li>{% endif %}
-        {% if theme_header_email_status and email %}<li class="hidden-xs ccp-top-contact hidden-sm"><a href="mailto:{{ email }}" title="{{ email }}"><i class="fa fa-envelope" aria-hidden="true"></i> <span>{{ email }}</span></a></li>{% endif %}
-        {% if theme_dark_mode_status %}<li><button type="button" class="ccp-theme-toggle" title="{{ text_theme_toggle }}" aria-label="{{ text_theme_toggle }}"><i class="fa fa-moon ccp-theme-fa" aria-hidden="true"></i></button></li>{% endif %}
-        <li class="dropdown"><a href="{{ account }}" title="{{ text_account }}" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_account }}</span> <span class="caret"></span></a>
+        {% if theme_header_email_status and email %}<li class="hidden-xs ccp-top-contact hidden-sm"><a href="mailto:{{ email }}" title="{{ email }}"><i class="fa-regular fa-envelope" aria-hidden="true"></i> <span>{{ email }}</span></a></li>{% endif %}
+        {% if theme_dark_mode_status %}<li><button type="button" class="ccp-theme-toggle" title="{{ text_theme_toggle }}" aria-label="{{ text_theme_toggle }}"><i class="fa-regular fa-moon ccp-theme-fa" aria-hidden="true"></i></button></li>{% endif %}
+        <li class="dropdown"><a href="{{ account }}" title="{{ text_account }}" class="dropdown-toggle" data-toggle="dropdown"><i class="fa-regular fa-user"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_account }}</span> <span class="caret"></span></a>
           <ul class="dropdown-menu dropdown-menu-right">
             {% if logged %}
             <li><a href="{{ account }}">{{ text_account }}</a></li>
@@ -152,9 +153,9 @@
             {% endif %}
           </ul>
         </li>
-        <li><a href="{{ wishlist }}" id="wishlist-total" title="{{ text_wishlist }}"><i class="fa fa-heart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_wishlist }}</span></a></li>
+        <li><a href="{{ wishlist }}" id="wishlist-total" title="{{ text_wishlist }}"><i class="fa-regular fa-heart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_wishlist }}</span></a></li>
         {% if not quick_checkout_enabled %}<li><a href="{{ shopping_cart }}" title="{{ text_shopping_cart }}"><i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_shopping_cart }}</span></a></li>{% endif %}
-        <li><a href="{{ checkout }}" title="{{ text_checkout }}"><i class="fa fa-share"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_checkout }}</span></a></li>
+        <li><a href="{{ checkout }}" title="{{ text_checkout }}"><i class="fa-regular fa-credit-card"></i> <span class="hidden-xs hidden-sm hidden-md">{{ text_checkout }}</span></a></li>
       </ul>
     </div>
   </div>
@@ -166,7 +167,7 @@
       <div class="col-sm-4 ccp-header-brand-col">
         <div class="ccp-mobile-header-contacts visible-xs">
           {% if theme_header_phone_status and telephone %}<a class="ccp-mobile-contact-line" href="tel:{{ telephone|replace({' ': '', '(': '', ')': '', '-': ''}) }}" title="{{ telephone }}"><i class="fa-solid fa-phone-volume"></i><span>{{ telephone }}</span></a>{% endif %}
-          {% if theme_header_email_status and email %}<a class="ccp-mobile-contact-line" href="mailto:{{ email }}" title="{{ email }}"><i class="fa fa-envelope"></i><span>{{ email }}</span></a>{% endif %}
+          {% if theme_header_email_status and email %}<a class="ccp-mobile-contact-line" href="mailto:{{ email }}" title="{{ email }}"><i class="fa-regular fa-envelope"></i><span>{{ email }}</span></a>{% endif %}
         </div>
 		<div id="logo"{% if codecart_default_brand_logo %} class="ccp-default-brand-logo"{% endif %}>
           {% if logo %}
