@@ -89,7 +89,8 @@ if (function_exists('imagecreatetruecolor') && function_exists('imagepng')) {
     imagealphablending($transparentImage, false);
     imagesavealpha($transparentImage, true);
     imagefill($transparentImage, 0, 0, imagecolorallocatealpha($transparentImage, 255, 255, 255, 127));
-    imagefilledrectangle($transparentImage, 110, 30, 210, 70, imagecolorallocatealpha($transparentImage, 11, 102, 202, 0));
+    imagefilledrectangle($transparentImage, 110, 30, 150, 70, imagecolorallocatealpha($transparentImage, 13, 18, 25, 0));
+    imagefilledrectangle($transparentImage, 151, 30, 210, 70, imagecolorallocatealpha($transparentImage, 11, 102, 202, 0));
     imagepng($transparentImage, $mailLogoDir . 'transparent.png');
     imagedestroy($transparentImage);
 
@@ -99,8 +100,43 @@ if (function_exists('imagecreatetruecolor') && function_exists('imagepng')) {
     if (!$size || $size[0] > 180 || $size[1] > 75) {
         throw new RuntimeException('Transparent email logo retains excessive whitespace');
     }
+    // Pixels outside the artwork must remain transparent on both PNG variants.
+    if (empty($transparent['dark_url'])) {
+        throw new RuntimeException('Missing adaptive dark-mode email logo');
+    }
+    $darkFile = $mailLogoDir . str_replace('https://example.test/image/', '', $transparent['dark_url']);
+    $lightPng = @imagecreatefrompng($transparentFile);
+    $darkPng = @imagecreatefrompng($darkFile);
+    if (!$lightPng || !$darkPng) {
+        throw new RuntimeException('Email logo variants are not readable PNG images');
+    }
+    $edgeLight = imagecolorat($lightPng, 0, 0);
+    $edgeDark = imagecolorat($darkPng, 0, 0);
+    if ((($edgeLight >> 24) & 127) < 120 || (($edgeDark >> 24) & 127) < 120) {
+        throw new RuntimeException('Email logo conversion painted an opaque backing over transparency');
+    }
+    $blackOriginal = imagecolorat($lightPng, 20, 20);
+    $blackDark = imagecolorat($darkPng, 20, 20);
+    $blueDark = imagecolorat($darkPng, 90, 20);
+    if ((($blackOriginal >> 16) & 255) > 80 ||
+        (($blackDark >> 16) & 255) < 220 ||
+        (($blueDark >> 16) & 255) > 50) {
+        throw new RuntimeException('Dark-mode logo must brighten dark text and preserve brand blue');
+    }
+    imagedestroy($lightPng);
+    imagedestroy($darkPng);
+    foreach (array('default', 'codecart') as $theme) {
+        $orderTemplate = file_get_contents(dirname(__DIR__) . '/upload/catalog/view/theme/' . $theme . '/template/mail/order_add.twig');
+        if (strpos($orderTemplate, 'ccp-logo-frame') === false ||
+            strpos($orderTemplate, 'logo_dark') === false ||
+            strpos($orderTemplate, 'prefers-color-scheme:dark') === false) {
+            throw new RuntimeException('Order emails must keep the logo slot and theme-aware variant');
+        }
+    }
     @unlink($logoFile);
     @unlink($transparentFile);
+    @unlink($darkFile);
+    @unlink($mailLogoDir . str_replace('https://example.test/image/', '', $logo['dark_url'] ?? ''));
     @unlink($mailLogoDir . 'white.png');
     @unlink($mailLogoDir . 'transparent.png');
     @rmdir($mailLogoDir . 'cache/email');
