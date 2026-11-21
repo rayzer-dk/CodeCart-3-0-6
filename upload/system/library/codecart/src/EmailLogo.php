@@ -27,8 +27,9 @@ final class EmailLogo {
         $source_height = (int)$info[1];
         $mime = strtolower((string)$info['mime']);
 
+        // Bump the cache key when the image preparation algorithm changes.
         $source_version = dechex((int)@filemtime($source)) . '-' . dechex((int)@filesize($source));
-        $name_hash = substr(sha1($filename . '|' . $source_version . '|email'), 0, 18);
+        $name_hash = substr(sha1($filename . '|' . $source_version . '|email-tight-v2'), 0, 18);
         $relative = 'cache/email/logo-' . $name_hash . '.png';
         $target = DIR_IMAGE . $relative;
 
@@ -42,51 +43,53 @@ final class EmailLogo {
                 return self::fallback($filename, $base_url);
             }
 
+            // Use the source aspect ratio rather than a fixed 600x160
+            // white rectangle. Keep room for a small, email-safe border.
+            $padding = 10;
             $scale = min(
-                self::OUTPUT_MAX_WIDTH / $source_width,
-                self::OUTPUT_MAX_HEIGHT / $source_height,
+                (self::OUTPUT_MAX_WIDTH - 2 * $padding) / $source_width,
+                (self::OUTPUT_MAX_HEIGHT - 2 * $padding) / $source_height,
                 1
             );
-            $out_width = max(1, (int)round($source_width * $scale));
-            $out_height = max(1, (int)round($source_height * $scale));
-
-            $canvas = imagecreatetruecolor(self::OUTPUT_MAX_WIDTH, self::OUTPUT_MAX_HEIGHT);
-            if (!$canvas) {
+            $scaled_width = max(1, (int)round($source_width * $scale));
+            $scaled_height = max(1, (int)round($source_height * $scale));
+            $preview = imagecreatetruecolor($scaled_width, $scaled_height);
+            if (!$preview) {
+                imagedestroy($image);
                 return self::fallback($filename, $base_url);
             }
 
-            // Email-safe white canvas: prevents transparent WebP logos from turning
-            // into dark/black blocks when an email client/proxy converts the image.
-            $white = imagecolorallocate($canvas, 255, 255, 255);
-            imagefill($canvas, 0, 0, $white);
+            imagealphablending($preview, false);
+            imagesavealpha($preview, true);
+            imagefill($preview, 0, 0, imagecolorallocatealpha($preview, 255, 255, 255, 127));
+            imagecopyresampled($preview, $image, 0, 0, 0, 0, $scaled_width, $scaled_height, $source_width, $source_height);
+            imagedestroy($image);
+
+            // Transparent margins and white image backgrounds are both common.
+            // Trim only those margins, never opaque white parts of a transparent logo.
+            $bounds = self::contentBounds($preview, $scaled_width, $scaled_height);
+            $crop_width = $bounds['right'] - $bounds['left'] + 1;
+            $crop_height = $bounds['bottom'] - $bounds['top'] + 1;
+            $canvas_width = $crop_width + 2 * $padding;
+            $canvas_height = $crop_height + 2 * $padding;
+            $canvas = imagecreatetruecolor($canvas_width, $canvas_height);
+            if (!$canvas) {
+                imagedestroy($preview);
+                return self::fallback($filename, $base_url);
+            }
+
+            // A tight white backing keeps black lettering legible in
+            // Gmail dark mode without surrounding it with a huge white block.
+            imagefill($canvas, 0, 0, imagecolorallocate($canvas, 255, 255, 255));
             imagealphablending($canvas, true);
-            imagesavealpha($canvas, false);
-
-            $dst_x = (int)floor((self::OUTPUT_MAX_WIDTH - $out_width) / 2);
-            $dst_y = (int)floor((self::OUTPUT_MAX_HEIGHT - $out_height) / 2);
-
-            imagecopyresampled(
-                $canvas,
-                $image,
-                $dst_x,
-                $dst_y,
-                0,
-                0,
-                $out_width,
-                $out_height,
-                $source_width,
-                $source_height
-            );
+            imagecopy($canvas, $preview, $padding, $padding,
+                $bounds['left'], $bounds['top'], $crop_width, $crop_height);
+            imagedestroy($preview);
 
             $tmp = $target . '.tmp';
             $saved = @imagepng($canvas, $tmp, 6);
-
-            if (!$saved) {
-                @unlink($tmp);
-                return self::fallback($filename, $base_url);
-            }
-
-            if (!@rename($tmp, $target)) {
+            imagedestroy($canvas);
+            if (!$saved || !@rename($tmp, $target)) {
                 @unlink($tmp);
                 if (!is_file($target)) {
                     return self::fallback($filename, $base_url);
@@ -94,12 +97,65 @@ final class EmailLogo {
             }
         }
 
+        $dimensions = @getimagesize($target);
+        if (!$dimensions || !$dimensions[0] || !$dimensions[1]) {
+            return self::fallback($filename, $base_url);
+        }
+        $display_scale = min(
+            self::DISPLAY_MAX_WIDTH / (int)$dimensions[0],
+            self::DISPLAY_MAX_HEIGHT / (int)$dimensions[1],
+            1
+        );
         return array(
             'url' => rtrim((string)$base_url, '/') . '/image/' . str_replace(' ', '%20', $relative),
-            'width' => self::DISPLAY_MAX_WIDTH,
-            'height' => self::DISPLAY_MAX_HEIGHT,
+            'width' => max(1, (int)round($dimensions[0] * $display_scale)),
+            'height' => max(1, (int)round($dimensions[1] * $display_scale)),
             'format' => 'PNG'
         );
+    }
+
+    /**
+     * Find foreground pixels in a bounded preview (at most 600x160).
+     * Respect alpha for transparent artwork; otherwise trim white padding.
+     */
+    private static function contentBounds($image, $width, $height) {
+        $alpha_bounds = array('left' => $width, 'top' => $height, 'right' => -1, 'bottom' => -1);
+        $ink_bounds = $alpha_bounds;
+        $has_transparency = false;
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $pixel = imagecolorat($image, $x, $y);
+                $alpha = ($pixel >> 24) & 0x7f;
+                if ($alpha >= 110) {
+                    $has_transparency = true;
+                    continue;
+                }
+                self::extendBounds($alpha_bounds, $x, $y);
+
+                $red = ($pixel >> 16) & 0xff;
+                $green = ($pixel >> 8) & 0xff;
+                $blue = $pixel & 0xff;
+                if ($red < 246 || $green < 246 || $blue < 246) {
+                    self::extendBounds($ink_bounds, $x, $y);
+                }
+            }
+        }
+        if ($has_transparency && $alpha_bounds['right'] >= 0) {
+            return $alpha_bounds;
+        }
+        if ($ink_bounds['right'] >= 0) {
+            return $ink_bounds;
+        }
+        // A fully white image is not assumed to be empty artwork.
+        return array('left' => 0, 'top' => 0, 'right' => $width - 1, 'bottom' => $height - 1);
+    }
+
+    private static function extendBounds(&$bounds, $x, $y) {
+        $bounds['left'] = min($bounds['left'], $x);
+        $bounds['top'] = min($bounds['top'], $y);
+        $bounds['right'] = max($bounds['right'], $x);
+        $bounds['bottom'] = max($bounds['bottom'], $y);
     }
 
     public static function inspect($filename) {
