@@ -421,7 +421,7 @@
         "system/library/codecart/src/SystemNotification.php": "f99bc3ca271a64dae852ec7d9c053d2bb3bb9398a7efc57306454ab1a476ad16",
         "system/library/codecart/src/TaxDisplay.php": "87131a4f0d43adeb9c034ab08b6840ea8ebc77c31f7116a08de96bc3936bfd9a",
         "system/library/codecart/src/TotpManager.php": "32e33ff8f16643b3a64f10f2c285f336edec0533a9db19c679d7e486d7141bd1",
-        "system/library/codecart/src/Unishop2Compatibility.php": "fd0572d250708a6cf54cd40b3941536b35ec427911c0fd6de367ae2c92c2eeaa",
+        "system/library/codecart/src/Unishop2Compatibility.php": "9d47feb8b67195ec9a6293a7106490c894a142b3eb4008eee1e99a58894d86cf",
         "system/library/codecart/src/UploadGuard.php": "666da40bf8ba492de263ed4805173b19efbd25619b1452211aa58f6bcb2ccae6",
         "system/library/codecart/src/VendorCompatibility.php": "8cb8cb892cc94781592c8b01169c6e3317659df91c4170e66344394f3cc8a12e",
         "system/library/db/mysqli.php": "2724b9ba5b817ad40e9913d122fe21449a216683be7423a3bc65aaced46bd8c9",
