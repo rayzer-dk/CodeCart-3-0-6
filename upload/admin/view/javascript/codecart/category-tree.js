@@ -140,6 +140,11 @@
         if (button && !button.disabled) {
           var isCollapsed = collapsed[row.dataset.ccTreeId] === true;
           button.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+          var nameButton = row.querySelector('.cc-tree-name-toggle');
+          if (nameButton) {
+            nameButton.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+            nameButton.setAttribute('title', isCollapsed ? (button.getAttribute('title') || '') : (button.getAttribute('data-collapse-label') || button.getAttribute('title') || ''));
+          }
           button.classList.toggle('is-collapsed', isCollapsed);
           var icon = button.querySelector('i');
           if (icon) {
@@ -188,7 +193,10 @@
           if (expandAll) { syncExpandAll(); }
         };
         toggle.addEventListener('click', onToggle);
-        if (nameToggle) { nameToggle.addEventListener('click', onToggle); }
+        if (nameToggle) {
+          nameToggle.setAttribute('aria-expanded', collapsed[row.dataset.ccTreeId] ? 'false' : 'true');
+          nameToggle.addEventListener('click', onToggle);
+        }
       }
     });
 
