@@ -452,7 +452,7 @@ class ControllerUpgradeUpgrade extends Controller {
     }
 
     private function renderLogin() {
-        foreach (array('heading_title', 'text_upgrade', 'text_login_required', 'entry_username', 'entry_password', 'button_login') as $key) {
+        foreach (array('heading_title', 'text_upgrade', 'text_login_required', 'entry_username', 'entry_password', 'button_login', 'button_show_password', 'button_hide_password') as $key) {
             $data[$key] = $this->language->get($key);
         }
         $data['error_login'] = isset($this->session->data['codecart_upgrade_login_error']) ? (string)$this->session->data['codecart_upgrade_login_error'] : '';
