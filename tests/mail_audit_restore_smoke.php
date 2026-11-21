@@ -60,4 +60,52 @@ foreach (array('default', 'codecart') as $theme) {
         throw new RuntimeException($theme . ' customer order mail must use one address, avoid IP and show product photos');
     }
 }
+// Regression: prepared email logos must not be centered inside a fixed
+// 600x160 white rectangle. Both white-background and transparent logos
+// should produce tight, correctly proportioned image assets.
+if (function_exists('imagecreatetruecolor') && function_exists('imagepng')) {
+    require dirname(__DIR__) . '/upload/system/library/codecart/src/EmailLogo.php';
+    $mailLogoDir = sys_get_temp_dir() . '/codecart-logo-' . bin2hex(random_bytes(5)) . '/';
+    if (!mkdir($mailLogoDir, 0700, true) && !is_dir($mailLogoDir)) {
+        throw new RuntimeException('Cannot create email logo smoke temporary folder');
+    }
+    define('DIR_IMAGE', $mailLogoDir);
+
+    $whiteImage = imagecreatetruecolor(320, 100);
+    imagefill($whiteImage, 0, 0, imagecolorallocate($whiteImage, 255, 255, 255));
+    imagefilledrectangle($whiteImage, 110, 30, 210, 70, imagecolorallocate($whiteImage, 11, 102, 202));
+    imagepng($whiteImage, $mailLogoDir . 'white.png');
+    imagedestroy($whiteImage);
+
+    $logo = \CodeCart\Core\EmailLogo::prepare('white.png', 'https://example.test');
+    $logoFile = $mailLogoDir . str_replace('https://example.test/image/', '', $logo['url']);
+    $size = @getimagesize($logoFile);
+    if (!$size || $size[0] > 180 || $size[1] > 75 ||
+        $logo['width'] !== (int)$size[0] || $logo['height'] !== (int)$size[1]) {
+        throw new RuntimeException('White-background email logo retains excessive whitespace');
+    }
+
+    $transparentImage = imagecreatetruecolor(320, 100);
+    imagealphablending($transparentImage, false);
+    imagesavealpha($transparentImage, true);
+    imagefill($transparentImage, 0, 0, imagecolorallocatealpha($transparentImage, 255, 255, 255, 127));
+    imagefilledrectangle($transparentImage, 110, 30, 210, 70, imagecolorallocatealpha($transparentImage, 11, 102, 202, 0));
+    imagepng($transparentImage, $mailLogoDir . 'transparent.png');
+    imagedestroy($transparentImage);
+
+    $transparent = \CodeCart\Core\EmailLogo::prepare('transparent.png', 'https://example.test');
+    $transparentFile = $mailLogoDir . str_replace('https://example.test/image/', '', $transparent['url']);
+    $size = @getimagesize($transparentFile);
+    if (!$size || $size[0] > 180 || $size[1] > 75) {
+        throw new RuntimeException('Transparent email logo retains excessive whitespace');
+    }
+    @unlink($logoFile);
+    @unlink($transparentFile);
+    @unlink($mailLogoDir . 'white.png');
+    @unlink($mailLogoDir . 'transparent.png');
+    @rmdir($mailLogoDir . 'cache/email');
+    @rmdir($mailLogoDir . 'cache');
+    @rmdir($mailLogoDir);
+}
+
 echo "Mail Audit restore: PASS\n";
