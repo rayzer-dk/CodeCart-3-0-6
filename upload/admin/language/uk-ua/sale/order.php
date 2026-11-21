@@ -167,3 +167,5 @@ $_['help_order_phone'] = 'Від 4 цифр; точні номери вище з
 // The compact order-list badge counts units (SUM(quantity)); tooltip also shows product lines.
 $_['text_order_product_count'] = 'Товарів у замовленні: %d шт., товарних позицій: %d';
 $_['text_order_units_label'] = 'шт.';
+
+$_['text_reset_filter'] = 'Скинути фільтр';
