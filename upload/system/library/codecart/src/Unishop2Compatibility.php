@@ -272,6 +272,14 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
 
     /** Normalize only the known UniShop2 stock-sort injection before OCMOD applies it. */
     public static function normalizeOcmodAdd(string $code, string $version, string $file, string $search, string $add): string {
+        // A stock-sort OCMOD may match ORDER BY in helpers other than getProducts().
+        // Those helpers never initialize $sort_qty. Guard this exact SQL injection
+        // regardless of the vendor's XML code/version (which can vary by package).
+        if (str_replace('\\\\', '/', $file) === 'catalog/model/catalog/product.php'
+            && trim($search) === '$sql .= " ORDER BY'
+            && preg_match('~^\\s*\\$sql\\s*\\.\\s*=\\s*" ORDER BY "\\s*\\.\\s*\\$sort_qty\\s*\\.\\s*"\\s*$~D', $add)) {
+            return str_replace('$sort_qty', "(\\$sort_qty ?? '')", $add);
+        }
         if ($code !== 'UniShop2 template' || !preg_match('/^3\\.6\\.(?:[6-9])\\.0$/D', $version)
             || str_replace('\\', '/', $file) !== 'catalog/model/catalog/product.php') {
             return $add;
