@@ -44,6 +44,27 @@ final class AdminCategoryTreeEditor {
         return $sort;
     }
 
+    /** Apply indexing changes without rewriting the category form. CodeCart uses noindex=1 for indexable entries. */
+    public static function quickIndex($registry, string $type, int $id, int $value, int $expected): int {
+        [$entity, , $key] = self::names($type);
+        if ($type !== 'catalog' && $type !== 'blog') {
+            throw new \InvalidArgumentException('Unsupported indexing target.');
+        }
+        if ($id <= 0 || !in_array($value, array(0, 1), true) || !in_array($expected, array(0, 1), true)) {
+            throw new \InvalidArgumentException('Invalid indexing value.');
+        }
+        $db = $registry->get('db');
+        $table = '`' . DB_PREFIX . $entity . '`';
+        $db->query("UPDATE " . $table . " SET noindex = '" . $value . "', date_modified = NOW() WHERE `" . $key . "` = '" . $id . "' AND noindex = '" . $expected . "'");
+        $result = $db->query("SELECT noindex FROM " . $table . " WHERE `" . $key . "` = '" . $id . "' LIMIT 1");
+        if (!$result->num_rows) { throw new \RuntimeException('Category does not exist.'); }
+        if ((int)$result->row['noindex'] !== $value) {
+            throw new \RuntimeException('Category was changed in another session. Refresh the page.');
+        }
+        self::clearCaches($registry, $type);
+        return $value;
+    }
+
     public static function move($registry, string $type, int $id, int $newParent): bool {
         [$entity, $closure, $key] = self::names($type);
         if ($closure === null) {
