@@ -48,4 +48,16 @@ foreach (array('default', 'codecart') as $theme) {
         throw new RuntimeException($theme . ' order alert lacks compact product images');
     }
 }
+// Customer email must not repeat identical billing/delivery addresses or expose IP details.
+if (strpos($mailController, "\$data['same_address'] = \$same_address;") === false) {
+    throw new RuntimeException('Order email lacks duplicate-address comparison');
+}
+foreach (array('default', 'codecart') as $theme) {
+    $customerTemplate = file_get_contents(dirname(__DIR__) . '/upload/catalog/view/theme/' . $theme . '/template/mail/order_add.twig');
+    if (strpos($customerTemplate, 'same_address or not payment_address or not shipping_address') === false ||
+        strpos($customerTemplate, '{{ ip }}') !== false ||
+        strpos($customerTemplate, 'product.image') === false) {
+        throw new RuntimeException($theme . ' customer order mail must use one address, avoid IP and show product photos');
+    }
+}
 echo "Mail Audit restore: PASS\n";
