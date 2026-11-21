@@ -198,7 +198,7 @@
         "catalog/controller/information/information.php": "8add21a6aded8c1578a118906c06806f330d8884413f0b45329a2960e8eb2b81",
         "catalog/controller/mail/affiliate.php": "ffb1d5e8cb4db02134f7afeed9111cf7fe6a5d31f128cec5394002bdcdf1c501",
         "catalog/controller/mail/forgotten.php": "002dd677bf06b112fc998fe27b4e1f8db8fc518b9394651b2efafa3ba7e25e75",
-        "catalog/controller/mail/order.php": "2e962358e054940acacacd723532404d11686cae59e5047d7fbfd9c98fe1fbd0",
+        "catalog/controller/mail/order.php": "8a53f3ba199e44d65b790053c815da75059fcdbc4c17359eac2468fc6a21b9eb",
         "catalog/controller/mail/register.php": "534d4443fb0c4f1d9f246425ab02cf972b87842f7ce0ec9204bb63f2ddc4ba15",
         "catalog/controller/product/category.php": "a06b5d7eaed7fcb69959d744172d495849f4da040f3a5690842920676871ff4e",
         "catalog/controller/product/manufacturer.php": "d0c875ced2cdc2433d3c19739426bc703f7f4c19ab95f9ef8a07410ca8f39f06",
