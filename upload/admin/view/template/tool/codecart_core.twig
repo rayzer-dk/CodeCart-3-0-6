@@ -357,7 +357,7 @@ $('#button-phpinfo').on('click', function(){
         $.each(json.changed||[],function(_,t){converted++;$('#ccp-db-modernize tr[data-table="'+t+'"]').addClass('success');});
         $.each(json.errors||[],function(_,e){failed.push(e.table+': '+e.error);});
         $status.text(texts.running.replace('%s',converted).replace('%s',json.remaining));
-        if(json.done||json.remaining===0){$status.text(texts.done.replace('%s',converted).replace('%s',json.remaining));if(failed.length){$status.append($('<pre class="text-danger">').text(failed.join('\n')));}$btn.prop('disabled',false);$('#ccp-db-include-external').prop('disabled',false);}else{step();}
+        if(json.done||json.remaining===0){$status.text(texts.done.replace('%s',converted).replace('%s',json.remaining));if(failed.length){$status.append($('<pre class="text-danger">').text(failed.join('\n')));}if(json.remaining>0&&(json.skipped_details||[]).length){var reasons=$.map(json.skipped_details,function(row){return row.table+': '+row.reason+(row.risks?' — '+row.risks.join('; '):'');});$status.append($('<pre class="text-warning">').text(reasons.join('\n')));}$btn.prop('disabled',false);$('#ccp-db-include-external').prop('disabled',false);}else{step();}
       }).fail(function(xhr){$status.html($('<span class="text-danger">').text(xhr.status+' '+xhr.statusText));$btn.prop('disabled',false);$('#ccp-db-include-external').prop('disabled',false);});
     };
     step();
