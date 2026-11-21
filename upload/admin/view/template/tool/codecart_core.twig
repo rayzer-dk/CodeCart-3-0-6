@@ -115,7 +115,7 @@
               </table></div>
               <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ text_schema_backup_warning }}</div>
               <label class="checkbox-inline"><input type="checkbox" id="ccp-db-backup-confirm" value="1" /> {{ text_schema_backup_confirm }}</label>
-              <label class="checkbox-inline"><input type="checkbox" id="ccp-db-include-external" value="1" /> {{ text_db_include_external }}</label>
+              <label class="checkbox-inline"><input type="checkbox" id="ccp-db-include-external" value="1" checked="checked" /> {{ text_db_include_external }}</label>
               <p class="help-block">{{ text_db_include_external_help }}</p>
               <button type="button" class="btn btn-warning" id="ccp-db-modernize-run" data-url="{{ db_modernize_url|e('html_attr') }}"><i class="fa fa-cogs"></i> {{ button_db_modernize }}</button>
               <div class="ccp-db-modernize-status help-block" aria-live="polite"></div>
