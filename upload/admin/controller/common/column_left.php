@@ -10,7 +10,7 @@ class ControllerCommonColumnLeft extends Controller {
 			// Menu
 			$data['menus'][] = array(
 				'id'       => 'menu-dashboard',
-				'icon'	   => 'fa-regular fa-chart-bar',
+				'icon'	   => 'fa-solid fa-gauge-high',
 				'name'	   => $this->language->get('text_dashboard'),
 				'href'     => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true),
 				'children' => array()
@@ -708,7 +708,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($maintenance) {
 				$system[] = array(
 					'id'       => 'menu-maintenance',
-					'icon'	   => 'fa-solid fa-gear',
+					'icon'	   => 'fa-solid fa-screwdriver-wrench',
 					'name'	   => $this->language->get('text_maintenance'),
 					'href'     => '',
 					'children' => $maintenance
@@ -755,7 +755,7 @@ class ControllerCommonColumnLeft extends Controller {
 			if ($report) {
 				$data['menus'][] = array(
 					'id'       => 'menu-report',
-					'icon'	   => 'fa-regular fa-chart-bar',
+					'icon'	   => 'fa-solid fa-chart-line',
 					'name'	   => $this->language->get('text_reports'),
 					'href'     => '',
 					'children' => $report
