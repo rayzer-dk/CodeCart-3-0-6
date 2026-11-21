@@ -166,3 +166,5 @@ $_['help_order_phone'] = 'At least 4 digits; exact numbers rank first. At least 
 // The compact order-list badge counts units (SUM(quantity)); tooltip also shows product lines.
 $_['text_order_product_count'] = 'Items in order: %d units, product lines: %d';
 $_['text_order_units_label'] = 'pcs';
+
+$_['text_reset_filter'] = 'Reset filters';
