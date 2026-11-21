@@ -81,8 +81,10 @@ if (function_exists('imagecreatetruecolor') && function_exists('imagepng')) {
     $logoFile = $mailLogoDir . str_replace('https://example.test/image/', '', $logo['url']);
     $size = @getimagesize($logoFile);
     if (!$size || $size[0] > 180 || $size[1] > 75 ||
-        $logo['width'] !== (int)$size[0] || $logo['height'] !== (int)$size[1]) {
-        throw new RuntimeException('White-background email logo retains excessive whitespace');
+        $logo['width'] > 300 || $logo['height'] > 80 ||
+        ($logo['width'] < 290 && $logo['height'] < 78) ||
+        abs(($logo['width'] / $logo['height']) - ($size[0] / $size[1])) > 0.05) {
+        throw new RuntimeException('Email logo must crop whitespace then fit its original aspect ratio in the slot');
     }
 
     $transparentImage = imagecreatetruecolor(320, 100);
@@ -126,6 +128,15 @@ if (function_exists('imagecreatetruecolor') && function_exists('imagepng')) {
     imagedestroy($lightPng);
     imagedestroy($darkPng);
     foreach (array('default', 'codecart') as $theme) {
+        foreach (array('affiliate_alert_html.twig', 'affiliate_html.twig', 'forgotten_html.twig',
+            'order_add.twig', 'order_alert_html.twig', 'order_edit_html.twig',
+            'register_alert_html.twig', 'register_html.twig', 'transaction_html.twig') as $mailFile) {
+            $mailHtml = file_get_contents(dirname(__DIR__) . '/upload/catalog/view/theme/' . $theme . '/template/mail/' . $mailFile);
+            if (strpos($mailHtml, 'ccp-logo-frame') === false ||
+                strpos($mailHtml, 'logo_dark') === false) {
+                throw new RuntimeException($theme . '/' . $mailFile . ' lacks a bounded adaptive logo');
+            }
+        }
         $orderTemplate = file_get_contents(dirname(__DIR__) . '/upload/catalog/view/theme/' . $theme . '/template/mail/order_add.twig');
         if (strpos($orderTemplate, 'ccp-logo-frame') === false ||
             strpos($orderTemplate, 'logo_dark') === false ||
