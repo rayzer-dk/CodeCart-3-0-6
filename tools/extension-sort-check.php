@@ -21,7 +21,7 @@ foreach ($types as $type) {
         $errors[] = $type . ': no installation date metadata in controller';
     }
     try {
-        $sortKeys = array('name', 'status', 'date');
+        $sortKeys = $type === 'module' ? array('name', 'status', 'date', 'updated') : array('name', 'status', 'date');
         foreach (ccpCheckExtensionTable($renderer, $twig, $sortKeys) as $error) { $errors[] = $type . ': ' . $error; }
     } catch (\Throwable $e) {
         $errors[] = $type . ': template check failed: ' . $e->getMessage();
