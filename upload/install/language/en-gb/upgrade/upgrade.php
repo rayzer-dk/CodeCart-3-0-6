@@ -63,3 +63,6 @@ $_['button_login'] = 'Sign in';
 $_['error_login'] = 'Invalid username or password, or the account has no administrator permissions.';
 $_['error_login_attempts'] = 'Too many failed attempts. Try again in 15 minutes.';
 $_['error_login_required'] = 'The installer session is not authorised or has expired. Reload the page and sign in again.';
+
+$_['button_show_password'] = 'Show password';
+$_['button_hide_password'] = 'Hide password';
