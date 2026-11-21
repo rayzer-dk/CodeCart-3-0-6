@@ -533,3 +533,5 @@ $_['error_webmcp_origin_trial'] = 'Enter a valid Chrome Origin Trial token forma
 
 $_['text_db_include_external'] = 'Check and repair third-party module tables';
 $_['text_db_include_external_help'] = 'Also processes extension tables with the store prefix. Text columns using another charset are converted to utf8mb4. A complete backup is required; risky tables are skipped.';
+
+$_['text_db_legacy_columns'] = 'Legacy charset columns';
