@@ -134,7 +134,7 @@
         "admin/view/template/common/codecart_purchase_blocks.twig": "e6d9eb67454232acdf9427c6af76e1ca8fab097d8bea9ff22e1c5f7f6c8088e6",
         "admin/view/template/common/dashboard.twig": "cf65c9500d5971ce5878133d650930c9c80bddc07fab56e26966051a13d8f5f2",
         "admin/view/template/common/developer.twig": "5b92ec8e43c3f54e09177d2287b1cf4fc27f28c2fa31373fcb3614d55789a78e",
-        "admin/view/template/common/footer.twig": "0feb28ae3db939833d595bc4a99a64594034a1170a69fe575f16f558ac284f95",
+        "admin/view/template/common/footer.twig": "cafc6917a83ce292042a5cffe8c79b258274089e73f82ed940d62f0bae020a77",
         "admin/view/template/common/header.twig": "d138e13d5001d925de278cf4b30be4d57b2a87c74fa6af9e569fcc3437809b6e",
         "admin/view/template/design/form_form.twig": "cb569fe509342a1c7e9bd4c60177f79b9e82671030eb8964cd3974e442939d08",
         "admin/view/template/design/form_list.twig": "8f45401865e2859cacf214a604a432decf844572b312fe59b634f1d5c2fbc30b",
