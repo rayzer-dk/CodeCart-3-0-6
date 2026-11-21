@@ -278,7 +278,7 @@ final class Unishop2Compatibility implements CompatibilityAdapterInterface {
         if (str_replace('\\\\', '/', $file) === 'catalog/model/catalog/product.php'
             && trim($search) === '$sql .= " ORDER BY'
             && preg_match('~^\\s*\\$sql\\s*\\.\\s*=\\s*" ORDER BY "\\s*\\.\\s*\\$sort_qty\\s*\\.\\s*"\\s*$~D', $add)) {
-            return str_replace('$sort_qty', "(\\$sort_qty ?? '')", $add);
+            return str_replace('$sort_qty', "(\$sort_qty ?? '')", $add);
         }
         if ($code !== 'UniShop2 template' || !preg_match('/^3\\.6\\.(?:[6-9])\\.0$/D', $version)
             || str_replace('\\', '/', $file) !== 'catalog/model/catalog/product.php') {
