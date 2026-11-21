@@ -28,6 +28,16 @@ const { chromium } = require('playwright');
   if (await page.locator('#input-payment-address-1').count()) await page.locator('#input-payment-address-1').fill('Browser Street 1');
   if (await page.locator('#input-payment-city').count()) await page.locator('#input-payment-city').fill('Kyiv');
   if (await page.locator('#input-payment-postcode').count()) await page.locator('#input-payment-postcode').fill('01001');
+  const region = page.locator('#input-payment-zone');
+  if (await region.count() && await region.isVisible()) {
+    // A visible required province must not be silently filled from the shop default.
+    await page.locator('#button-guest').click();
+    await page.locator('#input-payment-zone + .text-danger').waitFor({state:'visible'});
+    const options = region.locator('option:not([value=""]):not([value="0"])');
+    await options.first().waitFor({state:'attached'});
+    const zoneValue = await options.first().getAttribute('value');
+    await region.selectOption(zoneValue);
+  }
   await page.locator('#button-guest').click();
   await page.locator('#button-shipping-method').waitFor({state:'visible'});
   const shipping = page.locator('input[name="shipping_method"]');
