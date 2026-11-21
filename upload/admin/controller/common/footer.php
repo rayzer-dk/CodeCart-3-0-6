@@ -4,7 +4,7 @@ class ControllerCommonFooter extends Controller {
 		$this->load->language('common/footer');
 
 		foreach (array(
-			'text_footer','text_project_support','text_support','text_report','text_report_title','text_report_intro','text_report_mail','text_report_gmail','text_report_outlook','text_report_copy','project_title','project_subtitle','project_intro','project_free_title','project_free_text',
+			'text_reset_filter','text_footer','text_project_support','text_support','text_report','text_report_title','text_report_intro','text_report_mail','text_report_gmail','text_report_outlook','text_report_copy','project_title','project_subtitle','project_intro','project_free_title','project_free_text',
 			'project_compat_title','project_compat_text','project_quality_title','project_quality_text','project_help_title','project_help_text',
 			'project_payment_title','project_payment_note','project_amount_any','project_temp','project_copy','project_qr','project_open','project_copied','project_crypto_title','project_crypto_note','project_resources_title',
 			'project_support_title','project_support_text','project_close','text_community','text_repository'
