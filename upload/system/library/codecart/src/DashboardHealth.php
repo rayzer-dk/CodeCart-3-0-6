@@ -136,7 +136,7 @@ final class DashboardHealth {
             'database' => array('value'=>$db['version'], 'state'=>$db['state']),
             'innodb' => array('value'=>$db['innodb_tables'] . '/' . $db['total_tables'], 'state'=>$db['innodb_tables']===$db['total_tables']?'ok':'warning'),
             'utf8mb4' => array('value'=>$db['utf8mb4_tables'] . '/' . $db['total_tables'], 'state'=>$db['utf8mb4_tables']===$db['total_tables']?'ok':'warning'),
-            'utf8mb4_columns' => array('value'=>$db['utf8mb4_columns'] . '/' . $db['text_columns'], 'state'=>$db['utf8mb4_columns']===$db['text_columns']?'ok':'warning'),
+            'utf8mb4_columns' => array('value'=>$db['utf8mb4_columns'] . '/' . $db['text_columns'], 'state'=>$db['utf8mb4_columns']===$db['text_columns']?'ok':'warning', 'detail'=>$db['legacy_column_details']),
             'schema' => array('value'=>trim((string)$this->config->get('codecart_core_schema_version')) ?: '-', 'state'=>$expectedSchema !== '' && trim((string)$this->config->get('codecart_core_schema_version')) === $expectedSchema ? 'ok' : 'warning'),
             'cache' => array('value'=>($cacheRequested && $cacheRequested!==$cacheActive ? $cacheRequested . ' → ' : '') . $cacheActive, 'state'=>$cacheFallback!==''?'warning':'ok', 'detail'=>$cacheFallback),
             'opcache' => array('value'=>$opcache?'enabled':'disabled', 'state'=>$opcache?'ok':'warning'),
@@ -288,14 +288,26 @@ final class DashboardHealth {
     }
 
     private function databaseState(): array {
-        $result=array('version'=>'unknown','total_tables'=>0,'innodb_tables'=>0,'utf8mb4_tables'=>0,'text_columns'=>0,'utf8mb4_columns'=>0,'legacy_tables'=>0,'legacy_columns'=>0,'state'=>'warning');
+        $result=array('version'=>'unknown','total_tables'=>0,'innodb_tables'=>0,'utf8mb4_tables'=>0,'text_columns'=>0,'utf8mb4_columns'=>0,'legacy_tables'=>0,'legacy_columns'=>0,'legacy_column_details'=>'','state'=>'warning');
         try {
             $q=$this->db->query('SELECT VERSION() AS version'); if($q->num_rows){$result['version']=(string)$q->row['version'];}
-            $q=$this->db->query("SELECT COUNT(*) total,SUM(ENGINE='InnoDB') innodb,SUM(TABLE_COLLATION LIKE 'utf8mb4%') utf8mb4,SUM(NOT (ENGINE='InnoDB' AND TABLE_COLLATION LIKE 'utf8mb4%')) legacy FROM information_schema.TABLES WHERE TABLE_SCHEMA='".$this->db->escape(DB_DATABASE)."' AND TABLE_TYPE='BASE TABLE'");
+            $schema=$this->db->escape(DB_DATABASE);
+            $prefix=$this->db->escape(DB_PREFIX);
+            $prefixLength=strlen(DB_PREFIX);
+            $q=$this->db->query("SELECT COUNT(*) total,COALESCE(SUM(ENGINE='InnoDB'),0) innodb,COALESCE(SUM(TABLE_COLLATION LIKE 'utf8mb4%'),0) utf8mb4,COALESCE(SUM(NOT (ENGINE='InnoDB' AND TABLE_COLLATION LIKE 'utf8mb4%')),0) legacy FROM information_schema.TABLES WHERE TABLE_SCHEMA='".$schema."' AND TABLE_TYPE='BASE TABLE' AND LEFT(TABLE_NAME,".$prefixLength.")='".$prefix."'");
             if($q->num_rows){$result['total_tables']=(int)$q->row['total'];$result['innodb_tables']=(int)$q->row['innodb'];$result['utf8mb4_tables']=(int)$q->row['utf8mb4'];$result['legacy_tables']=(int)$q->row['legacy'];}
-            $q=$this->db->query("SELECT COUNT(*) total,SUM(CHARACTER_SET_NAME='utf8mb4') utf8mb4 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='".$this->db->escape(DB_DATABASE)."' AND CHARACTER_SET_NAME IS NOT NULL");
+            // Match the store-owned tables audited by DatabaseModernizer, not unrelated schemas/views.
+            $q=$this->db->query("SELECT COUNT(*) total,COALESCE(SUM(c.CHARACTER_SET_NAME='utf8mb4'),0) utf8mb4 FROM information_schema.COLUMNS c INNER JOIN information_schema.TABLES t ON (t.TABLE_SCHEMA=c.TABLE_SCHEMA AND t.TABLE_NAME=c.TABLE_NAME AND t.TABLE_TYPE='BASE TABLE') WHERE c.TABLE_SCHEMA='".$schema."' AND LEFT(c.TABLE_NAME,".$prefixLength.")='".$prefix."' AND c.CHARACTER_SET_NAME IS NOT NULL");
             if($q->num_rows){$result['text_columns']=(int)$q->row['total'];$result['utf8mb4_columns']=(int)$q->row['utf8mb4'];}
             $result['legacy_columns']=max(0,$result['text_columns']-$result['utf8mb4_columns']);
+            if ($result['legacy_columns'] > 0) {
+                $q=$this->db->query("SELECT c.TABLE_NAME,c.COLUMN_NAME,c.CHARACTER_SET_NAME FROM information_schema.COLUMNS c INNER JOIN information_schema.TABLES t ON (t.TABLE_SCHEMA=c.TABLE_SCHEMA AND t.TABLE_NAME=c.TABLE_NAME AND t.TABLE_TYPE='BASE TABLE') WHERE c.TABLE_SCHEMA='".$schema."' AND LEFT(c.TABLE_NAME,".$prefixLength.")='".$prefix."' AND c.CHARACTER_SET_NAME IS NOT NULL AND c.CHARACTER_SET_NAME <> 'utf8mb4' ORDER BY c.TABLE_NAME,c.ORDINAL_POSITION LIMIT 25");
+                $columns=array();
+                foreach ($q->rows as $column) {
+                    $columns[]=$column['TABLE_NAME'].'.'.$column['COLUMN_NAME'].' ('.$column['CHARACTER_SET_NAME'].')';
+                }
+                $result['legacy_column_details']=implode('; ', $columns);
+            }
             $result['state']=($result['innodb_tables']===$result['total_tables']&&$result['utf8mb4_tables']===$result['total_tables']&&$result['utf8mb4_columns']===$result['text_columns'])?'ok':'warning';
         } catch (\Throwable $e) { $this->logFailure('database state', $e); }
         return $result;
