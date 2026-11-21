@@ -8,7 +8,7 @@ require_once __DIR__ . '/check_paypal_financial_guards.php';
 $twig = new \Twig\Environment(new \Twig\Loader\ArrayLoader(), array('autoescape'=>false, 'cache'=>false));
 $table = file_get_contents($root . '/upload/admin/view/template/extension/extension/module.twig');
 $parent = file_get_contents($root . '/upload/admin/view/template/marketplace/extension.twig');
-$moduleSortKeys = array('name', 'status', 'date');
+$moduleSortKeys = array('name', 'status', 'date', 'updated');
 $passed = 0;
 
 function checkerAssert($condition, $name) {
@@ -30,7 +30,7 @@ $formattedParent = str_replace('<div id="content">', "<div class='extra' id='con
 checkerAssert(ccpCheckExtensionParent($twig, $formattedParent) === array(), 'CSS whitespace and DOM adjacency ignore comment nodes');
 
 $badTables = array(
-    'thead attribute must not hide wrong colspan'=>str_replace('colspan="4"', 'colspan="99"', $formatted),
+    'thead attribute must not hide wrong colspan'=>str_replace('colspan="5"', 'colspan="99"', $formatted),
     'missing thead'=>str_replace(array('<thead>', '</thead>'), '', $table),
     'missing main row class'=>str_replace('ccp-extension-main', 'other-row', $table),
     'missing empty-state message'=>str_replace('{{ text_no_results }}', '', $table),
