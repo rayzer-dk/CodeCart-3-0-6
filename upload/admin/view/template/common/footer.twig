@@ -142,4 +142,38 @@
 {% if asset.preload %}<link rel="preload" href="{{ asset.url }}" as="{% if asset.type == 'style' %}style{% else %}script{% endif %}" />{% endif %}
 {% if asset.type == 'style' %}<link rel="stylesheet" href="{{ asset.url }}" media="{{ asset.media }}" />{% elseif asset.type == 'script' %}<script src="{{ asset.url }}"{% if asset.module %} type="module"{% else %} type="text/javascript"{% endif %}{% if asset.defer %} defer{% endif %}{% if asset.async %} async{% endif %}></script>{% endif %}
 {% endfor %}
+<script>
+(function () {
+  'use strict';
+  // Add reset next to existing list filter actions; preserve route and CSRF token.
+  function addResetButtons() {
+    var containers = document.querySelectorAll('[id^="filter-"]');
+    containers.forEach(function (container) {
+      var action = container.querySelector('#button-filter, button[id^="button-filter"], .btn-filter');
+      if (!action || container.querySelector('.ccp-reset-list-filter, #button-reset-filter')) { return; }
+      var url;
+      try { url = new URL(window.location.href); } catch (e) { return; }
+      var changed = false;
+      Array.from(url.searchParams.keys()).forEach(function (key) {
+        if (/^filter_/.test(key)) { url.searchParams.delete(key); changed = true; }
+      });
+      if (url.searchParams.has('page')) { url.searchParams.delete('page'); changed = true; }
+      var locale = (document.documentElement.lang || '').toLowerCase();
+      var label = locale.indexOf('uk') === 0 ? 'Скинути фільтр' : (locale.indexOf('ru') === 0 ? 'Сбросить фильтр' : 'Reset filters');
+      var reset = document.createElement('a');
+      reset.className = 'btn btn-default ccp-reset-list-filter';
+      reset.href = url.pathname + '?' + url.searchParams.toString();
+      reset.title = label;
+      reset.textContent = label;
+      reset.style.marginLeft = '6px';
+      if (changed || container.querySelector('input,select')) { action.insertAdjacentElement('afterend', reset); }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addResetButtons);
+  } else {
+    addResetButtons();
+  }
+}());
+</script>
 </body></html>
