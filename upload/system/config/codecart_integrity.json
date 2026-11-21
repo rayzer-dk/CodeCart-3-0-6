@@ -168,7 +168,7 @@
         "catalog/controller/blog/latest.php": "5ff71092840fcc0ea4f37e7b99ae15f18cea6c91573bea99737526b586c70928",
         "catalog/controller/checkout/checkout.php": "ee3423dc933dee156a137c2dc8372eb20a3cf615afed279591add39222a759a9",
         "catalog/controller/checkout/confirm.php": "1aed03c44d86f01370a8147c328faddce086159e4ecb3efca7c7c4e59758ebad",
-        "catalog/controller/checkout/guest.php": "b6416b92ed64f0a984ca4dc1a9fe609a9f4850ce8e2c5cad95d24a05ba5649a0",
+        "catalog/controller/checkout/guest.php": "d581a2593f922b909141ad0f1af8af702be6f4693bc3165e35e810cfdc723f0f",
         "catalog/controller/common/codecart_form.php": "2c789207e6f722fcab94b203b9d49e0820b3a69f8b4b79d068e790dfd7a4d6b1",
         "catalog/controller/common/header.php": "2e2b5f44215e7e3139364bdc16aadfe60ed86ea9b476f18f29bcdc82abc7bd64",
         "catalog/controller/common/menu.php": "cf1f6c280589267da86c6da9068b3facc38d491448045ac76bc3e1be52ceb9d0",
