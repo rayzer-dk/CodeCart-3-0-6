@@ -315,6 +315,29 @@
     if (window.PointerEvent) {
       rows.forEach(function (row) { row.draggable = false; });
     }
+    function pointerTarget(x, y) {
+      var hovered = document.elementFromPoint(x, y);
+      var target = hovered && hovered.closest('.cc-tree-row[data-cc-tree-id], .cc-tree-root[data-cc-tree-target]');
+      if (root) {
+        var box = root.getBoundingClientRect();
+        if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
+          return root;
+        }
+      }
+      return target;
+    }
+
+    function scrollForRoot(event) {
+      if (event.clientY < 105 && window.scrollY > 0) { window.scrollBy(0, -22); }
+      var table = host.querySelector('.cc-category-list-drag');
+      var wrapper = table && table.closest('.table-responsive');
+      if (wrapper && wrapper.scrollTop > 0) {
+        var rect = wrapper.getBoundingClientRect();
+        if (event.clientY < rect.top + 45) {
+          wrapper.scrollTop = Math.max(0, wrapper.scrollTop - 20);
+        }
+      }
+    }
     var pointerDrag = null;
     rows.forEach(function (row) {
       var handle = row.querySelector('.cc-tree-handle');
@@ -336,8 +359,8 @@
         event.preventDefault();
         rows.forEach(function (item) { item.classList.remove('is-over'); });
         if (root) { root.classList.remove('is-over'); }
-        var hovered = document.elementFromPoint(event.clientX, event.clientY);
-        var target = hovered && hovered.closest('.cc-tree-row[data-cc-tree-id], .cc-tree-root[data-cc-tree-target]');
+        scrollForRoot(event);
+        var target = pointerTarget(event.clientX, event.clientY);
         if (target && !target.hidden) {
           var targetId = target.dataset.ccTreeId || target.dataset.ccTreeTarget;
           if (validTarget(targetId)) { target.classList.add('is-over'); }
@@ -349,8 +372,7 @@
         var start = pointerDrag;
         pointerDrag = null;
         if (!cancelled && start.active) {
-          var hovered = document.elementFromPoint(event.clientX, event.clientY);
-          var target = hovered && hovered.closest('.cc-tree-row[data-cc-tree-id], .cc-tree-root[data-cc-tree-target]');
+          var target = pointerTarget(event.clientX, event.clientY);
           var targetId = target && (target.dataset.ccTreeId || target.dataset.ccTreeTarget);
           if (targetId && validTarget(targetId)) {
             if (target.dataset.ccTreeTarget === '0') { move(start.id, '0'); }
