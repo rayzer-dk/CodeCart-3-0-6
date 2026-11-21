@@ -56,9 +56,8 @@ foreach (array(array('catalog', 0, 4), array('catalog', 4, 4), array('blog', 0, 
 class TreeIndexFakeDb {
     public $value = 0;
     public function query($sql) {
-        if (strpos($sql, "UPDATE `oc_category` SET noindex = '1'") !== false &&
-            strpos($sql, "AND noindex = '0'") !== false && $this->value === 0) {
-            $this->value = 1;
+        if (preg_match("/UPDATE `oc_category` SET noindex = '([01])'.*AND noindex = '([01])'/", $sql, $match)) {
+            if ($this->value === (int)$match[2]) { $this->value = (int)$match[1]; }
             return (object)array('num_rows' => 0, 'row' => array());
         }
         if (strpos($sql, "SELECT noindex FROM `oc_category`") !== false) {
