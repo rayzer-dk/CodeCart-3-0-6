@@ -92,6 +92,7 @@ treeCheck(strpos($script, "row.draggable = false") !== false && strpos($script, 
 treeCheck(strpos($script, "config.dataset.ccTreeKind || 'catalog'") !== false,
     'Tree setup must not depend on an exact route query string');
 treeCheck(strpos($script, 'data-cc-tree-target') !== false, 'Drop-to-root zone missing');
+treeCheck(strpos($script, "pointerTarget(event.clientX, event.clientY)") !== false && strpos($script, "scrollForRoot(event)") !== false, 'Root drop pointer and long-list scrolling are missing');
 treeCheck(strpos($script, 'cc-tree-move') !== false, 'Touch fallback is missing');
 treeCheck(strpos($script, 'function syncExpandAll()') !== false && strpos($script, 'if (expandAll) {\n      function syncExpandAll()') === false, 'Expand-all helper must be callable when initialization begins');
 treeCheck(strpos($script, "action:'index'") !== false, 'Index toggle does not persist asynchronously');
