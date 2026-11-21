@@ -138,8 +138,20 @@ final class Scheduler {
     }
 
     public function listTasks(): array {
-        $query = $this->db->query("SELECT scheduler_id, code, route, args, interval_seconds, status, date_last, date_next, last_duration_ms, last_status, last_message, date_added, date_modified, schedule_mode, schedule_days, schedule_time, schedule_expression FROM `" . DB_PREFIX . "codecart_scheduler` ORDER BY code ASC");
-        return $query->rows;
+        // Legacy ocStore overlays may have an earlier Scheduler schema until
+        // Installer UPDATE has finished. Reading must not fail on optional columns.
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "codecart_scheduler` ORDER BY code ASC");
+        $defaults = array(
+            'schedule_mode' => 'interval', 'schedule_days' => 127,
+            'schedule_time' => '03:00', 'schedule_expression' => '',
+            'last_duration_ms' => 0, 'last_status' => '', 'last_message' => '',
+            'date_last' => null, 'date_added' => '', 'date_modified' => ''
+        );
+        $tasks = array();
+        foreach ($query->rows as $row) {
+            $tasks[] = array_replace($defaults, $row);
+        }
+        return $tasks;
     }
 
     private function execute(array $job, string $source = 'manual'): array {
