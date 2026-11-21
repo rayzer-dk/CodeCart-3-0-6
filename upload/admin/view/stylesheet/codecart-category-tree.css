@@ -151,3 +151,13 @@
 .cc-category-list-drag .cc-tree-name-toggle{display:inline;max-width:calc(100% - 110px);padding:3px 5px;border:0;border-radius:4px;background:transparent;color:inherit;font:inherit;font-weight:600;text-align:left;vertical-align:middle;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cc-category-list-drag .cc-tree-name-toggle:hover{color:#086bd3;background:rgba(8,107,211,.08)}
 .cc-category-list-drag .cc-tree-name-toggle:focus-visible{outline:2px solid #086bd3;outline-offset:2px}
+
+/* Inline indexing state, shared by catalog and blog categories. */
+.cc-category-index-switch{display:inline-flex;align-items:center;justify-content:center;position:relative;width:42px;height:25px;cursor:pointer;vertical-align:middle;margin:0}
+.cc-category-index-toggle{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.cc-category-index-track{position:relative;width:40px;height:22px;border-radius:12px;background:#9aa6b2;transition:background .15s ease;pointer-events:none}
+.cc-category-index-track:after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.22);transition:transform .15s ease}
+.cc-category-index-toggle:checked + .cc-category-index-track{background:#20a365}
+.cc-category-index-toggle:checked + .cc-category-index-track:after{transform:translateX(18px)}
+.cc-category-index-toggle:focus-visible + .cc-category-index-track{outline:2px solid #086bd3;outline-offset:2px}
+.cc-category-index-toggle:disabled + .cc-category-index-track{opacity:.55;cursor:wait}
