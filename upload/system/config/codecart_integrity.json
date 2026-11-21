@@ -348,7 +348,7 @@
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
         "cli.php": "b34e137dde1af5cbed4b42b6c529c2f9b99f043d5a6f5ff64261fce56e2b2868",
         "cron.php": "7eb9a4e95eec8702fa5acd56e70bf01baf047c7f9e905f0e92454e8755ba726f",
-        "index.php": "0907dadd0de16125b8254caa34f4e3f20f2353ef7db54e6921db4fcfc3e887bd",
+        "index.php": "d134c2803e56290d0f00379402f2f2b588e3a26f400ca528d60c7aee597ddec4",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "5f57f91bdca4c203200743823e07c30277bdd07237d126feb8a856ba9049f576",
         "system/config/codecart_fontawesome_core_manifest.json": "9fb9656be93bd2ce459e0a01f809b6f923a694866dd5da2b041380841f17ded5",
@@ -561,5 +561,5 @@
         "catalog/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.46"
+    "package_build": "2.3.47"
 }
