@@ -115,6 +115,8 @@
               </table></div>
               <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ text_schema_backup_warning }}</div>
               <label class="checkbox-inline"><input type="checkbox" id="ccp-db-backup-confirm" value="1" /> {{ text_schema_backup_confirm }}</label>
+              <label class="checkbox-inline"><input type="checkbox" id="ccp-db-include-external" value="1" /> {{ text_db_include_external }}</label>
+              <p class="help-block">{{ text_db_include_external_help }}</p>
               <button type="button" class="btn btn-warning" id="ccp-db-modernize-run" data-url="{{ db_modernize_url|e('html_attr') }}"><i class="fa fa-cogs"></i> {{ button_db_modernize }}</button>
               <div class="ccp-db-modernize-status help-block" aria-live="polite"></div>
               {% else %}
@@ -348,15 +350,15 @@ $('#button-phpinfo').on('click', function(){
   $(document).on('click','#ccp-db-modernize-run',function(){
     var $btn=$(this),$status=$('#ccp-db-modernize .ccp-db-modernize-status'),url=$btn.data('url'),converted=0,failed=[];
     if(!$('#ccp-db-backup-confirm').is(':checked')){$('#ccp-db-backup-confirm').closest('label').addClass('text-danger');return;}
-    $btn.prop('disabled',true);
+    $btn.prop('disabled',true);$('#ccp-db-include-external').prop('disabled',true);
     var step=function(){
-      $.ajax({url:url,type:'post',dataType:'json',data:{backup_confirm:1}}).done(function(json){
-        if(json.error){$status.html($('<span class="text-danger">').text(json.error));$btn.prop('disabled',false);return;}
+      $.ajax({url:url,type:'post',dataType:'json',data:{backup_confirm:1,include_third_party:$('#ccp-db-include-external').is(':checked')?1:0}}).done(function(json){
+        if(json.error){$status.html($('<span class="text-danger">').text(json.error));$btn.prop('disabled',false);$('#ccp-db-include-external').prop('disabled',false);return;}
         $.each(json.changed||[],function(_,t){converted++;$('#ccp-db-modernize tr[data-table="'+t+'"]').addClass('success');});
         $.each(json.errors||[],function(_,e){failed.push(e.table+': '+e.error);});
         $status.text(texts.running.replace('%s',converted).replace('%s',json.remaining));
-        if(json.done||json.remaining===0){$status.text(texts.done.replace('%s',converted).replace('%s',json.remaining));if(failed.length){$status.append($('<pre class="text-danger">').text(failed.join('\n')));}$btn.prop('disabled',false);}else{step();}
-      }).fail(function(xhr){$status.html($('<span class="text-danger">').text(xhr.status+' '+xhr.statusText));$btn.prop('disabled',false);});
+        if(json.done||json.remaining===0){$status.text(texts.done.replace('%s',converted).replace('%s',json.remaining));if(failed.length){$status.append($('<pre class="text-danger">').text(failed.join('\n')));}$btn.prop('disabled',false);$('#ccp-db-include-external').prop('disabled',false);}else{step();}
+      }).fail(function(xhr){$status.html($('<span class="text-danger">').text(xhr.status+' '+xhr.statusText));$btn.prop('disabled',false);$('#ccp-db-include-external').prop('disabled',false);});
     };
     step();
   });
