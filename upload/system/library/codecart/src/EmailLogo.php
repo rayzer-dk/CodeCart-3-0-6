@@ -29,11 +29,13 @@ final class EmailLogo {
 
         // Bump the cache key when the image preparation algorithm changes.
         $source_version = dechex((int)@filemtime($source)) . '-' . dechex((int)@filesize($source));
-        $name_hash = substr(sha1($filename . '|' . $source_version . '|email-tight-v2'), 0, 18);
+        $name_hash = substr(sha1($filename . '|' . $source_version . '|email-adaptive-v3'), 0, 18);
         $relative = 'cache/email/logo-' . $name_hash . '.png';
         $target = DIR_IMAGE . $relative;
+        $dark_relative = 'cache/email/logo-' . $name_hash . '-dark.png';
+        $dark_target = DIR_IMAGE . $dark_relative;
 
-        if (!is_file($target)) {
+        if (!is_file($target) || !is_file($dark_target)) {
             if (!self::ensureDirectory(dirname($target))) {
                 return self::fallback($filename, $base_url);
             }
@@ -78,23 +80,27 @@ final class EmailLogo {
                 return self::fallback($filename, $base_url);
             }
 
-            // A tight white backing keeps black lettering legible in
-            // Gmail dark mode without surrounding it with a huge white block.
-            imagefill($canvas, 0, 0, imagecolorallocate($canvas, 255, 255, 255));
-            imagealphablending($canvas, true);
+            // Preserve the source alpha channel: no forced white backing.
+            imagealphablending($canvas, false);
+            imagesavealpha($canvas, true);
+            imagefill($canvas, 0, 0, imagecolorallocatealpha($canvas, 255, 255, 255, 127));
             imagecopy($canvas, $preview, $padding, $padding,
                 $bounds['left'], $bounds['top'], $crop_width, $crop_height);
             imagedestroy($preview);
 
-            $tmp = $target . '.tmp';
-            $saved = @imagepng($canvas, $tmp, 6);
-            imagedestroy($canvas);
-            if (!$saved || !@rename($tmp, $target)) {
-                @unlink($tmp);
-                if (!is_file($target)) {
-                    return self::fallback($filename, $base_url);
-                }
+            // A separate image for dark-mode-aware mail clients retains
+            // saturated brand colours and brightens nearly black lettering.
+            $dark = self::darkVariant($canvas, $canvas_width, $canvas_height);
+            if (!is_file($target) && !self::savePng($canvas, $target)) {
+                imagedestroy($canvas);
+                if ($dark) { imagedestroy($dark); }
+                return self::fallback($filename, $base_url);
             }
+            imagedestroy($canvas);
+            if ($dark && !is_file($dark_target)) {
+                self::savePng($dark, $dark_target);
+            }
+            if ($dark) { imagedestroy($dark); }
         }
 
         $dimensions = @getimagesize($target);
@@ -108,10 +114,58 @@ final class EmailLogo {
         );
         return array(
             'url' => rtrim((string)$base_url, '/') . '/image/' . str_replace(' ', '%20', $relative),
+            'dark_url' => is_file($dark_target)
+                ? rtrim((string)$base_url, '/') . '/image/' . str_replace(' ', '%20', $dark_relative)
+                : '',
             'width' => max(1, (int)round($dimensions[0] * $display_scale)),
             'height' => max(1, (int)round($dimensions[1] * $display_scale)),
             'format' => 'PNG'
         );
+    }
+
+    /** Preserve transparency and promote only grayscale dark strokes for dark-mode email. */
+    private static function darkVariant($source, $width, $height) {
+        $dark = imagecreatetruecolor($width, $height);
+        if (!$dark) { return false; }
+        imagealphablending($dark, false);
+        imagesavealpha($dark, true);
+        imagefill($dark, 0, 0, imagecolorallocatealpha($dark, 255, 255, 255, 127));
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $pixel = imagecolorat($source, $x, $y);
+                $alpha = ($pixel >> 24) & 0x7f;
+                if ($alpha === 127) { continue; }
+                $red = ($pixel >> 16) & 0xff;
+                $green = ($pixel >> 8) & 0xff;
+                $blue = $pixel & 0xff;
+                $low = min($red, $green, $blue);
+                $high = max($red, $green, $blue);
+                if (($high - $low) < 75 && ($red + $green + $blue) < 480) {
+                    // Black/gray type becomes light; blue logo details are unchanged.
+                    $red = 238; $green = 243; $blue = 250;
+                }
+                imagesetpixel($dark, $x, $y, imagecolorallocatealpha($dark, $red, $green, $blue, $alpha));
+            }
+        }
+        return $dark;
+    }
+
+    private static function savePng($image, $target) {
+        try {
+            $tmp = $target . '.' . bin2hex(random_bytes(5)) . '.tmp';
+        } catch (\\Throwable $e) {
+            return false;
+        }
+        if (!@imagepng($image, $tmp, 6)) {
+            @unlink($tmp);
+            return false;
+        }
+        if (!@rename($tmp, $target)) {
+            @unlink($tmp);
+            return is_file($target);
+        }
+        return true;
     }
 
     /**
