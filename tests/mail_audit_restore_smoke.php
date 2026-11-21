@@ -117,6 +117,10 @@ if (function_exists('imagecreatetruecolor') && function_exists('imagepng')) {
     if ((($edgeLight >> 24) & 127) < 120 || (($edgeDark >> 24) & 127) < 120) {
         throw new RuntimeException('Email logo conversion painted an opaque backing over transparency');
     }
+    $keyline = imagecolorat($lightPng, 8, 20);
+    if ((($keyline >> 24) & 127) > 100 || (($keyline >> 16) & 255) < 230) {
+        throw new RuntimeException('Regular logo needs a subtle dark-background keyline for Gmail');
+    }
     $blackOriginal = imagecolorat($lightPng, 20, 20);
     $blackDark = imagecolorat($darkPng, 20, 20);
     $blueDark = imagecolorat($darkPng, 90, 20);
