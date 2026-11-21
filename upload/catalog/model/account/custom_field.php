@@ -1,7 +1,19 @@
 <?php
 class ModelAccountCustomField extends Model {
+	private function localizedDefaultSelect() {
+		// Legacy ocStore DBs do not have the optional multilingual default_value column.
+		// Prefer the modern localized value when present without breaking checkout on old schemas.
+		static $has_column = null;
+		if ($has_column === null) {
+			$table = DB_PREFIX . 'custom_field_description';
+			$result = $this->db->query("SHOW COLUMNS FROM `" . $table . "` LIKE 'default_value'");
+			$has_column = $result->num_rows > 0;
+		}
+		return $has_column ? 'cfd.default_value' : 'cf.value AS default_value';
+	}
+
 	public function getCustomField($custom_field_id) {
-		$query = $this->db->query("SELECT cf.*, cfd.name, cfd.default_value FROM `" . DB_PREFIX . "custom_field` cf LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cf.custom_field_id = '" . (int)$custom_field_id . "' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$query = $this->db->query("SELECT cf.*, cfd.name, " . $this->localizedDefaultSelect() . " FROM `" . DB_PREFIX . "custom_field` cf LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cf.custom_field_id = '" . (int)$custom_field_id . "' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
 
         $row = $query->row;
         if ($row && in_array($row['type'], array('text', 'textarea'), true) && $row['default_value'] !== null) {
@@ -14,9 +26,9 @@ class ModelAccountCustomField extends Model {
 		$custom_field_data = array();
 
 		if (!$customer_group_id) {
-			$custom_field_query = $this->db->query("SELECT cf.*, cfd.name, cfd.default_value FROM `" . DB_PREFIX . "custom_field` cf LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cf.status = '1' ORDER BY cf.sort_order ASC");
+			$custom_field_query = $this->db->query("SELECT cf.*, cfd.name, " . $this->localizedDefaultSelect() . " FROM `" . DB_PREFIX . "custom_field` cf LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cf.status = '1' ORDER BY cf.sort_order ASC");
 		} else {
-			$custom_field_query = $this->db->query("SELECT cf.*, cfcg.required, cfd.name, cfd.default_value FROM `" . DB_PREFIX . "custom_field_customer_group` cfcg LEFT JOIN `" . DB_PREFIX . "custom_field` cf ON (cfcg.custom_field_id = cf.custom_field_id) LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cfcg.customer_group_id = '" . (int)$customer_group_id . "' ORDER BY cf.sort_order ASC");
+			$custom_field_query = $this->db->query("SELECT cf.*, cfcg.required, cfd.name, " . $this->localizedDefaultSelect() . " FROM `" . DB_PREFIX . "custom_field_customer_group` cfcg LEFT JOIN `" . DB_PREFIX . "custom_field` cf ON (cfcg.custom_field_id = cf.custom_field_id) LEFT JOIN `" . DB_PREFIX . "custom_field_description` cfd ON (cf.custom_field_id = cfd.custom_field_id) WHERE cf.status = '1' AND cfd.language_id = '" . (int)$this->config->get('config_language_id') . "' AND cfcg.customer_group_id = '" . (int)$customer_group_id . "' ORDER BY cf.sort_order ASC");
 		}
 
 		foreach ($custom_field_query->rows as $custom_field) {
