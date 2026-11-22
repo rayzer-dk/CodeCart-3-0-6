@@ -66,3 +66,30 @@
   #tab-appearance .ccp-motion-switch-track { transition:background-color 160ms ease; }
   #tab-appearance .ccp-motion-switch-track::after { transition:transform 160ms ease; }
 }
+
+/* Feedback only after a confirmed server save. Limited to a row, 2.8 seconds. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-ccp-motion="balanced"] #content .table > tbody > tr.ccp-motion-row-saved > td,
+  html[data-ccp-motion="balanced"] #content .table > tbody > tr.ccp-motion-row-saved > th {
+    animation: ccp-admin-row-saved 2800ms ease-out 1 both;
+  }
+  html[data-ccp-motion="balanced"] #content .ccp-qpf-pending i.fa,
+  html[data-ccp-motion="balanced"] #content .ccp-qpe-saving i.fa,
+  html[data-ccp-motion="balanced"] #content .ccp-qpf-pending i.fas,
+  html[data-ccp-motion="balanced"] #content .ccp-qpe-saving i.fas {
+    animation: ccp-admin-icon-pulse 760ms ease-in-out infinite;
+  }
+  html[data-ccp-motion="balanced"] #content button:disabled .fa-spinner,
+  html[data-ccp-motion="balanced"] #content button:disabled .fa-arrows-rotate {
+    animation: ccp-admin-icon-rotate 900ms linear infinite;
+  }
+}
+@keyframes ccp-admin-row-saved {
+  0%, 15% { background-color: rgba(35, 168, 92, .24); }
+  100% { background-color: transparent; }
+}
+@keyframes ccp-admin-icon-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: .68; }
+}
+@keyframes ccp-admin-icon-rotate { to { transform: rotate(360deg); } }
