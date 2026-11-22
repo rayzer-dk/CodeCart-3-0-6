@@ -607,3 +607,5 @@ $_['entry_codecart_admin_motion'] = 'Анімації адмінпанелі';
 $_['text_codecart_motion_balanced'] = 'Збалансовані — увімкнено';
 $_['text_codecart_motion_off'] = 'Вимкнено';
 $_['help_codecart_admin_motion'] = 'Легкі ефекти кнопок, меню та повідомлень без додаткових бібліотек. Системне налаштування зменшення руху завжди враховується.';
+
+$_['text_codecart_motion_on'] = 'Увімкнути анімації';
