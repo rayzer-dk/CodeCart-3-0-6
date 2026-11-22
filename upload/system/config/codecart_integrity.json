@@ -210,7 +210,7 @@
         "catalog/controller/startup/maintenance.php": "53a6bcabdef04d1c763001985f32034d7a1b66ccfa7aacdefc93d0d61cbab9f8",
         "catalog/controller/startup/router.php": "4e7264e957f412bbf611922b2494e5484b2bb5105aac35a7d5166c690e6dc571",
         "catalog/controller/startup/security_headers.php": "12661c6bf9b0ec7bd3d813423dece647c14ebfbf7cc48045b05f8c42575c49de",
-        "catalog/controller/startup/seo_url.php": "a7ac7d0c8e224ea70545cb7ca149f827a15e1c3bcac1162133508d0db0c633b4",
+        "catalog/controller/startup/seo_url.php": "aa53a79050205dc7372cb98144878e23dac3e75162892fa868e871b7ded226f2",
         "catalog/controller/startup/session.php": "501a80b9c4032b433ddb28d6c0c28ae82d16a77d39367745b566e78af4af3145",
         "catalog/controller/startup/startup.php": "999c3aad67769deb94f3762aa11ab52d996d090a21a024adbf164b28a966c6f9",
         "catalog/language/en-gb/checkout/cart.php": "c9a36eb4982473b56dc5caef40b670a19841faf6d04df71ab2eda1af9421c2a9",
