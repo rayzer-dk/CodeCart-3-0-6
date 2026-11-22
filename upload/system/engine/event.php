@@ -111,7 +111,7 @@ class Event {
             $started = $capture ? microtime(true) : 0.0;
             try {
                 $result = $value['action']->execute($this->registry, $args);
-            } catch (\\Throwable $exception) {
+            } catch (\Throwable $exception) {
                 if ($capture) {
                     CodeCartEventDiagnostics::record($value['event_id'], 'error', microtime(true) - $started, $exception);
                 }
@@ -119,7 +119,7 @@ class Event {
             }
 
             if ($capture) {
-                CodeCartEventDiagnostics::record($value['event_id'], $result instanceof \\Throwable ? 'error' : 'ok', microtime(true) - $started, $result instanceof \\Throwable ? $result : null);
+                CodeCartEventDiagnostics::record($value['event_id'], $result instanceof \Throwable ? 'error' : 'ok', microtime(true) - $started, $result instanceof \Throwable ? $result : null);
             }
             if (!is_null($result) && !($result instanceof Exception)) {
                 return $result;
