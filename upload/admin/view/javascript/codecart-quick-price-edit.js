@@ -172,6 +172,7 @@
           if (current.field === 'price') { drawPrice(current.$cell, result); }
           else { drawQuantity(current.$cell, result); }
           current.$cell.addClass('ccp-qpe-saved');
+          if (window.CodeCartAdminMotion) { window.CodeCartAdminMotion.flashRow(current.$cell[0]); }
           window.setTimeout(function () { current.$cell.removeClass('ccp-qpe-saved'); }, 850);
           note(labels.saved, false);
         })
@@ -229,6 +230,7 @@
             .attr('aria-checked', enabled ? 'true' : 'false')
             .attr('aria-label', String($button.attr('data-label') || '') + ': ' + (enabled ? labels.on : labels.off))
             .toggleClass('is-on', enabled);
+           if (window.CodeCartAdminMotion) { window.CodeCartAdminMotion.flashRow($row[0]); }
         })
         .fail(function (xhr) { note(errorText(xhr, labels.conflict), true); })
         .always(function () { $button.prop('disabled', false).removeClass('ccp-qpf-pending'); });
