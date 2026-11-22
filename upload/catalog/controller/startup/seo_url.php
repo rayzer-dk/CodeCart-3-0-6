@@ -103,9 +103,9 @@ class ControllerStartupSeoUrl extends Controller {
 		// payments, callbacks and cart mutations keep their internal routes.
 		if ($seo_url_enabled && isset($this->request->get['_route_'])) {
 			$public_path = trim((string)$this->request->get['_route_'], '/');
-			if ($public_path === 'checkout' || $public_path === 'cart') {
-				$this->request->get['route'] = $public_path === 'checkout'
-					? $this->resolvePublicCheckoutRoute() : 'checkout/cart';
+			if ($public_path === 'checkout' || $public_path === 'checkout/uni_checkout' || $public_path === 'cart') {
+				$this->request->get['route'] = $public_path === 'cart'
+					? 'checkout/cart' : $this->resolvePublicCheckoutRoute($public_path === 'checkout/uni_checkout');
 				unset($this->request->get['_route_']);
 			}
 		}
@@ -353,7 +353,7 @@ class ControllerStartupSeoUrl extends Controller {
 		// internal XHR routes (e.g. checkout/uni_checkout/country or cart/add).
 		$public_alias = array(
 			'checkout/checkout' => 'checkout',
-			'checkout/uni_checkout' => 'checkout',
+			'checkout/uni_checkout' => 'checkout/uni_checkout',
 			'checkout/cart' => 'cart'
 		);
 		if ($seo_url_enabled && isset($public_alias[$route_for_prefix])) {
@@ -520,29 +520,19 @@ class ControllerStartupSeoUrl extends Controller {
 	}
 
 	/**
-	 * Canonical /checkout/ resolves to the active storefront implementation.
-	 * A default CodeCart install never depends on an external UniShop2 file.
+	 * Preserve UniShop2's explicit /checkout/uni_checkout/ route. Legacy
+	 * /checkout/ remains compatible with the currently installed checkout.
 	 */
-	private function resolvePublicCheckoutRoute(): string {
-		// UniShop2 can run under a legacy/default config_theme value after an
-		// OpenCart to CodeCart migration. Detect its installed checkout settings
-		// as well as the theme name, but never route to a missing controller.
+	private function resolvePublicCheckoutRoute(bool $explicitUni = false): string {
 		if (!defined('DIR_APPLICATION')) {
 			return 'checkout/checkout';
 		}
-		$theme = strtolower((string)$this->config->get('config_theme'));
-		$legacyTemplate = strtolower((string)$this->config->get('config_template'));
-		$uniSettings = $this->config->get('config_unishop2');
-		$hasUniSettings = is_array($uniSettings) && isset($uniSettings['checkout']) && is_array($uniSettings['checkout']);
-		$isUniTheme = strpos($theme, 'uni') !== false || strpos($legacyTemplate, 'uni') !== false;
-		if (!$isUniTheme && !$hasUniSettings) {
-			return 'checkout/checkout';
-		}
-		$controller = rtrim(DIR_APPLICATION, "/\\") . '/controller/checkout/uni_checkout.php';
-		$modified = defined('DIR_STORAGE')
-			? rtrim(DIR_STORAGE, "/\\") . '/modification/catalog/controller/checkout/uni_checkout.php' : '';
-		return (is_file($controller) || ($modified !== '' && is_file($modified)))
-			? 'checkout/uni_checkout' : 'checkout/checkout';
+		return \CodeCart\Core\CheckoutRouteResolver::resolve(
+			$this->config,
+			DIR_APPLICATION,
+			defined('DIR_STORAGE') ? DIR_STORAGE : '',
+			$explicitUni
+		);
 	}
 
 	private function isCatalogLanguageRoute($route) {
