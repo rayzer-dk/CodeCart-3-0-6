@@ -8,11 +8,24 @@
           <div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_backup }}</div>
           <h2 class="cc-section-title">{{ text_preflight }}</h2>
           <p class="help-block">{{ text_preflight_help }}</p>
-          {% if preflight_blockers %}<div class="alert alert-danger"><i class="fa-solid fa-circle-xmark"></i> {{ text_preflight_blocked }}</div>{% else %}<div class="alert alert-success"><i class="fa-solid fa-circle-check"></i> {{ text_preflight_ready }}</div>{% endif %}
+          {% if preflight_blockers %}
+          <div class="alert alert-danger" role="alert">
+            <i class="fa-solid fa-circle-xmark"></i> {{ text_preflight_blocked }}
+            <ul>{% for blocked in preflight_blocker_rows %}
+              <li><strong>{{ blocked.component }}</strong>: {{ blocked.current }} — {{ blocked.message }}</li>
+            {% endfor %}</ul>
+          </div>
+          {% else %}
+          <div class="alert alert-success" role="status">
+            <i class="fa-solid fa-circle-check"></i> {{ text_preflight_ready }}
+            {% if preflight_warnings %}<p>{{ text_warnings_nonblocking }}</p>{% endif %}
+          </div>
+          {% endif %
           <div class="table-responsive"><table class="table cc-status-table"><thead><tr><th>{{ text_component }}</th><th>{{ text_current }}</th><th>{{ text_status }}</th><th></th></tr></thead><tbody>{% for row in preflight %}<tr><td>{{ row.component }}</td><td>{{ row.current }}</td><td>{% if row.state == 'ok' %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> {{ text_ok }}</span>{% elseif row.state == 'warning' %}<span class="cc-state warn"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_warning }}</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ text_blocker }}</span>{% endif %}</td><td>{{ row.message }}</td></tr>{% endfor %}</tbody></table></div>
           <h2 class="cc-section-title">{{ text_server }}</h2>
           <div class="cc-form-section"><ul class="cc-upgrade-notes"><li>{{ text_error }}</li><li>{{ text_clear }}</li><li>{{ text_admin }}</li><li>{{ text_user }}</li><li>{{ text_setting }}</li><li>{{ text_store }}</li></ul></div>
           <label class="cc-backup-confirm"><input type="checkbox" id="backup-confirm" value="1"{% if preflight_blockers %} disabled{% endif %}> {{ text_backup_confirm }}</label>
+          {% if not preflight_blockers %}<p class="help-block">{{ text_backup_unlock }}</p>{% endif %
           <label class="cc-backup-confirm" style="margin-top:10px"><input type="checkbox" id="repair-mode" value="1"{% if preflight_blockers %} disabled{% endif %}> <strong>{{ text_repair_mode }}</strong><br><small style="margin-left:22px">{{ text_repair_help }}</small></label>
           <h2 class="cc-section-title">{{ text_steps }}</h2>
           <div class="cc-form-section"><div class="progress"><div id="progress-bar" class="progress-bar" style="width:0%"></div></div><div id="progress-text"></div></div>

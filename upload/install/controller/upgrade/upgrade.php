@@ -28,6 +28,9 @@ class ControllerUpgradeUpgrade extends Controller {
         $data['preflight'] = $preflight['rows'];
         $data['preflight_blockers'] = $preflight['blockers'];
         $data['preflight_warnings'] = $preflight['warnings'];
+        $data['preflight_blocker_rows'] = array_values(array_filter($preflight['rows'], static function($row) {
+            return isset($row['state']) && $row['state'] === 'blocker';
+        }));
 
         $data['header'] = $this->load->controller('common/header');
         $data['footer'] = $this->load->controller('common/footer');
@@ -138,13 +141,30 @@ class ControllerUpgradeUpgrade extends Controller {
                 $json['next'] = str_replace('&amp;', '&', $this->url->link('upgrade/upgrade/next', 'step=' . ($step + 1) . ($repair ? '&repair=1' : '')));
             } catch (\Throwable $exception) {
                 $this->log->write('Upgrade step ' . $step . ' failed: ' . $exception->getMessage());
-                $json['error'] = $this->language->get('error_upgrade_step');
+                // Identify a safe migration stage, never expose raw SQL or paths.
+                $phase = $migration === '3052' ? $this->lastMigrationFailurePhase() : '';
+                $label = $migration . ($phase !== '' ? ' / ' . $phase : '');
+                $json['error'] = sprintf($this->language->get('error_upgrade_stage'), $label)
+                    . ' ' . $this->language->get('error_upgrade_step');
             }
         } else {
             unset($this->session->data['codecart_upgrade_backup_confirmed_at']);
             $json['success'] = $this->language->get('text_success');
         }
         $this->json($json);
+    }
+
+    /**
+     * The protected Core marker identifies the precise internal migration stage.
+     * Reveal only an allowlisted stage token, not the exception message.
+     */
+    private function lastMigrationFailurePhase(): string {
+        if (!defined('DIR_STORAGE')) { return ''; }
+        $marker = rtrim((string)DIR_STORAGE, '/\\') . '/codecart/core-migration.failed';
+        if (!is_file($marker) || (int)@filemtime($marker) < time() - 120) { return ''; }
+        $line = @file_get_contents($marker, false, null, 0, 512);
+        if (!is_string($line) || !preg_match('/(?:^|\s)step=([a-zA-Z0-9_.-]{1,80})(?:\s|$)/', $line, $matches)) { return ''; }
+        return $matches[1];
     }
 
     private function getMigrationFiles() {
