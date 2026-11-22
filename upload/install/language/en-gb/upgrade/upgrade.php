@@ -66,3 +66,7 @@ $_['error_login_required'] = 'The installer session is not authorised or has exp
 
 $_['button_show_password'] = 'Show password';
 $_['button_hide_password'] = 'Hide password';
+
+$_['text_warnings_nonblocking'] = 'Warnings do not block UPDATE. Confirm your verified backup below to continue.';
+$_['text_backup_unlock'] = 'Confirming the backup enables the Continue button.';
+$_['error_upgrade_stage'] = 'Migration %s could not complete.';
