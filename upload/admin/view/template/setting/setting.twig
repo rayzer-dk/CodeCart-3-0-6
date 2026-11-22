@@ -1358,6 +1358,16 @@
               <fieldset>
                 <legend>{{ text_admin_appearance }}</legend>
                 <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-codecart-admin-motion"><span data-toggle="tooltip" title="{{ help_codecart_admin_motion }}">{{ entry_codecart_admin_motion }}</span></label>
+                  <div class="col-sm-10">
+                    <select class="form-control" id="input-codecart-admin-motion" name="config_codecart_admin_motion">
+                      <option value="balanced"{% if config_codecart_admin_motion != 'off' %} selected="selected"{% endif %}>{{ text_codecart_motion_balanced }}</option>
+                      <option value="off"{% if config_codecart_admin_motion == 'off' %} selected="selected"{% endif %}>{{ text_codecart_motion_off }}</option>
+                    </select>
+                    <p class="help-block">{{ help_codecart_admin_motion }}</p>
+                  </div>
+                </div>
+                <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-admin-accent"><span data-toggle="tooltip" title="{{ help_admin_accent_color }}">{{ entry_admin_accent_color }}</span></label>
                   <div class="col-sm-10">
                     <div class="input-group ccp-color-control">
