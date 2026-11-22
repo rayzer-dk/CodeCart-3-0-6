@@ -163,12 +163,7 @@
       if (!window.CodeCartAdminMotion || !window.CodeCartAdminMotion.enabled()) { return; }
       try { window.sessionStorage.setItem(changedRowKey, String(id)); } catch (ignore) {}
     }
-    if (/^[1-9][0-9]*$/.test(changedRowId)) {
-      var changedRow = host.querySelector('.cc-tree-row[data-cc-tree-id="' + changedRowId + '"]');
-      if (changedRow && window.CodeCartAdminMotion) {
-        window.CodeCartAdminMotion.flashRow(changedRow);
-      }
-    }
+
     function refreshTree() {
       rows.forEach(function (row) {
         var ancestors = (row.getAttribute('data-cc-tree-path') || '').split('/').filter(Boolean);
@@ -220,6 +215,10 @@
     }
     refreshTree();
     if (expandAll) { syncExpandAll(); }
+    if (/^[1-9][0-9]*$/.test(changedRowId) && window.CodeCartAdminMotion) {
+      var changedRow = host.querySelector('.cc-tree-row[data-cc-tree-id="' + changedRowId + '"]');
+      if (changedRow && !changedRow.hidden) { window.CodeCartAdminMotion.flashRow(changedRow); }
+    }
     var treeTable = host.querySelector('.cc-category-list-drag');
     if (treeTable) { treeTable.classList.add('cc-tree-ready'); }
     rows.forEach(function (row) {
