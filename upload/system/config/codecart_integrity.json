@@ -33,7 +33,7 @@
         "admin/controller/marketplace/modification.php": "8f813cf67bb588e3dd04d878d97d6057d6c2b0dcfd2696678ec999746f6aeb63",
         "admin/controller/report/lost_url.php": "77303351e17addc9e69928f6811ea59720a64c507a98c2feae24ed88c4946961",
         "admin/controller/sale/abandoned_cart.php": "1d0e68f205d2e5546b9f23a865f7d4adc27602ee54686a70b41da2a8e6aa002d",
-        "admin/controller/setting/setting.php": "50ec3cc168d4c0672571e938c6d100018214879c2428f378b951b13b4f84e74d",
+        "admin/controller/setting/setting.php": "b9c90f32a85d21e9b0d9c3f97f1212444b27c7085e8d97deeee73117b40905cd",
         "admin/controller/setting/store.php": "51f1873b5c2a797864993c61956a812f6969e247779635963f82858f7e5818d3",
         "admin/controller/startup/error.php": "b2f525301bd2f1edde5cf24d86bab092c102cd3fe2e81fedcef5b4bf0b182be5",
         "admin/controller/startup/event.php": "1893a6160d5b154d2707fa46a27dc965c0eee7d7dc36aa4464c8406e694226ae",
