@@ -314,6 +314,7 @@ class ControllerToolCodeCartCore extends Controller {
             foreach ($names as $name) {
                 $name = strtolower(trim((string)$name));
                 if (strpos($name, 'fa-') === 0) { $name = substr($name, 3); }
+                $name = array('circle-o-notch' => 'circle-notch')[$name] ?? $name;
                 if ($name === '' || in_array($name, array('fa','fas','far','fab','solid','regular','brands'), true)) { continue; }
                 if (isset($manifest['icons'][$name]) && count($accepted) < 500) { $accepted[$name] = $name; }
                 else { $skipped++; }
@@ -641,6 +642,9 @@ class ControllerToolCodeCartCore extends Controller {
             elseif (strpos($message,'Additional table ') === 0) $issue['message'] = $this->language->get('schema_msg_external_table');
             elseif (strpos($message,'Additional column ') === 0) $issue['message'] = $this->language->get('schema_msg_external_column');
             elseif (strpos($message,'Additional index ') === 0) $issue['message'] = $this->language->get('schema_msg_external_index');
+            elseif ($rawType === 'type' && preg_match('/^(.+?)\\s*!=\\s*(.+)$/', $message, $matches)) {
+                $issue['message'] = sprintf($this->language->get('schema_msg_type_comparison'), trim($matches[1]), trim($matches[2]));
+            }
         }
         unset($issue);
         return $result;
