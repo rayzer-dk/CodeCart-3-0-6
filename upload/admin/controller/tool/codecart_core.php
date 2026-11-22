@@ -667,10 +667,10 @@ class ControllerToolCodeCartCore extends Controller {
     private function comparisonRows() {
         $rows = array(
             array('component'=>'PHP','opencart'=>'PHP 8.0–8.4','ocstore'=>'PHP 8.0–8.5','codecart'=>'PHP 8.1–8.5','status'=>'updated'),
-            array('component'=>'Guzzle','opencart'=>'7.10.0','ocstore'=>'7.9.3','codecart'=>'7.16.1','status'=>'updated'),
+            array('component'=>'Guzzle','opencart'=>'7.10.0','ocstore'=>'7.9.3','codecart'=>'8.5.5','status'=>'updated'),
             array('component'=>'Twig','opencart'=>'3.24.0','ocstore'=>'3.21.1','codecart'=>'3.30.0','status'=>'updated'),
-            array('component'=>'Guzzle Promises','opencart'=>'2.3.0','ocstore'=>'2.2.0','codecart'=>'2.6.0','status'=>'updated'),
-            array('component'=>'Guzzle PSR-7','opencart'=>'2.9.0','ocstore'=>'2.7.1','codecart'=>'2.13.2','status'=>'updated'),
+            array('component'=>'Guzzle Promises','opencart'=>'2.3.0','ocstore'=>'2.2.0','codecart'=>'3.2.0','status'=>'updated'),
+            array('component'=>'Guzzle PSR-7','opencart'=>'2.9.0','ocstore'=>'2.7.1','codecart'=>'3.6.0','status'=>'updated'),
             array('component'=>'League URI','opencart'=>'7.8.1','ocstore'=>'7.5.1','codecart'=>'7.10.0','status'=>'updated'),
             array('component'=>'League URI Interfaces','opencart'=>'7.8.1','ocstore'=>'7.5.0','codecart'=>'7.10.0','status'=>'updated'),
             array('component'=>'Symfony Deprecation Contracts','opencart'=>'3.6.0','ocstore'=>'3.6.0','codecart'=>'3.8.1','status'=>'updated'),
@@ -680,8 +680,9 @@ class ControllerToolCodeCartCore extends Controller {
             array('component'=>'scssphp','opencart'=>'2.1.0 runtime','ocstore'=>'2.0.1 runtime','codecart'=>'2.1.0 manual / CLI only','status'=>'updated'),
             array('component'=>'Symfony Filesystem','opencart'=>'6.4.34','ocstore'=>'6.4.13','codecart'=>'6.4.50','status'=>'updated'),
             array('component'=>'Symfony Polyfill Mbstring','opencart'=>'1.37.0','ocstore'=>'1.32.0','codecart'=>'1.43.3','status'=>'updated'),
-            array('component'=>'jQuery Migrate','opencart'=>'—','ocstore'=>'—','codecart'=>'3.4.1','status'=>'added'),
-            array('component'=>'jQuery','opencart'=>'3.7.1','ocstore'=>'3.7.1','codecart'=>'3.7.1 Legacy Core','status'=>'legacy'),
+            array('component'=>'Symfony Polyfill PHP 8.2','opencart'=>'—','ocstore'=>'—','codecart'=>'1.43.0','status'=>'added'),
+            array('component'=>'jQuery Migrate','opencart'=>'—','ocstore'=>'—','codecart'=>'3.6.0','status'=>'added'),
+            array('component'=>'jQuery','opencart'=>'3.7.1','ocstore'=>'3.7.1','codecart'=>'3.8.0 (Bootstrap 3 compatible)','status'=>'updated'),
             array('component'=>'Bootstrap','opencart'=>'3.4.1','ocstore'=>'3.4.1','codecart'=>'3.4.1 Legacy Core','status'=>'legacy'),
             array('component'=>'Font Awesome','opencart'=>'4.7.0','ocstore'=>'4.7.0','codecart'=>'7.3.1 + AUTO/Core/Full + FA4 compatibility','status'=>'updated'),
             array('component'=>'Content editor','opencart'=>'Summernote 0.8.18','ocstore'=>'Summernote 0.8.18','codecart'=>'Summernote 0.9.1 local','status'=>'updated'),
@@ -689,11 +690,12 @@ class ControllerToolCodeCartCore extends Controller {
             array('component'=>'Magnific Popup','opencart'=>'1.1.0','ocstore'=>'1.1.0','codecart'=>'1.2.0','status'=>'updated'),
             array('component'=>'PhotoSwipe','opencart'=>'—','ocstore'=>'—','codecart'=>'5.4.4','status'=>'added'),
             array('component'=>'HTML Purifier','opencart'=>'—','ocstore'=>'4.18.0','codecart'=>'4.19.0','status'=>'updated'),
-            array('component'=>'Moment.js','opencart'=>'2.18.1','ocstore'=>'2.18.1','codecart'=>'2.30.1','status'=>'updated'),
-            array('component'=>'DateTimePicker','opencart'=>'Bootstrap DateTimePicker 3.1.3.1','ocstore'=>'Bootstrap DateTimePicker 3.1.3.1','codecart'=>'CodeCart PRO Hybrid DateTimePicker 1.8.7','status'=>'updated'),
+            array('component'=>'Moment.js','opencart'=>'2.18.1','ocstore'=>'2.18.1','codecart'=>'2.31.0','status'=>'updated'),
+            array('component'=>'DateTimePicker','opencart'=>'Bootstrap DateTimePicker 3.1.3.1','ocstore'=>'Bootstrap DateTimePicker 3.1.3.1','codecart'=>'CodeCart Hybrid DateTimePicker 1.8.7; Bootstrap DateTimePicker 4.17.49 (legacy)','status'=>'updated'),
             array('component'=>'SortableJS','opencart'=>'—','ocstore'=>'1.10.2','codecart'=>'1.15.7','status'=>'updated'),
             array('component'=>'Swiper','opencart'=>'3.4.2','ocstore'=>'3.4.2','codecart'=>'CodeCart PRO Slider; Swiper 3 Legacy','status'=>'removed_runtime'),
-            array('component'=>'Flot / jQVMap','opencart'=>'Core Dashboard','ocstore'=>'Core Dashboard','codecart'=>'not used by Core Dashboard; Legacy assets retained','status'=>'removed_runtime'),
+            array('component'=>'Flot','opencart'=>'Core Dashboard','ocstore'=>'Core Dashboard','codecart'=>'Flot 4.2.6 (legacy); CodeCart SVG Chart 1.2.0 in Core','status'=>'removed_runtime'),
+            array('component'=>'jQVMap','opencart'=>'Core Dashboard','ocstore'=>'Core Dashboard','codecart'=>'jQVMap 1.5.1 (legacy); CodeCart SVG World Map 1.1.0 in Core','status'=>'removed_runtime'),
             array('component'=>'SEO / clean URL','opencart'=>'SEO URL','ocstore'=>'SeoPro','codecart'=>'SeoPro + language prefixes + canonical/faceted policy','status'=>'updated'),
             array('component'=>'Image formats','opencart'=>'JPEG/PNG/WebP','ocstore'=>'JPEG/PNG/WebP','codecart'=>'JPEG/PNG/WebP/AVIF + safe fallback','status'=>'updated'),
             array('component'=>'Cache backends','opencart'=>'File','ocstore'=>'File','codecart'=>'File / APCu / Memcached / Redis + fallback','status'=>'added'),
@@ -712,7 +714,7 @@ class ControllerToolCodeCartCore extends Controller {
         $packages = array(
             'Guzzle' => 'guzzlehttp/guzzle', 'Twig' => 'twig/twig', 'Guzzle Promises' => 'guzzlehttp/promises', 'Guzzle PSR-7' => 'guzzlehttp/psr7',
             'League URI' => 'league/uri', 'League URI Interfaces' => 'league/uri-interfaces', 'Symfony Deprecation Contracts' => 'symfony/deprecation-contracts',
-            'Symfony Polyfill Ctype' => 'symfony/polyfill-ctype', 'Symfony Polyfill PHP 8.0' => 'symfony/polyfill-php80', 'scssphp Source Span' => 'scssphp/source-span',
+            'Symfony Polyfill Ctype' => 'symfony/polyfill-ctype', 'Symfony Polyfill PHP 8.0' => 'symfony/polyfill-php80', 'Symfony Polyfill PHP 8.2' => 'symfony/polyfill-php82', 'scssphp Source Span' => 'scssphp/source-span',
             'scssphp' => 'scssphp/scssphp', 'Symfony Filesystem' => 'symfony/filesystem', 'Symfony Polyfill Mbstring' => 'symfony/polyfill-mbstring'
         );
         foreach ($rows as &$row) {
@@ -746,7 +748,9 @@ class ControllerToolCodeCartCore extends Controller {
             'System Notifications'=>'cmp_system_notifications','Central Spam Service'=>'cmp_spam_service','Built-in'=>'cmp_builtin','Built-in, opt-in on UPDATE'=>'cmp_builtin_optin',
             'TOTP + trusted device layer'=>'cmp_totp','Read-only diagnostics + migrations'=>'cmp_schema','PSR-4 / Services / Manifest / Extension Points'=>'cmp_modern',
             'contact / reviews / registration / forgotten / returns / GDPR'=>'cmp_spam_scope','form-specific'=>'cmp_form_specific','Core Dashboard'=>'cmp_core_dashboard',
-            'not used by Core Dashboard; Legacy assets retained'=>'cmp_legacy_assets','CodeCart PRO Slider; Swiper 3 Legacy'=>'cmp_slider','3.7.1 Legacy Core'=>'cmp_jquery_legacy','3.4.1 Legacy Core'=>'cmp_bootstrap_legacy',
+            'Flot 4.2.6 (legacy); CodeCart SVG Chart 1.2.0 in Core'=>'cmp_flot_legacy','jQVMap 1.5.1 (legacy); CodeCart SVG World Map 1.1.0 in Core'=>'cmp_jqvmap_legacy',
+            'CodeCart Hybrid DateTimePicker 1.8.7; Bootstrap DateTimePicker 4.17.49 (legacy)'=>'cmp_datepicker_legacy',
+            'CodeCart PRO Slider; Swiper 3 Legacy'=>'cmp_slider','3.8.0 (Bootstrap 3 compatible)'=>'cmp_jquery_compat','3.4.1 Legacy Core'=>'cmp_bootstrap_legacy',
             '2.1.0 manual / CLI only'=>'cmp_scss_cli','2.1.0 runtime'=>'cmp_scss_runtime_oc','2.0.1 runtime'=>'cmp_scss_runtime_ocs','SeoPro + language prefixes + canonical/faceted policy'=>'cmp_seo',
             'JPEG/PNG/WebP/AVIF + safe fallback'=>'cmp_images','File / APCu / Memcached / Redis + fallback'=>'cmp_cache','File'=>'cmp_file','7.3.1 + AUTO/Core/Full + FA4 compatibility'=>'cmp_fa','Summernote 0.9.1 local'=>'cmp_summernote'
         );
