@@ -261,6 +261,8 @@ final class FontAwesomeManager {
     private function normalizeName($name) {
         $name = strtolower(trim((string)$name));
         if (strpos($name, 'fa-') === 0) { $name = substr($name, 3); }
+        // Resolve legacy FA4 class to the bundled FA7 equivalent.
+        if ($name === 'circle-o-notch') { $name = 'circle-notch'; }
         return preg_match('/^[a-z0-9][a-z0-9-]*$/', $name) ? $name : '';
     }
 
