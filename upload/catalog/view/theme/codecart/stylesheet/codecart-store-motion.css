@@ -42,6 +42,23 @@
   .ccp-cart-add:not(:disabled):active {
     transform:scale(.97);
   }
+  /* Wishlist and compare: no idle motion, only pointer interaction. */
+  .product-thumb .button-group button .fa-heart,
+  #product-product .button-group button .fa-heart,
+  .product-thumb .button-group button .fa-exchange,
+  #product-product .button-group button .fa-exchange {
+    transition:transform 160ms ease, color 160ms ease;
+  }
+  @media (hover:hover) and (pointer:fine) {
+    .product-thumb .button-group button:hover .fa-heart,
+    #product-product .button-group button:hover .fa-heart {
+      transform:scale(1.16);
+    }
+    .product-thumb .button-group button:hover .fa-exchange,
+    #product-product .button-group button:hover .fa-exchange {
+      transform:rotate(12deg);
+    }
+  }
   #ccp-toast-host .ccp-toast { transition:opacity 180ms ease,transform 180ms ease; }
   #ccp-toast-host.ccp-cart-toast-active::before {
     animation:ccp-cart-backdrop-in 180ms ease-out both;
