@@ -524,8 +524,18 @@ class ControllerStartupSeoUrl extends Controller {
 	 * A default CodeCart install never depends on an external UniShop2 file.
 	 */
 	private function resolvePublicCheckoutRoute(): string {
+		// UniShop2 can run under a legacy/default config_theme value after an
+		// OpenCart to CodeCart migration. Detect its installed checkout settings
+		// as well as the theme name, but never route to a missing controller.
+		if (!defined('DIR_APPLICATION')) {
+			return 'checkout/checkout';
+		}
 		$theme = strtolower((string)$this->config->get('config_theme'));
-		if (strpos($theme, 'uni') === false || !defined('DIR_APPLICATION')) {
+		$legacyTemplate = strtolower((string)$this->config->get('config_template'));
+		$uniSettings = $this->config->get('config_unishop2');
+		$hasUniSettings = is_array($uniSettings) && isset($uniSettings['checkout']) && is_array($uniSettings['checkout']);
+		$isUniTheme = strpos($theme, 'uni') !== false || strpos($legacyTemplate, 'uni') !== false;
+		if (!$isUniTheme && !$hasUniSettings) {
 			return 'checkout/checkout';
 		}
 		$controller = rtrim(DIR_APPLICATION, "/\\") . '/controller/checkout/uni_checkout.php';
