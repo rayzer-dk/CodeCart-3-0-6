@@ -9,6 +9,8 @@ on:
       - 'upload/admin/controller/blog/category.php'
       - 'upload/admin/view/javascript/codecart/category-tree.js'
       - 'tools/normalize_admin_actions.py'
+      - 'tools/build_theme_css.sh'
+      - 'tests/build_compressor_versions_smoke.php'
       - 'upload/admin/view/stylesheet/codecart-category-tree.css'
       - 'upload/admin/language/uk-ua/**'
       - 'upload/admin/view/template/catalog/category_list.twig'
@@ -97,6 +99,14 @@ jobs:
 
       - name: Regenerate minified CSS and JavaScript before release checks
         run: bash tools/build_theme_css.sh
+
+      - name: Verify pinned compressor versions and generated JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          php tests/build_compressor_versions_smoke.php
+          node --check upload/admin/view/javascript/common.min.js
+          node --check upload/catalog/view/javascript/common.min.js
 
       - name: Refresh and commit integrity hashes for the actual source
         shell: bash
