@@ -176,6 +176,7 @@ $_['schema_type_external_column'] = 'Дополнительное поле';
 $_['schema_type_external_index'] = 'Дополнительный индекс';
 $_['schema_msg_missing_table'] = 'Таблица отсутствует';
 $_['schema_msg_missing_column'] = 'Поле отсутствует';
+$_['schema_msg_type_comparison'] = 'Текущий тип: %s; ожидаемый: %s';
 $_['schema_msg_missing_index'] = 'Индекс отсутствует';
 $_['schema_msg_missing_unique_index'] = 'Уникальный индекс отсутствует';
 $_['schema_msg_external_table'] = 'Дополнительная таблица стороннего модуля или пользователя; только информация';
