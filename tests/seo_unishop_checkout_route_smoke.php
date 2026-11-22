@@ -19,6 +19,7 @@ $tmp = sys_get_temp_dir() . '/codecart-seo-unishop-' . getmypid();
 @mkdir($tmp . '/catalog/controller/checkout', 0777, true);
 define('DIR_APPLICATION', $tmp . '/catalog/');
 define('DIR_STORAGE', $tmp . '/storage/');
+require $root . '/upload/system/library/codecart/src/CheckoutRouteResolver.php';
 require $root . '/upload/catalog/controller/startup/seo_url.php';
 $instance = (new ReflectionClass(ControllerStartupSeoUrl::class))->newInstanceWithoutConstructor();
 $method = new ReflectionMethod(ControllerStartupSeoUrl::class, 'resolvePublicCheckoutRoute');
