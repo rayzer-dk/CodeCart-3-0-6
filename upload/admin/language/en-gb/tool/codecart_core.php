@@ -182,6 +182,7 @@ $_['schema_type_external_column'] = 'External column';
 $_['schema_type_external_index'] = 'External index';
 $_['schema_msg_missing_table'] = 'Missing table';
 $_['schema_msg_missing_column'] = 'Missing column';
+$_['schema_msg_type_comparison'] = 'Current type: %s; expected: %s';
 $_['schema_msg_missing_index'] = 'Missing index';
 $_['schema_msg_missing_unique_index'] = 'Missing unique index';
 $_['schema_msg_external_table'] = 'Additional table (third-party/custom); informational only';
