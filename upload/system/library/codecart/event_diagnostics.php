@@ -19,7 +19,13 @@ class CodeCartEventDiagnostics {
         $path = self::markerPath();
         if (!is_file($path) || !is_readable($path)) { return 0; }
         $until = (int)trim((string)@file_get_contents($path));
-        return $until > time() ? $until : 0;
+        if ($until > time()) { return $until; }
+        // Remove stale marker once; expired recording must not cause extra
+        // bootstrap/file reads on every subsequent storefront request.
+        if ($until > 0 && (int)trim((string)@file_get_contents($path)) === $until) {
+            @unlink($path);
+        }
+        return 0;
     }
 
     public static function start() {
