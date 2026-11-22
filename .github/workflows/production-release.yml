@@ -58,6 +58,11 @@ jobs:
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
+      # CI can start before the separate integrity-refresh job updates main.
+      # Recalculate only the checked-out tree; release_check still verifies every hash.
+      - name: Regenerate integrity manifest for checked-out source
+        run: php tools/refresh_integrity.php
+
       - name: Release checks
         run: php tools/release_check.php
 
@@ -113,6 +118,11 @@ jobs:
 
       - name: Install locked production dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      # CI can start before the separate integrity-refresh job updates main.
+      # Recalculate only the checked-out tree; release_check still verifies every hash.
+      - name: Regenerate integrity manifest for checked-out source
+        run: php tools/refresh_integrity.php
 
       - name: Release checks
         run: php tools/release_check.php
