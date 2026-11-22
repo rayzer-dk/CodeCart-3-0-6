@@ -1,4 +1,10 @@
-/* Legacy Font Awesome 4 aliases for FA7 compatibility. Load after FA7 CSS. */
+/* Compatibility aliases for FA4 and FA5 classes used by OpenCart extensions.
+   Load after bundled Font Awesome 7.3.1; no extra font requests. */
 .fa-circle-o-notch::before, .fas.fa-circle-o-notch::before, .fa-solid.fa-circle-o-notch::before { --fa:"\f1ce"; content:var(--fa,"\f1ce") !important; font-family:"Font Awesome 7 Free","Font Awesome 6 Free",FontAwesome !important; font-weight:900 !important; }
 .fa-moon-o::before, .far.fa-moon-o::before, .fa-regular.fa-moon-o::before { --fa:"\f186"; content:var(--fa,"\f186") !important; font-family:"Font Awesome 7 Free","Font Awesome 6 Free",FontAwesome !important; font-weight:400 !important; }
 .fa-sun-o::before, .far.fa-sun-o::before, .fa-regular.fa-sun-o::before { --fa:"\f185"; content:var(--fa,"\f185") !important; font-family:"Font Awesome 7 Free","Font Awesome 6 Free",FontAwesome !important; font-weight:400 !important; }
+.fa-location-arrow::before { --fa:"\f124"; content:var(--fa,"\f124"); }
+.fa-plus-circle::before { --fa:"\f055"; content:var(--fa,"\f055"); }
+.fa-magic::before { --fa:"\e2ca"; content:var(--fa,"\e2ca"); }
+.fa-arrow-rotate-right::before { --fa:"\f01e"; content:var(--fa,"\f01e"); }
+.fa-file-pdf-o::before { --fa:"\f1c1"; content:var(--fa,"\f1c1"); }
