@@ -606,3 +606,8 @@ $_['help_codecart_pwa_prompt_days'] = 'How many days to wait after a dismissal b
 
 $_['entry_codecart_pwa_icon'] = 'PWA app icon';
 $_['help_codecart_pwa_icon'] = 'Separate installed-app icon: square PNG or WebP, ideally 512×512 px. If absent or invalid, the store favicon is used. The 192×192 and 512×512 icons are generated automatically.';
+
+$_['entry_codecart_admin_motion'] = 'Admin interface motion';
+$_['text_codecart_motion_balanced'] = 'Balanced — enabled';
+$_['text_codecart_motion_off'] = 'Disabled';
+$_['help_codecart_admin_motion'] = 'Lightweight button, menu and notification effects without extra libraries. The system reduced-motion setting is always respected.';
