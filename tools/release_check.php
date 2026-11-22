@@ -230,6 +230,7 @@ $gates = [
     ['tests/ocmod_legacy_anchor_smoke.php'],
     ['tests/core_about_component_versions_smoke.php'],
     ['tests/ui_first_paint_stability_smoke.php'],
+    ['tests/upgrade_preflight_reporting_smoke.php'],
     ['tests/build_compressor_versions_smoke.php'],
     ['tests/cart_external_schema_smoke.php'],
     ['tests/cart_reminder_consent_multistore_smoke.php'],
