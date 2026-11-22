@@ -611,3 +611,5 @@ $_['entry_codecart_admin_motion'] = 'Admin interface motion';
 $_['text_codecart_motion_balanced'] = 'Balanced — enabled';
 $_['text_codecart_motion_off'] = 'Disabled';
 $_['help_codecart_admin_motion'] = 'Lightweight button, menu and notification effects without extra libraries. The system reduced-motion setting is always respected.';
+
+$_['text_codecart_motion_on'] = 'Enable animations';
