@@ -408,7 +408,7 @@ $_['about_v_tls_strict'] = 'TLS 1.2–1.3, проверка сертификат
 $_['about_v_tls_starttls'] = 'STARTTLS, без минимальной версии';
 $_['about_advantages'] = array(
     'Работает на PHP 8.1–8.5. ocStore 3.0.3.7 заявляет PHP 5.4+, OpenCart 3.0.4.1 — PHP 7.3+.',
-    'Библиотеки новее, чем в любой из основ: Twig 3.30 против 2.14 / 3.8 / 3.24, Guzzle 7.16.1 против 5.3 / 6.5 / 7.10.',
+    'Библиотеки новее, чем в любой из основ: Twig 3.30 против 2.14 / 3.8 / 3.24, Guzzle 8.5.5 против 5.3 / 6.5 / 7.10.',
     'Пароли администраторов хешируются password_hash() вместо SHA-1 с солью, двухфакторный вход встроен. Ни в одной из трёх основ этого нет.',
     'Существующие расширения OpenCart 3 продолжают работать: алиасы классов Twig 2, jQuery Migrate, классы Font Awesome 4, OCMOD и события.',
     'Cron, очередь, уведомления, состояние магазина, проверка целостности и модернизация БД входят в ядро, а не в отдельные модули.'
@@ -426,11 +426,11 @@ $_['about_added_items'] = array(
     'REST API v1 только для чтения (выключен по умолчанию), кеш Redis/APCu/Memcached, изображения WebP/AVIF.'
 );
 $_['about_updated_items'] = array(
-    'PHP 8.1–8.5; Twig 3.30, Guzzle 7.16.1, scssphp 2.1.',
-    'jQuery 3.7.1 везде, jQuery Migrate 3.4.1 для старых модулей.',
+    'PHP 8.1–8.5; Twig 3.30, Guzzle 8.5.5, scssphp 2.1.',
+    'jQuery 3.8.0, jQuery Migrate 3.6.0; Guzzle Promises 3.2.0, PSR-7 3.6.0.',
     'Font Awesome 7.3.1 Free; классы Font Awesome 4 и font-family FontAwesome работают через встроенный слой совместимости.',
     'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 как альтернативная галерея.',
-    'Поля дат на витрине используют встроенный выбор даты; moment.js и bootstrap-datetimepicker оставлены только для сторонних модулей.',
+    'Встроенный DateTimePicker 1.8.7 и SVG-график/карта не требуют старых библиотек; Moment.js 2.31.0, Bootstrap DateTimePicker 4.17.49, Flot 4.2.6 и jQVMap 1.5.1 сохранены для совместимости сторонних модулей.',
     'Новые установки используют utf8mb4 и InnoDB; модернизатор БД переводит старые таблицы после резервной копии.',
     'Installer UPDATE обновляет существующие магазины версионированными миграциями с проверкой схемы.'
 );
@@ -449,7 +449,7 @@ $_['about_security_items'] = array(
     'SMTP и встроенные HTTP-интеграции (PayPal, курсы валют, Google, Turnstile) требуют TLS 1.2+ с проверкой сертификата.'
 );
 $_['about_removed_items'] = array(
-    'Файлы шрифтов Font Awesome 4 (используются веб-шрифты Font Awesome 6, классы FA4 сопоставлены) и библиотека jQuery 2.1.1 (заглушка в 1 КБ со старым именем файла подключает jQuery 3.7.1 с jQuery Migrate 3.4.1 для тем, которые на него ссылаются).',
+    'Файлы шрифтов Font Awesome 4 заменены шрифтами Font Awesome 7 с поддержкой классов FA4; старое имя jquery-2.1.1.min.js сохранено как адаптер загрузки jQuery 3.8.0 и Migrate 3.6.0.',
     'Устаревший php.ini в корне сайта (удалите его на существующих сайтах).',
     'Дублирующий шаг обновления 3054 и старые действия импорта каталога в «Инструменты → Резервное копирование».'
 );
@@ -484,7 +484,10 @@ $_['cmp_form_specific'] = 'отдельно для каждой формы';
 $_['cmp_core_dashboard'] = 'Дашборд ядра';
 $_['cmp_legacy_assets'] = 'не используется дашбордом ядра; legacy-файлы сохранены';
 $_['cmp_slider'] = 'Слайдер CodeCart PRO; Swiper 3 как legacy';
-$_['cmp_jquery_legacy'] = '3.7.1 (legacy-ядро)';
+$_['cmp_flot_legacy'] = 'Flot 4.2.6 (совместимость); в ядре SVG-график CodeCart 1.2.0';
+$_['cmp_jqvmap_legacy'] = 'jQVMap 1.5.1 (совместимость); в ядре SVG-карта CodeCart 1.1.0';
+$_['cmp_datepicker_legacy'] = 'CodeCart Hybrid DateTimePicker 1.8.7; Bootstrap DateTimePicker 4.17.49 (совместимость)';
+$_['cmp_jquery_compat'] = '3.8.0 (совместим с Bootstrap 3)';
 $_['cmp_bootstrap_legacy'] = '3.4.1 (legacy-ядро)';
 $_['cmp_scss_cli'] = '2.1.0, только вручную / CLI';
 $_['cmp_scss_runtime_oc'] = '2.1.0 во время работы';
