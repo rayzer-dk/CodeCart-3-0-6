@@ -115,9 +115,9 @@ check('prefix-only mode removes selector', $r->get('response')->redirects[0],arr
 $r=setup('/', '', 'ru-ru', 'ru', true, true, false, true);
 $c=new ControllerStartupSeoUrl($r);
 $r->get('url')->addRewrite($c);
-check('UniShop checkout link is public',
+check('UniShop checkout keeps its own public route',
  $r->get('url')->link('checkout/uni_checkout', '', true),
- 'https://shop.test/ru/checkout/');
+ 'https://shop.test/ru/checkout/uni_checkout/');
 check('stock checkout link is public',
  $r->get('url')->link('checkout/checkout', '', true),
  'https://shop.test/ru/checkout/');
