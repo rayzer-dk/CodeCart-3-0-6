@@ -18,19 +18,19 @@
           {% else %}
           <div class="alert alert-success" role="status">
             <i class="fa-solid fa-circle-check"></i> {{ text_preflight_ready }}
-            {% if preflight_warnings %}<p>{{ text_warnings_nonblocking }}</p>{% endif %}
+            {% if preflight_warnings %}<p>{{ text_warnings_nonblocking }}</p>{% endif %} %}
           </div>
-          {% endif %
-          <div class="table-responsive"><table class="table cc-status-table"><thead><tr><th>{{ text_component }}</th><th>{{ text_current }}</th><th>{{ text_status }}</th><th></th></tr></thead><tbody>{% for row in preflight %}<tr><td>{{ row.component }}</td><td>{{ row.current }}</td><td>{% if row.state == 'ok' %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> {{ text_ok }}</span>{% elseif row.state == 'warning' %}<span class="cc-state warn"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_warning }}</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ text_blocker }}</span>{% endif %}</td><td>{{ row.message }}</td></tr>{% endfor %}</tbody></table></div>
+          {% endif %}%
+          <div class="table-responsive"><table class="table cc-status-table"><thead><tr><th>{{ text_component }}</th><th>{{ text_current }}</th><th>{{ text_status }}</th><th></th></tr></thead><tbody>{% for row in preflight %}<tr><td>{{ row.component }}</td><td>{{ row.current }}</td><td>{% if row.state == 'ok' %}<span class="cc-state ok"><i class="fa-solid fa-circle-check"></i> {{ text_ok }}</span>{% elseif row.state == 'warning' %}<span class="cc-state warn"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_warning }}</span>{% else %}<span class="cc-state bad"><i class="fa-solid fa-circle-xmark"></i> {{ text_blocker }}</span>{% endif %} %}</td><td>{{ row.message }}</td></tr>{% endfor %}</tbody></table></div>
           <h2 class="cc-section-title">{{ text_server }}</h2>
           <div class="cc-form-section"><ul class="cc-upgrade-notes"><li>{{ text_error }}</li><li>{{ text_clear }}</li><li>{{ text_admin }}</li><li>{{ text_user }}</li><li>{{ text_setting }}</li><li>{{ text_store }}</li></ul></div>
-          <label class="cc-backup-confirm"><input type="checkbox" id="backup-confirm" value="1"{% if preflight_blockers %} disabled{% endif %}> {{ text_backup_confirm }}</label>
-          {% if not preflight_blockers %}<p class="help-block">{{ text_backup_unlock }}</p>{% endif %
-          <label class="cc-backup-confirm" style="margin-top:10px"><input type="checkbox" id="repair-mode" value="1"{% if preflight_blockers %} disabled{% endif %}> <strong>{{ text_repair_mode }}</strong><br><small style="margin-left:22px">{{ text_repair_help }}</small></label>
+          <label class="cc-backup-confirm"><input type="checkbox" id="backup-confirm" value="1"{% if preflight_blockers %} disabled{% endif %} %}> {{ text_backup_confirm }}</label>
+          {% if not preflight_blockers %}<p class="help-block">{{ text_backup_unlock }}</p>{% endif %}%
+          <label class="cc-backup-confirm" style="margin-top:10px"><input type="checkbox" id="repair-mode" value="1"{% if preflight_blockers %} disabled{% endif %} %}> <strong>{{ text_repair_mode }}</strong><br><small style="margin-left:22px">{{ text_repair_help }}</small></label>
           <h2 class="cc-section-title">{{ text_steps }}</h2>
           <div class="cc-form-section"><div class="progress"><div id="progress-bar" class="progress-bar" style="width:0%"></div></div><div id="progress-text"></div></div>
         </div>
-        <div class="cc-card-footer"><span></span><button type="button" id="button-continue" class="btn btn-primary" disabled{% if preflight_blockers %} title="{{ text_preflight_blocked }}"{% endif %}><i class="fa-solid fa-play"></i> {{ button_continue }}</button></div>
+        <div class="cc-card-footer"><span></span><button type="button" id="button-continue" class="btn btn-primary" disabled{% if preflight_blockers %} title="{{ text_preflight_blocked }}"{% endif %} %}><i class="fa-solid fa-play"></i> {{ button_continue }}</button></div>
       </main>
       {{ column_left }}
     </div>
@@ -38,8 +38,18 @@
 </div>
 <script>
 var step = 0;
-$('#backup-confirm').on('change', function(){ if (!{{ preflight_blockers }}) { $('#button-continue').prop('disabled', !this.checked); } });
+var codecartPreflightBlocked = {{ preflight_blockers ? 'true' : 'false' }};
+function updateContinueState() {
+  var checkbox = document.getElementById('backup-confirm');
+  var button = document.getElementById('button-continue');
+  if (!checkbox || !button) { return; }
+  button.disabled = codecartPreflightBlocked || !checkbox.checked;
+}
+document.getElementById('backup-confirm').addEventListener('change', updateContinueState);
+window.addEventListener('pageshow', updateContinueState);
+updateContinueState();
 $('#button-continue').on('click', function() {
+  if (this.disabled || codecartPreflightBlocked || !document.getElementById('backup-confirm').checked) { return; }
   $('#progress-bar').removeClass('progress-bar-danger').addClass('progress-bar-success').css('width','0%');
   $('#progress-text').empty();
   $('#button-continue').prop('disabled', true).find('i').attr('class','fa-solid fa-spinner fa-spin');
@@ -55,7 +65,8 @@ function start(url) {
       if (json.error) {
         $('#progress-bar').removeClass('progress-bar-success').addClass('progress-bar-danger');
         $('#progress-text').html($('<div class="text-danger"></div>').text(json.error));
-        $('#button-continue').prop('disabled', false).find('i').attr('class','fa-solid fa-play');
+        $('#button-continue').find('i').attr('class','fa-solid fa-play');
+        updateContinueState();
         return;
       }
       if (json.success) { $('#progress-text').html($('<span class="text-success"></span>').text(json.success)); }
@@ -67,7 +78,8 @@ function start(url) {
     error: function() {
       $('#progress-bar').removeClass('progress-bar-success').addClass('progress-bar-danger');
       $('#progress-text').html($('<div class="text-danger"></div>').text('{{ error_ajax|e('js') }}'));
-      $('#button-continue').prop('disabled', false).find('i').attr('class','fa-solid fa-play');
+      $('#button-continue').find('i').attr('class','fa-solid fa-play');
+        updateContinueState();
     }
   });
 }
