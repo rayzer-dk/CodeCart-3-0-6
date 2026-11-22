@@ -231,6 +231,7 @@ $gates = [
     ['tests/checkout_route_routing_smoke.php'],
     ['tests/checkout_theme_compat_smoke.php'],
     ['tests/ocmod_legacy_anchor_smoke.php'],
+    ['tests/event_diagnostics_smoke.php'],
     ['tests/core_about_component_versions_smoke.php'],
     ['tests/ui_first_paint_stability_smoke.php'],
     ['tests/upgrade_preflight_reporting_smoke.php'],

@@ -18,6 +18,8 @@ class Event {
     protected $data = array();
     protected $processed = array();
     protected $refresh = false;
+    // null until the first trigger; otherwise a plain boolean per request.
+    protected $diagnosticsActive = null;
 
     /**
      * Constructor
@@ -39,13 +41,14 @@ class Event {
      * @param Action $action
      * @param int    $priority
      */
-    public function register($trigger, Action $action, $priority = 0) {
+    public function register($trigger, Action $action, $priority = 0, $eventId = 0) {
         $trigger = (string)$trigger;
 
         $this->data[] = array(
             'trigger'  => $trigger,
             'action'   => $action,
             'priority' => (int)$priority,
+            'event_id' => (int)$eventId,
             'wildcard' => (strpos($trigger, '*') !== false || strpos($trigger, '?') !== false)
         );
 
@@ -95,9 +98,29 @@ class Event {
             }
         }
 
+        // One cheap filesystem check per request. Off by default; no arguments are logged.
+        if ($this->diagnosticsActive === null) {
+            $this->diagnosticsActive = false;
+            if (defined('DIR_LOGS') && is_file(rtrim(DIR_LOGS, '/\\') . '/codecart-event-trace.enabled')) {
+                require_once DIR_SYSTEM . 'library/codecart/event_diagnostics.php';
+                $this->diagnosticsActive = CodeCartEventDiagnostics::expiration() > 0;
+            }
+        }
         foreach ($this->processed[$event] as $value) {
-            $result = $value['action']->execute($this->registry, $args);
+            $capture = $this->diagnosticsActive && $value['event_id'] > 0;
+            $started = $capture ? microtime(true) : 0.0;
+            try {
+                $result = $value['action']->execute($this->registry, $args);
+            } catch (\\Throwable $exception) {
+                if ($capture) {
+                    CodeCartEventDiagnostics::record($value['event_id'], 'error', microtime(true) - $started, $exception);
+                }
+                throw $exception;
+            }
 
+            if ($capture) {
+                CodeCartEventDiagnostics::record($value['event_id'], $result instanceof \\Throwable ? 'error' : 'ok', microtime(true) - $started, $result instanceof \\Throwable ? $result : null);
+            }
             if (!is_null($result) && !($result instanceof Exception)) {
                 return $result;
             }

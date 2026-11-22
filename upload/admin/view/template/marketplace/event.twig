@@ -3,6 +3,15 @@
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
+        <a href="{{ diagnose_url }}" class="btn btn-primary" title="{{ text_diag_on_demand }}"><i class="fa fa-search"></i> {{ button_event_diagnose }}</a>
+        <form action="{{ trace_url }}" method="post" style="display:inline-block">
+          <input type="hidden" name="command" value="{% if event_trace_active %}stop{% else %}start{% endif %}" />
+          <button type="submit" class="btn {% if event_trace_active %}btn-warning{% else %}btn-default{% endif %}"><i class="fa fa-clock-o"></i> {% if event_trace_active %}{{ button_trace_stop }}{% else %}{{ button_trace_start }}{% endif %}</button>
+        </form>
+        <form action="{{ trace_url }}" method="post" style="display:inline-block">
+          <input type="hidden" name="command" value="clear" />
+          <button type="submit" class="btn btn-default" title="{{ button_trace_clear }}"><i class="fa fa-eraser"></i></button>
+        </form>
         <button type="button" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? $('#form-event').submit() : false;"><i class="fa fa-trash-o"></i></button>
       </div>
       <h1>{{ heading_title }}</h1>
@@ -23,7 +32,45 @@
       <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
     {% endif %}
-    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_event }}</div>
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_event }}
+      <div class="small">{{ text_diag_on_demand }} {% if event_trace_active %}<strong>{{ text_trace_active }} {{ event_trace_until|date('d.m.Y H:i:s') }}</strong>{% else %}{{ text_trace_disabled }}{% endif %}</div>
+    </div>
+    {% if event_diagnostic_ran %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-stethoscope"></i> {{ text_diag_title }}</h3></div>
+      <div class="panel-body">
+        <p>{{ text_diag_total }}: {{ event_diagnostic_summary.total }};
+           {{ text_diag_ready }}: {{ event_diagnostic_summary.ready }};
+           {{ text_diag_issues }}: {{ event_diagnostic_summary.issues }};
+           {{ text_diag_disabled }}: {{ event_diagnostic_summary.disabled }}.
+           <span class="text-muted">{{ text_diag_runtime_note }}</span>
+        </p>
+        <div class="table-responsive" style="max-height:400px;overflow:auto">
+          <table class="table table-bordered table-condensed table-hover">
+            <thead><tr>
+              <th>{{ column_code }}</th><th>{{ text_trigger }}</th><th>{{ text_action }}</th>
+              <th>{{ text_diag_result }}</th><th>{{ text_diag_calls }}</th><th>{{ text_diag_errors }}</th>
+            </tr></thead>
+            <tbody>
+              {% for row in event_diagnostic_rows %}
+              <tr>
+                <td>{{ row.code }}</td><td><code>{{ row.trigger }}</code></td><td><code>{{ row.action }}</code></td>
+                <td><span class="label {% if row.state == 'ready' %}label-success{% elseif row.state == 'disabled' %}label-default{% else %}label-warning{% endif %}">{{ row.state_label }}</span>
+                  {% if row.file %}<small class="text-muted">{{ row.file }}</small>{% endif %}
+                  {% if row.exception %}<small class="text-danger">{{ row.exception }}</small>{% endif %}
+                </td>
+                <td>{% if event_trace_has_data %}{{ row.calls }}{% else %}—{% endif %}</td>
+                <td>{% if event_trace_has_data %}{{ row.errors }}{% else %}—{% endif %}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="6">{{ text_no_results }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>

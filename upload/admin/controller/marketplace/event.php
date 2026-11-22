@@ -9,10 +9,40 @@ class ControllerMarketplaceEvent extends Controller {
 
 		$this->load->model('setting/event');
 
-		$this->getList();
-	}
+        // Static handler checks run ONLY when the administrator explicitly requests them.
+        $report = null;
+        if (isset($this->request->get['diagnose']) && $this->request->get['diagnose'] === '1'
+            && $this->user->hasPermission('access', 'marketplace/event')) {
+            $this->load->model('setting/event_diagnostics');
+            require_once DIR_SYSTEM . 'library/codecart/event_diagnostics.php';
+            $report = $this->model_setting_event_diagnostics->inspect(
+                $this->model_setting_event->getEvents(), CodeCartEventDiagnostics::read()
+            );
+        }
+        $this->getList($report);
+    }
 
-	public function enable() {
+    /** POST-only, administrator-only capture controls. */
+    public function trace() {
+        $this->load->language('marketplace/event');
+        if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST'
+            || !$this->validate()
+            || !isset($this->request->get['user_token'], $this->session->data['user_token'])
+            || !hash_equals((string)$this->session->data['user_token'], (string)$this->request->get['user_token'])) {
+            $this->response->setStatusCode(403);
+            return;
+        }
+        require_once DIR_SYSTEM . 'library/codecart/event_diagnostics.php';
+        $command = (string)($this->request->post['command'] ?? '');
+        $done = false;
+        if ($command === 'start') { $done = CodeCartEventDiagnostics::start(); }
+        elseif ($command === 'stop') { $done = CodeCartEventDiagnostics::stop(); }
+        elseif ($command === 'clear') { $done = CodeCartEventDiagnostics::clear(); }
+        $this->session->data[$done ? 'success' : 'error'] = $this->language->get($done ? 'text_trace_saved' : 'error_trace_failed');
+        $this->response->redirect($this->url->link('marketplace/event', 'user_token=' . $this->session->data['user_token'] . '&diagnose=1', true));
+    }
+
+    public function enable() {
 		$this->load->language('marketplace/event');
 
 		$this->document->setTitle($this->language->get('heading_title'));
@@ -110,7 +140,7 @@ class ControllerMarketplaceEvent extends Controller {
 		$this->getList();
 	}	
 	
-	public function getList() {
+	public function getList($report = null) {
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
@@ -157,6 +187,24 @@ class ControllerMarketplaceEvent extends Controller {
 
 		$data['delete'] = $this->url->link('marketplace/event/delete', 'user_token=' . $this->session->data['user_token'] . $url, true);
 
+        // No new page, DB tables or polling; controls live on the existing Events page.
+        $data['event_diagnostic_ran'] = is_array($report);
+        $data['event_diagnostic_rows'] = array();
+        $data['event_diagnostic_summary'] = is_array($report) ? $report['summary'] : array();
+        if (is_array($report)) {
+            foreach ($report['rows'] as $row) {
+                $row['state_label'] = $this->language->get('diag_state_' . $row['state']);
+                $data['event_diagnostic_rows'][] = $row;
+            }
+        }
+        $data['diagnose_url'] = $this->url->link('marketplace/event', 'user_token=' . $this->session->data['user_token'] . '&diagnose=1', true);
+        $data['trace_url'] = $this->url->link('marketplace/event/trace', 'user_token=' . $this->session->data['user_token'], true);
+        require_once DIR_SYSTEM . 'library/codecart/event_diagnostics.php';
+        $data['event_trace_until'] = CodeCartEventDiagnostics::expiration();
+        $data['event_trace_active'] = $data['event_trace_until'] > 0;
+        $trace_file = CodeCartEventDiagnostics::tracePath();
+        $data['event_trace_has_data'] = is_file($trace_file) && @filesize($trace_file) > 0;
+
 		$data['events'] = array();
 
 		$filter_data = array(
@@ -184,6 +232,10 @@ class ControllerMarketplaceEvent extends Controller {
 			);
 		}
 
+		if (isset($this->session->data['error'])) {
+			$this->error['warning'] = $this->session->data['error'];
+			unset($this->session->data['error']);
+		}
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
 		} else {
