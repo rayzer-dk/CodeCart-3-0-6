@@ -99,6 +99,17 @@ class ControllerStartupSeoUrl extends Controller {
 			}
 		}
 
+		// Friendly aliases only for public HTML documents; checkout AJAX,
+		// payments, callbacks and cart mutations keep their internal routes.
+		if ($seo_url_enabled && isset($this->request->get['_route_'])) {
+			$public_path = trim((string)$this->request->get['_route_'], '/');
+			if ($public_path === 'checkout' || $public_path === 'cart') {
+				$this->request->get['route'] = $public_path === 'checkout'
+					? $this->resolvePublicCheckoutRoute() : 'checkout/cart';
+				unset($this->request->get['_route_']);
+			}
+		}
+
 		// Decode catalog SEO aliases only while the master SEO URL switch is on.
 		// In prefix-only mode startup/startup.php already consumes /<lang>/ and
 		// optional index.php; any remaining pretty path is not a valid non-SEO URL.
@@ -338,6 +349,25 @@ class ControllerStartupSeoUrl extends Controller {
 		parse_str(isset($url_info['query']) ? $url_info['query'] : '', $data);
 		$route_for_prefix = isset($data['route']) ? (string)$data['route'] : '';
 
+		// Reserve stable, language-aware public document URLs without touching
+		// internal XHR routes (e.g. checkout/uni_checkout/country or cart/add).
+		$public_alias = array(
+			'checkout/checkout' => 'checkout',
+			'checkout/uni_checkout' => 'checkout',
+			'checkout/cart' => 'cart'
+		);
+		if ($seo_url_enabled && isset($public_alias[$route_for_prefix])) {
+			unset($data['route']);
+			$path = preg_replace('#/index\\.php$#', '/', (string)($url_info['path'] ?? '/'));
+			$path = rtrim($path, '/') . '/' . $public_alias[$route_for_prefix] . '/';
+			$public_url = $url_info['scheme'] . '://' . $url_info['host']
+				. (isset($url_info['port']) ? ':' . (int)$url_info['port'] : '') . $path;
+			if ($data) {
+				$public_url .= '?' . str_replace('&', '&amp;', http_build_query($data, '', '&'));
+			}
+			return $this->applyLanguagePrefix($public_url, $route_for_prefix);
+		}
+
 		// Native language directories are the only canonical language signal.
 		// Remove legacy OpenCart selectors from generated catalog links, but
 		// leave API, payment and feed routes untouched for compatibility.
@@ -487,6 +517,22 @@ class ControllerStartupSeoUrl extends Controller {
 	private function isUnprefixedRoute($route) {
 		$route = strtolower((string)$route);
 		return $route === 'common/language/language' || (bool)preg_match('#^(?:extension/feed/|extension/payment/|api/|cron/)#', $route);
+	}
+
+	/**
+	 * Canonical /checkout/ resolves to the active storefront implementation.
+	 * A default CodeCart install never depends on an external UniShop2 file.
+	 */
+	private function resolvePublicCheckoutRoute(): string {
+		$theme = strtolower((string)$this->config->get('config_theme'));
+		if (strpos($theme, 'uni') === false || !defined('DIR_APPLICATION')) {
+			return 'checkout/checkout';
+		}
+		$controller = rtrim(DIR_APPLICATION, "/\\") . '/controller/checkout/uni_checkout.php';
+		$modified = defined('DIR_STORAGE')
+			? rtrim(DIR_STORAGE, "/\\") . '/modification/catalog/controller/checkout/uni_checkout.php' : '';
+		return (is_file($controller) || ($modified !== '' && is_file($modified)))
+			? 'checkout/uni_checkout' : 'checkout/checkout';
 	}
 
 	private function isCatalogLanguageRoute($route) {

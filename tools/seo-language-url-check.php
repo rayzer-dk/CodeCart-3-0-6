@@ -111,5 +111,31 @@ $r->get('request')->get=array('route'=>'product/product','product_id'=>'42','lan
 $r->get('request')->server['REQUEST_URI']='/index.php?route=product/product&product_id=42&language=ru-ru';
 (new ControllerStartupSeoUrl($r))->index();
 check('prefix-only mode removes selector', $r->get('response')->redirects[0],array('https://shop.test/ru/index.php?route=product/product&product_id=42',301));
+// Navigation documents get pretty URLs; technical routes retain their API.
+$r=setup('/', '', 'ru-ru', 'ru', true, true, false, true);
+$c=new ControllerStartupSeoUrl($r);
+$r->get('url')->addRewrite($c);
+check('UniShop checkout link is public',
+ $r->get('url')->link('checkout/uni_checkout', '', true),
+ 'https://shop.test/ru/checkout/');
+check('stock checkout link is public',
+ $r->get('url')->link('checkout/checkout', '', true),
+ 'https://shop.test/ru/checkout/');
+check('cart link is public',
+ $r->get('url')->link('checkout/cart', '', true),
+ 'https://shop.test/ru/cart/');
+check('checkout country AJAX stays technical',
+ $r->get('url')->link('checkout/uni_checkout/country', 'country_id=220', true),
+ 'https://shop.test/ru/index.php?route=checkout/uni_checkout/country&amp;country_id=220');
+check('payment callback stays technical',
+ $r->get('url')->link('extension/payment/example', '', true),
+ 'https://shop.test/index.php?route=extension/payment/example');
+$r=setup('/ru/checkout/', '', 'ru-ru', 'ru', true, true, false, true);
+(new ControllerStartupSeoUrl($r))->index();
+check('pretty checkout URL decodes on core installs',
+ $r->get('request')->get['route'], 'checkout/checkout');
+$r=setup('/ru/cart/', '', 'ru-ru', 'ru', true, true, false, true);
+(new ControllerStartupSeoUrl($r))->index();
+check('pretty cart URL decodes', $r->get('request')->get['route'], 'checkout/cart');
 echo "SEO URL regression tests completed.\n";
 
