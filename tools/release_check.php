@@ -229,6 +229,7 @@ $gates = [
     ['tests/theme_layout_compat_smoke.php'],
     ['tests/seo_unishop_checkout_route_smoke.php'],
     ['tests/checkout_route_routing_smoke.php'],
+    ['tests/checkout_theme_compat_smoke.php'],
     ['tests/ocmod_legacy_anchor_smoke.php'],
     ['tests/core_about_component_versions_smoke.php'],
     ['tests/ui_first_paint_stability_smoke.php'],
