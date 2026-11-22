@@ -257,8 +257,11 @@ class ControllerCommonHeader extends Controller {
 		$data['compare_add_url'] = $this->url->link('product/compare/add', '', true);
 
 		$data['button_in_cart'] = $this->language->get('button_in_cart');
+		$checkout_route = \CodeCart\Core\CheckoutRouteResolver::resolve(
+			$this->config, DIR_APPLICATION, defined('DIR_STORAGE') ? DIR_STORAGE : ''
+		);
 		$data['codecart_ui_routes'] = array(
-			'checkout' => $this->url->link('checkout/checkout', '', true),
+			'checkout' => $this->url->link($checkout_route, '', true),
 			'cart' => $this->url->link('checkout/cart', '', true)
 		);
 		$data['codecart_ui_i18n'] = array();
@@ -313,11 +316,12 @@ class ControllerCommonHeader extends Controller {
 		$data['transaction'] = $this->url->link('account/transaction', '', true);
 		$data['download'] = $this->url->link('account/download', '', true);
 		$data['logout'] = $this->url->link('account/logout', '', true);
-		$quick_cart_link = (string)$this->config->get('theme_default_commerce_style') === 'modern'
+		$quick_cart_link = $checkout_route === 'checkout/checkout'
+			&& (string)$this->config->get('theme_default_commerce_style') === 'modern'
 			&& (bool)$this->config->get('config_quick_checkout_status');
 		$data['quick_checkout_enabled'] = $quick_cart_link;
-		$data['shopping_cart'] = $quick_cart_link ? $this->url->link('checkout/checkout', '', true) : $this->url->link('checkout/cart');
-		$data['checkout'] = $this->url->link('checkout/checkout', '', true);
+		$data['shopping_cart'] = $quick_cart_link ? $this->url->link($checkout_route, '', true) : $this->url->link('checkout/cart');
+		$data['checkout'] = $this->url->link($checkout_route, '', true);
 		$data['contact'] = $this->url->link('information/contact');
 		$data['telephone'] = $this->config->get('config_telephone');
 		$data['email'] = $this->config->get('config_email');
