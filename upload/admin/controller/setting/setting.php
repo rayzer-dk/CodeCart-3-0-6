@@ -59,7 +59,15 @@ class ControllerSettingSetting extends Controller {
 				}
 			}
 
-			$checkout_fields = array('firstname', 'lastname', 'email', 'telephone', 'company', 'address_1', 'address_2', 'city', 'postcode', 'country', 'zone');
+			// Empty on upgraded OpenCart stores: keep the native/OCMOD checkout.
+		$data['config_codecart_checkout_route'] = isset($this->request->post['config_codecart_checkout_route'])
+			? (string)$this->request->post['config_codecart_checkout_route']
+			: (string)$this->config->get('config_codecart_checkout_route');
+		$data['entry_codecart_checkout_route'] = $this->language->get('entry_codecart_checkout_route');
+		$data['help_codecart_checkout_route'] = $this->language->get('help_codecart_checkout_route');
+		$data['error_codecart_checkout_route'] = $this->error['checkout_route'] ?? '';
+
+		$checkout_fields = array('firstname', 'lastname', 'email', 'telephone', 'company', 'address_1', 'address_2', 'city', 'postcode', 'country', 'zone');
 			$checkout_modes = array('required', 'optional', 'hidden');
 			foreach ($checkout_fields as $checkout_field) {
 				$mode_key = 'config_checkout_field_' . $checkout_field . '_mode';
@@ -1553,6 +1561,13 @@ class ControllerSettingSetting extends Controller {
 		if (isset($this->request->post['config_image_avif_quality'])) {
 			$quality = (int)$this->request->post['config_image_avif_quality'];
 			$this->request->post['config_image_avif_quality'] = max(45, min(90, $quality ?: 72));
+		}
+
+		$checkoutRoute = strtolower(trim((string)($this->request->post['config_codecart_checkout_route'] ?? '')));
+		if ($checkoutRoute !== '' && !\CodeCart\Core\CheckoutRouteResolver::isValidRoute($checkoutRoute)) {
+			$this->error['checkout_route'] = $this->language->get('error_codecart_checkout_route');
+		} else {
+			$this->request->post['config_codecart_checkout_route'] = $checkoutRoute;
 		}
 
 		if (!$this->user->hasPermission('modify', 'setting/setting')) {
