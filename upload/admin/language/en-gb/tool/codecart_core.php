@@ -435,7 +435,7 @@ $_['about_v_tls_strict'] = 'TLS 1.2–1.3, certificate check';
 $_['about_v_tls_starttls'] = 'STARTTLS, no minimum version';
 $_['about_advantages'] = array(
     'Runs on PHP 8.1–8.5. ocStore 3.0.3.7 declares PHP 5.4+, OpenCart 3.0.4.1 PHP 7.3+.',
-    'Newer libraries than every base: Twig 3.30 vs 2.14 / 3.8 / 3.24, Guzzle 7.16.1 vs 5.3 / 6.5 / 7.10.',
+    'Newer libraries than every base: Twig 3.30 vs 2.14 / 3.8 / 3.24, Guzzle 8.5.5 vs 5.3 / 6.5 / 7.10.',
     'Admin passwords use password_hash() instead of salted SHA-1, and two-factor sign-in is built in. None of the three base versions has either.',
     'Existing OpenCart 3 extensions keep working: Twig 2 class aliases, jQuery Migrate, Font Awesome 4 class names, OCMOD and events.',
     'Cron, queue, notifications, store health, integrity check and the database modernizer are part of the core, not separate modules.'
@@ -453,11 +453,11 @@ $_['about_added_items'] = array(
     'Read-only REST API v1 (off by default), Redis/APCu/Memcached cache, WebP/AVIF images.'
 );
 $_['about_updated_items'] = array(
-    'PHP 8.1–8.5; Twig 3.30, Guzzle 7.16.1, scssphp 2.1.',
-    'jQuery 3.7.1 everywhere, jQuery Migrate 3.4.1 for legacy modules.',
+    'PHP 8.1–8.5; Twig 3.30, Guzzle 8.5.5, scssphp 2.1.',
+    'jQuery 3.8.0, jQuery Migrate 3.6.0; Guzzle Promises 3.2.0, PSR-7 3.6.0.',
     'Font Awesome 7.3.1 Free; Font Awesome 4 class names and font-family FontAwesome keep working through the bundled compatibility layer.',
     'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 as an alternative gallery.',
-    'Storefront date fields use the built-in date picker; moment.js and bootstrap-datetimepicker stay only for third-party modules.',
+    'The native DateTimePicker 1.8.7 and SVG charts/maps do not require legacy vendors; Moment.js 2.31.0, Bootstrap DateTimePicker 4.17.49, Flot 4.2.6 and jQVMap 1.5.1 remain for third-party compatibility.',
     'New installs use utf8mb4 and InnoDB; the database modernizer converts old tables after a backup.',
     'Installer UPDATE upgrades existing stores with versioned migrations and a schema check.'
 );
@@ -476,7 +476,7 @@ $_['about_security_items'] = array(
     'SMTP and bundled HTTP integrations (PayPal, currency rates, Google, Turnstile) require TLS 1.2+ with certificate verification.'
 );
 $_['about_removed_items'] = array(
-    'Font Awesome 4 font files (Font Awesome 6 webfonts are used, FA4 class names are mapped) and the jQuery 2.1.1 library (a 1 KB stub with the old file name loads jQuery 3.7.1 with jQuery Migrate 3.4.1 for themes that still link to it).',
+    'Font Awesome 4 fonts were replaced by Font Awesome 7 webfonts with FA4 class compatibility; the old jquery-2.1.1.min.js filename remains as an adapter loading jQuery 3.8.0 and Migrate 3.6.0.',
     'Legacy php.ini in the web root (delete it from existing sites).',
     'Duplicate upgrade step 3054 and legacy catalog import actions in Tools → Backup.'
 );
@@ -511,7 +511,10 @@ $_['cmp_form_specific'] = 'form-specific';
 $_['cmp_core_dashboard'] = 'Core Dashboard';
 $_['cmp_legacy_assets'] = 'not used by Core Dashboard; Legacy assets retained';
 $_['cmp_slider'] = 'CodeCart PRO Slider; Swiper 3 Legacy';
-$_['cmp_jquery_legacy'] = '3.7.1 Legacy Core';
+$_['cmp_flot_legacy'] = 'Flot 4.2.6 (legacy); CodeCart SVG Chart 1.2.0 in Core';
+$_['cmp_jqvmap_legacy'] = 'jQVMap 1.5.1 (legacy); CodeCart SVG World Map 1.1.0 in Core';
+$_['cmp_datepicker_legacy'] = 'CodeCart Hybrid DateTimePicker 1.8.7; Bootstrap DateTimePicker 4.17.49 (legacy)';
+$_['cmp_jquery_compat'] = '3.8.0 (Bootstrap 3 compatible)';
 $_['cmp_bootstrap_legacy'] = '3.4.1 Legacy Core';
 $_['cmp_scss_cli'] = '2.1.0 manual / CLI only';
 $_['cmp_scss_runtime_oc'] = '2.1.0 runtime';
