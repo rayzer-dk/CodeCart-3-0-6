@@ -73,6 +73,7 @@
   html[data-ccp-motion="balanced"] #content .table > tbody > tr.ccp-motion-row-saved > th {
     animation: ccp-admin-row-saved 2800ms ease-out 1 both;
   }
+  html[data-ccp-motion="balanced"] #content .ccp-qpf-pending .ccp-qpf-toggle-track,
   html[data-ccp-motion="balanced"] #content .ccp-qpf-pending i.fa,
   html[data-ccp-motion="balanced"] #content .ccp-qpe-saving i.fa,
   html[data-ccp-motion="balanced"] #content .ccp-qpf-pending i.fas,
