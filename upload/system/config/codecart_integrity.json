@@ -558,7 +558,8 @@
         "system/library/codecart/src/CronExpression.php": "b4d4cf26d20e09ad5ac426ffe2989c40a8569245570d75606609f7f7e33eaeee",
         "system/library/codecart/src/AdminCategoryTreeEditor.php": "50af2e9afa2af5bb7d08854940430e18b1d11ebd50029bf54d82e93f57267677",
         "admin/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56",
-        "catalog/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56"
+        "catalog/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56",
+        "system/library/codecart/src/CheckoutRouteResolver.php": "0d518cad38ee41a3af6080a3f76d4dca7af29ade1b78b25ea0f444d1c1c834b6"
     },
     "version": "3.0.6.0",
     "package_build": "2.3.70"
