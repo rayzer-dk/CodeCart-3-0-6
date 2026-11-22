@@ -574,3 +574,7 @@ $_['text_codecart_motion_off'] = 'Выключено';
 $_['help_codecart_admin_motion'] = 'Лёгкие эффекты кнопок, меню и уведомлений без дополнительных библиотек. Системная настройка уменьшения движения всегда учитывается.';
 
 $_['text_codecart_motion_on'] = 'Включить анимации';
+
+$_['entry_codecart_checkout_route'] = 'Маршрут оформления заказа';
+$_['help_codecart_checkout_route'] = 'Оставьте пустым для стандартного OpenCart/OCMOD. Для стороннего оформления укажите маршрут контроллера, например checkout/uni_checkout или extension/module/quick_checkout. Применяется только при наличии контроллера.';
+$_['error_codecart_checkout_route'] = 'Недопустимый маршрут оформления заказа. Укажите маршрут контроллера checkout/... или extension/... без параметров URL.';
