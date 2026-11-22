@@ -19,6 +19,7 @@ class ControllerSettingSetting extends Controller {
 			$this->request->post['config_editor'] = 'summernote';
 			$this->request->post['codecart_internal_linking_status'] = !empty($this->request->post['codecart_internal_linking_status']) ? 1 : 0;
 			$this->request->post['config_codecart_quick_price_edit'] = !empty($this->request->post['config_codecart_quick_price_edit']) ? 1 : 0;
+			$this->request->post['config_codecart_admin_motion'] = (($this->request->post['config_codecart_admin_motion'] ?? 'balanced') === 'off') ? 'off' : 'balanced';
 			$this->request->post['config_codecart_workbox_status'] = !empty($this->request->post['config_codecart_workbox_status']) ? 1 : 0;
 			$this->request->post['config_codecart_pwa_status'] = !empty($this->request->post['config_codecart_pwa_status']) ? 1 : 0;
 			$this->request->post['config_codecart_pwa_icon'] = $this->normalizeCodecartPwaIcon($this->request->post['config_codecart_pwa_icon'] ?? '');
@@ -396,6 +397,14 @@ class ControllerSettingSetting extends Controller {
 			);
 		}
 			
+		$motionSetting = isset($this->request->post['config_codecart_admin_motion'])
+			? $this->request->post['config_codecart_admin_motion']
+			: $this->config->get('config_codecart_admin_motion');
+		$data['config_codecart_admin_motion'] = $motionSetting === 'off' ? 'off' : 'balanced';
+		foreach (array('entry_codecart_admin_motion', 'help_codecart_admin_motion', 'text_codecart_motion_balanced', 'text_codecart_motion_off') as $motionKey) {
+			$data[$motionKey] = $this->language->get($motionKey);
+		}
+
 		foreach (array(
 			'config_admin_accent_color' => '#0b6fd3',
 			'config_admin_sidebar_color' => '#1f2937',
