@@ -170,7 +170,7 @@
         "catalog/controller/checkout/confirm.php": "1aed03c44d86f01370a8147c328faddce086159e4ecb3efca7c7c4e59758ebad",
         "catalog/controller/checkout/guest.php": "b9a88e94351245e17fbc5d03074bb1dc77249809df0e6c43ad0a807b178a9ba5",
         "catalog/controller/common/codecart_form.php": "2c789207e6f722fcab94b203b9d49e0820b3a69f8b4b79d068e790dfd7a4d6b1",
-        "catalog/controller/common/header.php": "2e2b5f44215e7e3139364bdc16aadfe60ed86ea9b476f18f29bcdc82abc7bd64",
+        "catalog/controller/common/header.php": "c15c5357137bfd4508bed9d2732a98ff8d5e8351fa5fe83416d1b8ca266c709e",
         "catalog/controller/common/menu.php": "cf1f6c280589267da86c6da9068b3facc38d491448045ac76bc3e1be52ceb9d0",
         "catalog/controller/cron/codecart.php": "a8ac949fe4d9243d8b3da1359230bd033e06298e09a57e0d112757f91202e123",
         "catalog/controller/cron/currency.php": "e4feb338820761fa8b9307f27f2f9b50b456360dc3b4050eb6df01cfde9f0fbd",
