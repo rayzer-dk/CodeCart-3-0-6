@@ -63,6 +63,7 @@
           .then(function (result) {
             input.setAttribute('data-cc-index-expected', String(result.value));
             input.checked = String(result.value) === '1';
+             if (window.CodeCartAdminMotion) { window.CodeCartAdminMotion.flashRow(input); }
           })
           .catch(function (error) {
             input.checked = previous === '1';
@@ -98,6 +99,7 @@
           .then(function (result) {
             input.setAttribute('data-cc-sort-expected', String(result.value));
             input.value = String(result.value);
+            if (window.CodeCartAdminMotion) { window.CodeCartAdminMotion.flashRow(input); }
             input.classList.add('is-saved');
             window.setTimeout(function () { input.classList.remove('is-saved'); }, 1200);
           })
@@ -136,6 +138,12 @@
     // Otherwise the item is saved but hidden inside the default-collapsed tree.
     var restoreKey = 'ccp-tree-reveal-' + window.location.pathname + '-' + (config.dataset.ccTreeKind || 'catalog');
     var revealId = '';
+    var changedRowKey = restoreKey + '-saved';
+    var changedRowId = '';
+    try {
+      changedRowId = window.sessionStorage.getItem(changedRowKey) || '';
+      window.sessionStorage.removeItem(changedRowKey);
+    } catch (ignore) {}
     try {
       revealId = window.sessionStorage.getItem(restoreKey) || '';
       window.sessionStorage.removeItem(restoreKey);
@@ -150,6 +158,16 @@
     }
     function rememberDestination(id) {
       try { window.sessionStorage.setItem(restoreKey, String(id)); } catch (ignore) {}
+    }
+    function rememberChangedRow(id) {
+      if (!window.CodeCartAdminMotion || !window.CodeCartAdminMotion.enabled()) { return; }
+      try { window.sessionStorage.setItem(changedRowKey, String(id)); } catch (ignore) {}
+    }
+    if (/^[1-9][0-9]*$/.test(changedRowId)) {
+      var changedRow = host.querySelector('.cc-tree-row[data-cc-tree-id="' + changedRowId + '"]');
+      if (changedRow && window.CodeCartAdminMotion) {
+        window.CodeCartAdminMotion.flashRow(changedRow);
+      }
     }
     function refreshTree() {
       rows.forEach(function (row) {
@@ -237,7 +255,7 @@
     function move(id, parent) {
       if (id === parent || !/^[0-9]+$/.test(id) || !/^[0-9]+$/.test(parent)) { return; }
       request({action: 'move', id: id, parent_id: parent})
-        .then(function (result) { if (result && result.moved === false) { notify(defaultError, false); return; } if (parent !== '0') { rememberDestination(parent); } window.location.reload(); })
+        .then(function (result) { if (result && result.moved === false) { notify(defaultError, false); return; } if (parent !== '0') { rememberDestination(parent); } rememberChangedRow(id); window.location.reload(); })
         .catch(function (error) { notify(error.message || defaultError, false); });
     }
     function dropOn(target, event) {
@@ -252,6 +270,7 @@
           .then(function (result) {
             if (result.moved === false) { notify(defaultError, false); return; }
             rememberDestination(target.dataset.ccTreeId);
+            rememberChangedRow(dragging);
             window.location.reload();
           }).catch(function (error) { notify(error.message || defaultError, false); });
       } else {
