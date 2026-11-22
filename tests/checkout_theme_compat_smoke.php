@@ -10,8 +10,16 @@ class CodeCartTestConfig {
 }
 class Controller {
     public $config;
+    public $registry;
     public function __construct($registry = null) {}
 }
+// Technical routes reach the regular SEO index, which this isolated smoke
+// test replaces with a no-op stub to avoid requiring a database/registry.
+class CodeCartCheckoutSeoIndexStub {
+    public static function fromRegistry($registry) { return new self(); }
+    public function keyword($query, $storeId, $languageId) { return null; }
+}
+class_alias(CodeCartCheckoutSeoIndexStub::class, 'CodeCart\\Core\\SeoUrlIndex');
 require_once $root . '/upload/catalog/controller/startup/seo_url.php';
 $tmp = sys_get_temp_dir() . '/cc_checkout_theme_' . bin2hex(random_bytes(5));
 $catalog = $tmp . '/catalog/';
