@@ -34,24 +34,26 @@ final class CheckoutRouteResolver {
         );
     }
 
-    private static function configuredRoute($config): string {
-        // Explicit per-store route has priority. Empty means automatic fallback.
+    private static function configuredRoutes($config): array {
+        $routes = array();
+        // Per-store explicit route has priority; secondary compatibility keys
+        // are consulted only if the earlier controller is unavailable.
         foreach (array('config_codecart_checkout_route', 'config_checkout_route') as $key) {
             $route = strtolower(trim((string)$config->get($key)));
             if ($route !== '' && self::isValidRoute($route)) {
-                return $route;
+                $routes[] = $route;
             }
         }
 
-        // Optional theme-provided setting, never required on legacy installs.
+        // Optional per-theme route as used by third-party theme integrations.
         $theme = strtolower(trim((string)$config->get('config_theme')));
         if (preg_match('/^[a-z][a-z0-9_]{0,63}$/D', $theme)) {
             $route = strtolower(trim((string)$config->get('theme_' . $theme . '_checkout_route')));
             if ($route !== '' && self::isValidRoute($route)) {
-                return $route;
+                $routes[] = $route;
             }
         }
-        return '';
+        return array_unique($routes);
     }
 
     public static function resolve($config, string $applicationDir, string $storageDir = '', bool $explicitUni = false): string {
@@ -62,12 +64,13 @@ final class CheckoutRouteResolver {
                 ? 'checkout/uni_checkout' : self::DEFAULT_ROUTE;
         }
 
-        $configured = self::configuredRoute($config);
-        if ($configured === self::DEFAULT_ROUTE) {
-            return self::DEFAULT_ROUTE;
-        }
-        if ($configured !== '' && self::controllerExists($configured, $applicationDir, $storageDir)) {
-            return $configured;
+        foreach (self::configuredRoutes($config) as $configured) {
+            if ($configured === self::DEFAULT_ROUTE) {
+                return self::DEFAULT_ROUTE;
+            }
+            if (self::controllerExists($configured, $applicationDir, $storageDir)) {
+                return $configured;
+            }
         }
 
         // Preserve older UniShop2 installations that never saved an explicit
@@ -77,7 +80,10 @@ final class CheckoutRouteResolver {
             $legacyTheme = strtolower((string)$config->get('config_template'));
             $settings = $config->get('config_unishop2');
             $hasSettings = is_array($settings) && isset($settings['checkout']) && is_array($settings['checkout']);
-            if ($hasSettings || strpos($theme, 'uni') !== false || strpos($legacyTheme, 'uni') !== false) {
+            $isUniTheme = (bool)preg_match('/^uni(?:shop|_shop)(?:2)?(?:_|$)/', $theme);
+            $isLegacyUniTheme = (bool)preg_match('/^uni(?:shop|_shop)(?:2)?(?:_|$)/', $legacyTheme);
+            $legacyConfig = ($theme === '' || $theme === 'default') && $hasSettings;
+            if ($legacyConfig || $isUniTheme || $isLegacyUniTheme) {
                 return 'checkout/uni_checkout';
             }
         }
