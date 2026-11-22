@@ -141,9 +141,14 @@ class ControllerCommonCart extends Controller {
 		$commerce_style = (string)$this->config->get('theme_default_commerce_style');
 		$data['commerce_style'] = $commerce_style === 'modern' ? 'modern' : 'standard';
 
-		$data['quick_checkout_enabled'] = (string)$this->config->get('theme_default_commerce_style') === 'modern' && (bool)$this->config->get('config_quick_checkout_status');
-		$data['cart'] = $data['quick_checkout_enabled'] ? $this->url->link('checkout/checkout', '', true) : $this->url->link('checkout/cart');
-		$data['checkout'] = $this->url->link('checkout/checkout', '', true);
+		$checkout_route = \CodeCart\Core\CheckoutRouteResolver::resolve(
+			$this->config, DIR_APPLICATION, defined('DIR_STORAGE') ? DIR_STORAGE : ''
+		);
+		$data['quick_checkout_enabled'] = $checkout_route === 'checkout/checkout'
+			&& (string)$this->config->get('theme_default_commerce_style') === 'modern'
+			&& (bool)$this->config->get('config_quick_checkout_status');
+		$data['cart'] = $data['quick_checkout_enabled'] ? $this->url->link($checkout_route, '', true) : $this->url->link('checkout/cart');
+		$data['checkout'] = $this->url->link($checkout_route, '', true);
 
 		return $this->load->view('common/cart', $data);
 	}
