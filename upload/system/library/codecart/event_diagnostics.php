@@ -48,10 +48,10 @@ class CodeCartEventDiagnostics {
             if (is_file($path) && @filesize($path) >= self::TRACE_MAX_BYTES) { return; }
             $row = array('id' => $id, 'at' => time(), 'result' => $outcome === 'error' ? 'error' : 'ok',
                          'ms' => round(max(0, (float)$seconds) * 1000, 2));
-            if ($exception instanceof \\Throwable) { $row['exception'] = get_class($exception); }
+            if ($exception instanceof \Throwable) { $row['exception'] = get_class($exception); }
             $json = json_encode($row, JSON_UNESCAPED_SLASHES);
             if (is_string($json)) { @file_put_contents($path, $json . "\n", FILE_APPEND | LOCK_EX); }
-        } catch (\\Throwable $ignored) {
+        } catch (\Throwable $ignored) {
             // Diagnostics must not interfere with the order or outcome of an event.
         }
     }
