@@ -151,7 +151,7 @@
         "admin/view/template/report/lost_url.twig": "c62ef90de2e53f4e9a9607440a07cb751ce72f4bc99c09c254c8f5958df1485c",
         "admin/view/template/sale/abandoned_cart_list.twig": "07055a74f53a28649573d199e9103f8cb2d9b0fc9bfbda477323b904e7cda5b9",
         "admin/view/template/sale/order_info.twig": "92bc3da0347409c935119178598c8bdc7e2a163f17fe9501a60e9a87b125d0ec",
-        "admin/view/template/setting/setting.twig": "1bc456ce0023c59225817c714788ff462a208c748e1fa09a8cd4bad9a496ecb6",
+        "admin/view/template/setting/setting.twig": "1a4a2a2bedeebacef74f20dfe4adf36f575e33a5c581b2acfac7e4f4250f5c92",
         "admin/view/template/tool/backup.twig": "baf365a35a2c10cfb4c690c9703d813153d268f6095f839baefd1fba3560315f",
         "admin/view/template/tool/codecart_core.twig": "8f54328833616370f5c83a95cc7716079344e20aaa544f49b5976f8c819969c1",
         "catalog/controller/account/address.php": "8e63025d031af52f3f02a8882adafa079bd5d24c037cbc6aa2376ba9d44e5602",
@@ -537,11 +537,11 @@
         "system/library/codecart/src/StorefrontH1Colors.php": "2f48bdfc3c34ca3b7d552bb0cc19bb35e6ea2d6be0fe7ece3d4217a71bb2063f",
         "codecart-sw.js": "bb93a2470e3ae31af38b9543a77c493d0803df5ef623b7fd386402e7b59d1364",
         "catalog/view/javascript/codecart/workbox/register.js": "14cf74a51b68d0b4d4ecc566ef576c0dbef2452a0321a10d66a3dc3567f450c6",
-        "admin/language/uk-ua/setting/setting.php": "a3ee9c6937abef6b84760c6fb54af302474d1c9853cf96e2c67031543260a645",
+        "admin/language/uk-ua/setting/setting.php": "bb7a797164b42a65705c537f22543d69d74425020619ed5c7c658f0da29768bb",
         "admin/language/uk-ua/setting/store.php": "96e80b6e0583a316d133ab5da0be69eac87025e9169f0ff7a13ffe607637c3fb",
-        "admin/language/ru-ru/setting/setting.php": "06d8dac5f8834120dc631aabb045883be413524c5efa5d9478cdd3e89ac86865",
+        "admin/language/ru-ru/setting/setting.php": "2217fd470aefd45fe5452d279cf995202ad007547581c3cc85c3dfcec85c4ef8",
         "admin/language/ru-ru/setting/store.php": "3b4430c5c9bccfe968a4eafe267f4b1c37697ce3c1794e366e358b519c884db7",
-        "admin/language/en-gb/setting/setting.php": "875f251d1f2e5e0e916fcc3b5327054662d2dd903f1a2b4bb97655903ad4df1a",
+        "admin/language/en-gb/setting/setting.php": "3fb2d483b10b734c436edd612dc8bc88cd2c52850fb642d292fa3e1c410a086c",
         "admin/language/en-gb/setting/store.php": "ef3a621712e42e22b375dccda9b8dac94004aa02016c64fdf674873092c0d18f",
         "catalog/controller/common/pwa.php": "e9bded6ad99a90dbd36115dfc6af58ec0962b74a1d8ecba6ef42c90630cf07d9",
         "codecart-app-sw.js": "4aed176ffc45a2f2b742cef593586ea1ae84b40bb71cd4624ec2c63a79800f41",
@@ -559,7 +559,7 @@
         "system/library/codecart/src/AdminCategoryTreeEditor.php": "50af2e9afa2af5bb7d08854940430e18b1d11ebd50029bf54d82e93f57267677",
         "admin/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56",
         "catalog/view/javascript/font-awesome/css/codecart-regular-ui.css": "3c5b95d93263868be0def008b29de5221493ec98922e63d00cf7f3d153e20c56",
-        "system/library/codecart/src/CheckoutRouteResolver.php": "6d15732e401f23ff7f9e53604a33310e59b0f74adc9346d280651161060be5cb"
+        "system/library/codecart/src/CheckoutRouteResolver.php": "29644cfaa05cd79362fa4d43f00e47e025e34b3e99f2b3833ff7d000388c9f52"
     },
     "version": "3.0.6.0",
     "package_build": "2.3.71"
