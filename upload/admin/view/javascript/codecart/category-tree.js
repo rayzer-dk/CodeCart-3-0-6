@@ -155,7 +155,7 @@
       rows.forEach(function (row) {
         var ancestors = (row.getAttribute('data-cc-tree-path') || '').split('/').filter(Boolean);
         var hidden = ancestors.some(function (id) { return collapsed[id] === true; });
-        row.hidden = hidden;
+        if (row.hidden !== hidden) { row.hidden = hidden; }
         var button = row.querySelector('.cc-tree-collapse');
         if (button && !button.disabled) {
           var isCollapsed = collapsed[row.dataset.ccTreeId] === true;
@@ -202,6 +202,8 @@
     }
     refreshTree();
     if (expandAll) { syncExpandAll(); }
+    var treeTable = host.querySelector('.cc-category-list-drag');
+    if (treeTable) { treeTable.classList.add('cc-tree-ready'); }
     rows.forEach(function (row) {
       var toggle = row.querySelector('.cc-tree-collapse');
       if (toggle && !toggle.disabled && !toggle.classList.contains('is-placeholder')) {
