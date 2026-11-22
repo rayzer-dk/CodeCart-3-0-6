@@ -40,6 +40,9 @@ for old in (ROOT / flot).glob("jquery.*.js"):
 # Do not silently leave a legacy 0.8.1 primary Flot implementation.
 if f"{flot}/jquery.flot.js" not in changed:
     raise RuntimeError("Flot 4.2.6 core could not be located")
+# Flot 4.2.6 distributes the combined ES5 bundle already minified under .js.
+# Match both legacy entry points; older add-on plugin files remain for extensions.
+copy("flot", "dist/es5/jquery.flot.js", f"{flot}/jquery.flot.min.js")
 jqv = "upload/admin/view/javascript/jquery/jqvmap"
 for file in ("jquery.vmap.js", "jquery.vmap.min.js"):
     copy("jqvmap", f"dist/{file}", f"{jqv}/{file}")
