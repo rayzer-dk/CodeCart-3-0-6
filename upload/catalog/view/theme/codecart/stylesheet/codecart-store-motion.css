@@ -1,0 +1,106 @@
+/* CodeCart PRO 3.0.6.1: lightweight motion for the stock CodeCart storefront only.
+ * No new fonts, assets or JavaScript animation loops. PhotoSwipe's native zoom is untouched.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  #product-category .product-thumb,
+  #product-search .product-thumb,
+  #product-manufacturer .product-thumb,
+  #product-special .product-thumb,
+  #product-product .ccp-product-gallery-main,
+  .product-layout .product-thumb {
+    transition:box-shadow 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+  @media (hover:hover) and (pointer:fine) {
+    #product-category .product-thumb:hover,
+    #product-search .product-thumb:hover,
+    #product-manufacturer .product-thumb:hover,
+    #product-special .product-thumb:hover,
+    .product-layout .product-thumb:hover {
+      transform:translateY(-3px);
+      box-shadow:0 10px 24px rgba(20,35,55,.13);
+    }
+    #product-product .ccp-product-gallery-main:hover {
+      box-shadow:0 10px 28px rgba(20,35,55,.14);
+    }
+    #product-product .ccp-main-product-image img {
+      transition:transform 220ms ease;
+    }
+    #product-product .ccp-main-product-image:hover img {
+      transform:scale(1.018);
+    }
+  }
+  #product-product .button-group button,
+  .product-thumb .button-group button,
+  #button-cart,
+  #cart .ccp-cart-trigger,
+  .ccp-cart-add {
+    transition:box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease, transform 140ms ease;
+  }
+  #product-product .button-group button:not(:disabled):active,
+  .product-thumb .button-group button:not(:disabled):active,
+  #button-cart:not(:disabled):active,
+  .ccp-cart-add:not(:disabled):active {
+    transform:scale(.97);
+  }
+  #ccp-toast-host .ccp-toast { transition:opacity 180ms ease,transform 180ms ease; }
+  #ccp-toast-host.ccp-cart-toast-active::before {
+    animation:ccp-cart-backdrop-in 180ms ease-out both;
+  }
+  #ccp-toast-host.ccp-cart-toast-active .ccp-toast-cart.is-visible {
+    animation:ccp-cart-confirm-in 220ms cubic-bezier(.2,.8,.2,1) both;
+  }
+  .modal.in .modal-dialog { animation:ccp-store-dialog-in 190ms ease-out both; }
+}
+@keyframes ccp-cart-backdrop-in { from {opacity:0} to {opacity:1} }
+@keyframes ccp-cart-confirm-in {
+  from {opacity:0;transform:translateY(12px) scale(.975)}
+  to {opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes ccp-store-dialog-in {
+  from {opacity:0;transform:translateY(8px) scale(.99)}
+  to {opacity:1;transform:translateY(0) scale(1)}
+}
+/* A centered cart confirmation without blocking the site after the toast closes. */
+#ccp-toast-host.ccp-cart-toast-active {
+  inset:0;
+  top:0;
+  right:0;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  pointer-events:none;
+  z-index:20000;
+}
+#ccp-toast-host.ccp-cart-toast-active::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(9,16,28,.38);
+  pointer-events:none;
+}
+#ccp-toast-host.ccp-cart-toast-active .ccp-toast-cart {
+  position:relative;
+  width:min(440px,calc(100vw - 32px));
+  max-width:100%;
+  border-radius:15px;
+  padding:18px;
+  box-shadow:0 18px 60px rgba(0,0,0,.23);
+  pointer-events:auto;
+}
+#ccp-toast-host.ccp-cart-toast-active .ccp-toast:not(.ccp-toast-cart) {
+  display:none;
+}
+.modal-backdrop.in { opacity:.46; }
+html.ccp-theme-dark #ccp-toast-host.ccp-cart-toast-active .ccp-toast-cart {
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  #ccp-toast-host.ccp-cart-toast-active::before,
+  #ccp-toast-host.ccp-cart-toast-active .ccp-toast-cart,
+  .modal.in .modal-dialog {
+    animation:none!important;
+    transition:none!important;
+  }
+}
