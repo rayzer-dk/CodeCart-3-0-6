@@ -613,3 +613,7 @@ $_['text_codecart_motion_off'] = 'Disabled';
 $_['help_codecart_admin_motion'] = 'Lightweight button, menu and notification effects without extra libraries. The system reduced-motion setting is always respected.';
 
 $_['text_codecart_motion_on'] = 'Enable animations';
+
+$_['entry_codecart_checkout_route'] = 'Checkout controller route';
+$_['help_codecart_checkout_route'] = 'Leave empty for native OpenCart/OCMOD checkout. For a third-party checkout, enter its controller route, such as checkout/uni_checkout or extension/module/quick_checkout. It is used only when the controller exists.';
+$_['error_codecart_checkout_route'] = 'Invalid checkout controller route. Use a checkout/... or extension/... route without URL parameters.';
