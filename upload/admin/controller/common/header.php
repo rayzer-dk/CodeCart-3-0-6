@@ -28,7 +28,7 @@ class ControllerCommonHeader extends Controller {
         $data['links'] = $this->document->getLinks();
         $data['core_stylesheet'] = 'view/stylesheet/stylesheet.css?v=' . $data['package_build'] . '-order-ui3';
         $data['core_script'] = 'view/javascript/common.js?v=' . $data['package_build'];
-        $data['codecart_admin_motion'] = $this->config->get('config_codecart_admin_motion') === 'off' ? 'off' : 'balanced';
+        $data['codecart_admin_motion'] = in_array((string)$this->config->get('config_codecart_admin_motion'), array('0', 'off'), true) ? 'off' : 'balanced';
 
         $data['styles'] = $this->document->getStyles();
         $data['scripts'] = $this->document->getScripts();
