@@ -1,0 +1,55 @@
+/* CodeCart PRO admin motion: no runtime dependencies, no storefront effects.
+ * All effects use opacity / transform or paint-only transitions.
+ * Disabled by Appearance setting or system reduced-motion preference.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-ccp-motion="balanced"] #content .btn,
+  html[data-ccp-motion="balanced"] #header .btn,
+  html[data-ccp-motion="balanced"] #header .nav > li > a {
+    transition: background-color 160ms ease, border-color 160ms ease,
+                color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  }
+  html[data-ccp-motion="balanced"] #content .btn:not(:disabled):not(.disabled):hover {
+    transform: translateY(-1px);
+  }
+  html[data-ccp-motion="balanced"] #content .btn:not(:disabled):not(.disabled):active {
+    transform: translateY(0);
+  }
+  html[data-ccp-motion="balanced"] #content .table > tbody > tr {
+    transition: background-color 180ms ease;
+  }
+  html[data-ccp-motion="balanced"] #content .fa,
+  html[data-ccp-motion="balanced"] #content .fas,
+  html[data-ccp-motion="balanced"] #content .far,
+  html[data-ccp-motion="balanced"] #content .fa-solid,
+  html[data-ccp-motion="balanced"] #menu .fa {
+    transition: transform 180ms ease, color 180ms ease;
+  }
+  html[data-ccp-motion="balanced"] #content [aria-expanded="true"] > .fa-angle-down,
+  html[data-ccp-motion="balanced"] #content [aria-expanded="true"] > .fa-chevron-down {
+    transform: rotate(180deg);
+  }
+  html[data-ccp-motion="balanced"] #content .alert,
+  html[data-ccp-motion="balanced"] .ccp-toast,
+  html[data-ccp-motion="balanced"] .alert-dismissible {
+    animation: ccp-admin-fade-in 170ms ease-out both;
+  }
+  html[data-ccp-motion="balanced"] .modal.in .modal-dialog {
+    animation: ccp-admin-dialog-in 170ms ease-out both;
+  }
+  html[data-ccp-motion="balanced"] #menu .collapse,
+  html[data-ccp-motion="balanced"] #menu .collapsing {
+    transition-duration: 180ms;
+  }
+  html[data-ccp-motion="balanced"] #content .progress-bar {
+    transition: width 220ms ease;
+  }
+}
+@keyframes ccp-admin-fade-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ccp-admin-dialog-in {
+  from { opacity: 0; transform: translateY(7px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
