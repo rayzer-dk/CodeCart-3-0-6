@@ -348,7 +348,7 @@
         "catalog/view/theme/default/template/product/special.twig": "a82960e8a18d0ab6bd1e10f900dd022de0536c7b6783dcda0180bca4551d0ea3",
         "cli.php": "b34e137dde1af5cbed4b42b6c529c2f9b99f043d5a6f5ff64261fce56e2b2868",
         "cron.php": "7eb9a4e95eec8702fa5acd56e70bf01baf047c7f9e905f0e92454e8755ba726f",
-        "index.php": "f4587dac6855d889e409ceb37fc50878e443aae4af1905dcdde976669978e507",
+        "index.php": "977857693fbd61f3855098362a4f11122666307341d69588f4de457c0786e1b2",
         "sitemap.xsl": "5ebb936721e658107ae30f9133e5ff73b1c39b7bb81717a78b358363adf8aa1f",
         "system/config/catalog.php": "5f57f91bdca4c203200743823e07c30277bdd07237d126feb8a856ba9049f576",
         "system/config/codecart_fontawesome_core_manifest.json": "9fb9656be93bd2ce459e0a01f809b6f923a694866dd5da2b041380841f17ded5",
@@ -562,5 +562,5 @@
         "system/library/codecart/src/CheckoutRouteResolver.php": "0d518cad38ee41a3af6080a3f76d4dca7af29ade1b78b25ea0f444d1c1c834b6"
     },
     "version": "3.0.6.0",
-    "package_build": "2.3.70"
+    "package_build": "2.3.71"
 }
