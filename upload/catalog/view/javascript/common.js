@@ -5,22 +5,25 @@ window.CodeCartUI = window.CodeCartUI || (function(){
 		if(!el){el=document.createElement('div');el.id='ccp-toast-host';el.setAttribute('aria-live','polite');el.setAttribute('aria-atomic','false');document.body.appendChild(el);}
 		return el;
 	}
-	function toast(type,html){
+	function toast(type,html,options){
+		options=options||{};
 		var normalized = $('<div>').html(String(html||'')).text().replace(/\s+/g,' ').trim();
 		var toastKey = String(type||'info') + '|' + normalized;
 		var now = Date.now();
 		if (toastKey === lastToastKey && now - lastToastAt < 1400) { return; }
 		lastToastKey = toastKey; lastToastAt = now;
 		var el=document.createElement('div');
-		el.className='ccp-toast ccp-toast-'+(type||'info');
+		el.className='ccp-toast ccp-toast-'+(type||'info')+(options.cart?' ccp-toast-cart':'');
 		var icon=type==='success'?'fa-check-circle':(type==='danger'?'fa-exclamation-circle':(type==='warning'?'fa-exclamation-triangle':'fa-info-circle'));
 		el.innerHTML='<i class="fa '+icon+'"></i><div class="ccp-toast-text">'+String(html||'')+'</div><button type="button" class="ccp-toast-close" aria-label="Close">&times;</button>';
-		host().appendChild(el);
+		var container=host();
+		container.appendChild(el);
+		if(options.cart){container.classList.add('ccp-cart-toast-active');}
 		requestAnimationFrame(function(){el.classList.add('is-visible');});
-		var timer=setTimeout(function(){remove(el);},4200);
+		var timer=setTimeout(function(){remove(el);},options.duration>0?options.duration:4200);
 		el.querySelector('.ccp-toast-close').addEventListener('click',function(){clearTimeout(timer);remove(el);});
 	}
-	function remove(el){if(!el||!el.parentNode)return;el.classList.remove('is-visible');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},180);}
+	function remove(el){if(!el||!el.parentNode)return;el.classList.remove('is-visible');setTimeout(function(){var parent=el.parentNode;if(parent){parent.removeChild(el);if(!parent.querySelector('.ccp-toast-cart')){parent.classList.remove('ccp-cart-toast-active');}}},180);}
 	function serverMessage(xhr){
 		var json=xhr&&xhr.responseJSON;
 		if(!json&&xhr&&xhr.responseText){try{json=JSON.parse(xhr.responseText);}catch(e){json=null;}}
