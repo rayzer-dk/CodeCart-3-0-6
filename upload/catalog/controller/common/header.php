@@ -67,6 +67,8 @@ class ControllerCommonHeader extends Controller {
 			&& (int)$this->config->get('config_codecart_workbox_status') === 1
 			&& is_file(DIR_APPLICATION . 'view/javascript/codecart/workbox/v7.4.1/workbox-sw.js');
 		$data['core_script'] = 'catalog/view/javascript/common.js?v=' . (defined('CODECART_PACKAGE_BUILD') ? CODECART_PACKAGE_BUILD : '3.0.6.1');
+		// Compatibility CSS for FA4 icon classes used by UniShop2 and legacy modules.
+		$this->document->addStyle('catalog/view/javascript/font-awesome/css/codecart-fa7-legacy-aliases.css?v=1.0.0');
 		$data['styles'] = $this->document->getStyles();
 		$data['scripts'] = $this->document->getScripts('header');
 		$data['modern_assets'] = $this->document->getAssets('header');
