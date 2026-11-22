@@ -1,0 +1,70 @@
+name: Upgrade compatibility vendors (verified)
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'tools/upgrade_compat_vendors.py'
+      - '.github/workflows/upgrade-compat-vendors.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: codecart-compat-vendor-upgrade
+  cancel-in-progress: false
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, curl, openssl, zip, xml, simplexml, xmlreader, mysqli, pdo_mysql, gd
+          tools: composer:v2
+          coverage: none
+      - name: Obtain verified pinned vendor packages
+        run: |
+          npm install --prefix /tmp/codecart-compat-vendors --no-save --ignore-scripts --no-audit --no-fund --legacy-peer-deps \
+            jquery@3.8.0 jquery-migrate@3.6.0 moment@2.31.0 \
+            eonasdan-bootstrap-datetimepicker@4.17.49 flot@4.2.6 jqvmap@1.5.1
+      - name: Refresh compatibility libraries
+        run: python3 tools/upgrade_compat_vendors.py
+      - name: Resolve and lock Guzzle 8 dependencies
+        run: |
+          composer update guzzlehttp/guzzle guzzlehttp/promises guzzlehttp/psr7 --with-all-dependencies --no-dev --no-interaction --no-progress
+          composer validate --no-check-publish
+          php -r '$l=json_decode(file_get_contents("composer.lock"),true);$p=[];foreach($l["packages"] as $a){$p[]=["name"=>$a["name"],"version"=>$a["version"]];}file_put_contents("THIRD_PARTY_DEPENDENCIES.json",json_encode(["generated_from"=>"composer.lock","runtime_vendor_path"=>"upload/system/storage/vendor","note"=>"composer.lock is the authoritative dependency lock after it is generated and committed.","packages"=>$p],JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n");'
+      - name: Validate JavaScript, Composer, and release package
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check upload/admin/view/javascript/jquery/jquery-3.8.0.min.js
+          node --check upload/admin/view/javascript/jquery/jquery-migrate-3.6.0.min.js
+          node --check upload/admin/view/javascript/jquery/flot/jquery.flot.js
+          node --check upload/admin/view/javascript/jquery/jqvmap/jquery.vmap.js
+          python3 tools/package_documentation.py
+          bash tools/build_theme_css.sh
+          php tools/refresh_integrity.php
+          php tools/release_check.php
+      - name: Commit only verified upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add upload composer.json composer.lock THIRD_PARTY_DEPENDENCIES.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(vendors): upgrade verified jQuery 3, Moment, legacy widgets and Guzzle 8"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
