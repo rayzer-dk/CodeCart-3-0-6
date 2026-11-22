@@ -1,0 +1,4 @@
+/* Legacy Font Awesome 4 aliases for FA7 compatibility. Load after FA7 CSS. */
+.fa-circle-o-notch::before, .fas.fa-circle-o-notch::before, .fa-solid.fa-circle-o-notch::before { --fa:"\f1ce"; content:var(--fa,"\f1ce") !important; font-family:"Font Awesome 7 Free","Font Awesome 6 Free",FontAwesome !important; font-weight:900 !important; }
+.fa-moon-o::before, .far.fa-moon-o::before, .fa-regular.fa-moon-o::before { --fa:"\f186"; content:var(--fa,"\f186") !important; font-family:"Font Awesome 7 Free","Font Awesome 6 Free",FontAwesome !important; font-weight:400 !important; }
+.fa-sun-o::before, .far.fa-sun-o::before, .fa-regular.fa-sun-o::before { --fa:"\f185"; content:var(--fa,"\f185") !important; font-family:"Font Awesome 7 Free","Font Awesome 6 Free",FontAwesome !important; font-weight:400 !important; }
