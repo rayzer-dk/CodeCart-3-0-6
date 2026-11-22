@@ -53,3 +53,16 @@
   from { opacity: 0; transform: translateY(7px) scale(.99); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* Accessible motion toggle in Appearance. No JavaScript or external assets. */
+#tab-appearance .ccp-motion-switch { display:inline-flex; align-items:center; gap:11px; cursor:pointer; font-weight:400; margin:5px 0; position:relative; }
+#tab-appearance .ccp-motion-switch input[type="checkbox"] { position:absolute; width:1px; height:1px; opacity:0; margin:0; }
+#tab-appearance .ccp-motion-switch-track { display:inline-block; flex:none; position:relative; width:38px; height:22px; border-radius:20px; background:#a6aebb; border:1px solid rgba(0,0,0,.10); }
+#tab-appearance .ccp-motion-switch-track::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+#tab-appearance .ccp-motion-switch input:checked + .ccp-motion-switch-track { background:#1477cf; }
+#tab-appearance .ccp-motion-switch input:checked + .ccp-motion-switch-track::after { transform:translateX(16px); }
+#tab-appearance .ccp-motion-switch input:focus-visible + .ccp-motion-switch-track { outline:2px solid #1477cf; outline-offset:3px; }
+@media (prefers-reduced-motion: no-preference) {
+  #tab-appearance .ccp-motion-switch-track { transition:background-color 160ms ease; }
+  #tab-appearance .ccp-motion-switch-track::after { transition:transform 160ms ease; }
+}
