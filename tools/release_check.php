@@ -227,6 +227,7 @@ $gates = [
     ['qa_notification_diagnostics.php'],
     ['tests/admin_footer_runtime_smoke.php'],
     ['tests/theme_layout_compat_smoke.php'],
+    ['tests/seo_unishop_checkout_route_smoke.php'],
     ['tests/ocmod_legacy_anchor_smoke.php'],
     ['tests/core_about_component_versions_smoke.php'],
     ['tests/ui_first_paint_stability_smoke.php'],
