@@ -103,9 +103,20 @@ class ControllerStartupSeoUrl extends Controller {
 		// payments, callbacks and cart mutations keep their internal routes.
 		if ($seo_url_enabled && isset($this->request->get['_route_'])) {
 			$public_path = trim((string)$this->request->get['_route_'], '/');
-			if ($public_path === 'checkout' || $public_path === 'checkout/uni_checkout' || $public_path === 'cart') {
+			if ($public_path === 'checkout' || $public_path === 'cart') {
 				$this->request->get['route'] = $public_path === 'cart'
-					? 'checkout/cart' : $this->resolvePublicCheckoutRoute($public_path === 'checkout/uni_checkout');
+					? 'checkout/cart' : $this->resolvePublicCheckoutRoute();
+				unset($this->request->get['_route_']);
+			} elseif ($public_path === 'checkout/uni_checkout') {
+				// Keep old UniShop2 bookmarks functional on stores still using it.
+				$this->request->get['route'] = $this->resolvePublicCheckoutRoute(true);
+				unset($this->request->get['_route_']);
+			} elseif (strpos($public_path, 'checkout/') === 0
+				&& $public_path === $this->resolvePublicCheckoutRoute()
+				&& \CodeCart\Core\CheckoutRouteResolver::isValidRoute($public_path)) {
+				// Only the active, installed checkout gets a public route.
+				// Do not decode arbitrary /checkout/... AJAX/actions.
+				$this->request->get['route'] = $public_path;
 				unset($this->request->get['_route_']);
 			}
 		}
@@ -356,6 +367,17 @@ class ControllerStartupSeoUrl extends Controller {
 			'checkout/uni_checkout' => 'checkout/uni_checkout',
 			'checkout/cart' => 'cart'
 		);
+		if ($seo_url_enabled) {
+			$active_checkout = $this->resolvePublicCheckoutRoute();
+			if ($active_checkout !== 'checkout/checkout'
+				&& \CodeCart\Core\CheckoutRouteResolver::isValidRoute($active_checkout)) {
+				// Native checkout controllers get their own URL. An extension/
+				// module controller uses /checkout/ because its route is not
+				// automatically safe to publish as a path.
+				$public_alias[$active_checkout] = strpos($active_checkout, 'checkout/') === 0
+					? $active_checkout : 'checkout';
+			}
+		}
 		if ($seo_url_enabled && isset($public_alias[$route_for_prefix])) {
 			unset($data['route']);
 			$path = preg_replace('#/index\\.php$#', '/', (string)($url_info['path'] ?? '/'));
