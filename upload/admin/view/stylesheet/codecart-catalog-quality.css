@@ -104,3 +104,17 @@ html.ccp-admin-dark .cc-quality-count-link:focus {
 .cc-category-list-drag .cc-quality { display:inline-flex; align-items:center; gap:6px; float:right; flex-direction:row; margin:0 2px 0 8px; }
 .cc-category-list-drag .cc-quality-count-link {order:0;}
 .cc-category-list-drag .cc-quality-score {order:1;}
+
+/* Preserve a badge's footprint before its asynchronous count arrives. */
+.cc-category-list-drag .cc-quality-count-link {
+  box-sizing:border-box; width:72px; min-width:72px; max-width:72px; overflow:hidden;
+}
+.cc-category-list-drag .cc-quality-count-link[hidden] {
+  display:inline-flex!important; visibility:hidden;
+}
+#ccp-product-list .cc-quality-count {
+  box-sizing:border-box; width:48px; min-width:48px; overflow:hidden; text-overflow:ellipsis;
+}
+#ccp-product-list .cc-quality-count[hidden] {
+  display:inline-block!important; visibility:hidden;
+}

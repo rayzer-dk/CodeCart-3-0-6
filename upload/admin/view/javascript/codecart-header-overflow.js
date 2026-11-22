@@ -82,7 +82,8 @@
         closePanel();
         tracked.forEach(function (item) {
           label(item, true);
-          nav.insertBefore(item, more);
+          // Reinsertion of correctly placed nodes forces unnecessary reflows.
+          if (item.parentNode !== nav) { nav.insertBefore(item, more); }
         });
         // Extensions often append their <li> after the built-in controls.
         // Place their original DOM nodes before the OCMOD refresh button,
@@ -90,7 +91,8 @@
         var firstCore = nav.querySelector(':scope > .ccp-modification-refresh-menu');
         if (firstCore) {
           tracked.forEach(function (item) {
-            if (rank(item) === 0 && item.parentNode === nav) {
+            if (rank(item) === 0 && item.parentNode === nav &&
+                (firstCore.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING)) {
               nav.insertBefore(item, firstCore);
             }
           });

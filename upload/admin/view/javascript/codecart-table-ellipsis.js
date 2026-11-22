@@ -39,6 +39,9 @@
   }
   function scan() {
     Array.prototype.forEach.call(document.querySelectorAll('#content table.table'), function (table) {
+      // Tree names already have native ellipsis/expand controls. Late wrapping
+      // of those cells causes visible table-width shifts.
+      if (table.classList.contains('cc-category-list-drag')) { return; }
       var heads = table.querySelectorAll('thead > tr:first-child > th, thead > tr:first-child > td');
       if (!heads.length) return;
       var indexes = [];
