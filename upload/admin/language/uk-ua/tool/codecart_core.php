@@ -182,6 +182,7 @@ $_['schema_type_external_column'] = 'Додаткове поле';
 $_['schema_type_external_index'] = 'Додатковий індекс';
 $_['schema_msg_missing_table'] = 'Таблиця відсутня';
 $_['schema_msg_missing_column'] = 'Поле відсутнє';
+$_['schema_msg_type_comparison'] = 'Поточний тип: %s; очікуваний: %s';
 $_['schema_msg_missing_index'] = 'Індекс відсутній';
 $_['schema_msg_missing_unique_index'] = 'Унікальний індекс відсутній';
 $_['schema_msg_external_table'] = 'Додаткова таблиця стороннього модуля або користувача; лише інформація';
