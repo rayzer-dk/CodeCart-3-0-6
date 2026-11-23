@@ -84,26 +84,43 @@ class ModelSettingEventDiagnostics extends Model {
         $source = @file_get_contents($file);
         if (!is_string($source)) { return 'unverified'; }
         $tokens = token_get_all($source);
-        $wantClass = false; $awaitBody = false; $inClass = false;
-        $depth = 0; $visibility = 'public';
-        $count = count($tokens);
-        for ($i = 0; $i < $count; $i++) {
-            $t = $tokens[$i];
-            $type = is_array($t) ? $t[0] : 0;
-            $v = is_array($t) ? $t[1] : $t;
-            if (!$inClass) {
-                if ($wantClass && $type === T_STRING) {
-                    $awaitBody = strcasecmp($v, $class) === 0;
-                    $wantClass = false;
-                } elseif ($type === T_CLASS) { $wantClass = true; }
-                elseif ($v === '{' && $awaitBody) { $inClass = true; $depth = 1; $awaitBody = false; }
-                continue;
+        $body = $this->classBodyStart($tokens, $class);
+        if ($body === null) { return 'unverified'; }
+        return $this->declaredVisibility($tokens, $body, $method);
+    }
+
+    /** Index of the first token after the opening brace of the named class, or null when it is absent. */
+    private function classBodyStart(array $tokens, $class) {
+        $wantClass = false;
+        $awaitBody = false;
+        foreach ($tokens as $i => $token) {
+            $type = is_array($token) ? $token[0] : 0;
+            $value = is_array($token) ? $token[1] : $token;
+            if ($wantClass && $type === T_STRING) {
+                $awaitBody = strcasecmp($value, $class) === 0;
+                $wantClass = false;
+            } elseif ($type === T_CLASS) {
+                $wantClass = true;
+            } elseif ($value === '{' && $awaitBody) {
+                return $i + 1;
             }
-            if ($v === '{') { $depth++; continue; }
-            if ($v === '}') {
+        }
+        return null;
+    }
+
+    /** Visibility of the method declared at the top level of a class body starting at $start. */
+    private function declaredVisibility(array $tokens, $start, $method) {
+        $count = count($tokens);
+        $depth = 1;
+        $visibility = 'public';
+        for ($i = $start; $i < $count; $i++) {
+            $token = $tokens[$i];
+            $type = is_array($token) ? $token[0] : 0;
+            $value = is_array($token) ? $token[1] : $token;
+            if ($value === '{') { $depth++; continue; }
+            if ($value === '}') {
                 $depth--;
                 if ($depth === 0) { return 'unverified'; }
-                if ($depth === 1) { $visibility = 'public'; }
                 continue;
             }
             if ($depth !== 1) { continue; }
@@ -111,19 +128,21 @@ class ModelSettingEventDiagnostics extends Model {
             elseif ($type === T_PROTECTED) { $visibility = 'protected'; }
             elseif ($type === T_PUBLIC) { $visibility = 'public'; }
             elseif ($type === T_FUNCTION) {
-                for ($j = $i + 1; $j < $count; $j++) {
-                    $next = $tokens[$j];
-                    $nt = is_array($next) ? $next[0] : 0;
-                    $nv = is_array($next) ? $next[1] : $next;
-                    if ($nt === T_STRING) {
-                        if (strcasecmp($nv, $method) === 0) { return $visibility; }
-                        break;
-                    }
-                    if ($nv === '(') { break; }
-                }
+                if ($this->functionName($tokens, $i + 1) === strtolower($method)) { return $visibility; }
                 $visibility = 'public';
-            } elseif ($v === ';') { $visibility = 'public'; }
+            } elseif ($value === ';') { $visibility = 'public'; }
         }
         return 'unverified';
+    }
+
+    /** Lower-cased name of the function declared after token $from, or an empty string for closures. */
+    private function functionName(array $tokens, $from) {
+        $count = count($tokens);
+        for ($j = $from; $j < $count; $j++) {
+            $next = $tokens[$j];
+            if (is_array($next) && $next[0] === T_STRING) { return strtolower($next[1]); }
+            if ((is_array($next) ? $next[1] : $next) === '(') { break; }
+        }
+        return '';
     }
 }
