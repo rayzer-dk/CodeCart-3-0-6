@@ -2,6 +2,7 @@ name: Font Awesome 7.3.1 Core build and full archive
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - tools/build_fontawesome_core.py
       - .github/workflows/fontawesome-core-release.yml

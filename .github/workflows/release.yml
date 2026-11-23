@@ -58,7 +58,7 @@ jobs:
           mkdir -p bonuses
           if [ -d bonus-source/monobank_payment ]; then
             python3 tools/package_monobank_bonus.py --output bonuses
-            test -f bonuses/Monobank_Payment_Modern_Pro_v1.1.1.ocmod.zip
+            test -f bonuses/Monobank_Payment_Modern_Pro_v1.1.2.ocmod.zip
           fi
 
       - name: Verify current bundled documentation

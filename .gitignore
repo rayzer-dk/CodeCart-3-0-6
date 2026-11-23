@@ -46,3 +46,6 @@ __pycache__/
 /playwright-report/
 /test-results/
 /releases/
+
+# Release archives are published as GitHub releases, not committed
+/*.zip

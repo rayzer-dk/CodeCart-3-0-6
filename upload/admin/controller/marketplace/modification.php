@@ -72,6 +72,12 @@ class ControllerMarketplaceModification extends Controller {
         $this->load->model('setting/modification');
 
         if (isset($this->request->get['modification_id']) AND isset($this->request->get['backup_id'])) {
+            if (!$this->user->hasPermission('modify', 'marketplace/modification')) {
+                $this->load->language('marketplace/modification');
+                $this->session->data['error_warning'] = $this->language->get('error_permission');
+                $this->response->redirect($this->url->link('marketplace/modification', 'user_token=' . $this->session->data['user_token'], true));
+                return;
+            }
 
             $backup = $this->model_setting_modification->getModificationBackup($this->request->get['modification_id'],$this->request->get['backup_id']);
 

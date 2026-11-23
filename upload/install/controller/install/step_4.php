@@ -1,6 +1,12 @@
 <?php
 class ControllerInstallStep4 extends Controller {
     public function index() {
+        // On an installed store this page is reachable only in the session that just completed the installation.
+        if (is_file(DIR_OPENCART . 'config.php') && filesize(DIR_OPENCART . 'config.php') > 0 && empty($this->session->data['codecart_install_completed'])) {
+            $this->response->redirect($this->url->link('upgrade/upgrade'));
+            return;
+        }
+
         $this->load->language('install/step_4');
         $this->document->setTitle($this->language->get('heading_title'));
         foreach (array('heading_title','text_step_4','text_ready','text_ready_description','text_catalog','text_admin','text_version','text_database','text_storage','text_admin_login','text_admin_login_help','error_warning') as $key) {

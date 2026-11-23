@@ -98,7 +98,10 @@ class ControllerToolScheduler extends Controller {
         $data['cli_command'] = 'php ' . $root . '/cli.php cron:run';
         $key = (string)$this->config->get('codecart_scheduler_key');
         $catalog = $this->getCatalogBaseUrl();
-        $data['http_command'] = 'curl -fsS --max-time 120 ' . escapeshellarg($catalog . 'cron.php?key=' . rawurlencode($key));
+        // The cron key authorises unauthenticated cron.php calls, so only editors may see it.
+        $data['http_command'] = $this->user->hasPermission('modify', 'tool/scheduler')
+            ? 'curl -fsS --max-time 120 ' . escapeshellarg($catalog . 'cron.php?key=' . rawurlencode($key))
+            : 'curl -fsS --max-time 120 ' . escapeshellarg($catalog . 'cron.php?key=***');
 
         $data['warning'] = '';
         if (!empty($this->session->data['error_warning'])) {

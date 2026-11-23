@@ -110,7 +110,6 @@ class ControllerCommonPwa extends Controller {
             $targetH = max(1, (int)round($h * $scale));
             imagealphablending($canvas, true);
             imagecopyresampled($canvas, $image, (int)(($size-$targetW)/2), (int)(($size-$targetH)/2), 0, 0, $targetW, $targetH, $w, $h);
-            imagedestroy($image);
         } else {
             // Neutral shopping-bag symbol. The icon is self-contained, not an external logo.
             $p = function ($value) use ($size) { return (int)round($value * $size / 100); };
@@ -122,7 +121,6 @@ class ControllerCommonPwa extends Controller {
         ob_start();
         imagepng($canvas, null, 6);
         $png = ob_get_clean();
-        imagedestroy($canvas);
         $this->response->addHeader('Content-Type: image/png');
         $this->response->addHeader('Cache-Control: private, max-age=3600');
         $this->response->addHeader('X-Content-Type-Options: nosniff');

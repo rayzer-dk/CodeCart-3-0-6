@@ -186,7 +186,7 @@ html.ccp-admin-dark .cc-modification-page .cc-summary-card{background:#18222d!im
               <span class="label label-info">{{ text_log_info }}</span>
             </div>
             <p class="help-block">{{ text_log_compact_help }}</p>
-            <pre id="cc-ocmod-log" class="cc-ocmod-log">{{ log }}</pre>
+            <pre id="cc-ocmod-log" class="cc-ocmod-log">{{ log|e }}</pre>
             <div class="cc-log-actions"><button type="button" id="cc-copy-ocmod-log" class="btn btn-default" data-toggle="tooltip" title="{{ text_copy_log }}"><i class="fa fa-copy"></i></button> <a href="{{ download_log }}" class="btn btn-primary" data-toggle="tooltip" title="{{ button_download_log }}"><i class="fa fa-download"></i></a> <a href="{{ clear_log }}" class="btn btn-danger" data-toggle="tooltip" title="{{ button_clear }}"><i class="fa fa-eraser"></i></a></div>
           </div>
         </div>

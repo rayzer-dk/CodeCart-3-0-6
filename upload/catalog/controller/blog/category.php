@@ -72,6 +72,7 @@ class ControllerBlogCategory extends Controller {
 		);
 
 		if (isset($this->request->get['blog_category_id'])) {
+			$this->request->get['blog_category_id'] = preg_replace('/[^0-9_]/', '', (string)$this->request->get['blog_category_id']);
 			$url = '';
 
 			if (isset($this->request->get['sort'])) {

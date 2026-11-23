@@ -40,7 +40,7 @@
             <tbody>{% for row in unique_rows %}
               <tr>
                 <td class="cc-check-col"><input type="checkbox" class="cc-log-selected" aria-label="{{ text_select_error }}" /></td>
-                <td><pre class="cc-unique-message">{{ row.text }}</pre></td>
+                <td><pre class="cc-unique-message">{{ row.text|e }}</pre></td>
                 <td class="cc-count-col"><strong class="cc-repeat-count">{{ row.count }}</strong></td>
               </tr>
             {% endfor %}</tbody>
@@ -48,7 +48,7 @@
         </div>
         {% else %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_empty }}</div>{% endif %}
       {% else %}
-        {% if log %}<pre id="cc-error-log" class="cc-error-log" tabindex="0" role="textbox" aria-readonly="true">{{ log }}</pre>{% else %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_empty }}</div>{% endif %}
+        {% if log %}<pre id="cc-error-log" class="cc-error-log" tabindex="0" role="textbox" aria-readonly="true">{{ log|e }}</pre>{% else %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_empty }}</div>{% endif %}
       {% endif %}
     </div></div>
   </div>

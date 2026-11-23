@@ -61,10 +61,16 @@ class ControllerSaleOrder extends Controller {
 				}
 				$payment_address = trim(implode(', ', array_filter(array($row['payment_company'], $row['payment_address_1'], $row['payment_address_2'], $row['payment_city'], $row['payment_postcode'], $row['payment_zone'], $row['payment_country']))));
 				$shipping_address = trim(implode(', ', array_filter(array($row['shipping_company'], $row['shipping_address_1'], $row['shipping_address_2'], $row['shipping_city'], $row['shipping_postcode'], $row['shipping_zone'], $row['shipping_country']))));
+				// Avoid spreadsheet formula execution for customer-supplied text.
+				$safe = static function ($value) {
+					$value = (string)$value;
+					if (preg_match('/^[+\-]?[0-9][0-9\s().\-]*$/', $value)) { return $value; }
+					return preg_match('/^[\x00-\x20]*[=+\-@]/', $value) ? "'" . $value : $value;
+				};
 				fputcsv($handle, array(
-					$row['order_id'], $row['date_added'], $row['store_name'], $row['customer'], $row['customer_group'], $row['email'], $row['telephone'], $row['order_status'],
-					implode(' | ', isset($products[$order_id]) ? $products[$order_id] : array()), $subtotal, $shipping_total, $tax_total, $discount_total, $row['total'], $row['currency_code'],
-					$row['payment_method'], $payment_address, $row['shipping_method'], $shipping_address, preg_replace('/\s+/', ' ', (string)$row['comment'])
+					$row['order_id'], $row['date_added'], $safe($row['store_name']), $safe($row['customer']), $safe($row['customer_group']), $safe($row['email']), $safe($row['telephone']), $row['order_status'],
+					$safe(implode(' | ', isset($products[$order_id]) ? $products[$order_id] : array())), $subtotal, $shipping_total, $tax_total, $discount_total, $row['total'], $row['currency_code'],
+					$safe($row['payment_method']), $safe($payment_address), $safe($row['shipping_method']), $safe($shipping_address), $safe(preg_replace('/\s+/', ' ', (string)$row['comment']))
 				), ';', '"', '');
 			}
 			$count = count($rows); $offset += $count;

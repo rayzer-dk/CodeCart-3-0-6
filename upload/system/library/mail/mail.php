@@ -83,11 +83,11 @@ class Mail extends \stdClass {
 
 		foreach ($this->attachments as $attachment) {
 			if (is_file($attachment) && is_readable($attachment)) {
-				$handle = fopen($attachment, 'r');
+				$content = file_get_contents($attachment);
 
-				$content = fread($handle, filesize($attachment));
-
-				fclose($handle);
+				if ($content === false) {
+					continue;
+				}
 
 				$attachment_name = str_replace(array("\r", "\n", '"'), '', basename($attachment));
 				$message .= '--' . $boundary . $eol;

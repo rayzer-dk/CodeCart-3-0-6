@@ -62,7 +62,7 @@ final class CronExpression {
             'dom_any'=>$parts[2] === '*', 'dow_any'=>$parts[4] === '*'
         );
     }
-    public static function nextDelay(string $expression, string $timezone, \DateTimeImmutable $now = null): int {
+    public static function nextDelay(string $expression, string $timezone, ?\DateTimeImmutable $now = null): int {
         $f = self::parse($expression);
         $utc = new \DateTimeZone('UTC');
         $now = $now ? $now->setTimezone($utc) : new \DateTimeImmutable('now', $utc);
