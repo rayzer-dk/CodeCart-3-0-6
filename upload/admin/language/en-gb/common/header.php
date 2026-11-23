@@ -93,3 +93,5 @@ $_['ui_image_spacing_horizontal'] = 'Horizontal spacing (px)';
 $_['ui_image_spacing_vertical'] = 'Vertical spacing (px)';
 
 $_['text_header_more'] = 'More actions';
+// Bounded unique-log badge.
+$_['text_unique_log_count'] = 'Unique log entries (last 1 MB)';

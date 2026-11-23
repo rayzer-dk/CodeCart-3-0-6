@@ -48,6 +48,10 @@
 <link href="view/stylesheet/codecart-admin-motion.css?v={{ package_build }}-motion1" rel="stylesheet" type="text/css" />
 <script src="view/javascript/codecart-table-ellipsis.js?v={{ package_build }}-3" defer></script>
 <script src="view/javascript/codecart-help-tooltips.js?v={{ package_build }}" defer></script>
+<style>
+.ccp-error-log-menu .ccp-error-log-count{display:inline-block;margin-left:4px;min-width:17px;padding:1px 4px;border-radius:9px;background:#b54536;color:#fff;font-size:10px;font-weight:600;line-height:15px;text-align:center;vertical-align:middle}
+.ccp-error-log-menu .ccp-error-log-count.is-empty{background:#778696}
+</style>
 </head>
 <body>
 <div id="container">
@@ -71,6 +75,9 @@
       {{ search }}
     </div>
     <ul class="nav navbar-nav navbar-right">
+      {% if error_log_href %}
+      <li class="ccp-error-log-menu"><a href="{{ error_log_href }}" title="{{ error_log_title }}" aria-label="{{ error_log_title }}"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>{% if error_log_unique is not null %}<span class="ccp-error-log-count{% if error_log_unique == 0 %} is-empty{% endif %}">{{ error_log_unique > 999 ? '999+' : error_log_unique }}</span>{% endif %}</a></li>
+      {% endif %}
       <li class="ccp-modification-refresh-menu ccp-ocmod-state-{{ ocmod_state }}"><a href="{{ modification_refresh }}" title="{{ ocmod_state_title }}" aria-label="{{ ocmod_state_title }}"><i class="fa fa-refresh" aria-hidden="true"></i><span class="ccp-ocmod-state-dot" aria-hidden="true"></span><span class="sr-only">{{ ocmod_state_title }}</span></a></li>
       <li class="ccp-admin-theme-menu"><a href="#" id="ccp-admin-theme-toggle" role="button" title="{{ text_admin_theme_toggle }}" aria-label="{{ text_admin_theme_toggle }}" aria-pressed="false"><i class="fa fa-moon" aria-hidden="true"></i><span class="sr-only">{{ text_admin_theme }}</span></a></li>
       {% if language_current_flag and language_options|length > 1 and language_action %}

@@ -86,6 +86,9 @@ class ControllerCommonHeader extends Controller {
         $data['text_refresh_modifications'] = $this->language->get('text_refresh_modifications');
         $data['ocmod_state'] = 'unknown';
         $data['ocmod_state_title'] = $data['text_refresh_modifications'];
+        $data['error_log_unique'] = null;
+        $data['error_log_href'] = '';
+        $data['error_log_title'] = $this->language->get('text_unique_log_count');
 
         // Safe defaults keep the header renderable even when an optional post-login
         // component is temporarily unavailable during an existing-store UPDATE.
@@ -149,6 +152,14 @@ class ControllerCommonHeader extends Controller {
                 $data['language_return'] = html_entity_decode($this->url->link($route, $query, true), ENT_QUOTES, 'UTF-8');
             } catch (\Throwable $e) {
                 $this->logHeaderFailure('admin language selector', $e);
+            }
+            if ($this->user->hasPermission('access', 'tool/log')) {
+                $data['error_log_href'] = $this->url->link('tool/log', 'user_token=' . $this->session->data['user_token'], true);
+                try {
+                    $data['error_log_unique'] = \CodeCart\Core\LogInsights::cachedCount($this->config);
+                } catch (\Throwable $e) {
+                    // Optional badge must never interrupt administration.
+                }
             }
             $data['two_factor'] = $this->url->link('common/two_factor', 'user_token=' . $this->session->data['user_token'], true);
             $data['modification_refresh'] = $this->url->link('marketplace/modification/refresh', 'user_token=' . $this->session->data['user_token'], true);

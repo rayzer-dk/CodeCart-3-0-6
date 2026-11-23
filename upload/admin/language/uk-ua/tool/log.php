@@ -10,3 +10,12 @@ $_['error_permission'] = 'У вас недостатньо прав для оч�
 $_['error_file_missing'] = 'Файл журналу помилок не знайдено або він недоступний для читання.';
 
 $_['button_copy'] = 'Копіювати журнал';
+// Optional unique-log view.
+$_['button_unique'] = 'Унікальні помилки';
+$_['button_reset_unique'] = 'Скинути фільтр';
+$_['button_copy_selected'] = 'Копіювати вибрані';
+$_['text_unique_scope'] = 'Унікальних записів у показаній частині журналу:';
+$_['text_unique_error'] = 'Помилка';
+$_['text_occurrences'] = 'Повторень';
+$_['text_select_all'] = 'Вибрати всі';
+$_['text_select_error'] = 'Вибрати помилку';

@@ -12,3 +12,12 @@ $_['error_file_missing'] = 'Файл журнала ошибок не найде
 
 // CodeCart PRO: aligned locale keys
 $_['button_copy'] = 'Копировать';
+// Optional unique-log view.
+$_['button_unique'] = 'Уникальные ошибки';
+$_['button_reset_unique'] = 'Сбросить фильтр';
+$_['button_copy_selected'] = 'Копировать выбранные';
+$_['text_unique_scope'] = 'Уникальных записей в показанной части журнала:';
+$_['text_unique_error'] = 'Ошибка';
+$_['text_occurrences'] = 'Повторений';
+$_['text_select_all'] = 'Выбрать все';
+$_['text_select_error'] = 'Выбрать ошибку';

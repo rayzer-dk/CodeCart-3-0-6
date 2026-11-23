@@ -17,6 +17,11 @@ class ControllerToolLog extends Controller {
         $data['clear'] = $this->url->link('tool/log/clear', 'user_token=' . $this->session->data['user_token'], true);
         $data['download'] = $this->url->link('tool/log/download', 'user_token=' . $this->session->data['user_token'], true);
         $data['button_copy'] = $this->language->get('button_copy');
+        $data['unique_mode'] = isset($this->request->get['unique']) && (string)$this->request->get['unique'] === '1';
+        $data['unique_url'] = $this->url->link('tool/log', 'user_token=' . $this->session->data['user_token'] . '&unique=1', true);
+        $data['normal_url'] = $this->url->link('tool/log', 'user_token=' . $this->session->data['user_token'], true);
+        $data['unique_rows'] = array();
+        $data['unique_total'] = 0;
 
         $file = $this->getErrorLogFile();
         $data['log'] = '';
@@ -27,9 +32,14 @@ class ControllerToolLog extends Controller {
             $size = (int)filesize($file);
             $data['log_size'] = $this->formatBytes($size);
             if ($size > 0) {
-                $data['log'] = $this->readTail($file, $this->tailLimit);
+                $data['log'] = \CodeCart\Core\LogInsights::tail($file);
                 if ($size > $this->tailLimit) { $data['tail_notice'] = sprintf($this->language->get('text_tail_notice'), $this->formatBytes($this->tailLimit)); }
             }
+        }
+
+        if ($data['unique_mode'] && $data['log'] !== '') {
+            $data['unique_rows'] = \CodeCart\Core\LogInsights::group($data['log']);
+            $data['unique_total'] = count($data['unique_rows']);
         }
 
         $data['header'] = $this->load->controller('common/header');
@@ -63,6 +73,7 @@ class ControllerToolLog extends Controller {
             $handle = @fopen($file, 'wb');
             if ($handle) {
                 fclose($handle);
+                \CodeCart\Core\LogInsights::invalidate($this->config);
                 $this->session->data['success'] = $this->language->get('text_success');
             } else {
                 $this->session->data['error'] = $this->language->get('error_file_missing');
@@ -72,22 +83,7 @@ class ControllerToolLog extends Controller {
     }
 
     private function getErrorLogFile() {
-        $name = basename(trim((string)$this->config->get('config_error_filename')));
-        if ($name === '') { $name = basename(trim((string)$this->config->get('error_filename'))); }
-        if ($name === '' || !preg_match('/^[A-Za-z0-9._-]+\.log$/i', $name)) { $name = 'error.log'; }
-        return rtrim(DIR_LOGS, '/\\') . DIRECTORY_SEPARATOR . $name;
-    }
-
-    private function readTail($file, $limit) {
-        $size = (int)filesize($file);
-        if ($size <= $limit) { return (string)file_get_contents($file); }
-        $handle = @fopen($file, 'rb');
-        if (!$handle) { return ''; }
-        fseek($handle, -$limit, SEEK_END);
-        $content = (string)stream_get_contents($handle);
-        fclose($handle);
-        $firstBreak = strpos($content, "\n");
-        return $firstBreak !== false ? substr($content, $firstBreak + 1) : $content;
+        return \CodeCart\Core\LogInsights::path($this->config);
     }
 
     private function formatBytes($bytes) {

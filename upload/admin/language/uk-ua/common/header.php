@@ -91,3 +91,5 @@ $_['ui_image_spacing_horizontal'] = 'Горизонтальний відступ
 $_['ui_image_spacing_vertical'] = 'Вертикальний відступ (пкс)';
 
 $_['text_header_more'] = 'Інші дії';
+// Bounded unique-log badge.
+$_['text_unique_log_count'] = 'Унікальні записи журналу (останні 1 МБ)';

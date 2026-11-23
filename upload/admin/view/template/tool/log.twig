@@ -8,6 +8,13 @@
   .cc-error-log-page .cc-log-toolbar .cc-log-copy:hover,.cc-error-log-page .cc-log-toolbar .cc-log-copy:focus{background:#f8c149!important;border-color:#d4a128!important;color:#513a04!important}
   .cc-error-log-page .cc-log-toolbar .cc-log-copy.btn-success{background:#c6ebd4!important;border-color:#88cda1!important;color:#16683a!important}
   .cc-error-log-page .cc-error-log{max-height:620px;overflow:auto;white-space:pre-wrap;word-break:break-word;padding:12px;margin:0;border:1px solid #dce3eb;border-radius:4px;background:#111820;color:#dce6f0;font-family:Consolas,Monaco,monospace;font-size:12px;line-height:1.45}.cc-error-log-page .cc-line-error{color:#ff8f8f;font-weight:600}.cc-error-log-page .cc-line-warn{color:#f4c66b}.cc-error-log-page .cc-log-meta{margin-bottom:10px;color:#68778a;font-size:12px}.cc-error-log-page .panel{border-top:3px solid #0057d9}html.ccp-admin-dark .cc-error-log-page .panel{background:#18222d!important;border-color:#364554!important;color:#dbe5ef!important}
+  .cc-error-log-page .cc-log-views{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+  .cc-error-log-page .cc-unique-table{width:100%;table-layout:fixed}
+  .cc-error-log-page .cc-unique-table td{vertical-align:top}
+  .cc-error-log-page .cc-unique-table .cc-check-col{width:44px;text-align:center}
+  .cc-error-log-page .cc-unique-table .cc-count-col{width:115px;text-align:center}
+  .cc-error-log-page .cc-unique-message{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;max-height:180px;overflow:auto;background:transparent;border:0;color:inherit;font-family:Consolas,Monaco,monospace;font-size:12px}
+  html.ccp-admin-dark .cc-error-log-page .cc-unique-table td,html.ccp-admin-dark .cc-error-log-page .cc-unique-table th{border-color:#364554;color:#dbe5ef}
   </style>
   <div class="page-header"><div class="container-fluid"><div class="pull-right cc-log-toolbar">{% if log %}<button type="button" id="cc-copy-error-log" data-toggle="tooltip" title="{{ button_copy }}" class="btn cc-log-action cc-log-copy"><i class="fa fa-copy"></i></button> {% endif %}<a href="{{ download }}" data-toggle="tooltip" title="{{ button_download }}" class="btn btn-primary cc-log-action"><i class="fa fa-download"></i></a> <a onclick="confirm('{{ text_confirm }}') ? location.href='{{ clear }}' : false;" data-toggle="tooltip" title="{{ button_clear }}" class="btn btn-danger cc-log-action"><i class="fa fa-eraser"></i></a></div><h1>{{ heading_title }}</h1><ul class="breadcrumb">{% for breadcrumb in breadcrumbs %}<li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>{% endfor %}</ul></div></div>
   <div class="container-fluid">
@@ -16,7 +23,33 @@
     <div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"><i class="fa fa-exclamation-triangle"></i> {{ text_list }}</h3></div><div class="panel-body">
       <div class="cc-log-meta">{{ text_file }}: <strong>{{ log_name }}</strong> · {{ text_size }}: <strong>{{ log_size }}</strong></div>
       {% if tail_notice %}<div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ tail_notice }}</div>{% endif %}
-      {% if log %}<pre id="cc-error-log" class="cc-error-log" tabindex="0" role="textbox" aria-readonly="true">{{ log }}</pre>{% else %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_empty }}</div>{% endif %}
+      <div class="cc-log-views">
+        {% if unique_mode %}
+          <a href="{{ normal_url }}" class="btn btn-default"><i class="fa fa-times"></i> {{ button_reset_unique }}</a>
+          <button type="button" class="btn btn-primary" id="cc-copy-selected-logs" disabled><i class="fa fa-copy"></i> {{ button_copy_selected }}</button>
+        {% else %}
+          <a href="{{ unique_url }}" class="btn btn-default"><i class="fa fa-filter"></i> {{ button_unique }}</a>
+        {% endif %}
+      </div>
+      {% if unique_mode %}
+        <p class="text-muted">{{ text_unique_scope }} <strong>{{ unique_total }}</strong></p>
+        {% if unique_rows %}
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover cc-unique-table">
+            <thead><tr><th class="cc-check-col"><input type="checkbox" id="cc-select-all-logs" aria-label="{{ text_select_all }}" /></th><th>{{ text_unique_error }}</th><th class="cc-count-col">{{ text_occurrences }}</th></tr></thead>
+            <tbody>{% for row in unique_rows %}
+              <tr>
+                <td class="cc-check-col"><input type="checkbox" class="cc-log-selected" aria-label="{{ text_select_error }}" /></td>
+                <td><pre class="cc-unique-message">{{ row.text }}</pre></td>
+                <td class="cc-count-col"><strong class="cc-repeat-count">{{ row.count }}</strong></td>
+              </tr>
+            {% endfor %}</tbody>
+          </table>
+        </div>
+        {% else %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_empty }}</div>{% endif %}
+      {% else %}
+        {% if log %}<pre id="cc-error-log" class="cc-error-log" tabindex="0" role="textbox" aria-readonly="true">{{ log }}</pre>{% else %}<div class="alert alert-success"><i class="fa fa-check-circle"></i> {{ text_empty }}</div>{% endif %}
+      {% endif %}
     </div></div>
   </div>
 </div>
@@ -29,5 +62,26 @@ node.addEventListener('click',function(){node.focus();});
 node.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==='a'){e.preventDefault();selectLog();}});
 var copy=document.getElementById('cc-copy-error-log');if(copy){copy.addEventListener('click',function(){var text=node.textContent||'';var done=function(){copy.classList.add('btn-success');setTimeout(function(){copy.classList.remove('btn-success');},1000);};if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done).catch(function(){fallback(text,done);});}else{fallback(text,done);}});}
 function fallback(text,done){var a=document.createElement('textarea');a.value=text;a.style.position='fixed';a.style.left='-9999px';document.body.appendChild(a);a.focus();a.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(a);}
+})();</script>
+<script>(function(){
+var copy=document.getElementById('cc-copy-selected-logs');
+if(!copy)return;
+var boxes=Array.prototype.slice.call(document.querySelectorAll('.cc-log-selected'));
+var all=document.getElementById('cc-select-all-logs');
+var selectedCount=function(){return boxes.filter(function(b){return b.checked;}).length;};
+function update(){copy.disabled=selectedCount()===0;if(all){all.checked=boxes.length>0&&selectedCount()===boxes.length;all.indeterminate=selectedCount()>0&&!all.checked;}}
+boxes.forEach(function(b){b.addEventListener('change',update);});
+if(all){all.addEventListener('change',function(){boxes.forEach(function(b){b.checked=all.checked;});update();});}
+function fallback(value){var t=document.createElement('textarea');t.value=value;t.style.position='fixed';t.style.left='-9999px';document.body.appendChild(t);t.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(t);return ok;}
+copy.addEventListener('click',function(){
+    var text=boxes.filter(function(b){return b.checked;}).map(function(b){
+        var row=b.closest('tr');
+        return row.querySelector('.cc-unique-message').textContent+'\n{{ text_occurrences|e('js') }}: '+row.querySelector('.cc-repeat-count').textContent;
+    }).join('\n\n');
+    if(!text)return;
+    var done=function(){copy.classList.add('btn-success');window.setTimeout(function(){copy.classList.remove('btn-success');},1000);};
+    if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done).catch(function(){if(fallback(text))done();});}
+    else if(fallback(text)){done();}
+});
 })();</script>
 {{ footer }}
