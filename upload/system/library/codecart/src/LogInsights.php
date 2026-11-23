@@ -17,6 +17,8 @@ final class LogInsights {
     }
 
     public static function tail(string $path): string {
+        // A log may be truncated and rewritten in the same PHP process (PHP 8.1+).
+        clearstatcache(true, $path);
         if (!is_file($path) || !is_readable($path)) { return ''; }
         $size = (int)@filesize($path);
         if ($size < 1) { return ''; }
