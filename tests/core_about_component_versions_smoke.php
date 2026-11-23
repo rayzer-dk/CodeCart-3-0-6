@@ -11,7 +11,7 @@ foreach (($lock['packages'] ?? []) as $package) {
 }
 $issues = [];
 $locked = [
-    'Guzzle' => ['guzzlehttp/guzzle', '8.5.5'],
+    'Guzzle' => ['guzzlehttp/guzzle', '8.6.0'],
     'Guzzle Promises' => ['guzzlehttp/promises', '3.2.0'],
     'Guzzle PSR-7' => ['guzzlehttp/psr7', '3.6.0'],
     'Symfony Filesystem' => ['symfony/filesystem', '6.4.50'],
@@ -48,7 +48,7 @@ foreach (['admin','catalog'] as $side) {
 }
 foreach (['uk-ua','ru-ru','en-gb'] as $locale) {
     $text = (string)file_get_contents($root . '/upload/admin/language/' . $locale . '/tool/codecart_core.php');
-    foreach (['Guzzle 8.5.5','jQuery 3.8.0','Migrate 3.6.0','Moment.js 2.31.0','Flot 4.2.6','jQVMap 1.5.1','DateTimePicker 4.17.49'] as $value) {
+    foreach (['Guzzle 8.6.0','jQuery 3.8.0','Migrate 3.6.0','Moment.js 2.31.0','Flot 4.2.6','jQVMap 1.5.1','DateTimePicker 4.17.49'] as $value) {
         if (!str_contains($text, $value)) {
             $issues[] = $locale . ' missing updated ' . $value;
         }

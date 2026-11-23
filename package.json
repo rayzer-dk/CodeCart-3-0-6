@@ -9,6 +9,6 @@
     "test:e2e:chromium": "playwright test --config=playwright.config.js --project=chromium-desktop --project=chromium-mobile"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "1.65.1"
   }
 }

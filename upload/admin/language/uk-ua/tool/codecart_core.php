@@ -436,7 +436,7 @@ $_['about_v_tls_strict'] = 'TLS 1.2–1.3, перевірка сертифіка
 $_['about_v_tls_starttls'] = 'STARTTLS, без мінімальної версії';
 $_['about_advantages'] = array(
     'Працює на PHP 8.1–8.5. ocStore 3.0.3.7 заявляє PHP 5.4+, OpenCart 3.0.4.1 — PHP 7.3+.',
-    'Бібліотеки новіші, ніж у будь-якій з основ: Twig 3.30 проти 2.14 / 3.8 / 3.24, Guzzle 8.5.5 проти 5.3 / 6.5 / 7.10.',
+    'Бібліотеки новіші, ніж у будь-якій з основ: Twig 3.31 проти 2.14 / 3.8 / 3.24, Guzzle 8.6.0 проти 5.3 / 6.5 / 7.10.',
     'Паролі адміністраторів хешуються password_hash() замість SHA-1 із сіллю, двофакторний вхід вбудовано. У жодній із трьох основ цього немає.',
     'Наявні розширення OpenCart 3 і далі працюють: аліаси класів Twig 2, jQuery Migrate, класи Font Awesome 4, OCMOD та події.',
     'Cron, черга, сповіщення, стан магазину, перевірка цілісності та модернізація БД входять до ядра, а не до окремих модулів.'
@@ -454,7 +454,7 @@ $_['about_added_items'] = array(
     'REST API v1 лише для читання (вимкнено за замовчуванням), кеш Redis/APCu/Memcached, зображення WebP/AVIF.'
 );
 $_['about_updated_items'] = array(
-    'PHP 8.1–8.5; Twig 3.30, Guzzle 8.5.5, scssphp 2.1.',
+    'PHP 8.1–8.5; Twig 3.31, Guzzle 8.6.0, scssphp 2.1.',
     'jQuery 3.8.0, jQuery Migrate 3.6.0; Guzzle Promises 3.2.0, PSR-7 3.6.0.',
     'Font Awesome 7.3.1 Free; класи Font Awesome 4 і font-family FontAwesome працюють через вбудований шар сумісності.',
     'Summernote 0.9.1, HTML Purifier 4.19.0, PhotoSwipe 5.4.4 як альтернативна галерея.',

@@ -507,20 +507,25 @@ function finalize_cli_public_storage($storage) {
 	@file_put_contents($public . 'index.html', '', LOCK_EX);
 }
 
+/** Escape a value for a single-quoted PHP string literal. */
+function php_string($value) {
+	return strtr((string)$value, array('\\' => '\\\\', "'" => "\\'"));
+}
+
 function write_config_files($options, $storage) {
 	$storage = rtrim(str_replace('\\', '/', (string)$storage), '/') . '/';
 	$output  = '<?php' . "\n";
 	$output .= '// HTTP' . "\n";
-	$output .= 'define(\'HTTP_SERVER\', \'' . addslashes($options['http_server']) . '\');' . "\n";
+	$output .= 'define(\'HTTP_SERVER\', \'' . php_string($options['http_server']) . '\');' . "\n";
 
 	$output .= '// HTTPS' . "\n";
-	$output .= 'define(\'HTTPS_SERVER\', \'' . addslashes($options['http_server']) . '\');' . "\n";
+	$output .= 'define(\'HTTPS_SERVER\', \'' . php_string($options['http_server']) . '\');' . "\n";
 
 	$output .= '// DIR' . "\n";
-	$output .= 'define(\'DIR_APPLICATION\', \'' . addslashes(DIR_OPENCART) . 'catalog/\');' . "\n";
-	$output .= 'define(\'DIR_SYSTEM\', \'' . addslashes(DIR_OPENCART) . 'system/\');' . "\n";
-	$output .= 'define(\'DIR_IMAGE\', \'' . addslashes(DIR_OPENCART) . 'image/\');' . "\n";
-	$output .= 'define(\'DIR_STORAGE\', \'' . addslashes($storage) . '\');' . "\n";			
+	$output .= 'define(\'DIR_APPLICATION\', \'' . php_string(DIR_OPENCART) . 'catalog/\');' . "\n";
+	$output .= 'define(\'DIR_SYSTEM\', \'' . php_string(DIR_OPENCART) . 'system/\');' . "\n";
+	$output .= 'define(\'DIR_IMAGE\', \'' . php_string(DIR_OPENCART) . 'image/\');' . "\n";
+	$output .= 'define(\'DIR_STORAGE\', \'' . php_string($storage) . '\');' . "\n";			
 	$output .= 'define(\'DIR_LANGUAGE\', DIR_APPLICATION . \'language/\');' . "\n";
 	$output .= 'define(\'DIR_TEMPLATE\', DIR_APPLICATION . \'view/theme/\');' . "\n";
 	$output .= 'define(\'DIR_CONFIG\', DIR_SYSTEM . \'config/\');' . "\n";
@@ -532,32 +537,32 @@ function write_config_files($options, $storage) {
 	$output .= 'define(\'DIR_UPLOAD\', DIR_STORAGE . \'upload/\');' . "\n\n";
 
 	$output .= '// DB' . "\n";
-	$output .= 'define(\'DB_DRIVER\', \'' . addslashes($options['db_driver']) . '\');' . "\n";
-	$output .= 'define(\'DB_HOSTNAME\', \'' . addslashes($options['db_hostname']) . '\');' . "\n";
-	$output .= 'define(\'DB_USERNAME\', \'' . addslashes($options['db_username']) . '\');' . "\n";
-	$output .= 'define(\'DB_PASSWORD\', \'' . addslashes($options['db_password']) . '\');' . "\n";
-	$output .= 'define(\'DB_DATABASE\', \'' . addslashes($options['db_database']) . '\');' . "\n";
-	$output .= 'define(\'DB_PREFIX\', \'' . addslashes($options['db_prefix']) . '\');' . "\n";
-	$output .= 'define(\'DB_PORT\', \'' . addslashes($options['db_port']) . '\');' . "\n";
+	$output .= 'define(\'DB_DRIVER\', \'' . php_string($options['db_driver']) . '\');' . "\n";
+	$output .= 'define(\'DB_HOSTNAME\', \'' . php_string($options['db_hostname']) . '\');' . "\n";
+	$output .= 'define(\'DB_USERNAME\', \'' . php_string($options['db_username']) . '\');' . "\n";
+	$output .= 'define(\'DB_PASSWORD\', \'' . php_string($options['db_password']) . '\');' . "\n";
+	$output .= 'define(\'DB_DATABASE\', \'' . php_string($options['db_database']) . '\');' . "\n";
+	$output .= 'define(\'DB_PREFIX\', \'' . php_string($options['db_prefix']) . '\');' . "\n";
+	$output .= 'define(\'DB_PORT\', \'' . php_string($options['db_port']) . '\');' . "\n";
 
 
 	atomic_write_file(DIR_OPENCART . 'config.php', $output);
 
 	$output  = '<?php' . "\n";
 	$output .= '// HTTP' . "\n";
-	$output .= 'define(\'HTTP_SERVER\', \'' . addslashes($options['http_server']) . 'admin/\');' . "\n";
-	$output .= 'define(\'HTTP_CATALOG\', \'' . addslashes($options['http_server']) . '\');' . "\n";
+	$output .= 'define(\'HTTP_SERVER\', \'' . php_string($options['http_server']) . 'admin/\');' . "\n";
+	$output .= 'define(\'HTTP_CATALOG\', \'' . php_string($options['http_server']) . '\');' . "\n";
 
 	$output .= '// HTTPS' . "\n";
-	$output .= 'define(\'HTTPS_SERVER\', \'' . addslashes($options['http_server']) . 'admin/\');' . "\n";
-	$output .= 'define(\'HTTPS_CATALOG\', \'' . addslashes($options['http_server']) . '\');' . "\n";
+	$output .= 'define(\'HTTPS_SERVER\', \'' . php_string($options['http_server']) . 'admin/\');' . "\n";
+	$output .= 'define(\'HTTPS_CATALOG\', \'' . php_string($options['http_server']) . '\');' . "\n";
 
 	$output .= '// DIR' . "\n";
-	$output .= 'define(\'DIR_APPLICATION\', \'' . addslashes(DIR_OPENCART) . 'admin/\');' . "\n";
-	$output .= 'define(\'DIR_SYSTEM\', \'' . addslashes(DIR_OPENCART) . 'system/\');' . "\n";
-	$output .= 'define(\'DIR_IMAGE\', \'' . addslashes(DIR_OPENCART) . 'image/\');' . "\n";	
-	$output .= 'define(\'DIR_STORAGE\', \'' . addslashes($storage) . '\');' . "\n";
-	$output .= 'define(\'DIR_CATALOG\', \'' . addslashes(DIR_OPENCART) . 'catalog/\');' . "\n";
+	$output .= 'define(\'DIR_APPLICATION\', \'' . php_string(DIR_OPENCART) . 'admin/\');' . "\n";
+	$output .= 'define(\'DIR_SYSTEM\', \'' . php_string(DIR_OPENCART) . 'system/\');' . "\n";
+	$output .= 'define(\'DIR_IMAGE\', \'' . php_string(DIR_OPENCART) . 'image/\');' . "\n";	
+	$output .= 'define(\'DIR_STORAGE\', \'' . php_string($storage) . '\');' . "\n";
+	$output .= 'define(\'DIR_CATALOG\', \'' . php_string(DIR_OPENCART) . 'catalog/\');' . "\n";
 	$output .= 'define(\'DIR_LANGUAGE\', DIR_APPLICATION . \'language/\');' . "\n";
 	$output .= 'define(\'DIR_TEMPLATE\', DIR_APPLICATION . \'view/template/\');' . "\n";
 	$output .= 'define(\'DIR_CONFIG\', DIR_SYSTEM . \'config/\');' . "\n";
@@ -569,13 +574,13 @@ function write_config_files($options, $storage) {
 	$output .= 'define(\'DIR_UPLOAD\', DIR_STORAGE . \'upload/\');' . "\n\n";
 
 	$output .= '// DB' . "\n";
-	$output .= 'define(\'DB_DRIVER\', \'' . addslashes($options['db_driver']) . '\');' . "\n";
-	$output .= 'define(\'DB_HOSTNAME\', \'' . addslashes($options['db_hostname']) . '\');' . "\n";
-	$output .= 'define(\'DB_USERNAME\', \'' . addslashes($options['db_username']) . '\');' . "\n";
-	$output .= 'define(\'DB_PASSWORD\', \'' . addslashes($options['db_password']) . '\');' . "\n";
-	$output .= 'define(\'DB_DATABASE\', \'' . addslashes($options['db_database']) . '\');' . "\n";
-	$output .= 'define(\'DB_PREFIX\', \'' . addslashes($options['db_prefix']) . '\');' . "\n";
-	$output .= 'define(\'DB_PORT\', \'' . addslashes($options['db_port']) . '\');' . "\n";
+	$output .= 'define(\'DB_DRIVER\', \'' . php_string($options['db_driver']) . '\');' . "\n";
+	$output .= 'define(\'DB_HOSTNAME\', \'' . php_string($options['db_hostname']) . '\');' . "\n";
+	$output .= 'define(\'DB_USERNAME\', \'' . php_string($options['db_username']) . '\');' . "\n";
+	$output .= 'define(\'DB_PASSWORD\', \'' . php_string($options['db_password']) . '\');' . "\n";
+	$output .= 'define(\'DB_DATABASE\', \'' . php_string($options['db_database']) . '\');' . "\n";
+	$output .= 'define(\'DB_PREFIX\', \'' . php_string($options['db_prefix']) . '\');' . "\n";
+	$output .= 'define(\'DB_PORT\', \'' . php_string($options['db_port']) . '\');' . "\n";
 
 	$output .= '// OpenCart API' . "\n";
 	$output .= 'define(\'OPENCART_SERVER\', \'https://www.opencart.com/\');' . "\n";

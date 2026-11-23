@@ -168,7 +168,7 @@ class Image {
 	 * @param	string	$default
      */
 	public function resize(int $width = 0, int $height = 0, $default = '') {
-		if (!$this->width || !$this->height) {
+		if (!$this->image || !$this->width || !$this->height) {
 			return;
 		}
 
@@ -227,7 +227,7 @@ class Image {
 	}
 	
 	public function resizeContain(int $width, int $height, float $max_scale = 0) {
-		if (!$this->width || !$this->height || $width < 1 || $height < 1) {
+		if (!$this->image || !$this->width || !$this->height || $width < 1 || $height < 1) {
 			return;
 		}
 		$scale = min($width / $this->width, $height / $this->height);
@@ -240,7 +240,7 @@ class Image {
 	}
 
 	public function resizeCover(int $width, int $height, float $max_scale = 0) {
-		if (!$this->width || !$this->height || $width < 1 || $height < 1) {
+		if (!$this->image || !$this->width || !$this->height || $width < 1 || $height < 1) {
 			return;
 		}
 		$scale = max($width / $this->width, $height / $this->height);

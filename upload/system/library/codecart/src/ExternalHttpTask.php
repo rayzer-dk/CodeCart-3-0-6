@@ -92,11 +92,23 @@ final class ExternalHttpTask {
         $ips = gethostbynamel($host);
         if (!$ips) { throw new \RuntimeException('HTTPS hostname has no public IPv4 address.'); }
         foreach ($ips as $ip) {
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) && !$this->isSpecialUseIPv4($ip)) {
                 return $ip;
             }
         }
         throw new \RuntimeException('Private or reserved destination addresses are blocked.');
+    }
+
+    /** Ranges that PHP's private/reserved filter flags do not cover: carrier-grade NAT, IETF protocol assignments, benchmarking and 6to4 relays. */
+    private function isSpecialUseIPv4(string $ip): bool {
+        $long = ip2long($ip);
+        if ($long === false) { return true; }
+        foreach (array('100.64.0.0/10', '192.0.0.0/24', '192.88.99.0/24', '198.18.0.0/15') as $cidr) {
+            list($network, $bits) = explode('/', $cidr);
+            $mask = -1 << (32 - (int)$bits);
+            if (($long & $mask) === (ip2long($network) & $mask)) { return true; }
+        }
+        return false;
     }
 
     public function execute(array $args): array {

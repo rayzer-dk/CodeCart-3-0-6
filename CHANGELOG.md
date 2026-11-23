@@ -6,6 +6,9 @@
 - Monobank Payment 1.1.2: an existing invoice is reused only when its amount matches and it is still open; webhooks with a different amount or currency are rejected; a retried webhook re-applies the order status after a failed update; unsigned requests are refused before any API call and public-key refreshes are throttled. The bundled package is rebuilt from source and the release gate now compares every packaged file.
 - Compatibility: PHP 8.4 implicit nullable parameters and PHP 8.5 deprecated `imagedestroy()` and `curl_close()` calls removed; mail attachments no longer fail on empty files; the PHP error handler escapes displayed messages.
 - Fix: blog article search no longer references columns missing from the article table. Cron and CLI entry points report the same build as the web entry points.
+- Installer: database credentials containing double quotes or HTML entities are written to `config.php` unchanged (the old `addslashes()` kept a stray backslash); a user without the modify permission can no longer clear other administrators' pending extension uploads.
+- Hardening: the image library skips resizing when GD could not decode the file, session files are created with mode 0600, and the external cron task also blocks carrier-grade NAT, IETF-reserved, benchmarking and 6to4 relay ranges.
+- Dependencies: Twig 3.31.0, Guzzle 8.6.0, Terser 5.51.4 in the integrity workflow, Rector 2.8.5 and Playwright 1.65.1 for quality tooling.
 - Packaging: the stale Build 2.3.25 archive is no longer tracked; release archives are not committed. Two workflows that commit to main now run only for pushes to main.
 
 # CodeCart 3.0.6.0 — Build 2.3.25 (2026-11-16)
