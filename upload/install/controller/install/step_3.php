@@ -31,14 +31,14 @@ class ControllerInstallStep3 extends Controller {
 					// Catalog config.php
 					$output  = '<?php' . "\n";
 					$output .= '// HTTP' . "\n";
-					$output .= 'define(\'HTTP_SERVER\', \'' . addslashes(HTTP_OPENCART) . '\');' . "\n\n";
+					$output .= 'define(\'HTTP_SERVER\', \'' . $this->phpString(HTTP_OPENCART) . '\');' . "\n\n";
 					$output .= '// HTTPS' . "\n";
-					$output .= 'define(\'HTTPS_SERVER\', \'' . addslashes(HTTP_OPENCART) . '\');' . "\n\n";
+					$output .= 'define(\'HTTPS_SERVER\', \'' . $this->phpString(HTTP_OPENCART) . '\');' . "\n\n";
 					$output .= '// DIR' . "\n";
-					$output .= 'define(\'DIR_APPLICATION\', \'' . addslashes(DIR_OPENCART) . 'catalog/\');' . "\n";
-					$output .= 'define(\'DIR_SYSTEM\', \'' . addslashes(DIR_OPENCART) . 'system/\');' . "\n";
-					$output .= 'define(\'DIR_IMAGE\', \'' . addslashes(DIR_OPENCART) . 'image/\');' . "\n";
-					$output .= 'define(\'DIR_STORAGE\', \'' . addslashes($storage_path) . '\');' . "\n";
+					$output .= 'define(\'DIR_APPLICATION\', \'' . $this->phpString(DIR_OPENCART) . 'catalog/\');' . "\n";
+					$output .= 'define(\'DIR_SYSTEM\', \'' . $this->phpString(DIR_OPENCART) . 'system/\');' . "\n";
+					$output .= 'define(\'DIR_IMAGE\', \'' . $this->phpString(DIR_OPENCART) . 'image/\');' . "\n";
+					$output .= 'define(\'DIR_STORAGE\', \'' . $this->phpString($storage_path) . '\');' . "\n";
 					$output .= 'define(\'DIR_LANGUAGE\', DIR_APPLICATION . \'language/\');' . "\n";
 					$output .= 'define(\'DIR_TEMPLATE\', DIR_APPLICATION . \'view/theme/\');' . "\n";
 					$output .= 'define(\'DIR_CONFIG\', DIR_SYSTEM . \'config/\');' . "\n";
@@ -49,29 +49,29 @@ class ControllerInstallStep3 extends Controller {
 					$output .= 'define(\'DIR_SESSION\', DIR_STORAGE . \'session/\');' . "\n";
 					$output .= 'define(\'DIR_UPLOAD\', DIR_STORAGE . \'upload/\');' . "\n\n";
 					$output .= '// DB' . "\n";
-					$output .= 'define(\'DB_DRIVER\', \'' . addslashes($this->request->post['db_driver']) . '\');' . "\n";
-					$output .= 'define(\'DB_HOSTNAME\', \'' . addslashes($this->request->post['db_hostname']) . '\');' . "\n";
-					$output .= 'define(\'DB_USERNAME\', \'' . addslashes($this->request->post['db_username']) . '\');' . "\n";
-					$output .= 'define(\'DB_PASSWORD\', \'' . addslashes(html_entity_decode($this->request->post['db_password'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
-					$output .= 'define(\'DB_DATABASE\', \'' . addslashes($this->request->post['db_database']) . '\');' . "\n";
-					$output .= 'define(\'DB_PORT\', \'' . addslashes($this->request->post['db_port']) . '\');' . "\n";
-					$output .= 'define(\'DB_PREFIX\', \'' . addslashes($this->request->post['db_prefix']) . '\');';
+					$output .= 'define(\'DB_DRIVER\', \'' . $this->phpString($this->request->post['db_driver']) . '\');' . "\n";
+					$output .= 'define(\'DB_HOSTNAME\', \'' . $this->phpString(html_entity_decode($this->request->post['db_hostname'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
+					$output .= 'define(\'DB_USERNAME\', \'' . $this->phpString(html_entity_decode($this->request->post['db_username'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
+					$output .= 'define(\'DB_PASSWORD\', \'' . $this->phpString(html_entity_decode($this->request->post['db_password'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
+					$output .= 'define(\'DB_DATABASE\', \'' . $this->phpString(html_entity_decode($this->request->post['db_database'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
+					$output .= 'define(\'DB_PORT\', \'' . $this->phpString($this->request->post['db_port']) . '\');' . "\n";
+					$output .= 'define(\'DB_PREFIX\', \'' . $this->phpString($this->request->post['db_prefix']) . '\');';
 					$this->writeConfigFile(DIR_OPENCART . 'config.php', $output);
 
 					// Admin config.php
 					$output  = '<?php' . "\n";
 					$output .= '// HTTP' . "\n";
-					$output .= 'define(\'HTTP_SERVER\', \'' . addslashes(HTTP_OPENCART) . 'admin/\');' . "\n";
-					$output .= 'define(\'HTTP_CATALOG\', \'' . addslashes(HTTP_OPENCART) . '\');' . "\n\n";
+					$output .= 'define(\'HTTP_SERVER\', \'' . $this->phpString(HTTP_OPENCART) . 'admin/\');' . "\n";
+					$output .= 'define(\'HTTP_CATALOG\', \'' . $this->phpString(HTTP_OPENCART) . '\');' . "\n\n";
 					$output .= '// HTTPS' . "\n";
-					$output .= 'define(\'HTTPS_SERVER\', \'' . addslashes(HTTP_OPENCART) . 'admin/\');' . "\n";
-					$output .= 'define(\'HTTPS_CATALOG\', \'' . addslashes(HTTP_OPENCART) . '\');' . "\n\n";
+					$output .= 'define(\'HTTPS_SERVER\', \'' . $this->phpString(HTTP_OPENCART) . 'admin/\');' . "\n";
+					$output .= 'define(\'HTTPS_CATALOG\', \'' . $this->phpString(HTTP_OPENCART) . '\');' . "\n\n";
 					$output .= '// DIR' . "\n";
-					$output .= 'define(\'DIR_APPLICATION\', \'' . addslashes(DIR_OPENCART) . 'admin/\');' . "\n";
-					$output .= 'define(\'DIR_SYSTEM\', \'' . addslashes(DIR_OPENCART) . 'system/\');' . "\n";
-					$output .= 'define(\'DIR_IMAGE\', \'' . addslashes(DIR_OPENCART) . 'image/\');' . "\n";
-					$output .= 'define(\'DIR_STORAGE\', \'' . addslashes($storage_path) . '\');' . "\n";
-					$output .= 'define(\'DIR_CATALOG\', \'' . addslashes(DIR_OPENCART) . 'catalog/\');' . "\n";
+					$output .= 'define(\'DIR_APPLICATION\', \'' . $this->phpString(DIR_OPENCART) . 'admin/\');' . "\n";
+					$output .= 'define(\'DIR_SYSTEM\', \'' . $this->phpString(DIR_OPENCART) . 'system/\');' . "\n";
+					$output .= 'define(\'DIR_IMAGE\', \'' . $this->phpString(DIR_OPENCART) . 'image/\');' . "\n";
+					$output .= 'define(\'DIR_STORAGE\', \'' . $this->phpString($storage_path) . '\');' . "\n";
+					$output .= 'define(\'DIR_CATALOG\', \'' . $this->phpString(DIR_OPENCART) . 'catalog/\');' . "\n";
 					$output .= 'define(\'DIR_LANGUAGE\', DIR_APPLICATION . \'language/\');' . "\n";
 					$output .= 'define(\'DIR_TEMPLATE\', DIR_APPLICATION . \'view/template/\');' . "\n";
 					$output .= 'define(\'DIR_CONFIG\', DIR_SYSTEM . \'config/\');' . "\n";
@@ -82,13 +82,13 @@ class ControllerInstallStep3 extends Controller {
 					$output .= 'define(\'DIR_SESSION\', DIR_STORAGE . \'session/\');' . "\n";
 					$output .= 'define(\'DIR_UPLOAD\', DIR_STORAGE . \'upload/\');' . "\n\n";
 					$output .= '// DB' . "\n";
-					$output .= 'define(\'DB_DRIVER\', \'' . addslashes($this->request->post['db_driver']) . '\');' . "\n";
-					$output .= 'define(\'DB_HOSTNAME\', \'' . addslashes($this->request->post['db_hostname']) . '\');' . "\n";
-					$output .= 'define(\'DB_USERNAME\', \'' . addslashes($this->request->post['db_username']) . '\');' . "\n";
-					$output .= 'define(\'DB_PASSWORD\', \'' . addslashes(html_entity_decode($this->request->post['db_password'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
-					$output .= 'define(\'DB_DATABASE\', \'' . addslashes($this->request->post['db_database']) . '\');' . "\n";
-					$output .= 'define(\'DB_PORT\', \'' . addslashes($this->request->post['db_port']) . '\');' . "\n";
-					$output .= 'define(\'DB_PREFIX\', \'' . addslashes($this->request->post['db_prefix']) . '\');' . "\n\n";
+					$output .= 'define(\'DB_DRIVER\', \'' . $this->phpString($this->request->post['db_driver']) . '\');' . "\n";
+					$output .= 'define(\'DB_HOSTNAME\', \'' . $this->phpString(html_entity_decode($this->request->post['db_hostname'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
+					$output .= 'define(\'DB_USERNAME\', \'' . $this->phpString(html_entity_decode($this->request->post['db_username'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
+					$output .= 'define(\'DB_PASSWORD\', \'' . $this->phpString(html_entity_decode($this->request->post['db_password'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
+					$output .= 'define(\'DB_DATABASE\', \'' . $this->phpString(html_entity_decode($this->request->post['db_database'], ENT_QUOTES, 'UTF-8')) . '\');' . "\n";
+					$output .= 'define(\'DB_PORT\', \'' . $this->phpString($this->request->post['db_port']) . '\');' . "\n";
+					$output .= 'define(\'DB_PREFIX\', \'' . $this->phpString($this->request->post['db_prefix']) . '\');' . "\n\n";
 					$output .= '// OpenCart API' . "\n";
 					$output .= 'define(\'OPENCART_SERVER\', \'https://www.opencart.com/\');' . "\n";
 					$output .= 'define(\'OPENCARTFORUM_SERVER\', \'https://opencartforum.com/\');' . "\n";
@@ -102,6 +102,7 @@ class ControllerInstallStep3 extends Controller {
 
 				if (!$this->error) {
 					$this->session->data['codecart_install_admin_username'] = trim((string)$this->request->post['username']);
+					$this->session->data['codecart_install_completed'] = true;
 					$this->response->redirect($this->url->link('install/step_4'));
 				}
 			}
@@ -359,6 +360,11 @@ class ControllerInstallStep3 extends Controller {
 		if (@file_put_contents($path, $content, LOCK_EX) === false) {
 			$this->log->write('Installer robots.txt: unable to write Sitemap directive.');
 		}
+	}
+
+	/** Escape a value for a single-quoted PHP string literal (addslashes would also add a backslash before double quotes). */
+	private function phpString($value) {
+		return strtr((string)$value, array('\\' => '\\\\', "'" => "\\'"));
 	}
 
 	private function writeConfigFile($path, $content) {

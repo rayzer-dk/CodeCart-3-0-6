@@ -40,7 +40,6 @@ function requestAdmin(string $route, ?array $post = null, ?string $requestToken 
     $status = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
     $url = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
     $error = curl_error($curl);
-    curl_close($curl);
     if ($body === false || $status >= 500 || preg_match('/Fatal error|Parse error|Uncaught (?:Error|Exception)/i', $body)) {
         throw new RuntimeException('Admin request failed: ' . $route . ' HTTP ' . $status . ' ' . $error);
     }

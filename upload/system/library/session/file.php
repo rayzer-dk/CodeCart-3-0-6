@@ -65,6 +65,8 @@ class File {
 			return false;
 		}
 
+		@chmod($file, 0600);
+
 		$success = false;
 		if (flock($handle, LOCK_EX)) {
 			ftruncate($handle, 0);

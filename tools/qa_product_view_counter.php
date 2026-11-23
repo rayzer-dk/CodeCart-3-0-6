@@ -37,7 +37,6 @@ function requestPage(string $route, array $query = array(), ?array $post = null)
     $body = curl_exec($curl);
     $status = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
     $error = curl_error($curl);
-    curl_close($curl);
     if ($body === false || $status >= 500 || preg_match('/Fatal error|Parse error|Uncaught (?:Error|Exception)/i', $body)) {
         throw new RuntimeException('Storefront request failed: ' . $route . ' HTTP ' . $status . ' ' . $error);
     }

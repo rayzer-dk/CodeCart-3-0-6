@@ -110,7 +110,7 @@ class ControllerMarketplaceInstaller extends Controller {
 		}
 
 		// Check if there is a install zip already there
-		$files = glob(DIR_UPLOAD . '*.tmp');
+		$files = $json ? array() : glob(DIR_UPLOAD . '*.tmp');
 
 		foreach ($files as $file) {
 			if (is_file($file) && (filectime($file) < (time() - 5))) {
@@ -125,7 +125,7 @@ class ControllerMarketplaceInstaller extends Controller {
 		}
 
 		// Check for any install directories
-		$directories = glob(DIR_UPLOAD . 'tmp-*');
+		$directories = $json ? array() : glob(DIR_UPLOAD . 'tmp-*');
 		
 		foreach ($directories as $directory) {
 			if (is_dir($directory) && (filectime($directory) < (time() - 5))) {

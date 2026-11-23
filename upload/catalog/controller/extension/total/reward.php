@@ -60,8 +60,8 @@ class ControllerExtensionTotalReward extends Controller {
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
-			if (isset($this->request->post['redirect']) && (strpos($this->request->post['redirect'], $this->config->get('config_url')) === 0 || strpos($this->request->post['redirect'], $this->config->get('config_ssl')) === 0)) {
-				$json['redirect'] = $this->url->link($this->request->post['redirect']);
+			if (isset($this->request->post['redirect']) && codecart_is_safe_redirect(html_entity_decode((string)$this->request->post['redirect'], ENT_QUOTES, 'UTF-8'), array($this->config->get('config_url'), $this->config->get('config_ssl')))) {
+				$json['redirect'] = html_entity_decode((string)$this->request->post['redirect'], ENT_QUOTES, 'UTF-8');
 			} else {
 				$json['redirect'] = $this->url->link('checkout/cart');
 			}

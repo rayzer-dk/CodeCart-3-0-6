@@ -19,7 +19,7 @@ class ControllerAffiliateLogin extends Controller {
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && isset($this->request->post['email']) && isset($this->request->post['password']) && $this->validate()) {
 			// Added strpos check to pass McAfee PCI compliance test (http://forum.opencart.com/viewtopic.php?f=10&t=12043&p=151494#p151295)
-			if (isset($this->request->post['redirect']) && (strpos($this->request->post['redirect'], $this->config->get('config_url')) === 0 || strpos($this->request->post['redirect'], $this->config->get('config_ssl')) === 0)) {
+			if (isset($this->request->post['redirect']) && codecart_is_safe_redirect(html_entity_decode((string)$this->request->post['redirect'], ENT_QUOTES, 'UTF-8'), array($this->config->get('config_url'), $this->config->get('config_ssl')))) {
 				$this->response->redirect(str_replace('&amp;', '&', $this->request->post['redirect']));
 			} else {
 				$this->response->redirect($this->url->link('account/account', '', true));

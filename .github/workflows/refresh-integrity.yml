@@ -38,7 +38,7 @@ jobs:
               continue
             fi
             tmp="$(mktemp)"
-            npx --yes terser@5.44.1 "$src" --compress --mangle --comments some --output "$tmp"
+            npx --yes terser@5.51.4 "$src" --compress --mangle --comments some --output "$tmp"
             { printf '/*! CodeCart minified build; source common.js sha256:%s */\n' "$hash"; cat "$tmp"; } > "$out"
             rm -f "$tmp"
             echo "Regenerated: $out"

@@ -48,7 +48,7 @@ set_error_handler(function($code, $message, $file, $line) use($log, $config) {
 	}
 
 	if ($config->get('error_display')) {
-		echo '<b>' . $error . '</b>: ' . $message . ' in <b>' . $file . '</b> on line <b>' . $line . '</b>';
+		echo '<b>' . $error . '</b>: ' . htmlspecialchars((string)$message, ENT_QUOTES, 'UTF-8') . ' in <b>' . htmlspecialchars((string)$file, ENT_QUOTES, 'UTF-8') . '</b> on line <b>' . (int)$line . '</b>';
 	}
 
 	if ($config->get('error_log')) {

@@ -533,7 +533,7 @@ function codeCartLoadCheckoutCountry(countryId, lockCountry) {
 			var html = '<option value="">{{ text_select|escape('js') }}</option>';
 			if (json.zone && json.zone.length) {
 				for (var i = 0; i < json.zone.length; i++) {
-					html += '<option value="' + json.zone[i].zone_id + '"' + (json.zone[i].zone_id == '{{ zone_id }}' ? ' selected="selected"' : '') + '>' + json.zone[i].name + '</option>';
+					html += '<option value="' + json.zone[i].zone_id + '"' + (json.zone[i].zone_id == '{{ zone_id|e('js') }}' ? ' selected="selected"' : '') + '>' + json.zone[i].name + '</option>';
 				}
 			} else {
 				html += '<option value="0" selected="selected">{{ text_none|escape('js') }}</option>';
@@ -553,6 +553,6 @@ $('#collapse-payment-address select[name="country_id"]').on('change', function()
 if ($('#collapse-payment-address select[name="country_id"]').length) {
 	$('#collapse-payment-address select[name="country_id"]').trigger('change');
 } else if ($('#collapse-payment-address select[name="zone_id"]').length) {
-	codeCartLoadCheckoutCountry('{{ country_id }}', false);
+	codeCartLoadCheckoutCountry('{{ country_id|e('js') }}', false);
 }
 </script> 

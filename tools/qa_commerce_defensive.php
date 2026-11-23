@@ -467,6 +467,12 @@ if ($case === 'bonus') {
         commerceCheck(is_string($contents) && sprintf('%u', crc32($contents)) === sprintf('%u', $stat['crc']), 'Every nested ZIP entry must pass CRC verification');
     }
     commerceCheck($zip->getFromName('install.xml') === file_get_contents($source . '/install.xml'), 'Bundled OCMOD must match its maintained source');
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source . '/upload', FilesystemIterator::SKIP_DOTS)) as $sourceFile) {
+        if ($sourceFile->isFile()) {
+            $entry = 'upload/' . substr($sourceFile->getPathname(), strlen($source . '/upload/'));
+            commerceCheck($zip->getFromName($entry) === file_get_contents($sourceFile->getPathname()), 'Bundled OCMOD file must match its maintained source: ' . $entry);
+        }
+    }
     $registry = commerceRegistry(null);
     $registry->get('config')->set('error_log', 1);
     $log = new class { public array $messages = array(); public function write($message) { $this->messages[] = $message; } };

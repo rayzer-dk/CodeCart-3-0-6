@@ -54,7 +54,6 @@ final class EmailLogo {
             $scaled_height = max(1, (int)round($source_height * $scale));
             $preview = imagecreatetruecolor($scaled_width, $scaled_height);
             if (!$preview) {
-                imagedestroy($image);
                 return self::fallback($filename, $base_url);
             }
 
@@ -62,7 +61,6 @@ final class EmailLogo {
             imagesavealpha($preview, true);
             imagefill($preview, 0, 0, imagecolorallocatealpha($preview, 255, 255, 255, 127));
             imagecopyresampled($preview, $image, 0, 0, 0, 0, $scaled_width, $scaled_height, $source_width, $source_height);
-            imagedestroy($image);
 
             // When the supplied artwork has an opaque white border, remove
             // only the connected background. Already-transparent PNG/WebP
@@ -75,7 +73,6 @@ final class EmailLogo {
             $canvas_height = $crop_height + 2 * $padding;
             $canvas = imagecreatetruecolor($canvas_width, $canvas_height);
             if (!$canvas) {
-                imagedestroy($preview);
                 return self::fallback($filename, $base_url);
             }
 
@@ -85,12 +82,10 @@ final class EmailLogo {
             imagefill($canvas, 0, 0, imagecolorallocatealpha($canvas, 255, 255, 255, 127));
             imagecopy($canvas, $preview, $padding, $padding,
                 $bounds['left'], $bounds['top'], $crop_width, $crop_height);
-            imagedestroy($preview);
 
             // Produce exactly one transparent image without an opaque
             // backing, outlines, colour substitutions or dark variants.
             $saved = self::savePng($canvas, $target);
-            imagedestroy($canvas);
             if (!$saved) {
                 return self::fallback($filename, $base_url);
             }

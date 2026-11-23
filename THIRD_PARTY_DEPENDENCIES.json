@@ -5,7 +5,7 @@
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
-            "version": "8.5.5"
+            "version": "8.6.0"
         },
         {
             "name": "guzzlehttp/promises",
@@ -73,7 +73,7 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.30.0"
+            "version": "v3.31.0"
         }
     ]
 }

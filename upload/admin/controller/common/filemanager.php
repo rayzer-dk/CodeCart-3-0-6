@@ -1,6 +1,12 @@
 <?php
 class ControllerCommonFileManager extends Controller {
 	public function index() {
+		foreach (array('directory', 'filter_name') as $key) {
+			if (isset($this->request->get[$key]) && !is_string($this->request->get[$key])) {
+				unset($this->request->get[$key]);
+			}
+		}
+
 		$this->load->language('common/filemanager');
 
 		$sort_options = array(

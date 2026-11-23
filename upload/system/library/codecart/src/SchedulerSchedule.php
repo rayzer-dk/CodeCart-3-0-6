@@ -46,7 +46,7 @@ final class SchedulerSchedule {
     }
 
     /** Seconds until the next selected *local* clock time, strictly after now. */
-    public static function nextDelay(array $schedule, string $timezone, \DateTimeImmutable $now = null): int {
+    public static function nextDelay(array $schedule, string $timezone, ?\DateTimeImmutable $now = null): int {
         $schedule = self::normalize($schedule);
         if ($schedule['schedule_mode'] === 'cron') {
             return CronExpression::nextDelay($schedule['schedule_expression'], $timezone, $now);

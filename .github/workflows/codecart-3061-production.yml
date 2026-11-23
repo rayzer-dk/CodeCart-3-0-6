@@ -2,6 +2,7 @@ name: CodeCart PRO 3.0.6.1 production package
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - '.github/workflows/codecart-3061-production.yml'
       - 'tools/qa_error_pages.php'

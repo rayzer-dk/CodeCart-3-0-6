@@ -159,8 +159,10 @@ final class DefensiveDeviceDb {
     public int $starts = 0;
     public bool $failStart = false;
     private int $lastId = 0;
+    private int $affected = 0;
     public function escape($value): string { return addslashes((string)$value); }
     public function getLastId(): int { return $this->lastId; }
+    public function countAffected(): int { return $this->affected; }
     public function query(string $sql): object {
         if (strpos($sql, 'SHOW TABLES') === 0) { return result(strpos($sql, 'notification') !== false ? array() : array(array('table' => 'qa'))); }
         if (strpos($sql, 'INSERT ') === 0) {
@@ -181,8 +183,18 @@ final class DefensiveDeviceDb {
         if (strpos($sql, 'SELECT ') === 0) { return result(array_values($rows)); }
         if (strpos($sql, 'UPDATE ') === 0) {
             $set = explode(' WHERE ', $sql)[0];
+            if (strpos($where, 'attempts>=5') !== false) {
+                $rows = array_filter($rows, function ($row) { return (int)($row['attempts'] ?? 0) >= 5; });
+            }
+            if (strpos($where, 'attempts<5') !== false) {
+                $rows = array_filter($rows, function ($row) { return (int)($row['attempts'] ?? 0) < 5; });
+            }
             preg_match_all("/(status|attempts)='([^']*)'/", $set, $values, PREG_SET_ORDER);
-            foreach ($rows as $id => $row) { foreach ($values as $value) { $this->rows[$id][$value[1]] = $value[2]; } }
+            foreach ($rows as $id => $row) {
+                foreach ($values as $value) { $this->rows[$id][$value[1]] = $value[2]; }
+                if (strpos($set, 'attempts=attempts+1') !== false) { $this->rows[$id]['attempts'] = (string)((int)($row['attempts'] ?? 0) + 1); }
+            }
+            $this->affected = count($rows);
             return result();
         }
         throw new RuntimeException('Unexpected device SQL: ' . $sql);
@@ -267,6 +279,13 @@ if (strpos($case, 'device-') === 0) {
         (new $class($registry))->index();
         check($registry->get('response')->redirects && !(new ControllerStartupDeviceAuthorization($registry))->index(), $type . ' successful retry and code authorize normally');
     }
+    $limitDb = new DefensiveDeviceDb();
+    $limitRegistry = registry($limitDb);
+    $limitRegistry->get('config')->set('codecart_' . $type . '_device_authorize_status', 1);
+    $limitAuth = new \CodeCart\Core\DeviceAuthorization($limitRegistry);
+    $challenge = $limitAuth->startChallenge($type, 7);
+    for ($i = 0; $i < 5; $i++) { $limitAuth->verify($type, 7, '000000'); }
+    check(!$limitAuth->verify($type, 7, $challenge['code'])['success'], $type . ' correct code is refused after five invalid attempts');
 }
 if ($case === 'cart') {
     require DIR_SYSTEM . 'library/session.php';

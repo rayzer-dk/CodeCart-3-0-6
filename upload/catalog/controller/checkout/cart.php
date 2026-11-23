@@ -300,7 +300,7 @@ class ControllerCheckoutCart extends Controller {
 				$quantity = 1;
 			}
 
-			if (isset($this->request->post['option'])) {
+			if (isset($this->request->post['option']) && is_array($this->request->post['option'])) {
 				$option = array_filter($this->request->post['option']);
 			} else {
 				$option = array();

@@ -48,7 +48,7 @@ final class Scheduler {
         $this->db->query("INSERT INTO `" . DB_PREFIX . "codecart_scheduler` SET code = '" . $this->db->escape($code) . "', route = '" . $this->db->escape($route) . "', args = '" . $this->db->escape($payload) . "', interval_seconds = '" . (int)$interval . "', schedule_mode = '" . $schedule['schedule_mode'] . "', schedule_days = '" . $schedule['schedule_days'] . "', schedule_time = '" . $schedule['schedule_time'] . "', schedule_expression = '" . $this->db->escape($schedule['schedule_expression']) . "', status = '" . (int)$status . "', date_next = " . $next . ", date_added = NOW(), date_modified = NOW()");
     }
 
-    public function save(int $schedulerId, string $code, string $route, int $interval, bool $status, array $args = array(), array $schedule = null): void {
+    public function save(int $schedulerId, string $code, string $route, int $interval, bool $status, array $args = array(), ?array $schedule = null): void {
         $schedulerId = max(1, $schedulerId);
         $existing = $this->getTask($schedulerId);
         if (!$existing) {

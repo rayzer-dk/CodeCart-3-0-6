@@ -40,7 +40,7 @@ final class CatalogQuality {
      * All SQL identifiers are hardcoded in specs(). WHERE clauses contain only
      * bounded integer IDs, and each query uses existing primary or lookup indexes.
      */
-    public static function inspect($db, $type, array $ids, array $languages = array(), callable $label = null) {
+    public static function inspect($db, $type, array $ids, array $languages = array(), ?callable $label = null) {
         $specs = self::specs();
         if (!isset($specs[$type])) {
             throw new \InvalidArgumentException('Unknown quality entity.');

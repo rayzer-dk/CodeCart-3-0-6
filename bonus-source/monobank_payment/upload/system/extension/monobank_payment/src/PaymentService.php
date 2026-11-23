@@ -2,6 +2,9 @@
 namespace CodeCart\Extension\MonobankPayment;
 
 final class PaymentService {
+    private const INVOICE_VALIDITY = 86400;
+    private const PUBLIC_KEY_REFRESH_INTERVAL = 300;
+
     private $registry;
     private $db;
     private $config;
@@ -37,8 +40,11 @@ final class PaymentService {
         $lock = $this->db->query("SELECT GET_LOCK('" . $this->db->escape($lockName) . "', 10) AS acquired");
         if (!$lock->num_rows || (int)$lock->row['acquired'] !== 1) { throw new \RuntimeException('Payment request is already being processed.'); }
         try {
-            $existing = $this->db->query("SELECT invoice_id,page_url FROM `" . DB_PREFIX . "monobank_modern_invoice` WHERE order_id='" . $orderId . "' LIMIT 1");
-            if ($existing->num_rows && !empty($existing->row['invoice_id']) && !empty($existing->row['page_url'])) {
+            $existing = $this->db->query("SELECT invoice_id,page_url,amount,status,UNIX_TIMESTAMP(date_added) AS added FROM `" . DB_PREFIX . "monobank_modern_invoice` WHERE order_id='" . $orderId . "' LIMIT 1");
+            if ($existing->num_rows && !empty($existing->row['invoice_id']) && !empty($existing->row['page_url'])
+                && (int)$existing->row['amount'] === $amount
+                && in_array((string)$existing->row['status'], array('created', 'processing', 'hold'), true)
+                && time() - (int)$existing->row['added'] < self::INVOICE_VALIDITY - 600) {
                 return array('invoiceId'=>(string)$existing->row['invoice_id'],'pageUrl'=>(string)$existing->row['page_url'],'reused'=>true);
             }
 
@@ -55,7 +61,7 @@ final class PaymentService {
                 ),
                 'redirectUrl' => (string)$redirectUrl,
                 'webHookUrl' => (string)$webhookUrl,
-                'validity' => 86400,
+                'validity' => self::INVOICE_VALIDITY,
                 'paymentType' => 'debit'
             );
             $result = $this->api()->createInvoice($payload);
@@ -68,6 +74,8 @@ final class PaymentService {
     }
 
     public function verifyWebhook($body, $signature): bool {
+        $signature = trim((string)$signature);
+        if ($signature === '' || base64_decode($signature, true) === false) { return false; }
         $verifier = new WebhookVerifier();
         $key = $this->loadPublicKey(false);
         if ($key !== '' && $verifier->verify($body, $signature, $key)) { return true; }
@@ -88,9 +96,17 @@ final class PaymentService {
             if ($modified !== '' && !empty($row['modified_date'])) {
                 $incomingTs = strtotime($modified);
                 $storedTs = strtotime((string)$row['modified_date']);
-                if ($incomingTs !== false && $storedTs !== false && $incomingTs <= $storedTs) {
+                // An identical event is a retry after a failed order update: report it as fresh,
+                // the order history call is idempotent per invoice, status and modification date.
+                $replay = $incomingTs === $storedTs && (string)$row['status'] === $status;
+                if ($incomingTs !== false && $storedTs !== false && $incomingTs <= $storedTs && !$replay) {
                     $this->db->commit(); return array('handled'=>true,'stale'=>true,'order_id'=>(int)$row['order_id']);
                 }
+            }
+            if ($status === 'success' && ((isset($payload['amount']) && (int)$payload['amount'] !== (int)$row['amount']) || (isset($payload['ccy']) && (int)$payload['ccy'] !== 980))) {
+                $this->db->commit();
+                $this->safeLog('webhook', 'Amount or currency mismatch for invoice ' . $invoiceId);
+                return array('handled'=>true,'stale'=>true,'reason'=>'amount_mismatch','order_id'=>(int)$row['order_id']);
             }
             $this->db->query("UPDATE `" . DB_PREFIX . "monobank_modern_invoice` SET status = '" . $this->db->escape($status) . "', modified_date = '" . $this->db->escape($modified) . "', date_modified = NOW() WHERE invoice_id = '" . $this->db->escape($invoiceId) . "'");
             $this->db->commit();
@@ -102,7 +118,7 @@ final class PaymentService {
     }
 
     private function saveInvoice($orderId, $invoiceId, $pageUrl, $reference, $amount, $status, $modified): void {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "monobank_modern_invoice` SET order_id='" . (int)$orderId . "', invoice_id='" . $this->db->escape($invoiceId) . "', page_url='" . $this->db->escape($pageUrl) . "', reference='" . $this->db->escape($reference) . "', amount='" . (int)$amount . "', currency='UAH', status='" . $this->db->escape($status) . "', modified_date='" . $this->db->escape($modified) . "', date_added=NOW(), date_modified=NOW() ON DUPLICATE KEY UPDATE invoice_id=VALUES(invoice_id), page_url=VALUES(page_url), reference=VALUES(reference), amount=VALUES(amount), status=VALUES(status), date_modified=NOW()");
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "monobank_modern_invoice` SET order_id='" . (int)$orderId . "', invoice_id='" . $this->db->escape($invoiceId) . "', page_url='" . $this->db->escape($pageUrl) . "', reference='" . $this->db->escape($reference) . "', amount='" . (int)$amount . "', currency='UAH', status='" . $this->db->escape($status) . "', modified_date='" . $this->db->escape($modified) . "', date_added=NOW(), date_modified=NOW() ON DUPLICATE KEY UPDATE invoice_id=VALUES(invoice_id), page_url=VALUES(page_url), reference=VALUES(reference), amount=VALUES(amount), status=VALUES(status), modified_date=VALUES(modified_date), date_added=NOW(), date_modified=NOW()");
     }
 
     private function loadPublicKey($refresh): string {
@@ -112,6 +128,7 @@ final class PaymentService {
             $value = trim((string)file_get_contents($file));
             if ($value !== '') { return $value; }
         }
+        if ($refresh && is_file($file) && time() - (int)filemtime($file) < self::PUBLIC_KEY_REFRESH_INTERVAL) { return ''; }
         try { $value = trim($this->api()->publicKey()); } catch (\Throwable $e) { $this->safeLog('pubkey_error', $e->getMessage()); return ''; }
         if ($value !== '') {
             if (!is_dir($dir)) { @mkdir($dir, 0750, true); }

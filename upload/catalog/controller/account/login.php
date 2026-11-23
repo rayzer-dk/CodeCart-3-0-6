@@ -85,7 +85,7 @@ class ControllerAccountLogin extends Controller {
 			}
 
 			// Added strpos check to pass McAfee PCI compliance test (http://forum.opencart.com/viewtopic.php?f=10&t=12043&p=151494#p151295)
-			if (isset($this->request->post['redirect']) && $this->request->post['redirect'] != $this->url->link('account/logout', '', true) && (strpos($this->request->post['redirect'], $this->config->get('config_url')) === 0 || strpos($this->request->post['redirect'], $this->config->get('config_ssl')) === 0)) {
+			if (isset($this->request->post['redirect']) && $this->request->post['redirect'] != $this->url->link('account/logout', '', true) && codecart_is_safe_redirect(html_entity_decode((string)$this->request->post['redirect'], ENT_QUOTES, 'UTF-8'), array($this->config->get('config_url'), $this->config->get('config_ssl')))) {
 				$this->response->redirect(str_replace('&amp;', '&', $this->request->post['redirect']));
 			} else {
 				$this->response->redirect($this->url->link('account/account', '', true));
@@ -124,7 +124,7 @@ class ControllerAccountLogin extends Controller {
 		$data['forgotten'] = $this->url->link('account/forgotten', '', true);
 
 		// Added strpos check to pass McAfee PCI compliance test (http://forum.opencart.com/viewtopic.php?f=10&t=12043&p=151494#p151295)
-		if (isset($this->request->post['redirect']) && (strpos($this->request->post['redirect'], $this->config->get('config_url')) === 0 || strpos($this->request->post['redirect'], $this->config->get('config_ssl')) === 0)) {
+		if (isset($this->request->post['redirect']) && codecart_is_safe_redirect(html_entity_decode((string)$this->request->post['redirect'], ENT_QUOTES, 'UTF-8'), array($this->config->get('config_url'), $this->config->get('config_ssl')))) {
 			$data['redirect'] = $this->request->post['redirect'];
 		} elseif (isset($this->session->data['redirect'])) {
 			$data['redirect'] = $this->session->data['redirect'];
@@ -168,6 +168,8 @@ class ControllerAccountLogin extends Controller {
 
 
 	protected function validate() {
+		$this->request->post += array('email' => '', 'password' => '');
+
 		// Check how many login attempts have been made.
 		$login_info = $this->model_account_customer->getLoginAttempts($this->request->post['email']);
 

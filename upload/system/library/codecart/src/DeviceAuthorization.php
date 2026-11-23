@@ -87,17 +87,20 @@ final class DeviceAuthorization {
         $id=(int)$this->session->data[$key]['id'];
         $raw=(string)$this->session->data[$key]['token'];
         list($table,$column)=$this->target($type);
-        $q=$this->db->query("SELECT * FROM `".DB_PREFIX.$table."` WHERE authorize_id='".$id."' AND `".$column."`='".(int)$entityId."' LIMIT 1");
+        // Reserve one attempt atomically so parallel requests cannot exceed the attempt limit.
+        $this->db->query("UPDATE `".DB_PREFIX.$table."` SET attempts=attempts+1 WHERE authorize_id='".$id."' AND `".$column."`='".(int)$entityId."' AND status='pending' AND attempts<5 AND date_expire>NOW()");
+        if ($this->db->countAffected()!==1) return array('success'=>false,'message'=>'Challenge expired.');
+        $q=$this->db->query("SELECT code_hash, attempts FROM `".DB_PREFIX.$table."` WHERE authorize_id='".$id."' LIMIT 1");
         if (!$q->num_rows) return array('success'=>false,'message'=>'Challenge not found.');
         $expected=hash_hmac('sha256',trim($code),$raw);
         if (!hash_equals((string)$q->row['code_hash'],$expected)) {
-            $attempts=(int)$q->row['attempts']+1;
-            $status=$attempts>=5?'blocked':'pending';
-            $this->db->query("UPDATE `".DB_PREFIX.$table."` SET attempts='".$attempts."', status='".$status."' WHERE authorize_id='".$id."'");
-            if ($status==='blocked') unset($this->session->data[$key]);
-            return array('success'=>false,'message'=>$status==='blocked'?'Too many invalid codes.':'Invalid code.');
+            $this->db->query("UPDATE `".DB_PREFIX.$table."` SET status='blocked' WHERE authorize_id='".$id."' AND status='pending' AND attempts>=5");
+            $blocked=(int)$q->row['attempts']>=5;
+            if ($blocked) unset($this->session->data[$key]);
+            return array('success'=>false,'message'=>$blocked?'Too many invalid codes.':'Invalid code.');
         }
-        $this->db->query("UPDATE `".DB_PREFIX.$table."` SET status='verified', date_used=NOW() WHERE authorize_id='".$id."'");
+        $this->db->query("UPDATE `".DB_PREFIX.$table."` SET status='verified', date_used=NOW() WHERE authorize_id='".$id."' AND status='pending'");
+        if ($this->db->countAffected()!==1) return array('success'=>false,'message'=>'Challenge expired.');
         $deviceRaw=bin2hex(random_bytes(32));
         $deviceHash=hash('sha256',$deviceRaw);
         $ip=$this->clientIp();
