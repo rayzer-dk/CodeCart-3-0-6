@@ -102,7 +102,6 @@ class ControllerInstallStep3 extends Controller {
 
 				if (!$this->error) {
 					$this->session->data['codecart_install_admin_username'] = trim((string)$this->request->post['username']);
-					$this->session->data['codecart_install_completed'] = true;
 					$this->response->redirect($this->url->link('install/step_4'));
 				}
 			}

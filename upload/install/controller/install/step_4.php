@@ -1,8 +1,13 @@
 <?php
 class ControllerInstallStep4 extends Controller {
+    /** Seconds after config.php is written during which the final installer page stays reachable. */
+    private const FINISH_WINDOW = 1800;
+
     public function index() {
-        // On an installed store this page is reachable only in the session that just completed the installation.
-        if (is_file(DIR_OPENCART . 'config.php') && filesize(DIR_OPENCART . 'config.php') > 0 && empty($this->session->data['codecart_install_completed'])) {
+        // The installer moves the session store to the secure storage once config.php exists, so session data from
+        // the previous step is not available here. Accept the page only while the installation has just finished.
+        $config = DIR_OPENCART . 'config.php';
+        if (is_file($config) && filesize($config) > 0 && time() - (int)filemtime($config) > self::FINISH_WINDOW) {
             $this->response->redirect($this->url->link('upgrade/upgrade'));
             return;
         }

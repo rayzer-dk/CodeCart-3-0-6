@@ -1,3 +1,7 @@
+# CodeCart 3.0.6.1 — Build 2.3.76 (2026-11-24)
+
+- Installer: the final page of a fresh installation opens again. Build 2.3.75 tied it to installer session data, which is not carried over once the installer switches to the secure storage directory, so a completed installation was redirected to the update login. The page is now available for 30 minutes after `config.php` is written and redirects to the update login afterwards.
+
 # CodeCart 3.0.6.1 — Build 2.3.75 (2026-11-23)
 
 - Security: admin Error Log, OCMOD log and unique-error views escape log text; the Customers Online report links only http(s) referers; checkout address country and zone ids are stored as integers and escaped in JavaScript contexts; blog article buttons escape their target URL; the blog category id is reduced to digits and underscores.
